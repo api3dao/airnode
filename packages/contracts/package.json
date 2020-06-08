@@ -1,0 +1,9 @@
+{
+  "name": "@airnode/contracts",
+  "scripts": {
+    "compile": "./node_modules/.bin/truffle compile"
+  },
+  "dependencies": {
+    "truffle": "^5.1.29"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "airnode",
+  "scripts": {
+    "bootstrap": "npm install && npx lerna bootstrap"
+  }
+}
