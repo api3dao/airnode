@@ -6,7 +6,9 @@
     "start": "./node_modules/.bin/truffle migrate --network local"
   },
   "devDependencies": {
+    "@types/node": "^14.0.12",
     "ganache-cli": "^6.9.1",
-    "truffle": "^5.1.29"
+    "truffle": "^5.1.29",
+    "typescript": "^3.9.5"
   }
 }
