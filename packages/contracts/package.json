@@ -5,7 +5,7 @@
     "prestart": "./node_modules/.bin/ganache-cli &",
     "start": "./node_modules/.bin/truffle migrate --network local"
   },
-  "dependencies": {
+  "devDependencies": {
     "ganache-cli": "^6.9.1",
     "truffle": "^5.1.29"
   }
