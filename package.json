@@ -1,6 +1,16 @@
 {
   "name": "airnode",
   "scripts": {
-    "bootstrap": "npm install && npx lerna bootstrap"
+    "bootstrap": "npm install && npx lerna bootstrap",
+    "prettify": "lerna run prettify",
+    "lint": "lerna run lint"
+  },
+  "devDependencies": {
+    "husky": "^4.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prettify && npm run lint"
+    }
   }
 }
