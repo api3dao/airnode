@@ -5,7 +5,8 @@
     "prestart": "./node_modules/.bin/ganache-cli &",
     "start": "./node_modules/.bin/truffle migrate --network local",
     "prettify": "prettier --write ./{migrations,test}/**/*.{js,ts}",
-    "lint": "eslint ./{migrations,test}/**/*.{js,ts}"
+    "lint": "eslint ./{migrations,test}/**/*.{js,ts}",
+    "precommit": "lint-staged"
   },
   "devDependencies": {
     "@types/node": "^14.0.12",
@@ -13,8 +14,15 @@
     "@typescript-eslint/parser": "^3.2.0",
     "eslint": "^7.2.0",
     "ganache-cli": "^6.9.1",
+    "lint-staged": "^10.2.9",
     "prettier": "^2.0.5",
     "truffle": "^5.1.29",
     "typescript": "^3.9.5"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "npm run prettify",
+      "npm run lint"
+    ]
   }
 }
