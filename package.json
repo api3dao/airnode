@@ -2,6 +2,7 @@
   "name": "airnode",
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
+    "build": "lerna run build",
     "prettify": "lerna run prettify",
     "lint": "lerna run lint"
   },
