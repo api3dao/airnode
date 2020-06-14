@@ -1,13 +1,13 @@
 {
-	"name": "airnode",
-	"scripts": {
+  "name": "airnode",
+  "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build",
     "dev:aws": "(cd packages/serverless-test && serverless offline --config serverless.aws.yml)",
     "prettify": "lerna run prettify",
     "lint": "lerna run lint"
-	},
-	"dependencies": {
+  },
+  "dependencies": {
     "@types/aws-lambda": "^8.10.56",
     "@types/node": "^14.0.13",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
@@ -27,14 +27,14 @@
     "typescript": "^3.9.5",
     "webpack": "^4.43.0",
     "webpack-node-externals": "^1.7.2"
-	},
-	"devDependencies": {
+  },
+  "devDependencies": {
     "husky": "^4.2.5",
     "lerna": "^3.22.1"
-	},
-	"husky": {
+  },
+  "husky": {
     "hooks": {
       "pre-commit": "lerna run precommit"
     }
-	}
+  }
 }
