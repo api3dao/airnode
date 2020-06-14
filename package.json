@@ -1,12 +1,12 @@
 {
 	"name": "airnode",
-  "scripts": {
-    "bootstrap": "npm install && lerna bootstrap",
-    "build": "lerna run build",
-    "dev:aws": "(cd packages/serverless-test && serverless offline --config serverless.aws.yml)",
-    "prettify": "lerna run prettify",
-    "lint": "lerna run lint"
-  },
+	"scripts": {
+		"bootstrap": "npm install && lerna bootstrap",
+		"build": "lerna run build",
+		"dev:aws": "(cd packages/serverless-test && serverless offline --config serverless.aws.yml)",
+		"prettify": "lerna run prettify",
+		"lint": "lerna run lint"
+	},
 	"dependencies": {
 		"@types/aws-lambda": "^8.10.56",
 		"@types/node": "^14.0.13",
