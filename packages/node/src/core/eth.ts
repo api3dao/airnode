@@ -1,7 +1,7 @@
-import { JsonRpcProvider } from '@ethersproject/providers';
+import { ethers } from 'ethers';
 
 export function getProvider() {
-  return new JsonRpcProvider(process.env.ETHEREUM_URL);
+  return new ethers.providers.JsonRpcProvider(process.env.ETHEREUM_URL);
 }
 
 export function getCurrentBlockNumber() {

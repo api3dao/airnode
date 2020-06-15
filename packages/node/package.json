@@ -11,8 +11,6 @@
     "source-map-support": "^0.5.10"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.56",
-    "@types/node": "^14.0.13",
     "dotenv-webpack": "^1.8.0",
     "fork-ts-checker-webpack-plugin": "^5.0.0",
     "serverless-offline": "^6.4.0",
