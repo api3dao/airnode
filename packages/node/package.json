@@ -13,6 +13,7 @@
     "lint-staged": "^10.2.9",
     "prettier": "^2.0.5",
     "serverless-offline": "^6.4.0",
+    "serverless-plugin-typescript": "^1.1.9",
     "typescript": "^3.9.5"
   },
   "lint-staged": {

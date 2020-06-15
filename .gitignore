@@ -2,6 +2,7 @@
 /node_modules
 
 # Serverless directories
+packages/node/.build
 packages/node/.serverless
 packages/node/.webpack
 packages/node/node_modules

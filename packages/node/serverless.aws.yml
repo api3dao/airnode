@@ -6,6 +6,7 @@ custom:
     useChildProcesses: true
 
 plugins:
+  - serverless-plugin-typescript
   - serverless-offline # MUST BE LAST
 
 provider:
