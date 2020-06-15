@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 
 export function getProvider() {
-  return new ethers.providers.JsonRpcProvider(process.env.ETHEREUM_URL);
+  return new ethers.providers.JsonRpcProvider('');
 }
 
 export function getCurrentBlockNumber() {

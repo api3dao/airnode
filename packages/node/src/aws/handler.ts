@@ -1,11 +1,10 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import 'source-map-support/register';
-import * as eth from '../core/eth';
-
-export const hello: APIGatewayProxyHandler = async (event, _context) => {
-  const blockNo = await eth.getCurrentBlockNumber();
+/* eslint-disable */
+export async function hello(event, context) {
   return {
     statusCode: 200,
-    body: JSON.stringify({ block_number: blockNo }),
+    body: JSON.stringify({
+      message: 'Go Serverless v1.0! Your function executed successfully!',
+      input: event,
+    }),
   };
-};
+}
