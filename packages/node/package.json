@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "ethers": "^5.0.2"
+    "ethers": "^5.0.2",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "lint-staged": "^10.2.9",

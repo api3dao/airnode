@@ -1,3 +1,4 @@
+import isFinite from 'lodash/isFinite';
 import { get } from '../clients/http';
 import { go } from '../utils/promise-utils';
 import * as logger from '../utils/logger';
@@ -38,7 +39,13 @@ async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPrice
     logger.logJSON('ERROR', `Failed to fetch gas price from: ${feed.url}. Reason: ${err}`);
     return null;
   }
-  return feed.onSuccess(res) || null;
+  const gasPrice = feed.onSuccess(res);
+  if (!isFinite(gasPrice)) {
+    // Something went wrong when trying to normalize the response
+    logger.logJSON('ERROR', `Failed to parse gas price for ${feed.url}. Value: ${gasPrice}`);
+    return null;
+  }
+  return gasPrice || null;
 }
 
 // TODO:
