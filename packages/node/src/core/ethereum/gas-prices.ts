@@ -33,7 +33,7 @@ async function getEthGasStationGasPrice(): Promise<GasPriceResponse> {
 // TODO:
 // async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
 //   const provider = getProvider();
-//   const contract = new ethers.Contract(GasPriceFeed.addresses.ropsten, GasPriceFeed.abi, provider);
+//   const contract = new ethers.Contract(GasPriceFeed.addresses.ropsten, GasPriceFeed.ABI, provider);
 //   const result = await contract.latestAnswer() as number;
 //   return result;
 // }
