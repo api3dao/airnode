@@ -57,8 +57,12 @@ async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
   const network = eth.getNetwork();
   const provider = eth.getProvider();
   const contract = new ethers.Contract(GasPriceFeed.addresses[network], GasPriceFeed.ABI, provider);
-  const result = await contract.latestAnswer();
-  return parseFloat(ethers.utils.formatUnits(result, 'gwei'));
+  const [err, weiPrice] = await go(contract.latestAnswer());
+  if (err) {
+    logger.logJSON('ERROR', `Failed to get gas price from gas price feed contract. Error: ${err}`);
+    return null;
+  }
+  return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
 }
 
 export async function getMaxGasPrice() {
