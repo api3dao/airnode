@@ -1,49 +1,44 @@
 import { get } from '../clients/http';
 import { go } from '../utils/promise-utils';
+import * as logger from '../utils/logger';
 
 type GasPriceResponse = number | null;
 
 // We don't want to hold everything up so limit each request to 10 seconds maximum
 const TIMEOUT = 10_000;
 
-const baseRequest = {
-  timeout: TIMEOUT,
-};
-
-async function getEtherchainGasPrice(): Promise<GasPriceResponse> {
-  const request = { ...baseRequest, url: 'https://www.etherchain.org/api/gasPriceOracle' };
-  const [err, res] = await go(get(request));
-  if (err) {
-    return null;
-  }
-  return parseFloat(res.data['fast']) || null;
+interface GasPriceHttpFeed {
+  onSuccess: (res: any) => number;
+  url: string;
 }
 
-async function getEthGasStationGasPrice(): Promise<GasPriceResponse> {
-  const request = { ...baseRequest, url: 'https://ethgasstation.info/api/ethgasAPI.json' };
-  const [err, res] = await go(get(request));
-  if (err) {
-    return null;
-  }
-  return res.data['fast'] / 10 || null;
-}
+const GAS_PRICE_HTTP_FEEDS: GasPriceHttpFeed[] = [
+  {
+    url: 'https://www.etherchain.org/api/gasPriceOracle',
+    onSuccess: (res: any) => parseFloat(res.data.fast),
+  },
+  {
+    url: 'https://ethgasstation.info/api/ethgasAPI.json',
+    onSuccess: (res: any) => res.data.fast / 10,
+  },
+  {
+    url: 'https://gasprice.poa.network/',
+    onSuccess: (res: any) => res.data.fast,
+  },
+  {
+    url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice',
+    onSuccess: (res: any) => res.data.fast,
+  },
+];
 
-async function getPOANetworkGasPrice(): Promise<GasPriceResponse> {
-  const request = { ...baseRequest, url: 'https://gasprice.poa.network/' };
+async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPriceResponse> {
+  const request = { timeout: TIMEOUT, url: feed.url };
   const [err, res] = await go(get(request));
   if (err) {
+    logger.logJSON('ERROR', `Failed to fetch gas price from: ${feed.url}. Reason: ${err}`);
     return null;
   }
-  return res.data['fast'] || null;
-}
-
-async function getAnyblockGasPrice(): Promise<GasPriceResponse> {
-  const request = { ...baseRequest, url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice' };
-  const [err, res] = await go(get(request));
-  if (err) {
-    return null;
-  }
-  return res.data['fast'] || null;
+  return feed.onSuccess(res) || null;
 }
 
 // TODO:
@@ -55,15 +50,10 @@ async function getAnyblockGasPrice(): Promise<GasPriceResponse> {
 // }
 
 export async function getMaxGasPrice() {
-  const gasPriceRequests: Promise<GasPriceResponse>[] = [
-    getEtherchainGasPrice(),
-    getEthGasStationGasPrice(),
-    getPOANetworkGasPrice(),
-    getAnyblockGasPrice(),
-    // getDataFeedGasPrice(),
-  ];
+  const gasPriceHttpRequests = GAS_PRICE_HTTP_FEEDS.map((feed) => getGasPriceFromHttpFeed(feed));
+  const gasPriceContractCalls = []; // [getDataFeedGasPrice()];
 
-  const gasPrices = await Promise.all(gasPriceRequests);
+  const gasPrices = await Promise.all([...gasPriceHttpRequests, ...gasPriceContractCalls]);
   const successfulPrices = gasPrices.filter((gp) => !!gp) as number[];
   const maxGasPrice = Math.max(...successfulPrices);
 
