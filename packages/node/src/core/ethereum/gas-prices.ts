@@ -16,8 +16,7 @@ async function getEtherchainGasPrice(): Promise<GasPriceResponse> {
   if (err) {
     return null;
   }
-  // TODO: do we want to use 'fast' or 'fastest'?
-  return parseFloat(res.data['fastest']) || null;
+  return parseFloat(res.data['fast']) || null;
 }
 
 async function getEthGasStationGasPrice(): Promise<GasPriceResponse> {
@@ -26,8 +25,25 @@ async function getEthGasStationGasPrice(): Promise<GasPriceResponse> {
   if (err) {
     return null;
   }
-  // TODO: do we want to use 'fast' or 'fastest'?
-  return res.data['fastest'] / 10 || null;
+  return res.data['fast'] / 10 || null;
+}
+
+async function getPOANetworkGasPrice(): Promise<GasPriceResponse> {
+  const request = { ...baseRequest, url: 'https://gasprice.poa.network/' };
+  const [err, res] = await go(get(request));
+  if (err) {
+    return null;
+  }
+  return res.data['fast'] || null;
+}
+
+async function getAnyblockGasPrice(): Promise<GasPriceResponse> {
+  const request = { ...baseRequest, url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice' };
+  const [err, res] = await go(get(request));
+  if (err) {
+    return null;
+  }
+  return res.data['fast'] || null;
 }
 
 // TODO:
@@ -42,6 +58,8 @@ export async function getMaxGasPrice() {
   const gasPriceRequests: Promise<GasPriceResponse>[] = [
     getEtherchainGasPrice(),
     getEthGasStationGasPrice(),
+    getPOANetworkGasPrice(),
+    getAnyblockGasPrice(),
     // getDataFeedGasPrice(),
   ];
 
