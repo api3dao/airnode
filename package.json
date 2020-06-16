@@ -4,10 +4,16 @@
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build",
     "prettify": "lerna run prettify",
-    "lint": "lerna run lint"
+    "lint": "lerna run lint",
+    "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)"
   },
   "devDependencies": {
-    "husky": "^4.2.5"
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
+    "eslint": "^7.2.0",
+    "husky": "^4.2.5",
+    "lerna": "^3.22.1",
+    "typescript": "^3.9.5"
   },
   "husky": {
     "hooks": {

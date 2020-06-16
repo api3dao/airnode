@@ -1,0 +1,26 @@
+service:
+  name: serverless-test
+
+custom:
+  serverless-offline:
+    useChildProcesses: true
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline # MUST BE LAST
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+functions:
+  hello:
+    handler: src/aws/handler.hello
+    events:
+      - http:
+          method: get
+          path: hello

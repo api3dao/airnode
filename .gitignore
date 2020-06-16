@@ -1,3 +1,14 @@
+# package directories
 /node_modules
 
+# Serverless directories
+packages/node/.build
+packages/node/.serverless
+packages/node/.webpack
+packages/node/node_modules
+
+# ENV variables and secrets
+.env
+
+# Log files
 *.log
