@@ -1,6 +1,9 @@
+import { ethers } from 'ethers';
 import isFinite from 'lodash/isFinite';
 import { get } from '../clients/http';
 import { go } from '../utils/promise-utils';
+import { GasPriceFeed } from './contracts';
+import * as eth from '../eth';
 import * as logger from '../utils/logger';
 
 type GasPriceResponse = number | null;
@@ -39,26 +42,28 @@ async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPrice
     logger.logJSON('ERROR', `Failed to fetch gas price from: ${feed.url}. Reason: ${err}`);
     return null;
   }
+
   const gasPrice = feed.onSuccess(res);
   if (!isFinite(gasPrice)) {
     // Something went wrong when trying to normalize the response
     logger.logJSON('ERROR', `Failed to parse gas price for ${feed.url}. Value: ${gasPrice}`);
     return null;
   }
+
   return gasPrice || null;
 }
 
-// TODO:
-// async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
-//   const provider = getProvider();
-//   const contract = new ethers.Contract(GasPriceFeed.addresses.ropsten, GasPriceFeed.ABI, provider);
-//   const result = await contract.latestAnswer() as number;
-//   return result;
-// }
+async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
+  const network = eth.getNetwork();
+  const provider = eth.getProvider();
+  const contract = new ethers.Contract(GasPriceFeed.addresses[network], GasPriceFeed.ABI, provider);
+  const result = await contract.latestAnswer();
+  return parseFloat(ethers.utils.formatUnits(result, 'gwei'));
+}
 
 export async function getMaxGasPrice() {
   const gasPriceHttpRequests = GAS_PRICE_HTTP_FEEDS.map((feed) => getGasPriceFromHttpFeed(feed));
-  const gasPriceContractCalls = []; // [getDataFeedGasPrice()];
+  const gasPriceContractCalls = [getDataFeedGasPrice()];
 
   const gasPrices = await Promise.all([...gasPriceHttpRequests, ...gasPriceContractCalls]);
   const successfulPrices = gasPrices.filter((gp) => !!gp) as number[];

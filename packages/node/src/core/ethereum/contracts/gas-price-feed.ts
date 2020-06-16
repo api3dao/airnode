@@ -3,7 +3,7 @@ import { Contract } from './types';
 export const GasPriceFeed: Contract = {
   addresses: {
     mainnet: '<TODO>',
-    ropsten: '0xf65f76682cE8ef25372dEF29cAcDED5f54480e77',
+    ropsten: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
   },
   ABI: ['function latestAnswer() view returns (int256)'],
 };
