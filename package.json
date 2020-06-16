@@ -3,9 +3,9 @@
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build",
+    "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "prettify": "lerna run prettify",
-    "lint": "lerna run lint",
-    "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)"
+    "lint": "lerna run lint"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.2.0",

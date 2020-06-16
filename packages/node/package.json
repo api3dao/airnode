@@ -7,14 +7,14 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "ethers": "^5.0.2"
   },
   "devDependencies": {
     "lint-staged": "^10.2.9",
     "prettier": "^2.0.5",
     "serverless-offline": "^6.4.0",
-    "serverless-plugin-typescript": "^1.1.9",
-    "typescript": "^3.9.5"
+    "serverless-plugin-typescript": "^1.1.9"
   },
   "lint-staged": {
     "*.{js,ts}": [
