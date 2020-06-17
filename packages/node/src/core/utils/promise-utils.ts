@@ -14,10 +14,10 @@ function syncResolve(fn: any) {
 
 // Go style async handling
 export function go(fn: any) {
-  const successFn = function (value: any) {
+  const successFn = (value: any) => {
     return [null, value];
   };
-  const errorFn = function (err: Error) {
+  const errorFn = (err: Error) => {
     return [err, null];
   };
 
