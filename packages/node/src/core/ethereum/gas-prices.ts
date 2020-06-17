@@ -17,6 +17,9 @@ interface GasPriceHttpFeed {
   url: string;
 }
 
+// TODO: These should be configurable (possibly by an onchain event?).
+// If one API provider is down or is no longer serving free gas prices,
+// we don't want to spam the logs every run.
 const GAS_PRICE_HTTP_FEEDS: GasPriceHttpFeed[] = [
   {
     url: 'https://www.etherchain.org/api/gasPriceOracle',
@@ -68,7 +71,7 @@ async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
   return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
 }
 
-export async function getMaxGasPrice(): Promise<number> {
+export async function getMaxGweiGasPrice(): Promise<number> {
   const gasPriceHttpRequests = GAS_PRICE_HTTP_FEEDS.map((feed) => getGasPriceFromHttpFeed(feed));
   const gasPriceContractCalls = [getDataFeedGasPrice()];
 
