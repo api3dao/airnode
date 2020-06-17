@@ -7,7 +7,7 @@
     "prettify": "lerna run prettify",
     "lint": "lerna run lint",
     "test": "lerna run test",
-    "test:watch": "jest --coverage --watch"
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
