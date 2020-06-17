@@ -3,7 +3,6 @@
   "scripts": {
     "build": "truffle compile",
     "prettify": "prettier --write ./src/**/*.{js,ts}",
-    "lint": "eslint ./src/**/*.{js,ts}",
     "precommit": "lint-staged"
   },
   "devDependencies": {

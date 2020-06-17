@@ -1,0 +1,31 @@
+name: Continuous Build
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  build:
+    name: Run Linting and Tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clone airnode
+      uses: actions/checkout@v2
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Install Dependencies
+      run: npm run bootstrap
+
+    - name: Lint code
+      run: npm run lint
+
+    - name: Run tests
+      run: npm run test
+
