@@ -30,7 +30,7 @@ describe('getMaxGweiGasPrice', () => {
     getMock.mockResolvedValueOnce({ data: { fast: 43 } });
 
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockImplementation(() => Promise.resolve(43000000000));
+    contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(46);
@@ -44,7 +44,7 @@ describe('getMaxGweiGasPrice', () => {
     getMock.mockResolvedValueOnce({ data: { fast: 43 } });
 
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockImplementation(() => Promise.resolve(53000000000));
+    contract.latestAnswer.mockResolvedValueOnce(53000000000);
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(53);
@@ -58,7 +58,7 @@ describe('getMaxGweiGasPrice', () => {
     getMock.mockResolvedValueOnce({ data: { fast: 43 } });
 
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockImplementation(() => Promise.resolve(43000000000));
+    contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(46);
@@ -72,7 +72,7 @@ describe('getMaxGweiGasPrice', () => {
     getMock.mockResolvedValueOnce({ data: { fast: 43 } });
 
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockImplementation(() => Promise.resolve(43000000000));
+    contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(46);
@@ -86,7 +86,7 @@ describe('getMaxGweiGasPrice', () => {
     getMock.mockRejectedValueOnce(new Error('Computer says no'));
 
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockImplementation(() => Promise.reject('Contract says no'));
+    contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(40);
@@ -100,7 +100,7 @@ describe('getMaxGweiGasPrice', () => {
     getMock.mockResolvedValueOnce({ data: { fast: 43 } });
 
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockImplementation(() => Promise.resolve(43000000000));
+    contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(1000);
