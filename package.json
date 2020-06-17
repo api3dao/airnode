@@ -5,14 +5,19 @@
     "build": "lerna run build",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "prettify": "lerna run prettify",
-    "lint": "lerna run lint"
+    "lint": "lerna run lint",
+    "test": "lerna run test",
+    "test:watch": "jest --coverage --watch"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.0",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
     "@typescript-eslint/parser": "^3.2.0",
     "eslint": "^7.2.0",
     "husky": "^4.2.5",
+    "jest": "^26.0.1",
     "lerna": "^3.22.1",
+    "ts-jest": "^26.1.0",
     "typescript": "^3.9.5"
   },
   "husky": {

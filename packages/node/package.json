@@ -4,7 +4,9 @@
     "dev:aws": "serverless offline --config serverless.aws.yml",
     "prettify": "prettier --write ./src/**/*.{js,ts}",
     "lint": "eslint ./src/**/*.{js,ts}",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "test": "jest --coverage",
+    "test:watch": "jest --coverage --watch --config ../../jest.config.js"
   },
   "dependencies": {
     "axios": "^0.19.2",
