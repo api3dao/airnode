@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import isEmpty from 'lodash/isEmpty';
 import isFinite from 'lodash/isFinite';
 import { get } from '../clients/http';
 import { go } from '../utils/promise-utils';
@@ -6,10 +7,10 @@ import { GasPriceFeed } from './contracts';
 import * as eth from '../eth';
 import * as logger from '../utils/logger';
 
-type GasPriceResponse = number | null;
-
 // We don't want to hold everything up so limit each request to 10 seconds maximum
 const TIMEOUT = 10_000;
+const FALLBACK_GWEI_PRICE = 40;
+const MAXIMUM_GWEI_PRICE = 1000;
 
 interface GasPriceHttpFeed {
   onSuccess: (res: any) => number;
@@ -34,6 +35,8 @@ const GAS_PRICE_HTTP_FEEDS: GasPriceHttpFeed[] = [
     onSuccess: (res: any) => res.data.fast,
   },
 ];
+
+type GasPriceResponse = number | null;
 
 async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPriceResponse> {
   const request = { timeout: TIMEOUT, url: feed.url };
@@ -65,13 +68,23 @@ async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
   return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
 }
 
-export async function getMaxGasPrice() {
+export async function getMaxGasPrice(): Promise<number> {
   const gasPriceHttpRequests = GAS_PRICE_HTTP_FEEDS.map((feed) => getGasPriceFromHttpFeed(feed));
   const gasPriceContractCalls = [getDataFeedGasPrice()];
 
   const gasPrices = await Promise.all([...gasPriceHttpRequests, ...gasPriceContractCalls]);
   const successfulPrices = gasPrices.filter((gp) => !!gp) as number[];
-  const maxGasPrice = Math.max(...successfulPrices);
 
-  return maxGasPrice;
+  // Fallback if no successful response is received
+  if (isEmpty(successfulPrices)) {
+    logger.logJSON('ERROR', `Failed to get gas prices. Falling back to default price ${FALLBACK_GWEI_PRICE} Gwei`);
+    return FALLBACK_GWEI_PRICE;
+  }
+
+  const highestGasPrice = Math.max(...successfulPrices);
+  const finalGasPrice = Math.min(highestGasPrice, MAXIMUM_GWEI_PRICE);
+
+  logger.logJSON('INFO', `Gas price set to ${finalGasPrice} Gwei`);
+
+  return finalGasPrice;
 }
