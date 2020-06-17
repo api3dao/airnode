@@ -6,7 +6,7 @@
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "prettify": "lerna run prettify",
     "lint": "lerna run lint",
-    "test": "lerna run test",
+    "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "devDependencies": {
