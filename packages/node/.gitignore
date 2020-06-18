@@ -5,3 +5,7 @@ dist/
 
 # Test files
 coverage/
+
+# Config files
+security.json
+specs.json
