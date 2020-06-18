@@ -1,8 +1,9 @@
-import { getMaxGweiGasPrice } from './ethereum/gas-prices';
+import * as ethereum from './ethereum';
 
 export async function main() {
-  // const currentBlock = await eth.getCurrentBlockNumber();
+  const maxGasPrice = await ethereum.getMaxGweiGasPrice();
 
-  const maxGasPrice = await getMaxGweiGasPrice();
+  // const currentBlock = await ethereum.getCurrentBlockNumber();
+
   return maxGasPrice;
 }

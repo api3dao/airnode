@@ -4,8 +4,8 @@ import isFinite from 'lodash/isFinite';
 import { get } from '../clients/http';
 import { go } from '../utils/promise-utils';
 import { GasPriceFeed } from './contracts';
-import * as eth from '../eth';
 import * as logger from '../utils/logger';
+import * as ethereum from './';
 
 // We don't want to hold everything up so limit each request to 5 seconds maximum
 const TIMEOUT = 5_000;
@@ -60,8 +60,8 @@ async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPrice
 }
 
 async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
-  const network = eth.getNetwork();
-  const provider = eth.getProvider();
+  const network = ethereum.getNetwork();
+  const provider = ethereum.getProvider();
   const contract = new ethers.Contract(GasPriceFeed.addresses[network], GasPriceFeed.ABI, provider);
   const [err, weiPrice] = await go(contract.latestAnswer());
   if (err) {
