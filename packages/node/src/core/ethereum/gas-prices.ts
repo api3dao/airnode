@@ -7,8 +7,8 @@ import { GasPriceFeed } from './contracts';
 import * as eth from '../eth';
 import * as logger from '../utils/logger';
 
-// We don't want to hold everything up so limit each request to 10 seconds maximum
-const TIMEOUT = 10_000;
+// We don't want to hold everything up so limit each request to 5 seconds maximum
+const TIMEOUT = 5_000;
 const FALLBACK_GWEI_PRICE = 40;
 const MAXIMUM_GWEI_PRICE = 1000;
 
