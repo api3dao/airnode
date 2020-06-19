@@ -3,7 +3,7 @@
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build",
-    "prettify": "lerna run prettify",
+    "prettify": "prettier --write ./**/*.{js,ts}",
     "lint": "eslint . --ext .js,.ts && lerna run lint",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)"
   },
@@ -13,6 +13,7 @@
     "eslint": "^7.2.0",
     "husky": "^4.2.5",
     "lerna": "^3.22.1",
+    "prettier": "^2.0.5",
     "typescript": "^3.9.5"
   },
   "husky": {

@@ -2,7 +2,6 @@
   "name": "@airnode/node",
   "scripts": {
     "dev:aws": "serverless offline --config serverless.aws.yml",
-    "prettify": "prettier --write ./src/**/*.{js,ts}",
     "precommit": "lint-staged"
   },
   "dependencies": {
@@ -10,7 +9,6 @@
   },
   "devDependencies": {
     "lint-staged": "^10.2.9",
-    "prettier": "^2.0.5",
     "serverless-offline": "^6.4.0",
     "serverless-plugin-typescript": "^1.1.9",
     "typescript": "^3.9.5"
