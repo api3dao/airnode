@@ -21,8 +21,7 @@ contract Aggregator is AggregatorInterface, Ownable {
     // ~~~Configuration~~~
     address[] public oracles;
     mapping(address => bool) public requesters;
-    // Oracles must be added to oracleRequesters separately for them to be able
-    // to trigger requests
+    // Oracles must be added to oracleRequesters separately for them to be able to trigger requests
     mapping(address => bool) public oracleRequesters;
     uint256 public minResponses;
 
@@ -130,10 +129,13 @@ contract Aggregator is AggregatorInterface, Ownable {
         int256 currentAnswerTemp;
         if (responseLength % 2 == 0) {
             int256 median1 = quickselect(requests[requestInd].fulfillments, middleIndex);
-            int256 median2 = quickselect(requests[requestInd].fulfillments, middleIndex.add(1)); // quickselect is 1 indexed
-            currentAnswerTemp = median1.add(median2) / 2; // signed integers are not supported by SafeMath
+            // quickselect is 1 indexed
+            int256 median2 = quickselect(requests[requestInd].fulfillments, middleIndex.add(1));
+            // signed integers are not supported by SafeMath
+            currentAnswerTemp = median1.add(median2) / 2;
         } else {
-            currentAnswerTemp = quickselect(requests[requestInd].fulfillments, middleIndex.add(1)); // quickselect is 1 indexed
+            // quickselect is 1 indexed
+            currentAnswerTemp = quickselect(requests[requestInd].fulfillments, middleIndex.add(1));
         }
         latestAnswerInd = requestInd;
         answerTimestamps[requestInd] = now;

@@ -1,12 +1,7 @@
 {
   "name": "@airnode/node",
   "scripts": {
-    "dev:aws": "serverless offline --config serverless.aws.yml",
-    "prettify": "prettier --write ./src/**/*.{js,ts}",
-    "lint": "eslint ./src/**/*.{js,ts}",
-    "precommit": "lint-staged",
-    "test": "jest --coverage",
-    "test:watch": "jest --coverage --watch --config ../../jest.config.js"
+    "dev:aws": "serverless offline --config serverless.aws.yml"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -15,15 +10,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.155",
-    "lint-staged": "^10.2.9",
-    "prettier": "^2.0.5",
     "serverless-offline": "^6.4.0",
     "serverless-plugin-typescript": "^1.1.9"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "npm run prettify",
-      "npm run lint"
-    ]
   }
 }

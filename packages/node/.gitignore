@@ -1,7 +1,8 @@
-node_modules/
-dist/
-.serverless/
-.build/
+/node_modules
+/dist
+/.serverless
+/.build
 
-# Test files
-coverage/
+# Config files
+security.json
+specs.json

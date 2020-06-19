@@ -2,25 +2,11 @@
   "name": "@airnode/contracts",
   "scripts": {
     "build": "truffle compile",
-    "prettify": "prettier --write ./src/**/*.{js,ts}",
-    "precommit": "lint-staged"
+    "test": "jest"
   },
   "devDependencies": {
-    "@types/node": "^14.0.12",
-    "truffle": "^5.1.30",
-    "ethers": "^4.0.47",
+    "ethers": "^5.0.2",
     "ganache-core": "^2.10.2",
-    "lint-staged": "^10.2.9",
-    "prettier": "^2.0.5",
-    "typescript": "^3.9.5"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "npm run prettify",
-      "npm run lint"
-    ]
-  },
-  "dependencies": {
-    
+    "truffle": "^5.1.30"
   }
 }
