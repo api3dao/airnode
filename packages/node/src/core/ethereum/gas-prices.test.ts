@@ -99,7 +99,7 @@ describe('getMaxGweiGasPrice', () => {
     expect(gasPrice).toEqual(48);
   });
 
-  it('returns the fallback price is no usable responses are received from any sources', async () => {
+  it('returns the fallback price if no usable responses are received from any sources', async () => {
     const getMock = http.get as jest.Mock;
     getMock.mockRejectedValueOnce(new Error('Computer says no'));
     getMock.mockRejectedValueOnce(new Error('Computer says no'));
