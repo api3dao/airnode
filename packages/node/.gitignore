@@ -2,3 +2,7 @@
 /dist
 /.serverless
 /.build
+
+# Config files
+security.json
+specs.json
