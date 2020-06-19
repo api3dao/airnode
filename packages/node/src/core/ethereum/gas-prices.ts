@@ -71,6 +71,16 @@ async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
   return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
 }
 
+async function getEthNodeGasPrice(): Promise<GasPriceResponse> {
+  const provider = ethereum.getProvider();
+  const [err, weiPrice] = await go(provider.getGasPrice());
+  if (err) {
+    logger.logJSON('ERROR', `Failed to get gas price from Ethereum node. Error: ${err}`);
+    return null;
+  }
+  return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
+}
+
 export async function getMaxGweiGasPrice(): Promise<number> {
   const gasPriceHttpRequests = GAS_PRICE_HTTP_FEEDS.map((feed) => getGasPriceFromHttpFeed(feed));
   const gasPriceContractCalls = [getDataFeedGasPrice()];
@@ -80,8 +90,15 @@ export async function getMaxGweiGasPrice(): Promise<number> {
 
   // Fallback if no successful response is received
   if (isEmpty(successfulPrices)) {
-    logger.logJSON('ERROR', `Failed to get gas prices. Falling back to default price ${FALLBACK_GWEI_PRICE} Gwei`);
-    return FALLBACK_GWEI_PRICE;
+    logger.logJSON('INFO', 'Attempting to get gas price from Ethereum node...');
+
+    const nodeGasPrice = await getEthNodeGasPrice();
+    if (!nodeGasPrice) {
+      const message = `Failed to get gas prices from any sources. Falling back to default price ${FALLBACK_GWEI_PRICE} Gwei`;
+      logger.logJSON('ERROR', message);
+      return FALLBACK_GWEI_PRICE;
+    }
+    return nodeGasPrice;
   }
 
   const highestGasPrice = Math.max(...successfulPrices);
