@@ -1,1 +1,6 @@
-/node_modules
+.eslintrc.js
+node_modules/
+packages/contracts/node_modules/
+packages/node/node_modules/
+packages/node/.build/
+packages/node/.serverless/
