@@ -3,7 +3,6 @@
   "scripts": {
     "dev:aws": "serverless offline --config serverless.aws.yml",
     "prettify": "prettier --write ./src/**/*.{js,ts}",
-    "lint": "eslint ./src/**/*.{js,ts}",
     "precommit": "lint-staged"
   },
   "dependencies": {

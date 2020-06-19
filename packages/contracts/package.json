@@ -4,7 +4,7 @@
     "build": "truffle compile",
     "test": "jest",
     "prettify": "prettier --write ./src/**/*.{js,ts}",
-    "lint": "solhint \"src/**/*.sol\" && eslint ./src/**/*.{js,ts}",
+    "lint": "solhint \"src/**/*.sol\"",
     "precommit": "lint-staged"
   },
   "devDependencies": {
