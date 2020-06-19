@@ -3,8 +3,8 @@
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build",
-    "prettify": "lerna run prettify",
-    "lint": "lerna run lint",
+    "prettify": "prettier --write ./**/*.{js,ts}",
+    "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\"",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)"
   },
   "devDependencies": {
@@ -13,11 +13,23 @@
     "eslint": "^7.2.0",
     "husky": "^4.2.5",
     "lerna": "^3.22.1",
+    "lint-staged": "^10.2.11",
+    "prettier": "^2.0.5",
+    "solhint": "^3.0.0",
     "typescript": "^3.9.5"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lerna run precommit"
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --write",
+      "eslint"
+    ],
+    "*.sol": [
+      "solhint"
+    ]
   }
 }
