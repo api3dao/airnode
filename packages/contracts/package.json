@@ -2,8 +2,7 @@
   "name": "@airnode/contracts",
   "scripts": {
     "build": "truffle compile",
-    "test": "jest",
-    "lint": "solhint \"src/**/*.sol\""
+    "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
@@ -11,7 +10,6 @@
     "ethers": "^5.0.2",
     "ganache-core": "^2.10.2",
     "jest": "^26.0.1",
-    "solhint": "^3.0.0",
     "truffle": "^5.1.30",
     "ts-jest": "^26.1.0",
     "typescript": "^3.9.5"
