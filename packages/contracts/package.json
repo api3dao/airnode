@@ -3,8 +3,7 @@
   "scripts": {
     "build": "truffle compile",
     "test": "jest",
-    "lint": "solhint \"src/**/*.sol\"",
-    "precommit": "lint-staged"
+    "lint": "solhint \"src/**/*.sol\""
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
@@ -12,16 +11,9 @@
     "ethers": "^5.0.2",
     "ganache-core": "^2.10.2",
     "jest": "^26.0.1",
-    "lint-staged": "^10.2.9",
     "solhint": "^3.0.0",
     "truffle": "^5.1.30",
     "ts-jest": "^26.1.0",
     "typescript": "^3.9.5"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "npm run prettify",
-      "npm run lint"
-    ]
   }
 }
