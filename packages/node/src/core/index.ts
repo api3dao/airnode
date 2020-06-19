@@ -1,6 +1,16 @@
+import isArray from 'lodash/isArray';
 import * as ethereum from './ethereum';
 import { go } from './utils/promise-utils';
 import * as logger from './utils/logger';
+import { specs } from './config';
+
+function processApis() {
+  const apiSpecs = isArray(specs) ? specs : [specs];
+
+  apiSpecs.forEach((apiSpec) => {
+    logger.logJSON('INFO', `Processing: ${apiSpec.info.title}...`);
+  });
+}
 
 export async function main() {
   // This should always return a value here. The promise should never fail.
@@ -12,6 +22,8 @@ export async function main() {
     logger.logJSON('ERROR', `Failed to get current block. Reason: ${err}`);
     return;
   }
+
+  processApis();
 
   return [maxGasPrice, currentBlock];
 }
