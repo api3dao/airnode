@@ -1,3 +1,4 @@
+const getGasPriceMock = jest.fn();
 const latestAnswerMock = jest.fn();
 
 jest.mock('ethers', () => {
@@ -6,7 +7,9 @@ jest.mock('ethers', () => {
     ethers: {
       ...original,
       providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({})),
+        JsonRpcProvider: jest.fn().mockImplementation(() => ({
+          getGasPrice: getGasPriceMock,
+        })),
       },
       Contract: jest.fn().mockImplementation(() => ({
         latestAnswer: latestAnswerMock,
@@ -78,7 +81,7 @@ describe('getMaxGweiGasPrice', () => {
     expect(gasPrice).toEqual(46);
   });
 
-  it('returns the fallback price is no usable responses are received', async () => {
+  it('returns the gas price from the Ethereum node if no successful responses are received', async () => {
     const getMock = http.get as jest.Mock;
     getMock.mockRejectedValueOnce(new Error('Computer says no'));
     getMock.mockRejectedValueOnce(new Error('Computer says no'));
@@ -87,6 +90,28 @@ describe('getMaxGweiGasPrice', () => {
 
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
+
+    const provider = new ethers.providers.JsonRpcProvider();
+    const getGasPrice = provider.getGasPrice as jest.Mock;
+    getGasPrice.mockResolvedValueOnce(48000000000);
+
+    const gasPrice = await gasPrices.getMaxGweiGasPrice();
+    expect(gasPrice).toEqual(48);
+  });
+
+  it('returns the fallback price is no usable responses are received from any sources', async () => {
+    const getMock = http.get as jest.Mock;
+    getMock.mockRejectedValueOnce(new Error('Computer says no'));
+    getMock.mockRejectedValueOnce(new Error('Computer says no'));
+    getMock.mockRejectedValueOnce(new Error('Computer says no'));
+    getMock.mockRejectedValueOnce(new Error('Computer says no'));
+
+    const contract = new ethers.Contract('address', ['ABI']);
+    contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
+
+    const provider = new ethers.providers.JsonRpcProvider();
+    const getGasPrice = provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Node says no'));
 
     const gasPrice = await gasPrices.getMaxGweiGasPrice();
     expect(gasPrice).toEqual(40);
