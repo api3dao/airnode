@@ -13,12 +13,5 @@ export async function main() {
     return;
   }
 
-  // Collect all oracle requests from the chain
-  const [err2, oracleRequests] = await go(ethereum.getOracleRequests(currentBlock));
-  if (err2) {
-    logger.logJSON('ERROR', `Failed to get oracle requests. Reason: ${err2}`);
-    return;
-  }
-
-  return [maxGasPrice, oracleRequests];
+  return [maxGasPrice, currentBlock];
 }
