@@ -7,7 +7,7 @@
     "prettify": "prettier --write ./**/*.{js,ts}",
     "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\"",
     "test": "npm run build && lerna run test",
-    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
+    "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
