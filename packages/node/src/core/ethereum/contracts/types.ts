@@ -1,8 +1,14 @@
-export type Network = 'ropsten' | 'mainnet';
+/*
+ * Networks:
+ *
+ * 1 - Ethereum Mainnet
+ * 3 - Ethereum Ropsten
+ */
+export type ChainID = 1 | 3;
 
 export type ABI = string[];
 
 export interface Contract {
   ABI: ABI;
-  addresses: { [nework in Network]: string };
+  addresses: { [chainId in ChainID]: string };
 }

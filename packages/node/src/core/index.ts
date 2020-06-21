@@ -1,7 +1,8 @@
 import isArray from 'lodash/isArray';
 import * as ethereum from './ethereum';
-import { go } from './utils/promise-utils';
+import * as state from './state';
 import * as logger from './utils/logger';
+import { go } from './utils/promise-utils';
 import { specs } from './config';
 
 function processApis() {
@@ -13,11 +14,15 @@ function processApis() {
 }
 
 export async function main() {
-  // This should always return a value here. The promise should never fail.
-  const maxGasPrice = await ethereum.getMaxGweiGasPrice();
+  const newState = await state.initialize();
+
+  const gasPrice = await ethereum.getGasPrice(newState);
+
+  logger.logJSON('INFO', `Gas price set to ${ethereum.weiToGwei(gasPrice)} Gwei`);
+  const state2 = state.update(newState, { gasPrice });
 
   // Get the current block number so we know where to search until for oracle requests.
-  const [err, currentBlock] = await go(ethereum.getCurrentBlockNumber());
+  const [err, currentBlock] = await go(ethereum.getCurrentBlockNumber(state2));
   if (err) {
     logger.logJSON('ERROR', `Failed to get current block. Reason: ${err}`);
     return;
@@ -25,5 +30,5 @@ export async function main() {
 
   processApis();
 
-  return [maxGasPrice, currentBlock];
+  return [state2, currentBlock];
 }

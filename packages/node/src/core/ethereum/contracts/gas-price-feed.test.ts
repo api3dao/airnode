@@ -3,8 +3,8 @@ import { GasPriceFeed } from './gas-price-feed';
 describe('GasPriceFeed', () => {
   it('exposes the addresses for each network', () => {
     expect(GasPriceFeed.addresses).toEqual({
-      mainnet: '<TODO>',
-      ropsten: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
+      1: '<TODO>',
+      3: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
     });
   });
 

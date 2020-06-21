@@ -6,14 +6,18 @@ import { go } from '../utils/promise-utils';
 import { GasPriceFeed } from './contracts';
 import * as logger from '../utils/logger';
 import * as ethereum from './';
+import { State } from '../state';
 
 // We don't want to hold everything up so limit each request to 5 seconds maximum
 const TIMEOUT = 5_000;
-const FALLBACK_GWEI_PRICE = 40;
-const MAXIMUM_GWEI_PRICE = 1000;
+const FALLBACK_WEI_PRICE = ethers.utils.parseUnits('40', 'gwei');
+const MAXIMUM_WEI_PRICE = ethers.utils.parseUnits('1000', 'gwei');
+
+type ResponseUnit = 'gwei';
 
 interface GasPriceHttpFeed {
-  onSuccess: (res: any) => number;
+  responseUnit: ResponseUnit;
+  parseResponse: (res: any) => string | null;
   url: string;
 }
 
@@ -22,24 +26,28 @@ interface GasPriceHttpFeed {
 // we don't want to spam the logs every run.
 const GAS_PRICE_HTTP_FEEDS: GasPriceHttpFeed[] = [
   {
+    parseResponse: (data: any) => data.fast || null,
+    responseUnit: 'gwei',
     url: 'https://www.etherchain.org/api/gasPriceOracle',
-    onSuccess: (res: any) => parseFloat(res.data.fast),
   },
   {
+    parseResponse: (data: any) => (data.fast ? (data.fast / 10).toString() : null),
+    responseUnit: 'gwei',
     url: 'https://ethgasstation.info/api/ethgasAPI.json',
-    onSuccess: (res: any) => res.data.fast / 10,
   },
   {
+    parseResponse: (data: any) => (data.fast ? data.fast.toString() : null),
+    responseUnit: 'gwei',
     url: 'https://gasprice.poa.network/',
-    onSuccess: (res: any) => res.data.fast,
   },
   {
+    parseResponse: (data: any) => (data.fast ? data.fast.toString() : null),
+    responseUnit: 'gwei',
     url: 'https://api.anyblock.tools/ethereum/latest-minimum-gasprice',
-    onSuccess: (res: any) => res.data.fast,
   },
 ];
 
-type GasPriceResponse = number | null;
+type GasPriceResponse = ethers.BigNumber | null;
 
 async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPriceResponse> {
   const request = { timeout: TIMEOUT, url: feed.url };
@@ -49,62 +57,71 @@ async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPrice
     return null;
   }
 
-  const gasPrice = feed.onSuccess(res);
-  if (!isFinite(gasPrice)) {
+  const gasPrice = feed.parseResponse(res.data);
+  if (!gasPrice || !isFinite(+gasPrice)) {
     // Something went wrong when trying to normalize the response
     logger.logJSON('ERROR', `Failed to parse gas price for ${feed.url}. Value: ${gasPrice}`);
     return null;
   }
 
-  return gasPrice || null;
+  // Handle other response units if needed.
+  // if (feed.responseUnit !== 'gwei') {
+  //   ...
+  // }
+
+  return ethereum.gweiToWei(gasPrice);
 }
 
-async function getDataFeedGasPrice(): Promise<GasPriceResponse> {
-  const network = ethereum.getNetwork();
-  const provider = ethereum.getProvider();
-  const contract = new ethers.Contract(GasPriceFeed.addresses[network], GasPriceFeed.ABI, provider);
+async function getDataFeedGasPrice(state: State): Promise<GasPriceResponse> {
+  const contract = new ethers.Contract(GasPriceFeed.addresses[state.chainId], GasPriceFeed.ABI, state.provider);
   const [err, weiPrice] = await go(contract.latestAnswer());
   if (err) {
     logger.logJSON('ERROR', `Failed to get gas price from gas price feed contract. Error: ${err}`);
     return null;
   }
-  return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
+  return ethereum.weiToBigNumber(weiPrice);
 }
 
-async function getEthNodeGasPrice(): Promise<GasPriceResponse> {
-  const provider = ethereum.getProvider();
-  const [err, weiPrice] = await go(provider.getGasPrice());
+async function getEthNodeGasPrice(state: State): Promise<GasPriceResponse> {
+  const [err, weiPrice] = await go(state.provider.getGasPrice());
   if (err) {
     logger.logJSON('ERROR', `Failed to get gas price from Ethereum node. Error: ${err}`);
     return null;
   }
-  return parseFloat(ethers.utils.formatUnits(weiPrice, 'gwei'));
+  return ethereum.weiToBigNumber(weiPrice);
 }
 
-export async function getMaxGweiGasPrice(): Promise<number> {
+export async function getGasPrice(state: State): Promise<ethers.BigNumber> {
   const gasPriceHttpRequests = GAS_PRICE_HTTP_FEEDS.map((feed) => getGasPriceFromHttpFeed(feed));
-  const gasPriceContractCalls = [getDataFeedGasPrice()];
+  const gasPriceContractCalls = [getDataFeedGasPrice(state)];
 
   const gasPrices = await Promise.all([...gasPriceHttpRequests, ...gasPriceContractCalls]);
-  const successfulPrices = gasPrices.filter((gp) => !!gp) as number[];
+  const successfulPrices = gasPrices.filter((gp) => !!gp) as ethers.BigNumber[];
 
   // Fallback if no successful response is received
   if (isEmpty(successfulPrices)) {
     logger.logJSON('INFO', 'Attempting to get gas price from Ethereum node...');
 
-    const nodeGasPrice = await getEthNodeGasPrice();
+    const nodeGasPrice = await getEthNodeGasPrice(state);
+
+    // It's very unlikely that no source has returned a successful response, but just in case,
+    // return a fallback price.
     if (!nodeGasPrice) {
-      const message = `Failed to get gas prices from any sources. Falling back to default price ${FALLBACK_GWEI_PRICE} Gwei`;
+      const fallbackGweiPrice = ethereum.weiToGwei(FALLBACK_WEI_PRICE);
+      const message = `Failed to get gas prices from any sources. Falling back to default price ${fallbackGweiPrice} Gwei`;
       logger.logJSON('ERROR', message);
-      return FALLBACK_GWEI_PRICE;
+      return FALLBACK_WEI_PRICE;
     }
+
     return nodeGasPrice;
   }
 
-  const highestGasPrice = Math.max(...successfulPrices);
-  const finalGasPrice = Math.min(highestGasPrice, MAXIMUM_GWEI_PRICE);
+  // We want to use the highest gas prices from the sources that returned a successful response.
+  const highestWeiPrice = ethereum.sortBigNumbers(successfulPrices)[0];
 
-  logger.logJSON('INFO', `Gas price set to ${finalGasPrice} Gwei`);
+  // We need to limit the gas price in case any one of the sources returns an unexpectedly
+  // high gas price.
+  const finalWeiPrice = highestWeiPrice.gt(MAXIMUM_WEI_PRICE) ? MAXIMUM_WEI_PRICE : highestWeiPrice;
 
-  return finalGasPrice;
+  return finalWeiPrice;
 }

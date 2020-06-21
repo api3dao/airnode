@@ -1,5 +1,5 @@
-import { getProvider } from './';
+import { State } from '../state';
 
-export function getCurrentBlockNumber() {
-  return getProvider().getBlockNumber();
+export function getCurrentBlockNumber(state: State) {
+  return state.provider.getBlockNumber();
 }
