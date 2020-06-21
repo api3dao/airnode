@@ -2,7 +2,8 @@
   "name": "@airnode/node",
   "scripts": {
     "dev:aws": "serverless offline --config serverless.aws.yml",
-    "test": "SILENCE_LOGGER=true jest --coverage"
+    "test": "SILENCE_LOGGER=true jest --coverage",
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
     "axios": "^0.19.2",
