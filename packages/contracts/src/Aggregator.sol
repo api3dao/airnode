@@ -107,6 +107,7 @@ contract Aggregator is ChainlinkAggregator {
 
     function checkIfReadyForRequest()
         external
+        view
         returns(bool)
     {
         return lastRequestBlock + requestBlockGap <= block.number;
