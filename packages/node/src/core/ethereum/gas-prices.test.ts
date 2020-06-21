@@ -22,9 +22,17 @@ jest.mock('../clients/http', () => ({ get: jest.fn() }));
 
 import { ethers } from 'ethers';
 import * as http from '../clients/http';
+import { State } from '../state';
+import * as utils from './utils';
 import * as gasPrices from './gas-prices';
 
-describe('getMaxGweiGasPrice', () => {
+describe('getGasPrice', () => {
+  const state: State = {
+    chainId: 3,
+    provider: new ethers.providers.JsonRpcProvider(),
+    gasPrice: null,
+  };
+
   it('returns the highest gas price from the available APIs', async () => {
     const getMock = http.get as jest.Mock;
     getMock.mockResolvedValueOnce({ data: { fast: '45.0' } });
@@ -35,8 +43,8 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(46);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('46.0');
   });
 
   it('takes the gas price feed price if it is highest', async () => {
@@ -49,8 +57,8 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockResolvedValueOnce(53000000000);
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(53);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('53.0');
   });
 
   it('returns a gas price even if one or more APIs fail', async () => {
@@ -63,8 +71,8 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(46);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('46.0');
   });
 
   it('ignores APIs that return a value that cannot be used', async () => {
@@ -77,8 +85,8 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(46);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('46.0');
   });
 
   it('returns the gas price from the Ethereum node if no successful responses are received', async () => {
@@ -91,12 +99,11 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
 
-    const provider = new ethers.providers.JsonRpcProvider();
-    const getGasPrice = provider.getGasPrice as jest.Mock;
+    const getGasPrice = state.provider.getGasPrice as jest.Mock;
     getGasPrice.mockResolvedValueOnce(48000000000);
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(48);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('48.0');
   });
 
   it('returns the fallback price if no usable responses are received from any sources', async () => {
@@ -109,12 +116,11 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
 
-    const provider = new ethers.providers.JsonRpcProvider();
-    const getGasPrice = provider.getGasPrice as jest.Mock;
+    const getGasPrice = state.provider.getGasPrice as jest.Mock;
     getGasPrice.mockRejectedValueOnce(new Error('Node says no'));
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(40);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('40.0');
   });
 
   it('limits the maximum gas price that can be returned', async () => {
@@ -127,7 +133,7 @@ describe('getMaxGweiGasPrice', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.latestAnswer.mockResolvedValueOnce(43000000000);
 
-    const gasPrice = await gasPrices.getMaxGweiGasPrice();
-    expect(gasPrice).toEqual(1000);
+    const gasPrice = await gasPrices.getGasPrice(state);
+    expect(utils.weiToGwei(gasPrice)).toEqual('1000.0');
   });
 });

@@ -1,4 +1,10 @@
-export type Network = 'ropsten' | 'mainnet';
+/*
+ * Networks:
+ *
+ * 1 - Ethereum Mainnet
+ * 3 - Ethereum Ropsten
+ */
+export type Network = 1 | 3;
 
 export type ABI = string[];
 

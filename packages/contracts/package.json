@@ -2,7 +2,7 @@
   "name": "@airnode/contracts",
   "scripts": {
     "build": "truffle compile",
-    "test": "npm run build && jest"
+    "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",

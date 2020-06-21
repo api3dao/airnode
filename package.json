@@ -2,7 +2,7 @@
   "name": "airnode",
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
-    "build": "lerna run build",
+    "build": "lerna run build --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "prettify": "prettier --write ./**/*.{js,ts}",
     "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\"",
