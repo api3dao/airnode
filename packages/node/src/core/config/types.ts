@@ -1,3 +1,6 @@
+// ===========================================
+// API Specification
+// ===========================================
 export interface ApiInfo {
   description?: string;
   externalUrl?: string;
@@ -27,7 +30,7 @@ export interface Path {
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
-export interface SecurityScheme {
+export interface ApiSecurityScheme {
   in: SecuritySchemeTarget;
   name: string;
   type: SecuritySchemeType;
@@ -35,7 +38,7 @@ export interface SecurityScheme {
 
 export interface ApiComponents {
   securitySchemes: {
-    [key: string]: SecurityScheme;
+    [key: string]: ApiSecurityScheme;
   };
 }
 
@@ -46,28 +49,58 @@ export interface ApiSpecification {
   servers: Server[];
 }
 
+// ===========================================
+// Oracle Specification
+// ===========================================
 export type OracleTriggerType = 'fluxFeed' | 'request';
 
 export interface OracleTrigger {
   type: OracleTriggerType;
-  value?: string;
+  value: string;
 }
 
-export interface EndpointOperation {
+export interface OracleOperation {
   method: PathMethod;
   path: string;
 }
 
-export interface EndpointParameterValue {
+export interface ParameterValue {
   in: ParameterTarget;
   name: string;
-  value: string;
+  value?: string;
+}
+
+export interface OracleParameter {
+  default?: string;
+  fixed?: string;
+  name: string;
+  operationParamer?: ParameterValue;
 }
 
 export interface OracleSpecification {
-  apiOperation: EndpointOperation;
-  defaultOperationParameterValues: EndpointParameterValue[];
-  path: string;
-  times?: string;
+  fixedOperationParameters: ParameterValue[];
+  operation: OracleOperation;
+  parameters: OracleParameter[];
   trigger: OracleTrigger;
 }
+
+export interface Specification {
+  apiSpecifications: ApiSpecification;
+  oracleSpecifications: OracleSpecification[];
+}
+
+// ===========================================
+// Security
+// ===========================================
+export interface SecurityScheme {
+  in: SecuritySchemeTarget;
+  name: string;
+  securitySchemeName: string;
+  type: SecuritySchemeType;
+  value: string;
+}
+
+export interface SecuritySpecification {
+  [apiTitle: string]: SecurityScheme[];
+}
+

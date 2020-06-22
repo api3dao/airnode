@@ -1,9 +1,7 @@
-import security from '../../../security.json';
-import specs from '../../../specs.json';
-import * as types from './types';
+import rawSecurity from '../../../security.json';
+import rawSpecs from '../../../specs.json';
+import { SecuritySpecification, Specification } from './types';
 
-type ApiSpec = types.ApiSpecification | types.ApiSpecification[];
-
-export const apiSpecs = specs as ApiSpec;
-
-export { security, specs };
+// Cast the raw JSON files with the defined types
+export const specs = rawSpecs as Specification[];
+export const security = rawSecurity as SecuritySpecification;
