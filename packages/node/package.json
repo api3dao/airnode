@@ -1,14 +1,22 @@
 {
   "name": "@airnode/node",
   "scripts": {
-    "dev:aws": "serverless offline --config serverless.aws.yml"
+    "dev:aws": "serverless offline --config serverless.aws.yml",
+    "test": "SILENCE_LOGGER=true jest --coverage",
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
-    "ethers": "^5.0.2"
+    "axios": "^0.19.2",
+    "ethers": "^5.0.2",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.0",
+    "@types/lodash": "^4.14.155",
+    "@types/node": "^14.0.12",
+    "jest": "^26.0.1",
     "serverless-offline": "^6.4.0",
     "serverless-plugin-typescript": "^1.1.9",
-    "typescript": "^3.9.5"
+    "ts-jest": "^26.1.0"
   }
 }

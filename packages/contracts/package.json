@@ -11,7 +11,6 @@
     "ganache-core": "^2.10.2",
     "jest": "^26.0.1",
     "truffle": "^5.1.30",
-    "ts-jest": "^26.1.0",
-    "typescript": "^3.9.5"
+    "ts-jest": "^26.1.0"
   }
 }

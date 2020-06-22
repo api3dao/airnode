@@ -6,3 +6,6 @@
 
 # Log files
 *.log
+
+# Test files
+coverage/

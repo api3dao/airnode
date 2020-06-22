@@ -1,5 +1,9 @@
-/* eslint-disable */
+import { main } from '../core';
+
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export async function hello(event, context) {
+  await main();
+
   return {
     statusCode: 200,
     body: JSON.stringify({
