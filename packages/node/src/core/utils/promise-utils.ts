@@ -4,7 +4,9 @@ export function isPromise(obj: any) {
   return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
 }
 
-function syncResolve(fn: any) {
+type Response<T> = [Error, null] | [null, T];
+
+function syncResolve<T>(fn: any): Response<T> {
   try {
     return [null, fn()];
   } catch (err) {
@@ -13,11 +15,11 @@ function syncResolve(fn: any) {
 }
 
 // Go style async handling
-export function go(fn: any) {
-  const successFn = (value: any) => {
+export function go<T>(fn: Promise<T>): Promise<Response<T>> | Response<T> {
+  const successFn = (value: T): [null, T] => {
     return [null, value];
   };
-  const errorFn = (err: Error) => {
+  const errorFn = (err: Error): [Error, null] => {
     return [err, null];
   };
 

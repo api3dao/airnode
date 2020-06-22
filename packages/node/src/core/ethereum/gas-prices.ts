@@ -52,7 +52,7 @@ type GasPriceResponse = ethers.BigNumber | null;
 async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPriceResponse> {
   const request = { timeout: TIMEOUT, url: feed.url };
   const [err, res] = await go(get(request));
-  if (err) {
+  if (err || !res) {
     logger.logJSON('ERROR', `Failed to fetch gas price from: ${feed.url}. Reason: ${err}`);
     return null;
   }
@@ -74,8 +74,8 @@ async function getGasPriceFromHttpFeed(feed: GasPriceHttpFeed): Promise<GasPrice
 
 async function getDataFeedGasPrice(state: State): Promise<GasPriceResponse> {
   const contract = new ethers.Contract(GasPriceFeed.addresses[state.chainId], GasPriceFeed.ABI, state.provider);
-  const [err, weiPrice] = await go(contract.latestAnswer());
-  if (err) {
+  const [err, weiPrice] = await go(contract.latestAnswer() as Promise<string>);
+  if (err || !weiPrice) {
     logger.logJSON('ERROR', `Failed to get gas price from gas price feed contract. Error: ${err}`);
     return null;
   }
@@ -84,11 +84,11 @@ async function getDataFeedGasPrice(state: State): Promise<GasPriceResponse> {
 
 async function getEthNodeGasPrice(state: State): Promise<GasPriceResponse> {
   const [err, weiPrice] = await go(state.provider.getGasPrice());
-  if (err) {
+  if (err || !weiPrice) {
     logger.logJSON('ERROR', `Failed to get gas price from Ethereum node. Error: ${err}`);
     return null;
   }
-  return ethereum.weiToBigNumber(weiPrice);
+  return weiPrice;
 }
 
 export async function getGasPrice(state: State): Promise<ethers.BigNumber> {

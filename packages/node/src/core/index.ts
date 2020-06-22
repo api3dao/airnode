@@ -1,34 +1,46 @@
-import isArray from 'lodash/isArray';
 import * as ethereum from './ethereum';
 import * as state from './state';
-import * as logger from './utils/logger';
 import { go } from './utils/promise-utils';
+import * as logger from './utils/logger';
 import { specs } from './config';
 
 function processApis() {
-  const apiSpecs = isArray(specs) ? specs : [specs];
-
-  apiSpecs.forEach((apiSpec) => {
-    logger.logJSON('INFO', `Processing: ${apiSpec.info.title}...`);
+  specs.forEach((spec) => {
+    logger.logJSON('INFO', `Processing: ${spec.apiSpecifications.info.title}...`);
   });
 }
 
 export async function main() {
-  const newState = await state.initialize();
+  // =========================================================
+  // STEP 1: Create a fresh state
+  // =========================================================
+  const freshState = await state.initialize();
 
-  const gasPrice = await ethereum.getGasPrice(newState);
-
+  // =========================================================
+  // STEP 2: Get the expected gas price
+  // =========================================================
+  const gasPrice = await ethereum.getGasPrice(freshState);
   logger.logJSON('INFO', `Gas price set to ${ethereum.weiToGwei(gasPrice)} Gwei`);
-  const state2 = state.update(newState, { gasPrice });
+  const state2 = state.update(freshState, { gasPrice });
 
-  // Get the current block number so we know where to search until for oracle requests.
-  const [err, currentBlock] = await go(ethereum.getCurrentBlockNumber(state2));
-  if (err) {
-    logger.logJSON('ERROR', `Failed to get current block. Reason: ${err}`);
-    return;
+  // =========================================================
+  // STEP 3: Get the current block
+  //
+  // NOTE: This should ideally be done as late as possible in
+  // case the block increments during a previous step
+  // =========================================================
+  const [blockErr, currentBlock] = await go(state2.provider.getBlockNumber());
+  if (blockErr || !currentBlock) {
+    // TODO: Provider calls should retry on failure (issue #11)
+    throw new Error(`Unable to get current block. ${blockErr}`);
   }
+  logger.logJSON('INFO', `Using Block ${currentBlock} as the latest block`);
+  const state3 = state.update(state2, { currentBlock });
 
+  // =========================================================
+  // STEP 4: Process each API specification
+  // =========================================================
   processApis();
 
-  return [state2, currentBlock];
+  return [state3];
 }

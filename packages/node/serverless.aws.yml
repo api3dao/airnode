@@ -18,8 +18,8 @@ provider:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
 functions:
-  hello:
-    handler: src/aws/handler.hello
+  start:
+    handler: src/aws/handler.start
     events:
       - http:
           method: get
