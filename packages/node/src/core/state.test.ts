@@ -32,6 +32,7 @@ describe('initialize', () => {
     const res = await state.initialize();
     expect(res).toEqual({
       chainId: 3,
+      currentBlock: null,
       gasPrice: null,
       provider: provider,
     });

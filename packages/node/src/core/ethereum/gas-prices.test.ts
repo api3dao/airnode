@@ -29,6 +29,7 @@ import * as gasPrices from './gas-prices';
 describe('getGasPrice', () => {
   const state: State = {
     chainId: 3,
+    currentBlock: null,
     provider: new ethers.providers.JsonRpcProvider(),
     gasPrice: null,
   };
