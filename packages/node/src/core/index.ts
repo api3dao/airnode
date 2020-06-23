@@ -14,14 +14,14 @@ export async function main() {
   // =========================================================
   // STEP 1: Create a fresh state
   // =========================================================
-  const freshState = await state.initialize();
+  const state1 = state.initialize();
 
   // =========================================================
   // STEP 2: Get the expected gas price
   // =========================================================
-  const gasPrice = await ethereum.getGasPrice(freshState);
+  const gasPrice = await ethereum.getGasPrice(state1);
   logger.logJSON('INFO', `Gas price set to ${ethereum.weiToGwei(gasPrice)} Gwei`);
-  const state2 = state.update(freshState, { gasPrice });
+  const state2 = state.update(state1, { gasPrice });
 
   // =========================================================
   // STEP 3: Get the current block
