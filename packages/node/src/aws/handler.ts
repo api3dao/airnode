@@ -1,7 +1,7 @@
 import { main } from '../core';
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export async function hello(event, context) {
+export async function start(event, context) {
   await main();
 
   return {

@@ -3,6 +3,9 @@
 /.serverless
 /.build
 
+# Test files
+coverage/
+
 # Config files
 security.json
 specs.json
