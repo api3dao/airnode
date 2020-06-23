@@ -14,7 +14,7 @@ export async function main() {
   // =========================================================
   // STEP 1: Create a fresh state
   // =========================================================
-  const state1 = state.initialize();
+  const state1 = await state.initialize();
 
   // =========================================================
   // STEP 2: Get the expected gas price
