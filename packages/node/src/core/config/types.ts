@@ -2,10 +2,6 @@
 // API Specification
 // ===========================================
 export interface ApiInfo {
-  description?: string;
-  externalUrl?: string;
-  logoUrl?: string;
-  name?: string;
   title: string;
 }
 
@@ -13,17 +9,19 @@ export interface Server {
   url: string;
 }
 
-export type PathMethod = 'get' | 'post';
+export type Method = 'get' | 'post';
 export type ParameterTarget = 'query' | 'path' | 'header' | 'cookie';
 
-export interface PathParameter {
+export interface OperationParameter {
   in: ParameterTarget;
   name: string;
 }
 
 export interface Path {
   [key: string]: {
-    parameters: PathParameter[];
+    security?: string[];
+    parameters: OperationParameter[];
+    servers?: Server[];
   };
 }
 
@@ -60,7 +58,7 @@ export interface OracleTrigger {
 }
 
 export interface OracleOperation {
-  method: PathMethod;
+  method: Method;
   path: string;
 }
 
@@ -70,7 +68,7 @@ export interface ParameterValue {
   value?: string;
 }
 
-export interface OracleParameter {
+export interface EndpointParameter {
   default?: string;
   fixed?: string;
   name: string;
@@ -80,11 +78,12 @@ export interface OracleParameter {
 export interface OracleSpecification {
   fixedOperationParameters: ParameterValue[];
   operation: OracleOperation;
-  parameters: OracleParameter[];
+  parameters: EndpointParameter[];
   trigger: OracleTrigger;
 }
 
 export interface Specification {
+  ois: string;
   apiSpecifications: ApiSpecification;
   oracleSpecifications: OracleSpecification[];
 }
@@ -103,4 +102,3 @@ export interface SecurityScheme {
 export interface SecuritySpecification {
   [apiTitle: string]: SecurityScheme[];
 }
-
