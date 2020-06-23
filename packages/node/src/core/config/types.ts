@@ -17,12 +17,18 @@ export interface OperationParameter {
   name: string;
 }
 
+export interface Security {
+  [key: string]: string[];
+}
+
+export interface Operation {
+  parameters: OperationParameter[];
+  security?: Security[];
+  servers?: Server[];
+}
+
 export interface Path {
-  [key: string]: {
-    security?: string[];
-    parameters: OperationParameter[];
-    servers?: Server[];
-  };
+  [key: string]: Operation;
 }
 
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
@@ -31,6 +37,7 @@ export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 export interface ApiSecurityScheme {
   in: SecuritySchemeTarget;
   name: string;
+  scheme?: string;
   type: SecuritySchemeType;
 }
 
@@ -44,7 +51,8 @@ export interface ApiSpecification {
   components: ApiComponents;
   info: ApiInfo;
   paths: { [key: string]: Path };
-  servers: Server[];
+  security?: Security[];
+  servers?: Server[];
 }
 
 // ===========================================
