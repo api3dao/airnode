@@ -2,6 +2,7 @@ import * as ethereum from './ethereum';
 import * as state from './state';
 import { go } from './utils/promise-utils';
 import * as logger from './utils/logger';
+import { specs } from './config';
 
 function processApis() {
   specs.forEach((spec) => {

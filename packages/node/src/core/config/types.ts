@@ -17,13 +17,13 @@ export interface OperationParameter {
   name: string;
 }
 
-export interface Security {
+export interface SecurityRequirement {
   [key: string]: string[];
 }
 
 export interface Operation {
   parameters: OperationParameter[];
-  security?: Security[];
+  security?: SecurityRequirement[];
   servers?: Server[];
 }
 
@@ -51,7 +51,7 @@ export interface ApiSpecification {
   components: ApiComponents;
   info: ApiInfo;
   paths: { [key: string]: Path };
-  security?: Security[];
+  security?: SecurityRequirement[];
   servers?: Server[];
 }
 
