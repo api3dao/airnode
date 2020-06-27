@@ -1,0 +1,16 @@
+{
+  "name": "@airnode/chainapi",
+  "scripts": {
+    "build": "truffle compile",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.0",
+    "@types/node": "^14.0.12",
+    "ethers": "^5.0.2",
+    "ganache-core": "^2.10.2",
+    "jest": "^26.0.1",
+    "truffle": "^5.1.30",
+    "ts-jest": "^26.1.0"
+  }
+}
