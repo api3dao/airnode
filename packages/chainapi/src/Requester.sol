@@ -79,8 +79,8 @@ contract Requester is EndpointStore {
         )
     {
         require(
-            this.getProviderNodeStatus(requestProviders[requestId], msg.sender),
-            "Not a valid node of the provider"
+            this.getProviderWalletStatus(requestProviders[requestId], msg.sender),
+            "Not a valid wallet of the provider"
         );
         delete requestProviders[requestId];
         (callSuccess, callData) = callbackAddress.call(
