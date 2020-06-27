@@ -7,7 +7,7 @@ pragma solidity 0.6.8;
 /// This contract allows the requester to announce their parameters once, then
 /// refer to that announcement when they are making a request, instead of
 /// passing the same parameters over and over again.
-contract TemplateStorage {
+contract TemplateStore {
     struct Template {
         bytes32 providerId;
         bytes32 endpointId;
@@ -27,7 +27,7 @@ contract TemplateStorage {
     /// with the same parameters will overwrite the old one and return the
     /// same template ID.
     /// @param providerId Provider ID
-    /// @param endpointId Endpoint ID from EndpointStorage
+    /// @param endpointId Endpoint ID from EndpointStore
     /// @param gasLimit Gas limit to be used to fulfill the request
     /// @param parameters Parameters encoded in CBOR
     /// @return templateId Request template ID
@@ -60,7 +60,7 @@ contract TemplateStorage {
     /// @notice Retrieves request parameters addressed by the ID
     /// @param templateId Request template ID
     /// @return providerId Provider ID
-    /// @return endpointId Endpoint ID from EndpointStorage
+    /// @return endpointId Endpoint ID from EndpointStore
     /// @return gasLimit Gas limit used to fulfill the request
     /// @return parameters Parameters encoded in CBOR
     function getTemplate(bytes32 templateId)

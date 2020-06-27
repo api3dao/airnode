@@ -16,7 +16,7 @@ abstract contract Authorizer {
     /// @notice Verifies the authorization status of the requester for calling
     /// the endpoint according to this authorizer contract
     /// @param requester Requester contract address
-    /// @param endpointId Endpoint ID from EndpointStorage
+    /// @param endpointId Endpoint ID from EndpointStore
     /// @return status Authorization status of the requester for calling the
     /// endpoint according to this authorizer contract
     function verifyAuthorization(

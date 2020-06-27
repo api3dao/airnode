@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./ProviderStorage.sol";
+import "./ProviderStore.sol";
 
 
 /// @title The contract where the endpoints are stored
 /// @notice The main use of this contract is to associate an endpoint with
 /// a set of authorizer contracts.
-contract EndpointStorage is ProviderStorage {
+contract EndpointStore is ProviderStore {
     struct Endpoint {
         bytes32 providerId;
         address[] authorizers;

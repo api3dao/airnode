@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./EndpointStorage.sol";
+import "./EndpointStore.sol";
 
 
 /// @title The contract used to make requests
 /// @notice This can be seen as a common oracle contract. Requesters call it to
 /// make requests and the nodes call it to fulfill these requests.
-contract Requester is EndpointStorage {
+contract Requester is EndpointStore {
     mapping(bytes32 => bytes32) private requestProviders;
     uint256 private noRequest = 0;
 
@@ -23,8 +23,8 @@ contract Requester is EndpointStorage {
 
     /// @notice Announces an oracle request by emitting an event, which
     /// the provider node should be listening for.
-    /// @param providerId Provider ID from ProviderStorage
-    /// @param templateId Template ID from TemplateStorage
+    /// @param providerId Provider ID from ProviderStore
+    /// @param templateId Template ID from TemplateStore
     /// @param callbackAddress Address that will be called to deliver the
     /// response
     /// @param callbackFunctionId ID of the function that will be called to

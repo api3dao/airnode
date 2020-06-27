@@ -8,7 +8,7 @@ pragma solidity 0.6.8;
 /// role manages provider settings, while platformAgent extends the privileges
 /// of the provider as needed. Note that the platformAgent is not allowed to
 /// put a provider out of service unexpectedly.
-contract ProviderStorage {
+contract ProviderStore {
     struct Provider {
         address admin;
         address platformAgent;
