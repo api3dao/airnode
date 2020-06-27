@@ -15,7 +15,7 @@ contract ProviderStore {
         uint validUntil;
         uint endpointLimit;
         uint noEndpoints;
-        mapping(address => bool) nodes;
+        mapping(address => bool) walletStatus;
     }
 
     mapping(bytes32 => Provider) internal providers;
@@ -72,19 +72,19 @@ contract ProviderStore {
         emit ProviderUpdated(providerId);
     }
 
-    /// @notice Updates the status of a provider node
+    /// @notice Updates the status of a provider wallet
     /// @param providerId Provider ID
-    /// @param nodeAddress Node address
-    /// @param status If the node is valid for the provider
-    function updateProviderNodeStatus(
+    /// @param walletAddress Wallet address
+    /// @param status If the wallet is valid for the provider
+    function updateProviderWalletStatus(
         bytes32 providerId,
-        address nodeAddress,
+        address walletAddress,
         bool status
         )
         external
         onlyProviderAdmin(providerId)
     {
-        providers[providerId].nodes[nodeAddress] = status;
+        providers[providerId].walletStatus[walletAddress] = status;
         emit ProviderUpdated(providerId);
     }
 
@@ -162,19 +162,19 @@ contract ProviderStore {
         noEndpoints = providers[providerId].noEndpoints;
     }
 
-    /// @notice Gets the status of a provider node
+    /// @notice Gets the status of a provider wallet
     /// @param providerId Provider ID
-    /// @param nodeAddress Node address
-    /// @return status If the node is valid for the provider
-    function getProviderNodeStatus(
+    /// @param walletAddress Wallet address
+    /// @return status If the wallet is valid for the provider
+    function getProviderWalletStatus(
         bytes32 providerId,
-        address nodeAddress
+        address walletAddress
         )
         external
         view
         returns (bool status)
     {
-        status = providers[providerId].nodes[nodeAddress];
+        status = providers[providerId].walletStatus[walletAddress];
     }
 
     /// @dev Reverts if the caller is not the provider admin
