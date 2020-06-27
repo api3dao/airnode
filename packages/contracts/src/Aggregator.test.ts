@@ -24,7 +24,7 @@ describe('Aggregator', () => {
   });
 
   // Below tests left for reference
-  it('should cost correct amount of gas for 7 oracles', async () => {
+  /*it('should cost correct amount of gas for 7 oracles', async () => {
     const noOracles = 7;
     const oracles = accounts.slice(1, noOracles + 1);
     const responses = [7, 2, 1, 3, 6, 4, 5];
@@ -46,7 +46,6 @@ describe('Aggregator', () => {
       gasSpent = gasSpent.add(tx.gasLimit);
     }
     console.log(`5/7: ${gasSpent.toString()}`);
-    expect(true).toEqual(true);
     expect(gasSpent.toString()).toEqual("919703");
   });
 
@@ -72,7 +71,6 @@ describe('Aggregator', () => {
       gasSpent = gasSpent.add(tx.gasLimit);
     }
     console.log(`3/5: ${gasSpent.toString()}`);
-    expect(true).toEqual(true);
     expect(gasSpent.toString()).toEqual("705640");
   });
 
@@ -98,7 +96,6 @@ describe('Aggregator', () => {
       gasSpent = gasSpent.add(tx.gasLimit);
     }
     console.log(`3/3: ${gasSpent.toString()}`);
-    expect(true).toEqual(true);
     expect(gasSpent.toString()).toEqual("433665");
-  });
+  });*/
 });
