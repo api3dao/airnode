@@ -6,7 +6,7 @@ describe('Aggregator', () => {
   let provider;
   let contractFactory;
   let accounts;
-  let aggregatorInterface;
+  // let aggregatorInterface;
   
   beforeEach(async () => {
     provider = new ethers.providers.Web3Provider(ganache.provider());
@@ -14,7 +14,7 @@ describe('Aggregator', () => {
     const signer = await provider.getSigner(0);
     const contractArtifact = JSON.parse(fs.readFileSync('build/contracts/Aggregator.json', 'utf8'));
     contractFactory = new ethers.ContractFactory(contractArtifact.abi, contractArtifact.bytecode, signer);
-    aggregatorInterface = new ethers.utils.Interface(contractArtifact.abi);
+    // aggregatorInterface = new ethers.utils.Interface(contractArtifact.abi);
   });
 
   it('should have the correct minResponses', async () => {
