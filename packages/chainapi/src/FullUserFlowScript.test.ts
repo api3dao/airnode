@@ -166,11 +166,11 @@ describe('Full user flow', () => {
       }
     );
 
-    // We got our response (though it's not right)
+    // We got our response!
     const data = await clientContract.data();
-    console.log(data);
+    expect(data.toString()).toEqual('0x0000000000000000000000000000000000000000000000000000000000000001');
 
-    // The requester wants their money back
+    // The requester wants their money back now
     tx = await contractAsRequesterAdmin.emptyWallet(providerId, requesterId, requesterAdmin);
     // The node is listening for this
     logs = await ethProvider.getLogs({ address: contract.address });
