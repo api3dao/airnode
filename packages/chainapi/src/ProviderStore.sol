@@ -21,7 +21,7 @@ contract ProviderStore is RequesterStore {
         uint256 nextWalletInd;
     }
 
-    uint256 constant private MAX_NO_WALLETS_PER_PROVIDER = 2**32 - 1; // Check this, may be 1 off
+    uint256 constant private MAX_NO_WALLETS_PER_PROVIDER = 2**31 - 1; // Check this, may be 1 off
 
     mapping(bytes32 => Provider) internal providers;
     uint256 private noProvider = 0;
