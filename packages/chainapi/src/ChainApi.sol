@@ -2,12 +2,13 @@
 pragma solidity 0.6.8;
 
 import "./EndpointStore.sol";
+import "./TemplateStore.sol";
 
 
 /// @title The contract used to make requests
 /// @notice This can be seen as a common oracle contract. Requesters call it to
 /// make requests and the nodes call it to fulfill these requests.
-contract Requester is EndpointStore {
+contract ChainApi is EndpointStore, TemplateStore {
     mapping(bytes32 => bytes32) private requestProviders;
     uint256 private noRequest = 0;
 
