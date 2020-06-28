@@ -31,7 +31,6 @@ contract EndpointStore is ProviderStore {
         )
         external
         onlyProviderAdmin(providerId)
-        onlyIfEndpointLimitIsNotMet(providerId)
         returns(bytes32 endpointId)
     {
         endpointId = keccak256(abi.encodePacked(noEndpoint++, this));
@@ -39,7 +38,6 @@ contract EndpointStore is ProviderStore {
             providerId: providerId,
             authorizers: authorizers
         });
-        providers[providerId].noEndpoints++;
         emit EndpointCreated(endpointId);
     }
 
@@ -64,7 +62,6 @@ contract EndpointStore is ProviderStore {
         onlyProviderAdmin(endpoints[endpointId].providerId)
     {
         delete endpoints[endpointId];
-        providers[endpoints[endpointId].providerId].noEndpoints--;
         emit EndpointDeleted(endpointId);
     }
 

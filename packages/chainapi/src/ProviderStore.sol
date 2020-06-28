@@ -15,8 +15,6 @@ contract ProviderStore is RequesterStore {
         address admin;
         address platformAgent;
         uint validUntil;
-        uint endpointLimit;
-        uint noEndpoints;
         mapping(address => bool) walletStatus;
         bytes xpub;
         mapping(bytes32 => uint256) requesterWalletInds;
@@ -41,19 +39,16 @@ contract ProviderStore is RequesterStore {
     /// create the record with the parameters given by the platform, and only
     /// provide service if these parameters were used exactly.
     /// If the provider does not want to use a platform, they can assign
-    /// themselves as the platformAgent and set validUntil/endpointLimit as
+    /// themselves as the platformAgent and set validUntil as
     /// they wish.
     /// @param admin Provider admin
     /// @param platformAgent Platform agent
     /// @param validUntil The validity deadline of the provider
-    /// @param endpointLimit Maximum number of endpoints the provider is
-    /// allowed to have
     /// @return providerId Provider ID
     function createProvider(
         address admin,
         address platformAgent,
-        uint validUntil,
-        uint endpointLimit
+        uint validUntil
         )
         external
         returns (bytes32 providerId)
@@ -63,8 +58,6 @@ contract ProviderStore is RequesterStore {
             admin: admin,
             platformAgent: platformAgent,
             validUntil: validUntil,
-            endpointLimit: endpointLimit,
-            noEndpoints: 0,
             xpub: "",
             nextWalletInd: 1
         });
@@ -144,22 +137,6 @@ contract ProviderStore is RequesterStore {
         emit ProviderUpdated(providerId);
     }
 
-    /// @notice Updates the maximum number of endpoints the provider is allowed
-    /// to have
-    /// @param providerId Provider ID
-    /// @param endpointLimit The maximum number of endpoints the provider is
-    /// allowed to have
-    function updateProviderEndpointLimit(
-        bytes32 providerId,
-        uint endpointLimit
-        )
-        external
-        onlyProviderPlatformAgent(providerId)
-    {
-        providers[providerId].endpointLimit = endpointLimit;
-        emit ProviderUpdated(providerId);
-    }
-
     function allocateWallet(
         bytes32 providerId,
         bytes32 requesterId
@@ -224,25 +201,18 @@ contract ProviderStore is RequesterStore {
     /// @return admin Endpoint admin
     /// @return platformAgent Platform agent
     /// @return validUntil Provider validity deadline
-    /// @return endpointLimit Maximum number of endpoints the provider is
-    /// allowed to have
-    /// @return noEndpoints Number of endpoints the provider has
     function getProvider(bytes32 providerId)
         external
         view
         returns (
             address admin,
             address platformAgent,
-            uint validUntil,
-            uint endpointLimit,
-            uint noEndpoints
+            uint validUntil
         )
     {
         admin = providers[providerId].admin;
         platformAgent = providers[providerId].platformAgent;
         validUntil = providers[providerId].validUntil;
-        endpointLimit = providers[providerId].endpointLimit;
-        noEndpoints = providers[providerId].noEndpoints;
     }
 
     /// @notice Gets the status of a provider wallet
@@ -291,18 +261,6 @@ contract ProviderStore is RequesterStore {
         require(
             block.timestamp < providers[providerId].validUntil,
             "Invalid provider"
-        );
-        _;
-    }
-
-    /// @dev Reverts if the maximum number of endpoints the provider is allowed
-    /// to have is met
-    /// @param providerId Provider ID
-    modifier onlyIfEndpointLimitIsNotMet(bytes32 providerId)
-    {
-        require(
-            providers[providerId].noEndpoints < providers[providerId].endpointLimit,
-            "Provider is not allowed to have more endpoints"
         );
         _;
     }
