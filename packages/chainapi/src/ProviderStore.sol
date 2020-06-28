@@ -16,7 +16,7 @@ contract ProviderStore is RequesterStore {
         address platformAgent;
         uint validUntil;
         mapping(address => bool) walletStatus;
-        bytes xpub;
+        string xpub;
         mapping(bytes32 => uint256) requesterWalletInds;
         uint256 nextWalletInd;
     }
@@ -28,7 +28,7 @@ contract ProviderStore is RequesterStore {
 
     event ProviderCreated(bytes32 indexed id);
     event ProviderUpdated(bytes32 indexed id);
-    event ProviderXpubUpdated(bytes32 indexed id, bytes xpub);
+    event ProviderXpubUpdated(bytes32 indexed id, string xpub);
     event ProviderWalletAllocated(bytes32 indexed providerId, bytes32 indexed requesterId, uint256 walletInd);
     event ProviderWalletEmptyRequest(bytes32 indexed providerId, uint256 walletInd, address destination);
 
@@ -80,7 +80,7 @@ contract ProviderStore is RequesterStore {
 
     function updateProviderXpub(
         bytes32 providerId,
-        bytes calldata xpub
+        string calldata xpub
         )
         external
         onlyProviderAdmin(providerId)
@@ -208,7 +208,7 @@ contract ProviderStore is RequesterStore {
             address admin,
             address platformAgent,
             uint validUntil,
-            bytes memory xpub
+            string memory xpub
         )
     {
         admin = providers[providerId].admin;
