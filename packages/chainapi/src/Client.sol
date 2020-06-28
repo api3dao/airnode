@@ -2,6 +2,12 @@
 pragma solidity 0.6.8;
 
 
-abstract contract Client {
+contract Client {
     bytes32 public requesterId;
+
+    constructor (bytes32 _requesterId)
+        public
+    {
+        requesterId = _requesterId;
+    }
 }
