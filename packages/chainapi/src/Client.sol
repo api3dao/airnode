@@ -23,7 +23,7 @@ contract Client {
         external
     {
         ChainApi chainApi = ChainApi(chainApiAddress);
-        chainApi.makeRequest(providerId, templateId, address(this), this.fulfill.selector, '');
+        chainApi.makeRequest(providerId, templateId, address(this), this.fulfill.selector, '0xabcdabcd');
     }
 
     function fulfill(
