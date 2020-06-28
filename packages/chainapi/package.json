@@ -1,7 +1,8 @@
 {
   "name": "@airnode/chainapi",
   "scripts": {
-    "build": "truffle compile"
+    "build": "truffle compile",
+    "test": "jest"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
