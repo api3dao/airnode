@@ -207,12 +207,14 @@ contract ProviderStore is RequesterStore {
         returns (
             address admin,
             address platformAgent,
-            uint validUntil
+            uint validUntil,
+            bytes memory xpub
         )
     {
         admin = providers[providerId].admin;
         platformAgent = providers[providerId].platformAgent;
         validUntil = providers[providerId].validUntil;
+        xpub = providers[providerId].xpub;
     }
 
     /// @notice Gets the status of a provider wallet
