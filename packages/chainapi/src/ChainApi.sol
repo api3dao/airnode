@@ -85,7 +85,7 @@ contract ChainApi is EndpointStore, TemplateStore {
         );
         delete requestProviders[requestId];
         (callSuccess, callData) = callbackAddress.call(
-            abi.encode(callbackFunctionId, requestId, data)
+            abi.encodeWithSelector(callbackFunctionId, requestId, data)
             );
     }
 }
