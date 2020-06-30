@@ -5,7 +5,9 @@
     "build": "lerna run build --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",
-    "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\"",
+    "lint": "npm run lint:eslint && npm run lint:solhint",
+    "lint:eslint": "eslint . --ext .js,.ts",
+    "lint:solhint": "solhint \"./packages/contracts/src/**/*.sol\"",
     "prettify": "prettier --write ./**/*.{js,ts}",
     "test": "lerna run test --stream",
     "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
@@ -32,11 +34,11 @@
   },
   "lint-staged": {
     "*.{js,ts}": [
-      "prettier --write",
-      "eslint"
+      "npm run prettify",
+      "npm run lint:eslint"
     ],
     "*.sol": [
-      "solhint"
+      "npm run lint:solhint"
     ]
   }
 }
