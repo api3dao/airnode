@@ -32,10 +32,11 @@ async function getEthNodeGasPrice(state: State): Promise<GasPriceResponse> {
 }
 
 export async function getGasPrice(state: State): Promise<ethers.BigNumber> {
-  const gasPriceNode = [getEthNodeGasPrice(state)];
-  const gasPriceContractCalls = [getDataFeedGasPrice(state)];
-
-  const gasPrices = await Promise.all([...gasPriceNode, ...gasPriceContractCalls]);
+  const gasPriceRequests = [
+    getEthNodeGasPrice(state),
+    getDataFeedGasPrice(state),
+  ];
+  const gasPrices = await Promise.all(gasPriceRequests);
   const successfulPrices = gasPrices.filter((gp) => !!gp) as ethers.BigNumber[];
 
   // It's very unlikely that no source has returned a successful response, but just in case,
