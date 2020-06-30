@@ -22,4 +22,4 @@ export const security = rawSecurity as SecuritySpecification;
 
 // 600 blocks = roughly 1 hour in the past
 export const FROM_BLOCK_LIMIT = Number(process.env.PAST_BLOCK_LIMIT || '600');
-export const NODE_WALLET_ADDRESS = process.env.NODE_WALLET_ADDRESS || '0x123456789';
+export const NODE_WALLET_ADDRESS = process.env.NODE_WALLET_ADDRESS || '<TODO>';
