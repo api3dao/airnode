@@ -4,8 +4,9 @@
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
-    "prettify": "prettier --write ./**/*.{js,ts}",
+    "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",
     "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\"",
+    "prettify": "prettier --write ./**/*.{js,ts}",
     "test": "lerna run test --stream",
     "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
   },

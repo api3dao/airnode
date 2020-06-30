@@ -4,8 +4,11 @@ import { go, promiseTimeout } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
 import { State } from '../../state';
 import { getContractInterface } from '../../ethereum/contracts/aggregator';
-import { FROM_BLOCK_LIMIT } from '../../config';
+import { FROM_BLOCK_LIMIT, NODE_WALLET_ADDRESS } from '../../config';
 import { ApiSpecification, OracleSpecification, Specification } from '../../config/types';
+
+const newRequestsTopic = ethers.utils.id('NewRequest(address,uint256)');
+const fulfilledRequestsTopic = ethers.utils.id('RequestFulfilled(address,uint256)');
 
 interface OracleLogEvent {
   apiSpecId: string;
@@ -22,13 +25,11 @@ async function fetchNewFluxRequests(
     return null;
   }
 
-  const newRequestsTopic = ethers.utils.id('NewRequest(address,uint256)');
-  const fulfilledRequestsTopic = ethers.utils.id('RequestFulfilled(address,uint256)');
-
   const newRequestsFilter: ethers.providers.Filter = {
     fromBlock: state.currentBlock! - FROM_BLOCK_LIMIT,
     toBlock: state.currentBlock!,
     address: oracleSpec.trigger.value,
+    // Fetch events for both topics in one call
     topics: [[newRequestsTopic, fulfilledRequestsTopic]],
   };
 
@@ -50,18 +51,59 @@ async function fetchNewFluxRequests(
   };
 }
 
+interface SplitEvents {
+  newRequests: ethers.utils.LogDescription[];
+  fulfilledRequests: ethers.utils.LogDescription[];
+}
+
+function groupEvents(events: ethers.utils.LogDescription[]) {
+  return events.reduce(
+    (acc: SplitEvents, event) => {
+      if (event.topic === newRequestsTopic) {
+        return { ...acc, newRequests: [...acc.newRequests, event] };
+      }
+      return { ...acc, fulfilledRequests: [...acc.fulfilledRequests, event] };
+    },
+    { newRequests: [], fulfilledRequests: [] }
+  );
+}
+
+function mapRequestsToMake(oracleEvents: OracleLogEvent[]) {
+  return oracleEvents.reduce((acc: OracleLogEvent[], oracleEvent) => {
+    const { newRequests, fulfilledRequests } = groupEvents(oracleEvent.events);
+
+    // We only care about new requests from other nodes
+    const newRequestsFromOtherNodes = newRequests.filter((nr) => nr.args.requester !== NODE_WALLET_ADDRESS);
+
+    // We only care about fulfilled events for this node
+    const fulfillmentsForThisNode = fulfilledRequests.filter((fr) => fr.args.requester === NODE_WALLET_ADDRESS);
+
+    const isFulfilled = newRequestsFromOtherNodes.some((newRequest) => {
+      const { requester, requestInd } = newRequest.args;
+
+      return fulfillmentsForThisNode.some((fr) => fr.args.requester === requester && fr.args.requestInd === requestInd);
+    });
+
+    return !isFulfilled ? [...acc, oracleEvent] : acc;
+  }, []);
+}
+
 export async function detect(state: State, specs: Specification[]) {
   const fetchOracleLogEvents = flatMap(specs, (spec) => {
     return spec.oracleSpecifications.map((oracleSpec) => {
       const promise = fetchNewFluxRequests(state, spec.apiSpecifications, oracleSpec);
-      // Each promise is only allowed a maximum of 5 seconds to complete
-      return promiseTimeout(5000, promise).catch(() => null);
+      // Each promise is only allowed a maximum of 10 seconds to complete
+      // TODO: Is this too much?
+      return promiseTimeout(10_000, promise).catch(() => null);
     });
   });
 
   const oracleLogEvents = await Promise.all(fetchOracleLogEvents);
 
-  const successfulRequests = oracleLogEvents.filter((le) => !!le) as OracleLogEvent[];
+  // Filter out promises that failed or timed out
+  const successfulEvents = oracleLogEvents.filter((le) => !!le) as OracleLogEvent[];
 
-  console.log(successfulRequests);
+  const requestsToMake = mapRequestsToMake(successfulEvents);
+
+  console.log(requestsToMake);
 }

@@ -25,7 +25,7 @@ export function go<T>(fn: Promise<T>): Promise<Response<T>> {
   return fn.then(successFn).catch(errorFn);
 }
 
-// A naive implementation of the following function might look like:
+// A native implementation of the following function might look like:
 //
 //   function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 //     const timeout = new Promise((_res, reject) => {
