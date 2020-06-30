@@ -83,7 +83,7 @@ function filterPendingRequests(oracleEvents: OracleLogEvent[]) {
     const isFulfilled = newRequestsFromOtherNodes.some((newRequest) => {
       const { requester, requestInd } = newRequest.args;
 
-      return fulfillmentsForThisNode.some((fr) => fr.args.requester === requester && fr.args.requestInd === requestInd);
+      return fulfillmentsForThisNode.some((fr) => fr.args.fulfiller === requester && fr.args.requestInd === requestInd);
     });
 
     return isFulfilled ? acc : [...acc, oracleEvent];
