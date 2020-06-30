@@ -39,8 +39,7 @@ export async function getGasPrice(state: State): Promise<ethers.BigNumber> {
   const gasPrices = await Promise.all(gasPriceRequests);
   const successfulPrices = gasPrices.filter((gp) => !!gp) as ethers.BigNumber[];
 
-  // It's very unlikely that no source has returned a successful response, but just in case,
-  // return a fallback price.
+  // Fall back to FALLBACK_WEI_PRICE if no successful response is received
   if (isEmpty(successfulPrices)) {
     const fallbackGweiPrice = ethereum.weiToGwei(FALLBACK_WEI_PRICE);
     const message = `Failed to get gas prices from any sources. Falling back to default price ${fallbackGweiPrice} Gwei`;
