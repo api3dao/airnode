@@ -3,9 +3,9 @@ import rawSecurity from '../../../security.json';
 import rawSpecs from '../../../specs.json';
 import { SecuritySpecification, Specification } from './types';
 
-function parseSpecs(specs: Specification[]): Specification[] {
+function parseSpecs(specs: any): Specification[] {
   // Assign unique identifiers to each API and Oracle specification.
-  return specs.map((spec) => {
+  return specs.map((spec: Specification) => {
     const oracleSpecifications = spec.oracleSpecifications.map((oracleSpec) => ({
       ...oracleSpec,
       id: randomString(16),
@@ -17,9 +17,7 @@ function parseSpecs(specs: Specification[]): Specification[] {
 }
 
 // Cast the raw JSON files with the defined types
-const typedSpecs = rawSpecs as Specification[];
-export const specs = parseSpecs(typedSpecs);
-
+export const specs = parseSpecs(rawSpecs) as Specification[];
 export const security = rawSecurity as SecuritySpecification;
 
 // 600 blocks = roughly 1 hour in the past
