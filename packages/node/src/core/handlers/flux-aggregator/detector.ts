@@ -72,6 +72,7 @@ function mapRequestsToMake(oracleEvents: OracleLogEvent[]) {
   return oracleEvents.reduce((acc: OracleLogEvent[], oracleEvent) => {
     const { newRequests, fulfilledRequests } = groupEvents(oracleEvent.events);
 
+    // TODO: we may/may not be able to do this filtering when making the `getLogs` call
     // We only care about new requests from other nodes
     const newRequestsFromOtherNodes = newRequests.filter((nr) => nr.args.requester !== NODE_WALLET_ADDRESS);
 
