@@ -2,7 +2,7 @@ import * as ethereum from './ethereum';
 import * as state from './state';
 import { go } from './utils/promise-utils';
 import * as logger from './utils/logger';
-import { detect } from './handlers/flux-aggregator/detector';
+import { detectEvents } from './handlers/flux-aggregator';
 import { specs } from './config';
 
 export async function main() {
@@ -15,9 +15,9 @@ export async function main() {
   // STEP 2: Get the expected gas price to use when making
   // transactions
   // =========================================================
-  // const gasPrice = await ethereum.getGasPrice(state1);
-  // logger.logJSON('INFO', `Gas price set to ${ethereum.weiToGwei(gasPrice)} Gwei`);
-  const state2 = state.update(state1, { gasPrice: ethereum.gweiToWei('45') });
+  const gasPrice = await ethereum.getGasPrice(state1);
+  logger.logJSON('INFO', `Gas price set to ${ethereum.weiToGwei(gasPrice)} Gwei`);
+  const state2 = state.update(state1, { gasPrice });
 
   // =========================================================
   // STEP 3: Get the current block
@@ -34,9 +34,9 @@ export async function main() {
   const state3 = state.update(state2, { currentBlock });
 
   // =========================================================
-  // STEP 4: Detect new requests that need to be processed
+  // STEP 4: Detect new flux requests that need to be processed
   // =========================================================
-  detect(state3, specs);
+  detectEvents(state3, specs);
 
   return [state3];
 }

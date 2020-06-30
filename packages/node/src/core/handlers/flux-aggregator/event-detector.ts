@@ -68,7 +68,7 @@ function groupEvents(events: ethers.utils.LogDescription[]) {
   );
 }
 
-function mapRequestsToMake(oracleEvents: OracleLogEvent[]) {
+function filterPendingRequests(oracleEvents: OracleLogEvent[]) {
   return oracleEvents.reduce((acc: OracleLogEvent[], oracleEvent) => {
     const { newRequests, fulfilledRequests } = groupEvents(oracleEvent.events);
 
@@ -79,18 +79,20 @@ function mapRequestsToMake(oracleEvents: OracleLogEvent[]) {
     // We only care about fulfilled events for this node
     const fulfillmentsForThisNode = fulfilledRequests.filter((fr) => fr.args.requester === NODE_WALLET_ADDRESS);
 
+    // If there are any new requests from other nodes that this node has not yet fulfilled, add that to the list
     const isFulfilled = newRequestsFromOtherNodes.some((newRequest) => {
       const { requester, requestInd } = newRequest.args;
 
       return fulfillmentsForThisNode.some((fr) => fr.args.requester === requester && fr.args.requestInd === requestInd);
     });
 
-    return !isFulfilled ? [...acc, oracleEvent] : acc;
+    return isFulfilled ? acc : [...acc, oracleEvent];
   }, []);
 }
 
+// TODO: needs tests
 export async function detect(state: State, specs: Specification[]) {
-  const fetchOracleLogEvents = flatMap(specs, (spec) => {
+  const oracleLogEventRequests = flatMap(specs, (spec) => {
     return spec.oracleSpecifications.map((oracleSpec) => {
       const promise = fetchNewFluxRequests(state, spec.apiSpecifications, oracleSpec);
       // Each promise is only allowed a maximum of 10 seconds to complete
@@ -99,12 +101,12 @@ export async function detect(state: State, specs: Specification[]) {
     });
   });
 
-  const oracleLogEvents = await Promise.all(fetchOracleLogEvents);
+  const oracleLogEvents = await Promise.all(oracleLogEventRequests);
 
   // Filter out promises that failed or timed out
   const successfulEvents = oracleLogEvents.filter((le) => !!le) as OracleLogEvent[];
 
-  const requestsToMake = mapRequestsToMake(successfulEvents);
+  const pendingRequests = filterPendingRequests(successfulEvents);
 
-  console.log(requestsToMake);
+  return pendingRequests;
 }

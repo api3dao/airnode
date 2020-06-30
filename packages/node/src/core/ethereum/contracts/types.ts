@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 /*
  * Networks:
  *
@@ -12,5 +11,4 @@ export type ABI = string[];
 export interface Contract {
   ABI: ABI;
   addresses: { [chainId in ChainID]: string };
-  interface?: ethers.utils.Interface;
 }
