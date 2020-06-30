@@ -7,5 +7,5 @@
 coverage/
 
 # Config files
+config.json
 security.json
-specs.json
