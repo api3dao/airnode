@@ -2,8 +2,6 @@ import * as ethereum from './ethereum';
 import * as state from './state';
 import { go } from './utils/promise-utils';
 import * as logger from './utils/logger';
-import { detectEvents } from './handlers/flux-aggregator';
-import { specs } from './config';
 
 export async function main() {
   // =========================================================
@@ -36,7 +34,8 @@ export async function main() {
   // =========================================================
   // STEP 4: Detect new flux requests that need to be processed
   // =========================================================
-  detectEvents(state3, specs);
+  // TODO: enable this and assign to the state somewhere
+  // fluxAggregator.detectEvents(state3, specs);
 
   return [state3];
 }
