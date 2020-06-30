@@ -38,7 +38,7 @@ export function go<T>(fn: Promise<T>): Promise<Response<T>> {
 //
 // The problem with this is that that the slow promise still runs until it resolves.
 // This means that the serverless function will not exit until the entire timeout
-// duration has been reached and that's a problem.
+// duration has been reached which is a problem.
 export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
   return Bluebird.resolve(promise).timeout(ms);
 }
