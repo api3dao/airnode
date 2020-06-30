@@ -29,7 +29,7 @@ async function fetchNewFluxRequests(
     fromBlock: state.currentBlock! - FROM_BLOCK_LIMIT,
     toBlock: state.currentBlock!,
     address: oracleSpec.trigger.value,
-    // Fetch events for both topics in one call
+    // Fetch events for both topics in one call.
     topics: [[newRequestsTopic, fulfilledRequestsTopic]],
   };
 
