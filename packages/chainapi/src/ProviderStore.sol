@@ -5,30 +5,73 @@ import "./RequesterStore.sol";
 
 
 /// @title The contract where the providers are stored
-/// @notice For each provider, the admin and platformAgent roles are defined.
-/// Both can either be an external address (a wallet) or a contract. The admin
-/// role manages provider settings, while platformAgent extends the privileges
-/// of the provider as needed. Note that the platformAgent is not allowed to
-/// put a provider out of service unexpectedly.
+/// @notice For each provider, there is an admin that manages settings and a
+/// platformAgent that extends the validity of the provider. The requesters use
+/// this contract to reserve a wallet index and the provider authorizes the
+/// address that corresponds to that index to be able to fulfill the requests
+/// it receives.
 contract ProviderStore is RequesterStore {
     struct Provider {
         address admin;
         address platformAgent;
-        uint validUntil;
-        mapping(address => bool) walletStatus;
+        uint256 validUntil;
         string xpub;
-        mapping(bytes32 => uint256) requesterWalletInds;
+        address walletAuthorizer;
+        uint256 authorizationDeposit;
+        mapping(address => bool) walletStatus;
+        mapping(uint256 => bytes32) walletIndToRequesterId;
         uint256 nextWalletInd;
-    }
+        }
+
+    struct WithdrawRequest {
+        bytes32 providerId;
+        address destination;
+        }
 
     mapping(bytes32 => Provider) internal providers;
+    mapping(bytes32 => WithdrawRequest) internal withdrawRequests;
     uint256 private noProvider = 0;
+    uint256 private noWithdrawRequests = 0;
 
-    event ProviderCreated(bytes32 indexed id);
-    event ProviderUpdated(bytes32 indexed id);
-    event ProviderXpubUpdated(bytes32 indexed id, string xpub);
-    event ProviderWalletAllocated(bytes32 indexed providerId, bytes32 indexed requesterId, uint256 walletInd);
-    event ProviderWalletEmptyRequest(bytes32 indexed providerId, uint256 walletInd, address destination);
+    event ProviderCreated(
+        bytes32 indexed id,
+        address admin,
+        address platformAgent,
+        uint256 validUntil,
+        uint256 authorizationDeposit
+        );
+    event ProviderUpdated(
+        bytes32 indexed id,
+        address admin,
+        address platformAgent,
+        uint256 validUntil,
+        uint256 authorizationDeposit
+        );
+    event ProviderKeysInitialized(
+        bytes32 indexed id,
+        string xpub,
+        address walletAuthorizer
+        );
+    event ProviderWalletStatusUpdated(
+        bytes32 indexed id,
+        address walletAddress,
+        bool status
+        );
+    event ProviderWalletReserved(
+        bytes32 indexed providerId,
+        bytes32 indexed requesterId,
+        uint256 walletInd
+        );
+    event WithdrawRequested(
+        bytes32 indexed providerId,
+        bytes32 walletEmptyRequestId,
+        uint256 walletInd,
+        address destination
+        );
+    event WithdrawFulfilled(
+        bytes32 indexed walletEmptyRequestId,
+        uint256 amount
+        );
 
 
     /// @notice Creates a provider with the given parameters, addressable by
@@ -38,15 +81,19 @@ contract ProviderStore is RequesterStore {
     /// provide service if these parameters were used exactly.
     /// If the provider does not want to use a platform, they can assign
     /// themselves as the platformAgent and set validUntil as
-    /// they wish.
+    /// they wish. walletAuthorizer and xpub are not set here, assuming the
+    /// provider will not have generated them yet.
     /// @param admin Provider admin
     /// @param platformAgent Platform agent
-    /// @param validUntil The validity deadline of the provider
+    /// @param validUntil Validity deadline of the provider
+    /// @param authorizationDeposit Amount the requesters need to deposit to
+    /// reserve a wallet index
     /// @return providerId Provider ID
     function createProvider(
         address admin,
         address platformAgent,
-        uint validUntil
+        uint256 validUntil,
+        uint256 authorizationDeposit
         )
         external
         returns (bytes32 providerId)
@@ -56,10 +103,18 @@ contract ProviderStore is RequesterStore {
             admin: admin,
             platformAgent: platformAgent,
             validUntil: validUntil,
+            walletAuthorizer: address(0),
+            authorizationDeposit: authorizationDeposit,
             xpub: "",
             nextWalletInd: 1
-        });
-        emit ProviderCreated(providerId);
+            });
+        emit ProviderCreated(
+            providerId,
+            admin,
+            platformAgent,
+            validUntil,
+            authorizationDeposit
+            );
     }
 
     /// @notice Updates the provider admin
@@ -73,18 +128,55 @@ contract ProviderStore is RequesterStore {
         onlyProviderAdmin(providerId)
     {
         providers[providerId].admin = admin;
-        emit ProviderUpdated(providerId);
+        emit ProviderUpdated(
+            providerId,
+            providers[providerId].admin,
+            providers[providerId].platformAgent,
+            providers[providerId].validUntil,
+            providers[providerId].authorizationDeposit
+            );
     }
 
-    function updateProviderXpub(
+    /// @notice Updates the provider wallet authorization deposit
+    /// @param providerId Provider ID
+    /// @param authorizationDeposit Wallet authorization deposit
+    function updateProviderAdmin(
         bytes32 providerId,
-        string calldata xpub
+        uint256 authorizationDeposit
         )
         external
         onlyProviderAdmin(providerId)
     {
+        providers[providerId].authorizationDeposit = authorizationDeposit;
+        emit ProviderUpdated(
+            providerId,
+            providers[providerId].admin,
+            providers[providerId].platformAgent,
+            providers[providerId].validUntil,
+            providers[providerId].authorizationDeposit
+            );
+    }
+
+    function initializeProviderKeys(
+        bytes32 providerId,
+        string calldata xpub,
+        address walletAuthorizer
+        )
+        external
+        onlyProviderAdmin(providerId)
+    {
+        require(
+            (bytes(xpub).length == 0) &&
+                (providers[providerId].walletAuthorizer == address(0)),
+            "Provider keys are already initialized"
+        );
         providers[providerId].xpub = xpub;
-        emit ProviderXpubUpdated(providerId, xpub);
+        providers[providerId].walletAuthorizer = walletAuthorizer;
+        emit ProviderKeysInitialized(
+            providerId,
+            xpub,
+            walletAuthorizer
+            );
     }
 
     /// @notice Updates the status of a provider wallet
@@ -100,7 +192,11 @@ contract ProviderStore is RequesterStore {
         onlyProviderAdmin(providerId)
     {
         providers[providerId].walletStatus[walletAddress] = status;
-        emit ProviderUpdated(providerId);
+        emit ProviderWalletStatusUpdated(
+            providerId,
+            walletAddress,
+            status
+            );
     }
 
     /// @notice Updates the platform agent
@@ -114,7 +210,13 @@ contract ProviderStore is RequesterStore {
         onlyProviderPlatformAgent(providerId)
     {
         providers[providerId].platformAgent = platformAgent;
-        emit ProviderUpdated(providerId);
+        emit ProviderUpdated(
+            providerId,
+            providers[providerId].admin,
+            providers[providerId].platformAgent,
+            providers[providerId].validUntil,
+            providers[providerId].authorizationDeposit
+            );
     }
 
     /// @notice Extends the provider validity deadline
@@ -122,7 +224,7 @@ contract ProviderStore is RequesterStore {
     /// @param validUntil Provider validity deadline
     function extendProviderValidityDeadline(
         bytes32 providerId,
-        uint validUntil
+        uint256 validUntil
         )
         external
         onlyProviderPlatformAgent(providerId)
@@ -132,62 +234,113 @@ contract ProviderStore is RequesterStore {
             "You cannot shorten the validity of a provider."
             );
         providers[providerId].validUntil = validUntil;
-        emit ProviderUpdated(providerId);
+        emit ProviderUpdated(
+            providerId,
+            providers[providerId].admin,
+            providers[providerId].platformAgent,
+            providers[providerId].validUntil,
+            providers[providerId].authorizationDeposit
+            );
     }
 
-    function allocateWallet(
+    function reserveWallet(
         bytes32 providerId,
         bytes32 requesterId
     )
         external
+        payable
         returns(uint256 walletInd)
     {
+        address walletAuthorizer = providers[providerId].walletAuthorizer;
         require(
-            providers[providerId].requesterWalletInds[requesterId] == 0,
-            "Requester already has a wallet allocated for this provider"
+            walletAuthorizer != address(0),
+            "Provider wallet authorizer not set yet"
+        );
+        require(
+            msg.value >= providers[providerId].authorizationDeposit,
+            "Send at least authorizationDeposit along with your request"
         );
         walletInd = providers[providerId].nextWalletInd;
-        providers[providerId].requesterWalletInds[requesterId] = walletInd;
+        providers[providerId].walletIndToRequesterId[walletInd] = requesterId;
         providers[providerId].nextWalletInd++;
-        emit ProviderWalletAllocated(providerId, requesterId, walletInd);
+        emit ProviderWalletReserved(
+            providerId,
+            requesterId,
+            walletInd
+            );
+        (bool success, ) = walletAuthorizer.call.value(msg.value)("");
+        require(success, "Transfer failed.");
     }
 
-    function getWalletWithRequesterId(
+    function getRequesterIdOfWalletInd(
         bytes32 providerId,
-        bytes32 requesterId
+        uint256 walletInd
         )
         external
         view
-        returns (uint256 walletInd)
+        returns (bytes32 requesterId)
     {
-        walletInd = providers[providerId].requesterWalletInds[requesterId];
+        requesterId = providers[providerId].walletIndToRequesterId[walletInd];
     }
 
-    function getWalletWithRequesterAddress(
+    function checkIfRequesterAddressOwnsWalletInd(
         bytes32 providerId,
-        address requesterAddress
+        address requesterAddress,
+        uint256 walletInd
         )
         external
         view
-        returns (uint256 walletInd)
+        returns (bool result)
     {
-        walletInd = providers[providerId].requesterWalletInds[this.getContractRequesterId(requesterAddress)];
+        bytes32 requesterId = providers[providerId].walletIndToRequesterId[walletInd];
+        result = this.getContractRequesterId(requesterAddress) == requesterId;
     }
 
-    function emptyWallet(
+    function withdrawRequest(
         bytes32 providerId,
-        bytes32 requesterId,
+        uint256 walletInd,
         address destination
     )
         external
-        onlyRequesterAdmin(requesterId)
     {
+        bytes32 requesterId = providers[providerId].walletIndToRequesterId[walletInd];
         require(
-            providers[providerId].requesterWalletInds[requesterId] != 0,
-            "Requester does not have a wallet allocated for this provider"
+            msg.sender == requesters[requesterId].admin,
+            "Caller is not the requester admin"
         );
-        uint256 walletInd = providers[providerId].requesterWalletInds[requesterId];
-        emit ProviderWalletEmptyRequest(providerId, walletInd, destination);
+        bytes32 withdrawRequestId = keccak256(abi.encodePacked(noWithdrawRequests++, this));
+        withdrawRequests[withdrawRequestId] = WithdrawRequest({
+            providerId: providerId,
+            destination: destination
+            });
+        emit WithdrawRequested(
+            providerId,
+            withdrawRequestId,
+            walletInd,
+            destination
+            );
+    }
+
+    function emptyWalletRequest(
+        bytes32 withdrawRequestId
+    )
+        external
+        payable
+    {
+        bytes32 providerId = withdrawRequests[withdrawRequestId].providerId;
+        require(
+            (msg.sender == providers[providerId].admin) ||
+                (msg.sender == providers[providerId].walletAuthorizer),
+            "Either the provider admin or the walletAuthorizer can do this"
+        );
+        address destination = withdrawRequests[withdrawRequestId].destination;
+        delete withdrawRequests[withdrawRequestId];
+        emit WithdrawFulfilled(
+            withdrawRequestId,
+            msg.value
+            );
+        (bool success, ) = destination.call.value(msg.value)("");
+        require(success, "Transfer failed.");
     }
 
     /// @notice Retrieves provider parameters addressed by the ID
@@ -201,14 +354,20 @@ contract ProviderStore is RequesterStore {
         returns (
             address admin,
             address platformAgent,
-            uint validUntil,
-            string memory xpub
+            uint256 validUntil,
+            string memory xpub,
+            address walletAuthorizer,
+            uint256 authorizationDeposit,
+            uint256 nextWalletInd
         )
     {
         admin = providers[providerId].admin;
         platformAgent = providers[providerId].platformAgent;
         validUntil = providers[providerId].validUntil;
         xpub = providers[providerId].xpub;
+        walletAuthorizer = providers[providerId].walletAuthorizer;
+        authorizationDeposit = providers[providerId].authorizationDeposit;
+        nextWalletInd = providers[providerId].nextWalletInd;
     }
 
     /// @notice Gets the status of a provider wallet
