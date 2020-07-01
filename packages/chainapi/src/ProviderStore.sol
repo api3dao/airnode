@@ -21,8 +21,6 @@ contract ProviderStore is RequesterStore {
         uint256 nextWalletInd;
     }
 
-    uint256 constant private MAX_NO_WALLETS_PER_PROVIDER = 2**31 - 1; // Check this, may be 1 off
-
     mapping(bytes32 => Provider) internal providers;
     uint256 private noProvider = 0;
 
@@ -147,10 +145,6 @@ contract ProviderStore is RequesterStore {
         require(
             providers[providerId].requesterWalletInds[requesterId] == 0,
             "Requester already has a wallet allocated for this provider"
-        );
-        require(
-            providers[providerId].nextWalletInd < MAX_NO_WALLETS_PER_PROVIDER,
-            "Provider cannot allocate more wallets"
         );
         walletInd = providers[providerId].nextWalletInd;
         providers[providerId].requesterWalletInds[requesterId] = walletInd;
