@@ -5,7 +5,7 @@ import "./EndpointStore.sol";
 import "./TemplateStore.sol";
 
 
-/// @title The contract used to make requests
+/// @title The contract used to make and fulfill requests
 /// @notice This can be seen as a common oracle contract. Requesters call it to
 /// make requests and the nodes call it to fulfill these requests.
 contract ChainApi is EndpointStore, TemplateStore {
@@ -16,8 +16,8 @@ contract ChainApi is EndpointStore, TemplateStore {
         bytes32 indexed providerId,
         bytes32 requestId,
         address requester,
-        bytes32 templateId,
         uint256 walletInd,
+        bytes32 templateId,
         address callbackAddress,
         bytes4 callbackFunctionId,
         bytes parameters
@@ -31,6 +31,9 @@ contract ChainApi is EndpointStore, TemplateStore {
 
     /// @notice Announces an oracle request by emitting an event, which
     /// the provider node should be listening for.
+    /// @dev The walletInd provided by the requester is a suggestion and the
+    /// provider can fulfill the request with any of the wallets that it has
+    /// allocated for the requester.
     /// @param providerId Provider ID from ProviderStore
     /// @param templateId Template ID from TemplateStore
     /// @param walletInd Index of the wallet that the requester wants the
@@ -60,8 +63,8 @@ contract ChainApi is EndpointStore, TemplateStore {
             providerId,
             requestId,
             msg.sender,
-            templateId,
             walletInd,
+            templateId,
             callbackAddress,
             callbackFunctionId,
             parameters
@@ -95,12 +98,12 @@ contract ChainApi is EndpointStore, TemplateStore {
             this.getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
         );
+        delete requestProviders[requestId];
         emit RequestFulfilled(
             providerId,
             requestId,
             data
             );
-        delete requestProviders[requestId];
         (callSuccess, callData) = callbackAddress.call(
             abi.encodeWithSelector(callbackFunctionId, requestId, data)
             );
