@@ -54,8 +54,8 @@ contract ChainApi is EndpointStore, TemplateStore {
         requestProviders[requestId] = providerId;
         emit RequestMade(
             providerId,
-            msg.sender,
             requestId,
+            msg.sender,
             templateId,
             callbackAddress,
             callbackFunctionId,
@@ -90,7 +90,7 @@ contract ChainApi is EndpointStore, TemplateStore {
             this.getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
         );
-        emit RequestMade(
+        emit RequestFulfilled(
             providerId,
             requestId,
             data
