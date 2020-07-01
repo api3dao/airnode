@@ -73,14 +73,11 @@ function filterPendingRequests(oracleEvents: OracleLogEvent[]) {
     const { newRequests, fulfilledRequests } = groupEvents(oracleEvent.events);
 
     // TODO: we may/may not be able to do this filtering when making the `getLogs` call
-    // We only care about new requests from other nodes
-    const newRequestsFromOtherNodes = newRequests.filter((nr) => nr.args.requester !== NODE_WALLET_ADDRESS);
-
     // We only care about fulfilled events for this node
     const fulfillmentsForThisNode = fulfilledRequests.filter((fr) => fr.args.fulfiller === NODE_WALLET_ADDRESS);
 
     // If there are any new requests from other nodes that this node has not yet fulfilled, add that to the list
-    const isFulfilled = newRequestsFromOtherNodes.some((newRequest) => {
+    const isFulfilled = newRequests.some((newRequest) => {
       const { requester, requestInd } = newRequest.args;
 
       return fulfillmentsForThisNode.some((fr) => fr.args.fulfiller === requester && fr.args.requestInd === requestInd);
