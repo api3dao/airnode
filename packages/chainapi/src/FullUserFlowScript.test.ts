@@ -87,7 +87,6 @@ describe('Full user flow', () => {
 
     // The requester signs up to ChainAPI. The dapp has the provider make the transaction below.
     tx = await contractAsRequesterAdmin.createRequester(requesterAdmin);
-    // ChainAPI checks that providerAdmin, platformAgent and validUntilTimestamp are correct
     logs = await ethProvider.getLogs({ address: contract.address });
     log = logs.filter((log) => log.transactionHash === tx.hash)[0];
     const requesterId = requesterInterface.parseLog(log).args.id;
