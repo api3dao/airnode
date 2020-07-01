@@ -16,8 +16,8 @@ contract EndpointStore is ProviderStore {
     mapping(bytes32 => Endpoint) private endpoints;
     uint256 private noEndpoint = 0;
 
-    event EndpointCreated(bytes32 indexed id);
-    event EndpointUpdated(bytes32 indexed id);
+    event EndpointCreated(bytes32 indexed id, address[] authorizers);
+    event EndpointUpdated(bytes32 indexed id, address[] authorizers);
     event EndpointDeleted(bytes32 indexed id);
 
     /// @notice Creates an endpoint with the given parameters, addressable by
@@ -38,7 +38,7 @@ contract EndpointStore is ProviderStore {
             providerId: providerId,
             authorizers: authorizers
         });
-        emit EndpointCreated(endpointId);
+        emit EndpointCreated(endpointId, authorizers);
     }
 
     /// @notice Updates the authorizer contracts of an endpoint
@@ -52,7 +52,7 @@ contract EndpointStore is ProviderStore {
         onlyProviderAdmin(endpoints[endpointId].providerId)
     {
         endpoints[endpointId].authorizers = authorizers;
-        emit EndpointUpdated(endpointId);
+        emit EndpointUpdated(endpointId, authorizers);
     }
 
     /// @notice Deletes the endpoint
