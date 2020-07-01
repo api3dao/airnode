@@ -31,7 +31,7 @@ contract Client {
         bytes32 _data
     )
         external
-        // Check if the fulfiller belongs to provider here
+        // Check if the fulfiller is the ChainApi contract here
     {
         data = _data;
     }
