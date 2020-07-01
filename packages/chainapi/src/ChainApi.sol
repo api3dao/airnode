@@ -14,12 +14,18 @@ contract ChainApi is EndpointStore, TemplateStore {
 
     event RequestMade(
         bytes32 indexed providerId,
-        address requester,
         bytes32 requestId,
+        address requester,
         bytes32 templateId,
         address callbackAddress,
         bytes4 callbackFunctionId,
         bytes parameters
+        );
+
+    event RequestFulfilled(
+        bytes32 indexed providerId,
+        bytes32 requestId,
+        bytes32 data
         );
 
     /// @notice Announces an oracle request by emitting an event, which
@@ -57,7 +63,7 @@ contract ChainApi is EndpointStore, TemplateStore {
         );
     }
 
-    /// @notice ...
+    /// @notice The function that the oracle node calls to fulfill requests
     /// @param callbackAddress Address that will be called to deliver the
     /// response
     /// @param callbackFunctionId ID of the function that will be called to
@@ -79,10 +85,16 @@ contract ChainApi is EndpointStore, TemplateStore {
             bytes memory callData
         )
     {
+        bytes32 providerId = requestProviders[requestId];
         require(
-            this.getProviderWalletStatus(requestProviders[requestId], msg.sender),
+            this.getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
         );
+        emit RequestMade(
+            providerId,
+            requestId,
+            data
+            );
         delete requestProviders[requestId];
         (callSuccess, callData) = callbackAddress.call(
             abi.encodeWithSelector(callbackFunctionId, requestId, data)
