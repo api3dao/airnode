@@ -48,6 +48,7 @@ export interface ApiComponents {
 }
 
 export interface ApiSpecification {
+  id: string;
   components: ApiComponents;
   info: ApiInfo;
   paths: { [key: string]: Path };
@@ -84,6 +85,7 @@ export interface EndpointParameter {
 }
 
 export interface OracleSpecification {
+  id: string;
   fixedOperationParameters: ParameterValue[];
   operation: OracleOperation;
   parameters: EndpointParameter[];

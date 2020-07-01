@@ -1,6 +1,7 @@
 .eslintrc.js
 node_modules/
 packages/contracts/node_modules/
-packages/node/node_modules/
 packages/node/.build/
 packages/node/.serverless/
+packages/node/coverage/
+packages/node/node_modules/

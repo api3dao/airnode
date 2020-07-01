@@ -36,7 +36,7 @@ describe('getGasPrice', () => {
     contract.latestAnswer.mockResolvedValueOnce(53000000000);
 
     const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber("48000000000"));
+    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
 
     const gasPrice = await gasPrices.getGasPrice(state);
     expect(utils.weiToGwei(gasPrice)).toEqual('53.0');
@@ -47,7 +47,7 @@ describe('getGasPrice', () => {
     contract.latestAnswer.mockResolvedValueOnce(53000000000);
 
     const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber("55000000000"));
+    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('55000000000'));
 
     const gasPrice = await gasPrices.getGasPrice(state);
     expect(utils.weiToGwei(gasPrice)).toEqual('55.0');
@@ -69,7 +69,7 @@ describe('getGasPrice', () => {
     contract.latestAnswer.mockResolvedValueOnce(43000000000000);
 
     const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber("48000000000"));
+    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
 
     const gasPrice = await gasPrices.getGasPrice(state);
     expect(utils.weiToGwei(gasPrice)).toEqual('1000.0');

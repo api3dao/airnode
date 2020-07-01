@@ -7,7 +7,7 @@ describe('Aggregator', () => {
   let contractFactory;
   let accounts;
   // let aggregatorInterface;
-  
+
   beforeEach(async () => {
     provider = new ethers.providers.Web3Provider(ganache.provider());
     accounts = await provider.listAccounts();

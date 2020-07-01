@@ -2,13 +2,6 @@ import * as ethereum from './ethereum';
 import * as state from './state';
 import { go } from './utils/promise-utils';
 import * as logger from './utils/logger';
-import { specs } from './config';
-
-function processApis() {
-  specs.forEach((spec) => {
-    logger.logJSON('INFO', `Processing: ${spec.apiSpecifications.info.title}...`);
-  });
-}
 
 export async function main() {
   // =========================================================
@@ -17,7 +10,8 @@ export async function main() {
   const state1 = await state.initialize();
 
   // =========================================================
-  // STEP 2: Get the expected gas price
+  // STEP 2: Get the expected gas price to use when making
+  // transactions
   // =========================================================
   const gasPrice = await ethereum.getGasPrice(state1);
   logger.logJSON('INFO', `Gas price set to ${ethereum.weiToGwei(gasPrice)} Gwei`);
@@ -38,9 +32,10 @@ export async function main() {
   const state3 = state.update(state2, { currentBlock });
 
   // =========================================================
-  // STEP 4: Process each API specification
+  // STEP 4: Detect new flux requests that need to be processed
   // =========================================================
-  processApis();
+  // TODO: enable this and assign to the state somewhere
+  // fluxAggregator.detectEvents(state3, specs);
 
   return [state3];
 }
