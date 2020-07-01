@@ -10,7 +10,6 @@ pragma solidity 0.6.8;
 contract TemplateStore {
     struct Template {
         bytes32 endpointId;
-        uint gasLimit;
         bytes parameters;
     }
 
@@ -26,12 +25,10 @@ contract TemplateStore {
     /// with the same parameters will overwrite the old one and return the
     /// same template ID.
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param gasLimit Gas limit to be used to fulfill the request
     /// @param parameters Parameters encoded in CBOR
     /// @return templateId Request template ID
     function createTemplate(
         bytes32 endpointId,
-        uint gasLimit,
         bytes calldata parameters
         )
         external
@@ -40,13 +37,11 @@ contract TemplateStore {
         templateId = keccak256(
             abi.encodePacked(
                 endpointId,
-                gasLimit,
                 parameters
                 )
         );
         templates[templateId] = Template({
             endpointId: endpointId,
-            gasLimit: gasLimit,
             parameters: parameters
         });
         emit TemplateCreated(templateId);
@@ -55,19 +50,16 @@ contract TemplateStore {
     /// @notice Retrieves request parameters addressed by the ID
     /// @param templateId Request template ID
     /// @return endpointId Endpoint ID from EndpointStore
-    /// @return gasLimit Gas limit used to fulfill the request
     /// @return parameters Parameters encoded in CBOR
     function getTemplate(bytes32 templateId)
         external
         view
         returns (
             bytes32 endpointId,
-            uint gasLimit,
             bytes memory parameters
         )
     {
         endpointId = templates[templateId].endpointId;
-        gasLimit = templates[templateId].gasLimit;
         parameters = templates[templateId].parameters;
     }
 }
