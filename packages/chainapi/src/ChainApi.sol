@@ -17,6 +17,7 @@ contract ChainApi is EndpointStore, TemplateStore {
         bytes32 requestId,
         address requester,
         bytes32 templateId,
+        uint256 walletInd,
         address callbackAddress,
         bytes4 callbackFunctionId,
         bytes parameters
@@ -32,6 +33,8 @@ contract ChainApi is EndpointStore, TemplateStore {
     /// the provider node should be listening for.
     /// @param providerId Provider ID from ProviderStore
     /// @param templateId Template ID from TemplateStore
+    /// @param walletInd Index of the wallet that the requester wants the
+    /// provider to use while fulfilling this request
     /// @param callbackAddress Address that will be called to deliver the
     /// response
     /// @param callbackFunctionId ID of the function that will be called to
@@ -41,6 +44,7 @@ contract ChainApi is EndpointStore, TemplateStore {
     function makeRequest(
         bytes32 providerId,
         bytes32 templateId,
+        uint256 walletInd,
         address callbackAddress,
         bytes4 callbackFunctionId,
         bytes calldata parameters
@@ -57,6 +61,7 @@ contract ChainApi is EndpointStore, TemplateStore {
             requestId,
             msg.sender,
             templateId,
+            walletInd,
             callbackAddress,
             callbackFunctionId,
             parameters
