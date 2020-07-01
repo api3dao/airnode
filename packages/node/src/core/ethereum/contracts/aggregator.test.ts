@@ -21,7 +21,7 @@ describe('getContractInterface', () => {
     const contractInterface = getContractInterface();
     expect(Object.keys(contractInterface.events)).toEqual([
       'NewRequest(address,uint256)',
-      'RequestFulfilled(address,uint256)'
+      'RequestFulfilled(address,uint256)',
     ]);
   });
 });

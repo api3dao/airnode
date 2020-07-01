@@ -8,7 +8,7 @@
     "lint": "npm run lint:eslint && npm run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:solhint": "solhint \"./packages/contracts/src/**/*.sol\"",
-    "prettify": "prettier --write ./**/*.{js,ts}",
+    "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "test": "lerna run test --stream",
     "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
   },
