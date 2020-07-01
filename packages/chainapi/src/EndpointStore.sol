@@ -18,7 +18,6 @@ contract EndpointStore is ProviderStore {
 
     event EndpointCreated(bytes32 indexed id, address[] authorizers);
     event EndpointUpdated(bytes32 indexed id, address[] authorizers);
-    event EndpointDeleted(bytes32 indexed id);
 
     /// @notice Creates an endpoint with the given parameters, addressable by
     /// the ID it returns
@@ -53,16 +52,6 @@ contract EndpointStore is ProviderStore {
     {
         endpoints[endpointId].authorizers = authorizers;
         emit EndpointUpdated(endpointId, authorizers);
-    }
-
-    /// @notice Deletes the endpoint
-    /// @param endpointId Endpoint ID
-    function deleteEndpoint(bytes32 endpointId)
-        external
-        onlyProviderAdmin(endpoints[endpointId].providerId)
-    {
-        delete endpoints[endpointId];
-        emit EndpointDeleted(endpointId);
     }
 
     /// @notice Retrieves endpoint parameters addressed by the ID
