@@ -16,14 +16,13 @@ function parseOises(oises: OIS[]): OIS[] {
   });
 }
 
-function parseConfig(config: Config): Config {
+function parseConfig(config: any): Config {
   const ois = parseOises(config.ois);
   return { ...config, ois };
 }
 
-// Cast the raw JSON files with the defined types
-const typedConfig = rawConfig as Config;
-export const specs = parseConfig(typedConfig);
+// Add runtime configuration and typings
+export const config = parseConfig(rawConfig);
 
 export const security = rawSecurity as SecuritySpecification;
 

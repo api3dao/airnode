@@ -129,7 +129,7 @@ export interface Triggers {
 // ===========================================
 // Config
 // ===========================================
-export interface NodeParameters {
+export interface NodeSettings {
   nodeKey: string;
   platformKey: string;
   platformUrl: string;
@@ -140,7 +140,7 @@ export interface NodeParameters {
 export interface Config {
   id: string;
   ois: OIS[];
-  parameters: NodeParameters;
+  nodeSettings: NodeSettings;
   triggers: Triggers;
 }
 
