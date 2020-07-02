@@ -5,10 +5,13 @@ import "./interfaces/Client.sol";
 
 
 /// @title The contract where the requesters are stored
-/// @notice Requesters need to be recorded and get assigned an ID to be able to
-/// reserve wallets from providers. Then, requesters can "endorse" client
-/// contracts, meaning that these contracts are allowed to make requests to
-/// providers that will be funded by the reserved wallets of the providers.
+/// @notice Requesters first get recorded here and get assigned an ID. Then,
+/// they get a wallet reserved at ProviderStore with that Requester ID.
+/// The contracts that the requester deploys are called clients. The requester
+/// can authorize its client contracts to be served by the wallets they have
+/// reserved and funded, which is referred to as endorsing the client. In other
+/// words, an endorser is a requester that pays for the gas costs of a client
+/// contract's oracle requests.
 contract RequesterStore {
     mapping(bytes32 => address) internal requesterIdToAdmin;
     mapping(address => bytes32) internal clientAdressToEndorserId;
@@ -70,7 +73,7 @@ contract RequesterStore {
     /// @notice Called by the requester admin to allow a client contract to use
     /// its wallets
     /// @dev This also requires the client contract to announce the requester
-    /// under the parameter endorserRequesterId
+    /// under the parameter endorserId
     /// @param requesterId Requester ID
     /// @param clientAddress Client contract address
     function endorseClient(
@@ -79,7 +82,7 @@ contract RequesterStore {
         )
         external
         onlyRequesterAdmin(requesterId)
-        onlyIfClientEndorserRequesterMatches(requesterId, clientAddress)
+        onlyAnnouncedEndorser(requesterId, clientAddress)
     {
         clientAdressToEndorserId[clientAddress] = requesterId;
         emit ClientEndorsed(
@@ -104,7 +107,10 @@ contract RequesterStore {
         onlyEndorser(requesterId, clientAddress)
     {
         clientAdressToEndorserId[clientAddress] = 0;
-        emit ClientDisendorsed(requesterId, clientAddress);
+        emit ClientDisendorsed(
+            requesterId,
+            clientAddress
+            );
     }
 
     /// @notice Retrieves the requester admin
@@ -118,15 +124,15 @@ contract RequesterStore {
         admin = requesterIdToAdmin[requesterId];
     }
 
-    /// @notice Retrieves the ID of the endorser requester of a client contract
+    /// @notice Retrieves the ID of the endorser of a client contract
     /// @param clientAddress Client contract address
-    /// @return requesterId Endorser requester ID
-    function getClientEndorserRequesterId(address clientAddress)
+    /// @return endorserId Endorser  ID
+    function getClientEndorserId(address clientAddress)
         external
         view
-        returns (bytes32 requesterId)
+        returns (bytes32 endorserId)
     {
-        requesterId = clientAdressToEndorserId[clientAddress];
+        endorserId = clientAdressToEndorserId[clientAddress];
     }
 
     /// @dev Reverts if the caller is not the requester admin
@@ -160,15 +166,15 @@ contract RequesterStore {
     /// match the requester with the given ID
     /// @param requesterId Requester ID
     /// @param clientAddress Client contract address
-    modifier onlyIfClientEndorserRequesterMatches(
+    modifier onlyAnnouncedEndorser(
         bytes32 requesterId,
         address clientAddress
         )
     {
         Client client = Client(clientAddress);
         require(
-            client.endorserRequesterId() == requesterId,
-            "Client contract Requester ID does not match"
+            client.endorserId() == requesterId,
+            "Client contract endorser requester ID does not match"
             );
         _;
     }

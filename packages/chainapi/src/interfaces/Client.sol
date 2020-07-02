@@ -3,7 +3,7 @@ pragma solidity 0.6.8;
 
 
 interface Client {
-    function endorserRequesterId()
+    function endorserId()
       external
       view
       returns(bytes32);

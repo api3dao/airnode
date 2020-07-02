@@ -8,8 +8,7 @@ import "./RequesterStore.sol";
 /// @notice For each provider, there is an admin that manages settings and a
 /// platformAgent that extends the validity of the provider. The requester uses
 /// this contract to reserve a wallet index and the provider authorizes the
-/// address that corresponds to that index to be able to fulfill the requests
-/// it receives.
+/// address that corresponds to that index to be able to fulfill requests.
 contract ProviderStore is RequesterStore {
     struct Provider {
         address admin;
@@ -62,7 +61,7 @@ contract ProviderStore is RequesterStore {
         );
 
     event ProviderWalletReserved(
-        bytes32 indexed providerId,
+        bytes32 indexed id,
         bytes32 indexed requesterId,
         uint256 walletInd,
         uint256 depositAmount
@@ -177,8 +176,8 @@ contract ProviderStore is RequesterStore {
     /// @dev Keys can only be initialized once. This means that the provider is
     /// not allowed to update their node key.
     /// @param providerId Provider ID
-    /// @param xpub The master public key of the provider node
-    /// @param walletAuthorizer The address provider uses to authorize nodes.
+    /// @param xpub Master public key of the provider node
+    /// @param walletAuthorizer Address provider uses to authorize nodes.
     /// This can be derived from xpub with the path m/0/0 off-chain.
     function initializeProviderKeys(
         bytes32 providerId,
@@ -195,7 +194,8 @@ contract ProviderStore is RequesterStore {
         );
         // Note that the check below does not actually validate if xpub is a
         // public key and walletAuthorizer can be derived from that with
-        // the path m/0/0.
+        // the path m/0/0. We depend on the provider for the correctness of
+        // these values.
         require(
             (bytes(xpub).length == 0) || (walletAuthorizer == address(0)),
             "Invalid provider keys"
@@ -215,7 +215,8 @@ contract ProviderStore is RequesterStore {
     /// authorized to fulfill requests made to this provider.
     /// @param providerId Provider ID
     /// @param walletInd Wallet index
-    /// @param walletAddress Wallet address
+    /// @param walletAddress Wallet address that can be derived from xpub with
+    /// the path m/{walletInd / 2^31}/{walletInd % 2^31}
     function updateProviderWalletStatus(
         bytes32 providerId,
         uint256 walletInd,
@@ -282,11 +283,12 @@ contract ProviderStore is RequesterStore {
 
     /// @notice Called by the requester to reserve a wallet index from the
     /// provider
-    /// @dev The provider expects walletAuthorizer to be sent along with this
-    /// call to cover the subsequent cost of authorizing the reserved wallet.
-    /// We do not require this to be done by the requester admin.
+    /// @dev The provider expects authorizationDeposit to be sent along with
+    /// this call to cover the subsequent cost of authorizing the reserved
+    /// wallet. Note that anyone can reserve a wallet for a requester, not
+    /// only its admin.
     /// @param providerId Provider ID
-    /// @param requesterId Requester ID
+    /// @param requesterId Requester ID from RequesterStore
     function reserveWallet(
         bytes32 providerId,
         bytes32 requesterId
@@ -322,8 +324,8 @@ contract ProviderStore is RequesterStore {
     /// @dev This method emits an event, which the provider node listens for
     /// and executes the withdrawal
     /// @param providerId Provider ID
-    /// @param walletAddress Address of the wallet that is requested to be
-    /// withdrawn from
+    /// @param walletAddress Address of the wallet that the withdrawal is
+    /// requested from
     /// @param destination Withdrawal destination
     function withdrawRequest(
         bytes32 providerId,
@@ -381,9 +383,13 @@ contract ProviderStore is RequesterStore {
 
     /// @notice Retrieves provider parameters addressed by the ID
     /// @param providerId Provider ID
-    /// @return admin Endpoint admin
+    /// @return admin Provider admin
     /// @return platformAgent Platform agent
     /// @return validUntil Provider validity deadline
+    /// @return xpub Master public key of the provider node
+    /// @return walletAuthorizer Address provider uses to authorize nodes
+    /// @return authorizationDeposit Amount the requesters need to deposit to
+    /// reserve a wallet index
     function getProvider(bytes32 providerId)
         external
         view
@@ -393,8 +399,7 @@ contract ProviderStore is RequesterStore {
             uint256 validUntil,
             string memory xpub,
             address walletAuthorizer,
-            uint256 authorizationDeposit,
-            uint256 nextWalletInd
+            uint256 authorizationDeposit
         )
     {
         admin = providers[providerId].admin;
@@ -403,14 +408,16 @@ contract ProviderStore is RequesterStore {
         xpub = providers[providerId].xpub;
         walletAuthorizer = providers[providerId].walletAuthorizer;
         authorizationDeposit = providers[providerId].authorizationDeposit;
-        nextWalletInd = providers[providerId].nextWalletInd;
     }
 
     /// @notice Gets the authorization status of a provider wallet
+    /// @dev The provider does not reserve wallet index 0 to anyone, which
+    /// means that if a wallet address maps to an index of 0, it is not
+    /// reserved by anyone or authorized to fulfill requests.
     /// @param providerId Provider ID
     /// @param walletAddress Wallet address
     /// @return status If the wallet is authorized to fulfill requests made to
-    /// a provider
+    /// the provider
     function getProviderWalletStatus(
         bytes32 providerId,
         address walletAddress
@@ -461,9 +468,9 @@ contract ProviderStore is RequesterStore {
         _;
     }
 
-    /// @dev Reverts if the provider is not valid
-    /// The validity deadline is significant in the resolution of days, which
-    /// is why using block.timestamp here is okay
+    /// @dev Reverts if the provider is not valid. The validity deadline is
+    /// significant in the resolution of days, which is why using
+    /// block.timestamp here is okay.
     /// @param providerId Provider ID
     modifier onlyIfProviderIsValid(bytes32 providerId)
     {
