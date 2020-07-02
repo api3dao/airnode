@@ -22,21 +22,31 @@ contract ChainApi is EndpointStore, TemplateStore {
         bytes parameters
         );
 
+    event DirectRequestMade(
+        bytes32 indexed providerId,
+        bytes32 requestId,
+        address requester,
+        bytes32 endpointId,
+        address callbackAddress,
+        bytes4 callbackFunctionId,
+        bytes parameters
+        );
+
     event RequestFulfilled(
         bytes32 indexed providerId,
         bytes32 requestId,
         bytes32 data
         );
 
-    /// @notice Announces an oracle request by emitting an event, which
-    /// the provider node should be listening for
+    /// @notice Called by the requester to make a request. It emits the request
+    /// details as an event, which the provider node should be listening for
     /// @param providerId Provider ID from ProviderStore
     /// @param templateId Template ID from TemplateStore
     /// @param callbackAddress Address that will be called to deliver the
     /// response
     /// @param callbackFunctionId Signature of the function that will be called
     /// to deliver the response
-    /// @param parameters Runtime parameters in addition to the ones defines in
+    /// @param parameters Runtime parameters in addition to the ones defined in
     /// the template addressed by templateId
     /// @return requestId Request ID
     function makeRequest(
@@ -63,6 +73,44 @@ contract ChainApi is EndpointStore, TemplateStore {
         );
     }
 
+    /// @notice Called by the requester to make a request. It emits the request
+    /// details as an event, which the provider node should be listening for.
+    /// @dev Since makeDirectRequest refers to the endpointId directly (instead
+    /// of referring to a template that refers to an endpoint), it requires the
+    /// requester to pass all parameters here.
+    /// @param providerId Provider ID from ProviderStore
+    /// @param endpointId Endpoint ID from EndpointStore
+    /// @param callbackAddress Address that will be called to deliver the
+    /// response
+    /// @param callbackFunctionId Signature of the function that will be called
+    /// to deliver the response
+    /// @param parameters Runtime parameters in addition to the ones defined in
+    /// the template addressed by templateId
+    /// @return requestId Request ID
+    function makeDirectRequest(
+        bytes32 providerId,
+        bytes32 endpointId,
+        address callbackAddress,
+        bytes4 callbackFunctionId,
+        bytes calldata parameters
+        )
+        external
+        onlyIfProviderIsValid(providerId)
+        returns (bytes32 requestId)
+    {
+        requestId = keccak256(abi.encodePacked(noRequest++, this));
+        requestIdToProviderId[requestId] = providerId;
+        emit DirectRequestMade(
+            providerId,
+            requestId,
+            msg.sender,
+            endpointId,
+            callbackAddress,
+            callbackFunctionId,
+            parameters
+        );
+    }
+
     /// @notice Called by the oracle node to fulfill requests
     /// @param callbackAddress Address that will be called to deliver the
     /// response
@@ -74,10 +122,10 @@ contract ChainApi is EndpointStore, TemplateStore {
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfillRequest(
-            address callbackAddress,
-            bytes4 callbackFunctionId,
-            bytes32 requestId,
-            bytes32 data
+        address callbackAddress,
+        bytes4 callbackFunctionId,
+        bytes32 requestId,
+        bytes32 data
         )
         external
         returns(
