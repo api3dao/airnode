@@ -21,7 +21,7 @@ contract EndpointStore is ProviderStore {
 
     /// @notice Creates an endpoint with the given parameters, addressable by
     /// the ID it returns
-    /// @param providerId Provider ID
+    /// @param providerId Provider ID from ProviderStore
     /// @param authorizers Authorizer contract addresses
     /// @return endpointId Endpoint ID
     function createEndpoint(
@@ -56,7 +56,7 @@ contract EndpointStore is ProviderStore {
 
     /// @notice Retrieves endpoint parameters addressed by the ID
     /// @param endpointId Endpoint ID
-    /// @return providerId Provider ID
+    /// @return providerId Provider ID from ProviderStore
     /// @return authorizers Authorizer contract addresses
     function getEndpoint(bytes32 endpointId)
         external

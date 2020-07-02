@@ -1,35 +1,58 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./Client.sol";
+import "./interfaces/Client.sol";
 
 
+/// @title The contract where the requesters are stored
+/// @notice Requesters need to be recorded and get assigned an ID to be able to
+/// reserve wallets from providers. Then, requesters can "endorse" client
+/// contracts, meaning that these contracts are allowed to make requests to
+/// providers that will be funded by the reserved wallets of the providers.
 contract RequesterStore {
-    // Don't use struct if Requester ends up having a single field
-    struct Requester {
-        address admin;
-    }
-
-    mapping(bytes32 => Requester) internal requesters;
-    mapping(address => bytes32) internal contractRequesterIds;
+    mapping(bytes32 => address) internal requesterIdToAdmin;
+    mapping(address => bytes32) internal clientAdressToEndorserId;
     uint256 private noRequester = 0;
 
-    event RequesterCreated(bytes32 indexed id);
-    event RequesterUpdated(bytes32 indexed id);
-
-    function createRequester(
+    event RequesterCreated(
+        bytes32 indexed id,
         address admin
-        )
+        );
+
+    event RequesterUpdated(
+        bytes32 indexed id,
+        address admin
+        );
+
+    event ClientEndorsed(
+        bytes32 indexed requesterId,
+        address indexed clientAddress
+        );
+
+    event ClientDisendorsed(
+        bytes32 indexed requesterId,
+        address indexed clientAddress
+        );
+
+    /// @notice Creates a provider with the given parameters, addressable by
+    /// the ID it returns
+    /// @param admin Admin address of the requester
+    /// @return requesterId Requester ID
+    function createRequester(address admin)
         external
         returns (bytes32 requesterId)
     {
         requesterId = keccak256(abi.encodePacked(noRequester++, this));
-        requesters[requesterId] = Requester({
-            admin: admin
-        });
-        emit RequesterCreated(requesterId);
+        requesterIdToAdmin[requesterId] = admin;
+        emit RequesterCreated(
+            requesterId,
+            admin
+            );
     }
 
+    /// @notice Updates the requester admin
+    /// @param requesterId Requester ID
+    /// @param admin Requester admin
     function updateRequesterAdmin(
         bytes32 requesterId,
         address admin
@@ -37,56 +60,114 @@ contract RequesterStore {
         external
         onlyRequesterAdmin(requesterId)
     {
-        requesters[requesterId].admin = admin;
-        emit RequesterUpdated(requesterId);
+        requesterIdToAdmin[requesterId] = admin;
+        emit RequesterUpdated(
+            requesterId,
+            admin
+            );
     }
 
-    function updateContractRequesterId(
+    /// @notice Called by the requester admin to allow a client contract to use
+    /// its wallets
+    /// @dev This also requires the client contract to announce the requester
+    /// under the parameter endorserRequesterId
+    /// @param requesterId Requester ID
+    /// @param clientAddress Client contract address
+    function endorseClient(
         bytes32 requesterId,
-        address contractAddress
+        address clientAddress
         )
         external
         onlyRequesterAdmin(requesterId)
-        onlyIfContractRequesterMatches(requesterId, contractAddress)
+        onlyIfClientEndorserRequesterMatches(requesterId, clientAddress)
     {
-        contractRequesterIds[contractAddress] = requesterId;
+        clientAdressToEndorserId[clientAddress] = requesterId;
+        emit ClientEndorsed(
+            requesterId,
+            clientAddress
+            );
     }
 
-    function getRequester(bytes32 requesterId)
+    /// @notice Called by the requester admin to disallow a client contract
+    /// from using its wallets
+    /// @dev This is one-sided, meaning that it does not require permission
+    /// from the client contract. However, it requires the caller to be the
+    /// current endorser of the client contract.
+    /// @param requesterId Requester ID
+    /// @param clientAddress Client contract address
+    function disendorseClient(
+        bytes32 requesterId,
+        address clientAddress
+        )
+        external
+        onlyRequesterAdmin(requesterId)
+        onlyEndorser(requesterId, clientAddress)
+    {
+        clientAdressToEndorserId[clientAddress] = 0;
+        emit ClientDisendorsed(requesterId, clientAddress);
+    }
+
+    /// @notice Retrieves the requester admin
+    /// @param requesterId Requester ID
+    /// @return admin Requester admin
+    function getRequesterAdmin(bytes32 requesterId)
         external
         view
-        returns (
-            address admin
-        )
+        returns (address admin)
     {
-        admin = requesters[requesterId].admin;
+        admin = requesterIdToAdmin[requesterId];
     }
 
-    function getContractRequesterId(address contractAddress)
+    /// @notice Retrieves the ID of the endorser requester of a client contract
+    /// @param clientAddress Client contract address
+    /// @return requesterId Endorser requester ID
+    function getClientEndorserRequesterId(address clientAddress)
         external
         view
         returns (bytes32 requesterId)
     {
-        requesterId = contractRequesterIds[contractAddress];
+        requesterId = clientAdressToEndorserId[clientAddress];
     }
 
+    /// @dev Reverts if the caller is not the requester admin
+    /// @param requesterId Requester ID
     modifier onlyRequesterAdmin(bytes32 requesterId)
     {
         require(
-            msg.sender == requesters[requesterId].admin,
+            msg.sender == requesterIdToAdmin[requesterId],
             "Caller is not the requester admin"
         );
         _;
     }
 
-    modifier onlyIfContractRequesterMatches(
+    /// @dev Reverts if the requester with the given ID is not the endorser
+    /// of the client contract with the given address
+    /// @param requesterId Requester ID
+    /// @param clientAddress Client contract address
+    modifier onlyEndorser(
         bytes32 requesterId,
-        address contractAddress
+        address clientAddress
         )
     {
-        Client client = Client(contractAddress);
         require(
-            client.requesterId() == requesterId,
+            clientAdressToEndorserId[clientAddress] == requesterId,
+            "Caller is not the endorser of the client"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the endorser announced at the client contract does not
+    /// match the requester with the given ID
+    /// @param requesterId Requester ID
+    /// @param clientAddress Client contract address
+    modifier onlyIfClientEndorserRequesterMatches(
+        bytes32 requesterId,
+        address clientAddress
+        )
+    {
+        Client client = Client(clientAddress);
+        require(
+            client.endorserRequesterId() == requesterId,
             "Client contract Requester ID does not match"
             );
         _;

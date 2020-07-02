@@ -25,7 +25,7 @@ contract TemplateStore {
     /// with the same parameters will overwrite the old one and return the
     /// same template ID.
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param parameters Parameters encoded in CBOR
+    /// @param parameters Parameters that will not change between requests
     /// @return templateId Request template ID
     function createTemplate(
         bytes32 endpointId,

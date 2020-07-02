@@ -34,9 +34,10 @@ contract ChainApi is EndpointStore, TemplateStore {
     /// @param templateId Template ID from TemplateStore
     /// @param callbackAddress Address that will be called to deliver the
     /// response
-    /// @param callbackFunctionId ID of the function that will be called to
-    /// deliver the response
-    /// @param parameters Request parameters encoded in CBOR
+    /// @param callbackFunctionId Signature of the function that will be called
+    /// to deliver the response
+    /// @param parameters Runtime parameters in addition to the ones defines in
+    /// the template addressed by templateId
     /// @return requestId Request ID
     function makeRequest(
         bytes32 providerId,
@@ -65,8 +66,8 @@ contract ChainApi is EndpointStore, TemplateStore {
     /// @notice Called by the oracle node to fulfill requests
     /// @param callbackAddress Address that will be called to deliver the
     /// response
-    /// @param callbackFunctionId ID of the function that will be called to
-    /// deliver the response
+    /// @param callbackFunctionId Signature of the function that will be called
+    /// to deliver the response
     /// @param requestId Request ID
     /// @param data Oracle response
     /// @return callSuccess If the fulfillment call succeeded
