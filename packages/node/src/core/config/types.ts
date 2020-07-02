@@ -1,20 +1,19 @@
 // ===========================================
-// API Specification
+// General
 // ===========================================
-export interface ApiInfo {
-  title: string;
-}
-
-export interface Server {
-  url: string;
-}
-
 export type Method = 'get' | 'post';
 export type ParameterTarget = 'query' | 'path' | 'header' | 'cookie';
 
 export interface OperationParameter {
   in: ParameterTarget;
   name: string;
+}
+
+// ===========================================
+// API Specification
+// ===========================================
+export interface Server {
+  url: string;
 }
 
 export interface SecurityRequirement {
@@ -50,7 +49,6 @@ export interface ApiComponents {
 export interface ApiSpecification {
   id: string;
   components: ApiComponents;
-  info: ApiInfo;
   paths: { [key: string]: Path };
   security?: SecurityRequirement[];
   servers?: Server[];
@@ -59,43 +57,91 @@ export interface ApiSpecification {
 // ===========================================
 // Oracle Specification
 // ===========================================
-export type OracleTriggerType = 'fluxFeed' | 'request';
-
-export interface OracleTrigger {
-  type: OracleTriggerType;
-  value: string;
-}
-
 export interface OracleOperation {
   method: Method;
   path: string;
 }
 
-export interface ParameterValue {
-  in: ParameterTarget;
+export interface EndpointParameter {
+  default?: string;
+  description?: string;
+  example?: string;
   name: string;
-  value?: string;
+  operationParameter: OperationParameter;
+  required?: boolean;
 }
 
-export interface EndpointParameter {
+export interface FixedParameter {
+  operationParameter: OperationParameter;
+  value: string;
+}
+
+export interface ReservedParameter {
   default?: string;
   fixed?: string;
   name: string;
-  operationParamer?: ParameterValue;
 }
 
 export interface OracleSpecification {
+  description?: string;
+  externalDocs?: string;
+  fixedOperationParameters: FixedParameter[];
   id: string;
-  fixedOperationParameters: ParameterValue[];
+  name: string;
   operation: OracleOperation;
   parameters: EndpointParameter[];
-  trigger: OracleTrigger;
+  reservedParameters: ReservedParameter[];
+  summary?: string;
 }
 
-export interface Specification {
-  ois: string;
+// ===========================================
+// OIS
+// ===========================================
+export interface OIS {
+  oisFormat: string;
+  title: string;
+  version: string;
   apiSpecifications: ApiSpecification;
   oracleSpecifications: OracleSpecification[];
+}
+
+// ===========================================
+// Triggers
+// ===========================================
+export interface RequestTrigger {
+  endpointId: string;
+  endpointName: string;
+  oisTitle: string;
+}
+
+export interface AggregatorTrigger {
+  address: string;
+  endpointName: string;
+  oisTitle: string;
+}
+
+export interface Triggers {
+  aggregator: AggregatorTrigger[];
+  flux: AggregatorTrigger[];
+  requests: RequestTrigger[];
+}
+
+// ===========================================
+// Config
+// ===========================================
+export interface NodeSettings {
+  nodeKey: string;
+  platformKey: string;
+  platformUrl: string;
+  providerId: string;
+  providerUrls: string[];
+}
+
+export interface Config {
+  id: string;
+  ois: OIS[];
+  nodeSettings: NodeSettings;
+  triggers: Triggers;
 }
 
 // ===========================================
