@@ -14,7 +14,7 @@ import "./interfaces/Client.sol";
 /// contract's oracle requests.
 contract RequesterStore {
     mapping(bytes32 => address) internal requesterIdToAdmin;
-    mapping(address => bytes32) internal clientAdressToEndorserId;
+    mapping(address => bytes32) private clientAdressToEndorserId;
     uint256 private noRequester = 0;
 
     event RequesterCreated(

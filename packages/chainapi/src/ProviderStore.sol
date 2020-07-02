@@ -28,7 +28,7 @@ contract ProviderStore is RequesterStore {
         }
 
     mapping(bytes32 => Provider) internal providers;
-    mapping(bytes32 => WithdrawRequest) internal withdrawRequests;
+    mapping(bytes32 => WithdrawRequest) private withdrawRequests;
     uint256 private noProvider = 0;
     uint256 private noWithdrawRequests = 0;
 
