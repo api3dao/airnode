@@ -1,8 +1,15 @@
-export interface UserParams {
+import { Method } from '@airnode/node/types';
+
+export interface Parameters {
   [key: string]: string;
 }
 
-export type Method = 'get' | 'post';
+export interface RequestParameters {
+  paths: { [key: string]: string };
+  query: { [key: string]: string };
+  cookies: { [key: string]: string };
+  headers: { [key: string]: string };
+}
 
 export interface BasicAuth {
   password: string;
@@ -10,11 +17,11 @@ export interface BasicAuth {
 }
 
 export interface Request {
-  baseUrl?: string;
-  path?: string;
-  method?: Method;
-  headers?: { [key: string]: string };
-  params?: { [key: string]: string };
-  data?: { [key: string]: string };
-  auth?: BasicAuth;
+  baseUrl: string;
+  path: string;
+  method: Method;
+  headers: { [key: string]: string };
+  params: { [key: string]: string };
+  data: { [key: string]: string };
+  auth: BasicAuth;
 }

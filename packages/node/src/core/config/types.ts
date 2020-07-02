@@ -2,7 +2,7 @@
 // General
 // ===========================================
 export type Method = 'get' | 'post';
-export type ParameterTarget = 'query' | 'path' | 'header' | 'cookie';
+export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie';
 
 export interface OperationParameter {
   in: ParameterTarget;
