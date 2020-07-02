@@ -227,6 +227,7 @@ contract ProviderStore is RequesterStore {
         address walletAddress
         )
         external
+        payable
     {
         require(
             (msg.sender == providers[providerId].admin) ||
@@ -239,6 +240,8 @@ contract ProviderStore is RequesterStore {
             walletInd,
             walletAddress
             );
+        (bool success, ) = walletAddress.call{value: msg.value}("");
+        require(success, "Transfer failed");
     }
 
     /// @notice Updates the platform agent
