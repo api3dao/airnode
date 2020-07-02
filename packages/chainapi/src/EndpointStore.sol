@@ -32,7 +32,11 @@ contract EndpointStore is ProviderStore {
         onlyProviderAdmin(providerId)
         returns(bytes32 endpointId)
     {
-        endpointId = keccak256(abi.encodePacked(noEndpoint++, this));
+        endpointId = keccak256(abi.encodePacked(
+            noEndpoint++,
+            this,
+            uint256(0)
+            ));
         endpoints[endpointId] = Endpoint({
             providerId: providerId,
             authorizers: authorizers

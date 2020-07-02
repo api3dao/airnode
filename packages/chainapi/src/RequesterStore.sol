@@ -45,7 +45,11 @@ contract RequesterStore {
         external
         returns (bytes32 requesterId)
     {
-        requesterId = keccak256(abi.encodePacked(noRequester++, this));
+        requesterId = keccak256(abi.encodePacked(
+            noRequester++,
+            this,
+            uint256(3)
+            ));
         requesterIdToAdmin[requesterId] = admin;
         emit RequesterCreated(
             requesterId,

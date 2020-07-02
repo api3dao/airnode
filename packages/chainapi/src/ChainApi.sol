@@ -60,7 +60,10 @@ contract ChainApi is EndpointStore, TemplateStore {
         onlyIfProviderIsValid(providerId)
         returns (bytes32 requestId)
     {
-        requestId = keccak256(abi.encodePacked(noRequest++, this));
+        requestId = keccak256(abi.encodePacked(
+            noRequest++,
+            this
+            ));
         requestIdToProviderId[requestId] = providerId;
         emit RequestMade(
             providerId,
@@ -98,7 +101,10 @@ contract ChainApi is EndpointStore, TemplateStore {
         onlyIfProviderIsValid(providerId)
         returns (bytes32 requestId)
     {
-        requestId = keccak256(abi.encodePacked(noRequest++, this));
+        requestId = keccak256(abi.encodePacked(
+            noRequest++,
+            this
+            ));
         requestIdToProviderId[requestId] = providerId;
         emit DirectRequestMade(
             providerId,

@@ -105,7 +105,11 @@ contract ProviderStore is RequesterStore {
         external
         returns (bytes32 providerId)
     {
-        providerId = keccak256(abi.encodePacked(noProvider++, this));
+        providerId = keccak256(abi.encodePacked(
+            noProvider++,
+            this,
+            uint256(1)
+            ));
         providers[providerId] = Provider({
             admin: admin,
             platformAgent: platformAgent,
@@ -342,7 +346,8 @@ contract ProviderStore is RequesterStore {
         );
         bytes32 withdrawRequestId = keccak256(abi.encodePacked(
             noWithdrawRequests++,
-            this
+            this,
+            uint256(2)
             ));
         withdrawRequests[withdrawRequestId] = WithdrawRequest({
             walletAddress: walletAddress,
