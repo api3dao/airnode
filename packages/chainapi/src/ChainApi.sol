@@ -9,14 +9,13 @@ import "./TemplateStore.sol";
 /// @notice This can be seen as a common oracle contract. Requesters call it to
 /// make requests and the nodes call it to fulfill these requests.
 contract ChainApi is EndpointStore, TemplateStore {
-    mapping(bytes32 => bytes32) private requestProviders;
+    mapping(bytes32 => bytes32) private requestIdToProviderId;
     uint256 private noRequest = 0;
 
     event RequestMade(
         bytes32 indexed providerId,
         bytes32 requestId,
         address requester,
-        uint256 walletInd,
         bytes32 templateId,
         address callbackAddress,
         bytes4 callbackFunctionId,
@@ -30,14 +29,9 @@ contract ChainApi is EndpointStore, TemplateStore {
         );
 
     /// @notice Announces an oracle request by emitting an event, which
-    /// the provider node should be listening for.
-    /// @dev The walletInd provided by the requester is a suggestion and the
-    /// provider can fulfill the request with any of the wallets that it has
-    /// allocated for the requester.
+    /// the provider node should be listening for
     /// @param providerId Provider ID from ProviderStore
     /// @param templateId Template ID from TemplateStore
-    /// @param walletInd Index of the wallet that the requester wants the
-    /// provider to use while fulfilling this request
     /// @param callbackAddress Address that will be called to deliver the
     /// response
     /// @param callbackFunctionId ID of the function that will be called to
@@ -47,23 +41,20 @@ contract ChainApi is EndpointStore, TemplateStore {
     function makeRequest(
         bytes32 providerId,
         bytes32 templateId,
-        uint256 walletInd,
         address callbackAddress,
         bytes4 callbackFunctionId,
         bytes calldata parameters
         )
         external
-        payable
         onlyIfProviderIsValid(providerId)
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(noRequest++, this));
-        requestProviders[requestId] = providerId;
+        requestIdToProviderId[requestId] = providerId;
         emit RequestMade(
             providerId,
             requestId,
             msg.sender,
-            walletInd,
             templateId,
             callbackAddress,
             callbackFunctionId,
@@ -71,7 +62,7 @@ contract ChainApi is EndpointStore, TemplateStore {
         );
     }
 
-    /// @notice The function that the oracle node calls to fulfill requests
+    /// @notice Called by the oracle node to fulfill requests
     /// @param callbackAddress Address that will be called to deliver the
     /// response
     /// @param callbackFunctionId ID of the function that will be called to
@@ -93,12 +84,12 @@ contract ChainApi is EndpointStore, TemplateStore {
             bytes memory callData
         )
     {
-        bytes32 providerId = requestProviders[requestId];
+        bytes32 providerId = requestIdToProviderId[requestId];
         require(
             this.getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
         );
-        delete requestProviders[requestId];
+        delete requestIdToProviderId[requestId];
         emit RequestFulfilled(
             providerId,
             requestId,
