@@ -195,15 +195,15 @@ contract ProviderStore is RequesterStore {
             (bytes(providers[providerId].xpub).length == 0) &&
                 (providers[providerId].walletAuthorizer == address(0)),
             "Provider keys are already initialized"
-        );
+            );
         // Note that the check below does not actually validate if xpub is a
         // public key and walletAuthorizer can be derived from that with
         // the path m/0/0. We depend on the provider for the correctness of
         // these values.
         require(
-            (bytes(xpub).length == 0) || (walletAuthorizer == address(0)),
+            (bytes(xpub).length != 0) && (walletAuthorizer != address(0)),
             "Invalid provider keys"
-        );
+            );
         providers[providerId].xpub = xpub;
         providers[providerId].walletAuthorizer = walletAuthorizer;
         emit ProviderKeysInitialized(
