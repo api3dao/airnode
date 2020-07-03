@@ -22,21 +22,21 @@ export interface SecurityRequirement {
 
 export interface Operation {
   parameters: OperationParameter[];
-  security?: SecurityRequirement[];
-  servers?: Server[];
 }
 
 export interface Path {
   [key: string]: Operation;
 }
 
+
+export type SecuritySchemeName = 'bearer' | 'basic';
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
 export interface ApiSecurityScheme {
   in: SecuritySchemeTarget;
   name: string;
-  scheme?: string;
+  scheme: SecuritySchemeName;
   type: SecuritySchemeType;
 }
 
@@ -50,8 +50,8 @@ export interface ApiSpecification {
   id: string;
   components: ApiComponents;
   paths: { [key: string]: Path };
-  security?: SecurityRequirement[];
-  servers?: Server[];
+  security: SecurityRequirement[];
+  servers: Server[];
 }
 
 // ===========================================
@@ -148,13 +148,16 @@ export interface Config {
 // Security
 // ===========================================
 export interface SecurityScheme {
-  in: SecuritySchemeTarget;
-  name: string;
   securitySchemeName: string;
-  type: SecuritySchemeType;
   value: string;
 }
 
+export interface ApiCredentials {
+  [key: string]: SecurityScheme[];
+}
+
 export interface SecuritySpecification {
-  [apiTitle: string]: SecurityScheme[];
+  id: string;
+  apiCredentials: ApiCredentials;
+  masterKeyMnemonics?: string;
 }

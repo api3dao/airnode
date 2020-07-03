@@ -1,7 +1,11 @@
 import trimEnd from 'lodash/trimEnd';
 import trimStart from 'lodash/trimStart';
 import isEmpty from 'lodash/isEmpty';
-import { Parameters } from './types';
+import { Parameters } from '../types';
+
+function removeBraces(value: string) {
+  return trimEnd(trimStart(value, '{'), '}');
+}
 
 export function parsePathWithParameters(rawPath: string, parameters: Parameters) {
   // Match on anything in the path that is braces
@@ -15,15 +19,19 @@ export function parsePathWithParameters(rawPath: string, parameters: Parameters)
   }
 
   const path = matches.reduce((updatedPath: string, match: string) => {
-    const withoutBraces = trimEnd(trimStart(match, '{'), '}');
+    const withoutBraces = removeBraces(match);
     const value = parameters[withoutBraces];
-    return updatedPath.replace(match, value);
+    if (value) {
+      return updatedPath.replace(match, value);
+    }
+    return updatedPath;
   }, rawPath);
 
   // Check that all path parameters have been replaced
   const matchesPostParse = path.match(regex);
   if (matchesPostParse && !isEmpty(matchesPostParse)) {
-    throw new Error(`The following path parameters were not provided: ${matchesPostParse.join(', ')}`);
+    const missingParams = matchesPostParse.map(m => `'${removeBraces(m)}'`).join(', ');
+    throw new Error(`The following path parameters were expected but not provided: ${missingParams}`);
   }
 
   return path;

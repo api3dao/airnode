@@ -1,5 +1,5 @@
 import { Operation, OracleSpecification, ParameterTarget } from '@airnode/node/types';
-import { RequestParameters, UserParameters } from './types';
+import { Parameters, RequestParameters, State } from '../types';
 
 function initalParameters(): RequestParameters {
   return {
@@ -25,7 +25,9 @@ function appendParameter(parameters: RequestParameters, target: ParameterTarget,
   }
 }
 
-function buildFixedParameters(operation: Operation, oracle: OracleSpecification): RequestParameters {
+function buildFixedParameters(state: State): RequestParameters {
+  const { operation, oracleSpecification: oracle } = state;
+
   return oracle.fixedOperationParameters.reduce((acc, parameter) => {
     const { name, in: target } = parameter.operationParameter;
 
@@ -39,14 +41,12 @@ function buildFixedParameters(operation: Operation, oracle: OracleSpecification)
   }, initalParameters());
 }
 
-function buildUserParameters(
-  operation: Operation,
-  oracle: OracleSpecification,
-  userParameters: UserParameters
-): RequestParameters {
-  const keys = Object.keys(userParameters);
+function buildUserParameters(state: State): RequestParameters {
+  const { operation, oracleSpecification: oracle } = state;
 
-  return keys.reduce((acc, key) => {
+  const parameterKeys = Object.keys(state.parameters);
+
+  return parameterKeys.reduce((acc, key) => {
     // Double check that the parameter exists in the API specification
     const apiParameter = operation.parameters.find((p) => p.name === name);
     if (!apiParameter) {
@@ -54,30 +54,28 @@ function buildUserParameters(
     }
 
     const parameter = oracle.parameters.find((p) => p.name === key);
-    // If the parameter is not defined in the API specification, ignore it.
+    // If the parameter is not defined in the Oracle specification, ignore it.
     if (!parameter) {
       return acc;
     }
 
     const { name, in: target } = parameter.operationParameter;
 
-    return appendParameter(acc, target, name, userParameters[key]);
+    return appendParameter(acc, target, name, state.parameters[key]);
   }, initalParameters());
 }
 
-export function buildParameters(
-  oracle: OracleSpecification,
-  operation: Operation,
-  userParameters: UserParameters
-): RequestParameters {
+export function buildParameters(state: State): RequestParameters {
   // TODO: const auth = buildAuthParameters(...);
-  const fixed = buildFixedParameters(operation, oracle);
-  const user = buildUserParameters(operation, oracle, userParameters);
+  const fixed = buildFixedParameters(state);
+  const user = buildUserParameters(state);
 
+  // NOTE: Fixed parameters must come last otherwise they could potentially be
+  // overwritten by user parameters
   return {
-    paths: { ...fixed.paths, ...user.paths },
-    query: { ...fixed.query, ...user.query },
-    cookies: { ...fixed.cookies, ...user.cookies },
-    headers: { ...fixed.headers, ...user.headers },
+    paths: { ...user.paths, ...fixed.paths },
+    query: { ...user.query, ...fixed.query },
+    cookies: { ...user.cookies, ...fixed.cookies },
+    headers: { ...user.headers, ...fixed.headers },
   };
 }

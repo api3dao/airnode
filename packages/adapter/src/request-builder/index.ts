@@ -1,29 +1,21 @@
-import isEmpty from 'lodash/isEmpty';
-import { OIS } from '@airnode/node/src/core/config/types';
-import { Options } from '../types';
-import { Request } from './types';
+import { State } from '../types';
 import { buildParameters } from './parameters';
+import { parsePathWithParameters } from './path-parser';
 
-export function build(ois: OIS, options: Options): Request {
-  const api = ois.apiSpecifications;
-  const { method } = options;
+export function build(state: State): Request {
+  const { ois, method } = state;
 
-  const operation = api.paths[options.path][method];
-  const oracle = ois.oracleSpecifications.find((os) => os.name === options.oracleName);
-  if (!oracle) {
-    throw new Error(`Oracle specification: '${options.oracleName}' not found.`);
-  }
+  // A single base URL should always exist at the API level
+  // Different base URLs are not supported at the operation level
+  const baseUrl = ois.apiSpecifications.servers[0].url;
 
-  // A single base URL should always exist in one of these places
-  const baseUrl = operation.servers ? operation.servers[0].url : api.servers![0].url;
-
-  const parameters = buildParameters(oracle, operation, options.userParameters);
-  const path = isEmpty(parameters.paths) ? options.path : parsePathWithParameters(options.path);
+  const parameters = buildParameters(state);
+  const path = parsePathWithParameters(state.path, parameters.paths);
 
   return {
     baseUrl,
-    path: options.path,
+    path,
     method,
-    headers: 
+    headers: parameters.headers,
   };
 }
