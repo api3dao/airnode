@@ -7,8 +7,8 @@ export const ois: OIS = {
   apiSpecifications: {
     servers: [
       {
-        url: 'https://api.myapi.com'
-      }
+        url: 'https://api.myapi.com',
+      },
     ],
     paths: {
       '/convert': {
@@ -16,66 +16,66 @@ export const ois: OIS = {
           parameters: [
             {
               in: 'query',
-              name: 'from'
+              name: 'from',
             },
             {
               in: 'query',
-              name: 'to'
+              name: 'to',
             },
             {
               in: 'query',
-              name: 'amount'
+              name: 'amount',
             },
             {
               in: 'query',
-              name: 'date'
-            }
-          ]
-        }
-      }
+              name: 'date',
+            },
+          ],
+        },
+      },
     },
     components: {
       securitySchemes: {
         myapiApiScheme: {
           in: 'query',
           type: 'apiKey',
-          name: 'access_key'
-        }
-      }
+          name: 'access_key',
+        },
+      },
     },
     security: {
-      myapiApiScheme: []
-    }
+      myapiApiScheme: [],
+    },
   },
   oracleSpecifications: [
     {
       name: 'convertToUsd',
       operation: {
         method: 'get',
-        path: '/convert'
+        path: '/convert',
       },
       fixedOperationParameters: [
         {
           operationParameter: {
             in: 'query',
-            name: 'to'
+            name: 'to',
           },
-          value: 'USD'
-        }
+          value: 'USD',
+        },
       ],
       reservedParameters: [
         {
           name: 'eType',
-          fixed: 'uint256'
+          fixed: 'uint256',
         },
         {
           name: 'path',
-          fixed: 'result'
+          fixed: 'result',
         },
         {
           name: 'times',
-          default: '100000'
-        }
+          default: '100000',
+        },
       ],
       parameters: [
         {
@@ -83,18 +83,18 @@ export const ois: OIS = {
           default: 'EUR',
           operationParameter: {
             in: 'query',
-            name: 'from'
-          }
+            name: 'from',
+          },
         },
         {
           name: 'amount',
           default: '1',
           operationParameter: {
             name: 'amount',
-            in: 'query'
-          }
-        }
-      ]
-    }
-  ]
+            in: 'query',
+          },
+        },
+      ],
+    },
+  ],
 };

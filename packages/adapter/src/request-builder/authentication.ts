@@ -16,7 +16,11 @@ function initialParameters(): Authentication {
   };
 }
 
-function addApiKeyAuth(authentication: Authentication, apiSecurityScheme: ApiSecurityScheme, value: string): Authentication {
+function addApiKeyAuth(
+  authentication: Authentication,
+  apiSecurityScheme: ApiSecurityScheme,
+  value: string
+): Authentication {
   const { name } = apiSecurityScheme;
 
   switch (apiSecurityScheme.in) {
@@ -31,7 +35,11 @@ function addApiKeyAuth(authentication: Authentication, apiSecurityScheme: ApiSec
   }
 }
 
-function addHttpAuth(authentication: Authentication, apiSecurityScheme: ApiSecurityScheme, value: string): Authentication {
+function addHttpAuth(
+  authentication: Authentication,
+  apiSecurityScheme: ApiSecurityScheme,
+  value: string
+): Authentication {
   switch (apiSecurityScheme.scheme) {
     // The value for basic auth should be the base64 encoded value from
     // <username>:<password>
@@ -47,7 +55,11 @@ function addHttpAuth(authentication: Authentication, apiSecurityScheme: ApiSecur
   }
 }
 
-function addSchemeAuthentication(authentication: Authentication, apiSecurityScheme: ApiSecurityScheme, value: string): Authentication {
+function addSchemeAuthentication(
+  authentication: Authentication,
+  apiSecurityScheme: ApiSecurityScheme,
+  value: string
+): Authentication {
   if (apiSecurityScheme.type === 'apiKey') {
     return addApiKeyAuth(authentication, apiSecurityScheme, value);
   }
