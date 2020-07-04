@@ -6,6 +6,8 @@
 
 - Use SafeMath or equivalent
 
+- Implement an EndpointStorage method to go through authorizers and decide if the requester is allowed to use the endpoint (so that the node has to make a single Ethereum call)
+
 # Notes
 
 - The provider is allowed to use any of their authorized wallets while fulfilling a request.

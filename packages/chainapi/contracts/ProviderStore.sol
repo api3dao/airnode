@@ -221,6 +221,7 @@ contract ProviderStore is RequesterStore {
         external
         payable
         onlyProviderWalletAuthorizer(providerId)
+        onlyIfWalletIsNotAlreadyAuthorized(providerId, walletAddress)
     {
         providers[providerId].walletAddressToInd[walletAddress] = walletInd;
         emit ProviderWalletAuthorized(
@@ -321,7 +322,7 @@ contract ProviderStore is RequesterStore {
     /// @param walletAddress Address of the wallet that the withdrawal is
     /// requested from
     /// @param destination Withdrawal destination
-    function withdrawRequest(
+    function requestWithdraw(
         bytes32 providerId,
         bytes32 requesterId,
         address walletAddress,
@@ -359,7 +360,7 @@ contract ProviderStore is RequesterStore {
     /// @dev The node sends the funds through this method to emit an event that
     /// indicates that the withdrawal request has been fulfilled
     /// @param withdrawRequestId Withdraw request ID
-    function withdrawFulfill(
+    function fulfillWithdraw(
         bytes32 withdrawRequestId
         )
         external
@@ -520,6 +521,21 @@ contract ProviderStore is RequesterStore {
         require(
             msg.sender == providers[providerId].walletAuthorizer,
             "Only the provider walletAuthorizer can do this"
+            );
+        _;
+    }
+
+    /// @dev Reverts if the wallet is already authorized
+    /// @param providerId Provider ID
+    /// @param walletAddress Address of the wallet to be authorized
+    modifier onlyIfWalletIsNotAlreadyAuthorized(
+        bytes32 providerId,
+        address walletAddress
+        )
+    {
+        require(
+            providers[providerId].walletAddressToInd[walletAddress] == 0,
+            "Wallet already authorized"
             );
         _;
     }

@@ -4,3 +4,12 @@ packages/contracts/node_modules/
 packages/node/node_modules/
 packages/node/.build/
 packages/node/.serverless/
+
+**/node_modules/**
+
+**/coverage/**
+
+# Buidler
+**/cache/**
+**/artifacts/**
+**/buidler.config.js

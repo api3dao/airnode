@@ -15,7 +15,11 @@ contract TemplateStore {
 
     mapping(bytes32 => Template) private templates;
 
-    event TemplateCreated(bytes32 indexed id, bytes32 endpointId, bytes parameters);
+    event TemplateCreated(
+      bytes32 indexed id,
+      bytes32 endpointId,
+      bytes parameters
+      );
 
     /// @notice Creates a template with the given parameters, addressable by
     /// the ID it returns
