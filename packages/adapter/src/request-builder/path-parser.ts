@@ -30,7 +30,7 @@ export function parsePathWithParameters(rawPath: string, parameters: Parameters)
   // Check that all path parameters have been replaced
   const matchesPostParse = path.match(regex);
   if (matchesPostParse && !isEmpty(matchesPostParse)) {
-    const missingParams = matchesPostParse.map(m => `'${removeBraces(m)}'`).join(', ');
+    const missingParams = matchesPostParse.map((m) => `'${removeBraces(m)}'`).join(', ');
     throw new Error(`The following path parameters were expected but not provided: ${missingParams}`);
   }
 

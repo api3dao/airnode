@@ -28,7 +28,6 @@ export interface Path {
   [key: string]: Operation;
 }
 
-
 export type SecuritySchemeName = 'bearer' | 'basic';
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
@@ -36,7 +35,7 @@ export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 export interface ApiSecurityScheme {
   in: SecuritySchemeTarget;
   name: string;
-  scheme: SecuritySchemeName;
+  scheme?: SecuritySchemeName;
   type: SecuritySchemeType;
 }
 
@@ -47,7 +46,6 @@ export interface ApiComponents {
 }
 
 export interface ApiSpecification {
-  id: string;
   components: ApiComponents;
   paths: { [key: string]: Path };
   security: SecurityRequirement;
@@ -86,7 +84,6 @@ export interface OracleSpecification {
   description?: string;
   externalDocs?: string;
   fixedOperationParameters: FixedParameter[];
-  id: string;
   name: string;
   operation: OracleOperation;
   parameters: EndpointParameter[];

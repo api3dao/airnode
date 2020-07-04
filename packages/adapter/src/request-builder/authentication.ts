@@ -8,7 +8,7 @@ interface Authentication {
   cookies: Parameters;
 }
 
-function initialAuthentication(): Authentication {
+function initialParameters(): Authentication {
   return {
     query: {},
     headers: {},
@@ -16,63 +16,71 @@ function initialAuthentication(): Authentication {
   };
 }
 
-function addApiKeyAuth(authentication: Authentication, securityScheme: ApiSecurityScheme, value: string) {
-  const { name } = securityScheme;
+function addApiKeyAuth(authentication: Authentication, apiSecurityScheme: ApiSecurityScheme, value: string): Authentication {
+  const { name } = apiSecurityScheme;
 
-  switch (securityScheme.in) {
+  switch (apiSecurityScheme.in) {
     case 'query':
       return { ...authentication, query: { ...authentication.query, [name]: value } };
+
     case 'header':
       return { ...authentication, headers: { ...authentication.headers, [name]: value } };
+
     case 'cookie':
       return { ...authentication, cookies: { ...authentication.cookies, [name]: value } };
   }
 }
 
-function addHttpAuth(authentication: Authentication, securityScheme: ApiSecurityScheme, value: string) {
+function addHttpAuth(authentication: Authentication, apiSecurityScheme: ApiSecurityScheme, value: string): Authentication {
+  switch (apiSecurityScheme.scheme) {
+    // The value for basic auth should be the base64 encoded value from
+    // <username>:<password>
+    case 'basic':
+      return { ...authentication, headers: { Authorization: `Basic ${value}` } };
 
+    // The value for bearer should be the encoded token
+    case 'bearer':
+      return { ...authentication, headers: { Authorization: `Bearer ${value}` } };
+
+    default:
+      return authentication;
+  }
 }
 
-export function buildAuthentication(state: State) {
+function addSchemeAuthentication(authentication: Authentication, apiSecurityScheme: ApiSecurityScheme, value: string): Authentication {
+  if (apiSecurityScheme.type === 'apiKey') {
+    return addApiKeyAuth(authentication, apiSecurityScheme, value);
+  }
+  if (apiSecurityScheme.type === 'http') {
+    return addHttpAuth(authentication, apiSecurityScheme, value);
+  }
+  return authentication;
+}
+
+export function buildParameters(state: State): Authentication {
   const { securitySchemes } = state;
   // Security schemes originate from 'security.json' and contain all of the authentication details
   if (!securitySchemes || isEmpty(securitySchemes)) {
-    return;
+    return initialParameters();
   }
 
   // API security schemes originate from 'config.json' and specify which schemes should be used
-  const apiSchemes = state.ois.apiSpecifications.components.securitySchemes;
-  if (isEmpty(apiSchemes)) {
-    return;
+  const apiSecuritySchemes = state.ois.apiSpecifications.components.securitySchemes;
+  if (isEmpty(apiSecuritySchemes)) {
+    return initialParameters();
   }
 
-  const apiSchemeNames = Object.keys(apiSchemes);
+  const apiSchemeNames = Object.keys(apiSecuritySchemes);
 
-  const asd = apiSchemeNames.reduce((acc, schemeName) => {
-    const apiScheme = apiSchemes[schemeName];
+  return apiSchemeNames.reduce((authentication, schemeName) => {
+    const apiSecurityScheme = apiSecuritySchemes[schemeName];
 
-    const securityScheme = securitySchemes.find(scheme => scheme.securitySchemeName === schemeName);
+    // If there are no credentials in `security.json`, ignore the scheme
+    const securityScheme = securitySchemes.find((scheme) => scheme.securitySchemeName === schemeName);
     if (!securityScheme) {
-      return acc;
+      return authentication;
     }
 
-    if (apiScheme.type === 'apiKey') {
-      return addApiKeyAuth(acc, apiScheme, securityScheme.value);
-    }
-
-    if (apiScheme.type === 'http') {
-
-    }
-  }, initialAuthentication());
-
-  // for (const key in schemeKeys) {
-  //   const securityScheme = securitySchemes.find(s => s.securitySchemeName === key);
-  //   if (securityScheme!.type === 'apiKey') {
-  //     // TODO
-  //   }
-  //
-  //   if (securityScheme!.type === 'http') {
-  //     // TODO
-  //   }
-  // }
+    return addSchemeAuthentication(authentication, apiSecurityScheme, securityScheme.value);
+  }, initialParameters());
 }

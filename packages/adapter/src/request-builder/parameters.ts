@@ -1,5 +1,6 @@
-import { Operation, OracleSpecification, ParameterTarget } from '@airnode/node/types';
-import { Parameters, RequestParameters, State } from '../types';
+import { ParameterTarget } from '@airnode/node/types';
+import { RequestParameters, State } from '../types';
+import * as authentication from './authentication';
 
 function initalParameters(): RequestParameters {
   return {
@@ -14,12 +15,16 @@ function appendParameter(parameters: RequestParameters, target: ParameterTarget,
   switch (target) {
     case 'path':
       return { ...parameters, paths: { ...parameters.cookies, [name]: value } };
+
     case 'query':
       return { ...parameters, query: { ...parameters.query, [name]: value } };
+
     case 'header':
       return { ...parameters, headers: { ...parameters.headers, [name]: value } };
+
     case 'cookie':
       return { ...parameters, cookies: { ...parameters.cookies, [name]: value } };
+
     default:
       return parameters;
   }
@@ -66,16 +71,16 @@ function buildUserParameters(state: State): RequestParameters {
 }
 
 export function buildParameters(state: State): RequestParameters {
-  // TODO: const auth = buildAuthParameters(...);
+  const auth = authentication.buildParameters(state);
   const fixed = buildFixedParameters(state);
   const user = buildUserParameters(state);
 
-  // NOTE: Fixed parameters must come last otherwise they could potentially be
-  // overwritten by user parameters
+  // NOTE: User parameters MUST come first otherwise they could potentiallt
+  // overwrite fixed and authentication parameters
   return {
     paths: { ...user.paths, ...fixed.paths },
-    query: { ...user.query, ...fixed.query },
-    cookies: { ...user.cookies, ...fixed.cookies },
-    headers: { ...user.headers, ...fixed.headers },
+    query: { ...user.query, ...fixed.query, ...auth.query },
+    headers: { ...user.headers, ...fixed.headers, ...auth.headers },
+    cookies: { ...user.cookies, ...fixed.cookies, ...auth.cookies },
   };
 }
