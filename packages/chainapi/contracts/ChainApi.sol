@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.9;
 
+import "./interfaces/ChainApiInterface.sol";
 import "./EndpointStore.sol";
 import "./TemplateStore.sol";
 
@@ -8,7 +9,7 @@ import "./TemplateStore.sol";
 /// @title The contract used to make and fulfill requests
 /// @notice This can be seen as a common oracle contract. Requesters call it to
 /// make requests and the nodes call it to fulfill these requests.
-contract ChainApi is EndpointStore, TemplateStore {
+contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     mapping(bytes32 => bytes32) private requestIdToProviderId;
     uint256 private noRequest = 0;
 
@@ -57,6 +58,7 @@ contract ChainApi is EndpointStore, TemplateStore {
         bytes calldata parameters
         )
         external
+        override
         onlyIfProviderIsValid(providerId)
         returns (bytes32 requestId)
     {

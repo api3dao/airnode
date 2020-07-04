@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.9;
 
-import "./interfaces/Client.sol";
-import "./interfaces/ChainApi.sol";
+import "./interfaces/ClientInterface.sol";
+import "./interfaces/ChainApiInterface.sol";
 
 
 /// @title An example ChainAPI client contract
 /// @notice The contract authorizes a requester to endorse it by announcing its
 /// ID at endorserId
-contract ExampleClient is Client {
-    ChainApi public chainApi;
+contract ExampleClient is ClientInterface {
+    ChainApiInterface public chainApi;
     bytes32 public override endorserId;
     bytes32 public data;
     bytes32 public requestId;
@@ -20,7 +20,7 @@ contract ExampleClient is Client {
         )
         public
     {
-        chainApi = ChainApi(_chainApi);
+        chainApi = ChainApiInterface(_chainApi);
         endorserId = _endorserId;
     }
 

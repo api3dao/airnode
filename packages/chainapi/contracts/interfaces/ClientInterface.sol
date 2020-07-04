@@ -2,7 +2,7 @@
 pragma solidity 0.6.9;
 
 
-interface Client {
+interface ClientInterface {
     function endorserId()
       external
       view

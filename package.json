@@ -5,7 +5,7 @@
     "build": "lerna run build --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "prettify": "prettier --write ./**/*.{js,ts}",
-    "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\" && solhint \"./packages/chainapi/src/**/*.sol\"",
+    "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\" && solhint \"./packages/chainapi/contracts/**/*.sol\"",
     "test": "lerna run test --stream",
     "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
   },

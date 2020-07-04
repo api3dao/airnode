@@ -3,45 +3,75 @@ const ganache = require('ganache-core');
 const ethers = require('ethers');
 
 describe('Full user flow', () => {
-  let ethProvider;
-  let chainApiContractFactory;
-  let clientContractFactory;
-  let accounts;
+  let roles;
+  let chainApi;
   let chainApiInterface;
+  let ethProvider;
+  let accounts;
 
-  beforeEach(async () => {
-    ethProvider = new ethers.providers.Web3Provider(ganache.provider());
-    accounts = await ethProvider.listAccounts();
-    const signer = await ethProvider.getSigner(0);
-    const chainApiContractArtifact = JSON.parse(fs.readFileSync('build/contracts/ChainApi.json', 'utf8'));
-    chainApiContractFactory = new ethers.ContractFactory(
-      chainApiContractArtifact.abi,
-      chainApiContractArtifact.bytecode,
-      signer
-    );
-    chainApiInterface = new ethers.utils.Interface(chainApiContractArtifact.abi);
-    const clientContractArtifact = JSON.parse(fs.readFileSync('build/contracts/ExampleClient.json', 'utf8'));
-    clientContractFactory = new ethers.ContractFactory(
-      clientContractArtifact.abi,
-      clientContractArtifact.bytecode,
-      signer
-    );
-  });
+  async function createProvider() {
+    const validUntilDate = new Date();
+    validUntilDate.setMonth(validUntilDate.getMonth() + 1);
+    const validUntilTimestamp = (validUntilDate.getTime() / 1000) | 0;
+    const authorizationDeposit = ethers.utils.parseEther('0.05');
+    const tx = await chainApi.connect(ethProvider.getSigner(roles['providerAdmin'])).createProvider(
+      accounts['providerAdmin'],
+      accounts['platformAgent'],
+      validUntilTimestamp,
+      authorizationDeposit
+      );
+    const logs = await ethProvider.getLogs({ address: chainApi.address });
+    const log = logs.filter((log) => log.transactionHash === tx.hash)[0];
+    const providerId = chainApiInterface.parseLog(log).args.id;
+    return providerId;
+  }
 
   it('works', async () => {
-    // The contract deployer doesn't have any special powers
-    // so it doesn't matter who deployed the contract (in this case, it's platformAgent)
-    const chainApiContract = await chainApiContractFactory.deploy();
-    let tx, logs, log;
+    ethProvider = new ethers.providers.Web3Provider(ganache.provider());
+    const chainApiArtifact = JSON.parse(fs.readFileSync(
+      'build/contracts/ChainApi.json', 'utf8'
+      ));
+    const chainApiFactory = new ethers.ContractFactory(
+      chainApiArtifact.abi,
+      chainApiArtifact.bytecode,
+      ethProvider.getSigner(0) // Doesn't matter who deploys
+    );
+    chainApi = await chainApiFactory.deploy();
+    chainApiInterface = new ethers.utils.Interface(chainApiArtifact.abi);
+    const clientArtifact = JSON.parse(fs.readFileSync(
+      'build/contracts/ExampleClient.json', 'utf8'
+      ));
+    const clientFactory = new ethers.ContractFactory(
+        clientArtifact.abi,
+        clientArtifact.bytecode,
+        ethProvider.getSigner(0) // Doesn't matter who deploys
+      );
 
     // ~~~~~ Roles ~~~~~
-    const platformAgent = accounts[0];
-    const providerAdmin = accounts[1];
-    const chainApiContractAsProviderAdmin = chainApiContract.connect(ethProvider.getSigner(1));
-    const requesterAdmin = accounts[2];
-    const requesterSigner = ethProvider.getSigner(2);
-    const chainApiContractAsRequesterAdmin = chainApiContract.connect(ethProvider.getSigner(2));
+    roles = {
+      platformAgent: 0,
+      providerAdmin: 1,
+      requesterAdmin: 2
+    };
+    accounts = await ethProvider.listAccounts();
+    const platformAgent = accounts[roles['platformAgent']];
+    const providerAdmin = accounts[roles['providerAdmin']];
+    const requesterAdmin = accounts[roles['requesterAdmin']];
+    //const chainApiAsProviderAdmin = chainApi.connect(ethProvider.getSigner(1));
+    //const chainApiAsProviderAdmin = chainApi.connect(ethProvider.getSigner(1));
+    //const chainApiAsRequesterAdmin = chainApi.connect(ethProvider.getSigner(2));
     // ~~~~~ Roles ~~~~~
+    
+
+
+
+    let tx, logs, log;
+
+    
+    console.log(await createProvider());
+
+    /*
+
 
     // The provider signs up to ChainAPI. The dapp has the provider make the transaction below.
     // The provider has subscribed for a month. The provider requires a minimum 0.05 ETH deposit
@@ -172,5 +202,6 @@ describe('Full user flow', () => {
     // TODO: Get balance, estimate transaction gas, send everything
     // Alternatively, we can send the transaction to ProviderStore to be redirected to the requester
     // That would emit an event, which help tell node if he was able to fulfill past WalletEmpty requests
+    */
   });
 });

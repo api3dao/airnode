@@ -2,7 +2,7 @@
 pragma solidity 0.6.9;
 
 
-interface ChainApi {
+interface ChainApiInterface {
     function makeRequest(
         bytes32 providerId,
         bytes32 templateId,

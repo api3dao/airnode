@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.9;
 
-import "./interfaces/Client.sol";
+import "./interfaces/ClientInterface.sol";
 
 
 /// @title The contract where the requesters are stored
@@ -175,7 +175,7 @@ contract RequesterStore {
         address clientAddress
         )
     {
-        Client client = Client(clientAddress);
+        ClientInterface client = ClientInterface(clientAddress);
         require(
             client.endorserId() == requesterId,
             "Client contract endorser requester ID does not match"
