@@ -50,7 +50,7 @@ export interface ApiSpecification {
   id: string;
   components: ApiComponents;
   paths: { [key: string]: Path };
-  security: SecurityRequirement[];
+  security: SecurityRequirement;
   servers: Server[];
 }
 
