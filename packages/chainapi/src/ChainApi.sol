@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.9;
 
 import "./EndpointStore.sol";
 import "./TemplateStore.sol";
@@ -143,7 +143,7 @@ contract ChainApi is EndpointStore, TemplateStore {
         require(
             this.getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
-        );
+            );
         delete requestIdToProviderId[requestId];
         emit RequestFulfilled(
             providerId,

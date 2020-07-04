@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.9;
 
 import "./ProviderStore.sol";
 
@@ -11,12 +11,12 @@ contract EndpointStore is ProviderStore {
     struct Endpoint {
         bytes32 providerId;
         address[] authorizers;
-    }
+        }
 
     mapping(bytes32 => Endpoint) private endpoints;
     uint256 private noEndpoint = 0;
 
-    event EndpointCreated(bytes32 indexed id, address[] authorizers);
+    event EndpointCreated(bytes32 indexed id, bytes32 providerId, address[] authorizers);
     event EndpointUpdated(bytes32 indexed id, address[] authorizers);
 
     /// @notice Creates an endpoint with the given parameters, addressable by
@@ -41,7 +41,7 @@ contract EndpointStore is ProviderStore {
             providerId: providerId,
             authorizers: authorizers
         });
-        emit EndpointCreated(endpointId, authorizers);
+        emit EndpointCreated(endpointId, providerId, authorizers);
     }
 
     /// @notice Updates the authorizer contracts of an endpoint

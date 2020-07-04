@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.9;
 
 
 /// @title The contract where request templates are stored
@@ -11,11 +11,11 @@ contract TemplateStore {
     struct Template {
         bytes32 endpointId;
         bytes parameters;
-    }
+        }
 
     mapping(bytes32 => Template) private templates;
 
-    event TemplateCreated(bytes32 indexed id);
+    event TemplateCreated(bytes32 indexed id, bytes32 endpointId, bytes parameters);
 
     /// @notice Creates a template with the given parameters, addressable by
     /// the ID it returns
@@ -34,23 +34,21 @@ contract TemplateStore {
         external
         returns (bytes32 templateId)
     {
-        templateId = keccak256(
-            abi.encodePacked(
-                endpointId,
-                parameters
-                )
-        );
+        templateId = keccak256(abi.encodePacked(
+            endpointId,
+            parameters
+            ));
         templates[templateId] = Template({
             endpointId: endpointId,
             parameters: parameters
         });
-        emit TemplateCreated(templateId);
+        emit TemplateCreated(templateId, endpointId, parameters);
     }
 
     /// @notice Retrieves request parameters addressed by the ID
     /// @param templateId Request template ID
     /// @return endpointId Endpoint ID from EndpointStore
-    /// @return parameters Parameters encoded in CBOR
+    /// @return parameters Parameters that will not change between requests
     function getTemplate(bytes32 templateId)
         external
         view

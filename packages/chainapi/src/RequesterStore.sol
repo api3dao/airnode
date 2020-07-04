@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.9;
 
 import "./interfaces/Client.sol";
 
@@ -8,7 +8,7 @@ import "./interfaces/Client.sol";
 /// @notice Requesters first get recorded here and get assigned an ID. Then,
 /// they get a wallet reserved at ProviderStore with that Requester ID.
 /// The contracts that the requester deploys are called clients. The requester
-/// can authorize its client contracts to be served by the wallets they have
+/// can authorize its client contracts to be served by the wallet they have
 /// reserved and funded, which is referred to as endorsing the client. In other
 /// words, an endorser is a requester that pays for the gas costs of a client
 /// contract's oracle requests.
@@ -98,8 +98,8 @@ contract RequesterStore {
     /// @notice Called by the requester admin to disallow a client contract
     /// from using its wallets
     /// @dev This is one-sided, meaning that it does not require permission
-    /// from the client contract. However, it requires the caller to be the
-    /// current endorser of the client contract.
+    /// from the client contract. It requires the caller to be the current
+    /// endorser of the client contract.
     /// @param requesterId Requester ID
     /// @param clientAddress Client contract address
     function disendorseClient(
@@ -130,7 +130,7 @@ contract RequesterStore {
 
     /// @notice Retrieves the ID of the endorser of a client contract
     /// @param clientAddress Client contract address
-    /// @return endorserId Endorser  ID
+    /// @return endorserId Endorser ID
     function getClientEndorserId(address clientAddress)
         external
         view
@@ -146,7 +146,7 @@ contract RequesterStore {
         require(
             msg.sender == requesterIdToAdmin[requesterId],
             "Caller is not the requester admin"
-        );
+            );
         _;
     }
 
@@ -162,7 +162,7 @@ contract RequesterStore {
         require(
             clientAdressToEndorserId[clientAddress] == requesterId,
             "Caller is not the endorser of the client"
-        );
+            );
         _;
     }
 
