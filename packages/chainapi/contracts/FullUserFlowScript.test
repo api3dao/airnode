@@ -14,12 +14,9 @@ describe('Full user flow', () => {
     validUntilDate.setMonth(validUntilDate.getMonth() + 1);
     const validUntilTimestamp = (validUntilDate.getTime() / 1000) | 0;
     const authorizationDeposit = ethers.utils.parseEther('0.05');
-    const tx = await chainApi.connect(ethProvider.getSigner(roles['providerAdmin'])).createProvider(
-      accounts['providerAdmin'],
-      accounts['platformAgent'],
-      validUntilTimestamp,
-      authorizationDeposit
-      );
+    const tx = await chainApi
+      .connect(ethProvider.getSigner(roles['providerAdmin']))
+      .createProvider(accounts['providerAdmin'], accounts['platformAgent'], validUntilTimestamp, authorizationDeposit);
     const logs = await ethProvider.getLogs({ address: chainApi.address });
     const log = logs.filter((log) => log.transactionHash === tx.hash)[0];
     const providerId = chainApiInterface.parseLog(log).args.id;
@@ -28,9 +25,7 @@ describe('Full user flow', () => {
 
   it('works', async () => {
     ethProvider = new ethers.providers.Web3Provider(ganache.provider());
-    const chainApiArtifact = JSON.parse(fs.readFileSync(
-      'build/contracts/ChainApi.json', 'utf8'
-      ));
+    const chainApiArtifact = JSON.parse(fs.readFileSync('build/contracts/ChainApi.json', 'utf8'));
     const chainApiFactory = new ethers.ContractFactory(
       chainApiArtifact.abi,
       chainApiArtifact.bytecode,
@@ -38,20 +33,18 @@ describe('Full user flow', () => {
     );
     chainApi = await chainApiFactory.deploy();
     chainApiInterface = new ethers.utils.Interface(chainApiArtifact.abi);
-    const clientArtifact = JSON.parse(fs.readFileSync(
-      'build/contracts/ExampleClient.json', 'utf8'
-      ));
+    const clientArtifact = JSON.parse(fs.readFileSync('build/contracts/ExampleClient.json', 'utf8'));
     const clientFactory = new ethers.ContractFactory(
-        clientArtifact.abi,
-        clientArtifact.bytecode,
-        ethProvider.getSigner(0) // Doesn't matter who deploys
-      );
+      clientArtifact.abi,
+      clientArtifact.bytecode,
+      ethProvider.getSigner(0) // Doesn't matter who deploys
+    );
 
     // ~~~~~ Roles ~~~~~
     roles = {
       platformAgent: 0,
       providerAdmin: 1,
-      requesterAdmin: 2
+      requesterAdmin: 2,
     };
     accounts = await ethProvider.listAccounts();
     const platformAgent = accounts[roles['platformAgent']];
@@ -61,13 +54,9 @@ describe('Full user flow', () => {
     //const chainApiAsProviderAdmin = chainApi.connect(ethProvider.getSigner(1));
     //const chainApiAsRequesterAdmin = chainApi.connect(ethProvider.getSigner(2));
     // ~~~~~ Roles ~~~~~
-    
-
-
 
     let tx, logs, log;
 
-    
     console.log(await createProvider());
 
     /*
