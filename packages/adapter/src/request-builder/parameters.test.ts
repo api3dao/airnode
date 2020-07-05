@@ -37,17 +37,17 @@ describe('fixed parameters', () => {
   it('appends parameters for each target', () => {
     const pathParameter: FixedParameter = {
       value: 'path-value',
-      operationParameter: { in: 'path', name: 'path_param' }
+      operationParameter: { in: 'path', name: 'path_param' },
     };
 
     const headerParameter: FixedParameter = {
       value: 'header-value',
-      operationParameter: { in: 'header', name: 'header_param' }
+      operationParameter: { in: 'header', name: 'header_param' },
     };
 
     const cookieParameter: FixedParameter = {
       value: 'cookie-value',
-      operationParameter: { in: 'cookie', name: 'cookie_param' }
+      operationParameter: { in: 'cookie', name: 'cookie_param' },
     };
 
     // Add to the endpoint specification
@@ -107,26 +107,21 @@ describe('user parameters', () => {
   it('appends parameters for each target', () => {
     const pathParameter: EndpointParameter = {
       name: 'p',
-      operationParameter: { in: 'path', name: 'path_param' }
+      operationParameter: { in: 'path', name: 'path_param' },
     };
 
     const headerParameter: EndpointParameter = {
       name: 'h',
-      operationParameter: { in: 'header', name: 'header_param' }
+      operationParameter: { in: 'header', name: 'header_param' },
     };
 
     const cookieParameter: EndpointParameter = {
       name: 'c',
-      operationParameter: { in: 'cookie', name: 'cookie_param' }
+      operationParameter: { in: 'cookie', name: 'cookie_param' },
     };
 
     // Add to the endpoint specification
-    state.endpoint.parameters = [
-      ...state.endpoint.parameters,
-      pathParameter,
-      headerParameter,
-      cookieParameter,
-    ];
+    state.endpoint.parameters = [...state.endpoint.parameters, pathParameter, headerParameter, cookieParameter];
 
     // Add to the API specification
     state.operation.parameters = [
