@@ -1,10 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "test": ["test/*"]
-    },
     "outDir": "dist"
   },
   "include": ["./src/**/*"],
