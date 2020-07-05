@@ -1,9 +1,9 @@
 import { initialize as initializeState } from './state';
-import { Options } from './types';
+import { Options, Request } from './types';
 import * as requestBuilder from './request-builder';
 
-export function run(options: Options) {
+export function buildRequest(options: Options): Request {
   const state = initializeState(options);
 
-  requestBuilder.build(state);
+  return requestBuilder.build(state);
 }
