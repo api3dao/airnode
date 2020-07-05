@@ -127,10 +127,7 @@ describe('ChainApi', function () {
   async function createProvider(authorizationDeposit) {
     const tx = await chainApi
       .connect(accounts.providerAdmin)
-      .createProvider(
-        await accounts.providerAdmin.getAddress(),
-        authorizationDeposit
-      );
+      .createProvider(await accounts.providerAdmin.getAddress(), authorizationDeposit);
     // Get the newly created provider's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -175,21 +172,11 @@ describe('ChainApi', function () {
   }
 
   async function initializeProviderKey(providerId, xpub, authorizerAddress) {
-    chainApi
-      .connect(accounts.providerAdmin)
-      .initializeProviderKeys(
-        providerId,
-        xpub,
-        authorizerAddress
-        );
+    chainApi.connect(accounts.providerAdmin).initializeProviderKeys(providerId, xpub, authorizerAddress);
   }
 
   async function createRequester() {
-    const tx = await chainApi
-      .connect(accounts.requesterAdmin)
-      .createRequester(
-        accounts.requesterAdmin.getAddress()
-        );
+    const tx = await chainApi.connect(accounts.requesterAdmin).createRequester(accounts.requesterAdmin.getAddress());
     // Get the newly created requester's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -244,7 +231,7 @@ describe('ChainApi', function () {
     chainApi.connect(authorizerWallet).authorizeProviderWallet(providerId, walletAddress, walletInd, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
-      value: fundsToSend
+      value: fundsToSend,
     });
     // This transaction emits an event. The node uses this event to be able to
     // tell that it has already authorized a reserved wallet and doesn't try
