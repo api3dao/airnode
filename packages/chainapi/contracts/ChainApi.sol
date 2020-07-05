@@ -59,7 +59,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         )
         external
         override
-        onlyIfProviderIsValid(providerId)
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(
@@ -100,7 +99,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes calldata parameters
         )
         external
-        onlyIfProviderIsValid(providerId)
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(

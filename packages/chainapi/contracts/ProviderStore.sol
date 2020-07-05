@@ -5,16 +5,13 @@ import "./RequesterStore.sol";
 
 
 /// @title The contract where the providers are stored
-/// @notice For each provider, there is an admin that manages settings and a
-/// platformAgent that extends the validity of the provider. The requester uses
-/// this contract to reserve a wallet index and the provider authorizes the
-/// address that corresponds to that index for it to be able to fulfill
-/// requests.
+/// @notice For each provider, there is an admin that manages settings. The
+/// requester uses this contract to reserve a wallet index and the provider
+/// authorizes the address that corresponds to that index for it to be able
+/// to fulfill requests.
 contract ProviderStore is RequesterStore {
     struct Provider {
         address admin;
-        address platformAgent;
-        uint256 validUntil;
         string xpub;
         address walletAuthorizer;
         uint256 authorizationDeposit;
@@ -37,16 +34,12 @@ contract ProviderStore is RequesterStore {
     event ProviderCreated(
         bytes32 indexed id,
         address admin,
-        address platformAgent,
-        uint256 validUntil,
         uint256 authorizationDeposit
         );
 
     event ProviderUpdated(
         bytes32 indexed id,
         address admin,
-        address platformAgent,
-        uint256 validUntil,
         uint256 authorizationDeposit
         );
 
@@ -88,24 +81,15 @@ contract ProviderStore is RequesterStore {
 
     /// @notice Creates a provider with the given parameters, addressable by
     /// the ID it returns
-    /// @dev The expected workflow is for the platform to have the provider
-    /// create the record with the parameters given by the platform, and only
-    /// provide service if these parameters were used exactly.
-    /// If the provider does not want to use a platform, they can assign
-    /// themselves as the platformAgent and set validUntil as
-    /// they wish. walletAuthorizer and xpub are not set here, assuming the
+    /// @dev walletAuthorizer and xpub are not set here, assuming the
     /// provider will not have generated them yet.
     /// @param admin Provider admin
-    /// @param platformAgent Platform agent
-    /// @param validUntil Validity deadline of the provider
     /// @param authorizationDeposit Amount the requesters need to deposit to
     /// reserve a wallet index. It should at least cover the gas cost of
     /// calling authorizeProviderWallet() once.
     /// @return providerId Provider ID
     function createProvider(
         address admin,
-        address platformAgent,
-        uint256 validUntil,
         uint256 authorizationDeposit
         )
         external
@@ -118,8 +102,6 @@ contract ProviderStore is RequesterStore {
             ));
         providers[providerId] = Provider({
             admin: admin,
-            platformAgent: platformAgent,
-            validUntil: validUntil,
             xpub: "",
             walletAuthorizer: address(0),
             authorizationDeposit: authorizationDeposit,
@@ -128,8 +110,6 @@ contract ProviderStore is RequesterStore {
         emit ProviderCreated(
             providerId,
             admin,
-            platformAgent,
-            validUntil,
             authorizationDeposit
             );
     }
@@ -137,46 +117,21 @@ contract ProviderStore is RequesterStore {
     /// @notice Updates the provider admin
     /// @param providerId Provider ID
     /// @param admin Provider admin
-    function updateProviderAdmin(
-        bytes32 providerId,
-        address admin
-        )
-        external
-        onlyProviderAdmin(providerId)
-    {
-        providers[providerId].admin = admin;
-        emit ProviderUpdated(
-            providerId,
-            providers[providerId].admin,
-            providers[providerId].platformAgent,
-            providers[providerId].validUntil,
-            providers[providerId].authorizationDeposit
-            );
-    }
-
-    /// @notice Updates the provider wallet authorization deposit
-    /// @dev After the requester reserves a wallet index, the provider needs to
-    /// make a transaction to authorize the corresponding wallet address to
-    /// fulfill requests. The provider expects the requester to fund this
-    /// transaction by depositing authorizationDeposit. The provider is
-    /// expected to deposit the change at the wallet that was reserved, yet
-    /// this is not enforced.
-    /// @param providerId Provider ID
     /// @param authorizationDeposit Wallet authorization deposit. It should at
     /// least cover the gas cost of calling authorizeProviderWallet() once.
-    function updateAuthorizationDeposit(
+    function updateProvider(
         bytes32 providerId,
+        address admin,
         uint256 authorizationDeposit
         )
         external
         onlyProviderAdmin(providerId)
     {
+        providers[providerId].admin = admin;
         providers[providerId].authorizationDeposit = authorizationDeposit;
         emit ProviderUpdated(
             providerId,
             providers[providerId].admin,
-            providers[providerId].platformAgent,
-            providers[providerId].validUntil,
             providers[providerId].authorizationDeposit
             );
     }
@@ -231,47 +186,6 @@ contract ProviderStore is RequesterStore {
             );
         (bool success, ) = walletAddress.call{value: msg.value}("");
         require(success, "Transfer failed");
-    }
-
-    /// @notice Updates the platform agent
-    /// @param providerId Provider ID
-    /// @param platformAgent Platform agent
-    function updateProviderPlatformAgent(
-        bytes32 providerId,
-        address platformAgent
-        )
-        external
-        onlyProviderPlatformAgent(providerId)
-    {
-        providers[providerId].platformAgent = platformAgent;
-        emit ProviderUpdated(
-            providerId,
-            providers[providerId].admin,
-            providers[providerId].platformAgent,
-            providers[providerId].validUntil,
-            providers[providerId].authorizationDeposit
-            );
-    }
-
-    /// @notice Extends the provider validity deadline
-    /// @param providerId Provider ID
-    /// @param validUntil Provider validity deadline
-    function extendProviderValidityDeadline(
-        bytes32 providerId,
-        uint256 validUntil
-        )
-        external
-        onlyProviderPlatformAgent(providerId)
-        onlyIfExtendsValidity(providerId, validUntil)
-    {
-        providers[providerId].validUntil = validUntil;
-        emit ProviderUpdated(
-            providerId,
-            providers[providerId].admin,
-            providers[providerId].platformAgent,
-            providers[providerId].validUntil,
-            providers[providerId].authorizationDeposit
-            );
     }
 
     /// @notice Called by the requester to reserve a wallet index from the
@@ -383,8 +297,6 @@ contract ProviderStore is RequesterStore {
     /// @notice Retrieves provider parameters addressed by the ID
     /// @param providerId Provider ID
     /// @return admin Provider admin
-    /// @return platformAgent Platform agent
-    /// @return validUntil Provider validity deadline
     /// @return xpub Master public key of the provider node
     /// @return walletAuthorizer Address provider uses to authorize nodes
     /// @return authorizationDeposit Amount the requesters need to deposit to
@@ -394,16 +306,12 @@ contract ProviderStore is RequesterStore {
         view
         returns (
             address admin,
-            address platformAgent,
-            uint256 validUntil,
             string memory xpub,
             address walletAuthorizer,
             uint256 authorizationDeposit
         )
     {
         admin = providers[providerId].admin;
-        platformAgent = providers[providerId].platformAgent;
-        validUntil = providers[providerId].validUntil;
         xpub = providers[providerId].xpub;
         walletAuthorizer = providers[providerId].walletAuthorizer;
         authorizationDeposit = providers[providerId].authorizationDeposit;
@@ -536,42 +444,6 @@ contract ProviderStore is RequesterStore {
         require(
             providers[providerId].walletAddressToInd[walletAddress] == 0,
             "Wallet already authorized"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the caller is not the provider platform agent
-    /// @param providerId Provider ID
-    modifier onlyProviderPlatformAgent(bytes32 providerId)
-    {
-        require(
-            msg.sender == providers[providerId].platformAgent,
-            "Caller is not the platform agent"
-            );
-        _;
-    }
-
-    /// @dev Reverts if validUntil does not extend validity
-    /// @param providerId Provider ID
-    /// @param validUntil Validity deadline of the provider
-    modifier onlyIfExtendsValidity(bytes32 providerId, uint256 validUntil)
-    {
-        require(
-            validUntil > providers[providerId].validUntil,
-            "You can only extend validity of a provider"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the provider is not valid. The validity deadline is
-    /// significant in the resolution of days, which is why using
-    /// block.timestamp here is okay.
-    /// @param providerId Provider ID
-    modifier onlyIfProviderIsValid(bytes32 providerId)
-    {
-        require(
-            block.timestamp <= providers[providerId].validUntil,
-            "Invalid provider"
             );
         _;
     }
