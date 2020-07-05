@@ -31,9 +31,9 @@ function appendParameter(parameters: RequestParameters, target: ParameterTarget,
 }
 
 function buildFixedParameters(state: State): RequestParameters {
-  const { operation, oracleSpecification: oracle } = state;
+  const { endpoint, operation } = state;
 
-  return oracle.fixedOperationParameters.reduce((acc, parameter) => {
+  return endpoint.fixedOperationParameters.reduce((acc, parameter) => {
     const { name, in: target } = parameter.operationParameter;
 
     // Double check that the parameter exists in the API specification
@@ -47,7 +47,7 @@ function buildFixedParameters(state: State): RequestParameters {
 }
 
 function buildUserParameters(state: State): RequestParameters {
-  const { operation, oracleSpecification: oracle } = state;
+  const { endpoint, operation } = state;
 
   const parameterKeys = Object.keys(state.parameters);
 
@@ -58,7 +58,7 @@ function buildUserParameters(state: State): RequestParameters {
       return acc;
     }
 
-    const parameter = oracle.parameters.find((p) => p.name === key);
+    const parameter = endpoint.parameters.find((p) => p.name === key);
     // If the parameter is not defined in the Oracle specification, ignore it.
     if (!parameter) {
       return acc;

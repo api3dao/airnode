@@ -1,14 +1,16 @@
 import { Options, State } from './types';
 
 export function initialize(options: Options): State {
-  const { method, ois } = options;
-  const api = ois.apiSpecifications;
-  const operation = api.paths[options.path][method];
+  const { ois } = options;
 
-  const oracleSpecification = ois.oracleSpecifications.find((os) => os.name === options.oracleSpecName);
-  if (!oracleSpecification) {
-    throw new Error(`Oracle specification: '${options.oracleSpecName}' not found.`);
+  const endpoint = ois.endpoints.find((e) => e.name === options.endpointName);
+  if (!endpoint) {
+    throw new Error(`Endpoint: '${options.endpointName}' not found in the OIS.`);
   }
 
-  return { ...options, operation, oracleSpecification };
+  const { method, path } = endpoint.operation;
+
+  const operation = ois.apiSpecifications.paths[path][method];
+
+  return { ...options, operation, endpoint };
 }

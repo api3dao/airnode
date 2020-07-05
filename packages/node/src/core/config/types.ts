@@ -33,8 +33,8 @@ export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConne
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
 export interface ApiSecurityScheme {
-  in: SecuritySchemeTarget;
-  name: string;
+  in?: SecuritySchemeTarget;
+  name?: string;
   scheme?: SecuritySchemeName;
   type: SecuritySchemeType;
 }
@@ -55,7 +55,7 @@ export interface ApiSpecification {
 // ===========================================
 // Oracle Specification
 // ===========================================
-export interface OracleOperation {
+export interface EndpointOperation {
   method: Method;
   path: string;
 }
@@ -80,12 +80,13 @@ export interface ReservedParameter {
   name: string;
 }
 
-export interface OracleSpecification {
+// TODO: should this rather be called `Endpoint`?
+export interface OracleEndpoint {
   description?: string;
   externalDocs?: string;
   fixedOperationParameters: FixedParameter[];
   name: string;
-  operation: OracleOperation;
+  operation: EndpointOperation;
   parameters: EndpointParameter[];
   reservedParameters: ReservedParameter[];
   summary?: string;
@@ -99,7 +100,7 @@ export interface OIS {
   title: string;
   version: string;
   apiSpecifications: ApiSpecification;
-  oracleSpecifications: OracleSpecification[];
+  endpoints: OracleEndpoint[];
 }
 
 // ===========================================

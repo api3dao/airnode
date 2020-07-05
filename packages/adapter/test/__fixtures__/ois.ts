@@ -47,7 +47,7 @@ export const ois: OIS = {
       myapiApiScheme: [],
     },
   },
-  oracleSpecifications: [
+  endpoints: [
     {
       name: 'convertToUsd',
       operation: {

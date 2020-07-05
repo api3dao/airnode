@@ -8,20 +8,15 @@ interface Authentication {
   cookies: Parameters;
 }
 
-function initialParameters(): Authentication {
-  return {
-    query: {},
-    headers: {},
-    cookies: {},
-  };
-}
-
 function addApiKeyAuth(
   authentication: Authentication,
   apiSecurityScheme: ApiSecurityScheme,
   value: string
 ): Authentication {
   const { name } = apiSecurityScheme;
+  if (!name) {
+    return authentication;
+  }
 
   switch (apiSecurityScheme.in) {
     case 'query':
@@ -32,6 +27,9 @@ function addApiKeyAuth(
 
     case 'cookie':
       return { ...authentication, cookies: { ...authentication.cookies, [name]: value } };
+
+    default:
+      return authentication;
   }
 }
 
@@ -70,16 +68,22 @@ function addSchemeAuthentication(
 }
 
 export function buildParameters(state: State): Authentication {
+  const initialParameters: Authentication = {
+    query: {},
+    headers: {},
+    cookies: {},
+  };
+
   const { securitySchemes } = state;
   // Security schemes originate from 'security.json' and contain all of the authentication details
   if (!securitySchemes || isEmpty(securitySchemes)) {
-    return initialParameters();
+    return initialParameters;
   }
 
   // API security schemes originate from 'config.json' and specify which schemes should be used
   const apiSecuritySchemes = state.ois.apiSpecifications.components.securitySchemes;
   if (isEmpty(apiSecuritySchemes)) {
-    return initialParameters();
+    return initialParameters;
   }
 
   const apiSchemeNames = Object.keys(apiSecuritySchemes);
@@ -94,5 +98,5 @@ export function buildParameters(state: State): Authentication {
     }
 
     return addSchemeAuthentication(authentication, apiSecurityScheme, securityScheme.value);
-  }, initialParameters());
+  }, initialParameters);
 }

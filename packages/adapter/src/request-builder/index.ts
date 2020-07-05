@@ -3,19 +3,19 @@ import { buildParameters } from './parameters';
 import { parsePathWithParameters } from './path-parser';
 
 export function build(state: State): Request {
-  const { ois, method } = state;
+  const { endpoint, ois } = state;
 
   // A single base URL should always exist at the API level
   // Different base URLs are not supported at the operation level
   const baseUrl = ois.apiSpecifications.servers[0].url;
 
   const parameters = buildParameters(state);
-  const path = parsePathWithParameters(state.path, parameters.paths);
+  const path = parsePathWithParameters(endpoint.operation.path, parameters.paths);
 
   return {
     baseUrl,
     path,
-    method,
+    method: endpoint.operation.method,
     headers: parameters.headers,
   };
 }
