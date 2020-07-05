@@ -1,4 +1,4 @@
-import { State } from '../types';
+import { Request, State } from '../types';
 import { buildParameters } from './parameters';
 import { parsePathWithParameters } from './path-parser';
 
@@ -17,5 +17,6 @@ export function build(state: State): Request {
     path,
     method: endpoint.operation.method,
     headers: parameters.headers,
+    data: parameters.query,
   };
 }
