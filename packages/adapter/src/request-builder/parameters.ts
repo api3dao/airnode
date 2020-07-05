@@ -52,15 +52,15 @@ function buildUserParameters(state: State): RequestParameters {
   const parameterKeys = Object.keys(state.parameters);
 
   return parameterKeys.reduce((acc, key) => {
-    // Double check that the parameter exists in the API specification
-    const apiParameter = operation.parameters.find((p) => p.name === name);
-    if (!apiParameter) {
+    const parameter = endpoint.parameters.find((p) => p.name === key);
+    // If the parameter is not defined in the Endpoint specification, ignore it.
+    if (!parameter) {
       return acc;
     }
 
-    const parameter = endpoint.parameters.find((p) => p.name === key);
-    // If the parameter is not defined in the Oracle specification, ignore it.
-    if (!parameter) {
+    // Double check that the parameter exists in the API specification
+    const apiParameter = operation.parameters.find((p) => p.name === parameter.operationParameter.name);
+    if (!apiParameter) {
       return acc;
     }
 
