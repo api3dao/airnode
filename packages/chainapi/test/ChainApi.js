@@ -143,7 +143,14 @@ describe('ChainApi', function () {
     // to make a request to a specific endpoint (depending on whitelist, payment, etc.).
     // It is left empty because Authorizers are not implemented yet, which means that
     // this endpoint is public.
-    const tx = await chainApi.connect(accounts.providerAdmin).createEndpoint(providerId, []);
+    // Note that we are assigning a random bytes32 as the apiId, because we don't
+    // really care about what it is here. The Authorizer will use this API ID
+    // to bundle the endpoints from the same API together.
+    const tx = await chainApi.connect(accounts.providerAdmin).createEndpoint(
+      providerId,
+      ethers.BigNumber.from(ethers.utils.randomBytes(32)),
+      []
+      );
     // Get the newly created endpoint's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
