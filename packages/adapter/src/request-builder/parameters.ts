@@ -75,7 +75,7 @@ export function buildParameters(state: State): RequestParameters {
   const fixed = buildFixedParameters(state);
   const user = buildUserParameters(state);
 
-  // NOTE: User parameters MUST come first otherwise they could potentiallt
+  // NOTE: User parameters MUST come first otherwise they could potentially
   // overwrite fixed and authentication parameters
   return {
     paths: { ...user.paths, ...fixed.paths },
