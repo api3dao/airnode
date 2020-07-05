@@ -11,7 +11,7 @@ describe('initialize', () => {
         { in: 'query', name: 'to' },
         { in: 'query', name: 'amount' },
         { in: 'query', name: 'date' },
-      ]
+      ],
     });
   });
 
