@@ -134,7 +134,7 @@ describe('buildAndExecuteRequest', () => {
         access_key: 'super-secret-key',
         amount: '1',
         from: 'ETH',
-        to: 'USD'
+        to: 'USD',
       },
       timeout: 10_000,
     });
@@ -155,7 +155,7 @@ describe('buildAndExecuteRequest', () => {
         access_key: 'super-secret-key',
         amount: '1',
         from: 'ETH',
-        to: 'USD'
+        to: 'USD',
       },
       timeout: 3500,
     });
