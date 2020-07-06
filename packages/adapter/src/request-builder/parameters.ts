@@ -12,7 +12,12 @@ function initalParameters(): BuilderParameters {
   };
 }
 
-function appendParameter(parameters: BuilderParameters, target: ParameterTarget, name: string, value: string): BuilderParameters {
+function appendParameter(
+  parameters: BuilderParameters,
+  target: ParameterTarget,
+  name: string,
+  value: string
+): BuilderParameters {
   switch (target) {
     case 'path':
       return { ...parameters, paths: { ...parameters.paths, [name]: value } };

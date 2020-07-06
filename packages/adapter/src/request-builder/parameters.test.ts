@@ -76,7 +76,7 @@ describe('fixed parameters', () => {
       },
       headers: {
         Cookie: 'cookie_param=cookie-value;',
-        header_param: 'header-value'
+        header_param: 'header-value',
       },
     });
   });
@@ -150,7 +150,7 @@ describe('user parameters', () => {
       },
       headers: {
         Cookie: 'cookie_param=cookie-key;',
-        header_param: 'header-key'
+        header_param: 'header-key',
       },
     });
   });

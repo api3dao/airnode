@@ -23,7 +23,7 @@ export interface RequestParameters {
 }
 
 export interface BuilderParameters extends RequestParameters {
-  cookies: { [key: string]: string; };
+  cookies: { [key: string]: string };
 }
 
 export interface Request {
