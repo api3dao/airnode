@@ -5,7 +5,7 @@
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
-    "@airnode/node": "^1.0.0",
+    "@airnode/node": "^0.1.0",
     "axios": "^0.19.2",
     "lodash": "^4.17.15"
   },

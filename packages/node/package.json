@@ -1,6 +1,6 @@
 {
   "name": "@airnode/node",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "scripts": {
     "dev:aws": "serverless offline --config serverless.aws.yml",
     "test": "SILENCE_LOGGER=true jest --coverage",

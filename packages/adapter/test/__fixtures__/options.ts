@@ -12,4 +12,3 @@ export function getOptions(): Options {
   // Get a fresh clone to prevent updating references between tests
   return JSON.parse(JSON.stringify(options));
 }
-

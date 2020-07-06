@@ -166,4 +166,3 @@ describe('building HTTP authentication parameters', () => {
     });
   });
 });
-
