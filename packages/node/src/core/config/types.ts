@@ -53,7 +53,7 @@ export interface ApiSpecification {
 }
 
 // ===========================================
-// Oracle Specification
+// Endpoint Specification
 // ===========================================
 export interface EndpointOperation {
   method: Method;
@@ -80,8 +80,7 @@ export interface ReservedParameter {
   name: string;
 }
 
-// TODO: should this rather be called `Endpoint`?
-export interface OracleEndpoint {
+export interface Endpoint {
   description?: string;
   externalDocs?: string;
   fixedOperationParameters: FixedParameter[];
@@ -100,7 +99,7 @@ export interface OIS {
   title: string;
   version: string;
   apiSpecifications: ApiSpecification;
-  endpoints: OracleEndpoint[];
+  endpoints: Endpoint[];
 }
 
 // ===========================================
