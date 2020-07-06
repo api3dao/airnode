@@ -1,5 +1,5 @@
 import { ApiSecurityScheme } from '@airnode/node/types';
-import { Options, State } from '../types';
+import { State } from '../types';
 import { initialize as initializeState } from '../state';
 import * as fixtures from '../../test/__fixtures__';
 import * as authentication from './authentication';
@@ -8,7 +8,7 @@ describe('building empty parameters', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('returns no parameters if secret securitySchemes is empty', () => {
@@ -46,7 +46,7 @@ describe('building API key authentication parameters', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('returns the API key in the query', () => {
@@ -124,7 +124,7 @@ describe('building HTTP authentication parameters', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('returns Basic Authentication in the headers', () => {
@@ -167,13 +167,3 @@ describe('building HTTP authentication parameters', () => {
   });
 });
 
-function getOptions(): Options {
-  const options: Options = {
-    ois: fixtures.ois,
-    endpointName: 'convertToUsd',
-    parameters: { f: 'ETH', amount: '1' },
-    securitySchemes: fixtures.securitySchemes,
-  };
-  // Get a fresh clone to prevent updating references between tests
-  return JSON.parse(JSON.stringify(options));
-}

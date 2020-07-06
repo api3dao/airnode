@@ -1,4 +1,4 @@
-import { Options, State } from '../types';
+import { State } from '../types';
 import { initialize as initializeState } from '../state';
 import * as fixtures from '../../test/__fixtures__';
 import * as requestBuilder from './index';
@@ -7,7 +7,7 @@ describe('build', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('builds and returns the request', () => {
@@ -26,14 +26,3 @@ describe('build', () => {
     });
   });
 });
-
-function getOptions(): Options {
-  const options: Options = {
-    ois: fixtures.ois,
-    endpointName: 'convertToUsd',
-    parameters: { f: 'ETH', amount: '1' },
-    securitySchemes: fixtures.securitySchemes,
-  };
-  // Get a fresh clone to prevent updating references between tests
-  return JSON.parse(JSON.stringify(options));
-}

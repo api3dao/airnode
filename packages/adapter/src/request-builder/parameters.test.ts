@@ -1,5 +1,5 @@
 import { EndpointParameter, FixedParameter } from '@airnode/node/types';
-import { Options, State } from '../types';
+import { State } from '../types';
 import { initialize as initializeState } from '../state';
 import * as fixtures from '../../test/__fixtures__';
 import * as parameters from './parameters';
@@ -8,7 +8,7 @@ describe('building parameters', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('returns parameters', () => {
@@ -31,7 +31,7 @@ describe('fixed parameters', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('appends parameters for each target', () => {
@@ -101,7 +101,7 @@ describe('user parameters', () => {
   let state: State;
 
   beforeEach(() => {
-    state = initializeState(getOptions());
+    state = initializeState(fixtures.getOptions());
   });
 
   it('appends parameters for each target', () => {
@@ -185,14 +185,3 @@ describe('user parameters', () => {
     });
   });
 });
-
-function getOptions(): Options {
-  const options: Options = {
-    ois: fixtures.ois,
-    endpointName: 'convertToUsd',
-    parameters: { f: 'ETH', amount: '1' },
-    securitySchemes: fixtures.securitySchemes,
-  };
-  // Get a fresh clone to prevent updating references between tests
-  return JSON.parse(JSON.stringify(options));
-}
