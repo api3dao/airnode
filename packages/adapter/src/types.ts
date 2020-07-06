@@ -1,4 +1,4 @@
-import { Method, OIS, Operation, OracleEndpoint, SecurityScheme } from '@airnode/node/src/core/config/types';
+import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/node/src/core/config/types';
 
 export interface Options {
   ois: OIS;
@@ -9,7 +9,7 @@ export interface Options {
 
 export interface State extends Options {
   operation: Operation;
-  endpoint: OracleEndpoint;
+  endpoint: Endpoint;
 }
 
 export interface Parameters {
@@ -19,8 +19,11 @@ export interface Parameters {
 export interface RequestParameters {
   paths: { [key: string]: string };
   query: { [key: string]: string };
-  cookies: { [key: string]: string };
   headers: { [key: string]: string };
+}
+
+export interface BuilderParameters extends RequestParameters {
+  cookies: { [key: string]: string; };
 }
 
 export interface Request {

@@ -2,10 +2,10 @@ import isEmpty from 'lodash/isEmpty';
 import { Parameters } from '../types';
 
 interface CookieHeader {
-  Cookie?: string;
+  Cookie: string;
 }
 
-export function buildHeader(cookies: Parameters): CookieHeader {
+export function buildHeader(cookies: Parameters): CookieHeader | object {
   if (isEmpty(cookies)) {
     return {};
   }

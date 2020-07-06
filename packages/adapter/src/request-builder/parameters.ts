@@ -1,8 +1,9 @@
 import { ParameterTarget } from '@airnode/node/types';
-import { RequestParameters, State } from '../types';
+import { BuilderParameters, RequestParameters, State } from '../types';
 import * as authentication from './authentication';
+import * as cookies from './cookies';
 
-function initalParameters(): RequestParameters {
+function initalParameters(): BuilderParameters {
   return {
     paths: {},
     query: {},
@@ -11,10 +12,10 @@ function initalParameters(): RequestParameters {
   };
 }
 
-function appendParameter(parameters: RequestParameters, target: ParameterTarget, name: string, value: string) {
+function appendParameter(parameters: BuilderParameters, target: ParameterTarget, name: string, value: string): BuilderParameters {
   switch (target) {
     case 'path':
-      return { ...parameters, paths: { ...parameters.cookies, [name]: value } };
+      return { ...parameters, paths: { ...parameters.paths, [name]: value } };
 
     case 'query':
       return { ...parameters, query: { ...parameters.query, [name]: value } };
@@ -30,7 +31,7 @@ function appendParameter(parameters: RequestParameters, target: ParameterTarget,
   }
 }
 
-function buildFixedParameters(state: State): RequestParameters {
+function buildFixedParameters(state: State): BuilderParameters {
   const { endpoint, operation } = state;
 
   return endpoint.fixedOperationParameters.reduce((acc, parameter) => {
@@ -46,7 +47,7 @@ function buildFixedParameters(state: State): RequestParameters {
   }, initalParameters());
 }
 
-function buildUserParameters(state: State): RequestParameters {
+function buildUserParameters(state: State): BuilderParameters {
   const { endpoint, operation } = state;
 
   const parameterKeys = Object.keys(state.parameters);
@@ -75,12 +76,13 @@ export function buildParameters(state: State): RequestParameters {
   const fixed = buildFixedParameters(state);
   const user = buildUserParameters(state);
 
+  const cookie = cookies.buildHeader({ ...user.cookies, ...fixed.cookies, ...auth.cookies });
+
   // NOTE: User parameters MUST come first otherwise they could potentially
   // overwrite fixed and authentication parameters
   return {
     paths: { ...user.paths, ...fixed.paths },
     query: { ...user.query, ...fixed.query, ...auth.query },
-    headers: { ...user.headers, ...fixed.headers, ...auth.headers },
-    cookies: { ...user.cookies, ...fixed.cookies, ...auth.cookies },
+    headers: { ...user.headers, ...fixed.headers, ...auth.headers, ...cookie },
   };
 }

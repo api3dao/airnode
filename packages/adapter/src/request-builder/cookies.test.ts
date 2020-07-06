@@ -10,7 +10,7 @@ describe('buildHeader', () => {
     const cookiesObj = { key1: 'secretkey', key2: 'anothersecret' };
     const res = cookies.buildHeader(cookiesObj);
     expect(res).toEqual({
-      Cookie: 'key1=secretkey; key2=anothersecret;'
+      Cookie: 'key1=secretkey; key2=anothersecret;',
     });
   });
 
@@ -18,7 +18,7 @@ describe('buildHeader', () => {
     const cookiesObj = { key1: ';,/?:@&=+$' };
     const res = cookies.buildHeader(cookiesObj);
     expect(res).toEqual({
-      Cookie: 'key1=%3B%2C%2F%3F%3A%40%26%3D%2B%24;'
+      Cookie: 'key1=%3B%2C%2F%3F%3A%40%26%3D%2B%24;',
     });
   });
 });

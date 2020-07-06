@@ -22,7 +22,6 @@ describe('building parameters', () => {
         to: 'USD',
       },
       headers: {},
-      cookies: {},
     });
   });
 });
@@ -75,8 +74,10 @@ describe('fixed parameters', () => {
         from: 'ETH',
         to: 'USD',
       },
-      headers: { header_param: 'header-value' },
-      cookies: { cookie_param: 'cookie-value' },
+      headers: {
+        Cookie: 'cookie_param=cookie-value;',
+        header_param: 'header-value'
+      },
     });
   });
 
@@ -92,7 +93,6 @@ describe('fixed parameters', () => {
         to: 'USD',
       },
       headers: {},
-      cookies: {},
     });
   });
 });
@@ -148,8 +148,10 @@ describe('user parameters', () => {
         from: 'ETH',
         to: 'USD',
       },
-      headers: { header_param: 'header-key' },
-      cookies: { cookie_param: 'cookie-key' },
+      headers: {
+        Cookie: 'cookie_param=cookie-key;',
+        header_param: 'header-key'
+      },
     });
   });
 
@@ -165,7 +167,6 @@ describe('user parameters', () => {
         from: 'ETH',
       },
       headers: {},
-      cookies: {},
     });
   });
 
@@ -181,7 +182,6 @@ describe('user parameters', () => {
         to: 'USD',
       },
       headers: {},
-      cookies: {},
     });
   });
 });
