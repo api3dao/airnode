@@ -2,6 +2,7 @@
 pragma solidity 0.6.8;
 
 import "./ProviderStore.sol";
+import "./interfaces/AuthorizerInterface.sol";
 
 
 /// @title The contract where the endpoints are stored
@@ -106,5 +107,73 @@ contract EndpointStore is ProviderStore {
         providerId = endpoints[endpointId].providerId;
         apiId = endpoints[endpointId].apiId;
         authorizers = endpoints[endpointId].authorizers;
+    }
+
+    /// @notice Uses authorizer contracts of an endpoint to decide if a reuqester
+    /// is authorized to call an endpoint. Once a node receives a request, it
+    /// calls this method to determine if it should respond.
+    /// @dev The elements of the authorizer array are either addresses of
+    /// Authorizer contracts with the interface defined as AuthorizerInterface,
+    /// or 0. Say we have authorizer contracts X, Y, Z, T, and our authorizer
+    /// array is [X, Y, 0, Z, T]. This means that the requester should satisfy
+    /// (X AND Y) OR (Z AND T) to be considered authorized. In other words,
+    /// consequent authorizer contracts need to verify authorization
+    /// simultaneously, while 0 represents the start of an independent
+    /// authorization policy. From a logical standpoint, consequent authorizers
+    /// get ANDed while 0 acts as an OR gate, providing great flexibility in
+    /// forming an authorization policy out of simple building blocks. We could
+    /// also define a NOT gate here to achieve a full set of universal logic
+    /// gates, but that does not make much sense in this context because
+    /// authorizers tend to check for positive conditions (have paid, is
+    /// whitelisted, etc.) and we would not need policies that require these to
+    /// be false.
+    /// Note that authorizers should not start or end with 0s, and 0s should
+    /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
+    /// @param endpointId Endpoint ID
+    /// @param requester Address of the requester contract
+    /// @return authorized If the requester contract is authorized to call the
+    /// endpoint
+    function checkIfAuthorized(
+        bytes32 endpointId,
+        address requester
+        )
+        external
+        view
+        returns(bool authorized)
+    {
+        uint256 noAuthorizers = endpoints[endpointId].authorizers.length;
+        // authorizedByAll will remain true as long as none of the authorizers
+        // in a group reports the requester to be unauthorized.
+        bool authorizedByAll = true;
+        for (uint256 authorizerInd = 0; authorizerInd < noAuthorizers; authorizerInd++)
+        {
+            address authorizerAddress = endpoints[endpointId].authorizers[authorizerInd];
+            if (authorizerAddress == address(0)) {
+                // If we have reached a 0 without getting any unauthorized
+                // reports, we can return true
+                if  (authorizedByAll) {
+                    return true;
+                }
+                // Otherwise, reset authorizedByAll and start checking the next
+                // group
+                authorizedByAll = true;
+            }
+            // We only need to check the next authorizer if we have a good track
+            // record for this group
+            else if (authorizedByAll) {
+                AuthorizerInterface authorizer = AuthorizerInterface(authorizerAddress);
+                // Set authorizedByAll to false if we got an unauthorized report.
+                // This means that we will not be able to return a true from
+                // this group of authorizers.
+                if (!authorizer.checkIfAuthorized(endpointId, requester)) {
+                    authorizedByAll = false;
+                }
+            }
+        }
+        // Finally, if we have reached the end of the authorizers (i.e., we
+        // are checking the last group), just return the current authorizedByAll,
+        // which will only be true if all authorizers from the last group have
+        // returned true.
+        return authorizedByAll;
     }
 }

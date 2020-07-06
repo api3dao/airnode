@@ -4,8 +4,8 @@ pragma solidity 0.6.8;
 
 interface AuthorizerInterface {
     function checkIfAuthorized(
-        address requester,
-        bytes32 endpointId
+        bytes32 endpointId,
+        address requester
         )
         external
         view
