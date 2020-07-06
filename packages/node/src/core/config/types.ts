@@ -2,7 +2,7 @@
 // General
 // ===========================================
 export type Method = 'get' | 'post';
-export type ParameterTarget = 'query' | 'path' | 'header' | 'cookie';
+export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie';
 
 export interface OperationParameter {
   in: ParameterTarget;
@@ -22,21 +22,20 @@ export interface SecurityRequirement {
 
 export interface Operation {
   parameters: OperationParameter[];
-  security?: SecurityRequirement[];
-  servers?: Server[];
 }
 
 export interface Path {
   [key: string]: Operation;
 }
 
+export type SecuritySchemeName = 'bearer' | 'basic';
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
 export interface ApiSecurityScheme {
-  in: SecuritySchemeTarget;
-  name: string;
-  scheme?: string;
+  in?: SecuritySchemeTarget;
+  name?: string;
+  scheme?: SecuritySchemeName;
   type: SecuritySchemeType;
 }
 
@@ -47,17 +46,16 @@ export interface ApiComponents {
 }
 
 export interface ApiSpecification {
-  id: string;
   components: ApiComponents;
   paths: { [key: string]: Path };
-  security?: SecurityRequirement[];
-  servers?: Server[];
+  security: SecurityRequirement;
+  servers: Server[];
 }
 
 // ===========================================
-// Oracle Specification
+// Endpoint Specification
 // ===========================================
-export interface OracleOperation {
+export interface EndpointOperation {
   method: Method;
   path: string;
 }
@@ -82,13 +80,12 @@ export interface ReservedParameter {
   name: string;
 }
 
-export interface OracleSpecification {
+export interface Endpoint {
   description?: string;
   externalDocs?: string;
   fixedOperationParameters: FixedParameter[];
-  id: string;
   name: string;
-  operation: OracleOperation;
+  operation: EndpointOperation;
   parameters: EndpointParameter[];
   reservedParameters: ReservedParameter[];
   summary?: string;
@@ -102,7 +99,7 @@ export interface OIS {
   title: string;
   version: string;
   apiSpecifications: ApiSpecification;
-  oracleSpecifications: OracleSpecification[];
+  endpoints: Endpoint[];
 }
 
 // ===========================================
@@ -148,13 +145,16 @@ export interface Config {
 // Security
 // ===========================================
 export interface SecurityScheme {
-  in: SecuritySchemeTarget;
-  name: string;
   securitySchemeName: string;
-  type: SecuritySchemeType;
   value: string;
 }
 
+export interface ApiCredentials {
+  [key: string]: SecurityScheme[];
+}
+
 export interface SecuritySpecification {
-  [apiTitle: string]: SecurityScheme[];
+  id: string;
+  apiCredentials: ApiCredentials;
+  masterKeyMnemonics?: string;
 }

@@ -10,7 +10,8 @@
     "lint:solhint": "solhint \"./packages/contracts/src/**/*.sol\"",
     "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "test": "lerna run test --stream",
-    "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
+    "test:watch:adapter": "(cd packages/adapter && npm run test:watch)",
+    "test:watch:node": "(cd packages/node && npm run test:watch)"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
