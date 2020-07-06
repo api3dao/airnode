@@ -1,19 +1,34 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import { Config, Request } from '../types';
 
-function request(config: AxiosRequestConfig) {
+function execute(config: AxiosRequestConfig) {
   return axios({
     url: config.url,
     method: config.method,
-    auth: config.auth,
     headers: config.headers,
-    timeout: config.timeout,
+    data: config.data,
+    params: config.params,
+    timeout: config.timeout || 10_000,
   });
 }
 
-export function get(config: AxiosRequestConfig) {
-  return request({ ...config, method: 'get' });
+export function get(request: Request, config?: Config) {
+  return execute({
+    ...request,
+    url: `${request.baseUrl}${request.path}`,
+    method: 'get',
+    params: request.data,
+    data: undefined,
+    timeout: config?.timeout,
+  });
 }
 
-export function post(config: AxiosRequestConfig) {
-  return request({ ...config, method: 'post' });
+export function post(request: Request, config?: Config) {
+  return execute({
+    ...request,
+    url: `${request.baseUrl}${request.path}`,
+    method: 'post',
+    data: request.data,
+    timeout: config?.timeout,
+  });
 }

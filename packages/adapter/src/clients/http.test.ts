@@ -1,56 +1,48 @@
 jest.mock('axios', () => jest.fn());
 
 import axios from 'axios';
+import { Request } from '../types';
 import * as http from './http';
 
 describe('get', () => {
   it('makes a GET request with the specified details', () => {
-    const request = {
-      url: 'https://example.com',
-      auth: {
-        username: 'username',
-        password: 'password',
-      },
+    const request: Request = {
+      baseUrl: 'https://example.com',
+      path: '/convert',
+      method: 'get',
+      data: { from: 'ETH', to: 'USD' },
       headers: { something: 'value' },
-      timeout: 10_000,
     };
     http.get(request);
 
     expect(axios).toHaveBeenCalledWith({
-      url: 'https://example.com',
+      url: 'https://example.com/convert',
       method: 'get',
-      auth: {
-        username: 'username',
-        password: 'password',
-      },
+      params: { from: 'ETH', to: 'USD' },
       headers: { something: 'value' },
-      timeout: 10000,
+      timeout: 10_000,
     });
   });
 });
 
 describe('post', () => {
   it('makes a POST request with the specified details', () => {
-    const request = {
-      url: 'https://example.com',
-      auth: {
-        username: 'username',
-        password: 'password',
-      },
+    const request: Request = {
+      baseUrl: 'https://example.com',
+      path: '/convert',
+      method: 'post',
+      data: { from: 'ETH', to: 'USD' },
       headers: { something: 'value' },
-      timeout: 10_000,
     };
     http.post(request);
 
     expect(axios).toHaveBeenCalledWith({
-      url: 'https://example.com',
+      url: 'https://example.com/convert',
       method: 'post',
-      auth: {
-        username: 'username',
-        password: 'password',
-      },
+      data: { from: 'ETH', to: 'USD' },
+      params: undefined,
       headers: { something: 'value' },
-      timeout: 10000,
+      timeout: 10_000,
     });
   });
 });
