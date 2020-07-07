@@ -33,3 +33,7 @@ export interface Request {
   headers: { [key: string]: string };
   data: { [key: string]: string };
 }
+
+export interface Config {
+  timeout?: number;
+}

@@ -10,6 +10,7 @@
     "lint:solhint": "solhint \"./packages/contracts/src/**/*.sol\"",
     "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "test": "lerna run test --stream",
+    "test:adapter": "(cd packages/adapter && npm run test)",
     "test:watch:adapter": "(cd packages/adapter && npm run test:watch)",
     "test:watch:node": "(cd packages/node && npm run test:watch)"
   },
