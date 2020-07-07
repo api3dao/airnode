@@ -24,6 +24,7 @@
     "jest": "^26.0.1",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
+    "rimraf": "~3.0.2",
     "solhint": "^3.0.0",
     "ts-jest": "^26.1.0",
     "typescript": "^3.9.5"

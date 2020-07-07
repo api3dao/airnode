@@ -1,18 +1,15 @@
+import { Config, OIS, SecuritySpecification } from '@airnode/ois';
 import { randomString } from '../utils/string-utils';
 import rawConfig from '../../../config.json';
 import rawSecurity from '../../../security.json';
-import { Config, OIS, SecuritySpecification } from './types';
 
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
   return oises.map((ois) => {
-    const oracleSpecifications = ois.oracleSpecifications.map((oracleSpec) => ({
-      ...oracleSpec,
-      id: randomString(16),
-    }));
+    const endpoints = ois.endpoints.map((endpoint) => ({ ...endpoint, id: randomString(16) }));
 
     const apiSpecifications = { ...ois.apiSpecifications, id: randomString(16) };
-    return { ...ois, apiSpecifications, oracleSpecifications };
+    return { ...ois, apiSpecifications, endpoints };
   });
 }
 
