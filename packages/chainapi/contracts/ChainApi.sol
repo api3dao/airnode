@@ -11,6 +11,7 @@ import "./TemplateStore.sol";
 /// make requests and the nodes call it to fulfill these requests.
 contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     mapping(bytes32 => bytes32) private requestIdToProviderId;
+    mapping(bytes32 => bool) private requestWithIdHasFailed;
     uint256 private noRequest = 0;
 
     event RequestMade(
@@ -47,6 +48,11 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes32 indexed providerId,
         bytes32 requestId,
         uint256 errorCode
+        );
+
+    event FulfillmentFailed(
+        bytes32 indexed providerId,
+        bytes32 requestId
         );
 
     /// @notice Called by the requester to make a request. It emits the request
@@ -214,5 +220,38 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         (callSuccess, callData) = errorAddress.call(
             abi.encodeWithSelector(errorFunctionId, requestId, errorCode)
             );
+    }
+
+    /// @notice Called by the oracle node if the request could neither be fulfilled
+    /// nor errored
+    /// @dev This node should fall back to this if a request cannot be fulfilled
+    /// and the error() is reverting
+    /// @param requestId Request ID
+    function fail(bytes32 requestId)
+        external
+    {
+        bytes32 providerId = requestIdToProviderId[requestId];
+        require(
+            this.getProviderWalletStatus(providerId, msg.sender),
+            "Not a valid wallet of the provider"
+            );
+        delete requestIdToProviderId[requestId];
+        requestWithIdHasFailed[requestId] = true;
+        emit FulfillmentFailed(
+            providerId,
+            requestId
+            );
+    }
+
+    /// @notice Used to check if a request had to fail because it could not be
+    /// fulfilled or errored
+    /// @param requestId Request ID
+    /// @return status If the request has failed
+    function checkIfRequestHasFailed(bytes32 requestId)
+        external
+        view
+        returns(bool status)
+    {
+        status = requestWithIdHasFailed[requestId];
     }
 }
