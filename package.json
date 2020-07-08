@@ -3,6 +3,7 @@
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build --stream",
+    "build:contracts": "(cd packages/contracts && npm run build)",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",
     "lint": "npm run lint:eslint && npm run lint:solhint",
@@ -11,8 +12,8 @@
     "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && npm run test)",
-    "test:watch:adapter": "(cd packages/adapter && npm run test:watch)",
-    "test:watch:node": "(cd packages/node && npm run test:watch)"
+    "test:adapter:watch": "(cd packages/adapter && npm run test:watch)",
+    "test:node:watch": "(cd packages/node && npm run test:watch)"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
