@@ -18,8 +18,10 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes32 requestId,
         address requester,
         bytes32 templateId,
-        address callbackAddress,
-        bytes4 callbackFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        address errorAddress,
+        bytes4 errorFunctionId,
         bytes parameters
         );
 
@@ -28,33 +30,46 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes32 requestId,
         address requester,
         bytes32 endpointId,
-        address callbackAddress,
-        bytes4 callbackFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        address errorAddress,
+        bytes4 errorFunctionId,
         bytes parameters
         );
 
-    event RequestFulfilled(
+    event FulfillmentSuccessful(
         bytes32 indexed providerId,
         bytes32 requestId,
         bytes32 data
+        );
+
+    event FulfillmentErrored(
+        bytes32 indexed providerId,
+        bytes32 requestId,
+        uint256 errorCode
         );
 
     /// @notice Called by the requester to make a request. It emits the request
     /// details as an event, which the provider node should be listening for
     /// @param providerId Provider ID from ProviderStore
     /// @param templateId Template ID from TemplateStore
-    /// @param callbackAddress Address that will be called to deliver the
+    /// @param fulfillAddress Address that will be called to deliver the
     /// response
-    /// @param callbackFunctionId Signature of the function that will be called
+    /// @param fulfillFunctionId Signature of the function that will be called
     /// to deliver the response
+    /// @param errorAddress Address that will be called to if fulfillment fails
+    /// @param errorFunctionId Signature of the function that will be called
+    /// if the fulfillment fails
     /// @param parameters Runtime parameters in addition to the ones defined in
     /// the template addressed by templateId
     /// @return requestId Request ID
     function makeRequest(
         bytes32 providerId,
         bytes32 templateId,
-        address callbackAddress,
-        bytes4 callbackFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        address errorAddress,
+        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -71,8 +86,10 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             requestId,
             msg.sender,
             templateId,
-            callbackAddress,
-            callbackFunctionId,
+            fulfillAddress,
+            fulfillFunctionId,
+            errorAddress,
+            errorFunctionId,
             parameters
         );
     }
@@ -84,18 +101,23 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// requester to pass all parameters here.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param callbackAddress Address that will be called to deliver the
+    /// @param fulfillAddress Address that will be called to deliver the
     /// response
-    /// @param callbackFunctionId Signature of the function that will be called
+    /// @param fulfillFunctionId Signature of the function that will be called
     /// to deliver the response
+    /// @param errorAddress Address that will be called to if fulfillment fails
+    /// @param errorFunctionId Signature of the function that will be called
+    /// if the fulfillment fails
     /// @param parameters Runtime parameters in addition to the ones defined in
     /// the template addressed by templateId
     /// @return requestId Request ID
     function makeDirectRequest(
         bytes32 providerId,
         bytes32 endpointId,
-        address callbackAddress,
-        bytes4 callbackFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        address errorAddress,
+        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -111,16 +133,18 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             requestId,
             msg.sender,
             endpointId,
-            callbackAddress,
-            callbackFunctionId,
+            fulfillAddress,
+            fulfillFunctionId,
+            errorAddress,
+            errorFunctionId,
             parameters
         );
     }
 
     /// @notice Called by the oracle node to fulfill requests
-    /// @param callbackAddress Address that will be called to deliver the
+    /// @param fulfillAddress Address that will be called to deliver the
     /// response
-    /// @param callbackFunctionId Signature of the function that will be called
+    /// @param fulfillFunctionId Signature of the function that will be called
     /// to deliver the response
     /// @param requestId Request ID
     /// @param data Oracle response
@@ -128,8 +152,8 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfill(
-        address callbackAddress,
-        bytes4 callbackFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
         bytes32 requestId,
         bytes32 data
         )
@@ -145,13 +169,50 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             "Not a valid wallet of the provider"
             );
         delete requestIdToProviderId[requestId];
-        emit RequestFulfilled(
+        emit FulfillmentSuccessful(
             providerId,
             requestId,
             data
             );
-        (callSuccess, callData) = callbackAddress.call(
-            abi.encodeWithSelector(callbackFunctionId, requestId, data)
+        (callSuccess, callData) = fulfillAddress.call(
+            abi.encodeWithSelector(fulfillFunctionId, requestId, data)
+            );
+    }
+
+    /// @notice Called by the oracle node if the request could not be fulfilled
+    /// for any reason
+    /// @param errorAddress Address that will be called
+    /// @param errorFunctionId Signature of the function that will be called
+    /// @param requestId Request ID
+    /// @param errorCode Error code
+    /// @return callSuccess If the fulfillment call succeeded
+    /// @return callData Data returned by the fulfillment call (if there is
+    /// any)
+    function error(
+        address errorAddress,
+        bytes4 errorFunctionId,
+        bytes32 requestId,
+        uint256 errorCode
+        )
+        external
+        returns(
+            bool callSuccess,
+            bytes memory callData
+        )
+    {
+        bytes32 providerId = requestIdToProviderId[requestId];
+        require(
+            this.getProviderWalletStatus(providerId, msg.sender),
+            "Not a valid wallet of the provider"
+            );
+        delete requestIdToProviderId[requestId];
+        emit FulfillmentErrored(
+            providerId,
+            requestId,
+            errorCode
+            );
+        (callSuccess, callData) = errorAddress.call(
+            abi.encodeWithSelector(errorFunctionId, requestId, errorCode)
             );
     }
 }

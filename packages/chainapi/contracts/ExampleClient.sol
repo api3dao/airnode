@@ -13,6 +13,7 @@ contract ExampleClient is ClientInterface {
     bytes32 public override endorserId;
     bytes32 public data;
     bytes32 public requestId;
+    uint256 public errorCode;
 
     constructor (
         address _chainApi,
@@ -41,6 +42,8 @@ contract ExampleClient is ClientInterface {
             templateId,
             address(this),
             this.fulfill.selector,
+            address(this),
+            this.error.selector,
             parameters
             );
     }
@@ -61,6 +64,20 @@ contract ExampleClient is ClientInterface {
             "Example request ID check"
             );
         data = _data;
+    }
+
+    function error(
+        bytes32 _requestId,
+        uint256 _errorCode
+        )
+        external
+        onlyChainApi()
+    {
+        require(
+            _requestId == requestId,
+            "Example request ID check"
+            );
+        errorCode = _errorCode;
     }
 
     /// @dev Reverts if the caller is not the ChainAPI contract

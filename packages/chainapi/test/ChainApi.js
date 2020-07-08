@@ -352,8 +352,8 @@ describe('ChainApi', function () {
     await chainApi
       .connect(reservedWallet)
       .fulfill(
-        parsedRequestLog.args.callbackAddress,
-        parsedRequestLog.args.callbackFunctionId,
+        parsedRequestLog.args.fulfillAddress,
+        parsedRequestLog.args.fulfillFunctionId,
         parsedRequestLog.args.requestId,
         ethers.utils.formatBytes32String('Hello!'),
         {

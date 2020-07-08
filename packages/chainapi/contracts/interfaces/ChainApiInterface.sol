@@ -6,8 +6,10 @@ interface ChainApiInterface {
     function makeRequest(
         bytes32 providerId,
         bytes32 templateId,
-        address callbackAddress,
-        bytes4 callbackFunctionId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        address errorAddress,
+        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
