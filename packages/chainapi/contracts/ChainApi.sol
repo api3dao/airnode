@@ -127,7 +127,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
-    function fulfillRequest(
+    function fulfill(
         address callbackAddress,
         bytes4 callbackFunctionId,
         bytes32 requestId,

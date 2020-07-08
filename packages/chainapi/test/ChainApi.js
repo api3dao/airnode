@@ -90,7 +90,7 @@ describe('ChainApi', function () {
 
     // The provider node has been listening for events from the ChainApi contract
     // so the request will see and fulfill it.
-    await fulfillRequest(providerId, providerKeys);
+    await fulfill(providerId, providerKeys);
 
     // We got our response!
     console.log(ethers.utils.parseBytes32String(await client.data()));
@@ -313,7 +313,7 @@ describe('ChainApi', function () {
     // have it as an option at the contract.
   }
 
-  async function fulfillRequest(providerId, providerKeys) {
+  async function fulfill(providerId, providerKeys) {
     // The provider node can get all events that concern it with a single call.
     const providerLogs = await waffle.provider.getLogs({
       address: chainApi.address,
@@ -351,7 +351,7 @@ describe('ChainApi', function () {
     // The node fulfills the request with the derived wallet.
     await chainApi
       .connect(reservedWallet)
-      .fulfillRequest(
+      .fulfill(
         parsedRequestLog.args.callbackAddress,
         parsedRequestLog.args.callbackFunctionId,
         parsedRequestLog.args.requestId,
