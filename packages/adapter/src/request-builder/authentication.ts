@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import { ApiSecurityScheme } from '@airnode/node/types';
+import { ApiSecurityScheme } from '@airnode/ois';
 import { Parameters, State } from '../types';
 
 interface Authentication {

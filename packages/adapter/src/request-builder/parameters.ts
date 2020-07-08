@@ -1,4 +1,4 @@
-import { ParameterTarget } from '@airnode/node/types';
+import { ParameterTarget } from '@airnode/ois';
 import { BuilderParameters, RequestParameters, State } from '../types';
 import * as authentication from './authentication';
 import * as cookies from './cookies';

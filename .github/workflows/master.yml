@@ -28,6 +28,6 @@ jobs:
 
     - name: Run tests
       run: |
-        npm run build
+        npm run build:contracts
         npm run test
 

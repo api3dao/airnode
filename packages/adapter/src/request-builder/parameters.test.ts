@@ -1,4 +1,4 @@
-import { EndpointParameter, FixedParameter } from '@airnode/node/types';
+import { EndpointParameter, FixedParameter } from '@airnode/ois';
 import { State } from '../types';
 import { initialize as initializeState } from '../state';
 import * as fixtures from '../../test/__fixtures__';

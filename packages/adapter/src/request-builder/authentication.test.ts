@@ -1,4 +1,4 @@
-import { ApiSecurityScheme } from '@airnode/node/types';
+import { ApiSecurityScheme } from '@airnode/ois';
 import { State } from '../types';
 import { initialize as initializeState } from '../state';
 import * as fixtures from '../../test/__fixtures__';

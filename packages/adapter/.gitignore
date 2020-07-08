@@ -5,7 +5,3 @@
 
 # Test files
 coverage/
-
-# Config files
-config.json
-security.json

@@ -1,12 +1,20 @@
 {
   "name": "@airnode/node",
   "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
     "dev:aws": "serverless offline --config serverless.aws.yml",
+    "prepublishOnly": "npm run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
+    "@airnode/ois": "^0.1.0",
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
     "ethers": "^5.0.2",

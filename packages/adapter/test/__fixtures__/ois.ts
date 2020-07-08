@@ -1,4 +1,4 @@
-import { OIS } from '@airnode/node/types';
+import { OIS } from '@airnode/ois';
 
 export const ois: OIS = {
   oisFormat: '1.0.0',

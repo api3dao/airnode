@@ -1,4 +1,4 @@
-import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/node/src/core/config/types';
+import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/ois';
 
 export interface Options {
   ois: OIS;
