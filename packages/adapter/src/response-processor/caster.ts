@@ -18,7 +18,7 @@ const SPECIAL_NUMBERS: SpecialNumber[] = [
 ];
 
 function castNumber(value: any, type: ResponseType) {
-  const specialNumber = SPECIAL_NUMBERS.find(n => n.value === value);
+  const specialNumber = SPECIAL_NUMBERS.find((n) => n.value === value);
   if (specialNumber) {
     return specialNumber.result;
   }

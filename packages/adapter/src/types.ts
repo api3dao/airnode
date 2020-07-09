@@ -52,4 +52,3 @@ export interface ResponseParameters {
   times?: number;
   type: ResponseType;
 }
-

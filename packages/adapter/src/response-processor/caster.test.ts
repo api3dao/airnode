@@ -39,22 +39,30 @@ describe('castValue', () => {
 
   describe('casting int256 values', () => {
     it('throws an error for invalid numbers', () => {
-      expect(() => caster.castValue(undefined, 'int256')).toThrowError(new Error("Unable to convert: 'undefined' to int256"));
+      expect(() => caster.castValue(undefined, 'int256')).toThrowError(
+        new Error("Unable to convert: 'undefined' to int256")
+      );
       expect(() => caster.castValue(null, 'int256')).toThrowError(new Error("Unable to convert: 'null' to int256"));
       expect(() => caster.castValue(NaN, 'int256')).toThrowError(new Error("Unable to convert: 'null' to int256"));
       expect(() => caster.castValue(Infinity, 'int256')).toThrowError(new Error("Unable to convert: 'null' to int256"));
-      expect(() => caster.castValue('', 'int256')).toThrowError(new Error("Unable to convert: '\"\"' to int256"));
+      expect(() => caster.castValue('', 'int256')).toThrowError(new Error('Unable to convert: \'""\' to int256'));
     });
 
     it('throws an error for unknown strings', () => {
-      expect(() => caster.castValue('', 'int256')).toThrowError(new Error("Unable to convert: '\"\"' to int256"));
-      expect(() => caster.castValue('unknown', 'int256')).toThrowError(new Error("Unable to convert: '\"unknown\"' to int256"));
+      expect(() => caster.castValue('', 'int256')).toThrowError(new Error('Unable to convert: \'""\' to int256'));
+      expect(() => caster.castValue('unknown', 'int256')).toThrowError(
+        new Error('Unable to convert: \'"unknown"\' to int256')
+      );
     });
 
     it('throws an error for unconvertable arrays', () => {
       expect(() => caster.castValue([], 'int256')).toThrowError(new Error("Unable to convert: '[]' to int256"));
-      expect(() => caster.castValue(['unknown'], 'int256')).toThrowError(new Error("Unable to convert: '[\"unknown\"]' to int256"));
-      expect(() => caster.castValue([{ a: 1 }], 'int256')).toThrowError(new Error("Unable to convert: '[{\"a\":1}]' to int256"));
+      expect(() => caster.castValue(['unknown'], 'int256')).toThrowError(
+        new Error('Unable to convert: \'["unknown"]\' to int256')
+      );
+      expect(() => caster.castValue([{ a: 1 }], 'int256')).toThrowError(
+        new Error('Unable to convert: \'[{"a":1}]\' to int256')
+      );
     });
 
     it('casts booleans to either 1 or 0', () => {
