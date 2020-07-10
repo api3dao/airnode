@@ -14,7 +14,93 @@ npm install --save @airnode/adapter
 yarn add @airnode/adapter
 ```
 
-## Usage
+## API
+
+Available functions:
+
+- [buildRequest](#buildRequest)
+
+- [executeRequest](#executeRequest)
+
+- [buildAndExecuteRequest](buildAndExecuteRequest)
+
+- [extractResponse](#extractResponse)
+
+- [castResponse](#castResponse)
+
+- [extractAndCastResponse](#extractAndCastResponse)
+
+### buildRequest
+
+Builds a request object based on the OIS, endpointName, (user) parameters and securitySchemes. The request contains all of the necessary details for making a request
+
+#### Arguments
+
+```ts
+buildRequest(options: Options): Request
+```
+
+### executeRequest
+
+Executes a request. `config` is an optional argument that provides extra details on how the request should execute, such as a timeout.
+
+#### Arguments
+
+```ts
+executeRequest(request: Request, config?: Config): AxiosPromise<any>
+```
+
+### buildAndExecuteRequest
+
+Builds and executes a request in a single call as a convenience function.
+
+#### Arguments
+
+```ts
+buildAndExecuteRequest(
+  options: Options, config?: Config
+): AxiosPromise<any>
+```
+
+### extractResponse
+
+Fetches a single value from an arbitrarily complex object or array using `parameters.path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
+
+If a path is not provided, the initial value is returned as is.
+
+#### Arguments
+
+```ts
+extractResponse(data: unknown, parameters: ResponseParameters): any
+```
+
+### castResponse
+
+**NB: See below for conversion behaviour**
+
+Attempts to cast an input value based on the `type` parameter in the `parameters` object. An error is thrown if the value cannot be converted.
+
+The following options are available for `type`:
+
+1. `bool` -> boolean
+2. `int256` -> number
+3. `bytes32` -> string
+
+#### Arguments
+
+```ts
+castResponse(value: unknown, parameters: ResponseParameters): any
+```
+
+### extractAndCastResponse
+
+Extracts and casts an arbitrary input in a single call as a convenience function.
+
+#### Arguments
+
+```ts
+extractAndCastResponse(data: unknown, parameters: ResponseParameters): any
+```
 
 ## Conversion Behaviour
 
@@ -65,12 +151,7 @@ const ERROR_VALUES = [
 There are a few special strings & boolean values that are convertable to `int256`:
 
 ```ts
-const SPECIAL_INT_VALUES = [
-  false, // result: 0
-  'false', // result: 0
-  true, // result: 1
-  'true', // result: 1
-];
+const SPECIAL_INT_VALUES = [false, 'false', true, 'true'];
 
 const values = SPECIAL_INT_VALUES.map(v => {
   return adapter.extractResponse(v, { type: 'int256' });
