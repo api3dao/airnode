@@ -15,7 +15,7 @@ import "./interfaces/ClientInterface.sol";
 contract RequesterStore {
     mapping(bytes32 => address) internal requesterIdToAdmin;
     mapping(address => bytes32) private clientAdressToEndorserId;
-    uint256 private noRequester = 0;
+    uint256 private noRequesters = 0;
 
     event RequesterCreated(
         bytes32 indexed id,
@@ -46,7 +46,7 @@ contract RequesterStore {
         returns (bytes32 requesterId)
     {
         requesterId = keccak256(abi.encodePacked(
-            noRequester++,
+            noRequesters++,
             this,
             uint256(3)
             ));

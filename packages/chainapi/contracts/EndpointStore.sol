@@ -16,7 +16,7 @@ contract EndpointStore is ProviderStore {
         }
 
     mapping(bytes32 => Endpoint) private endpoints;
-    uint256 private noEndpoint = 0;
+    uint256 private noEndpoints = 0;
 
     event EndpointCreated(
         bytes32 indexed id,
@@ -51,7 +51,7 @@ contract EndpointStore is ProviderStore {
         returns(bytes32 endpointId)
     {
         endpointId = keccak256(abi.encodePacked(
-            noEndpoint++,
+            noEndpoints++,
             this,
             uint256(0)
             ));

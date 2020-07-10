@@ -28,7 +28,7 @@ contract ProviderStore is RequesterStore {
 
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => WithdrawRequest) private withdrawRequests;
-    uint256 private noProvider = 0;
+    uint256 private noProviders = 0;
     uint256 private noWithdrawRequests = 0;
 
     event ProviderCreated(
@@ -96,7 +96,7 @@ contract ProviderStore is RequesterStore {
         returns (bytes32 providerId)
     {
         providerId = keccak256(abi.encodePacked(
-            noProvider++,
+            noProviders++,
             this,
             uint256(1)
             ));

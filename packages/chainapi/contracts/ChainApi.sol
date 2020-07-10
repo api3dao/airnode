@@ -12,7 +12,7 @@ import "./TemplateStore.sol";
 contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     mapping(bytes32 => bytes32) private requestIdToProviderId;
     mapping(bytes32 => bool) private requestWithIdHasFailed;
-    uint256 private noRequest = 0;
+    uint256 private noRequests = 0;
 
     event RequestMade(
         bytes32 indexed providerId,
@@ -83,7 +83,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(
-            noRequest++,
+            noRequests++,
             this
             ));
         requestIdToProviderId[requestId] = providerId;
@@ -114,8 +114,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// @param errorAddress Address that will be called to if fulfillment fails
     /// @param errorFunctionId Signature of the function that will be called
     /// if the fulfillment fails
-    /// @param parameters Runtime parameters in addition to the ones defined in
-    /// the template addressed by templateId
+    /// @param parameters Request parameters
     /// @return requestId Request ID
     function makeDirectRequest(
         bytes32 providerId,
@@ -130,7 +129,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(
-            noRequest++,
+            noRequests++,
             this
             ));
         requestIdToProviderId[requestId] = providerId;
@@ -225,7 +224,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// @notice Called by the oracle node if the request could neither be fulfilled
     /// nor errored
     /// @dev This node should fall back to this if a request cannot be fulfilled
-    /// and the error() is reverting
+    /// and error() is reverting
     /// @param requestId Request ID
     function fail(bytes32 requestId)
         external
@@ -236,6 +235,8 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             "Not a valid wallet of the provider"
             );
         delete requestIdToProviderId[requestId];
+        // Failure is recorded so that it can be checked externally with
+        // checkIfRequestHasFailed()
         requestWithIdHasFailed[requestId] = true;
         emit FulfillmentFailed(
             providerId,
