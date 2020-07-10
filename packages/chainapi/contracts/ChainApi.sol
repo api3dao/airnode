@@ -26,7 +26,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes parameters
         );
 
-    event DirectRequestMade(
+    event FullRequestMade(
         bytes32 indexed providerId,
         bytes32 requestId,
         address requester,
@@ -35,6 +35,14 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes4 fulfillFunctionId,
         address errorAddress,
         bytes4 errorFunctionId,
+        bytes parameters
+        );
+
+    event ShortRequestMade(
+        bytes32 indexed providerId,
+        bytes32 requestId,
+        address requester,
+        bytes32 templateId,
         bytes parameters
         );
 
@@ -102,7 +110,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
 
     /// @notice Called by the requester to make a request. It emits the request
     /// details as an event, which the provider node should be listening for.
-    /// @dev Since makeDirectRequest refers to the endpointId directly (instead
+    /// @dev Since makeFullRequest refers to the endpointId directly (instead
     /// of referring to a template that refers to an endpoint), it requires the
     /// requester to pass all parameters here.
     /// @param providerId Provider ID from ProviderStore
@@ -116,7 +124,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// if the fulfillment fails
     /// @param parameters Request parameters
     /// @return requestId Request ID
-    function makeDirectRequest(
+    function makeFullRequest(
         bytes32 providerId,
         bytes32 endpointId,
         address fulfillAddress,
@@ -133,7 +141,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             this
             ));
         requestIdToProviderId[requestId] = providerId;
-        emit DirectRequestMade(
+        emit FullRequestMade(
             providerId,
             requestId,
             msg.sender,
@@ -142,6 +150,35 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             fulfillFunctionId,
             errorAddress,
             errorFunctionId,
+            parameters
+        );
+    }
+
+    /// @notice Called by the requester to make a request. It emits the request
+    /// details as an event, which the provider node should be listening for
+    /// @dev The oracle should get fulfill/error parameters from the template
+    /// @param templateId Template ID from TemplateStore
+    /// @param parameters Runtime parameters in addition to the ones defined in
+    /// the template addressed by templateId
+    /// @return requestId Request ID
+    function makeShortRequest(
+        bytes32 templateId,
+        bytes calldata parameters
+        )
+        external
+        returns (bytes32 requestId)
+    {
+        requestId = keccak256(abi.encodePacked(
+            noRequests++,
+            this
+            ));
+        bytes32 providerId = templates[templateId].providerId;
+        requestIdToProviderId[requestId] = providerId;
+        emit ShortRequestMade(
+            providerId,
+            requestId,
+            msg.sender,
+            templateId,
             parameters
         );
     }
