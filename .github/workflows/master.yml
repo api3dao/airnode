@@ -1,4 +1,4 @@
-name: Test @airnode/adapter
+name: Test @airnode packages
 
 on: push
 
@@ -23,6 +23,15 @@ jobs:
     - name: Lint code
       run: npm run lint
 
-    - name: Run tests
+    - name: Build
+      run: npm run build:contracts
+
+    - name: Test adapter
       run: npm run test:adapter
+
+    - name: Test contracts
+      run: npm run test:contracts
+
+    - name: Test node
+      run: npm run test:node
 
