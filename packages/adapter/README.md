@@ -46,6 +46,8 @@ buildRequest(options: Options): Request
 
 Executes a request. `config` is an optional argument that provides extra details on how the request should execute, such as a timeout.
 
+[axios](https://github.com/axios/axios) is used for executing requests under the hood. You can use your own HTTP library by building the request separately and using the result.
+
 ```ts
 executeRequest(request: Request, config?: Config): AxiosPromise<any>
 ```
