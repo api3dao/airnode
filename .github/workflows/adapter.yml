@@ -1,4 +1,4 @@
-name: Test Adapter
+name: Test @airnode/adapter
 
 on: push
 
