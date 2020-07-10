@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import isFinite from 'lodash/isFinite';
 import isNil from 'lodash/isNil';
-import isObject from 'lodash/isObject';
+import isPlainObject from 'lodash/isPlainObject';
 import { ResponseType } from '../types';
 
 interface SpecialNumber {
@@ -24,13 +24,13 @@ function castNumber(value: any, type: ResponseType) {
   }
 
   // +value attempts to convert to a number
-  if (!isFinite(+value) || value === '' || isNil(value) || isArray(value) || isObject(value)) {
+  if (!isFinite(+value) || value === '' || isNil(value) || isArray(value) || isPlainObject(value)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${type}`);
   }
 
   const castNumber = Number(value);
 
-  // Catch anything that went wrong
+  // Catch anything that was missed
   if (!isFinite(castNumber)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${type}`);
   }
@@ -54,12 +54,13 @@ function castBoolean(value: unknown) {
 }
 
 function castBytes32(value: any) {
-  // All of the following will result in an error:
-  // undefined, null, NaN, '', 0, false
-  if (!value) {
+  // Objects convert to "[object Object]" which isn't very useful
+  if (isPlainObject(value)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes32`);
   }
-  return value.toString();
+
+  // Arrays are permitted to be cast to a string although the value might not be useful
+  return String(value);
 }
 
 export function castValue(value: unknown, type: ResponseType) {

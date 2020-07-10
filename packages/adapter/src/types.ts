@@ -38,17 +38,10 @@ export interface Config {
   timeout?: number;
 }
 
-// Minimal representation from:
-// https://github.com/axios/axios/blob/master/index.d.ts
-export interface Response {
-  data: unknown;
-  status: number;
-}
-
 export type ResponseType = 'int256' | 'bool' | 'bytes32';
 
 export interface ResponseParameters {
-  path: string;
+  path?: string;
   times?: number;
   type: ResponseType;
 }
