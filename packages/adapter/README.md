@@ -38,8 +38,6 @@ Available functions:
 
 Builds a request object based on the OIS, endpointName, (user) parameters and securitySchemes. The request contains all of the necessary details for making a request
 
-#### Arguments
-
 ```ts
 buildRequest(options: Options): Request
 ```
@@ -48,8 +46,6 @@ buildRequest(options: Options): Request
 
 Executes a request. `config` is an optional argument that provides extra details on how the request should execute, such as a timeout.
 
-#### Arguments
-
 ```ts
 executeRequest(request: Request, config?: Config): AxiosPromise<any>
 ```
@@ -57,8 +53,6 @@ executeRequest(request: Request, config?: Config): AxiosPromise<any>
 ### buildAndExecuteRequest
 
 Builds and executes a request in a single call as a convenience function.
-
-#### Arguments
 
 ```ts
 buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
@@ -69,8 +63,6 @@ buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 Fetches a single value from an arbitrarily complex object or array using `parameters.path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
 
 If a path is not provided, the initial value is returned as is.
-
-#### Arguments
 
 ```ts
 extractResponse(data: unknown, parameters: ResponseParameters): any
@@ -88,8 +80,6 @@ The following options are available for `type`:
 2. `int256` -> number
 3. `bytes32` -> string
 
-#### Arguments
-
 ```ts
 castResponse(value: unknown, parameters: ResponseParameters): any
 ```
@@ -97,8 +87,6 @@ castResponse(value: unknown, parameters: ResponseParameters): any
 ### extractAndCastResponse
 
 Extracts and casts an arbitrary input in a single call as a convenience function.
-
-#### Arguments
 
 ```ts
 extractAndCastResponse(data: unknown, parameters: ResponseParameters): any
