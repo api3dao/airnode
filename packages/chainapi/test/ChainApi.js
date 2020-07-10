@@ -81,12 +81,12 @@ describe('ChainApi', function () {
     // The requester creates a request template, telling which endpoint to call
     // and what parameters to use. The parameters defined at this stage are
     // static, doesn't change between requests.
-    const templateId = await createTemplate(endpointId, ethers.utils.randomBytes(8));
+    const templateId = await createTemplate(providerId, endpointId, ethers.utils.randomBytes(8));
 
     // Someone calls the client contract, which triggers a request.
     // We have additional parameters here, determined at request-time.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const requestId = await makeRequest(providerId, templateId, ethers.utils.randomBytes(4));
+    const requestId = await makeRequest(templateId, ethers.utils.randomBytes(4));
 
     // The provider node has been listening for events from the ChainApi contract
     // so the request will see and fulfill it.
@@ -279,10 +279,10 @@ describe('ChainApi', function () {
     chainApi.connect(accounts.requesterAdmin).endorseClient(requesterId, clientAddress);
   }
 
-  async function createTemplate(endpointId, staticParameters) {
+  async function createTemplate(providerId, endpointId, staticParameters) {
     // Note that we are not connecting to the contract as requesterAdmin.
     // That's because it doesn't matter who creates the template.
-    const tx = await chainApi.createTemplate(endpointId, staticParameters);
+    const tx = await chainApi.createTemplate(providerId, endpointId, staticParameters);
     // Get the newly created template's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -292,8 +292,8 @@ describe('ChainApi', function () {
     return templateId;
   }
 
-  async function makeRequest(providerId, templateId, dynamicParameters) {
-    const tx = await client.request(providerId, templateId, dynamicParameters);
+  async function makeRequest(templateId, dynamicParameters) {
+    const tx = await client.request(templateId, dynamicParameters);
     // Get the newly created template's ID from the event. Note that we are
     // listening from ChainApi and not Client, because that's where the event
     // is emitted.
@@ -329,7 +329,7 @@ describe('ChainApi', function () {
     const templateLogs = await waffle.provider.getLogs({
       address: chainApi.address,
       fromBlock: 0,
-      topics: [ethers.utils.id('TemplateCreated(bytes32,bytes32,bytes)'), parsedRequestLog.args.templateId],
+      topics: [ethers.utils.id('TemplateCreated(bytes32,bytes32,bytes32,bytes)'), parsedRequestLog.args.templateId],
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const parsedTemplateLog = chainApi.interface.parseLog(templateLogs[0]);

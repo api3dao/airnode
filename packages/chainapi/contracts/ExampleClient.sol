@@ -27,19 +27,16 @@ contract ExampleClient is ClientInterface {
     }
 
     /// @notice Called to make a request to the ChainAPI contract
-    /// @param providerId Provider ID
     /// @param templateId Template ID
     /// @param parameters Runtime parameters in addition to the ones defines in
     /// the template addressed by templateId
     function request(
-        bytes32 providerId,
         bytes32 templateId,
         bytes calldata parameters
         )
         external
     {
         requestId = chainApi.makeRequest(
-            providerId,
             templateId,
             address(this),
             this.fulfill.selector,

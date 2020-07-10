@@ -58,7 +58,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
 
     /// @notice Called by the requester to make a request. It emits the request
     /// details as an event, which the provider node should be listening for
-    /// @param providerId Provider ID from ProviderStore
     /// @param templateId Template ID from TemplateStore
     /// @param fulfillAddress Address that will be called to deliver the
     /// response
@@ -71,7 +70,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// the template addressed by templateId
     /// @return requestId Request ID
     function makeRequest(
-        bytes32 providerId,
         bytes32 templateId,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -87,6 +85,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             noRequests++,
             this
             ));
+        bytes32 providerId = templates[templateId].providerId;
         requestIdToProviderId[requestId] = providerId;
         emit RequestMade(
             providerId,

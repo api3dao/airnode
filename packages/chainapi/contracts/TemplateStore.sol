@@ -9,14 +9,16 @@ pragma solidity 0.6.8;
 /// passing the same parameters over and over again.
 contract TemplateStore {
     struct Template {
+        bytes32 providerId;
         bytes32 endpointId;
         bytes parameters;
         }
 
-    mapping(bytes32 => Template) private templates;
+    mapping(bytes32 => Template) internal templates;
 
     event TemplateCreated(
       bytes32 indexed id,
+      bytes32 providerId,
       bytes32 endpointId,
       bytes parameters
       );
@@ -29,10 +31,12 @@ contract TemplateStore {
     /// of parameters off-chain. It also means that creating a new template
     /// with the same parameters will overwrite the old one and return the
     /// same template ID.
+    /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param parameters Parameters that will not change between requests
     /// @return templateId Request template ID
     function createTemplate(
+        bytes32 providerId,
         bytes32 endpointId,
         bytes calldata parameters
         )
@@ -40,28 +44,38 @@ contract TemplateStore {
         returns (bytes32 templateId)
     {
         templateId = keccak256(abi.encodePacked(
+            providerId,
             endpointId,
             parameters
             ));
         templates[templateId] = Template({
+            providerId: providerId,
             endpointId: endpointId,
             parameters: parameters
         });
-        emit TemplateCreated(templateId, endpointId, parameters);
+        emit TemplateCreated(
+          templateId,
+          providerId,
+          endpointId,
+          parameters
+          );
     }
 
     /// @notice Retrieves request parameters addressed by the ID
     /// @param templateId Request template ID
+    /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
     /// @return parameters Parameters that will not change between requests
     function getTemplate(bytes32 templateId)
         external
         view
         returns (
+            bytes32 providerId,
             bytes32 endpointId,
             bytes memory parameters
         )
     {
+        providerId = templates[templateId].providerId;
         endpointId = templates[templateId].endpointId;
         parameters = templates[templateId].parameters;
     }
