@@ -57,9 +57,7 @@ Builds and executes a request in a single call as a convenience function.
 #### Arguments
 
 ```ts
-buildAndExecuteRequest(
-  options: Options, config?: Config
-): AxiosPromise<any>
+buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 ```
 
 ### extractResponse
