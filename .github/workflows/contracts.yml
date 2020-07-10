@@ -1,9 +1,6 @@
-name: Continuous Build
+name: Test Contracts
 
-on:
-  push:
-    branches:
-      - 'master'
+on: push
 
 jobs:
   build:
@@ -27,7 +24,5 @@ jobs:
       run: npm run lint
 
     - name: Run tests
-      run: |
-        npm run build:contracts
-        npm run test
+      run: npm run test:contracts
 

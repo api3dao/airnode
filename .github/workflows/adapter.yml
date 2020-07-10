@@ -1,10 +1,6 @@
-name: Continuous Build (BRANCH)
+name: Test Adapter
 
-on:
-  push:
-    branches:
-      - '*'
-      - '!master'
+on: push
 
 jobs:
   build:
@@ -28,7 +24,5 @@ jobs:
       run: npm run lint
 
     - name: Run tests
-      run: |
-        npm run build:contracts
-        npm run test
+      run: npm run test:adapter
 
