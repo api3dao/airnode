@@ -26,5 +26,14 @@ export function buildAndExecuteRequest(options: Options, config?: Config) {
 }
 
 export function extractResponse(data: unknown, parameters: ResponseParameters) {
-  return responseProcessor.extractResponse(data, parameters);
+  return responseProcessor.extractResponse(data, parameters.path);
+}
+
+export function castResponse(value: unknown, parameters: ResponseParameters) {
+  return responseProcessor.castResponse(value, parameters);
+}
+
+export function extractAndCastResponse(data: unknown, parameters: ResponseParameters) {
+  const value = extractResponse(data, parameters);
+  return castResponse(value, parameters);
 }

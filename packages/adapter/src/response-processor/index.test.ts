@@ -9,36 +9,39 @@ describe('isNumberType', () => {
   });
 });
 
-describe('extractResponse', () => {
-  it('returns simple strings without a path', () => {
-    const res = proccessor.extractResponse('somestring', { type: 'bytes32' });
-    expect(res).toEqual('somestring');
-  });
-
-  it('returns simple numbers without a path', () => {
-    const res = proccessor.extractResponse(777.77, { type: 'int256', times: 100 });
-    expect(res).toEqual(77777);
+describe('processor - extractResponse', () => {
+  it('returns the data as is if no path is provided', () => {
+    const res = proccessor.extractResponse('simplestring');
+    expect(res).toEqual('simplestring');
   });
 
   it('extracts the value from the path from complex objects', () => {
     const data = { a: { b: [{ c: 1 }, { d: 5 }] } };
-    const parameters: ResponseParameters = { path: 'a.b.1.d', type: 'bytes32' };
-    const res = proccessor.extractResponse(data, parameters);
-    expect(res).toEqual('5');
-  });
-
-  it('multiplies number values by the times', () => {
-    const data = { a: [{ c: 1 }, { d: [5.5, 4.4, 6.6, 7.789] }] };
-    const parameters: ResponseParameters = { path: 'a.1.d.3', type: 'int256', times: 1000 };
-    const res = proccessor.extractResponse(data, parameters);
-    expect(res).toEqual(7789);
+    const res = proccessor.extractResponse(data, 'a.b.1.d');
+    expect(res).toEqual(5);
   });
 
   it('throws an error if unable to find the value from the path', () => {
-    const data = { a: 1 };
-    const parameters: ResponseParameters = { path: 'b', type: 'int256', times: 1000 };
     expect(() => {
-      proccessor.extractResponse(data, parameters);
+      proccessor.extractResponse({ a: 1 }, 'b');
     }).toThrowError(new Error("Unable to find value from path: 'b'"));
+  });
+});
+
+describe('processor - castResponse', () => {
+  it('casts simple strings', () => {
+    const res = proccessor.castResponse('somestring', { type: 'bytes32' });
+    expect(res).toEqual('somestring');
+  });
+
+  it('casts simple numbers', () => {
+    const res = proccessor.castResponse(777.77, { type: 'int256', times: 100 });
+    expect(res).toEqual(77777);
+  });
+
+  it('multiplies number values by the times', () => {
+    const parameters: ResponseParameters = { type: 'int256', times: 1000 };
+    const res = proccessor.castResponse(7.789, parameters);
+    expect(res).toEqual(7789);
   });
 });

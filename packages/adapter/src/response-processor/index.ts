@@ -18,18 +18,22 @@ export function isNumberType(type: ResponseType) {
   return type === 'int256';
 }
 
-export function extractResponse(data: unknown, parameters: ResponseParameters) {
-  const { path, times, type } = parameters;
+export function extractResponse(data: unknown, path?: string) {
   const rawValue = extractRawValue(data, path);
 
   if (isUndefined(rawValue)) {
     throw new Error(`Unable to find value from path: '${path}'`);
   }
 
-  let value = caster.castValue(rawValue, type);
+  return rawValue;
+}
+
+export function castResponse(rawValue: unknown, parameters: ResponseParameters) {
+  const { times, type } = parameters;
+  const value = caster.castValue(rawValue, type);
 
   if (times && typeof value === 'number' && isNumberType(type)) {
-    value = caster.multiplyValue(value, times);
+    return caster.multiplyValue(value, times);
   }
 
   return value;
