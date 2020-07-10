@@ -67,7 +67,9 @@ describe('castValue', () => {
 
       // Objects
       expect(() => caster.castValue({}, 'int256')).toThrowError(new Error("Unable to convert: '{}' to int256"));
-      expect(() => caster.castValue({ a: 1 }, 'int256')).toThrowError(new Error("Unable to convert: '{\"a\":1}' to int256"));
+      expect(() => caster.castValue({ a: 1 }, 'int256')).toThrowError(
+        new Error('Unable to convert: \'{"a":1}\' to int256')
+      );
     });
 
     it('casts boolean-like values to either 1 or 0', () => {
@@ -90,7 +92,9 @@ describe('castValue', () => {
   describe('casting bytes32 values', () => {
     it('throws an error for object values', () => {
       expect(() => caster.castValue({}, 'bytes32')).toThrowError(new Error("Unable to convert: '{}' to bytes32"));
-      expect(() => caster.castValue({ a: 1 }, 'bytes32')).toThrowError(new Error("Unable to convert: '{\"a\":1}' to bytes32"));
+      expect(() => caster.castValue({ a: 1 }, 'bytes32')).toThrowError(
+        new Error('Unable to convert: \'{"a":1}\' to bytes32')
+      );
     });
 
     it('converts values to strings', () => {
