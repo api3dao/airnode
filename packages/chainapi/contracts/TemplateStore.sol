@@ -21,6 +21,7 @@ contract TemplateStore {
       bytes parameters
       );
 
+
     /// @notice Creates a template with the given parameters, addressable by
     /// the ID it returns
     /// @dev A specific set of request parameters will always have

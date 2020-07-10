@@ -37,6 +37,7 @@ contract RequesterStore {
         address indexed clientAddress
         );
 
+
     /// @notice Creates a provider with the given parameters, addressable by
     /// the ID it returns
     /// @param admin Admin address of the requester

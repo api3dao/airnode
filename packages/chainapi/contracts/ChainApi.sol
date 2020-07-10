@@ -55,6 +55,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes32 requestId
         );
 
+
     /// @notice Called by the requester to make a request. It emits the request
     /// details as an event, which the provider node should be listening for
     /// @param providerId Provider ID from ProviderStore

@@ -15,6 +15,7 @@ contract ExampleClient is ClientInterface {
     bytes32 public requestId;
     uint256 public errorCode;
 
+
     constructor (
         address _chainApi,
         bytes32 _endorserId

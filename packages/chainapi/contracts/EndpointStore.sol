@@ -32,6 +32,7 @@ contract EndpointStore is ProviderStore {
         address[] authorizers
         );
 
+
     /// @notice Creates an endpoint with the given parameters, addressable by
     /// the ID it returns
     /// @dev apiId is used by Authorizer contracts to treat all endpoints from
@@ -109,7 +110,7 @@ contract EndpointStore is ProviderStore {
         authorizers = endpoints[endpointId].authorizers;
     }
 
-    /// @notice Uses authorizer contracts of an endpoint to decide if a reuqester
+    /// @notice Uses authorizer contracts of an endpoint to decide if a requester
     /// is authorized to call an endpoint. Once a node receives a request, it
     /// calls this method to determine if it should respond.
     /// @dev The elements of the authorizer array are either addresses of
