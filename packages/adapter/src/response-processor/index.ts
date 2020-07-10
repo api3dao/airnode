@@ -18,7 +18,7 @@ export function isNumberType(type: ResponseType) {
   return type === 'int256';
 }
 
-export function extractResponseValue(data: unknown, parameters: ResponseParameters) {
+export function extractResponse(data: unknown, parameters: ResponseParameters) {
   const { path, times, type } = parameters;
   const rawValue = extractRawValue(data, path);
 

@@ -2,7 +2,7 @@ const responseMock = jest.fn();
 jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
-import { Request } from './types';
+import { Request, ResponseParameters } from './types';
 import * as fixtures from '../test/__fixtures__';
 import * as adapter from './index';
 
@@ -159,5 +159,14 @@ describe('buildAndExecuteRequest', () => {
       },
       timeout: 3500,
     });
+  });
+});
+
+describe('extractResponse', () => {
+  it('extracts the value from the path from complex objects', () => {
+    const data = { a: { b: [{ c: 1 }, { d: 5.5 }] } };
+    const parameters: ResponseParameters = { path: 'a.b.1.d', type: 'int256', times: 10 };
+    const res = adapter.extractResponse(data, parameters);
+    expect(res).toEqual(55);
   });
 });

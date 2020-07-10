@@ -9,28 +9,28 @@ describe('isNumberType', () => {
   });
 });
 
-describe('extractResponseValue', () => {
+describe('extractResponse', () => {
   it('returns simple strings without a path', () => {
-    const res = proccessor.extractResponseValue('somestring', { type: 'bytes32' });
+    const res = proccessor.extractResponse('somestring', { type: 'bytes32' });
     expect(res).toEqual('somestring');
   });
 
   it('returns simple numbers without a path', () => {
-    const res = proccessor.extractResponseValue(777.77, { type: 'int256', times: 100 });
+    const res = proccessor.extractResponse(777.77, { type: 'int256', times: 100 });
     expect(res).toEqual(77777);
   });
 
   it('extracts the value from the path from complex objects', () => {
     const data = { a: { b: [{ c: 1 }, { d: 5 }] } };
     const parameters: ResponseParameters = { path: 'a.b.1.d', type: 'bytes32' };
-    const res = proccessor.extractResponseValue(data, parameters);
+    const res = proccessor.extractResponse(data, parameters);
     expect(res).toEqual('5');
   });
 
   it('multiplies number values by the times', () => {
     const data = { a: [{ c: 1 }, { d: [5.5, 4.4, 6.6, 7.789] }] };
     const parameters: ResponseParameters = { path: 'a.1.d.3', type: 'int256', times: 1000 };
-    const res = proccessor.extractResponseValue(data, parameters);
+    const res = proccessor.extractResponse(data, parameters);
     expect(res).toEqual(7789);
   });
 
@@ -38,7 +38,7 @@ describe('extractResponseValue', () => {
     const data = { a: 1 };
     const parameters: ResponseParameters = { path: 'b', type: 'int256', times: 1000 };
     expect(() => {
-      proccessor.extractResponseValue(data, parameters);
+      proccessor.extractResponse(data, parameters);
     }).toThrowError(new Error("Unable to find value from path: 'b'"));
   });
 });
