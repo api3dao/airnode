@@ -14,6 +14,10 @@ npm install --save @airnode/adapter
 yarn add @airnode/adapter
 ```
 
+## Types
+
+You can find the types mentioned below in [src/types.ts](https://github.com/clc-group/airnode/blob/master/packages/adapter/src/types.ts)
+
 ## API
 
 Available functions:
