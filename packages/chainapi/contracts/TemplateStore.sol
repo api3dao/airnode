@@ -11,6 +11,10 @@ contract TemplateStore {
     struct Template {
         bytes32 providerId;
         bytes32 endpointId;
+        address fulfillAddress;
+        address errorAddress;
+        bytes4 fulfillFunctionId;
+        bytes4 errorFunctionId;
         bytes parameters;
         }
 
@@ -20,6 +24,10 @@ contract TemplateStore {
       bytes32 indexed id,
       bytes32 providerId,
       bytes32 endpointId,
+      address fulfillAddress,
+      address errorAddress,
+      bytes4 fulfillFunctionId,
+      bytes4 errorFunctionId,
       bytes parameters
       );
 
@@ -31,13 +39,26 @@ contract TemplateStore {
     /// of parameters off-chain. It also means that creating a new template
     /// with the same parameters will overwrite the old one and return the
     /// same template ID.
+    /// Only provide fulfill/error parameters if you will be using
+    /// makeShortRequest() from ChainApi.sol
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
+    /// @param fulfillAddress Address that will be called to deliver the
+    /// response
+    /// @param errorAddress Address that will be called to if fulfillment fails
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to deliver the response
+    /// @param errorFunctionId Signature of the function that will be called
+    /// if the fulfillment fails
     /// @param parameters Parameters that will not change between requests
     /// @return templateId Request template ID
     function createTemplate(
         bytes32 providerId,
         bytes32 endpointId,
+        address fulfillAddress,
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -46,17 +67,29 @@ contract TemplateStore {
         templateId = keccak256(abi.encodePacked(
             providerId,
             endpointId,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId,
             parameters
             ));
         templates[templateId] = Template({
             providerId: providerId,
             endpointId: endpointId,
+            fulfillAddress: fulfillAddress,
+            errorAddress: errorAddress,
+            fulfillFunctionId: fulfillFunctionId,
+            errorFunctionId: errorFunctionId,
             parameters: parameters
         });
         emit TemplateCreated(
           templateId,
           providerId,
           endpointId,
+          fulfillAddress,
+          errorAddress,
+          fulfillFunctionId,
+          errorFunctionId,
           parameters
           );
     }
@@ -65,6 +98,13 @@ contract TemplateStore {
     /// @param templateId Request template ID
     /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
+    /// @return fulfillAddress Address that will be called to deliver the
+    /// response
+    /// @return errorAddress Address that will be called to if fulfillment fails
+    /// @return fulfillFunctionId Signature of the function that will be called
+    /// to deliver the response
+    /// @return errorFunctionId Signature of the function that will be called
+    /// if the fulfillment fails
     /// @return parameters Parameters that will not change between requests
     function getTemplate(bytes32 templateId)
         external
@@ -72,11 +112,19 @@ contract TemplateStore {
         returns (
             bytes32 providerId,
             bytes32 endpointId,
+            address fulfillAddress,
+            address errorAddress,
+            bytes4 fulfillFunctionId,
+            bytes4 errorFunctionId,
             bytes memory parameters
         )
     {
         providerId = templates[templateId].providerId;
         endpointId = templates[templateId].endpointId;
+        fulfillAddress = templates[templateId].fulfillAddress;
+        errorAddress = templates[templateId].errorAddress;
+        fulfillFunctionId = templates[templateId].fulfillFunctionId;
+        errorFunctionId = templates[templateId].errorFunctionId;
         parameters = templates[templateId].parameters;
     }
 }

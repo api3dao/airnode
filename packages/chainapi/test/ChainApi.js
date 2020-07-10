@@ -282,7 +282,14 @@ describe('ChainApi', function () {
   async function createTemplate(providerId, endpointId, staticParameters) {
     // Note that we are not connecting to the contract as requesterAdmin.
     // That's because it doesn't matter who creates the template.
-    const tx = await chainApi.createTemplate(providerId, endpointId, staticParameters);
+    const tx = await chainApi.createTemplate(
+      providerId,
+      endpointId,
+      ethers.constants.AddressZero,
+      ethers.constants.AddressZero,
+      ethers.utils.arrayify('0x00000000'),
+      ethers.utils.arrayify('0x00000000'),
+      staticParameters);
     // Get the newly created template's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -329,7 +336,12 @@ describe('ChainApi', function () {
     const templateLogs = await waffle.provider.getLogs({
       address: chainApi.address,
       fromBlock: 0,
-      topics: [ethers.utils.id('TemplateCreated(bytes32,bytes32,bytes32,bytes)'), parsedRequestLog.args.templateId],
+      topics: [
+        ethers.utils.id(
+          'TemplateCreated(bytes32,bytes32,bytes32,address,address,bytes4,bytes4,bytes)'
+          ),
+        parsedRequestLog.args.templateId
+      ],
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const parsedTemplateLog = chainApi.interface.parseLog(templateLogs[0]);
