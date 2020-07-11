@@ -43,7 +43,7 @@ export type ValueType = string | number | boolean;
 export type ResponseType = 'int256' | 'bool' | 'bytes32';
 
 export interface ResponseParameters {
-  path?: string;
-  times?: number;
-  type: ResponseType;
+  _path?: string;
+  _times?: number;
+  _type: ResponseType;
 }

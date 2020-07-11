@@ -164,7 +164,7 @@ describe('buildAndExecuteRequest', () => {
 
 describe('extractAndEncodeValue', () => {
   it('returns a simple value with the encodedValue', () => {
-    const res = adapter.extractAndEncodeResponse('simplestring', { type: 'bytes32' });
+    const res = adapter.extractAndEncodeResponse('simplestring', { _type: 'bytes32' });
     expect(res).toEqual({
       value: 'simplestring',
       encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
@@ -173,7 +173,7 @@ describe('extractAndEncodeValue', () => {
 
   it('extracts and encodes the value from complex objects', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ResponseParameters = { path: 'a.b.1.d', type: 'int256', times: 100 };
+    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: 100 };
     const res = adapter.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       value: 75051,

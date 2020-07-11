@@ -29,16 +29,16 @@ export function buildAndExecuteRequest(options: Options, config?: Config) {
 export { isNumberType, extractResponseValue, castValue, multiplyValue, encodeValue };
 
 export function extractAndEncodeResponse(data: unknown, parameters: ResponseParameters) {
-  const rawValue = extractResponseValue(data, parameters.path);
+  const rawValue = extractResponseValue(data, parameters._path);
 
-  let value = castValue(rawValue, parameters.type);
+  let value = castValue(rawValue, parameters._type);
 
-  const numberType = isNumberType(parameters.type);
-  if (parameters.times && typeof value === 'number' && numberType) {
-    value = multiplyValue(value, parameters.times);
+  const numberType = isNumberType(parameters._type);
+  if (parameters._times && typeof value === 'number' && numberType) {
+    value = multiplyValue(value, parameters._times);
   }
 
-  const encodedValue = encodeValue(value, parameters.type);
+  const encodedValue = encodeValue(value, parameters._type);
 
   return { value, encodedValue };
 }
