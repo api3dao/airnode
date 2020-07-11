@@ -28,11 +28,15 @@ Available functions:
 
 - [buildAndExecuteRequest](buildAndExecuteRequest)
 
-- [extractResponse](#extractResponse)
+- [extractResponseValue](#extractResponseValue)
 
-- [castResponse](#castResponse)
+- [castValue](#castValue)
 
-- [extractAndCastResponse](#extractAndCastResponse)
+- [multipleValue](#multipleValue)
+
+- [encodeValue](#encodeValue)
+
+- [extractAndEncodeResponse](#extractAndEncodeResponse)
 
 ### buildRequest
 
@@ -60,38 +64,54 @@ Builds and executes a request in a single call as a convenience function.
 buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 ```
 
-### extractResponse
+### extractResponseValue
 
-Fetches a single value from an arbitrarily complex object or array using `parameters.path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
+Fetches a single value from an arbitrarily complex object or array using `path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
 
 If a path is not provided, the initial value is returned as is.
 
 ```ts
-extractResponse(data: unknown, parameters: ResponseParameters): any
+extractResponseValue(data: unknown, path: string): any
 ```
 
-### castResponse
+### castValue
 
 **NB: See below for conversion behaviour**
 
-Attempts to cast an input value based on the `type` parameter in the `parameters` object. An error is thrown if the value cannot be converted.
+Attempts to cast and normalize an input value based on the `type` argument. An error is thrown if the value cannot be converted.
 
 The following options are available for `type`:
 
-1. `bool` -> boolean
-2. `int256` -> number
-3. `bytes32` -> string
+1. `bool` converts to boolean
+2. `int256` converts to number
+3. `bytes32` converts to string
 
 ```ts
-castResponse(value: unknown, parameters: ResponseParameters): any
+castValue(value: unknown, type: ResponseType): string | boolean | number
 ```
 
-### extractAndCastResponse
+### multiplyValue
 
-Extracts and casts an arbitrary input in a single call as a convenience function.
+Multiplies the input value by the `times` parameter. Returns the input value as is if `times` is undefined.
 
 ```ts
-extractAndCastResponse(data: unknown, parameters: ResponseParameters): any
+castValue(value: number, times?: number): number
+```
+
+### encodeValue
+
+Encodes the input value to `bytes32` format. Values are padded if necessary to be 32 characters long
+
+```ts
+encodeValue(value: ValueType, type: ResponseType): string
+```
+
+### extractAndEncodeResponse
+
+Extracts, casts, multiplies (if necessary) and encodes an arbitrary input in a single call as a convenience function.
+
+```ts
+extractAndEncodeResponse(data: unknown, parameters: ResponseParameters): any
 ```
 
 ## Conversion Behaviour
@@ -115,7 +135,7 @@ const FALSE_BOOLEAN_VALUES = [
 ];
 
 const values = FALSE_BOOLEAN_VALUES.map(v => {
-  return adapter.extractResponse(v, { type: 'bool' });
+  return adapter.castValue(v, 'bool');
 });
 
 console.log(values)
@@ -145,10 +165,7 @@ There are a few special strings & boolean values that are convertable to `int256
 ```ts
 const SPECIAL_INT_VALUES = [false, 'false', true, 'true'];
 
-const values = SPECIAL_INT_VALUES.map(v => {
-  return adapter.extractResponse(v, { type: 'int256' });
-});
-
+const values = SPECIAL_INT_VALUES.map(v => adapter.castValue(v, 'int256'));
 console.log(values)
 // [0, 0, 1, 1];
 ```
@@ -161,12 +178,9 @@ const VALID_INT_VALUES = [
   7777,
 ];
 
-const values = VALID_INT_VALUES.map(v => {
-  return adapter.extractResponse(v, { type: 'int256', times: '1000' });
-});
-
+const values = VALID_INT_VALUES.map(v => adapter.castValue(v, 'int256'));
 console.log(values)
-// [123456, 7777000];
+// [123.456, 7777];
 ```
 
 ### `bytes32` Behaviour
@@ -189,10 +203,7 @@ const VALID_BYTES_VALUES = [
   true, // booleans
 ];
 
-const values = VALID_INT_VALUES.map(v => {
-  return adapter.extractResponse(v, { type: 'bytes32' });
-});
-
+const values = VALID_INT_VALUES.map(v => adapter.castValue(v, 'bytes32'));
 console.log(values)
 // ["null", "undefined", "", "random string", "1", "777", "true"];
 ```
@@ -221,13 +232,24 @@ const data = {
   symbol: 'BTC_USD',
 };
 
+// Option 1:
+const rawValue = adapter.extractResponseValue(data, 'prices.1');
+const value = adapter.castValue(rawValue, 'int256');
+const multipledValue = adapter.multiplyValue(value, 100);
+const encodedValue = adapter.encodeValue(multipledValue, 'int256');
+console.log(encodedValue);
+// '0x000000000000000000000000000000000000000000000000000000000001252b'
+
+// Option 2:
 const parameters = {
   path: 'prices.1',
-  times: '100',
+  times: 100,
   type: 'int256',
 };
-const value = adapter.extractResponse(data, parameters);
-
-console.log(value);
-// 75051
+const result = adapter.extractAndEncodeResponse(data, parameters);
+console.log(result);
+//  {
+//    value: 75051,
+//    encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b'
+//  }
 ```

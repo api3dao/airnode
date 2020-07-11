@@ -172,12 +172,12 @@ describe('extractAndEncodeValue', () => {
   });
 
   it('extracts and encodes the value from complex objects', () => {
-    const data = { a: { b: [{ c: 1 }, { d: '5' }] } };
+    const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
     const parameters: ResponseParameters = { path: 'a.b.1.d', type: 'int256', times: 100 };
     const res = adapter.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
-      value: 500,
-      encodedValue: '0x00000000000000000000000000000000000000000000000000000000000001f4',
+      value: 75051,
+      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
   });
 });
