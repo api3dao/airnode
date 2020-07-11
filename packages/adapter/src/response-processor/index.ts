@@ -1,7 +1,8 @@
 import get from 'lodash/get';
 import isUndefined from 'lodash/isUndefined';
 import * as caster from './caster';
-import { ResponseParameters, ResponseType } from '../types';
+import * as encoder from './encoder';
+import { ResponseType, ValueType } from '../types';
 
 function extractRawValue(data: unknown, path?: string) {
   // Some APIs return a simple value not in an object or array, like
@@ -18,7 +19,7 @@ export function isNumberType(type: ResponseType) {
   return type === 'int256';
 }
 
-export function extractResponse(data: unknown, path?: string) {
+export function extractResponseValue(data: unknown, path?: string) {
   const rawValue = extractRawValue(data, path);
 
   if (isUndefined(rawValue)) {
@@ -28,13 +29,27 @@ export function extractResponse(data: unknown, path?: string) {
   return rawValue;
 }
 
-export function castResponse(rawValue: unknown, parameters: ResponseParameters) {
-  const { times, type } = parameters;
-  const value = caster.castValue(rawValue, type);
+export function castValue(rawValue: unknown, type: ResponseType) {
+  return caster.castValue(rawValue, type);
+}
 
-  if (times && typeof value === 'number' && isNumberType(type)) {
-    return caster.multiplyValue(value, times);
+export function multiplyValue(value: number, times?: number) {
+  if (!times) {
+    return value;
   }
+  return caster.multiplyValue(value, times);
+}
 
-  return value;
+export function encodeValue(value: ValueType, type: ResponseType) {
+  // NOTE: value should be in the matching type at this point
+  switch (type) {
+    case 'int256':
+      return encoder.convertNumberToBytes32(value as number);
+
+    case 'bool':
+      return encoder.convertBoolToBytes32(value as boolean);
+
+    case 'bytes32':
+      return encoder.convertStringToBytes32(value as string);
+  }
 }

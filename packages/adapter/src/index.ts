@@ -2,7 +2,7 @@ import * as http from './clients/http';
 import { initialize as initializeState } from './state';
 import { Config, Options, Request, ResponseParameters } from './types';
 import * as requestBuilder from './request-builder';
-import * as responseProcessor from './response-processor';
+import { isNumberType, extractResponseValue, castValue, multiplyValue, encodeValue } from './response-processor';
 
 export function buildRequest(options: Options): Request {
   const state = initializeState(options);
@@ -25,15 +25,20 @@ export function buildAndExecuteRequest(options: Options, config?: Config) {
   return executeRequest(request, config);
 }
 
-export function extractResponse(data: unknown, parameters: ResponseParameters) {
-  return responseProcessor.extractResponse(data, parameters.path);
-}
+// Re-export functions from response-processor
+export { isNumberType, extractResponseValue, castValue, multiplyValue, encodeValue };
 
-export function castResponse(value: unknown, parameters: ResponseParameters) {
-  return responseProcessor.castResponse(value, parameters);
-}
+export function extractAndEncodeResponse(data: unknown, parameters: ResponseParameters) {
+  const rawValue = extractResponseValue(data, parameters.path);
 
-export function extractAndCastResponse(data: unknown, parameters: ResponseParameters) {
-  const value = extractResponse(data, parameters);
-  return castResponse(value, parameters);
+  let value = castValue(rawValue, parameters.type);
+
+  const numberType = isNumberType(parameters.type);
+  if (parameters.times && typeof value === 'number' && numberType) {
+    value = multiplyValue(value, parameters.times);
+  }
+
+  const encodedValue = encodeValue(value, parameters.type);
+
+  return { value, encodedValue };
 }

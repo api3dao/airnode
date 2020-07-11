@@ -38,6 +38,8 @@ export interface Config {
   timeout?: number;
 }
 
+export type ValueType = string | number | boolean;
+
 export type ResponseType = 'int256' | 'bool' | 'bytes32';
 
 export interface ResponseParameters {
