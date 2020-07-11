@@ -8,7 +8,7 @@ export function convertNumberToBytes32(value: number) {
   const twosComplementBigNumber = bigNumber.toTwos(256);
   const numberInHexStringForm = twosComplementBigNumber.toHexString();
 
-  // We only need to do this if int is positive but it makes no change if int is negative
+  // We only need to do this if value is positive but it makes no change if value is negative
   // because calling .toTwos() on a negative number pads it
   const paddedNumberInHexStringForm = ethers.utils.hexZeroPad(numberInHexStringForm, 32);
   return paddedNumberInHexStringForm;

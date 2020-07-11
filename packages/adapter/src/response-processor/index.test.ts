@@ -50,7 +50,7 @@ describe('multiplyValue', () => {
     expect(res).toEqual(7789);
   });
 
-  it('does nothing if times if not provided', () => {
+  it('does nothing if times is not provided', () => {
     const res = proccessor.multiplyValue(1234);
     expect(res).toEqual(1234);
   });
