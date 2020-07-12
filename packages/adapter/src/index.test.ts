@@ -2,7 +2,7 @@ const responseMock = jest.fn();
 jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
-import { Request } from './types';
+import { Request, ResponseParameters } from './types';
 import * as fixtures from '../test/__fixtures__';
 import * as adapter from './index';
 
@@ -159,5 +159,55 @@ describe('buildAndExecuteRequest', () => {
       },
       timeout: 3500,
     });
+  });
+});
+
+describe('extractAndEncodeValue', () => {
+  it('returns a simple value with the encodedValue', () => {
+    const res = adapter.extractAndEncodeResponse('simplestring', { _type: 'bytes32' });
+    expect(res).toEqual({
+      value: 'simplestring',
+      encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
+    });
+  });
+
+  it('extracts and encodes the value from complex objects', () => {
+    const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
+    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: 100 };
+    const res = adapter.extractAndEncodeResponse(data, parameters);
+    expect(res).toEqual({
+      value: 75051,
+      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+    });
+  });
+});
+
+describe('re-exported functions', () => {
+  it('exports isNumberType()', () => {
+    expect(adapter.isNumberType('bytes32')).toEqual(false);
+    expect(adapter.isNumberType('bool')).toEqual(false);
+    expect(adapter.isNumberType('int256')).toEqual(true);
+  });
+
+  it('exports processByExtracting', () => {
+    const data = { a: { b: [{ c: 1 }, { d: 5 }] } };
+    const res = adapter.processByExtracting(data, 'a.b.1.d');
+    expect(res).toEqual(5);
+  });
+
+  it('exports processByCasting', () => {
+    expect(adapter.processByCasting('true', 'bool')).toEqual(true);
+    expect(adapter.processByCasting('777', 'int256')).toEqual(777);
+    expect(adapter.processByCasting('BTC_USD', 'bytes32')).toEqual('BTC_USD');
+  });
+
+  it('exports multiplyValue', () => {
+    const res = adapter.processByMultiplying(7.789, 1000);
+    expect(res).toEqual(7789);
+  });
+
+  it('exports encodedValue', () => {
+    const res = adapter.processByEncoding('random string', 'bytes32');
+    expect(res).toEqual('0x72616e646f6d20737472696e6700000000000000000000000000000000000000');
   });
 });

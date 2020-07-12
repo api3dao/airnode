@@ -13,6 +13,8 @@
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && npm run test)",
     "test:adapter:watch": "(cd packages/adapter && npm run test:watch)",
+    "test:contracts": "(cd packages/contracts && npm run test)",
+    "test:node": "(cd packages/node && npm run test)",
     "test:node:watch": "(cd packages/node && npm run test:watch)"
   },
   "devDependencies": {
