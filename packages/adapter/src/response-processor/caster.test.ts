@@ -97,6 +97,14 @@ describe('castValue', () => {
       );
     });
 
+    it('throws an error for array values', () => {
+      expect(() => caster.castValue([], 'bytes32')).toThrowError(new Error("Unable to convert: '[]' to bytes32"));
+      expect(() => caster.castValue([false], 'bytes32')).toThrowError(new Error("Unable to convert: '[false]' to bytes32"));
+      expect(() => caster.castValue([true], 'bytes32')).toThrowError(new Error("Unable to convert: '[true]' to bytes32"));
+      expect(() => caster.castValue(['unknown'], 'bytes32')).toThrowError(new Error("Unable to convert: '[\"unknown\"]' to bytes32"));
+      expect(() => caster.castValue([{ a: 1 }], 'bytes32')).toThrowError(new Error("Unable to convert: '[{\"a\":1}]' to bytes32"));
+    });
+
     it('converts values to strings', () => {
       // Nil values
       expect(caster.castValue(null, 'bytes32')).toEqual('null');
@@ -119,15 +127,6 @@ describe('castValue', () => {
       expect(caster.castValue(777.89, 'bytes32')).toEqual('777.89');
       expect(caster.castValue(Infinity, 'bytes32')).toEqual('Infinity');
       expect(caster.castValue(NaN, 'bytes32')).toEqual('NaN');
-
-      // Arrays
-      expect(caster.castValue([], 'bytes32')).toEqual('');
-      expect(caster.castValue([false], 'bytes32')).toEqual('false');
-      expect(caster.castValue([true], 'bytes32')).toEqual('true');
-      expect(caster.castValue(['unknown'], 'bytes32')).toEqual('unknown');
-
-      // The user can still shoot themselves in the foot with an array of objects
-      expect(caster.castValue([{ a: 1 }], 'bytes32')).toEqual('[object Object]');
     });
   });
 });

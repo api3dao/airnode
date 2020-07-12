@@ -55,11 +55,9 @@ function castBoolean(value: unknown) {
 
 function castBytes32(value: any) {
   // Objects convert to "[object Object]" which isn't very useful
-  if (isPlainObject(value)) {
+  if (isArray(value) || isPlainObject(value)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes32`);
   }
-
-  // Arrays are permitted to be cast to a string although the value might not be useful
   return String(value);
 }
 

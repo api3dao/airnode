@@ -68,10 +68,10 @@ buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 
 Fetches a single value from an arbitrarily complex object or array using `path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
 
-If a path is not provided, the initial value is returned as is.
+Some APIs return a single, primitive value like a string, number or boolean - not an object or array. This is still considered valid JSON. When this is the case, leave the `path` argument out to return the entire response.
 
 ```ts
-extractResponseValue(data: unknown, path: string): any
+extractResponseValue(data: unknown, path?: string): any
 ```
 
 ### castValue
@@ -100,7 +100,7 @@ castValue(value: number, times?: number): number
 
 ### encodeValue
 
-Encodes the input value to `bytes32` format. Values are padded if necessary to be 32 characters long
+Encodes the input value to `bytes32` format. Values are padded if necessary to be 32 characters long. Encoding is based on the `type` argument.
 
 ```ts
 encodeValue(value: ValueType, type: ResponseType): string
