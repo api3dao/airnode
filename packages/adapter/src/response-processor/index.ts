@@ -19,7 +19,7 @@ export function isNumberType(type: ResponseType) {
   return type === 'int256';
 }
 
-export function extractResponseValue(data: unknown, path?: string) {
+export function processByExtracting(data: unknown, path?: string) {
   const rawValue = extractRawValue(data, path);
 
   if (isUndefined(rawValue)) {
@@ -29,18 +29,18 @@ export function extractResponseValue(data: unknown, path?: string) {
   return rawValue;
 }
 
-export function castValue(rawValue: unknown, type: ResponseType) {
+export function processByCasting(rawValue: unknown, type: ResponseType) {
   return caster.castValue(rawValue, type);
 }
 
-export function multiplyValue(value: number, times?: number) {
+export function processByMultiplying(value: number, times?: number) {
   if (!times) {
     return value;
   }
   return caster.multiplyValue(value, times);
 }
 
-export function encodeValue(value: ValueType, type: ResponseType) {
+export function processByEncoding(value: ValueType, type: ResponseType) {
   // NOTE: value should be in the matching type at this point
   switch (type) {
     case 'int256':

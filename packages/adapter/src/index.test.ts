@@ -189,25 +189,25 @@ describe('re-exported functions', () => {
     expect(adapter.isNumberType('int256')).toEqual(true);
   });
 
-  it('exports extractResponseValue', () => {
+  it('exports processByExtracting', () => {
     const data = { a: { b: [{ c: 1 }, { d: 5 }] } };
-    const res = adapter.extractResponseValue(data, 'a.b.1.d');
+    const res = adapter.processByExtracting(data, 'a.b.1.d');
     expect(res).toEqual(5);
   });
 
-  it('exports castValue', () => {
-    expect(adapter.castValue('true', 'bool')).toEqual(true);
-    expect(adapter.castValue('777', 'int256')).toEqual(777);
-    expect(adapter.castValue('BTC_USD', 'bytes32')).toEqual('BTC_USD');
+  it('exports processByCasting', () => {
+    expect(adapter.processByCasting('true', 'bool')).toEqual(true);
+    expect(adapter.processByCasting('777', 'int256')).toEqual(777);
+    expect(adapter.processByCasting('BTC_USD', 'bytes32')).toEqual('BTC_USD');
   });
 
   it('exports multiplyValue', () => {
-    const res = adapter.multiplyValue(7.789, 1000);
+    const res = adapter.processByMultiplying(7.789, 1000);
     expect(res).toEqual(7789);
   });
 
   it('exports encodedValue', () => {
-    const res = adapter.encodeValue('random string', 'bytes32');
+    const res = adapter.processByEncoding('random string', 'bytes32');
     expect(res).toEqual('0x72616e646f6d20737472696e6700000000000000000000000000000000000000');
   });
 });

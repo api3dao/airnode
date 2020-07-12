@@ -15,6 +15,11 @@ export function convertNumberToBytes32(value: number) {
 }
 
 export function convertStringToBytes32(value: string) {
+  // We can't encode strings longer than 31 characters to bytes32.
+  // Ethers need to keep room for null termination
+  if (value.length > 31) {
+    value = value.substring(0, 31);
+  }
   return ethers.utils.formatBytes32String(value);
 }
 

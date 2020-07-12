@@ -2,7 +2,7 @@ import * as http from './clients/http';
 import { initialize as initializeState } from './state';
 import { Config, Options, Request, ResponseParameters } from './types';
 import * as requestBuilder from './request-builder';
-import { isNumberType, extractResponseValue, castValue, multiplyValue, encodeValue } from './response-processor';
+import { isNumberType, processByExtracting, processByCasting, processByMultiplying, processByEncoding } from './response-processor';
 
 export function buildRequest(options: Options): Request {
   const state = initializeState(options);
@@ -26,19 +26,19 @@ export function buildAndExecuteRequest(options: Options, config?: Config) {
 }
 
 // Re-export functions from response-processor
-export { isNumberType, extractResponseValue, castValue, multiplyValue, encodeValue };
+export { isNumberType, processByExtracting, processByCasting, processByMultiplying, processByEncoding };
 
 export function extractAndEncodeResponse(data: unknown, parameters: ResponseParameters) {
-  const rawValue = extractResponseValue(data, parameters._path);
+  const rawValue = processByExtracting(data, parameters._path);
 
-  let value = castValue(rawValue, parameters._type);
+  let value = processByCasting(rawValue, parameters._type);
 
   const numberType = isNumberType(parameters._type);
   if (parameters._times && typeof value === 'number' && numberType) {
-    value = multiplyValue(value, parameters._times);
+    value = processByMultiplying(value, parameters._times);
   }
 
-  const encodedValue = encodeValue(value, parameters._type);
+  const encodedValue = processByEncoding(value, parameters._type);
 
   return { value, encodedValue };
 }
