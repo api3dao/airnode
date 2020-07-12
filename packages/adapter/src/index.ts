@@ -2,7 +2,13 @@ import * as http from './clients/http';
 import { initialize as initializeState } from './state';
 import { Config, Options, Request, ResponseParameters } from './types';
 import * as requestBuilder from './request-builder';
-import { isNumberType, processByExtracting, processByCasting, processByMultiplying, processByEncoding } from './response-processor';
+import {
+  isNumberType,
+  processByExtracting,
+  processByCasting,
+  processByMultiplying,
+  processByEncoding,
+} from './response-processor';
 
 export function buildRequest(options: Options): Request {
   const state = initializeState(options);
