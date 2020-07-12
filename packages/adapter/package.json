@@ -16,13 +16,13 @@
     "@airnode/ois": "^0.1.0",
     "axios": "^0.19.2",
     "ethers": "^5.0.5",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.19"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.0",
+    "@types/jest": "^26.0.4",
     "@types/lodash": "^4.14.155",
-    "@types/node": "^14.0.12",
-    "jest": "^26.0.1",
-    "ts-jest": "^26.1.0"
+    "@types/node": "^14.0.22",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.1"
   }
 }
