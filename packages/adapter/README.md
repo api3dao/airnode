@@ -28,13 +28,13 @@ Available functions:
 
 - [buildAndExecuteRequest](buildAndExecuteRequest)
 
-- [extractResponseValue](#extractResponseValue)
+- [processByExtracting](#processByExtracting)
 
-- [castValue](#castValue)
+- [processByCasting](#processByCasting)
 
-- [multipleValue](#multipleValue)
+- [processByMultiplying](#processByMultiplying)
 
-- [encodeValue](#encodeValue)
+- [processByEncoding](#processByEncoding)
 
 - [extractAndEncodeResponse](#extractAndEncodeResponse)
 
@@ -64,17 +64,17 @@ Builds and executes a request in a single call as a convenience function.
 buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 ```
 
-### extractResponseValue
+### processByExtracting
 
 Fetches a single value from an arbitrarily complex object or array using `path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
 
 Some APIs return a single, primitive value like a string, number or boolean - not an object or array. This is still considered valid JSON. When this is the case, leave the `path` argument out to return the entire response.
 
 ```ts
-extractResponseValue(data: unknown, path?: string): any
+processByExtracting(data: unknown, path?: string): any
 ```
 
-### castValue
+### processByCasting
 
 **NB: See below for conversion behaviour**
 
@@ -87,23 +87,23 @@ The following options are available for `type`:
 3. `bytes32` converts to string
 
 ```ts
-castValue(value: unknown, type: ResponseType): string | boolean | number
+processByCasting(value: unknown, type: ResponseType): string | boolean | number
 ```
 
-### multiplyValue
+### processByMultiplying
 
 Multiplies the input value by the `times` parameter. Returns the input value as is if `times` is undefined.
 
 ```ts
-castValue(value: number, times?: number): number
+processByMultiplying(value: number, times?: number): number
 ```
 
-### encodeValue
+### processByEncoding
 
 Encodes the input value to `bytes32` format. Values are padded if necessary to be 32 characters long. Encoding is based on the `type` argument.
 
 ```ts
-encodeValue(value: ValueType, type: ResponseType): string
+processByEncoding(value: ValueType, type: ResponseType): string
 ```
 
 ### extractAndEncodeResponse
@@ -135,7 +135,7 @@ const FALSE_BOOLEAN_VALUES = [
 ];
 
 const values = FALSE_BOOLEAN_VALUES.map(v => {
-  return adapter.castValue(v, 'bool');
+  return adapter.processByCasting(v, 'bool');
 });
 
 console.log(values)
@@ -165,7 +165,7 @@ There are a few special strings & boolean values that are convertable to `int256
 ```ts
 const SPECIAL_INT_VALUES = [false, 'false', true, 'true'];
 
-const values = SPECIAL_INT_VALUES.map(v => adapter.castValue(v, 'int256'));
+const values = SPECIAL_INT_VALUES.map(v => adapter.processByCasting(v, 'int256'));
 console.log(values)
 // [0, 0, 1, 1];
 ```
@@ -178,7 +178,7 @@ const VALID_INT_VALUES = [
   7777,
 ];
 
-const values = VALID_INT_VALUES.map(v => adapter.castValue(v, 'int256'));
+const values = VALID_INT_VALUES.map(v => adapter.processByCasting(v, 'int256'));
 console.log(values)
 // [123.456, 7777];
 ```
@@ -191,6 +191,9 @@ If the response value is an object, an error will be thrown when attempting to c
 const ERROR_VALUES = [
   {},
   { a: 1 },
+  [],
+  ['somestring'],
+  [{ a: 1 }]
 ];
 
 const VALID_BYTES_VALUES = [
@@ -198,12 +201,11 @@ const VALID_BYTES_VALUES = [
   undefined,
   '', // empty string
   'random string',
-  [1], // basic arrays
   777, // numbers
   true, // booleans
 ];
 
-const values = VALID_INT_VALUES.map(v => adapter.castValue(v, 'bytes32'));
+const values = VALID_INT_VALUES.map(v => adapter.processByCasting(v, 'bytes32'));
 console.log(values)
 // ["null", "undefined", "", "random string", "1", "777", "true"];
 ```
@@ -233,10 +235,10 @@ const data = {
 };
 
 // Option 1:
-const rawValue = adapter.extractResponseValue(data, 'prices.1');
-const value = adapter.castValue(rawValue, 'int256');
-const multipledValue = adapter.multiplyValue(value, 100);
-const encodedValue = adapter.encodeValue(multipledValue, 'int256');
+const rawValue = adapter.processByExtracting(data, 'prices.1');
+const value = adapter.processByCasting(rawValue, 'int256');
+const multipledValue = adapter.processByMultiplying(value, 100);
+const encodedValue = adapter.processByEncoding(multipledValue, 'int256');
 console.log(encodedValue);
 // '0x000000000000000000000000000000000000000000000000000000000001252b'
 
