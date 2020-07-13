@@ -49,6 +49,7 @@ contract RequesterStore {
         requesterId = keccak256(abi.encodePacked(
             noRequesters++,
             this,
+            msg.sender,
             uint256(3)
             ));
         requesterIdToAdmin[requesterId] = admin;

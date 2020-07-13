@@ -54,6 +54,7 @@ contract EndpointStore is ProviderStore {
         endpointId = keccak256(abi.encodePacked(
             noEndpoints++,
             this,
+            msg.sender,
             uint256(0)
             ));
         endpoints[endpointId] = Endpoint({

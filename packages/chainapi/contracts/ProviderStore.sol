@@ -98,6 +98,7 @@ contract ProviderStore is RequesterStore {
         providerId = keccak256(abi.encodePacked(
             noProviders++,
             this,
+            msg.sender,
             uint256(1)
             ));
         providers[providerId] = Provider({
@@ -253,6 +254,7 @@ contract ProviderStore is RequesterStore {
         bytes32 withdrawRequestId = keccak256(abi.encodePacked(
             noWithdrawRequests++,
             this,
+            msg.sender,
             uint256(2)
             ));
         withdrawRequests[withdrawRequestId] = WithdrawRequest({

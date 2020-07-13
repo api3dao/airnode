@@ -91,7 +91,8 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     {
         requestId = keccak256(abi.encodePacked(
             noRequests++,
-            this
+            this,
+            msg.sender
             ));
         bytes32 providerId = templates[templateId].providerId;
         requestIdToProviderId[requestId] = providerId;
@@ -138,7 +139,8 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     {
         requestId = keccak256(abi.encodePacked(
             noRequests++,
-            this
+            this,
+            msg.sender
             ));
         requestIdToProviderId[requestId] = providerId;
         emit FullRequestMade(
@@ -170,7 +172,8 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     {
         requestId = keccak256(abi.encodePacked(
             noRequests++,
-            this
+            this,
+            msg.sender
             ));
         bytes32 providerId = templates[templateId].providerId;
         requestIdToProviderId[requestId] = providerId;
