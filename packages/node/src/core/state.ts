@@ -1,32 +1,17 @@
-import { ethers } from 'ethers';
-import * as logger from './utils/logger';
-import { go } from './utils/promise-utils';
-import { initializeProvider } from './ethereum';
+import * as ethereum from './ethereum';
+import { promiseTimeout } from './utils/promise-utils';
+import { ProviderConfig, ProviderState, State } from '../types';
 
-export interface State {
-  readonly chainId: number;
-  readonly currentBlock: number | null;
-  readonly gasPrice: ethers.BigNumber | null;
-  readonly provider: ethers.providers.Provider;
-}
+export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
+  const providerInitializations = providerConfigs.map(providerConfig => {
+    const initialization = ethereum.initializeProviderState(providerConfig);
+    return promiseTimeout(10_000, initialization).catch(() => null);
+  });
+  const providerStates = await Promise.all(providerInitializations);
 
-export async function initialize(): Promise<State> {
-  const provider = initializeProvider();
+  const successfulProviders = providerStates.filter(ps => !!ps) as ProviderState[];
 
-  // Do this upfront to reduce potential extra calls later on
-  const [networkErr, network] = await go(provider.getNetwork());
-  if (networkErr || !network) {
-    // TODO: Provider calls should retry on failure (issue #11)
-    throw new Error(`Unable to get network. ${networkErr}`);
-  }
-  logger.logJSON('INFO', `Network set to '${network.name}' (ID: ${network.chainId})`);
-
-  return {
-    chainId: network.chainId,
-    currentBlock: null,
-    gasPrice: null,
-    provider,
-  };
+  return { providers: successfulProviders };
 }
 
 export function update(state: State, newState: any): State {

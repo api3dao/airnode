@@ -5,9 +5,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run clean && npm run compile",
+    "build": "npm run clean",
     "clean": "rimraf -rf ./dist",
-    "compile": "tsc -p tsconfig.build.json",
     "dev:aws": "serverless offline --config serverless.aws.yml",
     "prepublishOnly": "npm run build",
     "test": "SILENCE_LOGGER=true jest --coverage",

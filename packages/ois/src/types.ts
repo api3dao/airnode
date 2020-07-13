@@ -103,45 +103,6 @@ export interface OIS {
 }
 
 // ===========================================
-// Triggers
-// ===========================================
-export interface RequestTrigger {
-  endpointId: string;
-  endpointName: string;
-  oisTitle: string;
-}
-
-export interface AggregatorTrigger {
-  address: string;
-  endpointName: string;
-  oisTitle: string;
-}
-
-export interface Triggers {
-  aggregator: AggregatorTrigger[];
-  flux: AggregatorTrigger[];
-  requests: RequestTrigger[];
-}
-
-// ===========================================
-// Config
-// ===========================================
-export interface NodeSettings {
-  nodeKey: string;
-  platformKey: string;
-  platformUrl: string;
-  providerId: string;
-  providerUrls: string[];
-}
-
-export interface Config {
-  id: string;
-  ois: OIS[];
-  nodeSettings: NodeSettings;
-  triggers: Triggers;
-}
-
-// ===========================================
 // Security
 // ===========================================
 export interface SecurityScheme {

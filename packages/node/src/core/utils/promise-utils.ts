@@ -25,6 +25,10 @@ export function go<T>(fn: Promise<T>): Promise<Response<T>> {
   return fn.then(successFn).catch(errorFn);
 }
 
+export function goTimeout<T>(ms: number, fn: Promise<T>): Promise<Response<T>> {
+  return go(promiseTimeout(ms, fn));
+}
+
 // A native implementation of the following function might look like:
 //
 //   function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
