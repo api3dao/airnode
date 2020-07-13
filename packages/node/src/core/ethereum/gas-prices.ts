@@ -34,10 +34,7 @@ async function getEthNodeGasPrice(state: ProviderState): Promise<GasPriceRespons
 }
 
 export async function getGasPrice(providerState: ProviderState): Promise<ethers.BigNumber> {
-  const gasPriceRequests = [
-    getEthNodeGasPrice(providerState),
-    getDataFeedGasPrice(providerState),
-  ];
+  const gasPriceRequests = [getEthNodeGasPrice(providerState), getDataFeedGasPrice(providerState)];
   const gasPrices = await Promise.all(gasPriceRequests);
   const successfulPrices = gasPrices.filter((gp) => !!gp) as ethers.BigNumber[];
 

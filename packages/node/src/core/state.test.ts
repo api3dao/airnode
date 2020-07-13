@@ -64,7 +64,7 @@ describe('initialize', () => {
           provider,
           requests: [],
         },
-      ]
+      ],
     });
   });
 });

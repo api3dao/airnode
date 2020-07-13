@@ -30,7 +30,7 @@ describe('getGasPrice', () => {
     gasPrice: null,
     network: { chainId: 3, name: 'ropsten' },
     provider: new ethers.providers.JsonRpcProvider(),
-    requests: []
+    requests: [],
   };
 
   it('takes the gas price feed price if it is highest', async () => {

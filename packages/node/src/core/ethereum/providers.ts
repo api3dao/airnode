@@ -48,7 +48,7 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
     provider,
     requests: [],
     // Gas price is fetched and set as late as possible - just before transactions are made
-    gasPrice: null
+    gasPrice: null,
   };
 }
 
