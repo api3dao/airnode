@@ -52,6 +52,12 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes32 data
         );
 
+    event FulfillmentBytesSuccessful(
+        bytes32 indexed providerId,
+        bytes32 requestId,
+        bytes data
+        );
+
     event FulfillmentErrored(
         bytes32 indexed providerId,
         bytes32 requestId,
@@ -215,6 +221,45 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             );
         delete requestIdToProviderId[requestId];
         emit FulfillmentSuccessful(
+            providerId,
+            requestId,
+            data
+            );
+        (callSuccess, callData) = fulfillAddress.call(
+            abi.encodeWithSelector(fulfillFunctionId, requestId, data)
+            );
+    }
+
+    /// @notice Called by the oracle node to fulfill requests with response
+    /// of type bytes
+    /// @param fulfillAddress Address that will be called to deliver the
+    /// response
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to deliver the response
+    /// @param requestId Request ID
+    /// @param data Oracle response of type bytes
+    /// @return callSuccess If the fulfillment call succeeded
+    /// @return callData Data returned by the fulfillment call (if there is
+    /// any)
+    function fulfillBytes(
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes32 requestId,
+        bytes calldata data
+        )
+        external
+        returns(
+            bool callSuccess,
+            bytes memory callData
+        )
+    {
+        bytes32 providerId = requestIdToProviderId[requestId];
+        require(
+            this.getProviderWalletStatus(providerId, msg.sender),
+            "Not a valid wallet of the provider"
+            );
+        delete requestIdToProviderId[requestId];
+        emit FulfillmentBytesSuccessful(
             providerId,
             requestId,
             data
