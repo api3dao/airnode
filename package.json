@@ -4,6 +4,7 @@
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build --stream",
     "build:contracts": "(cd packages/contracts && npm run build)",
+    "clean": "lerna run clean --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",
     "lint": "npm run lint:eslint && npm run lint:solhint",
