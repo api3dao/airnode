@@ -8,7 +8,7 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
   const provider = new ethers.providers.JsonRpcProvider(config.url);
 
   // =========================================================
-  // STEP 1: Get the current network
+  // STEP 1: Get the provider's network
   // =========================================================
   const [networkErr, network] = await go(provider.getNetwork());
   if (networkErr || !network) {
