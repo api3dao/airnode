@@ -7,7 +7,6 @@ import * as utils from './utils';
 export async function initializeProviderState(config: ProviderConfig): Promise<ProviderState | null> {
   const provider = new ethers.providers.JsonRpcProvider(config.url);
 
-  // Fetch data that won't change in later blocks now to reduce potential extra calls later on
   // =========================================================
   // STEP 1: Get the current network
   // =========================================================
