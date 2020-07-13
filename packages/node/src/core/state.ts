@@ -3,6 +3,7 @@ import { promiseTimeout } from './utils/promise-utils';
 import { ProviderConfig, ProviderState, State } from '../types';
 
 export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
+  // Initialize each provider state (in parallel) with a maximum time limit of 10 seconds
   const providerInitializations = providerConfigs.map((providerConfig) => {
     const initialization = ethereum.initializeProviderState(providerConfig);
     return promiseTimeout(10_000, initialization).catch(() => null);
