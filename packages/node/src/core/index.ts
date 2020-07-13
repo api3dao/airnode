@@ -10,7 +10,7 @@ export async function main() {
   //   - The current block
   //   - The unfulfilled API requests
   // =========================================================
-  const state1 = await state.initialize(config);
+  const state1 = await state.initialize(config.nodeSettings.ethereumProviders);
 
   // =========================================================
   // STEP 2: Group requests and call each API
