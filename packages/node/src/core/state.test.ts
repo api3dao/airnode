@@ -67,4 +67,13 @@ describe('initialize', () => {
       ],
     });
   });
+
+  it('throws an error if no providers are configured', async () => {
+    expect.assertions(1);
+    try {
+      await state.initialize([]);
+    } catch (e) {
+      expect(e).toEqual(new Error('At least one provider must be defined in config.json'));
+    }
+  });
 });
