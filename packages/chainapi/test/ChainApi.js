@@ -289,7 +289,8 @@ describe('ChainApi', function () {
       ethers.constants.AddressZero,
       ethers.utils.arrayify('0x00000000'),
       ethers.utils.arrayify('0x00000000'),
-      staticParameters);
+      staticParameters
+    );
     // Get the newly created template's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -337,10 +338,8 @@ describe('ChainApi', function () {
       address: chainApi.address,
       fromBlock: 0,
       topics: [
-        ethers.utils.id(
-          'TemplateCreated(bytes32,bytes32,bytes32,address,address,bytes4,bytes4,bytes)'
-          ),
-        parsedRequestLog.args.templateId
+        ethers.utils.id('TemplateCreated(bytes32,bytes32,bytes32,address,address,bytes4,bytes4,bytes)'),
+        parsedRequestLog.args.templateId,
       ],
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
