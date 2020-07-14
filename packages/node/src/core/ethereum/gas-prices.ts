@@ -13,11 +13,11 @@ const MAXIMUM_WEI_PRICE = ethers.utils.parseUnits('1000', 'gwei');
 type GasPriceResponse = ethers.BigNumber | null;
 
 async function getDataFeedGasPrice(providerState: ProviderState): Promise<GasPriceResponse> {
-  const { config, network, provider } = providerState;
-  const contract = new ethers.Contract(GasPriceFeed.addresses[network.chainId], GasPriceFeed.ABI, provider);
+  const { config, provider } = providerState;
+  const contract = new ethers.Contract(GasPriceFeed.addresses[config.chainId], GasPriceFeed.ABI, provider);
   const [err, weiPrice] = await goTimeout(TIMEOUT, contract.latestAnswer() as Promise<ethers.BigNumber>);
   if (err || !weiPrice) {
-    utils.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from gas price feed contract. Reason: ${err}`);
+    utils.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from gas price feed contract. ${err}`);
     return null;
   }
   return weiPrice;
@@ -27,7 +27,7 @@ async function getEthNodeGasPrice(state: ProviderState): Promise<GasPriceRespons
   const { config, provider } = state;
   const [err, weiPrice] = await goTimeout(TIMEOUT, provider.getGasPrice());
   if (err || !weiPrice) {
-    utils.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from Ethereum node. Reason: ${err}`);
+    utils.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from Ethereum node. ${err}`);
     return null;
   }
   return weiPrice;

@@ -8,7 +8,7 @@ export interface ProviderState {
   readonly config: ProviderConfig;
   readonly currentBlock: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly network: ethers.providers.Network;
+  readonly nonce: number | null;
   readonly requests: any; // TODO
   readonly provider: ethers.providers.Provider;
 }
@@ -42,6 +42,7 @@ export interface Triggers {
 // Config
 // ===========================================
 export interface ProviderConfig {
+  chainId: number;
   name: string;
   url: string;
 }

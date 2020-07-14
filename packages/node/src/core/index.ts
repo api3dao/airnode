@@ -6,7 +6,6 @@ export async function main() {
   // STEP 1: Create a fresh state and initialize each
   // provider (in parallel) by fetching and setting:
   //
-  //   - The network
   //   - The current block
   //   - The unfulfilled API requests
   // =========================================================

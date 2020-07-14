@@ -8,18 +8,7 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
   const provider = new ethers.providers.JsonRpcProvider(config.url);
 
   // =========================================================
-  // STEP 1: Get the provider's network
-  // =========================================================
-  const [networkErr, network] = await go(provider.getNetwork());
-  if (networkErr || !network) {
-    // TODO: Provider calls should retry on failure (issue #11)
-    utils.logProviderJSON(config.name, 'ERROR', 'Unable to get network');
-    return null;
-  }
-  utils.logProviderJSON(config.name, 'INFO', `Network set to '${network.name}' (ID: ${network.chainId})`);
-
-  // =========================================================
-  // STEP 2: Get the current block
+  // STEP 1: Get the current block
   // =========================================================
   const [blockErr, currentBlock] = await go(provider.getBlockNumber());
   if (blockErr || !currentBlock) {
@@ -30,7 +19,7 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
   utils.logProviderJSON(config.name, 'INFO', `Current block set to: ${currentBlock}`);
 
   // =========================================================
-  // STEP 3: Get the pending requests
+  // STEP 2: Get the pending requests
   // =========================================================
   // const [requestsErr, pendingRequests] = await go(provider.getBlockNumber());
   // if (requestsErr || !pendingRequests) {
@@ -43,11 +32,11 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
   return {
     config,
     currentBlock,
-    network,
     provider,
     requests: [],
-    // Gas price is fetched and set as late as possible - just before transactions are made
+    // These are fetched and set as late as possible for freshness
     gasPrice: null,
+    nonce: null,
   };
 }
 
