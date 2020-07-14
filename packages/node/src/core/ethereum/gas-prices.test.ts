@@ -35,7 +35,7 @@ describe('getGasPrice', () => {
 
   it('takes the gas price feed price if it is highest', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(53000000000);
+    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('53000000000'));
 
     const getGasPrice = state.provider.getGasPrice as jest.Mock;
     getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
@@ -46,7 +46,7 @@ describe('getGasPrice', () => {
 
   it('takes the node price if it is highest', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(53000000000);
+    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('53000000000'));
 
     const getGasPrice = state.provider.getGasPrice as jest.Mock;
     getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('55000000000'));
@@ -68,7 +68,7 @@ describe('getGasPrice', () => {
 
   it('limits the maximum gas price that can be returned', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(43000000000000);
+    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('43000000000000'));
 
     const getGasPrice = state.provider.getGasPrice as jest.Mock;
     getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
