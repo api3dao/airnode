@@ -3,7 +3,9 @@
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build --stream",
+    "build:adapter": "(cd packages/adapter && npm run build)",
     "build:contracts": "(cd packages/contracts && npm run build)",
+    "build:ois": "(cd packages/ois && npm run build)",
     "clean": "lerna run clean --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
     "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",

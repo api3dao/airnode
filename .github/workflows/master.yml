@@ -24,7 +24,10 @@ jobs:
       run: npm run lint
 
     - name: Build
-      run: npm run build:contracts
+      run: |
+        npm run build:contracts
+        npm run build:ois
+        npm run build:adapter
 
     - name: Test adapter
       run: npm run test:adapter
