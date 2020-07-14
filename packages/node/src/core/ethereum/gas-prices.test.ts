@@ -25,10 +25,10 @@ import * as gasPrices from './gas-prices';
 
 describe('getGasPrice', () => {
   const state: ProviderState = {
-    config: { name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<my-key>' },
+    config: { chainId: 3, name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<my-key>' },
     currentBlock: 123456,
     gasPrice: null,
-    network: { chainId: 3, name: 'ropsten' },
+    nonce: null,
     provider: new ethers.providers.JsonRpcProvider(),
     requests: [],
   };
