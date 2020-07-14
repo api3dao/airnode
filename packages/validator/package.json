@@ -1,0 +1,26 @@
+{
+  "name": "validator",
+  "version": "0.0.0",
+  "description": "Verifies that provided specs.json or security.json files are valid Airnode compatible configurations",
+  "author": "Drgy <drgonjak@gmail.com>",
+  "homepage": "https://github.com/clc-group/airnode#readme",
+  "license": "ISC",
+  "main": "lib/validator.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clc-group/airnode.git"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/clc-group/airnode/issues"
+  }
+}
