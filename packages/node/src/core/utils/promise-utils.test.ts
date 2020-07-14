@@ -1,5 +1,5 @@
 import { TimeoutError } from 'bluebird';
-import { go, goTimeout } from './promise-utils';
+import { go, goTimeout, promiseTimeout } from './promise-utils';
 
 describe('go', () => {
   it('resolves successful asynchronous functions', async () => {
@@ -36,5 +36,19 @@ describe('goTimeout', () => {
     });
     const res = await goTimeout(10, fn);
     expect(res).toEqual([new TimeoutError('operation timed out'), null]);
+  });
+});
+
+describe('promiseTimeout', () => {
+  it('rejects the promise if it fails to complete within the time limit', async () => {
+    expect.assertions(1);
+    const fn = new Promise((res) => {
+      setTimeout(() => res("Won't be reached"), 20);
+    });
+    try {
+      await promiseTimeout(10, fn);
+    } catch (e) {
+      expect(e).toEqual(new TimeoutError('operation timed out'));
+    }
   });
 });
