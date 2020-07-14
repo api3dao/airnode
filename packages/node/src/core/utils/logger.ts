@@ -1,4 +1,4 @@
-type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
 export function log(message: string) {
   if (process.env.SILENCE_LOGGER) {

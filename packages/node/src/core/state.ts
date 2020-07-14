@@ -1,32 +1,23 @@
-import { ethers } from 'ethers';
-import * as logger from './utils/logger';
-import { go } from './utils/promise-utils';
-import { initializeProvider } from './ethereum';
+import isEmpty from 'lodash/isEmpty';
+import * as ethereum from './ethereum';
+import { promiseTimeout } from './utils/promise-utils';
+import { ProviderConfig, ProviderState, State } from '../types';
 
-export interface State {
-  readonly chainId: number;
-  readonly currentBlock: number | null;
-  readonly gasPrice: ethers.BigNumber | null;
-  readonly provider: ethers.providers.Provider;
-}
-
-export async function initialize(): Promise<State> {
-  const provider = initializeProvider();
-
-  // Do this upfront to reduce potential extra calls later on
-  const [networkErr, network] = await go(provider.getNetwork());
-  if (networkErr || !network) {
-    // TODO: Provider calls should retry on failure (issue #11)
-    throw new Error(`Unable to get network. ${networkErr}`);
+export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
+  if (isEmpty(providerConfigs)) {
+    throw new Error('At least one provider must be defined in config.json');
   }
-  logger.logJSON('INFO', `Network set to '${network.name}' (ID: ${network.chainId})`);
 
-  return {
-    chainId: network.chainId,
-    currentBlock: null,
-    gasPrice: null,
-    provider,
-  };
+  // Initialize each provider state (in parallel) with a maximum time limit of 10 seconds
+  const providerInitializations = providerConfigs.map((providerConfig) => {
+    const initialization = ethereum.initializeProviderState(providerConfig);
+    return promiseTimeout(10_000, initialization).catch(() => null);
+  });
+  const providerStates = await Promise.all(providerInitializations);
+
+  const successfulProviders = providerStates.filter((ps) => !!ps) as ProviderState[];
+
+  return { providers: successfulProviders };
 }
 
 export function update(state: State, newState: any): State {
