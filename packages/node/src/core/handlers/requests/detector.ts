@@ -27,7 +27,7 @@ async function fetchEvents(state: ProviderState): Promise<ethers.utils.LogDescri
 }
 
 function mapRequests(events: ethers.utils.LogDescription[]): Request[] {
-  return events.map(event => ({
+  return events.map((event) => ({
     requestId: event.args.requestId,
     requester: event.args.requester,
     endpointId: event.args.endpointId || null,
