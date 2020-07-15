@@ -4,12 +4,28 @@ import { ethers } from 'ethers';
 // ===========================================
 // State
 // ===========================================
+export interface RequestParameters {
+  [key: string]: string;
+}
+
+export interface Request {
+  requestId: string;
+  requester: string;
+  endpointId: string | null;
+  templateId: string | null;
+  fulfillAddress: string;
+  fulfillFunctionId: string;
+  errorAddress: string;
+  errorFunctionId: string;
+  parameters: RequestParameters;
+}
+
 export interface ProviderState {
   readonly config: ProviderConfig;
   readonly currentBlock: number;
   readonly gasPrice: ethers.BigNumber | null;
   readonly nonce: number | null;
-  readonly requests: any; // TODO
+  readonly requests: Request[];
   readonly provider: ethers.providers.Provider;
 }
 
