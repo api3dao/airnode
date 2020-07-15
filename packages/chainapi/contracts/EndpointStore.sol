@@ -141,6 +141,7 @@ contract EndpointStore is ProviderStore {
         )
         external
         view
+        onlyCallOffChain()
         returns(bool authorized)
     {
         uint256 noAuthorizers = endpoints[endpointId].authorizers.length;
@@ -177,5 +178,15 @@ contract EndpointStore is ProviderStore {
         // which will only be true if all authorizers from the last group have
         // returned true.
         return authorizedByAll;
+    }
+
+    /// @dev Reverts if the caller is a contract
+    modifier onlyCallOffChain()
+    {
+        require(
+            msg.sender == tx.origin,
+            "Can only be called off-chain"
+            );
+        _;
     }
 }
