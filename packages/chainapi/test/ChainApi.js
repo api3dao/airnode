@@ -1,4 +1,5 @@
 /* global ethers, waffle */
+const { expect } = require("chai");
 
 describe('ChainApi', function () {
   let accounts;
@@ -344,6 +345,14 @@ describe('ChainApi', function () {
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const parsedTemplateLog = chainApi.interface.parseLog(templateLogs[0]);
+
+    // Check if the requester is authorized to call the endpoint
+    const authorizationStatus = await chainApi.checkIfAuthorized(
+      parsedTemplateLog.args.endpointId,
+      parsedRequestLog.args.requester
+      );
+    expect(authorizationStatus).to.equal(true);
+
     // Now the node has the endpointId from parsedTemplateLog, it can
     // look through config.json to find which API operation to call. Then, it
     // decodes the static request parameters defined in parsedTemplateLog.parameters,
