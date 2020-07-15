@@ -167,10 +167,12 @@ contract ProviderStore is RequesterStore {
     /// funds to it
     /// @dev Note that wallet authorizations cannot be revoked
     /// @param providerId Provider ID
+    /// @param requesterId Requester ID from RequestStore
     /// @param walletAddress Wallet address to be authorized
     /// @param walletInd Index of the wallet to be authorized
     function authorizeProviderWallet(
         bytes32 providerId,
+        bytes32 requesterId,
         address walletAddress,
         uint256 walletInd
         )
@@ -178,6 +180,7 @@ contract ProviderStore is RequesterStore {
         payable
         onlyProviderWalletAuthorizer(providerId)
         onlyIfWalletIsNotAlreadyAuthorized(providerId, walletAddress)
+        onlyIfWalletIndexIsReserved(providerId, requesterId, walletInd)
     {
         providers[providerId].walletAddressToInd[walletAddress] = walletInd;
         emit ProviderWalletAuthorized(
@@ -504,6 +507,23 @@ contract ProviderStore is RequesterStore {
         require(
             msg.sender == withdrawRequests[withdrawRequestId].walletAddress,
             "Only the wallet to be withdrawn from can call this"
+            );
+        _;
+    }
+
+    /// @dev Reverts there is no such wallet reservation record
+    /// @param providerId Provider ID
+    /// @param requesterId Requester ID from RequesterStore
+    /// @param walletInd Wallet index that has been reserved
+    modifier onlyIfWalletIndexIsReserved(
+        bytes32 providerId,
+        bytes32 requesterId,
+        uint256 walletInd
+        )
+    {
+        require(
+            providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
+            "No such wallet index reservation has been made"
             );
         _;
     }

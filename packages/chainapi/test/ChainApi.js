@@ -61,7 +61,7 @@ describe('ChainApi', function () {
 
     // The node was listening for wallet reservation events, and will authorize the
     // corresponding address with authorizerAddress automatically.
-    await authorizeWallet(providerId, providerKeys, walletInd, depositAmount);
+    await authorizeWallet(providerId, requesterId, providerKeys, walletInd, depositAmount);
 
     // The requester deploys a client contract. The client contract needs two arguments:
     // ChainApi addres: I make my requests here
@@ -215,7 +215,7 @@ describe('ChainApi', function () {
     return { walletInd, depositAmount };
   }
 
-  async function authorizeWallet(providerId, providerKeys, walletInd, depositAmount) {
+  async function authorizeWallet(providerId, requesterId, providerKeys, walletInd, depositAmount) {
     // We will authorize this address
     const walletAddress = await deriveWalletAddressFromIndex(providerKeys.xpub, walletInd);
     // Now let's derive the private keys for authorizerAddress because we need
@@ -234,7 +234,7 @@ describe('ChainApi', function () {
     // 0.0492 ETH to their newly reserved wallet.
     const txCost = gasCost.mul(gasPrice);
     const fundsToSend = depositAmount.sub(txCost);
-    chainApi.connect(authorizerWallet).authorizeProviderWallet(providerId, walletAddress, walletInd, {
+    chainApi.connect(authorizerWallet).authorizeProviderWallet(providerId, requesterId, walletAddress, walletInd, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,
