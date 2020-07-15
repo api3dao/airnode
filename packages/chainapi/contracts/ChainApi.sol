@@ -46,12 +46,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes parameters
         );
 
-    event BatchRequestMade(
-        bytes32 indexed batchId,
-        uint256 requestInd,
-        bytes parameters
-        );
-
     event FulfillmentSuccessful(
         bytes32 indexed providerId,
         bytes32 requestId,
@@ -194,34 +188,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             requestId,
             msg.sender,
             templateId,
-            parameters
-        );
-    }
-
-    /// @notice Called by a contract endorsed by the requester that has created
-    /// the batch request record to make the described batch request. The oracles
-    /// listen for the requests from this contract, but fulfill them at the
-    /// contract that has called this method.
-    /// @dev The caller contract needs to make preperations to receive request
-    /// fulfillments.
-    /// @param batchId Batch ID from BatchStore
-    /// @param requestInd RequestInd set by the requester
-    /// @param parameters Runtime parameters in addition to the ones defined in
-    /// the template addressed by templateIds in the batch
-    function makeBatchRequest(
-        bytes32 batchId,
-        uint256 requestInd,
-        bytes calldata parameters
-        )
-        external
-    {
-       require(
-          this.getClientEndorserId(msg.sender) == batches[batchId].requesterId,
-          "Caller is not the owner of the batch request"
-       );
-       emit BatchRequestMade(
-            batchId,
-            requestInd,
             parameters
         );
     }

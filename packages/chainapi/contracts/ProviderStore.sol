@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./BatchStore.sol";
+import "./RequesterStore.sol";
 
 
 /// @title The contract where the providers are stored
@@ -9,7 +9,7 @@ import "./BatchStore.sol";
 /// requester uses this contract to reserve a wallet index and the provider
 /// authorizes the address that corresponds to that index for it to be able
 /// to fulfill requests.
-contract ProviderStore is BatchStore {
+contract ProviderStore is RequesterStore {
     struct Provider {
         address admin;
         string xpub;
