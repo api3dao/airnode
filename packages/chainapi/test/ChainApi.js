@@ -1,5 +1,5 @@
 /* global ethers, waffle */
-const { expect } = require("chai");
+const { expect } = require('chai');
 
 describe('ChainApi', function () {
   let accounts;
@@ -350,7 +350,7 @@ describe('ChainApi', function () {
     const authorizationStatus = await chainApi.checkIfAuthorized(
       parsedTemplateLog.args.endpointId,
       parsedRequestLog.args.requester
-      );
+    );
     expect(authorizationStatus).to.equal(true);
 
     // Now the node has the endpointId from parsedTemplateLog, it can

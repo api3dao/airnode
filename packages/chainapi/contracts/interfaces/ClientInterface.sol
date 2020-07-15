@@ -7,4 +7,9 @@ interface ClientInterface {
       external
       view
       returns(bytes32);
+
+    function chainApiAddress()
+      external
+      view
+      returns(address);
 }

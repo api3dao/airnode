@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/ClientInterface.sol";
-import "./interfaces/ChainApiInterface.sol";
+import "./Client.sol";
 
 
 /// @title An example ChainAPI client contract
 /// @notice The contract authorizes a requester to endorse it by announcing its
 /// ID at endorserId
-contract ExampleClient is ClientInterface {
-    ChainApiInterface public chainApi;
-    bytes32 public override endorserId;
+contract ExampleClient is Client {
     bytes32 public data;
     bytes32 public requestId;
     uint256 public errorCode;
@@ -21,10 +18,8 @@ contract ExampleClient is ClientInterface {
         bytes32 _endorserId
         )
         public
-    {
-        chainApi = ChainApiInterface(_chainApi);
-        endorserId = _endorserId;
-    }
+        Client(_chainApi, _endorserId)
+    {}
 
     /// @notice Called to make a request to the ChainAPI contract
     /// @param templateId Template ID
@@ -76,15 +71,5 @@ contract ExampleClient is ClientInterface {
             "Example request ID check"
             );
         errorCode = _errorCode;
-    }
-
-    /// @dev Reverts if the caller is not the ChainAPI contract
-    modifier onlyChainApi()
-    {
-        require(
-            msg.sender == address(chainApi),
-            "Can only be called by the ChainAPI contract"
-            );
-        _;
     }
 }
