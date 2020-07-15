@@ -26,6 +26,11 @@ async function fetchEvents(state: ProviderState): Promise<ethers.utils.LogDescri
   return events;
 }
 
+function filterUnfulfilledRequests(logs: ethers.utils.LogDescription[]): ethers.utils.LogDescription[] {
+  // TODO: how do we filter here?
+  return logs;
+}
+
 function mapRequests(events: ethers.utils.LogDescription[]): Request[] {
   return events.map((event) => ({
     requestId: event.args.requestId,
@@ -43,7 +48,9 @@ function mapRequests(events: ethers.utils.LogDescription[]): Request[] {
 export async function detect(providerState: ProviderState) {
   const events = await fetchEvents(providerState);
 
-  const requests = mapRequests(events);
+  const unfulfilledRequests = filterUnfulfilledRequests(events);
+
+  const requests = mapRequests(unfulfilledRequests);
 
   return requests;
 }
