@@ -88,8 +88,12 @@ contract RequesterStore {
         )
         external
         onlyRequesterAdmin(requesterId)
-        onlyAnnouncedEndorser(requesterId, clientAddress)
     {
+        ClientInterface client = ClientInterface(clientAddress);
+        require(
+            client.endorserId() == requesterId,
+            "Client contract endorser requester ID does not match"
+            );
         clientAdressToEndorserId[clientAddress] = requesterId;
         emit ClientEndorsed(
             requesterId,
@@ -110,8 +114,11 @@ contract RequesterStore {
         )
         external
         onlyRequesterAdmin(requesterId)
-        onlyEndorser(requesterId, clientAddress)
     {
+        require(
+            clientAdressToEndorserId[clientAddress] == requesterId,
+            "Caller is not the endorser of the client"
+            );
         clientAdressToEndorserId[clientAddress] = 0;
         emit ClientDisendorsed(
             requesterId,
@@ -148,39 +155,6 @@ contract RequesterStore {
         require(
             msg.sender == requesterIdToAdmin[requesterId],
             "Caller is not the requester admin"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the requester with the given ID is not the endorser
-    /// of the client contract with the given address
-    /// @param requesterId Requester ID
-    /// @param clientAddress Client contract address
-    modifier onlyEndorser(
-        bytes32 requesterId,
-        address clientAddress
-        )
-    {
-        require(
-            clientAdressToEndorserId[clientAddress] == requesterId,
-            "Caller is not the endorser of the client"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the endorser announced at the client contract does not
-    /// match the requester with the given ID
-    /// @param requesterId Requester ID
-    /// @param clientAddress Client contract address
-    modifier onlyAnnouncedEndorser(
-        bytes32 requesterId,
-        address clientAddress
-        )
-    {
-        ClientInterface client = ClientInterface(clientAddress);
-        require(
-            client.endorserId() == requesterId,
-            "Client contract endorser requester ID does not match"
             );
         _;
     }

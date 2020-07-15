@@ -141,9 +141,12 @@ contract EndpointStore is ProviderStore {
         )
         external
         view
-        onlyCallOffChain()
         returns(bool authorized)
     {
+        // Authorizers are not trusted so do not let this method to be called
+        // from a contract. The user may implement their own version that
+        // whitelists authorizers.
+        require(msg.sender == tx.origin, "Can only be called off-chain");
         uint256 noAuthorizers = endpoints[endpointId].authorizers.length;
         // authorizedByAll will remain true as long as none of the authorizers
         // in a group reports the requester to be unauthorized.
@@ -178,15 +181,5 @@ contract EndpointStore is ProviderStore {
         // which will only be true if all authorizers from the last group have
         // returned true.
         return authorizedByAll;
-    }
-
-    /// @dev Reverts if the caller is a contract
-    modifier onlyCallOffChain()
-    {
-        require(
-            msg.sender == tx.origin,
-            "Can only be called off-chain"
-            );
-        _;
     }
 }

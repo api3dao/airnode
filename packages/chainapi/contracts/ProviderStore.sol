@@ -151,9 +151,16 @@ contract ProviderStore is RequesterStore {
         )
         external
         onlyProviderAdmin(providerId)
-        onlyIfProviderKeysAreNotInitializedYet(providerId)
-        onlyWithValidProviderKeys(xpub, walletAuthorizer)
     {
+        require(
+            (bytes(providers[providerId].xpub).length == 0) &&
+                (providers[providerId].walletAuthorizer == address(0)),
+            "Provider keys are already initialized"
+            );
+        require(
+            (bytes(xpub).length != 0) && (walletAuthorizer != address(0)),
+            "Invalid provider keys"
+            );
         providers[providerId].xpub = xpub;
         providers[providerId].walletAuthorizer = walletAuthorizer;
         emit ProviderKeysInitialized(
@@ -178,10 +185,19 @@ contract ProviderStore is RequesterStore {
         )
         external
         payable
-        onlyProviderWalletAuthorizer(providerId)
-        onlyIfWalletIsNotAlreadyAuthorized(providerId, walletAddress)
-        onlyIfWalletIndexIsReserved(providerId, requesterId, walletInd)
     {
+        require(
+            msg.sender == providers[providerId].walletAuthorizer,
+            "Only the provider walletAuthorizer can do this"
+            );
+        require(
+            providers[providerId].walletAddressToInd[walletAddress] == 0,
+            "Wallet already authorized"
+            );
+        require(
+            providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
+            "No such wallet index reservation has been made"
+            );
         providers[providerId].walletAddressToInd[walletAddress] = walletInd;
         emit ProviderWalletAuthorized(
             providerId,
@@ -206,13 +222,16 @@ contract ProviderStore is RequesterStore {
     )
         external
         payable
-        onlyIfRequesterHasNotReservedWalletFromProviderBefore(
-            providerId,
-            requesterId
-            )
-        onlyIfSentAtLeastAuthorizationDeposit(providerId)
         returns(uint256 walletInd)
     {
+        require(
+            providers[providerId].requesterIdToWalletInd[requesterId] == 0,
+            "Requester already has a wallet allocated for this provider"
+            );
+        require(
+            msg.value >= providers[providerId].authorizationDeposit,
+            "Send at least authorizationDeposit along with your call"
+            );
         address walletAuthorizer = providers[providerId].walletAuthorizer;
         require(
             walletAuthorizer != address(0),
@@ -248,12 +267,12 @@ contract ProviderStore is RequesterStore {
     )
         external
         onlyRequesterAdmin(requesterId)
-        onlyIfRequesterIdReservedWalletAddress(
-            providerId,
-            requesterId,
-            walletAddress
-            )
     {
+        require(
+            providers[providerId].requesterIdToWalletInd[requesterId] ==
+                providers[providerId].walletAddressToInd[walletAddress],
+            "Requester with requesterId has not reserved wallet with walletAddress"
+            );
         bytes32 withdrawRequestId = keccak256(abi.encodePacked(
             noWithdrawRequests++,
             this,
@@ -284,8 +303,11 @@ contract ProviderStore is RequesterStore {
         )
         external
         payable
-        onlyTheWalletToBeWithdrawnFrom(withdrawRequestId)
     {
+        require(
+            msg.sender == withdrawRequests[withdrawRequestId].walletAddress,
+            "Only the wallet to be withdrawn from can call this"
+            );
         address destination = withdrawRequests[withdrawRequestId].destination;
         emit WithdrawFulfilled(
             withdrawRequests[withdrawRequestId].providerId,
@@ -389,33 +411,6 @@ contract ProviderStore is RequesterStore {
         walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
     }
 
-    /// @dev Reverts if the provider keys are already initialized
-    /// @param providerId Provider ID
-    modifier onlyIfProviderKeysAreNotInitializedYet(bytes32 providerId)
-    {
-        require(
-            (bytes(providers[providerId].xpub).length == 0) &&
-                (providers[providerId].walletAuthorizer == address(0)),
-            "Provider keys are already initialized"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the provider keys are not valid
-    /// @param xpub Master public key of the provider
-    /// @param walletAuthorizer Address provider uses to authorize nodes
-    modifier onlyWithValidProviderKeys(
-        string memory xpub,
-        address walletAuthorizer
-        )
-    {
-        require(
-            (bytes(xpub).length != 0) && (walletAuthorizer != address(0)),
-            "Invalid provider keys"
-            );
-        _;
-    }
-
     /// @dev Reverts if the caller is not the provider admin
     /// @param providerId Provider ID
     modifier onlyProviderAdmin(bytes32 providerId)
@@ -423,107 +418,6 @@ contract ProviderStore is RequesterStore {
         require(
             msg.sender == providers[providerId].admin,
             "Caller is not the provider admin"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the caller is not the provider wallet authorizer
-    /// @param providerId Provider ID
-    modifier onlyProviderWalletAuthorizer(bytes32 providerId)
-    {
-        require(
-            msg.sender == providers[providerId].walletAuthorizer,
-            "Only the provider walletAuthorizer can do this"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the wallet is already authorized
-    /// @param providerId Provider ID
-    /// @param walletAddress Address of the wallet to be authorized
-    modifier onlyIfWalletIsNotAlreadyAuthorized(
-        bytes32 providerId,
-        address walletAddress
-        )
-    {
-        require(
-            providers[providerId].walletAddressToInd[walletAddress] == 0,
-            "Wallet already authorized"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the requester has reserved a wallet from the provider
-    /// before
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequestStore
-    modifier onlyIfRequesterHasNotReservedWalletFromProviderBefore(
-        bytes32 providerId,
-        bytes32 requesterId
-        )
-    {
-        require(
-            providers[providerId].requesterIdToWalletInd[requesterId] == 0,
-            "Requester already has a wallet allocated for this provider"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the caller has not sent at least authorizationDeposit
-    /// set by the provider
-    /// @param providerId Provider ID
-    modifier onlyIfSentAtLeastAuthorizationDeposit(bytes32 providerId)
-    {
-        require(
-            msg.value >= providers[providerId].authorizationDeposit,
-            "Send at least authorizationDeposit along with your call"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the requester with requesterId has not reserved wallet
-    /// with walletAddress address
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequestStore
-    /// @param walletAddress Wallet address
-    modifier onlyIfRequesterIdReservedWalletAddress(
-        bytes32 providerId,
-        bytes32 requesterId,
-        address walletAddress
-        )
-    {
-        require(
-            providers[providerId].requesterIdToWalletInd[requesterId] ==
-                providers[providerId].walletAddressToInd[walletAddress],
-            "Requester with requesterId has not reserved wallet with walletAddress"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the caller is not the wallet to be withdrawn from
-    /// @param withdrawRequestId Withdraw request ID
-    modifier onlyTheWalletToBeWithdrawnFrom(bytes32 withdrawRequestId)
-    {
-        require(
-            msg.sender == withdrawRequests[withdrawRequestId].walletAddress,
-            "Only the wallet to be withdrawn from can call this"
-            );
-        _;
-    }
-
-    /// @dev Reverts there is no such wallet reservation record
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequesterStore
-    /// @param walletInd Wallet index that has been reserved
-    modifier onlyIfWalletIndexIsReserved(
-        bytes32 providerId,
-        bytes32 requesterId,
-        uint256 walletInd
-        )
-    {
-        require(
-            providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
-            "No such wallet index reservation has been made"
             );
         _;
     }
