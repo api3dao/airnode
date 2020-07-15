@@ -19,7 +19,7 @@ abstract contract Authorizer {
     /// @param endpointId Endpoint ID from EndpointStore
     /// @return status Authorization status of the requester for calling the
     /// endpoint according to this authorizer contract
-    function verifyAuthorization(
+    function checkIfAuthorized(
         address requester,
         bytes32 endpointId
         )

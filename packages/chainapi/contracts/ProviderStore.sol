@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
+import "./interfaces/ProviderStoreInterface.sol";
 import "./RequesterStore.sol";
 
 
@@ -9,7 +10,7 @@ import "./RequesterStore.sol";
 /// requester uses this contract to reserve a wallet index and the provider
 /// authorizes the address that corresponds to that index for it to be able
 /// to fulfill requests.
-contract ProviderStore is RequesterStore {
+contract ProviderStore is RequesterStore, ProviderStoreInterface {
     struct Provider {
         address admin;
         string xpub;
@@ -31,53 +32,6 @@ contract ProviderStore is RequesterStore {
     uint256 private noProviders = 0;
     uint256 private noWithdrawRequests = 0;
 
-    event ProviderCreated(
-        bytes32 indexed id,
-        address admin,
-        uint256 authorizationDeposit
-        );
-
-    event ProviderUpdated(
-        bytes32 indexed id,
-        address admin,
-        uint256 authorizationDeposit
-        );
-
-    event ProviderKeysInitialized(
-        bytes32 indexed id,
-        string xpub,
-        address walletAuthorizer
-        );
-
-    event ProviderWalletReserved(
-        bytes32 indexed id,
-        bytes32 indexed requesterId,
-        uint256 walletInd,
-        uint256 depositAmount
-        );
-
-    event ProviderWalletAuthorized(
-        bytes32 indexed id,
-        address walletAddress,
-        uint256 walletInd
-        );
-
-    event WithdrawRequested(
-        bytes32 indexed providerId,
-        bytes32 indexed requesterId,
-        bytes32 withdrawRequestId,
-        address source,
-        address destination
-        );
-
-    event WithdrawFulfilled(
-        bytes32 indexed providerId,
-        bytes32 withdrawRequestId,
-        address source,
-        address destination,
-        uint256 amount
-        );
-
 
     /// @notice Creates a provider with the given parameters, addressable by
     /// the ID it returns
@@ -93,6 +47,7 @@ contract ProviderStore is RequesterStore {
         uint256 authorizationDeposit
         )
         external
+        override
         returns (bytes32 providerId)
     {
         providerId = keccak256(abi.encodePacked(
@@ -126,6 +81,7 @@ contract ProviderStore is RequesterStore {
         uint256 authorizationDeposit
         )
         external
+        override
         onlyProviderAdmin(providerId)
     {
         providers[providerId].admin = admin;
@@ -150,6 +106,7 @@ contract ProviderStore is RequesterStore {
         address walletAuthorizer
         )
         external
+        override
         onlyProviderAdmin(providerId)
     {
         require(
@@ -185,6 +142,7 @@ contract ProviderStore is RequesterStore {
         )
         external
         payable
+        override
     {
         require(
             msg.sender == providers[providerId].walletAuthorizer,
@@ -222,6 +180,7 @@ contract ProviderStore is RequesterStore {
     )
         external
         payable
+        override
         returns(uint256 walletInd)
     {
         require(
@@ -266,6 +225,7 @@ contract ProviderStore is RequesterStore {
         address destination
     )
         external
+        override
         onlyRequesterAdmin(requesterId)
     {
         require(
@@ -298,11 +258,10 @@ contract ProviderStore is RequesterStore {
     /// @dev The node sends the funds through this method to emit an event that
     /// indicates that the withdrawal request has been fulfilled
     /// @param withdrawRequestId Withdraw request ID
-    function fulfillWithdraw(
-        bytes32 withdrawRequestId
-        )
+    function fulfillWithdraw(bytes32 withdrawRequestId)
         external
         payable
+        override
     {
         require(
             msg.sender == withdrawRequests[withdrawRequestId].walletAddress,
@@ -331,6 +290,7 @@ contract ProviderStore is RequesterStore {
     function getProvider(bytes32 providerId)
         external
         view
+        override
         returns (
             address admin,
             string memory xpub,
@@ -358,6 +318,7 @@ contract ProviderStore is RequesterStore {
         )
         external
         view
+        override
         returns (bool status)
     {
         status = providers[providerId].walletAddressToInd[walletAddress] != 0;
@@ -373,6 +334,7 @@ contract ProviderStore is RequesterStore {
         )
         external
         view
+        override
         returns (uint256 walletInd)
     {
         walletInd = providers[providerId].walletAddressToInd[walletAddress];
@@ -388,6 +350,7 @@ contract ProviderStore is RequesterStore {
         )
         external
         view
+        override
         returns (uint256 walletInd)
     {
         walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
@@ -405,6 +368,7 @@ contract ProviderStore is RequesterStore {
         )
         external
         view
+        override
         returns (uint256 walletInd)
     {
         bytes32 requesterId = this.getClientEndorserId(clientAddress);

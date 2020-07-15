@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./ProviderStore.sol";
+import "./interfaces/EndpointStoreInterface.sol";
 import "./interfaces/AuthorizerInterface.sol";
+import "./ProviderStore.sol";
 
 
 /// @title The contract where the endpoints are stored
 /// @notice The main use of this contract is to associate an endpoint with
 /// a set of authorizer contracts
-contract EndpointStore is ProviderStore {
+contract EndpointStore is ProviderStore, EndpointStoreInterface {
     struct Endpoint {
         bytes32 providerId;
         bytes32 apiId;
@@ -17,20 +18,6 @@ contract EndpointStore is ProviderStore {
 
     mapping(bytes32 => Endpoint) private endpoints;
     uint256 private noEndpoints = 0;
-
-    event EndpointCreated(
-        bytes32 indexed id,
-        bytes32 providerId,
-        bytes32 apiId,
-        address[] authorizers
-        );
-
-    event EndpointUpdated(
-        bytes32 indexed id,
-        bytes32 providerId,
-        bytes32 apiId,
-        address[] authorizers
-        );
 
 
     /// @notice Creates an endpoint with the given parameters, addressable by
@@ -48,6 +35,7 @@ contract EndpointStore is ProviderStore {
         address[] calldata authorizers
         )
         external
+        override
         onlyProviderAdmin(providerId)
         returns(bytes32 endpointId)
     {
@@ -80,6 +68,7 @@ contract EndpointStore is ProviderStore {
         address[] calldata authorizers
         )
         external
+        override
         onlyProviderAdmin(endpoints[endpointId].providerId)
     {
         endpoints[endpointId].apiId = apiId;
@@ -100,6 +89,7 @@ contract EndpointStore is ProviderStore {
     function getEndpoint(bytes32 endpointId)
         external
         view
+        override
         returns(
             bytes32 providerId,
             bytes32 apiId,
@@ -141,6 +131,7 @@ contract EndpointStore is ProviderStore {
         )
         external
         view
+        override
         returns(bool authorized)
     {
         // Authorizers are not trusted so do not let this method to be called

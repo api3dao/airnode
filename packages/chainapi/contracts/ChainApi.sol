@@ -14,61 +14,6 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     mapping(bytes32 => bool) private requestWithIdHasFailed;
     uint256 private noRequests = 0;
 
-    event RequestMade(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        address requester,
-        bytes32 templateId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        address errorAddress,
-        bytes4 errorFunctionId,
-        bytes parameters
-        );
-
-    event FullRequestMade(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        address requester,
-        bytes32 endpointId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        address errorAddress,
-        bytes4 errorFunctionId,
-        bytes parameters
-        );
-
-    event ShortRequestMade(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        address requester,
-        bytes32 templateId,
-        bytes parameters
-        );
-
-    event FulfillmentSuccessful(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        bytes32 data
-        );
-
-    event FulfillmentBytesSuccessful(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        bytes data
-        );
-
-    event FulfillmentErrored(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        uint256 errorCode
-        );
-
-    event FulfillmentFailed(
-        bytes32 indexed providerId,
-        bytes32 requestId
-        );
-
 
     /// @notice Called by the requester to make a request. It emits the request
     /// details as an event, which the provider node should be listening for
@@ -141,6 +86,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes calldata parameters
         )
         external
+        override
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(
@@ -174,6 +120,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes calldata parameters
         )
         external
+        override
         returns (bytes32 requestId)
     {
         requestId = keccak256(abi.encodePacked(
@@ -209,6 +156,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes32 data
         )
         external
+        override
         returns(
             bool callSuccess,
             bytes memory callData
@@ -248,6 +196,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         bytes calldata data
         )
         external
+        override
         returns(
             bool callSuccess,
             bytes memory callData
@@ -285,6 +234,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         uint256 errorCode
         )
         external
+        override
         returns(
             bool callSuccess,
             bytes memory callData
@@ -313,6 +263,7 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     /// @param requestId Request ID
     function fail(bytes32 requestId)
         external
+        override
     {
         bytes32 providerId = requestIdToProviderId[requestId];
         require(

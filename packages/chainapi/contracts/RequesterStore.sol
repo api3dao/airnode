@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
+import "./interfaces/RequesterStoreInterface.sol";
 import "./interfaces/ClientInterface.sol";
 
 
@@ -12,30 +13,10 @@ import "./interfaces/ClientInterface.sol";
 /// reserved and funded, which is referred to as endorsing the client. In other
 /// words, an endorser is a requester that pays for the gas costs of a client
 /// contract's oracle requests.
-contract RequesterStore {
+contract RequesterStore is RequesterStoreInterface {
     mapping(bytes32 => address) internal requesterIdToAdmin;
     mapping(address => bytes32) private clientAdressToEndorserId;
     uint256 private noRequesters = 0;
-
-    event RequesterCreated(
-        bytes32 indexed id,
-        address admin
-        );
-
-    event RequesterUpdated(
-        bytes32 indexed id,
-        address admin
-        );
-
-    event ClientEndorsed(
-        bytes32 indexed requesterId,
-        address indexed clientAddress
-        );
-
-    event ClientDisendorsed(
-        bytes32 indexed requesterId,
-        address indexed clientAddress
-        );
 
 
     /// @notice Creates a provider with the given parameters, addressable by
@@ -44,6 +25,7 @@ contract RequesterStore {
     /// @return requesterId Requester ID
     function createRequester(address admin)
         external
+        override
         returns (bytes32 requesterId)
     {
         requesterId = keccak256(abi.encodePacked(
@@ -67,6 +49,7 @@ contract RequesterStore {
         address admin
         )
         external
+        override
         onlyRequesterAdmin(requesterId)
     {
         requesterIdToAdmin[requesterId] = admin;
@@ -87,6 +70,7 @@ contract RequesterStore {
         address clientAddress
         )
         external
+        override
         onlyRequesterAdmin(requesterId)
     {
         ClientInterface client = ClientInterface(clientAddress);
@@ -113,6 +97,7 @@ contract RequesterStore {
         address clientAddress
         )
         external
+        override
         onlyRequesterAdmin(requesterId)
     {
         require(
@@ -132,6 +117,7 @@ contract RequesterStore {
     function getRequesterAdmin(bytes32 requesterId)
         external
         view
+        override
         returns (address admin)
     {
         admin = requesterIdToAdmin[requesterId];
@@ -143,6 +129,7 @@ contract RequesterStore {
     function getClientEndorserId(address clientAddress)
         external
         view
+        override
         returns (bytes32 endorserId)
     {
         endorserId = clientAdressToEndorserId[clientAddress];

@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
+import "./interfaces/TemplateStoreInterface.sol";
+
 
 /// @title The contract where request templates are stored
 /// @notice Most requests are repeated many times with the same parameters.
 /// This contract allows the requester to announce their parameters once, then
 /// refer to that announcement when they are making a request, instead of
 /// passing the same parameters over and over again.
-contract TemplateStore {
+contract TemplateStore is TemplateStoreInterface {
     struct Template {
         bytes32 providerId;
         bytes32 endpointId;
@@ -19,17 +21,6 @@ contract TemplateStore {
         }
 
     mapping(bytes32 => Template) internal templates;
-
-    event TemplateCreated(
-      bytes32 indexed id,
-      bytes32 providerId,
-      bytes32 endpointId,
-      address fulfillAddress,
-      address errorAddress,
-      bytes4 fulfillFunctionId,
-      bytes4 errorFunctionId,
-      bytes parameters
-      );
 
 
     /// @notice Creates a template with the given parameters, addressable by
@@ -62,6 +53,7 @@ contract TemplateStore {
         bytes calldata parameters
         )
         external
+        override
         returns (bytes32 templateId)
     {
         templateId = keccak256(abi.encodePacked(
@@ -109,6 +101,7 @@ contract TemplateStore {
     function getTemplate(bytes32 templateId)
         external
         view
+        override
         returns (
             bytes32 providerId,
             bytes32 endpointId,
