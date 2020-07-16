@@ -371,7 +371,7 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         override
         returns (uint256 walletInd)
     {
-        bytes32 requesterId = this.getClientEndorserId(clientAddress);
+        bytes32 requesterId = this.getClientRequesterId(clientAddress);
         walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
     }
 

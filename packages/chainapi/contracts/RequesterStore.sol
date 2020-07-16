@@ -15,7 +15,7 @@ import "./interfaces/ClientInterface.sol";
 /// contract's oracle requests.
 contract RequesterStore is RequesterStoreInterface {
     mapping(bytes32 => address) internal requesterIdToAdmin;
-    mapping(address => bytes32) private clientAdressToEndorserId;
+    mapping(address => bytes32) private clientAdressToRequesterId;
     uint256 private noRequesters = 0;
 
 
@@ -62,7 +62,7 @@ contract RequesterStore is RequesterStoreInterface {
     /// @notice Called by the requester admin to allow a client contract to use
     /// its wallets
     /// @dev This also requires the client contract to announce the requester
-    /// under the parameter endorserId
+    /// under the parameter requesterId
     /// @param requesterId Requester ID
     /// @param clientAddress Client contract address
     function endorseClient(
@@ -75,10 +75,10 @@ contract RequesterStore is RequesterStoreInterface {
     {
         ClientInterface client = ClientInterface(clientAddress);
         require(
-            client.endorserId() == requesterId,
-            "Client contract endorser requester ID does not match"
+            client.requesterId() == requesterId,
+            "Client contract requester ID is different"
             );
-        clientAdressToEndorserId[clientAddress] = requesterId;
+        clientAdressToRequesterId[clientAddress] = requesterId;
         emit ClientEndorsed(
             requesterId,
             clientAddress
@@ -101,10 +101,10 @@ contract RequesterStore is RequesterStoreInterface {
         onlyRequesterAdmin(requesterId)
     {
         require(
-            clientAdressToEndorserId[clientAddress] == requesterId,
+            clientAdressToRequesterId[clientAddress] == requesterId,
             "Caller is not the endorser of the client"
             );
-        clientAdressToEndorserId[clientAddress] = 0;
+        clientAdressToRequesterId[clientAddress] = 0;
         emit ClientDisendorsed(
             requesterId,
             clientAddress
@@ -125,14 +125,14 @@ contract RequesterStore is RequesterStoreInterface {
 
     /// @notice Retrieves the ID of the endorser of a client contract
     /// @param clientAddress Client contract address
-    /// @return endorserId Endorser ID
-    function getClientEndorserId(address clientAddress)
+    /// @return requesterId Requester ID
+    function getClientRequesterId(address clientAddress)
         external
         view
         override
-        returns (bytes32 endorserId)
+        returns (bytes32 requesterId)
     {
-        endorserId = clientAdressToEndorserId[clientAddress];
+        requesterId = clientAdressToRequesterId[clientAddress];
     }
 
     /// @dev Reverts if the caller is not the requester admin

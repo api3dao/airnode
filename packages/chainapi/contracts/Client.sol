@@ -7,17 +7,17 @@ import "./interfaces/ChainApiInterface.sol";
 
 contract Client is ClientInterface {
     ChainApiInterface public chainApi;
-    bytes32 public override endorserId;
+    bytes32 public override requesterId;
 
 
     constructor (
         address _chainApi,
-        bytes32 _endorserId
+        bytes32 _requesterId
         )
         public
     {
         chainApi = ChainApiInterface(_chainApi);
-        endorserId = _endorserId;
+        requesterId = _requesterId;
     }
 
     function chainApiAddress()

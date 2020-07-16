@@ -50,8 +50,8 @@ interface RequesterStoreInterface {
         view
         returns (address admin);
 
-    function getClientEndorserId(address clientAddress)
+    function getClientRequesterId(address clientAddress)
         external
         view
-        returns (bytes32 endorserId);
+        returns (bytes32 requesterId);
 }

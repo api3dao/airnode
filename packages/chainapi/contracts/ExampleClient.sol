@@ -6,7 +6,7 @@ import "./Client.sol";
 
 /// @title An example ChainAPI client contract
 /// @notice The contract authorizes a requester to endorse it by announcing its
-/// ID at endorserId
+/// ID at requesterId
 contract ExampleClient is Client {
     bytes32 public data;
     bytes32 public requestId;
@@ -15,10 +15,10 @@ contract ExampleClient is Client {
 
     constructor (
         address _chainApi,
-        bytes32 _endorserId
+        bytes32 _requesterId
         )
         public
-        Client(_chainApi, _endorserId)
+        Client(_chainApi, _requesterId)
     {}
 
     /// @notice Called to make a request to the ChainAPI contract
