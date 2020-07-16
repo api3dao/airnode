@@ -22,9 +22,12 @@ describe('ChainApi', function () {
     // that authorizes the reserved wallet address to fulfill requests, and
     // deposits the rest to the reserved wallet.
     const authorizationDeposit = ethers.utils.parseEther('0.05');
+    // The requesters need to have at least minBalance at their reserved wallet
+    // to have a request fulfilled.
+    const minBalance = ethers.utils.parseEther('0.025');
     // After sign up, ChainAPI has the provider make a transaction to create
     // a provider record at the contract and get assigned an ID.
-    const providerId = await createProvider(authorizationDeposit);
+    const providerId = await createProvider(authorizationDeposit, minBalance);
 
     // The provider generates the OIS that integrates their API to an endpoint
     // using ChainAPI.
@@ -124,10 +127,10 @@ describe('ChainApi', function () {
     // not much is happening.
   });
 
-  async function createProvider(authorizationDeposit) {
+  async function createProvider(authorizationDeposit, minBalance) {
     const tx = await chainApi
       .connect(accounts.providerAdmin)
-      .createProvider(await accounts.providerAdmin.getAddress(), authorizationDeposit);
+      .createProvider(await accounts.providerAdmin.getAddress(), authorizationDeposit, minBalance);
     // Get the newly created provider's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash

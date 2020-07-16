@@ -6,13 +6,15 @@ interface ProviderStoreInterface {
     event ProviderCreated(
         bytes32 indexed id,
         address admin,
-        uint256 authorizationDeposit
+        uint256 authorizationDeposit,
+        uint256 minBalance
         );
 
     event ProviderUpdated(
         bytes32 indexed id,
         address admin,
-        uint256 authorizationDeposit
+        uint256 authorizationDeposit,
+        uint256 minBalance
         );
 
     event ProviderKeysInitialized(
@@ -51,7 +53,8 @@ interface ProviderStoreInterface {
 
     function createProvider(
         address admin,
-        uint256 authorizationDeposit
+        uint256 authorizationDeposit,
+        uint256 minBalance
         )
         external
         returns (bytes32 providerId);
@@ -59,7 +62,8 @@ interface ProviderStoreInterface {
     function updateProvider(
         bytes32 providerId,
         address admin,
-        uint256 authorizationDeposit
+        uint256 authorizationDeposit,
+        uint256 minBalance
         )
         external;
 
@@ -105,7 +109,8 @@ interface ProviderStoreInterface {
             address admin,
             string memory xpub,
             address walletAuthorizer,
-            uint256 authorizationDeposit
+            uint256 authorizationDeposit,
+            uint256 minBalance
         );
 
     function getProviderWalletStatus(

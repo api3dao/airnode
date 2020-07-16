@@ -16,6 +16,7 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         string xpub;
         address walletAuthorizer;
         uint256 authorizationDeposit;
+        uint256 minBalance;
         mapping(address => uint256) walletAddressToInd;
         mapping(uint256 => address) walletIndToAddress;
         mapping(bytes32 => uint256) requesterIdToWalletInd;
@@ -42,10 +43,15 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// @param authorizationDeposit Amount the requesters need to deposit to
     /// reserve a wallet index. It should at least cover the gas cost of
     /// calling authorizeProviderWallet() once.
+    /// @param minBalance The minimum balance the provider expects a requester
+    /// to have in their designated wallet to attempt to fulfill requests from
+    /// them. It should cover the gas cost of calling fail() from ChainApi.sol
+    /// a few times.
     /// @return providerId Provider ID
     function createProvider(
         address admin,
-        uint256 authorizationDeposit
+        uint256 authorizationDeposit,
+        uint256 minBalance
         )
         external
         override
@@ -62,12 +68,14 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             xpub: "",
             walletAuthorizer: address(0),
             authorizationDeposit: authorizationDeposit,
+            minBalance: minBalance,
             nextWalletInd: 1
             });
         emit ProviderCreated(
             providerId,
             admin,
-            authorizationDeposit
+            authorizationDeposit,
+            minBalance
             );
     }
 
@@ -76,10 +84,15 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// @param admin Provider admin
     /// @param authorizationDeposit Wallet authorization deposit. It should at
     /// least cover the gas cost of calling authorizeProviderWallet() once.
+    /// @param minBalance The minimum balance the provider expects a requester
+    /// to have in their designated wallet to attempt to fulfill requests from
+    /// them. It should cover the gas cost of calling fail() from ChainApi.sol
+    /// a few times.
     function updateProvider(
         bytes32 providerId,
         address admin,
-        uint256 authorizationDeposit
+        uint256 authorizationDeposit,
+        uint256 minBalance
         )
         external
         override
@@ -87,10 +100,12 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     {
         providers[providerId].admin = admin;
         providers[providerId].authorizationDeposit = authorizationDeposit;
+        providers[providerId].minBalance = minBalance;
         emit ProviderUpdated(
             providerId,
-            providers[providerId].admin,
-            providers[providerId].authorizationDeposit
+            admin,
+            authorizationDeposit,
+            minBalance
             );
     }
 
@@ -293,6 +308,9 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// @return walletAuthorizer Address provider uses to authorize nodes
     /// @return authorizationDeposit Amount the requesters need to deposit to
     /// reserve a wallet index
+    /// @return minBalance The minimum balance the provider expects a requester
+    /// to have in their designated wallet to attempt to fulfill requests from
+    /// them
     function getProvider(bytes32 providerId)
         external
         view
@@ -301,13 +319,15 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             address admin,
             string memory xpub,
             address walletAuthorizer,
-            uint256 authorizationDeposit
+            uint256 authorizationDeposit,
+            uint256 minBalance
         )
     {
         admin = providers[providerId].admin;
         xpub = providers[providerId].xpub;
         walletAuthorizer = providers[providerId].walletAuthorizer;
         authorizationDeposit = providers[providerId].authorizationDeposit;
+        minBalance = providers[providerId].minBalance;
     }
 
     /// @notice Gets the authorization status of a provider wallet
