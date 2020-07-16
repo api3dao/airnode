@@ -7,7 +7,7 @@ import "./interfaces/TemplateStoreInterface.sol";
 
 
 contract Convenience is ConvenienceInterface {
-    TemplateStoreInterface templateStore;
+    TemplateStoreInterface public templateStore;
 
 
     constructor (address _chainApi)

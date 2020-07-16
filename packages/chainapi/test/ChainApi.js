@@ -4,13 +4,14 @@ const { expect } = require('chai');
 describe('ChainApi', function () {
   let accounts;
   let chainApi;
+  // let convenience;
   let client;
 
   beforeEach(async () => {
     const chainApiFactory = await ethers.getContractFactory('ChainApi');
     chainApi = await chainApiFactory.deploy();
-    const convenienceFactory = await ethers.getContractFactory('Convenience');
-    convenience = await convenienceFactory.deploy(chainApi.address);
+    // const convenienceFactory = await ethers.getContractFactory('Convenience');
+    // convenience = await convenienceFactory.deploy(chainApi.address);
     const accountList = await ethers.getSigners();
     accounts = {
       providerAdmin: accountList[0],
