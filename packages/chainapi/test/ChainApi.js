@@ -62,7 +62,6 @@ describe('ChainApi', function () {
     // transaction goes through and tell the requester what their reserved wallet address
     // is.
 
-
     // The node was listening for wallet reservation events, and will authorize the
     // corresponding address with authorizerAddress automatically.
     await authorizeWallet(providerId, requesterId, providerKeys, walletInd, depositAmount);
@@ -366,7 +365,7 @@ describe('ChainApi', function () {
 
     // To fulfill, it will first have to derive the private key for the wallet
     // reserved by the requester.
-    const walletInd = await chainApi.getProviderWalletIndWithClientAddress(providerId, parsedRequestLog.args.requester);
+    const { walletInd } = await chainApi.getDataWithClientAddress(providerId, parsedRequestLog.args.requester);
     // If walletInd was 0 here, that would have meant that the client making
     // the request isn't endorser by a requester with a reserved wallet and
     // shouldn't be responded to. Fortunately we got 1.
@@ -390,9 +389,7 @@ describe('ChainApi', function () {
 
   async function createWithdrawRequest(providerId, requesterId, destination) {
     // Only the requester admin can do this
-    const tx = await chainApi
-      .connect(accounts.requesterAdmin)
-      .requestWithdraw(providerId, requesterId, destination);
+    const tx = await chainApi.connect(accounts.requesterAdmin).requestWithdraw(providerId, requesterId, destination);
     // Get the newly created withdraw request's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash

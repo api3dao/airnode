@@ -398,23 +398,38 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
     }
 
-    /// @notice Gets the index of a provider wallet that a client can use
-    /// @dev Used by the oracle node to get the walletInd of a client contract
-    /// with a single Ethereum node call
+    /// @notice Gets a wide array of data using the client address
     /// @param providerId Provider ID
     /// @param clientAddress Client address
-    /// @return walletInd Index of the wallet that the client can use
-    function getProviderWalletIndWithClientAddress(
+    /// @return requesterId The endorser of the client
+    /// @return walletInd The index of the wallet to be used to fulfill the
+    /// client's requests
+    /// @return walletAddress The address of the wallet to be used to fulfill
+    /// the client's requests
+    /// @return walletBalance The balance of the wallet to be used to fulfill
+    /// the client's requests
+    /// @return minBalance The minimum balance the provider expects walletBalance
+    /// to be to fulfill requests from the client
+    function getDataWithClientAddress(
         bytes32 providerId,
         address clientAddress
         )
         external
         view
         override
-        returns (uint256 walletInd)
+        returns (
+            bytes32 requesterId,
+            uint256 walletInd,
+            address walletAddress,
+            uint256 walletBalance,
+            uint256 minBalance
+            )
     {
-        bytes32 requesterId = this.getClientRequesterId(clientAddress);
+        requesterId = this.getClientRequesterId(clientAddress);
         walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
+        walletAddress = providers[providerId].walletIndToAddress[walletInd];
+        walletBalance = walletAddress.balance;
+        minBalance = providers[providerId].minBalance;
     }
 
     /// @dev Reverts if the caller is not the provider admin

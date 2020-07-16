@@ -145,11 +145,17 @@ interface ProviderStoreInterface {
         view
         returns (uint256 walletInd);
 
-    function getProviderWalletIndWithClientAddress(
+    function getDataWithClientAddress(
         bytes32 providerId,
         address clientAddress
         )
         external
         view
-        returns (uint256 walletInd);
+        returns (
+            bytes32 requesterId,
+            uint256 walletInd,
+            address walletAddress,
+            uint256 walletBalance,
+            uint256 minBalance
+            );
 }
