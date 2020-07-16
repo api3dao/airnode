@@ -143,47 +143,6 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             );
     }
 
-    /// @notice Authorizes a provider wallet to fulfill requests and sends
-    /// funds to it
-    /// @dev Note that wallet authorizations cannot be revoked
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequestStore
-    /// @param walletAddress Wallet address to be authorized
-    /// @param walletInd Index of the wallet to be authorized
-    function authorizeProviderWallet(
-        bytes32 providerId,
-        bytes32 requesterId,
-        address walletAddress,
-        uint256 walletInd
-        )
-        external
-        payable
-        override
-    {
-        require(
-            msg.sender == providers[providerId].walletAuthorizer,
-            "Only the provider walletAuthorizer can do this"
-            );
-        require(
-            providers[providerId].walletAddressToInd[walletAddress] == 0,
-            "Wallet index already authorized"
-            );
-        require(
-            providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
-            "No such wallet index reservation has been made"
-            );
-        providers[providerId].walletAddressToInd[walletAddress] = walletInd;
-        providers[providerId].walletIndToAddress[walletInd] = walletAddress;
-        emit ProviderWalletAuthorized(
-            providerId,
-            requesterId,
-            walletAddress,
-            walletInd
-            );
-        (bool success, ) = walletAddress.call{value: msg.value}("");
-        require(success, "Transfer failed");
-    }
-
     /// @notice Called by the requester to reserve a wallet index from the
     /// provider
     /// @dev The provider expects authorizationDeposit to be sent along with
@@ -224,6 +183,47 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             msg.value
             );
         (bool success, ) = walletAuthorizer.call{value: msg.value}("");
+        require(success, "Transfer failed");
+    }
+
+    /// @notice Authorizes a provider wallet to fulfill requests and sends
+    /// funds to it
+    /// @dev Note that wallet authorizations cannot be revoked
+    /// @param providerId Provider ID
+    /// @param requesterId Requester ID from RequestStore
+    /// @param walletAddress Wallet address to be authorized
+    /// @param walletInd Index of the wallet to be authorized
+    function authorizeProviderWallet(
+        bytes32 providerId,
+        bytes32 requesterId,
+        address walletAddress,
+        uint256 walletInd
+        )
+        external
+        payable
+        override
+    {
+        require(
+            msg.sender == providers[providerId].walletAuthorizer,
+            "Only the provider walletAuthorizer can do this"
+            );
+        require(
+            providers[providerId].walletAddressToInd[walletAddress] == 0,
+            "Wallet adderss already authorized"
+            );
+        require(
+            providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
+            "No such wallet index reservation has been made"
+            );
+        providers[providerId].walletAddressToInd[walletAddress] = walletInd;
+        providers[providerId].walletIndToAddress[walletInd] = walletAddress;
+        emit ProviderWalletAuthorized(
+            providerId,
+            requesterId,
+            walletAddress,
+            walletInd
+            );
+        (bool success, ) = walletAddress.call{value: msg.value}("");
         require(success, "Transfer failed");
     }
 
