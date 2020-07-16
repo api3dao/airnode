@@ -9,6 +9,8 @@ describe('ChainApi', function () {
   beforeEach(async () => {
     const chainApiFactory = await ethers.getContractFactory('ChainApi');
     chainApi = await chainApiFactory.deploy();
+    const convenienceFactory = await ethers.getContractFactory('Convenience');
+    convenience = await convenienceFactory.deploy(chainApi.address);
     const accountList = await ethers.getSigners();
     accounts = {
       providerAdmin: accountList[0],
