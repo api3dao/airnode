@@ -59,6 +59,7 @@ describe('ChainApi', function () {
     // transaction goes through and tell the requester what their reserved wallet address
     // is.
 
+
     // The node was listening for wallet reservation events, and will authorize the
     // corresponding address with authorizerAddress automatically.
     await authorizeWallet(providerId, requesterId, providerKeys, walletInd, depositAmount);
@@ -97,12 +98,10 @@ describe('ChainApi', function () {
     console.log(ethers.utils.parseBytes32String(await client.data()));
 
     // Now the requester wants the amount deposited at their reserved wallet back
-    const walletAddress = deriveWalletAddressFromIndex(providerKeys.xpub, walletInd);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const withdrawRequestId = await createWithdrawRequest(
       providerId,
       requesterId,
-      walletAddress,
       accounts.requesterAdmin.getAddress()
     );
 
@@ -223,11 +222,11 @@ describe('ChainApi', function () {
     // authorizerAddress only has what the requester has sent while reserving
     // the wallet (0.05 ETH).
     const authorizerWallet = deriveWalletFromPath(providerKeys.mnemonics, 'm/0/0/0');
-    // The following transaction (authorizeProviderWallet()) takes 81,247 gas.
+    // The following transaction (authorizeProviderWallet()) takes 104,026 gas.
     // We will leave some slack (in case a block gets uncled and transactions
     // revert, or gas costs of operations increase with a fork) and say it's
-    // 100,000.
-    const gasCost = ethers.BigNumber.from(100000);
+    // 120,000.
+    const gasCost = ethers.BigNumber.from(120000);
     const gasPrice = await waffle.provider.getGasPrice();
     // The requester sent 0.05 ETH to have their wallet authorized. We use
     // 0.0008 ETH for the transaction (gasCost x gasPrice) and send the remaining
@@ -239,6 +238,7 @@ describe('ChainApi', function () {
       gasPrice: gasPrice,
       value: fundsToSend,
     });
+
     // This transaction emits an event. The node uses this event to be able to
     // tell that it has already authorized a reserved wallet and doesn't try
     // again (so very similar to an oracle request-response pattern).
@@ -385,11 +385,11 @@ describe('ChainApi', function () {
       );
   }
 
-  async function createWithdrawRequest(providerId, requesterId, walletAddress, destination) {
+  async function createWithdrawRequest(providerId, requesterId, destination) {
     // Only the requester admin can do this
     const tx = await chainApi
       .connect(accounts.requesterAdmin)
-      .requestWithdraw(providerId, requesterId, walletAddress, destination);
+      .requestWithdraw(providerId, requesterId, destination);
     // Get the newly created withdraw request's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash

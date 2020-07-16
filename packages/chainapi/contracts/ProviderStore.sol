@@ -17,13 +17,14 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         address walletAuthorizer;
         uint256 authorizationDeposit;
         mapping(address => uint256) walletAddressToInd;
+        mapping(uint256 => address) walletIndToAddress;
         mapping(bytes32 => uint256) requesterIdToWalletInd;
         uint256 nextWalletInd;
         }
 
     struct WithdrawRequest {
         bytes32 providerId;
-        address walletAddress;
+        bytes32 requesterId;
         address destination;
         }
 
@@ -150,15 +151,17 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             );
         require(
             providers[providerId].walletAddressToInd[walletAddress] == 0,
-            "Wallet already authorized"
+            "Wallet index already authorized"
             );
         require(
             providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
             "No such wallet index reservation has been made"
             );
         providers[providerId].walletAddressToInd[walletAddress] = walletInd;
+        providers[providerId].walletIndToAddress[walletInd] = walletAddress;
         emit ProviderWalletAuthorized(
             providerId,
+            requesterId,
             walletAddress,
             walletInd
             );
@@ -185,7 +188,7 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     {
         require(
             providers[providerId].requesterIdToWalletInd[requesterId] == 0,
-            "Requester already has a wallet allocated for this provider"
+            "Requester already has a wallet index reserved for this provider"
             );
         require(
             msg.value >= providers[providerId].authorizationDeposit,
@@ -215,23 +218,24 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// and executes the corresponding withdrawal
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequesterStore
-    /// @param walletAddress Address of the wallet that the withdrawal is
-    /// requested from
     /// @param destination Withdrawal destination
     function requestWithdraw(
         bytes32 providerId,
         bytes32 requesterId,
-        address walletAddress,
         address destination
     )
         external
         override
         onlyRequesterAdmin(requesterId)
     {
+        uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         require(
-            providers[providerId].requesterIdToWalletInd[requesterId] ==
-                providers[providerId].walletAddressToInd[walletAddress],
-            "Requester with requesterId has not reserved wallet with walletAddress"
+            walletInd != 0,
+            "Requester does not have a wallet index reserved by this provider"
+            );
+        require(
+            providers[providerId].walletIndToAddress[walletInd] != address(0),
+            "Requester does not have a wallet index authorized by this provider"
             );
         bytes32 withdrawRequestId = keccak256(abi.encodePacked(
             noWithdrawRequests++,
@@ -241,14 +245,13 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             ));
         withdrawRequests[withdrawRequestId] = WithdrawRequest({
             providerId: providerId,
-            walletAddress: walletAddress,
+            requesterId: requesterId,
             destination: destination
             });
         emit WithdrawRequested(
             providerId,
             requesterId,
             withdrawRequestId,
-            walletAddress,
             destination
             );
     }
@@ -263,15 +266,18 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         payable
         override
     {
+        bytes32 providerId = withdrawRequests[withdrawRequestId].providerId;
+        bytes32 requesterId = withdrawRequests[withdrawRequestId].requesterId;
+        uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
+        address walletAddress = providers[providerId].walletIndToAddress[walletInd];
         require(
-            msg.sender == withdrawRequests[withdrawRequestId].walletAddress,
+            msg.sender == walletAddress,
             "Only the wallet to be withdrawn from can call this"
             );
         address destination = withdrawRequests[withdrawRequestId].destination;
         emit WithdrawFulfilled(
-            withdrawRequests[withdrawRequestId].providerId,
+            providerId,
             withdrawRequestId,
-            msg.sender,
             destination,
             msg.value
             );
@@ -338,6 +344,22 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         returns (uint256 walletInd)
     {
         walletInd = providers[providerId].walletAddressToInd[walletAddress];
+    }
+
+    /// @notice Gets the index of a provider wallet
+    /// @param providerId Provider ID
+    /// @param walletInd Wallet inde
+    /// @return walletAddress Address of the wallet with walletInd index
+    function getProviderWalletAddressWithInd(
+        bytes32 providerId,
+        uint256 walletInd
+        )
+        external
+        view
+        override
+        returns (address walletAddress)
+    {
+        walletAddress = providers[providerId].walletIndToAddress[walletInd];
     }
 
     /// @notice Gets the index of a provider wallet reserved by a requester

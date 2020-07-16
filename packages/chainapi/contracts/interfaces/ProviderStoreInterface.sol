@@ -30,6 +30,7 @@ interface ProviderStoreInterface {
 
     event ProviderWalletAuthorized(
         bytes32 indexed id,
+        bytes32 requesterId,
         address walletAddress,
         uint256 walletInd
         );
@@ -38,14 +39,12 @@ interface ProviderStoreInterface {
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
         bytes32 withdrawRequestId,
-        address source,
         address destination
         );
 
     event WithdrawFulfilled(
         bytes32 indexed providerId,
         bytes32 withdrawRequestId,
-        address source,
         address destination,
         uint256 amount
         );
@@ -91,7 +90,6 @@ interface ProviderStoreInterface {
     function requestWithdraw(
         bytes32 providerId,
         bytes32 requesterId,
-        address walletAddress,
         address destination
     )
         external;
@@ -125,6 +123,14 @@ interface ProviderStoreInterface {
         external
         view
         returns (uint256 walletInd);
+
+    function getProviderWalletAddressWithInd(
+        bytes32 providerId,
+        uint256 walletInd
+        )
+        external
+        view
+        returns (address walletAddress);
 
     function getProviderWalletIndWithRequesterId(
         bytes32 providerId,
