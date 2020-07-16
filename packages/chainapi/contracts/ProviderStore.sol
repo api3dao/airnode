@@ -282,6 +282,10 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         override
     {
         bytes32 providerId = withdrawRequests[withdrawRequestId].providerId;
+        require(
+            providerId != 0,
+            "No active withdrawal request with withdrawRequestId"
+            );
         bytes32 requesterId = withdrawRequests[withdrawRequestId].requesterId;
         uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         address walletAddress = providers[providerId].walletIndToAddress[walletInd];
