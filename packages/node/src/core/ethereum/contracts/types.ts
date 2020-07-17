@@ -6,9 +6,11 @@
  */
 export type ChainID = 1 | 3;
 
-export type ABI = string[];
+// TODO: what is the ethers type for the ABI?
+export type ABI = string[] | any;
 
 export interface Contract {
   ABI: ABI;
   addresses: { [chainId in ChainID]: string };
+  topics: { [key: string]: string };
 }

@@ -4,6 +4,7 @@ import { ProviderState } from '../../types';
 import { goTimeout } from '../utils/promise-utils';
 import { GasPriceFeed } from './contracts';
 import * as utils from './utils';
+import * as logger from '../utils/logger';
 
 // We don't want to hold everything up so limit each request to 5 seconds maximum
 const TIMEOUT = 5_000;
@@ -17,7 +18,7 @@ async function getDataFeedGasPrice(providerState: ProviderState): Promise<GasPri
   const contract = new ethers.Contract(GasPriceFeed.addresses[config.chainId], GasPriceFeed.ABI, provider);
   const [err, weiPrice] = await goTimeout(TIMEOUT, contract.latestAnswer() as Promise<ethers.BigNumber>);
   if (err || !weiPrice) {
-    utils.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from gas price feed contract. ${err}`);
+    logger.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from gas price feed contract. ${err}`);
     return null;
   }
   return weiPrice;
@@ -27,7 +28,7 @@ async function getEthNodeGasPrice(state: ProviderState): Promise<GasPriceRespons
   const { config, provider } = state;
   const [err, weiPrice] = await goTimeout(TIMEOUT, provider.getGasPrice());
   if (err || !weiPrice) {
-    utils.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from Ethereum node. ${err}`);
+    logger.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from Ethereum node. ${err}`);
     return null;
   }
   return weiPrice;
@@ -42,7 +43,7 @@ export async function getGasPrice(providerState: ProviderState): Promise<ethers.
   if (isEmpty(successfulPrices)) {
     const fallbackGweiPrice = utils.weiToGwei(FALLBACK_WEI_PRICE);
     const message = `Failed to get gas prices from any sources. Falling back to default price ${fallbackGweiPrice} Gwei`;
-    utils.logProviderJSON(providerState.config.name, 'ERROR', message);
+    logger.logProviderJSON(providerState.config.name, 'ERROR', message);
     return FALLBACK_WEI_PRICE;
   }
 

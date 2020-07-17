@@ -8,6 +8,10 @@ export interface RequestParameters {
   [key: string]: string;
 }
 
+export enum RequestErrorCode {
+  InvalidParameters = 1,
+}
+
 export interface Request {
   requestId: string;
   requester: string;
@@ -17,7 +21,11 @@ export interface Request {
   fulfillFunctionId: string;
   errorAddress: string;
   errorFunctionId: string;
+  // TODO: can this be null?
+  encodedParameters: string | null;
   parameters: RequestParameters;
+  valid: boolean;
+  errorCode?: RequestErrorCode;
 }
 
 export interface ProviderState {
