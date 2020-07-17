@@ -1,9 +1,6 @@
-name: Continuous Build
+name: Test @airnode packages
 
-on:
-  push:
-    branches:
-      - 'master'
+on: push
 
 jobs:
   build:
@@ -26,8 +23,18 @@ jobs:
     - name: Lint code
       run: npm run lint
 
-    - name: Run tests
+    - name: Build
       run: |
-        npm run build
-        npm run test
+        npm run build:contracts
+        npm run build:ois
+        npm run build:adapter
+
+    - name: Test adapter
+      run: npm run test:adapter
+
+    - name: Test contracts
+      run: npm run test:contracts
+
+    - name: Test node
+      run: npm run test:node
 

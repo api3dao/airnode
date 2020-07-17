@@ -1,13 +1,3 @@
 {
-  "compilerOptions": {
-    "baseUrl": "./",
-    "declaration": true,
-    "esModuleInterop": true,
-    "lib": ["es2015"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "strictNullChecks": true
-  }
+  "extends": "./tsconfig.build.json"
 }

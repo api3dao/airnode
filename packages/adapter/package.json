@@ -1,0 +1,28 @@
+{
+  "name": "@airnode/adapter",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build",
+    "test": "SILENCE_LOGGER=true jest --coverage",
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
+  },
+  "dependencies": {
+    "@airnode/ois": "^0.1.0",
+    "axios": "^0.19.2",
+    "ethers": "^5.0.5",
+    "lodash": "^4.17.19"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.4",
+    "@types/lodash": "^4.14.155",
+    "@types/node": "^14.0.22",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.1"
+  }
+}

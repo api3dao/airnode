@@ -4,3 +4,8 @@
 **/cache/**
 **/artifacts/**
 **/buidler.config.js
+
+**/.build/**
+**/.serverless/**
+**/coverage/**
+**/dist/**

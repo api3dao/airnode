@@ -3,39 +3,41 @@
   "scripts": {
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build --stream",
+    "build:adapter": "(cd packages/adapter && npm run build)",
+    "build:contracts": "(cd packages/contracts && npm run build)",
+    "build:ois": "(cd packages/ois && npm run build)",
+    "clean": "lerna run clean --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.aws.yml)",
-    "prettify": "prettier --write ./**/*.{js,ts}",
-    "lint": "eslint . --ext .js,.ts && solhint \"./packages/contracts/src/**/*.sol\" && solhint \"./packages/chainapi/contracts/**/*.sol\"",
+    "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",
+    "lint": "npm run lint:eslint && npm run lint:solhint",
+    "lint:eslint": "eslint . --ext .js,.ts",
+    "lint:solhint": "solhint \"./packages/contracts/src/**/*.sol\"",
+    "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "test": "lerna run test --stream",
-    "test:watch:node": "(cd packages/node && SILENCE_LOGGER=true jest --coverage --watch)"
+    "test:adapter": "(cd packages/adapter && npm run test)",
+    "test:adapter:watch": "(cd packages/adapter && npm run test:watch)",
+    "test:contracts": "(cd packages/contracts && npm run test)",
+    "test:node": "(cd packages/node && npm run test)",
+    "test:node:watch": "(cd packages/node && npm run test:watch)"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.0",
-    "@types/node": "^14.0.12",
-    "@typescript-eslint/eslint-plugin": "^3.2.0",
-    "@typescript-eslint/parser": "^3.2.0",
-    "eslint": "^7.2.0",
+    "@types/jest": "^26.0.4",
+    "@types/node": "^14.0.22",
+    "@typescript-eslint/eslint-plugin": "^3.6.0",
+    "@typescript-eslint/parser": "^3.6.0",
+    "eslint": "^7.4.0",
     "husky": "^4.2.5",
-    "jest": "^26.0.1",
+    "jest": "^26.1.0",
     "lerna": "^3.22.1",
-    "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
+    "rimraf": "~3.0.2",
     "solhint": "^3.0.0",
-    "ts-jest": "^26.1.0",
-    "typescript": "^3.9.5"
+    "ts-jest": "^26.1.1",
+    "typescript": "^3.9.6"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "npm run prettify && npm run lint"
     }
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "prettier --write",
-      "eslint"
-    ],
-    "*.sol": [
-      "solhint"
-    ]
   }
 }

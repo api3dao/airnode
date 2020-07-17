@@ -5,12 +5,12 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.0",
-    "@types/node": "^14.0.12",
-    "ethers": "^5.0.2",
+    "@types/jest": "^26.0.4",
+    "@types/node": "^14.0.22",
+    "ethers": "^5.0.5",
     "ganache-core": "^2.10.2",
-    "jest": "^26.0.1",
-    "truffle": "^5.1.30",
-    "ts-jest": "^26.1.0"
+    "jest": "^26.1.0",
+    "truffle": "^5.1.34",
+    "ts-jest": "^26.1.1"
   }
 }
