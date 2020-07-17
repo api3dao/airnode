@@ -9,7 +9,7 @@ function decodeParameters(state: ProviderState, request: ApiCallRequest): ApiCal
   }
 
   // It's unlikely that we'll be unable to parse the parameters that get sent
-  // with the request, but just in case, wrap this is a try/catch.
+  // with the request, but just in case, wrap this in a try/catch.
   try {
     const parameters = decodeMap(request.encodedParameters);
     return { ...request, parameters };

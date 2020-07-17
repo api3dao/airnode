@@ -20,7 +20,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-export function mapPendingApiRequests(state: ProviderState, logs: Log[]): ApiCallRequest[] {
+export function mapPendingRequests(state: ProviderState, logs: Log[]): ApiCallRequest[] {
   const requestLogs = logs.filter((log) => events.isApiRequestEvent(log));
   const fulfillmentLogs = logs.filter((log) => events.isApiRequestFulfillmentEvent(log));
 

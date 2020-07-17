@@ -5,7 +5,7 @@ import * as apiCalls from './api-calls';
 export async function fetch(state: ProviderState): Promise<ProviderState> {
   const groupedLogs = await fetchGroupedLogs(state);
 
-  const pendingApiRequests = apiCalls.mapPendingApiRequests(state, groupedLogs.apiCalls);
+  const pendingApiRequests = apiCalls.mapPendingRequests(state, groupedLogs.apiCalls);
 
   // TODO: handle withdrawals
 

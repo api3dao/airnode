@@ -19,17 +19,6 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
   }
   logger.logProviderJSON(config.name, 'INFO', `Current block set to: ${currentBlock}`);
 
-  // =========================================================
-  // STEP 2: Get the pending requests
-  // =========================================================
-  // const [requestsErr, pendingRequests] = await go(requests.fetchUnfulfilledRequests(s));
-  // if (requestsErr || !pendingRequests) {
-  //   // TODO: Provider calls should retry on failure (issue #11)
-  //   logger.logProviderJSON(config.name, 'ERROR', 'Unable to fetch pending requests');
-  //   return null;
-  // }
-  // logger.logProviderJSON(config.name, 'INFO', `Number of pending requests: ${pendingRequests.length}`);
-
   return {
     config,
     currentBlock,

@@ -8,7 +8,7 @@ import * as events from './events';
 
 interface GroupedLogs {
   apiCalls: Log[];
-  // authorizations: Log[];
+  walletAuthorizations: Log[];
   withdrawals: Log[];
 }
 
@@ -39,7 +39,11 @@ async function fetchLogs(state: ProviderState): Promise<Log[]> {
 }
 
 function groupLogs(logs: Log[]): GroupedLogs {
-  const initialState: GroupedLogs = { apiCalls: [], withdrawals: [] };
+  const initialState: GroupedLogs = {
+    apiCalls: [],
+    walletAuthorizations: [],
+    withdrawals: [],
+  };
 
   return logs.reduce((acc, log) => {
     if (events.isApiRequestEvent(log) || events.isApiRequestFulfillmentEvent(log)) {
@@ -55,12 +59,8 @@ function groupLogs(logs: Log[]): GroupedLogs {
   }, initialState);
 }
 
-export async function fetchGroupedLogs(state: ProviderState) {
-  const [err, logs] = await go(fetchLogs(state));
-  if (err || !logs) {
-    return { apiCalls: [], withdrawals: [] };
-  }
-
+export async function fetchGroupedLogs(state: ProviderState): Promise<GroupedLogs> {
+  const logs = await fetchLogs(state);
 
   return groupLogs(logs);
 }

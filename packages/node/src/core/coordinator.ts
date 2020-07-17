@@ -1,6 +1,5 @@
 import { config } from './config';
 import * as state from './state';
-import * as requests from './handlers/requests';
 
 export async function start() {
   // TODO: split into separate forked processes

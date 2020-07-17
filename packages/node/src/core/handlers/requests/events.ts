@@ -13,13 +13,9 @@ export const API_REQUEST_FULFILLMENT_TOPICS = [
   ethereum.contracts.ChainAPI.topics.FulfillmentFailed,
 ];
 
-export const WITHDRAWAL_TOPICS = [
-  ethereum.contracts.ChainAPI.topics.WithdrawRequested,
-];
+export const WITHDRAWAL_TOPICS = [ethereum.contracts.ChainAPI.topics.WithdrawRequested];
 
-export const WITHDRAWAL_FULFILLMENT_TOPICS = [
-  ethereum.contracts.ChainAPI.topics.WithdrawFulfilled,
-];
+export const WITHDRAWAL_FULFILLMENT_TOPICS = [ethereum.contracts.ChainAPI.topics.WithdrawFulfilled];
 
 export function isApiRequestEvent(log: ethers.utils.LogDescription) {
   return API_REQUEST_TOPICS.includes(log.topic);
