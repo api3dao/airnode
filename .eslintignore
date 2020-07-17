@@ -1,8 +1,11 @@
-/node_modules
+**/node_modules/**
+
+# Buidler
+**/cache/**
+**/artifacts/**
+**/buidler.config.js
 
 **/.build/**
 **/.serverless/**
 **/coverage/**
 **/dist/**
-**/node_modules/**
-
