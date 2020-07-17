@@ -14,6 +14,9 @@ const FulfillmentBytesSuccessfulTopic = ethers.utils.id('FulfillmentBytesSuccess
 const FulfillmentErroredTopic = ethers.utils.id('FulfillmentErrored(bytes32,bytes32,uint256)');
 const FulfillmentFailedTopic = ethers.utils.id('FulfillmentFailed(bytes32,bytes32)');
 
+const WithdrawRequestedTopic = ethers.utils.id('WithdrawRequested(bytes32,bytes32,bytes32,address)');
+const WithdrawFulfilledTopic = ethers.utils.id('WithdrawFulfilled(bytes32,bytes32,address,uint256)');
+
 export const ChainAPI: Contract = {
   addresses: {
     1: '<TODO>',
@@ -30,5 +33,9 @@ export const ChainAPI: Contract = {
     FulfillmentBytesSuccessful: FulfillmentBytesSuccessfulTopic,
     FulfillmentErrored: FulfillmentErroredTopic,
     FulfillmentFailed: FulfillmentFailedTopic,
+
+    // Withdrawals
+    WithdrawRequested: WithdrawRequestedTopic,
+    WithdrawFulfilled: WithdrawFulfilledTopic,
   },
 };

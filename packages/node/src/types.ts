@@ -4,28 +4,34 @@ import { ethers } from 'ethers';
 // ===========================================
 // State
 // ===========================================
-export interface RequestParameters {
+export interface ApiRequestParameters {
   [key: string]: string;
 }
 
-export enum RequestErrorCode {
+export enum ApiRequestErrorCode {
   InvalidParameters = 1,
 }
 
-export interface Request {
-  requestId: string;
-  requester: string;
-  endpointId: string | null;
-  templateId: string | null;
-  fulfillAddress: string;
-  fulfillFunctionId: string;
-  errorAddress: string;
-  errorFunctionId: string;
+export interface ApiCallRequest {
+  readonly requestId: string;
+  readonly requester: string;
+  readonly endpointId: string | null;
+  readonly templateId: string | null;
+  readonly fulfillAddress: string;
+  readonly fulfillFunctionId: string;
+  readonly errorAddress: string;
+  readonly errorFunctionId: string;
   // TODO: can this be null?
-  encodedParameters: string | null;
-  parameters: RequestParameters;
-  valid: boolean;
-  errorCode?: RequestErrorCode;
+  readonly encodedParameters: string | null;
+  readonly parameters: ApiRequestParameters;
+  readonly valid: boolean;
+  readonly errorCode?: ApiRequestErrorCode;
+}
+
+export interface ProviderRequests {
+  readonly apiCalls: ApiCallRequest[];
+  // readonly walletWuthorizations: any;
+  // readonly withdrawals: any;
 }
 
 export interface ProviderState {
@@ -33,7 +39,7 @@ export interface ProviderState {
   readonly currentBlock: number;
   readonly gasPrice: ethers.BigNumber | null;
   readonly nonce: number | null;
-  readonly requests: Request[];
+  readonly requests: ProviderRequests;
   readonly provider: ethers.providers.Provider;
 }
 

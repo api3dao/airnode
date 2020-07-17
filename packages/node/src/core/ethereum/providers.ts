@@ -34,7 +34,7 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
     config,
     currentBlock,
     provider,
-    requests: [],
+    requests: { apiCalls: [] },
     // These are fetched and set as late as possible for freshness
     gasPrice: null,
     nonce: null,

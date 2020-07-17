@@ -1,12 +1,18 @@
 import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import { config, FROM_BLOCK_LIMIT } from '../../config';
-import { ProviderState, Request } from '../../../types';
-import * as request from './request';
+import { ProviderState } from '../../../types';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
+import * as events from './events';
 
-// Shorten the type
+interface GroupedLogs {
+  apiCalls: Log[];
+  // authorizations: Log[];
+  withdrawals: Log[];
+}
+
+// Shortening the type
 type Log = ethers.utils.LogDescription;
 
 async function fetchLogs(state: ProviderState): Promise<Log[]> {
@@ -32,49 +38,29 @@ async function fetchLogs(state: ProviderState): Promise<Log[]> {
   return logs;
 }
 
-function filterRequestLogs(logs: Log[]): Log[] {
-  const topics = [ethereum.contracts.ChainAPI.topics.RequestMade, ethereum.contracts.ChainAPI.topics.FullRequestMade];
+function groupLogs(logs: Log[]): GroupedLogs {
+  const initialState: GroupedLogs = { apiCalls: [], withdrawals: [] };
 
-  return logs.filter((log) => topics.includes(log.topic));
-}
-
-function filterFulfilledLogs(logs: Log[]): Log[] {
-  const topics = [
-    ethereum.contracts.ChainAPI.topics.FulfillmentSuccessful,
-    ethereum.contracts.ChainAPI.topics.FulfillmentBytesSuccessful,
-    ethereum.contracts.ChainAPI.topics.FulfillmentErrored,
-    ethereum.contracts.ChainAPI.topics.FulfillmentFailed,
-  ];
-
-  return logs.filter((log) => topics.includes(log.topic));
-}
-
-function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulfillmentLogs: Log[]): Log[] {
-  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.args.requestId);
-
-  return requestLogs.reduce((acc, requestLog) => {
-    const { requestId } = requestLog.args;
-    if (fulfilledRequestIds.includes(requestId)) {
-      logger.logProviderJSON(state.config.name, 'DEBUG', `Request ID:${requestId} has already been fulfilled`);
-      return acc;
+  return logs.reduce((acc, log) => {
+    if (events.isApiRequestEvent(log) || events.isApiRequestFulfillmentEvent(log)) {
+      return { ...acc, apiCalls: [...acc.apiCalls, log] };
     }
-    return [...acc, requestLog];
-  }, []);
+
+    if (events.isWithdrawalEvent(log) || events.isWithdrawalFulfillmentEvent(log)) {
+      return { ...acc, withdrawals: [...acc.withdrawals, log] };
+    }
+
+    // Ignore other events
+    return acc;
+  }, initialState);
 }
 
-function mapRequests(state: ProviderState, logs: Log[]): Request[] {
-  return logs.map((log) => request.initialize(state, log));
-}
+export async function fetchGroupedLogs(state: ProviderState) {
+  const [err, logs] = await go(fetchLogs(state));
+  if (err || !logs) {
+    return { apiCalls: [], withdrawals: [] };
+  }
 
-export async function fetchUnfulfilledRequests(providerState: ProviderState) {
-  const logs = await fetchLogs(providerState);
 
-  const requestLogs = filterRequestLogs(logs);
-  const fulfillmentLogs = filterFulfilledLogs(logs);
-
-  const unfulfilledRequests = discardFulfilledRequests(providerState, requestLogs, fulfillmentLogs);
-
-  const requests = mapRequests(providerState, unfulfilledRequests);
-
-  return requests;
+  return groupLogs(logs);
 }

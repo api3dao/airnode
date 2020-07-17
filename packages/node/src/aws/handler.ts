@@ -1,8 +1,8 @@
-import { main } from '../core';
+import * as coordinator from '../core/coordinator';
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export async function start(event, context) {
-  await main();
+  await coordinator.start();
 
   return {
     statusCode: 200,
