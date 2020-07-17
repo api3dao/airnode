@@ -6,22 +6,20 @@ import "./interfaces/ClientInterface.sol";
 
 
 /// @title The contract where the requesters are stored
-/// @notice Requesters first get recorded here and get assigned an ID. Then,
-/// they get a wallet reserved at ProviderStore with that Requester ID.
-/// The contracts that the requester deploys are called clients. The requester
-/// can authorize its client contracts to be served by the wallet they have
-/// reserved and funded, which is referred to as endorsing the client. In other
-/// words, an endorser is a requester that pays for the gas costs of a client
-/// contract's oracle requests.
+/// @notice This contract is used by requesters to manage their endorsemenets.
+/// The requester first get a wallet designated from a provider through
+/// ProviderStore. This wallet is used to fulfill requests made by client
+/// contracts endorsed by the requester. This is the contract where the
+/// requester can endorse or disendorse a client contract.
 contract RequesterStore is RequesterStoreInterface {
     mapping(bytes32 => address) internal requesterIdToAdmin;
     mapping(address => bytes32) private clientAdressToRequesterId;
     uint256 private noRequesters = 0;
 
 
-    /// @notice Creates a provider with the given parameters, addressable by
+    /// @notice Creates a requester with the given parameters, addressable by
     /// the ID it returns
-    /// @param admin Admin address of the requester
+    /// @param admin Requester admin
     /// @return requesterId Requester ID
     function createRequester(address admin)
         external
@@ -60,9 +58,13 @@ contract RequesterStore is RequesterStoreInterface {
     }
 
     /// @notice Called by the requester admin to allow a client contract to use
-    /// its wallets
+    /// its designated wallets
     /// @dev This also requires the client contract to announce the requester
-    /// under the parameter requesterId
+    /// under the public variable requesterId. See ClientInterface.sol for more
+    /// details.
+    /// This is not provider specific, i.e., the requester allows the client's
+    /// requests to be fulfilled through its designated wallets across all
+    /// providers.
     /// @param requesterId Requester ID
     /// @param clientAddress Client contract address
     function endorseClient(
@@ -86,7 +88,7 @@ contract RequesterStore is RequesterStoreInterface {
     }
 
     /// @notice Called by the requester admin to disallow a client contract
-    /// from using its wallets
+    /// from using its designated wallets
     /// @dev This is one-sided, meaning that it does not require permission
     /// from the client contract. It requires the caller to be the current
     /// endorser of the client contract.

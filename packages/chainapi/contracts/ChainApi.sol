@@ -6,33 +6,38 @@ import "./EndpointStore.sol";
 import "./TemplateStore.sol";
 
 
-/// @title The contract used to make and fulfill requests
-/// @notice This can be seen as a common oracle contract. Requesters call it to
-/// make requests and the nodes call it to fulfill these requests.
+/// @title The contract used to make and fulfill individual requests
+/// @notice Clients use this contract to make requests that follow a
+/// request-fulfill cycle. In addition, it inherits from contracts that keep
+/// records of providers, requesters, endpoints, etc.
 contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
     mapping(bytes32 => bytes32) private requestIdToProviderId;
     mapping(bytes32 => bool) private requestWithIdHasFailed;
     uint256 private noRequests = 0;
 
 
-    /// @notice Called by the requester to make a request. It emits the request
-    /// details as an event, which the provider node should be listening for
+    /// @notice Called by the requester to make a regular request. A regular
+    /// request refers to a template, yet requires the provider to ignore its
+    /// fulfill/error destinations and use the parameters supplied along with
+    /// the request.
+    /// @dev This is the recommended way of making a request in most cases. Use
+    /// makeShortRequest() if gas efficiency is critical.
     /// @param templateId Template ID from TemplateStore
-    /// @param fulfillAddress Address that will be called to deliver the
-    /// response
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called if fulfillment fails
     /// @param fulfillFunctionId Signature of the function that will be called
-    /// to deliver the response
-    /// @param errorAddress Address that will be called to if fulfillment fails
+    /// to fulfill
     /// @param errorFunctionId Signature of the function that will be called
-    /// if the fulfillment fails
-    /// @param parameters Runtime parameters in addition to the ones defined in
-    /// the template addressed by templateId
+    /// if fulfillment fails
+    /// @param parameters Dynamic request parameters (i.e., parameters that are
+    /// determined at runtime, unlike the static parameters stored in the
+    /// template)
     /// @return requestId Request ID
     function makeRequest(
         bytes32 templateId,
         address fulfillAddress,
-        bytes4 fulfillFunctionId,
         address errorAddress,
+        bytes4 fulfillFunctionId,
         bytes4 errorFunctionId,
         bytes calldata parameters
         )
@@ -53,67 +58,22 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             msg.sender,
             templateId,
             fulfillAddress,
-            fulfillFunctionId,
             errorAddress,
+            fulfillFunctionId,
             errorFunctionId,
             parameters
         );
     }
 
-    /// @notice Called by the requester to make a request. It emits the request
-    /// details as an event, which the provider node should be listening for.
-    /// @dev Since makeFullRequest refers to the endpointId directly (instead
-    /// of referring to a template that refers to an endpoint), it requires the
-    /// requester to pass all parameters here.
-    /// @param providerId Provider ID from ProviderStore
-    /// @param endpointId Endpoint ID from EndpointStore
-    /// @param fulfillAddress Address that will be called to deliver the
-    /// response
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to deliver the response
-    /// @param errorAddress Address that will be called to if fulfillment fails
-    /// @param errorFunctionId Signature of the function that will be called
-    /// if the fulfillment fails
-    /// @param parameters Request parameters
-    /// @return requestId Request ID
-    function makeFullRequest(
-        bytes32 providerId,
-        bytes32 endpointId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        address errorAddress,
-        bytes4 errorFunctionId,
-        bytes calldata parameters
-        )
-        external
-        override
-        returns (bytes32 requestId)
-    {
-        requestId = keccak256(abi.encodePacked(
-            noRequests++,
-            this,
-            msg.sender
-            ));
-        requestIdToProviderId[requestId] = providerId;
-        emit FullRequestMade(
-            providerId,
-            requestId,
-            msg.sender,
-            endpointId,
-            fulfillAddress,
-            fulfillFunctionId,
-            errorAddress,
-            errorFunctionId,
-            parameters
-        );
-    }
-
-    /// @notice Called by the requester to make a request. It emits the request
-    /// details as an event, which the provider node should be listening for
-    /// @dev The oracle should get fulfill/error parameters from the template
+    /// @notice Called by the requester to make a short request. A regular
+    /// request refers to a template, which the provider will get all parameters
+    /// from (including fulfill/error destinations). This is the most gas
+    /// efficient method making an individual request.
+    /// @dev Use this if gas efficiency is critical
     /// @param templateId Template ID from TemplateStore
-    /// @param parameters Runtime parameters in addition to the ones defined in
-    /// the template addressed by templateId
+    /// @param parameters Dynamic request parameters (i.e., parameters that are
+    /// determined at runtime, unlike the static parameters stored in the
+    /// template)
     /// @return requestId Request ID
     function makeShortRequest(
         bytes32 templateId,
@@ -139,21 +99,70 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
         );
     }
 
-    /// @notice Called by the oracle node to fulfill requests
-    /// @param fulfillAddress Address that will be called to deliver the
-    /// response
+    /// @notice Called by the requester to make a full request. It does not
+    /// refer to a template, meaning that it passes all the parameters in the
+    /// request. It does not require a template to be created beforehand,
+    /// which provides extra flexibility compared to makeRequest() and
+    /// makeShortRequest().
+    /// @dev This is the least gas efficient way of making a request. Do not
+    /// use it unless you have a good reason.
+    /// @param providerId Provider ID from ProviderStore
+    /// @param endpointId Endpoint ID from EndpointStore
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called if fulfillment fails
     /// @param fulfillFunctionId Signature of the function that will be called
-    /// to deliver the response
+    /// to fulfill
+    /// @param errorFunctionId Signature of the function that will be called
+    /// if fulfillment fails
+    /// @param parameters All request parameters
+    /// @return requestId Request ID
+    function makeFullRequest(
+        bytes32 providerId,
+        bytes32 endpointId,
+        address fulfillAddress,
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId,
+        bytes calldata parameters
+        )
+        external
+        override
+        returns (bytes32 requestId)
+    {
+        requestId = keccak256(abi.encodePacked(
+            noRequests++,
+            this,
+            msg.sender
+            ));
+        requestIdToProviderId[requestId] = providerId;
+        emit FullRequestMade(
+            providerId,
+            requestId,
+            msg.sender,
+            endpointId,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId,
+            parameters
+        );
+    }
+
+    /// @notice Called by the oracle node to fulfill individual requests
+    /// (inclusing regular, short and full requests)
     /// @param requestId Request ID
     /// @param data Oracle response
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfill(
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
         bytes32 requestId,
-        bytes32 data
+        bytes32 data,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
         )
         external
         override
@@ -178,22 +187,23 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             );
     }
 
-    /// @notice Called by the oracle node to fulfill requests with response
-    /// of type bytes
-    /// @param fulfillAddress Address that will be called to deliver the
-    /// response
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to deliver the response
+    /// @notice Called by the oracle node to fulfill individual requests
+    /// (inclusing regular, short and full requests) with a bytes type response
+    /// @dev The oracle uses this method to fulfill if the requester has
+    /// specifically asked for a bytes type response
     /// @param requestId Request ID
     /// @param data Oracle response of type bytes
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfillBytes(
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
         bytes32 requestId,
-        bytes calldata data
+        bytes calldata data,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
         )
         external
         override
@@ -218,20 +228,23 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             );
     }
 
-    /// @notice Called by the oracle node if the request could not be fulfilled
+    /// @notice Called by the oracle node if a request could not be fulfilled
     /// for any reason
-    /// @param errorAddress Address that will be called
-    /// @param errorFunctionId Signature of the function that will be called
+    /// @dev The oracle may specify the error using errorCode. The specification
+    /// format is outside the scope of this contract. Refer to the specific
+    /// oracle documentations for more information.
     /// @param requestId Request ID
     /// @param errorCode Error code
+    /// @param errorAddress Address that will be called
+    /// @param errorFunctionId Signature of the function that will be called
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function error(
-        address errorAddress,
-        bytes4 errorFunctionId,
         bytes32 requestId,
-        uint256 errorCode
+        uint256 errorCode,
+        address errorAddress,
+        bytes4 errorFunctionId
         )
         external
         override
@@ -256,9 +269,9 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             );
     }
 
-    /// @notice Called by the oracle node if the request could neither be fulfilled
+    /// @notice Called by the oracle node if a request could neither be fulfilled
     /// nor errored
-    /// @dev This node should fall back to this if a request cannot be fulfilled
+    /// @dev The oracle should fall back to this if a request cannot be fulfilled
     /// and error() is reverting
     /// @param requestId Request ID
     function fail(bytes32 requestId)
@@ -280,8 +293,8 @@ contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
             );
     }
 
-    /// @notice Used to check if a request had to fail because it could not be
-    /// fulfilled or errored
+    /// @notice Used to check if a request has failed because it could neither
+    /// be fulfilled nor errored
     /// @param requestId Request ID
     /// @return status If the request has failed
     function checkIfRequestHasFailed(bytes32 requestId)

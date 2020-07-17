@@ -9,20 +9,8 @@ interface ChainApiInterface {
         address requester,
         bytes32 templateId,
         address fulfillAddress,
-        bytes4 fulfillFunctionId,
         address errorAddress,
-        bytes4 errorFunctionId,
-        bytes parameters
-        );
-
-    event FullRequestMade(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        address requester,
-        bytes32 endpointId,
-        address fulfillAddress,
         bytes4 fulfillFunctionId,
-        address errorAddress,
         bytes4 errorFunctionId,
         bytes parameters
         );
@@ -32,6 +20,18 @@ interface ChainApiInterface {
         bytes32 requestId,
         address requester,
         bytes32 templateId,
+        bytes parameters
+        );
+
+    event FullRequestMade(
+        bytes32 indexed providerId,
+        bytes32 requestId,
+        address requester,
+        bytes32 endpointId,
+        address fulfillAddress,
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId,
         bytes parameters
         );
 
@@ -62,20 +62,8 @@ interface ChainApiInterface {
     function makeRequest(
         bytes32 templateId,
         address fulfillAddress,
-        bytes4 fulfillFunctionId,
         address errorAddress,
-        bytes4 errorFunctionId,
-        bytes calldata parameters
-        )
-        external
-        returns (bytes32 requestId);
-
-    function makeFullRequest(
-        bytes32 providerId,
-        bytes32 endpointId,
-        address fulfillAddress,
         bytes4 fulfillFunctionId,
-        address errorAddress,
         bytes4 errorFunctionId,
         bytes calldata parameters
         )
@@ -89,11 +77,23 @@ interface ChainApiInterface {
         external
         returns (bytes32 requestId);
 
-    function fulfill(
+    function makeFullRequest(
+        bytes32 providerId,
+        bytes32 endpointId,
         address fulfillAddress,
+        address errorAddress,
         bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId,
+        bytes calldata parameters
+        )
+        external
+        returns (bytes32 requestId);
+
+    function fulfill(
         bytes32 requestId,
-        bytes32 data
+        bytes32 data,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
         )
         external
         returns(
@@ -102,10 +102,10 @@ interface ChainApiInterface {
         );
 
     function fulfillBytes(
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
         bytes32 requestId,
-        bytes calldata data
+        bytes calldata data,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
         )
         external
         returns(
@@ -114,17 +114,17 @@ interface ChainApiInterface {
         );
 
     function error(
-        address errorAddress,
-        bytes4 errorFunctionId,
         bytes32 requestId,
-        uint256 errorCode
+        uint256 errorCode,
+        address errorAddress,
+        bytes4 errorFunctionId
         )
         external
         returns(
             bool callSuccess,
             bytes memory callData
         );
-    
+
     function fail(bytes32 requestId)
         external;
 }

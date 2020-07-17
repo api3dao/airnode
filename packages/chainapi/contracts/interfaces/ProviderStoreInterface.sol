@@ -32,7 +32,7 @@ interface ProviderStoreInterface {
 
     event ProviderWalletAuthorized(
         bytes32 indexed id,
-        bytes32 requesterId,
+        bytes32 indexed requesterId,
         address walletAddress,
         uint256 walletInd
         );
@@ -50,6 +50,7 @@ interface ProviderStoreInterface {
         address destination,
         uint256 amount
         );
+
 
     function createProvider(
         address admin,
@@ -113,6 +114,11 @@ interface ProviderStoreInterface {
             uint256 minBalance
         );
 
+    function getProviderMinBalance(bytes32 providerId)
+        external
+        view
+        returns (uint256 minBalance);
+
     function getProviderWalletStatus(
         bytes32 providerId,
         address walletAddress
@@ -144,18 +150,4 @@ interface ProviderStoreInterface {
         external
         view
         returns (uint256 walletInd);
-
-    function getDataWithClientAddress(
-        bytes32 providerId,
-        address clientAddress
-        )
-        external
-        view
-        returns (
-            bytes32 requesterId,
-            uint256 walletInd,
-            address walletAddress,
-            uint256 walletBalance,
-            uint256 minBalance
-            );
 }

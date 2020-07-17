@@ -12,10 +12,10 @@ interface EndpointStoreInterface {
 
     event EndpointUpdated(
         bytes32 indexed id,
-        bytes32 providerId,
         bytes32 apiId,
         address[] authorizers
         );
+
 
     function createEndpoint(
         bytes32 providerId,
@@ -43,9 +43,9 @@ interface EndpointStoreInterface {
 
     function checkIfAuthorized(
         bytes32 endpointId,
-        address requester
+        address clientAddress
         )
         external
         view
-        returns(bool authorized);
+        returns(bool status);
 }

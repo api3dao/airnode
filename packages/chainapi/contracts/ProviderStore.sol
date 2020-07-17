@@ -6,10 +6,14 @@ import "./RequesterStore.sol";
 
 
 /// @title The contract where the providers are stored
-/// @notice For each provider, there is an admin that manages settings. The
-/// requester uses this contract to reserve a wallet index and the provider
-/// authorizes the address that corresponds to that index for it to be able
-/// to fulfill requests.
+/// @notice This contract is mostly for the management of requester-designated
+/// wallets. If a requester wants to receive services from a provider, they
+/// first request a wallet reservation. The provider authorizes this wallet
+/// automatically, and the requester can then fund the wallet. When a client
+/// contract endorsed by the requester makes a request to the provider, this
+/// designated wallet is used by the provider to fund the gas costs of the
+/// fulfillment. The requester can also use this contract to request the
+/// withdrawal off all the funds in their designated wallet.
 contract ProviderStore is RequesterStore, ProviderStoreInterface {
     struct Provider {
         address admin;
@@ -38,15 +42,15 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// @notice Creates a provider with the given parameters, addressable by
     /// the ID it returns
     /// @dev walletAuthorizer and xpub are not set here, assuming the
-    /// provider will not have generated them yet.
+    /// provider will not have generated them at the time of provider creation
     /// @param admin Provider admin
     /// @param authorizationDeposit Amount the requesters need to deposit to
     /// reserve a wallet index. It should at least cover the gas cost of
-    /// calling authorizeProviderWallet() once.
+    /// calling authorizeProviderWallet().
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
-    /// them. It should cover the gas cost of calling fail() from ChainApi.sol
-    /// a few times.
+    /// their endorsed client contracts. It should cover the gas cost of calling
+    /// fail() from ChainApi.sol a few times.
     /// @return providerId Provider ID
     function createProvider(
         address admin,
@@ -79,15 +83,16 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             );
     }
 
-    /// @notice Updates the provider admin
+    /// @notice Updates the provider
     /// @param providerId Provider ID
     /// @param admin Provider admin
-    /// @param authorizationDeposit Wallet authorization deposit. It should at
-    /// least cover the gas cost of calling authorizeProviderWallet() once.
+    /// @param authorizationDeposit Amount the requesters need to deposit to
+    /// reserve a wallet index. It should at least cover the gas cost of
+    /// calling authorizeProviderWallet().
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
-    /// them. It should cover the gas cost of calling fail() from ChainApi.sol
-    /// a few times.
+    /// their endorsed client contracts. It should cover the gas cost of calling
+    /// fail() from ChainApi.sol a few times.
     function updateProvider(
         bytes32 providerId,
         address admin,
@@ -113,9 +118,11 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// address it uses to authorize wallets
     /// @dev Keys can only be initialized once. This means that the provider is
     /// not allowed to update their node key.
+    /// walletAuthorizer is typically the address of m/0/0/0 derived from xpub,
+    /// yet it may change with the oracle implementation.
     /// @param providerId Provider ID
     /// @param xpub Master public key of the provider
-    /// @param walletAuthorizer Address provider uses to authorize nodes
+    /// @param walletAuthorizer Address the provider uses to authorize wallets
     function initializeProviderKeys(
         bytes32 providerId,
         string calldata xpub,
@@ -143,12 +150,14 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
             );
     }
 
-    /// @notice Called by the requester to reserve a wallet index from the
-    /// provider
+    /// @notice Called by the requester to reserve a wallet from the provider
     /// @dev The provider expects authorizationDeposit to be sent along with
     /// this call to cover the subsequent cost of authorizing the reserved
-    /// wallet. Note that anyone can reserve a wallet for a requester, not
-    /// only its admin.
+    /// wallet. The provider is expected to return the remaining amount
+    /// to the authorized wallet, yet this is not enforced.
+    /// Anyone can reserve a wallet for a requester, not only its admin.
+    /// The requester should wait for enough confirmations to trust the
+    /// announced walletInd.
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequesterStore
     function reserveWallet(
@@ -187,8 +196,11 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     }
 
     /// @notice Authorizes a provider wallet to fulfill requests and sends
-    /// funds to it
-    /// @dev Note that wallet authorizations cannot be revoked
+    /// the remains of what has been sent along with reserveWallet()
+    /// @dev Wallet authorizations cannot be revoked, so the provider should
+    /// only reserve wallets derived from its master key.
+    /// The requester should wait for enough confirmations to trust the
+    /// announced walletAddress.
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequestStore
     /// @param walletAddress Wallet address to be authorized
@@ -227,10 +239,8 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         require(success, "Transfer failed");
     }
 
-    /// @notice Called by the requester admin to withdraw the funds that the
-    /// provider keeps for them in their reserved wallet
-    /// @dev This method emits an event, which the provider node listens for
-    /// and executes the corresponding withdrawal
+    /// @notice Called by the requester admin to create a request for the
+    /// provider to send the funds kept in their designated wallet to destination
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequesterStore
     /// @param destination Withdrawal destination
@@ -246,11 +256,11 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         require(
             walletInd != 0,
-            "Requester does not have a wallet index reserved by this provider"
+            "Requester does not have a wallet reserved by this provider"
             );
         require(
             providers[providerId].walletIndToAddress[walletInd] != address(0),
-            "Requester does not have a wallet index authorized by this provider"
+            "Requester does not have a wallet authorized by this provider"
             );
         bytes32 withdrawRequestId = keccak256(abi.encodePacked(
             noWithdrawRequests++,
@@ -273,8 +283,8 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
 
     /// @notice Called by the reserved wallet to fulfill the withdrawal request
     /// made by the requester
-    /// @dev The node sends the funds through this method to emit an event that
-    /// indicates that the withdrawal request has been fulfilled
+    /// @dev The oracle sends the funds through this method to emit an event
+    /// that indicates that the withdrawal request has been fulfilled
     /// @param withdrawRequestId Withdraw request ID
     function fulfillWithdraw(bytes32 withdrawRequestId)
         external
@@ -309,12 +319,14 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
-    /// @return walletAuthorizer Address provider uses to authorize nodes
+    /// @return walletAuthorizer Address the provider uses to authorize wallets
     /// @return authorizationDeposit Amount the requesters need to deposit to
-    /// reserve a wallet index
+    /// reserve a wallet index. It should at least cover the gas cost of
+    /// calling authorizeProviderWallet().
     /// @return minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
-    /// them
+    /// their endorsed client contracts. It should cover the gas cost of calling
+    /// fail() from ChainApi.sol a few times.
     function getProvider(bytes32 providerId)
         external
         view
@@ -331,6 +343,21 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         xpub = providers[providerId].xpub;
         walletAuthorizer = providers[providerId].walletAuthorizer;
         authorizationDeposit = providers[providerId].authorizationDeposit;
+        minBalance = providers[providerId].minBalance;
+    }
+
+    /// @notice Retrieves the minBalance of the provider
+    /// @param providerId Provider ID
+    /// @return minBalance The minimum balance the provider expects a requester
+    /// to have in their designated wallet to attempt to fulfill requests from
+    /// their endorsed client contracts. It should cover the gas cost of calling
+    /// fail() from ChainApi.sol a few times.
+    function getProviderMinBalance(bytes32 providerId)
+        external
+        view
+        override
+        returns (uint256 minBalance)
+    {
         minBalance = providers[providerId].minBalance;
     }
 
@@ -354,7 +381,7 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         status = providers[providerId].walletAddressToInd[walletAddress] != 0;
     }
 
-    /// @notice Gets the index of a provider wallet
+    /// @notice Gets the index of a provider wallet with its address
     /// @param providerId Provider ID
     /// @param walletAddress Wallet address
     /// @return walletInd Index of the wallet with walletAddress address
@@ -370,7 +397,7 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         walletInd = providers[providerId].walletAddressToInd[walletAddress];
     }
 
-    /// @notice Gets the index of a provider wallet
+    /// @notice Gets the address of a provider wallet with its index
     /// @param providerId Provider ID
     /// @param walletInd Wallet inde
     /// @return walletAddress Address of the wallet with walletInd index
@@ -386,10 +413,10 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         walletAddress = providers[providerId].walletIndToAddress[walletInd];
     }
 
-    /// @notice Gets the index of a provider wallet reserved by a requester
+    /// @notice Gets the index of the provider wallet reserved by the requester
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequestStore
-    /// @return walletInd Wallet index reserved by requester with requesterId
+    /// @return walletInd Wallet index reserved by the requester with requesterId
     function getProviderWalletIndWithRequesterId(
         bytes32 providerId,
         bytes32 requesterId
@@ -400,40 +427,6 @@ contract ProviderStore is RequesterStore, ProviderStoreInterface {
         returns (uint256 walletInd)
     {
         walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
-    }
-
-    /// @notice Gets a wide array of data using the client address
-    /// @param providerId Provider ID
-    /// @param clientAddress Client address
-    /// @return requesterId The endorser of the client
-    /// @return walletInd The index of the wallet to be used to fulfill the
-    /// client's requests
-    /// @return walletAddress The address of the wallet to be used to fulfill
-    /// the client's requests
-    /// @return walletBalance The balance of the wallet to be used to fulfill
-    /// the client's requests
-    /// @return minBalance The minimum balance the provider expects walletBalance
-    /// to be to fulfill requests from the client
-    function getDataWithClientAddress(
-        bytes32 providerId,
-        address clientAddress
-        )
-        external
-        view
-        override
-        returns (
-            bytes32 requesterId,
-            uint256 walletInd,
-            address walletAddress,
-            uint256 walletBalance,
-            uint256 minBalance
-            )
-    {
-        requesterId = this.getClientRequesterId(clientAddress);
-        walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
-        walletAddress = providers[providerId].walletIndToAddress[walletInd];
-        walletBalance = walletAddress.balance;
-        minBalance = providers[providerId].minBalance;
     }
 
     /// @dev Reverts if the caller is not the provider admin

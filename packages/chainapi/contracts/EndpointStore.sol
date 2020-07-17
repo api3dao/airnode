@@ -7,9 +7,15 @@ import "./ProviderStore.sol";
 
 
 /// @title The contract where the endpoints are stored
-/// @notice The main use of this contract is to associate an endpoint with
-/// a set of authorizer contracts
+/// @notice This contract is used by the provider to create an ID for their
+/// endpoints so that clients can refer to them while making requests. It also
+/// allows the provider to set an authorization policy for their endpoints,
+/// which both the oracle and the requester can check to verify authorization.
 contract EndpointStore is ProviderStore, EndpointStoreInterface {
+    // apiId is used to tag endpoints to specify that they belong to the same
+    // group (or API). This can be used to enforce API-level authorization
+    // policies. If you are going to treat your endpoints individually, feel
+    // free to leave apiId as 0.
     struct Endpoint {
         bytes32 providerId;
         bytes32 apiId;
@@ -22,9 +28,6 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
 
     /// @notice Creates an endpoint with the given parameters, addressable by
     /// the ID it returns
-    /// @dev apiId is used by Authorizer contracts to treat all endpoints from
-    /// the same API the same. If you will not be using them, you can give
-    /// an arbitrary value to apiId.
     /// @param providerId Provider ID from ProviderStore
     /// @param apiId API ID
     /// @param authorizers Authorizer contract addresses
@@ -58,7 +61,8 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
             );
     }
 
-    /// @notice Updates the authorizer contracts of an endpoint
+    /// @notice Updates the endpoint
+    /// @dev Endpoints cannot be transferred to other providers
     /// @param endpointId Endpoint ID
     /// @param apiId API ID
     /// @param authorizers Authorizer contract addresses
@@ -75,13 +79,12 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
         endpoints[endpointId].authorizers = authorizers;
         emit EndpointUpdated(
             endpointId,
-            endpoints[endpointId].providerId,
             apiId,
             authorizers
             );
     }
 
-    /// @notice Retrieves endpoint parameters addressed by the ID
+    /// @notice Retrieves the endpoint parameters addressed by the ID
     /// @param endpointId Endpoint ID
     /// @return providerId Provider ID from ProviderStore
     /// @return apiId API ID
@@ -101,12 +104,16 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
         authorizers = endpoints[endpointId].authorizers;
     }
 
-    /// @notice Uses authorizer contracts of an endpoint to decide if a requester
-    /// is authorized to call an endpoint. Once a node receives a request, it
-    /// calls this method to determine if it should respond.
-    /// @dev The elements of the authorizer array are either addresses of
-    /// Authorizer contracts with the interface defined as AuthorizerInterface,
-    /// or 0. Say we have authorizer contracts X, Y, Z, T, and our authorizer
+    /// @notice Uses authorizer contracts of an endpoint to decide if a client
+    /// contract is authorized to call an endpoint. Once an oracle receives a
+    /// request, it calls this method to determine if it should respond.
+    /// Similarly, third parties can use this method to determine if a client
+    /// contract is authorized to call an endpoint.
+    /// @dev Authorizer contracts are not trusted, so this method should only
+    /// be called off-chain.
+    /// The elements of the authorizer array are either addresses of Authorizer
+    /// contracts with the interface defined in AuthorizerInterface or 0.
+    /// Say we have authorizer contracts X, Y, Z, T, and our authorizer
     /// array is [X, Y, 0, Z, T]. This means that the requester should satisfy
     /// (X AND Y) OR (Z AND T) to be considered authorized. In other words,
     /// consequent authorizer contracts need to verify authorization
@@ -121,30 +128,26 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
     /// be false.
     /// Note that authorizers should not start or end with 0s, and 0s should
     /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
-    /// @param endpointId Endpoint ID
-    /// @param requester Address of the requester contract
-    /// @return authorized If the requester contract is authorized to call the
+    /// @param endpointId Endpoint ID from EndpointStore
+    /// @param clientAddress Address of the client contract
+    /// @return status If the client contract is authorized to call the
     /// endpoint
     function checkIfAuthorized(
         bytes32 endpointId,
-        address requester
+        address clientAddress
         )
         external
         view
         override
-        returns(bool authorized)
+        returns(bool status)
     {
-        // Authorizers are not trusted so do not let this method to be called
-        // from a contract. The user may implement their own version that
-        // whitelists authorizers.
-        require(msg.sender == tx.origin, "Can only be called off-chain");
         uint256 noAuthorizers = endpoints[endpointId].authorizers.length;
         // authorizedByAll will remain true as long as none of the authorizers
-        // in a group reports the requester to be unauthorized.
+        // in a group reports that the client is unauthorized
         bool authorizedByAll = true;
-        for (uint256 authorizerInd = 0; authorizerInd < noAuthorizers; authorizerInd++)
+        for (uint256 ind = 0; ind < noAuthorizers; ind++)
         {
-            address authorizerAddress = endpoints[endpointId].authorizers[authorizerInd];
+            address authorizerAddress = endpoints[endpointId].authorizers[ind];
             if (authorizerAddress == address(0)) {
                 // If we have reached a 0 without getting any unauthorized
                 // reports, we can return true
@@ -162,15 +165,15 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
                 // Set authorizedByAll to false if we got an unauthorized report.
                 // This means that we will not be able to return a true from
                 // this group of authorizers.
-                if (!authorizer.checkIfAuthorized(endpointId, requester)) {
+                if (!authorizer.checkIfAuthorized(endpointId, clientAddress)) {
                     authorizedByAll = false;
                 }
             }
         }
         // Finally, if we have reached the end of the authorizers (i.e., we
-        // are checking the last group), just return the current authorizedByAll,
-        // which will only be true if all authorizers from the last group have
-        // returned true.
+        // are at the last element of the last group), just return the current
+        // authorizedByAll, which will only be true if all authorizers from the
+        // last group have returned true.
         return authorizedByAll;
     }
 }

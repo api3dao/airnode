@@ -4,14 +4,14 @@ const { expect } = require('chai');
 describe('ChainApi', function () {
   let accounts;
   let chainApi;
-  // let convenience;
+  let convenience;
   let client;
 
   beforeEach(async () => {
     const chainApiFactory = await ethers.getContractFactory('ChainApi');
     chainApi = await chainApiFactory.deploy();
-    // const convenienceFactory = await ethers.getContractFactory('Convenience');
-    // convenience = await convenienceFactory.deploy(chainApi.address);
+    const convenienceFactory = await ethers.getContractFactory('Convenience');
+    convenience = await convenienceFactory.deploy(chainApi.address);
     const accountList = await ethers.getSigners();
     accounts = {
       providerAdmin: accountList[0],
@@ -368,7 +368,7 @@ describe('ChainApi', function () {
 
     // To fulfill, it will first have to derive the private key for the wallet
     // reserved by the requester.
-    const { walletInd } = await chainApi.getDataWithClientAddress(providerId, parsedRequestLog.args.requester);
+    const { walletInd } = await convenience.getDataWithClientAddress(providerId, parsedRequestLog.args.requester);
     // If walletInd was 0 here, that would have meant that the client making
     // the request isn't endorser by a requester with a reserved wallet and
     // shouldn't be responded to. Fortunately we got 1.
@@ -377,10 +377,10 @@ describe('ChainApi', function () {
     await chainApi
       .connect(reservedWallet)
       .fulfill(
-        parsedRequestLog.args.fulfillAddress,
-        parsedRequestLog.args.fulfillFunctionId,
         parsedRequestLog.args.requestId,
         ethers.utils.formatBytes32String('Hello!'),
+        parsedRequestLog.args.fulfillAddress,
+        parsedRequestLog.args.fulfillFunctionId,
         {
           gasLimit: 500000, // For some reason, the default gas limit is too high
           // 500000 is a safe value and we can allow the requester to set this

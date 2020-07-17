@@ -5,14 +5,15 @@ import "./Client.sol";
 
 
 /// @title An example ChainAPI client contract
-/// @notice The contract authorizes a requester to endorse it by announcing its
-/// ID at requesterId
 contract ExampleClient is Client {
     bytes32 public data;
     bytes32 public requestId;
     uint256 public errorCode;
 
 
+    /// @dev ChainApi address and endorser IDs are set at deployment
+    /// @param _chainApi ChainApi contract address
+    /// @param _requesterId Endorser ID from RequestStore
     constructor (
         address _chainApi,
         bytes32 _requesterId
@@ -21,10 +22,11 @@ contract ExampleClient is Client {
         Client(_chainApi, _requesterId)
     {}
 
-    /// @notice Called to make a request to the ChainAPI contract
-    /// @param templateId Template ID
-    /// @param parameters Runtime parameters in addition to the ones defines in
-    /// the template addressed by templateId
+    /// @notice Called to make a regular request to the ChainAPI contract
+    /// @param templateId Template ID from TemplateStore
+    /// @param parameters Dynamic request parameters (i.e., parameters that are
+    /// determined at runtime, unlike the static parameters stored in the
+    /// template)
     function request(
         bytes32 templateId,
         bytes calldata parameters
@@ -34,8 +36,8 @@ contract ExampleClient is Client {
         requestId = chainApi.makeRequest(
             templateId,
             address(this),
-            this.fulfill.selector,
             address(this),
+            this.fulfill.selector,
             this.error.selector,
             parameters
             );
@@ -59,6 +61,10 @@ contract ExampleClient is Client {
         data = _data;
     }
 
+    /// @notice Called by the provider wallet through the ChainAPI contract if
+    /// the fulfillment has failed
+    /// @param _requestId Request ID
+    /// @param _errorCode Error code
     function error(
         bytes32 _requestId,
         uint256 _errorCode

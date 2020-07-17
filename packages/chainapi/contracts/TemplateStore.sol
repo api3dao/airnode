@@ -8,7 +8,7 @@ import "./interfaces/TemplateStoreInterface.sol";
 /// @notice Most requests are repeated many times with the same parameters.
 /// This contract allows the requester to announce their parameters once, then
 /// refer to that announcement when they are making a request, instead of
-/// passing the same parameters over and over again.
+/// passing the same parameters repeatedly.
 contract TemplateStore is TemplateStoreInterface {
     struct Template {
         bytes32 providerId;
@@ -30,18 +30,20 @@ contract TemplateStore is TemplateStoreInterface {
     /// of parameters off-chain. It also means that creating a new template
     /// with the same parameters will overwrite the old one and return the
     /// same template ID.
-    /// Only provide fulfill/error parameters if you will be using
-    /// makeShortRequest() from ChainApi.sol
+    /// Note that the requester may choose to use a template, but not its
+    /// fulfill/error destinations. For example, among the methods used to make
+    /// individual requests in ChainApi.sol, only makeShortRequest() uses these.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param fulfillAddress Address that will be called to deliver the
-    /// response
-    /// @param errorAddress Address that will be called to if fulfillment fails
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called if fulfillment fails
     /// @param fulfillFunctionId Signature of the function that will be called
-    /// to deliver the response
+    /// to fulfill
     /// @param errorFunctionId Signature of the function that will be called
-    /// if the fulfillment fails
-    /// @param parameters Parameters that will not change between requests
+    /// if fulfillment fails
+    /// @param parameters Static request parameters (i.e., parameters that will
+    /// not change between requests, unlike the dynamic parameters determined
+    /// at runtime)
     /// @return templateId Request template ID
     function createTemplate(
         bytes32 providerId,
@@ -90,14 +92,15 @@ contract TemplateStore is TemplateStoreInterface {
     /// @param templateId Request template ID
     /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
-    /// @return fulfillAddress Address that will be called to deliver the
-    /// response
-    /// @return errorAddress Address that will be called to if fulfillment fails
+    /// @return fulfillAddress Address that will be called to fulfill
+    /// @return errorAddress Address that will be called if fulfillment fails
     /// @return fulfillFunctionId Signature of the function that will be called
-    /// to deliver the response
+    /// to fulfill
     /// @return errorFunctionId Signature of the function that will be called
-    /// if the fulfillment fails
-    /// @return parameters Parameters that will not change between requests
+    /// if fulfillment fails
+    /// @return parameters Static request parameters (i.e., parameters that will
+    /// not change between requests, unlike the dynamic parameters determined
+    /// at runtime)
     function getTemplate(bytes32 templateId)
         external
         view

@@ -9,5 +9,5 @@ interface AuthorizerInterface {
         )
         external
         view
-        returns (bool authorized);
+        returns (bool status);
 }
