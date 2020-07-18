@@ -6,7 +6,7 @@
  */
 export type ChainID = 1 | 3;
 
-// TODO: what is the ethers type for the ABI?
+// TODO: Can't find the ethers.js type for ABIs
 export type ABI = string[] | any;
 
 export interface Contract {
