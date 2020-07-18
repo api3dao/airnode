@@ -46,7 +46,7 @@ function groupLogs(logs: Log[]): GroupedLogs {
   };
 
   return logs.reduce((acc, log) => {
-    if (events.isApiRequestEvent(log) || events.isApiRequestFulfillmentEvent(log)) {
+    if (events.isApiCallEvent(log) || events.isApiCallFulfillmentEvent(log)) {
       return { ...acc, apiCalls: [...acc.apiCalls, log] };
     }
 
