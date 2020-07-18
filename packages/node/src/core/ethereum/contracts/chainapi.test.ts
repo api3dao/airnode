@@ -9,7 +9,9 @@ describe('ChainAPI', () => {
   });
 
   it('exposes the contract ABI events', () => {
-    const events = ChainAPI.ABI.filter((fn: any) => fn.type === 'event').map((fn: any) => fn.name).sort();
+    const events = ChainAPI.ABI.filter((fn: any) => fn.type === 'event')
+      .map((fn: any) => fn.name)
+      .sort();
     expect(events).toEqual([
       'ClientDisendorsed',
       'ClientEndorsed',
