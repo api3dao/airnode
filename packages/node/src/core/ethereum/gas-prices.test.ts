@@ -30,7 +30,9 @@ describe('getGasPrice', () => {
     gasPrice: null,
     nonce: null,
     provider: new ethers.providers.JsonRpcProvider(),
-    requests: [],
+    requests: {
+      apiCalls: [],
+    },
   };
 
   it('takes the gas price feed price if it is highest', async () => {
