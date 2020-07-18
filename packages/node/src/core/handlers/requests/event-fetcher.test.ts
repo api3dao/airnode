@@ -23,7 +23,7 @@ jest.mock('ethers', () => {
 jest.mock('../../config', () => ({
   config: {
     nodeSettings: {
-      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b'
+      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
     },
   },
   FROM_BLOCK_LIMIT: 100,
