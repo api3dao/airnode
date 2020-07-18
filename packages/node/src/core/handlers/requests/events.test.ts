@@ -20,9 +20,7 @@ describe('API call topics', () => {
 
 describe('Withdrawal topics', () => {
   it('returns WITHDRAWAL_TOPICS', () => {
-    expect(events.WITHDRAWAL_TOPICS).toEqual([
-      '0x807501b4a176d068b18e979406a05a3f7d8af479ad2a683f53902fda520a9a0a',
-    ]);
+    expect(events.WITHDRAWAL_TOPICS).toEqual(['0x807501b4a176d068b18e979406a05a3f7d8af479ad2a683f53902fda520a9a0a']);
   });
 
   it('returns WITHDRAWAL_FULFILLMENT_TOPICS', () => {

@@ -15,7 +15,7 @@ jest.mock('ethers', () => {
         Interface: jest.fn().mockImplementation(() => ({
           parseLog: parseLogMock,
         })),
-      }
+      },
     },
   };
 });
@@ -33,7 +33,7 @@ describe('fetchGroupedLogs', () => {
     provider: new ethers.providers.JsonRpcProvider(),
     requests: {
       apiCalls: [],
-    }
+    },
   };
 
   it('returns API call requests', async () => {
