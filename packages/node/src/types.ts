@@ -77,7 +77,10 @@ export interface ProviderConfig {
   url: string;
 }
 
+export type NodeCloudProvider = 'aws' | 'aws-local';
+
 export interface NodeSettings {
+  cloudProvider: NodeCloudProvider;
   nodeKey: string;
   platformKey: string;
   platformUrl: string;

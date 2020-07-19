@@ -12,3 +12,12 @@ export async function start(event, context) {
     }),
   };
 }
+
+export async function initialiseProvider(event, context) {
+  const state = await provider.initialise(id);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(state);
+  };
+}
