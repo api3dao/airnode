@@ -5,6 +5,7 @@ import { Contract } from './types';
 const RequestMadeTopic = ethers.utils.id(
   'RequestMade(bytes32,bytes32,address,bytes32,address,bytes4,address,bytes4,bytes)'
 );
+const ShortRequestMadeTopic = ethers.utils.id('ShortRequestMade(bytes32,bytes32,address,bytes32,bytes)');
 const FullRequestMadeTopic = ethers.utils.id(
   'FullRequestMade(bytes32,bytes32,address,bytes32,address,bytes4,address,bytes4,bytes)'
 );
@@ -26,6 +27,7 @@ export const ChainAPI: Contract = {
   topics: {
     // Requests
     RequestMade: RequestMadeTopic,
+    ShortRequestMade: ShortRequestMadeTopic,
     FullRequestMade: FullRequestMadeTopic,
 
     // Fulfillments
