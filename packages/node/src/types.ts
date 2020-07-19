@@ -35,7 +35,7 @@ export interface ProviderRequests {
 
 export interface ProviderState {
   readonly config: ProviderConfig;
-  readonly currentBlock: number;
+  readonly currentBlock: number | null;
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
   readonly requests: ProviderRequests;

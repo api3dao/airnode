@@ -7,7 +7,7 @@ export async function start() {
   // =========================================================
   const state1 = await state.initialize(config.nodeSettings.ethereumProviders);
 
-  console.log(state1);
+  console.log(state1.providers[0].requests);
 
   return state1;
 }

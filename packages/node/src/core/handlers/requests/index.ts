@@ -2,7 +2,7 @@ import { ProviderRequests, ProviderState } from '../../../types';
 import { fetchGroupedLogs } from './event-fetcher';
 import * as apiCalls from './api-calls';
 
-export async function fetch(state: ProviderState): Promise<ProviderState> {
+export async function fetch(state: ProviderState): Promise<ProviderRequests> {
   const groupedLogs = await fetchGroupedLogs(state);
 
   const pendingApiRequests = apiCalls.mapPendingRequests(state, groupedLogs.apiCalls);
@@ -11,9 +11,9 @@ export async function fetch(state: ProviderState): Promise<ProviderState> {
 
   // TODO: handle wallet authorizations
 
-  const requests: ProviderRequests = {
+  return {
     apiCalls: pendingApiRequests,
+    walletAuthorizations: [],
+    withdrawals: [],
   };
-
-  return { ...state, requests };
 }
