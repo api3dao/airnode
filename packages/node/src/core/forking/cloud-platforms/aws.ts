@@ -28,9 +28,11 @@ export function forkLocal(params: ForkParameters) {
     const fn = awsHandlers[params.functionName];
     const request = fn(params.payload) as Promise<any>;
 
-    request.then((res: any) => {
-      const data = JSON.parse(res.body);
-      resolve(data);
-    }).catch((e: Error) => reject(e));
+    request
+      .then((res: any) => {
+        const data = JSON.parse(res.body);
+        resolve(data);
+      })
+      .catch((e: Error) => reject(e));
   });
 }

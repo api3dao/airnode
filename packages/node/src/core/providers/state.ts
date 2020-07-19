@@ -24,7 +24,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
     requests: {
       apiCalls: [],
       walletAuthorizations: [],
-      withdrawals: []
+      withdrawals: [],
     },
     // This is fetched and set as late as possible for freshness
     gasPrice: null,
