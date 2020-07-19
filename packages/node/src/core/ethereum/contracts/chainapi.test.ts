@@ -69,7 +69,9 @@ describe('ChainAPI', () => {
       '0xcc16afda5deb199fd8f8fd4e020759442c86c50d17b076e5860480f358723f57'
     );
     expect(ChainAPI.topics.RequestMade).toEqual('0x0efe0898971ca4a4ada014b6e46a0c04976f25a5b6f420bd9d368a2c67578f0b');
-    expect(ChainAPI.topics.ShortRequestMade).toEqual('0xcd6c768c11f2fbdd5198c9a5018f2f55674178a7b09acddb7db85df0990e4a4d');
+    expect(ChainAPI.topics.ShortRequestMade).toEqual(
+      '0xcd6c768c11f2fbdd5198c9a5018f2f55674178a7b09acddb7db85df0990e4a4d'
+    );
     expect(ChainAPI.topics.WithdrawFulfilled).toEqual(
       '0x084726378542eff0a6413e6eedb6ee4a0627af74e550b735ad448acede3165fc'
     );
