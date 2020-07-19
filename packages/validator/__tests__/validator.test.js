@@ -3,7 +3,6 @@
 const validator = require('..');
 
 const specs1 = `{
-"title": "myApiTitle",
 "servers": [
     {
         "url":  "https://myapi.com/api"
@@ -30,33 +29,21 @@ const specs1 = `{
       }
     }
 },
-"security": [
-    {
-      "myApiTitle": [
-            {
-              "securitySchemeName": "mySecurityScheme",
-              "type": "apiKey",
-              "name": "X-MY-API-KEY",
-              "in": "query",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
+"security": {
+      "myApiTitle": []
         }
-    ]
 }`;
 
 const specs2 = `{
-"title": "myApiTitle",
 "servers": [],
 "paths": {},
 "components": {
     "securitySchemes": {}
 },
-"security": []
+"security": {}
 }`;
 
 const specs3 = `{
-"title": "myApiTitle",
 "servers": [
     {
         "url":  "https:/myapi.com/api"
@@ -83,23 +70,12 @@ const specs3 = `{
       }
     }
 },
-"security": [
-    {
-      "myApiTitle": [
-            {
-              "securitySchemeName": "mySecurityScheme",
-              "type": "openIdConnect",
-              "name": "X-MY-API-KEY",
-              "in": "query",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
+"security": {
+      "myApiTitle": []
         }
-    ]
 }`;
 
 const specs4 = `{
-"title": "myApiTitle",
 "servers": [
     {
         "url":  "https://myapi.com/api "
@@ -126,23 +102,12 @@ const specs4 = `{
       }
     }
 },
-"security": [
-    {
-      "myApiTitle ": [
-            {
-              "securitySchemeName": "mySecurityScheme",
-              "type": "openIdconnect",
-              "name": "X-MY-API-KEY",
-              "in": "query ",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
-        }
-    ]
+"security": {
+  "myApiTitle ": []
+    }
 }`;
 
 const specs5 = `{
-"title": "myApiTitle",
 "servers": [
     {
         "url":  "https://myapi.com/api"
@@ -200,32 +165,13 @@ const specs5 = `{
       }
     }
 },
-"security": [
-    {
-      "myApiTitle": [
-            {
-              "securitySchemeName": "mySecurityScheme",
-              "type": "apiKey",
-              "name": "X-MY-API-KEY",
-              "in": "query",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ],
-          "myApiTitle2": [
-            {
-              "securitySchemeName": "mySecurityScheme2",
-              "type": "http",
-              "name": "X-MY-API-KEY",
-              "in": "header",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
-        }
-    ]
+"security": {
+  "myApiTitle": [],
+  "myApiTitle2": []
+    }
 }`;
 
 const specs6 = `{
-"title": "myApiTitle",
 "servers": [
     {
         "url":  "https://myapi.com/api"
@@ -286,51 +232,30 @@ const specs6 = `{
       }
     }
 },
-"security": [
-    {
-      "myApiTitle": [
-            {
-              "securitySchemeName": "mySecurityScheme",
-              "type": "apiKey",
-              "name": "X-MY-API-KEY",
-              "in": "query",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ],
-          "myApiTitle2": [
-            {
-              "securitySchemeName": "mySecurityScheme2",
-              "type": "http",
-              "name": "X-MY-API-KEY",
-              "in": "header",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
-        }
-    ]
+"security": {
+      "myApiTitle": [],
+      "myApiTitle2": []
+    }
 }`;
 
 const specs7 = `{
-"title": "myApiTitle",
 "servers": [],
 "paths": {},
 "components": {
     "securitySchemes": {}
 },
-"security": []
+"security": {}
 }`;
 
 const specs8 = `{
-"title": "myApiTitle",
 "servers": [],
 "paths": {},
 "components": {
     "securitySchemes": {}
 },
-"security": []`;
+"security": {}`;
 
 const specs9 = `{
-"title": "myApiTitle",
 "servers": [],
 "paths": {
     "/myPath": {
@@ -348,15 +273,12 @@ const specs9 = `{
           }
     }
 },
-"security": [
-    {
+"security": {
     "myApiTitle": []
     }
-]
 }`;
 
 const specs10 = `{
-"title": "myApiTitle",
 "servers": [],
 "paths": {
     "/myPath": {}
@@ -370,11 +292,10 @@ const specs10 = `{
           }
     }
 },
-"security": [{}]
+"security": {}
 }`;
 
 const specs11 = `{
-"title": "",
 "paths": {
     "/myPath": {
         "post": {}
@@ -391,7 +312,6 @@ const specs11 = `{
 }`;
 
 const specs12 = `{
-"title": "myApiTitle",
 "servers": [
     {
         "url":  "https://myapi.com/api"
@@ -432,37 +352,16 @@ const specs12 = `{
       }
     }
 },
-"security": [
-    {
-      "myApiTitle": [{}]
-      },
-      {
-          "myApiTitle2": [
-            {
-              "securitySchemeName": "mySecurityScheme2",
-              "type": "http",
-              "name": "X-MY-API-KEY",
-              "in": "header",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
-          },
-          {
-          "myApiTitle3": [
-            {
-              "securitySchemeName": "mySecurityScheme2",
-              "type": "http",
-              "value": "FDSAGFSJGF4743726"
-            }
-          ]
+"security": {
+      "myApiTitle": [],
+          "myApiTitle2": [],
+          "myApiTitle3": []
         }
-    ]
     }`;
 
 const specs13 = `{}`;
 
 const specs14 = `{
-"title": "myApiTitle",
 "extra": {
     "inside": "extra"
 },
@@ -502,20 +401,9 @@ const specs14 = `{
     },
     "extra": {}
 },
-"security": [
-    {
-      "myApiTitle": [
-            {
-              "securitySchemeName": "mySecurityScheme",
-              "type": "apiKey",
-              "name": "X-MY-API-KEY",
-              "in": "query",
-              "value": "FDSAGFSJGF4743726",
-              "extra": "field"
-            }
-          ]
-        }
-    ]
+"security": {
+  "myApiTitle": []
+    }
 }`;
 
 function formattingMessage(paramPath) {
@@ -560,9 +448,7 @@ describe('validator', () => {
           keyFormattingMessage('mySecurityScheme ', 'components.securitySchemes.mySecurityScheme '),
           formattingMessage('components.securitySchemes.mySecurityScheme .type'),
           formattingMessage('components.securitySchemes.mySecurityScheme .in'),
-          keyFormattingMessage('myApiTitle ', 'security[0].myApiTitle '),
-          formattingMessage('security[0].myApiTitle [0].type'),
-          formattingMessage('security[0].myApiTitle [0].in'),
+          keyFormattingMessage('myApiTitle ', 'security.myApiTitle ')
         ],
       });
     });
@@ -589,7 +475,6 @@ describe('validator', () => {
       expect(validator.isSpecsValid(specs11)).toMatchObject({
         valid: false,
         messages: [
-          missingParamMessage('title'),
           missingParamMessage('servers'),
           missingParamMessage('paths./myPath.post.parameters'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
@@ -605,20 +490,12 @@ describe('validator', () => {
           missingParamMessage('paths./myPath2.post.parameters[2].in'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.name'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.in'),
-          missingParamMessage('security[0].myApiTitle[0].securitySchemeName'),
-          missingParamMessage('security[0].myApiTitle[0].type'),
-          missingParamMessage('security[0].myApiTitle[0].name'),
-          missingParamMessage('security[0].myApiTitle[0].in'),
-          missingParamMessage('security[0].myApiTitle[0].value'),
-          missingParamMessage('security[2].myApiTitle3[0].name'),
-          missingParamMessage('security[2].myApiTitle3[0].in'),
+          missingParamMessage('components.securitySchemes.mySecurityScheme.in')
         ],
       });
       expect(validator.isSpecsValid(specs13)).toMatchObject({
         valid: false,
         messages: [
-          missingParamMessage('title'),
           missingParamMessage('servers'),
           missingParamMessage('paths'),
           missingParamMessage('components'),
@@ -636,7 +513,6 @@ describe('validator', () => {
           extraFieldMessage('paths./myPath.get.others'),
           extraFieldMessage('components.securitySchemes.mySecurityScheme.extra'),
           extraFieldMessage('components.extra'),
-          extraFieldMessage('security[0].myApiTitle[0].extra'),
           extraFieldMessage('extra'),
         ],
       });

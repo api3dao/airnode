@@ -1,7 +1,6 @@
 'use strict';
 
 const specsStructure = {
-  'title': {},
   'servers': {
     '__maxSize': 1,
     '__arrayItem': {
@@ -41,23 +40,9 @@ const specsStructure = {
     }
   },
   'security': {
-    '__arrayItem': {
-      '__keyRegexp': '^[^\\s\'"\\\\]+$',
-      '__objectItem': {
-        '__arrayItem': {
-          'securitySchemeName': {
-            '__regexp': '^[^\\s\'"\\\\]+$'
-          },
-          'type': {
-            '__regexp': '^(apiKey|http|oauth2|openIdConnect)$'
-          },
-          'name': {},
-          'in': {
-            '__regexp': '^(query|header|cookie)$'
-          },
-          'value': {}
-        }
-      }
+    '__keyRegexp': '^[^\\s\'"\\\\]+$',
+    '__objectItem': {
+      '__arrayItem': {}
     }
   }
 };
