@@ -21,8 +21,7 @@ export interface ApiCallRequest {
   readonly fulfillFunctionId: string | null;
   readonly errorAddress: string | null;
   readonly errorFunctionId: string | null;
-  // TODO: can this be null?
-  readonly encodedParameters: string | null;
+  readonly encodedParameters: string;
   readonly parameters: ApiRequestParameters;
   readonly valid: boolean;
   readonly errorCode?: ApiRequestErrorCode;
