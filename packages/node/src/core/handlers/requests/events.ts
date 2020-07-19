@@ -3,6 +3,7 @@ import * as ethereum from '../../ethereum';
 
 export const API_CALL_TOPICS = [
   ethereum.contracts.ChainAPI.topics.RequestMade,
+  ethereum.contracts.ChainAPI.topics.ShortRequestMade,
   ethereum.contracts.ChainAPI.topics.FullRequestMade,
 ];
 
