@@ -30,15 +30,15 @@ export interface ApiCallRequest {
 
 export interface ProviderRequests {
   readonly apiCalls: ApiCallRequest[];
-  // readonly walletWuthorizations: any;
-  // readonly withdrawals: any;
+  readonly walletAuthorizations: any;
+  readonly withdrawals: any;
 }
 
 export interface ProviderState {
   readonly config: ProviderConfig;
   readonly currentBlock: number;
+  readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly nonce: number | null;
   readonly requests: ProviderRequests;
   readonly provider: ethers.providers.Provider;
 }
@@ -77,7 +77,7 @@ export interface ProviderConfig {
   url: string;
 }
 
-export type NodeCloudProvider = 'aws' | 'aws-local';
+export type NodeCloudProvider = 'aws' | 'local:aws';
 
 export interface NodeSettings {
   cloudProvider: NodeCloudProvider;

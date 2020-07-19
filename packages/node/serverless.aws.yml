@@ -25,3 +25,12 @@ functions:
       - http:
           method: get
           path: hello
+
+  initializeProvider:
+    handler: src/aws/handler.initializeProvider
+    events:
+      - http:
+          method: get
+          path: providers/{index}
+          # https://www.serverless.com/framework/docs/providers/aws/events/apigateway#http-endpoints-with-aws_iam-authorizers
+          authorizer: aws_iam

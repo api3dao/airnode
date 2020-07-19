@@ -1,7 +1,9 @@
+import { config } from '../core/config';
 import * as coordinator from '../core/coordinator';
+import * as providers from '../core/providers';
+import { removeKey } from '../core/utils/object-utils';
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export async function start(event, context) {
+export async function start(event: any) {
   await coordinator.start();
 
   return {
@@ -13,11 +15,15 @@ export async function start(event, context) {
   };
 }
 
-export async function initialiseProvider(event, context) {
-  const state = await provider.initialise(id);
+export async function initializeProvider(event: any) {
+  const index = Number(event.pathParameters.index);
+  const providerConfig = config.nodeSettings.ethereumProviders[index];
+  const state = await providers.initializeState(providerConfig, index);
+
+  const body = removeKey(state, 'provider');
 
   return {
     statusCode: 200,
-    body: JSON.stringify(state);
+    body: JSON.stringify(body),
   };
 }

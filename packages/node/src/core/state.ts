@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
-import * as ethereum from './ethereum';
-import { promiseTimeout } from './utils/promise-utils';
+import { goTimeout } from './utils/promise-utils';
 import { ProviderConfig, ProviderState, State } from '../types';
+import * as forkingProviders from './forking/providers';
 
 export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
   if (isEmpty(providerConfigs)) {
@@ -9,9 +9,13 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
   }
 
   // Initialize each provider state (in parallel) with a maximum time limit of 10 seconds
-  const providerInitializations = providerConfigs.map((providerConfig) => {
-    const initialization = ethereum.initializeProviderState(providerConfig);
-    return promiseTimeout(10_000, initialization).catch(() => null);
+  const providerInitializations = providerConfigs.map(async (_config, index) => {
+    const initialization = forkingProviders.initialize(index);
+    const [err, state] = await goTimeout(10_000, initialization);
+    if (err) {
+      return null;
+    }
+    return state;
   });
   const providerStates = await Promise.all(providerInitializations);
 

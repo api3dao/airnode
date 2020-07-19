@@ -15,7 +15,7 @@ jest.mock('ethers', () => {
 
 import { ethers } from 'ethers';
 import { ProviderConfig } from '../../types';
-import * as providers from './providers';
+import * as state from './state';
 
 describe('initializeProviderState', () => {
   it('sets the initial state', async () => {
@@ -30,12 +30,12 @@ describe('initializeProviderState', () => {
       url: 'https://ropsten.infura.io/v3/<my-key>',
     };
 
-    const res = await providers.initializeProviderState(config);
+    const res = await state.initializeState(config, 0);
     expect(res).toEqual({
       config,
       currentBlock: 123456,
       gasPrice: null,
-      nonce: null,
+      index: 0,
       provider,
       requests: {
         apiCalls: [],

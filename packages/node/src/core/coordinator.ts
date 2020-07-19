@@ -2,8 +2,12 @@ import { config } from './config';
 import * as state from './state';
 
 export async function start() {
-  // TODO: split into separate forked processes
-  const { providers } = await state.initialize(config.nodeSettings.ethereumProviders);
+  // =========================================================
+  // STEP 1: Get the initial state
+  // =========================================================
+  const state1 = await state.initialize(config.nodeSettings.ethereumProviders);
 
-  return providers;
+  console.log(state1);
+
+  return state1;
 }
