@@ -22,7 +22,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
 
 export function mapPendingRequests(state: ProviderState, logs: Log[]): ApiCallRequest[] {
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
-  const fulfillmentLogs = logs.filter((log) => events.isApiCallEvent(log));
+  const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
 
   // We don't care about request events that have already been fulfilled
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);

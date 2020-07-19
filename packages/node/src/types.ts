@@ -17,10 +17,10 @@ export interface ApiCallRequest {
   readonly requester: string;
   readonly endpointId: string | null;
   readonly templateId: string | null;
-  readonly fulfillAddress: string;
-  readonly fulfillFunctionId: string;
-  readonly errorAddress: string;
-  readonly errorFunctionId: string;
+  readonly fulfillAddress: string | null;
+  readonly fulfillFunctionId: string | null;
+  readonly errorAddress: string | null;
+  readonly errorFunctionId: string | null;
   // TODO: can this be null?
   readonly encodedParameters: string | null;
   readonly parameters: ApiRequestParameters;
