@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState, State } from '../../types';
-import { spawn } from '../providers/forking';
+import { spawnNewProvider } from '../providers/worker';
 
 export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
   if (isEmpty(providerConfigs)) {
@@ -13,7 +13,7 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
   // Providers are identified by their index in the array. This allows users
   // to configure duplicate providers safely - if they want the added redundancy
   const initializations = providerConfigs.map(async (_config, index) => {
-    const initialization = spawn(index);
+    const initialization = spawnNewProvider(index);
     const [err, state] = await goTimeout(10_000, initialization);
     if (err) {
       return null;

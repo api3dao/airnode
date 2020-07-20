@@ -1,8 +1,8 @@
 import AWS from 'aws-sdk';
 import * as awsHandlers from '../../../aws/handler';
-import { ForkParameters } from '../utils';
+import { WorkerParameters } from '../utils';
 
-export function spawn(params: ForkParameters) {
+export function spawn(params: WorkerParameters) {
   // lambda.invoke is synchronous so we need to wrap this in a promise
   return new Promise((resolve, reject) => {
     // TODO: configure lambda environment
@@ -23,7 +23,7 @@ export function spawn(params: ForkParameters) {
   });
 }
 
-export function spawnLocal(params: ForkParameters) {
+export function spawnLocal(params: WorkerParameters) {
   return new Promise((resolve, reject) => {
     const fn = awsHandlers[params.functionName];
 

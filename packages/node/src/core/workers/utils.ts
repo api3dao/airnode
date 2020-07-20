@@ -1,10 +1,10 @@
 import { config } from '../config';
 
-export interface ForkParameters {
+export interface WorkerParameters {
   functionName: string;
   payload: any;
 }
 
-export function isLocal() {
+export function isLocalEnv() {
   return config.nodeSettings.cloudProvider.startsWith('local');
 }

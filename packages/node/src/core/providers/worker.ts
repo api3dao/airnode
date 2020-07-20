@@ -1,16 +1,17 @@
 import { ProviderState } from '../../types';
 import * as ethereum from '../ethereum';
-import * as forking from '../forking';
+import * as workers from '../workers';
 
-type CleanProviderState = Omit<ProviderState, 'provider'>;
+export type CleanProviderState = Omit<ProviderState, 'provider'>;
 
-export async function spawn(index: number): Promise<ProviderState> {
-  const payload = forking.isLocal() ? { pathParameters: { index } } : { index };
+export async function spawnNewProvider(index: number): Promise<ProviderState> {
+  // This will probably need to change for other cloud providers
+  const payload = workers.isLocalEnv() ? { pathParameters: { index } } : { index };
 
   const parameters = { functionName: 'initializeProvider', payload };
 
   // If this throws, it will be caught by the calling function
-  const initialState = (await forking.spawn(parameters)) as CleanProviderState;
+  const initialState = (await workers.spawn(parameters)) as CleanProviderState;
 
   // The serverless function does not return an instance
   // of an Ethereum provider, so we create a new one
