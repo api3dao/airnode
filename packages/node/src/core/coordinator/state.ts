@@ -11,7 +11,7 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
   // Initialize each provider state (in parallel) with a maximum time limit of 10 seconds
   //
   // Providers are identified by their index in the array. This allows users
-  // to configure duplicate providers safely - if they want the added redundancy
+  // to configure duplicate providers safely (if they want the added redundancy)
   const initializations = providerConfigs.map(async (_config, index) => {
     const initialization = spawnNewProvider(index);
     const [err, state] = await goTimeout(10_000, initialization);
