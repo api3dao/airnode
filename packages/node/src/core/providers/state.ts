@@ -1,16 +1,13 @@
-import { ethers } from 'ethers';
 import * as ethereum from '../ethereum';
 import { ProviderConfig, ProviderState } from '../../types';
 import * as logger from '../utils/logger';
 
 export function create(config: ProviderConfig, index: number): ProviderState {
-  const provider = new ethers.providers.JsonRpcProvider(config.url);
-
   return {
     config,
     currentBlock: null,
     index,
-    provider,
+    provider: ethereum.newProvider(config.url),
     requests: {
       apiCalls: [],
       walletAuthorizations: [],

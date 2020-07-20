@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty';
-import { goTimeout } from './utils/promise-utils';
-import { ProviderConfig, ProviderState, State } from '../types';
-import * as forkingProviders from './forking/providers';
+import { goTimeout } from '../utils/promise-utils';
+import { ProviderConfig, ProviderState, State } from '../../types';
+import { spawn } from '../providers/forking';
 
 export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
   if (isEmpty(providerConfigs)) {
@@ -9,15 +9,18 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
   }
 
   // Initialize each provider state (in parallel) with a maximum time limit of 10 seconds
-  const providerInitializations = providerConfigs.map(async (_config, index) => {
-    const initialization = forkingProviders.initialize(index);
+  //
+  // Providers are identified by their index in the array. This allows users
+  // to configure duplicate providers safely - if they want the added redundancy
+  const initializations = providerConfigs.map(async (_config, index) => {
+    const initialization = spawn(index);
     const [err, state] = await goTimeout(10_000, initialization);
     if (err) {
       return null;
     }
     return state;
   });
-  const providerStates = await Promise.all(providerInitializations);
+  const providerStates = await Promise.all(initializations);
 
   const successfulProviders = providerStates.filter((ps) => !!ps) as ProviderState[];
 

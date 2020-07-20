@@ -1,7 +1,7 @@
 import { go } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState } from '../../types';
 import * as logger from '../utils/logger';
-import * as requestHandler from '../handlers/requests';
+import * as requestHandler from '../triggers/requests';
 import * as state from './state';
 
 export async function initializeState(config: ProviderConfig, index: number): Promise<ProviderState> {

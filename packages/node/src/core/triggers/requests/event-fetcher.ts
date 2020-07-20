@@ -61,6 +61,5 @@ function groupLogs(logs: Log[]): GroupedLogs {
 
 export async function fetchGroupedLogs(state: ProviderState): Promise<GroupedLogs> {
   const logs = await fetchLogs(state);
-
   return groupLogs(logs);
 }

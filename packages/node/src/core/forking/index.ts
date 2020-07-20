@@ -1,13 +1,15 @@
 import { config } from '../config';
-import { ForkParameters } from './utils';
+import { ForkParameters, isLocal } from './utils';
 import * as aws from './cloud-platforms/aws';
 
-export function fork(params: ForkParameters): Promise<any> {
+export { ForkParameters, isLocal };
+
+export function spawn(params: ForkParameters): Promise<any> {
   switch (config.nodeSettings.cloudProvider) {
     case 'aws':
-      return aws.fork(params);
+      return aws.spawn(params);
 
     case 'local:aws':
-      return aws.forkLocal(params);
+      return aws.spawnLocal(params);
   }
 }

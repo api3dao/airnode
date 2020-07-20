@@ -1,4 +1,4 @@
-import { config } from './config';
+import { config } from '../config';
 import * as state from './state';
 
 export async function start() {

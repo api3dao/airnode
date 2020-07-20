@@ -37,11 +37,13 @@ describe('fetchGroupedLogs', () => {
   const state: ProviderState = {
     config: { chainId: 1337, name: 'ganache', url: 'https://...' },
     currentBlock: 1000,
+    index: 0,
     gasPrice: null,
-    nonce: null,
     provider: new ethers.providers.JsonRpcProvider(),
     requests: {
       apiCalls: [],
+      walletAuthorizations: [],
+      withdrawals: [],
     },
   };
 
