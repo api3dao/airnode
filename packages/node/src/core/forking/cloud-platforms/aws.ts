@@ -26,6 +26,11 @@ export function spawn(params: ForkParameters) {
 export function spawnLocal(params: ForkParameters) {
   return new Promise((resolve, reject) => {
     const fn = awsHandlers[params.functionName];
+
+    if (!fn) {
+      reject(new Error(`Cannot find AWS function: '${params.functionName}'`));
+    }
+
     const request = fn(params.payload) as Promise<any>;
 
     request

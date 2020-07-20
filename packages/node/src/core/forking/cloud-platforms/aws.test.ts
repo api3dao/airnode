@@ -107,4 +107,21 @@ describe('spawnLocal', () => {
       },
     });
   });
+
+  it('throws an error if the function is not found', async () => {
+    const parameters = {
+      functionName: 'unknownFn',
+      payload: {
+        pathParameters: { from: 'ETH', to: 'USD' },
+      },
+    };
+
+    expect.assertions(1);
+
+    try {
+      await aws.spawnLocal(parameters);
+    } catch (e) {
+      expect(e).toEqual(new Error("Cannot find AWS function: 'unknownFn'"));
+    }
+  });
 });
