@@ -28,6 +28,8 @@ functions:
 
   initializeProvider:
     handler: src/aws/handler.initializeProvider
+    # TODO: do we need an event here? Can aws-sdk invoke the
+    # function without an event?
     events:
       - http:
           method: get
