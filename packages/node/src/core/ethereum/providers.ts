@@ -3,6 +3,7 @@ import * as gasPrices from './gas-prices';
 import { ProviderConfig, ProviderState } from '../../types';
 import { go } from '../utils/promise-utils';
 import * as utils from './utils';
+import * as logger from '../utils/logger';
 
 export async function initializeProviderState(config: ProviderConfig): Promise<ProviderState | null> {
   const provider = new ethers.providers.JsonRpcProvider(config.url);
@@ -13,27 +14,16 @@ export async function initializeProviderState(config: ProviderConfig): Promise<P
   const [blockErr, currentBlock] = await go(provider.getBlockNumber());
   if (blockErr || !currentBlock) {
     // TODO: Provider calls should retry on failure (issue #11)
-    utils.logProviderJSON(config.name, 'ERROR', 'Unable to get current block');
+    logger.logProviderJSON(config.name, 'ERROR', 'Unable to get current block');
     return null;
   }
-  utils.logProviderJSON(config.name, 'INFO', `Current block set to: ${currentBlock}`);
-
-  // =========================================================
-  // STEP 2: Get the pending requests
-  // =========================================================
-  // const [requestsErr, pendingRequests] = await go(provider.getBlockNumber());
-  // if (requestsErr || !pendingRequests) {
-  //   // TODO: Provider calls should retry on failure (issue #11)
-  //   utils.logProviderJSON(config.name, 'ERROR', 'Unable to fetch pending requests');
-  //   return null;
-  // }
-  // utils.logProviderJSON(config.name, 'INFO', `Number of pending requests: ${pendingRequests.length}`);
+  logger.logProviderJSON(config.name, 'INFO', `Current block set to: ${currentBlock}`);
 
   return {
     config,
     currentBlock,
     provider,
-    requests: [],
+    requests: { apiCalls: [] },
     // These are fetched and set as late as possible for freshness
     gasPrice: null,
     nonce: null,
@@ -46,7 +36,7 @@ export async function setGasPrice(state: ProviderState): Promise<ProviderState> 
   // We will always get a gas price here
   const gasPrice = await gasPrices.getGasPrice(state);
 
-  utils.logProviderJSON(config.name, 'INFO', `Gas price set to ${utils.weiToGwei(gasPrice)} Gwei`);
+  logger.logProviderJSON(config.name, 'INFO', `Gas price set to ${utils.weiToGwei(gasPrice)} Gwei`);
 
   return { ...state, gasPrice };
 }

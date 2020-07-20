@@ -1,4 +1,4 @@
-import { Aggregator, getContractInterface } from './aggregator';
+import { Aggregator } from './aggregator';
 
 describe('Aggregator', () => {
   it('exposes the addresses for each network', () => {
@@ -12,16 +12,6 @@ describe('Aggregator', () => {
     expect(Aggregator.ABI).toEqual([
       'event NewRequest(address indexed requester, uint256 requestInd)',
       'event RequestFulfilled(address indexed fulfiller, uint256 requestInd)',
-    ]);
-  });
-});
-
-describe('getContractInterface', () => {
-  it('returns the contract interface', () => {
-    const contractInterface = getContractInterface();
-    expect(Object.keys(contractInterface.events)).toEqual([
-      'NewRequest(address,uint256)',
-      'RequestFulfilled(address,uint256)',
     ]);
   });
 });

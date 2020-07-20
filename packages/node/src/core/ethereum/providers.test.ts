@@ -37,7 +37,9 @@ describe('initializeProviderState', () => {
       gasPrice: null,
       nonce: null,
       provider,
-      requests: [],
+      requests: {
+        apiCalls: [],
+      },
     });
   });
 });

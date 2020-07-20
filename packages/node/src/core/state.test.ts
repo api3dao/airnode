@@ -47,7 +47,9 @@ describe('initialize', () => {
           gasPrice: null,
           nonce: null,
           provider,
-          requests: [],
+          requests: {
+            apiCalls: [],
+          },
         },
         {
           config: providerConfigs[1],
@@ -55,7 +57,9 @@ describe('initialize', () => {
           gasPrice: null,
           nonce: null,
           provider,
-          requests: [],
+          requests: {
+            apiCalls: [],
+          },
         },
       ],
     });

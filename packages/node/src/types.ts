@@ -4,12 +4,41 @@ import { ethers } from 'ethers';
 // ===========================================
 // State
 // ===========================================
+export interface ApiRequestParameters {
+  [key: string]: string;
+}
+
+export enum ApiRequestErrorCode {
+  InvalidParameters = 1,
+}
+
+export interface ApiCallRequest {
+  readonly requestId: string;
+  readonly requester: string;
+  readonly endpointId: string | null;
+  readonly templateId: string | null;
+  readonly fulfillAddress: string | null;
+  readonly fulfillFunctionId: string | null;
+  readonly errorAddress: string | null;
+  readonly errorFunctionId: string | null;
+  readonly encodedParameters: string;
+  readonly parameters: ApiRequestParameters;
+  readonly valid: boolean;
+  readonly errorCode?: ApiRequestErrorCode;
+}
+
+export interface ProviderRequests {
+  readonly apiCalls: ApiCallRequest[];
+  // readonly walletWuthorizations: any;
+  // readonly withdrawals: any;
+}
+
 export interface ProviderState {
   readonly config: ProviderConfig;
   readonly currentBlock: number;
   readonly gasPrice: ethers.BigNumber | null;
   readonly nonce: number | null;
-  readonly requests: any; // TODO
+  readonly requests: ProviderRequests;
   readonly provider: ethers.providers.Provider;
 }
 

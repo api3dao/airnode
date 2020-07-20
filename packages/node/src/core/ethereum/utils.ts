@@ -1,9 +1,4 @@
 import { ethers } from 'ethers';
-import * as logger from '../utils/logger';
-
-export function logProviderJSON(name: string, level: logger.LogLevel, message: string) {
-  logger.logJSON(level, `[${name}] ${message}`);
-}
 
 export function gweiToWei(gwei: string) {
   return ethers.utils.parseUnits(gwei, 'gwei');
