@@ -22,16 +22,19 @@ describe('spawn', () => {
 
     const parameters = {
       functionName: 'some-function',
-      payload: { from: 'ETH', to: 'USD' }
+      payload: { from: 'ETH', to: 'USD' },
     };
     const res = await aws.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
 
     expect(invoke).toHaveBeenCalledTimes(1);
-    expect(invoke).toHaveBeenCalledWith({
-      FunctionName: 'some-function',
-      Payload: "{\"from\":\"ETH\",\"to\":\"USD\"}",
-    }, expect.any(Function));
+    expect(invoke).toHaveBeenCalledWith(
+      {
+        FunctionName: 'some-function',
+        Payload: '{"from":"ETH","to":"USD"}',
+      },
+      expect.any(Function)
+    );
   });
 
   it('throws an error if the lambda returns an error', async () => {
@@ -42,7 +45,7 @@ describe('spawn', () => {
 
     const parameters = {
       functionName: 'some-function',
-      payload: { from: 'ETH', to: 'USD' }
+      payload: { from: 'ETH', to: 'USD' },
     };
 
     expect.assertions(3);
@@ -54,10 +57,13 @@ describe('spawn', () => {
     }
 
     expect(invoke).toHaveBeenCalledTimes(1);
-    expect(invoke).toHaveBeenCalledWith({
-      FunctionName: 'some-function',
-      Payload: "{\"from\":\"ETH\",\"to\":\"USD\"}",
-    }, expect.any(Function));
+    expect(invoke).toHaveBeenCalledWith(
+      {
+        FunctionName: 'some-function',
+        Payload: '{"from":"ETH","to":"USD"}',
+      },
+      expect.any(Function)
+    );
   });
 });
 
@@ -68,7 +74,7 @@ describe('spawnLocal', () => {
 
     const parameters = {
       functionName: 'myCustomFn',
-      payload: { from: 'ETH', to: 'USD' }
+      payload: { from: 'ETH', to: 'USD' },
     };
     const res = await aws.spawnLocal(parameters);
     expect(res).toEqual({ value: 1000 });
@@ -82,7 +88,7 @@ describe('spawnLocal', () => {
       functionName: 'myCustomFn',
       payload: {
         pathParameters: { from: 'ETH', to: 'USD' },
-      }
+      },
     };
 
     expect.assertions(3);
