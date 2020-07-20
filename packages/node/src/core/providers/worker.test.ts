@@ -51,7 +51,7 @@ describe('spawnNewProvider', () => {
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
       functionName: 'initializeProvider',
       payload: {
-        pathParameters: { index: 0 }
+        pathParameters: { index: 0 },
       },
     });
   });
