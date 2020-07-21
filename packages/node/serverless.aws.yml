@@ -28,11 +28,3 @@ functions:
 
   initializeProvider:
     handler: src/aws/handler.initializeProvider
-    # TODO: do we need an event here? Can aws-sdk invoke the
-    # function without an event?
-    events:
-      - http:
-          method: get
-          path: providers/{index}
-          # https://www.serverless.com/framework/docs/providers/aws/events/apigateway#http-endpoints-with-aws_iam-authorizers
-          authorizer: aws_iam
