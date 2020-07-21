@@ -25,3 +25,6 @@ functions:
       - http:
           method: get
           path: hello
+
+  initializeProvider:
+    handler: src/aws/handler.initializeProvider

@@ -28,10 +28,12 @@ describe('getGasPrice', () => {
     config: { chainId: 3, name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<my-key>' },
     currentBlock: 123456,
     gasPrice: null,
-    nonce: null,
+    index: 0,
     provider: new ethers.providers.JsonRpcProvider(),
     requests: {
       apiCalls: [],
+      walletAuthorizations: [],
+      withdrawals: [],
     },
   };
 

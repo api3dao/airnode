@@ -1,4 +1,5 @@
 const getBlockNumberMock = jest.fn();
+const getLogsMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
@@ -7,14 +8,29 @@ jest.mock('ethers', () => {
       providers: {
         JsonRpcProvider: jest.fn().mockImplementation(() => ({
           getBlockNumber: getBlockNumberMock,
+          getLogs: getLogsMock,
         })),
       },
     },
   };
 });
 
+const ethereumProviders: ProviderConfig[] = [
+  { chainId: 3, name: 'infura-ropsten', url: 'https://ropsten.eth' },
+  { chainId: 1, name: 'infura-mainnet', url: 'https://mainnet.eth' },
+];
+
+jest.mock('../config', () => ({
+  config: {
+    nodeSettings: {
+      cloudProvider: 'local:aws',
+      ethereumProviders: ethereumProviders,
+    },
+  },
+}));
+
 import { ethers } from 'ethers';
-import { ProviderConfig } from '../types';
+import { ProviderConfig } from '../../types';
 import * as state from './state';
 
 describe('initialize', () => {
@@ -25,40 +41,35 @@ describe('initialize', () => {
     getBlockNumber.mockResolvedValueOnce(123456);
     getBlockNumber.mockResolvedValueOnce(987654);
 
-    const providerConfigs: ProviderConfig[] = [
-      {
-        chainId: 3,
-        name: 'infura-ropsten',
-        url: 'https://ropsten.infura.io/v3/<my-key>',
-      },
-      {
-        chainId: 1,
-        name: 'infura-mainnet',
-        url: 'https://mainnet.infura.io/v3/<my-key>',
-      },
-    ];
+    const getLogs = provider.getLogs as jest.Mock;
+    getLogs.mockResolvedValueOnce([]);
+    getLogs.mockResolvedValueOnce([]);
 
-    const res = await state.initialize(providerConfigs);
+    const res = await state.initialize(ethereumProviders);
     expect(res).toEqual({
       providers: [
         {
-          config: providerConfigs[0],
+          config: ethereumProviders[0],
           currentBlock: 123456,
           gasPrice: null,
-          nonce: null,
+          index: 0,
           provider,
           requests: {
             apiCalls: [],
+            walletAuthorizations: [],
+            withdrawals: [],
           },
         },
         {
-          config: providerConfigs[1],
+          config: ethereumProviders[1],
           currentBlock: 987654,
           gasPrice: null,
-          nonce: null,
+          index: 1,
           provider,
           requests: {
             apiCalls: [],
+            walletAuthorizations: [],
+            withdrawals: [],
           },
         },
       ],

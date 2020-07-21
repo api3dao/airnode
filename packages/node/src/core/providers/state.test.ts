@@ -15,14 +15,11 @@ jest.mock('ethers', () => {
 
 import { ethers } from 'ethers';
 import { ProviderConfig } from '../../types';
-import * as providers from './providers';
+import * as state from './state';
 
-describe('initializeProviderState', () => {
-  it('sets the initial state', async () => {
+describe('create', () => {
+  it('returns a clean state', () => {
     const provider = new ethers.providers.JsonRpcProvider();
-
-    const getBlockNumber = provider.getBlockNumber as jest.Mock;
-    getBlockNumber.mockResolvedValueOnce(123456);
 
     const config: ProviderConfig = {
       chainId: 3,
@@ -30,15 +27,17 @@ describe('initializeProviderState', () => {
       url: 'https://ropsten.infura.io/v3/<my-key>',
     };
 
-    const res = await providers.initializeProviderState(config);
+    const res = state.create(config, 0);
     expect(res).toEqual({
       config,
-      currentBlock: 123456,
+      currentBlock: null,
       gasPrice: null,
-      nonce: null,
+      index: 0,
       provider,
       requests: {
         apiCalls: [],
+        walletAuthorizations: [],
+        withdrawals: [],
       },
     });
   });
