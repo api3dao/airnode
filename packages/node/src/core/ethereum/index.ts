@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { RetryProvider } from './retry-provider';
 import * as contracts from './contracts';
 
 export { contracts };
@@ -6,5 +7,6 @@ export * from './gas-prices';
 export * from './utils';
 
 export function newProvider(url: string) {
-  return new ethers.providers.JsonRpcProvider(url);
+  const jsonProvider = new ethers.providers.JsonRpcProvider(url);
+  return new RetryProvider(jsonProvider);
 }
