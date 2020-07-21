@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 import { go } from '../utils/promise-utils';
 
 export interface RetryOptions {
@@ -26,8 +26,8 @@ export class RetryProvider extends ethers.providers.BaseProvider {
 
   constructor(provider: ethers.providers.BaseProvider, options?: RetryOptions) {
     super(provider.getNetwork());
-    ethers.utils.defineReadOnly(this, "provider", provider);
-    ethers.utils.defineReadOnly(this, "options", options || { });
+    ethers.utils.defineReadOnly(this, 'provider', provider);
+    ethers.utils.defineReadOnly(this, 'options', options || {});
   }
 
   perform(method: string, params: any): Promise<any> {
