@@ -20,8 +20,7 @@ async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): 
 }
 
 export async function fetchTemplates(state: ProviderState, apiCallRequests: ApiCallRequest[]) {
-  const templateIds = apiCallRequests.map(r => r.templateId).filter(t => !!t);
+  const templateIds = apiCallRequests.map((r) => r.templateId).filter((t) => !!t);
 
   const groupedTemplateIds = chunk(templateIds, 10);
-
 }
