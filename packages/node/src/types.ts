@@ -27,6 +27,16 @@ export interface ApiCallRequest {
   readonly errorCode?: ApiRequestErrorCode;
 }
 
+export interface ApiCallTemplate {
+  readonly providerId: string;
+  readonly endpointId: string;
+  readonly fulfillAddress: string;
+  readonly errorAddress: string;
+  readonly fulfillFunctionId: string;
+  readonly errorFunctionId: string;
+  readonly parameters: string;
+}
+
 export interface ProviderRequests {
   readonly apiCalls: ApiCallRequest[];
   readonly walletAuthorizations: any;

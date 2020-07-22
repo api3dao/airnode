@@ -19,8 +19,9 @@ provider:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
 functions:
-  start:
-    handler: src/aws/handler.start
+  coordinator:
+    handler: src/aws/handler.coordinator
+    timeout: 60
     events:
       - http:
           method: get
@@ -28,3 +29,4 @@ functions:
 
   initializeProvider:
     handler: src/aws/handler.initializeProvider
+    timeout: 20
