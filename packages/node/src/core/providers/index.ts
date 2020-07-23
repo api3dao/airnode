@@ -4,7 +4,7 @@ import * as logger from '../utils/logger';
 import * as requestHandler from '../triggers/requests';
 import * as state from './state';
 
-export async function initializeState(config: ProviderConfig, index: number): Promise<ProviderState> {
+export async function initializeState(config: ProviderConfig, index: number): Promise<ProviderState | null> {
   const state1 = state.create(config, index);
 
   // =========================================================
@@ -12,9 +12,8 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // =========================================================
   const [blockErr, currentBlock] = await go(state1.provider.getBlockNumber());
   if (blockErr || !currentBlock) {
-    // TODO: Provider calls should retry on failure (issue #11)
-    logger.logProviderJSON(config.name, 'ERROR', 'Unable to get current block');
-    throw new Error('Unable to get current block');
+    logger.logProviderError(config.name, 'Unable to get current block', blockErr);
+    return null;
   }
   logger.logProviderJSON(config.name, 'INFO', `Current block set to: ${currentBlock}`);
   const state2 = state.update(state1, { currentBlock });
@@ -27,9 +26,8 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // =========================================================
   const [requestsErr, requests] = await go(requestHandler.fetch(state2));
   if (requestsErr || !requests) {
-    // TODO: Provider calls should retry on failure (issue #11)
-    logger.logProviderJSON(config.name, 'ERROR', 'Unable to get pending requests');
-    throw new Error('Unable to get pending requests');
+    logger.logProviderError(config.name, 'Unable to get pending requests', requestsErr);
+    return null;
   }
   const state3 = state.update(state2, { requests });
 

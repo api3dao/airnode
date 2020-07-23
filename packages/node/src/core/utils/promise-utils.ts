@@ -46,3 +46,32 @@ export function goTimeout<T>(ms: number, fn: Promise<T>): Promise<Response<T>> {
 export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
   return Bluebird.resolve(promise).timeout(ms);
 }
+
+export function wait(ms: number) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+export interface RetryOptions {
+  delay?: number;
+  timeouts: number[];
+}
+
+export function retryOperation(times: number, operation: () => Promise<any>, options: RetryOptions) {
+  return new Promise((resolve, reject) => {
+    const reversedTimeouts = options.timeouts.slice().reverse();
+    const timeout = reversedTimeouts[times - 1];
+    const execution = promiseTimeout(timeout, operation());
+
+    return execution
+      .then(resolve)
+      .catch((reason: any) => {
+        if (times - 1 > 0) {
+          return wait(options.delay || 50)
+            .then(retryOperation.bind(null, times - 1, operation, options))
+            .then(resolve)
+            .catch(reject);
+        }
+        return reject(reason);
+      });
+  });
+}
