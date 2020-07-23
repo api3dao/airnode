@@ -23,7 +23,7 @@ export async function initializeProvider(event: any) {
   if (!state) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: `Failed to initialize provider: ${providerConfig.name}`}),
+      body: JSON.stringify({ message: `Failed to initialize provider: ${providerConfig.name}` }),
     };
   }
 

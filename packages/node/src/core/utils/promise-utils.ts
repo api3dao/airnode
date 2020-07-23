@@ -48,7 +48,7 @@ export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 }
 
 export function wait(ms: number) {
-  return new Promise(r => setTimeout(r, ms));
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 export interface RetryOptions {
@@ -62,16 +62,14 @@ export function retryOperation(times: number, operation: () => Promise<any>, opt
     const timeout = reversedTimeouts[times - 1];
     const execution = promiseTimeout(timeout, operation());
 
-    return execution
-      .then(resolve)
-      .catch((reason: any) => {
-        if (times - 1 > 0) {
-          return wait(options.delay || 50)
-            .then(retryOperation.bind(null, times - 1, operation, options))
-            .then(resolve)
-            .catch(reject);
-        }
-        return reject(reason);
-      });
+    return execution.then(resolve).catch((reason: any) => {
+      if (times - 1 > 0) {
+        return wait(options.delay || 50)
+          .then(retryOperation.bind(null, times - 1, operation, options))
+          .then(resolve)
+          .catch(reject);
+      }
+      return reject(reason);
+    });
   });
 }
