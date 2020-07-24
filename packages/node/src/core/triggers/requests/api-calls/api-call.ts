@@ -4,7 +4,7 @@ import * as logger from '../../../utils/logger';
 import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../types';
 
 // These get added later after fetching requester details
-type IgnoredFields = 'requesterId' | 'walletIndex' | 'walletAddress' | 'walletBalance' | 'walletMinimumBalance'
+type IgnoredFields = 'requesterId' | 'walletIndex' | 'walletAddress' | 'walletBalance' | 'walletMinimumBalance';
 type NewApiCallRequest = Omit<ApiCallRequest, IgnoredFields>;
 
 function applyParameters(state: ProviderState, request: NewApiCallRequest): NewApiCallRequest {
