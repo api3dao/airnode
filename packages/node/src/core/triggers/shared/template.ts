@@ -4,13 +4,7 @@ import flatten from 'lodash/flatten';
 import { goTimeout } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
 import { Convenience } from '../../ethereum/contracts';
-import {
-  ApiCallParameters,
-  ApiCallRequest,
-  ApiCallTemplate,
-  ApiRequestErrorCode,
-  ProviderState,
-} from '../../../types';
+import { ApiCallParameters, ApiCallRequest, ApiCallTemplate, ApiRequestErrorCode, ProviderState } from '../../../types';
 import * as parameters from './parameters';
 
 const TIMEOUT = 5_000;

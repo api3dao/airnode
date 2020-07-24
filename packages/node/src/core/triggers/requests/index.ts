@@ -7,7 +7,9 @@ export async function fetch(state: ProviderState): Promise<ProviderRequests> {
   // Let this throw if it fails. We can't do anything if the logs cannot be fetched
   const groupedLogs = await fetchGroupedLogs(state);
 
-  const pendingApiCallsPromise = promiseTimeout(5_000, apiCalls.mapPending(state, groupedLogs.apiCalls)).then((res) => ({ id: 'apiCalls', data: res })).catch(() => ({ id: 'apiCalls', data: [] }));
+  const pendingApiCallsPromise = promiseTimeout(5_000, apiCalls.mapPending(state, groupedLogs.apiCalls))
+    .then((res) => ({ id: 'apiCalls', data: res }))
+    .catch(() => ({ id: 'apiCalls', data: [] }));
 
   // TODO: handle withdrawals
 
@@ -16,7 +18,7 @@ export async function fetch(state: ProviderState): Promise<ProviderRequests> {
   // Promises are assigned an ID as the order the complete is not guaranteed
   const requestGroups = await Promise.all([pendingApiCallsPromise]);
 
-  const pendingApiCalls = requestGroups.find(r => r.id === 'apiCalls')!.data;
+  const pendingApiCalls = requestGroups.find((r) => r.id === 'apiCalls')!.data;
 
   return {
     apiCalls: pendingApiCalls,
