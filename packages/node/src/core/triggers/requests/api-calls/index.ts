@@ -4,7 +4,7 @@ import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as apiCall from './api-call';
 
-// Shortening the type
+// Alias the type
 type Log = ethers.utils.LogDescription;
 
 function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulfillmentLogs: Log[]): Log[] {

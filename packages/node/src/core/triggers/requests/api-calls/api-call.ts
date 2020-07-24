@@ -1,9 +1,13 @@
 import { ethers } from 'ethers';
-import { tryDecodeParameters } from './parameters';
+import { tryDecodeParameters } from '../../shared/parameters';
 import * as logger from '../../../utils/logger';
 import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../types';
 
-function applyParameters(state: ProviderState, request: ApiCallRequest): ApiCallRequest {
+// These get added later after fetching requester details
+type IgnoredFields = 'requesterId' | 'walletIndex' | 'walletAddress' | 'walletBalance' | 'walletMinimumBalance'
+type NewApiCallRequest = Omit<ApiCallRequest, IgnoredFields>;
+
+function applyParameters(state: ProviderState, request: NewApiCallRequest): NewApiCallRequest {
   if (!request.encodedParameters) {
     return request;
   }
@@ -19,10 +23,10 @@ function applyParameters(state: ProviderState, request: ApiCallRequest): ApiCall
   return { ...request, parameters };
 }
 
-export function initialize(state: ProviderState, log: ethers.utils.LogDescription): ApiCallRequest {
-  const request: ApiCallRequest = {
+export function initialize(state: ProviderState, log: ethers.utils.LogDescription): NewApiCallRequest {
+  const request: NewApiCallRequest = {
     requestId: log.args.requestId,
-    requester: log.args.requester,
+    requesterAddress: log.args.requester,
     endpointId: log.args.endpointId || null,
     templateId: log.args.templateId || null,
     fulfillAddress: log.args.fulfillAddress,

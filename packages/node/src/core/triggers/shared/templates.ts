@@ -40,9 +40,7 @@ function mapApiCallTemplates(rawTemplates: any, templateIds: string[]): ApiCallT
   });
 }
 
-export async function fetch(state: ProviderState, apiCallRequests: ApiCallRequest[]) {
-  const templateIds = apiCallRequests.map((r) => r.templateId).filter((t) => !!t) as string[];
-
+export async function fetch(state: ProviderState, templateIds: string[]) {
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(templateIds, 10);
 

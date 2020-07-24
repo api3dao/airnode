@@ -15,7 +15,8 @@ export enum ApiRequestErrorCode {
 
 export interface ApiCallRequest {
   readonly requestId: string;
-  readonly requester: string;
+  readonly requesterId: string;
+  readonly requesterAddress: string;
   readonly endpointId: string | null;
   readonly templateId: string | null;
   readonly fulfillAddress: string | null;
@@ -26,6 +27,10 @@ export interface ApiCallRequest {
   readonly parameters: ApiCallParameters;
   readonly valid: boolean;
   readonly errorCode?: ApiRequestErrorCode;
+  readonly walletIndex: number;
+  readonly walletAddress: string;
+  readonly walletBalance: ethers.BigNumber;
+  readonly walletMinimumBalance: ethers.BigNumber;
 }
 
 export interface ApiCallTemplate {
