@@ -20,6 +20,13 @@ export async function initializeProvider(event: any) {
   const providerConfig = config.nodeSettings.ethereumProviders[index];
   const state = await providers.initializeState(providerConfig, index);
 
+  if (!state) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: `Failed to initialize provider: ${providerConfig.name}` }),
+    };
+  }
+
   // We can't return the instance of the provider. A new provider
   // will be created in the calling function
   const body = removeKey(state, 'provider');

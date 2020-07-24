@@ -4,12 +4,13 @@ import { ethers } from 'ethers';
 // ===========================================
 // State
 // ===========================================
-export interface ApiRequestParameters {
+export interface ApiCallParameters {
   [key: string]: string;
 }
 
 export enum ApiRequestErrorCode {
-  InvalidParameters = 1,
+  InvalidRequestParameters = 1,
+  InvalidTemplateParameters = 2,
 }
 
 export interface ApiCallRequest {
@@ -22,19 +23,20 @@ export interface ApiCallRequest {
   readonly errorAddress: string | null;
   readonly errorFunctionId: string | null;
   readonly encodedParameters: string;
-  readonly parameters: ApiRequestParameters;
+  readonly parameters: ApiCallParameters;
   readonly valid: boolean;
   readonly errorCode?: ApiRequestErrorCode;
 }
 
 export interface ApiCallTemplate {
-  readonly providerId: string;
+  readonly templateId: string;
   readonly endpointId: string;
+  readonly providerId: string;
   readonly fulfillAddress: string;
-  readonly errorAddress: string;
   readonly fulfillFunctionId: string;
+  readonly errorAddress: string;
   readonly errorFunctionId: string;
-  readonly parameters: string;
+  readonly encodedParameters: string;
 }
 
 export interface ProviderRequests {

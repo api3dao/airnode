@@ -1,6 +1,5 @@
 const getGasPriceMock = jest.fn();
 const latestAnswerMock = jest.fn();
-
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
