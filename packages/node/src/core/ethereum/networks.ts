@@ -10,7 +10,7 @@ export type ChainID = 1 | 3;
 
 type NetworkDetails = {
   [chainId in ChainID]: ethers.providers.Network;
-}
+};
 
 export const NETWORKS: NetworkDetails = {
   1: { chainId: 1, name: 'homestead' },
