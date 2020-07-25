@@ -7,7 +7,7 @@ export function create(config: ProviderConfig, index: number): ProviderState {
     config,
     currentBlock: null,
     index,
-    provider: ethereum.newProvider(config.url),
+    provider: ethereum.newProvider(config.url, config.chainId),
     requests: {
       apiCalls: [],
       walletAuthorizations: [],

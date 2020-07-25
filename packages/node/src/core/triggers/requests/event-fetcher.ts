@@ -1,9 +1,7 @@
 import { ethers } from 'ethers';
-import { go } from '../../utils/promise-utils';
 import { config, FROM_BLOCK_LIMIT } from '../../config';
 import { ProviderState } from '../../../types';
 import * as ethereum from '../../ethereum';
-import * as logger from '../../utils/logger';
 import * as events from './events';
 
 interface GroupedLogs {
@@ -24,13 +22,8 @@ async function fetchLogs(state: ProviderState): Promise<Log[]> {
     topics: [null, config.nodeSettings.providerId],
   };
 
-  const [err, rawLogs] = await go(state.provider.getLogs(filter));
-  if (err || !rawLogs) {
-    const message = 'Unable to get request & fulfill events';
-    logger.logProviderJSON(state.config.name, 'ERROR', message);
-    // TODO: Provider calls should retry on failure (issue #11)
-    throw new Error(message);
-  }
+  // Let this throw if something goes wrong
+  const rawLogs = await state.provider.getLogs(filter);
 
   const chainAPIInterface = new ethers.utils.Interface(ethereum.contracts.ChainAPI.ABI);
   const logs = rawLogs.map((log) => chainAPIInterface.parseLog(log));
