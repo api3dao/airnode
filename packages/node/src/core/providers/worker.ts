@@ -16,7 +16,7 @@ export async function spawnNewProvider(index: number): Promise<ProviderState> {
   // The serverless function does not return an instance
   // of an Ethereum provider, so we create a new one
   // before returning the state
-  const provider = ethereum.newProvider(initialState.config.url);
+  const provider = ethereum.newProvider(initialState.config.url, initialState.config.chainId);
 
   return { ...initialState, provider };
 }
