@@ -45,7 +45,7 @@ export interface ApiCallTemplate {
 }
 
 export interface ProviderRequests {
-  readonly apiCalls: ApiCallRequest[];
+  readonly apiCalls: any[];
   readonly walletAuthorizations: any;
   readonly withdrawals: any;
 }

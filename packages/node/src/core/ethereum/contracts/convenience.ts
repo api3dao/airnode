@@ -5,7 +5,7 @@ export const Convenience: Contract = {
   addresses: {
     1: '<TODO>',
     3: '<TODO>',
-    1337: '0x42eeab7F41b2311C6e54F93F05cE7968024e23cB',
+    1337: '0xb36f43bf573217179818fEE9D8a16e7B141a823e',
   },
   ABI: compiledContract.abi,
   topics: {},

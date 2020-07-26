@@ -1,10 +1,12 @@
 import { ethers } from 'ethers';
-import { ApiCallRequest, ProviderState } from '../../../../types';
+import { ProviderState } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
-import * as apiCall from './api-call';
+import * as model from './model';
+import * as requesterDetails from './requester-details';
 
-// Alias the type
+// Alias types
+type NewApiCallRequest = model.NewApiCallRequest;
 type Log = ethers.utils.LogDescription;
 
 function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulfillmentLogs: Log[]): Log[] {
@@ -20,7 +22,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-export async function mapPending(state: ProviderState, logs: Log[]): Promise<ApiCallRequest[]> {
+export async function mapPending(state: ProviderState, logs: Log[]): Promise<NewApiCallRequest[]> {
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
   const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
 
@@ -28,7 +30,12 @@ export async function mapPending(state: ProviderState, logs: Log[]): Promise<Api
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
 
   // Cast raw logs to typed API request objects
-  const apiCallRequests = unfulfilledRequestLogs.map((log) => apiCall.initialize(state, log));
+  const newApiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
+
+  // Fetch extra details for each unique requester
+  const requesterData = await requesterDetails.fetch(state, newApiCallRequests);
+
+  const apiCallRequests = requesterDetails.apply(newApiCallRequests, requesterData);
 
   return apiCallRequests;
 }
