@@ -32,7 +32,10 @@ async function fetchRequesterData(state: ProviderState, requesterAddress: string
   return { requesterAddress, data };
 }
 
-export async function fetch(state: ProviderState, apiCallInitialRequests: ApiCallInitialRequest[]): Promise<RequesterData[]> {
+export async function fetch(
+  state: ProviderState,
+  apiCallInitialRequests: ApiCallInitialRequest[]
+): Promise<RequesterData[]> {
   // Calls for requests that are already invalid are wasted
   const validApiRequests = apiCallInitialRequests.filter((r) => r.valid);
 
