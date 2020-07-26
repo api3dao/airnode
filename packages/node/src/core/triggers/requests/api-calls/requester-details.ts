@@ -53,9 +53,9 @@ export function apply(apiCallRequests: NewApiCallRequest[], requesterData: Reque
   return requesterData.reduce((acc, requester) => {
     const { data, requesterAddress } = requester;
 
-    const requests = apiCallRequests.filter(r => r.requesterAddress === requesterAddress);
+    const requests = apiCallRequests.filter((r) => r.requesterAddress === requesterAddress);
 
-    const updatedRequests = requests.map(request => ({
+    const updatedRequests = requests.map((request) => ({
       ...request,
       requesterId: data.requesterId,
       walletIndex: data.walletIndex,

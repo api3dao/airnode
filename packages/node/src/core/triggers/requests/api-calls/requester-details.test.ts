@@ -58,7 +58,8 @@ describe('fetch', () => {
 
     expect(getDataWithClientAddressMock).toHaveBeenCalledTimes(2);
     expect(getDataWithClientAddressMock.mock.calls).toEqual([
-      [providerId, '0xalice'], [providerId, '0xbob']
+      [providerId, '0xalice'],
+      [providerId, '0xbob'],
     ]);
   });
 
@@ -72,13 +73,13 @@ describe('fetch', () => {
     getDataWithClientAddressMock.mockRejectedValueOnce(new Error('Server says no'));
 
     const res = await requesterDetails.fetch(state, [aliceRequest, frankRequest]);
-    expect(res).toEqual([
-      { requesterAddress: '0xalice', data: aliceData },
-    ]);
+    expect(res).toEqual([{ requesterAddress: '0xalice', data: aliceData }]);
 
     expect(getDataWithClientAddressMock).toHaveBeenCalledTimes(3);
     expect(getDataWithClientAddressMock.mock.calls).toEqual([
-      [providerId, '0xalice'], [providerId, '0xfrank'], [providerId, '0xfrank']
+      [providerId, '0xalice'],
+      [providerId, '0xfrank'],
+      [providerId, '0xfrank'],
     ]);
   });
 });
@@ -114,7 +115,7 @@ describe('apply', () => {
     const res = requesterDetails.apply([aliceRequest, bobRequest1, bobRequest2], [bobData, aliceData]);
     expect(res.length).toEqual(3);
 
-    const aliceFullRequest = res.find(r => r.requestId === '0x1');
+    const aliceFullRequest = res.find((r) => r.requestId === '0x1');
     expect(aliceFullRequest).toEqual({
       ...aliceRequest,
       requesterId: 'aliceRequesterId',
@@ -124,7 +125,7 @@ describe('apply', () => {
       walletMinimumBalance: ethers.BigNumber.from('5'),
     });
 
-    const bobFullRequest1 = res.find(r => r.requestId === '0x2');
+    const bobFullRequest1 = res.find((r) => r.requestId === '0x2');
     expect(bobFullRequest1).toEqual({
       ...bobRequest1,
       requesterId: 'bobRequesterId',
@@ -134,7 +135,7 @@ describe('apply', () => {
       walletMinimumBalance: ethers.BigNumber.from('6'),
     });
 
-    const bobFullRequest2 = res.find(r => r.requestId === '0x3');
+    const bobFullRequest2 = res.find((r) => r.requestId === '0x3');
     expect(bobFullRequest2).toEqual({
       ...bobRequest2,
       requesterId: 'bobRequesterId',

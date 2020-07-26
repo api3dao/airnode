@@ -41,4 +41,3 @@ export function initialize(state: ProviderState, log: ethers.utils.LogDescriptio
   const withParameters = applyParameters(state, request);
   return withParameters;
 }
-
