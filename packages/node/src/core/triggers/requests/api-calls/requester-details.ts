@@ -14,7 +14,7 @@ type ApiCallInitialRequest = model.ApiCallInitialRequest;
 
 type RequesterData = {
   [requesterAddress: string]: any;
-}
+};
 
 async function fetchRequesterData(state: ProviderState, requesterAddress: string): Promise<RequesterData | null> {
   const { Convenience } = ethereum.contracts;
@@ -55,7 +55,11 @@ export async function fetch(state: ProviderState, initialRequests: ApiCallInitia
   return resultsByAddress;
 }
 
-export function apply(state: ProviderState, requests: ApiCallInitialRequest[], dataByRequesterAddress: RequesterData): ApiCallRequest[] {
+export function apply(
+  state: ProviderState,
+  requests: ApiCallInitialRequest[],
+  dataByRequesterAddress: RequesterData
+): ApiCallRequest[] {
   return requests.reduce((acc, request) => {
     const data = dataByRequesterAddress[request.requesterAddress];
 
