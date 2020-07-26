@@ -7,6 +7,12 @@ import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../
 type IgnoredFields = 'requesterId' | 'walletIndex' | 'walletAddress' | 'walletBalance' | 'walletMinimumBalance';
 export type ApiCallInitialRequest = Omit<ApiCallRequest, IgnoredFields>;
 
+// We can't process requests with these errors, so they are ignored
+export const UNPROCESSABLE_ERROR_CODES = [
+  ApiRequestErrorCode.RequesterDataNotFound,
+  ApiRequestErrorCode.InsufficientBalance,
+];
+
 function applyParameters(state: ProviderState, request: ApiCallInitialRequest): ApiCallInitialRequest {
   if (!request.encodedParameters) {
     return request;

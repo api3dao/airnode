@@ -42,3 +42,16 @@ describe('create', () => {
     });
   });
 });
+
+describe('update', () => {
+  it('updates the state', () => {
+    const config: ProviderConfig = {
+      chainId: 3,
+      name: 'infura-ropsten',
+      url: 'https://ropsten.infura.io/v3/<my-key>',
+    };
+    const newState = state.create(config, 0);
+    const res = state.update(newState, { currentBlock: 123 });
+    expect(res.currentBlock).toEqual(123);
+  });
+});

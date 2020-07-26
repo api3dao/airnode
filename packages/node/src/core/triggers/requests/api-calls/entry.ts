@@ -21,6 +21,21 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
+function discardUnprocessableRequests(state: ProviderState, requests: ApiCallRequest[]): ApiCallRequest[] {
+  return requests.reduce((acc, request) => {
+    if (request.valid || !request.errorCode) {
+      return [...acc, request];
+    }
+
+    if (model.UNPROCESSABLE_ERROR_CODES.includes(request.errorCode)) {
+      const message = `Request ID:${request.requestId} has unprocessable error code:${request.errorCode}`;
+      logger.logProviderJSON(state.config.name, 'DEBUG', message);
+    }
+
+    return [...acc, request];
+  }, []);
+}
+
 export async function mapPending(state: ProviderState, logs: Log[]): Promise<ApiCallRequest[]> {
   // Separate the logs
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
@@ -38,5 +53,8 @@ export async function mapPending(state: ProviderState, logs: Log[]): Promise<Api
   // Merge the requests with the requester data from the previous step
   const apiCallRequests = requesterDetails.apply(state, newApiCallRequests, requesterData);
 
-  return apiCallRequests;
+  // Certain error codes mean that requests cannot be processed at all
+  const processableRequests = discardUnprocessableRequests(state, apiCallRequests);
+
+  return processableRequests;
 }
