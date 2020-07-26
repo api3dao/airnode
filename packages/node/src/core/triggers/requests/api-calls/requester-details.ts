@@ -10,7 +10,7 @@ import * as model from './model';
 const TIMEOUT = 5000;
 
 // Alias types
-type NewApiCallRequest = model.NewApiCallRequest;
+type ApiCallInitialRequest = model.ApiCallInitialRequest;
 
 interface RequesterData {
   requesterAddress: string;
@@ -24,8 +24,7 @@ async function fetchRequesterData(state: ProviderState, requesterAddress: string
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] });
 
   const [err, data] = await goTimeout(TIMEOUT, retryableContractCall);
-  // If we fail to fetch templates, the linked requests will be discarded and retried
-  // on the next run
+  // TODO: how do we differentiate between timeouts and errors in the contract like authorization issues?
   if (err || !data) {
     logger.logProviderError(state.config.name, 'Failed to fetch requester details', err);
     return null;
@@ -33,9 +32,9 @@ async function fetchRequesterData(state: ProviderState, requesterAddress: string
   return { requesterAddress, data };
 }
 
-export async function fetch(state: ProviderState, apiCallRequests: NewApiCallRequest[]): Promise<RequesterData[]> {
+export async function fetch(state: ProviderState, apiCallInitialRequests: ApiCallInitialRequest[]): Promise<RequesterData[]> {
   // Calls for requests that are already invalid are wasted
-  const validApiRequests = apiCallRequests.filter((r) => r.valid);
+  const validApiRequests = apiCallInitialRequests.filter((r) => r.valid);
 
   // Get a unique list of all requester addresses
   const requesterAddresses = uniq(validApiRequests.map((r) => r.requesterAddress));
@@ -49,7 +48,7 @@ export async function fetch(state: ProviderState, apiCallRequests: NewApiCallReq
   return successfulResults;
 }
 
-export function apply(apiCallRequests: NewApiCallRequest[], requesterData: RequesterData[]): ApiCallRequest[] {
+export function apply(apiCallRequests: ApiCallInitialRequest[], requesterData: RequesterData[]): ApiCallRequest[] {
   return requesterData.reduce((acc, requester) => {
     const { data, requesterAddress } = requester;
 

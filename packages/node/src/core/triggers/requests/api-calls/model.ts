@@ -5,9 +5,9 @@ import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../
 
 // These get added later after fetching requester details
 type IgnoredFields = 'requesterId' | 'walletIndex' | 'walletAddress' | 'walletBalance' | 'walletMinimumBalance';
-export type NewApiCallRequest = Omit<ApiCallRequest, IgnoredFields>;
+export type ApiCallInitialRequest = Omit<ApiCallRequest, IgnoredFields>;
 
-function applyParameters(state: ProviderState, request: NewApiCallRequest): NewApiCallRequest {
+function applyParameters(state: ProviderState, request: ApiCallInitialRequest): ApiCallInitialRequest {
   if (!request.encodedParameters) {
     return request;
   }
@@ -23,8 +23,8 @@ function applyParameters(state: ProviderState, request: NewApiCallRequest): NewA
   return { ...request, parameters };
 }
 
-export function initialize(state: ProviderState, log: ethers.utils.LogDescription): NewApiCallRequest {
-  const request: NewApiCallRequest = {
+export function initialize(state: ProviderState, log: ethers.utils.LogDescription): ApiCallInitialRequest {
+  const request: ApiCallInitialRequest = {
     requestId: log.args.requestId,
     requesterAddress: log.args.requester,
     endpointId: log.args.endpointId || null,
