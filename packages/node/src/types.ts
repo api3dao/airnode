@@ -11,6 +11,8 @@ export interface ApiCallParameters {
 export enum ApiRequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
+  RequesterDataNotFound = 3,
+  InsufficientBalance = 4,
 }
 
 export interface ApiCallRequest {

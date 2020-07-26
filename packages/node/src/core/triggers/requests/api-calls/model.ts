@@ -41,3 +41,14 @@ export function initialize(state: ProviderState, log: ethers.utils.LogDescriptio
   const withParameters = applyParameters(state, request);
   return withParameters;
 }
+
+export function validate(state: ProviderState, request: ApiCallRequest) {
+  // If the request is already invalid, we don't want to overwrite the error
+  if (!request.valid) {
+    return request;
+  }
+
+  if (request.walletBalance.lt(request.walletMinimumBalance)) {
+    return { ...request, valid: false, errorCode: ApiRequestErrorCode.InsufficientBalance };
+  }
+}

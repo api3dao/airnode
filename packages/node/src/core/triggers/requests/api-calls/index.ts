@@ -22,6 +22,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
 }
 
 export async function mapPending(state: ProviderState, logs: Log[]): Promise<ApiCallRequest[]> {
+  // Separate the logs
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
   const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
 
@@ -35,7 +36,7 @@ export async function mapPending(state: ProviderState, logs: Log[]): Promise<Api
   const requesterData = await requesterDetails.fetch(state, newApiCallRequests);
 
   // Merge the requests with the requester data from the previous step
-  const apiCallRequests = requesterDetails.apply(newApiCallRequests, requesterData);
+  const apiCallRequests = requesterDetails.apply(state, newApiCallRequests, requesterData);
 
   return apiCallRequests;
 }
