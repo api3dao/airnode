@@ -49,6 +49,13 @@ export function validate(state: ProviderState, request: ApiCallRequest) {
   }
 
   if (request.walletBalance.lt(request.walletMinimumBalance)) {
+    const currentBalance = ethers.utils.formatEther(request.walletBalance);
+    const minBalance = ethers.utils.formatEther(request.walletMinimumBalance);
+    const message = `Request ID:${request.requestId} wallet has insufficient balance of ${currentBalance} ETH. Minimum balance of ${minBalance} ETH is required.`;
+    logger.logProviderJSON(state.config.name, 'ERROR', message);
+
     return { ...request, valid: false, errorCode: ApiRequestErrorCode.InsufficientBalance };
   }
+
+  return request;
 }
