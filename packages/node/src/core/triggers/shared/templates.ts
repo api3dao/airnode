@@ -65,7 +65,7 @@ function mergeRequestAndTemplate(
   return {
     ...request,
     // NOTE: template attributes can be overwritten by the request attributes
-    endpointId: template.endpointId || request.endpointId ,
+    endpointId: template.endpointId || request.endpointId,
     fulfillAddress: template.fulfillAddress || request.fulfillAddress,
     fulfillFunctionId: template.fulfillFunctionId || request.fulfillFunctionId,
     errorAddress: template.errorAddress || request.errorAddress,
