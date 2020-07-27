@@ -13,7 +13,11 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   return requestLogs.reduce((acc, requestLog) => {
     const { withdrawRequestId } = requestLog.args;
     if (fulfilledRequestIds.includes(withdrawRequestId)) {
-      logger.logProviderJSON(state.config.name, 'DEBUG', `WithdrawalRequest ID:${withdrawRequestId} has already been fulfilled`);
+      logger.logProviderJSON(
+        state.config.name,
+        'DEBUG',
+        `WithdrawalRequest ID:${withdrawRequestId} has already been fulfilled`
+      );
       return acc;
     }
     return [...acc, requestLog];

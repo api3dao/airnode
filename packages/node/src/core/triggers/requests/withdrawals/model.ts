@@ -11,4 +11,3 @@ export function initialize(log: ethers.utils.LogDescription): WithdrawalRequest 
 
   return request;
 }
-
