@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
-import { ApiCallRequest, ProviderState } from '../../../../types';
+import { ApiCall, ProviderState, RegularRequest } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from './model';
-import * as requesterDetails from './requester-data';
 
 // Alias types
 type Log = ethers.utils.LogDescription;
@@ -21,22 +20,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-function discardUnprocessableRequests(state: ProviderState, requests: ApiCallRequest[]): ApiCallRequest[] {
-  return requests.reduce((acc, request) => {
-    if (request.valid || !request.errorCode) {
-      return [...acc, request];
-    }
-
-    if (model.UNPROCESSABLE_ERROR_CODES.includes(request.errorCode)) {
-      const message = `Request ID:${request.requestId} has unprocessable error code:${request.errorCode}`;
-      logger.logProviderJSON(state.config.name, 'DEBUG', message);
-    }
-
-    return [...acc, request];
-  }, []);
-}
-
-export async function mapPending(state: ProviderState, logs: Log[]): Promise<ApiCallRequest[]> {
+export function mapPending(state: ProviderState, logs: Log[]): RegularRequest<ApiCall>[] {
   // Separate the logs
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
   const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
@@ -45,16 +29,14 @@ export async function mapPending(state: ProviderState, logs: Log[]): Promise<Api
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
 
   // Cast raw logs to typed API request objects
-  const newApiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
+  const apiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
 
-  // Fetch extra details for each unique requester
-  const requesterData = await requesterDetails.fetch(state, newApiCallRequests);
+  return apiCallRequests;
+}
 
-  // Merge the requests with the requester data from the previous step
-  const apiCallRequests = requesterDetails.apply(state, newApiCallRequests, requesterData);
+export function mapRequesterAddresses(requests: RegularRequest<ApiCall>[]): string[] {
+  // Calls for requests that are already invalid are wasted
+  const validRequests = requests.filter((r) => r.valid);
 
-  // Certain error codes mean that requests cannot be processed at all
-  const processableRequests = discardUnprocessableRequests(state, apiCallRequests);
-
-  return processableRequests;
+  return validRequests.map((r) => r.requesterAddress);
 }

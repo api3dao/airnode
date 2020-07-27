@@ -8,16 +8,30 @@ export interface ApiCallParameters {
   [key: string]: string;
 }
 
-export enum ApiRequestErrorCode {
+export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
   RequesterDataNotFound = 3,
   InsufficientBalance = 4,
 }
 
-export interface ApiCallRequest {
-  readonly requestId: string;
+export type RegularRequest<T extends {}> = T & {
+  readonly id: string;
+  readonly valid: boolean;
+  readonly errorCode?: RequestErrorCode;
+}
+
+export interface RequesterData {
   readonly requesterId: string;
+  readonly walletIndex: number;
+  readonly walletAddress: string;
+  readonly walletBalance: ethers.BigNumber;
+  readonly walletMinimumBalance: ethers.BigNumber;
+}
+
+export type ExtendedRegularRequest<T> = RegularRequest<T> & RequesterData;
+
+export interface ApiCall {
   readonly requesterAddress: string;
   readonly endpointId: string | null;
   readonly templateId: string | null;
@@ -27,12 +41,6 @@ export interface ApiCallRequest {
   readonly errorFunctionId: string | null;
   readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
-  readonly valid: boolean;
-  readonly errorCode?: ApiRequestErrorCode;
-  readonly walletIndex: number;
-  readonly walletAddress: string;
-  readonly walletBalance: ethers.BigNumber;
-  readonly walletMinimumBalance: ethers.BigNumber;
 }
 
 export interface ApiCallTemplate {

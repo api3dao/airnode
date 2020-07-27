@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as model from './model';
 import * as providerState from '../../../providers/state';
-import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../types';
+import { ApiCall, ExtendedRegularRequest, ProviderState, RequestErrorCode } from '../../../../types';
 
 describe('initialize', () => {
   let state: ProviderState;
@@ -105,10 +105,10 @@ describe('validate', () => {
 
     const insufficientValidated = model.validate(state, insufficientBalance);
     expect(insufficientValidated.valid).toEqual(false);
-    expect(insufficientValidated.errorCode).toEqual(ApiRequestErrorCode.InsufficientBalance);
+    expect(insufficientValidated.errorCode).toEqual(RequestErrorCode.InsufficientBalance);
   });
 
-  function createApiCallRequest(params?: any): ApiCallRequest {
+  function createApiCallRequest(params?: any): ExtendedRegularRequest<ApiCall> {
     return {
       requestId: 'requestId',
       requesterId: 'requestId',
