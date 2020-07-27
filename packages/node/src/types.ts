@@ -46,9 +46,16 @@ export interface ApiCallTemplate {
   readonly encodedParameters: string;
 }
 
+export interface WithdrawalRequest {
+  readonly destination: string;
+  readonly providerId: string;
+  readonly requesterId: string;
+  readonly withdrawRequestId: string;
+}
+
 export interface ProviderRequests {
   readonly apiCalls: ApiCallRequest[];
-  readonly walletAuthorizations: any;
+  readonly walletAuthorizations: WithdrawalRequest[];
   readonly withdrawals: any;
 }
 

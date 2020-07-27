@@ -45,16 +45,7 @@ export async function mapPending(state: ProviderState, logs: Log[]): Promise<Api
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
 
   // Cast raw logs to typed API request objects
-  const newApiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
+  const apiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
 
-  // Fetch extra details for each unique requester
-  const requesterData = await requesterDetails.fetch(state, newApiCallRequests);
-
-  // Merge the requests with the requester data from the previous step
-  const apiCallRequests = requesterDetails.apply(state, newApiCallRequests, requesterData);
-
-  // Certain error codes mean that requests cannot be processed at all
-  const processableRequests = discardUnprocessableRequests(state, apiCallRequests);
-
-  return processableRequests;
+  return apiCallRequests;
 }
