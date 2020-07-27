@@ -3,7 +3,7 @@ import { ApiCallRequest, ProviderState } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from './model';
-import * as requesterDetails from './requester-details';
+import * as requesterDetails from './requester-data';
 
 // Alias types
 type Log = ethers.utils.LogDescription;

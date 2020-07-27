@@ -21,7 +21,7 @@ jest.mock('../../../config', () => ({
 }));
 
 import { ethers } from 'ethers';
-import * as requesterDetails from './requester-details';
+import * as requesterDetails from './requester-data';
 import * as providerState from '../../../providers/state';
 import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../types';
 
