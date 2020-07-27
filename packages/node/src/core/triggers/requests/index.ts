@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { ProviderRequests, ProviderState } from '../../../types';
 import { goTimeout } from '../../utils/promise-utils';
 import { fetchGroupedLogs } from './event-fetcher';
-import * as apiCalls from './api-calls/entry';
+import * as apiCalls from './api-calls';
 // import * as walletAuthorizations from './wallet-authorizations';
 // import * as withdrawals from './withdrawals';
 
