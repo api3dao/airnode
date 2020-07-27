@@ -54,6 +54,7 @@ export function validate(state: ProviderState, request: ApiCallRequest) {
     return request;
   }
 
+  // Validation 1: Check the request wallet has enough funds to be able to make transactions
   if (request.walletBalance.lt(request.walletMinimumBalance)) {
     const currentBalance = ethers.utils.formatEther(request.walletBalance);
     const minBalance = ethers.utils.formatEther(request.walletMinimumBalance);
