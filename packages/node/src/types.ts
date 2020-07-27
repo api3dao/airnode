@@ -19,7 +19,7 @@ export type RegularRequest<T extends {}> = T & {
   readonly id: string;
   readonly valid: boolean;
   readonly errorCode?: RequestErrorCode;
-}
+};
 
 export interface RequesterData {
   readonly requesterId: string;

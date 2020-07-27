@@ -62,7 +62,11 @@ export async function fetch(state: ProviderState, addresses: string[]): Promise<
   return resultsByAddress;
 }
 
-export function apply<T>(state: ProviderState, request: RegularRequest<T>, data?: RequesterData): ExtendedRegularRequest<T> {
+export function apply<T>(
+  state: ProviderState,
+  request: RegularRequest<T>,
+  data?: RequesterData
+): ExtendedRegularRequest<T> {
   if (!data) {
     const message = `Unable to find wallet data for Request ID:${request.id}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);

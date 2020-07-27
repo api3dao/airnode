@@ -4,10 +4,7 @@ import * as logger from '../../../utils/logger';
 import { ApiCall, ExtendedRegularRequest, ProviderState, RegularRequest, RequestErrorCode } from '../../../../types';
 
 // We can't process requests with these errors, so they are ignored
-export const UNPROCESSABLE_ERROR_CODES = [
-  RequestErrorCode.RequesterDataNotFound,
-  RequestErrorCode.InsufficientBalance,
-];
+export const UNPROCESSABLE_ERROR_CODES = [RequestErrorCode.RequesterDataNotFound, RequestErrorCode.InsufficientBalance];
 
 function applyParameters(state: ProviderState, request: RegularRequest<ApiCall>): RegularRequest<ApiCall> {
   if (!request.encodedParameters) {
@@ -44,7 +41,10 @@ export function initialize(state: ProviderState, log: ethers.utils.LogDescriptio
   return withParameters;
 }
 
-export function validate(state: ProviderState, request: ExtendedRegularRequest<ApiCall>): ExtendedRegularRequest<ApiCall> {
+export function validate(
+  state: ProviderState,
+  request: ExtendedRegularRequest<ApiCall>
+): ExtendedRegularRequest<ApiCall> {
   // If the request is already invalid, we don't want to overwrite the error
   if (!request.valid) {
     return request;
