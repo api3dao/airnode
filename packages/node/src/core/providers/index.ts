@@ -24,7 +24,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // TODO: aggregator requests will be fetched in
   // parallel with this at a later point
   // =========================================================
-  const [requestsErr, requests] = await go(requestHandler.fetch(state2));
+  const [requestsErr, requests] = await go(requestHandler.fetchPendingRequests(state2));
   if (requestsErr || !requests) {
     logger.logProviderError(config.name, 'Unable to get pending requests', requestsErr);
     return null;

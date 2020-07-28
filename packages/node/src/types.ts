@@ -54,8 +54,8 @@ export interface ApiCallTemplate {
   readonly encodedParameters: string;
 }
 
-export interface ProviderRequests {
-  readonly apiCalls: ApiCallRequest[];
+export interface GroupedProviderRequests {
+  readonly apiCalls: ExtendedRegularRequest<ApiCall>[];
   readonly walletAuthorizations: any;
   readonly withdrawals: any;
 }
@@ -65,7 +65,7 @@ export interface ProviderState {
   readonly currentBlock: number | null;
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly requests: ProviderRequests;
+  readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
 }
 

@@ -3,13 +3,19 @@ import chunk from 'lodash/chunk';
 import uniq from 'lodash/uniq';
 import { config } from '../../config';
 import * as ethereum from '../../ethereum';
-import { ExtendedRegularRequest, ProviderState, RegularRequest, RequesterData, RequestErrorCode } from '../../../types';
 import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
+import { ApiCall, ExtendedRegularRequest, GroupedProviderRequests, ProviderState, RegularRequest, RequesterData, RequestErrorCode } from '../../../types';
 
 type RequesterDataByAddress = {
   [address: string]: RequesterData;
 };
+
+export interface InitialGroupedRequests {
+  apiCalls: RegularRequest<ApiCall>[];
+  withdrawals: any;
+  walletAuthorizations: any;
+}
 
 async function fetchRequesterData(state: ProviderState, addresses: string[]): Promise<RequesterDataByAddress | null> {
   const { Convenience } = ethereum.contracts;
@@ -62,11 +68,17 @@ export async function fetch(state: ProviderState, addresses: string[]): Promise<
   return resultsByAddress;
 }
 
-export function apply<T>(
-  state: ProviderState,
-  request: RegularRequest<T>,
-  data?: RequesterData
-): ExtendedRegularRequest<T> {
+export function apply(state: ProviderState, requests: InitialGroupedRequests, data: RequesterDataByAddress): GroupedProviderRequests {
+  const apiCalls = requests.apiCalls.map(a => applyRequesterData(state, a, data[a.requesterAddress]));
+
+  return {
+    apiCalls,
+    walletAuthorizations: [],
+    withdrawals: [],
+  };
+}
+
+function applyRequesterData<T>(state: ProviderState, request: RegularRequest<T>, data?: RequesterData): ExtendedRegularRequest<T> {
   if (!data) {
     const message = `Unable to find wallet data for Request ID:${request.id}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);

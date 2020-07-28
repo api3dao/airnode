@@ -1,18 +1,18 @@
-const getDataWithClientAddressMock = jest.fn();
+const getDataWithClientAddressesMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
     ethers: {
       ...original,
       Contract: jest.fn().mockImplementation(() => ({
-        getDataWithClientAddress: getDataWithClientAddressMock,
+        getDataWithClientAddresses: getDataWithClientAddressesMock,
       })),
     },
   };
 });
 
 const providerId = '0xdf6677e5e84719a54ed715e7b341becf4e9afda7478baa89b5c6f449ff2b7259';
-jest.mock('../../../config', () => ({
+jest.mock('../../config', () => ({
   config: {
     nodeSettings: {
       providerId,
@@ -22,8 +22,8 @@ jest.mock('../../../config', () => ({
 
 import { ethers } from 'ethers';
 import * as requesterDetails from './requester-data';
-import * as providerState from '../../../providers/state';
-import { ApiCallRequest, ApiRequestErrorCode, ProviderState } from '../../../../types';
+import * as providerState from '../../providers/state';
+import { ApiCall, ProviderState, RegularRequest, RequestErrorCode } from '../../../types';
 
 describe('fetch', () => {
   let state: ProviderState;
@@ -33,53 +33,75 @@ describe('fetch', () => {
     state = providerState.create(config, 0);
   });
 
-  it('ignores invalid requests', async () => {
-    const invalidRequest = createNewApiCallRequest({ valid: false });
-    const res = await requesterDetails.fetch(state, [invalidRequest]);
-    expect(res).toEqual({});
-    expect(getDataWithClientAddressMock).not.toHaveBeenCalled();
-  });
+  it('makes a single Ethereum call for grouped unique requester addresses', async () => {
+    const data1 = {
+      requesterIds: Array(10).fill('0xrequesterId'),
+      walletAddresses: Array(10).fill('walletAddress'),
+      walletInds: Array(10).fill(1),
+      walletBalances: Array(10).fill(ethers.BigNumber.from('15')),
+      minBalances: Array(10).fill(ethers.BigNumber.from('5')),
+    };
+    const data2 = {
+      requesterIds: Array(10).fill('0xrequesterId'),
+      walletAddresses: Array(10).fill('walletAddress'),
+      walletInds: Array(10).fill(2),
+      walletBalances: Array(10).fill(ethers.BigNumber.from('23')),
+      minBalances: Array(10).fill(ethers.BigNumber.from('6')),
+    };
 
-  it('makes a single Ethereum call for each unique requester address', async () => {
-    const aliceRequest = createNewApiCallRequest({ requesterAddress: '0xalice' });
-    const bobRequest1 = createNewApiCallRequest({ requesterAddress: '0xbob' });
-    const bobRequest2 = createNewApiCallRequest({ requesterAddress: '0xbob' });
+    getDataWithClientAddressesMock.mockResolvedValueOnce(data1);
+    getDataWithClientAddressesMock.mockResolvedValueOnce(data2);
 
-    const aliceData = { walletIndex: 1 };
-    const bobData = { walletIndex: 2 };
-    getDataWithClientAddressMock.mockResolvedValueOnce(aliceData);
-    getDataWithClientAddressMock.mockResolvedValueOnce(bobData);
+    const addresses = Array.from(Array(19).keys()).map(n => n.toString());
 
-    const res = await requesterDetails.fetch(state, [aliceRequest, bobRequest1, bobRequest2]);
-    expect(res).toEqual({
-      '0xalice': aliceData,
-      '0xbob': bobData,
+    const res = await requesterDetails.fetch(state, addresses);
+
+    expect(Object.keys(res).length).toEqual(19);
+    expect(res['1']).toEqual({
+      requesterId: '0xrequesterId',
+      walletAddress: 'walletAddress',
+      walletIndex: 1,
+      walletBalance: ethers.BigNumber.from('15'),
+      walletMinimumBalance: ethers.BigNumber.from('5'),
     });
 
-    expect(getDataWithClientAddressMock).toHaveBeenCalledTimes(2);
-    expect(getDataWithClientAddressMock.mock.calls).toEqual([
-      [providerId, '0xalice'],
-      [providerId, '0xbob'],
+    expect(getDataWithClientAddressesMock).toHaveBeenCalledTimes(2);
+    expect(getDataWithClientAddressesMock.mock.calls).toEqual([
+      [providerId, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']],
+      [providerId, ['10', '11', '12', '13', '14', '15', '16', '17', '18']],
     ]);
   });
 
   it('filters out failed requests', async () => {
-    const aliceRequest = createNewApiCallRequest({ requesterAddress: '0xalice' });
-    const frankRequest = createNewApiCallRequest({ requesterAddress: '0xfrank' });
+    const data = {
+      requesterIds: Array(10).fill('0xrequesterId'),
+      walletAddresses: Array(10).fill('walletAddress'),
+      walletInds: Array(10).fill(1),
+      walletBalances: Array(10).fill(ethers.BigNumber.from('15')),
+      minBalances: Array(10).fill(ethers.BigNumber.from('5')),
+    };
 
-    const aliceData = { walletIndex: 1 };
-    getDataWithClientAddressMock.mockResolvedValueOnce(aliceData);
-    getDataWithClientAddressMock.mockRejectedValueOnce(new Error('Server says no'));
-    getDataWithClientAddressMock.mockRejectedValueOnce(new Error('Server says no'));
+    getDataWithClientAddressesMock.mockResolvedValueOnce(data);
+    getDataWithClientAddressesMock.mockRejectedValueOnce(new Error('Server says no'));
+    getDataWithClientAddressesMock.mockRejectedValueOnce(new Error('Server says no'));
 
-    const res = await requesterDetails.fetch(state, [aliceRequest, frankRequest]);
-    expect(res).toEqual({ '0xalice': aliceData });
+    const addresses = Array.from(Array(19).keys()).map(n => n.toString());
 
-    expect(getDataWithClientAddressMock).toHaveBeenCalledTimes(3);
-    expect(getDataWithClientAddressMock.mock.calls).toEqual([
-      [providerId, '0xalice'],
-      [providerId, '0xfrank'],
-      [providerId, '0xfrank'],
+    const res = await requesterDetails.fetch(state, addresses);
+    expect(Object.keys(res).length).toEqual(10);
+    expect(res['0']).toEqual({
+      requesterId: '0xrequesterId',
+      walletAddress: 'walletAddress',
+      walletIndex: 1,
+      walletBalance: ethers.BigNumber.from('15'),
+      walletMinimumBalance: ethers.BigNumber.from('5'),
+    });
+
+    expect(getDataWithClientAddressesMock).toHaveBeenCalledTimes(3);
+    expect(getDataWithClientAddressesMock.mock.calls).toEqual([
+      [providerId, ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']],
+      [providerId, ['10', '11', '12', '13', '14', '15', '16', '17', '18']],
+      [providerId, ['10', '11', '12', '13', '14', '15', '16', '17', '18']],
     ]);
   });
 });
@@ -93,11 +115,14 @@ describe('apply', () => {
   });
 
   it('applies requester data to the API call request', () => {
-    const aliceRequest = createNewApiCallRequest({ requestId: '0x1', requesterAddress: '0xalice' });
-    const bobRequest1 = createNewApiCallRequest({ requestId: '0x2', requesterAddress: '0xbob' });
-    const bobRequest2 = createNewApiCallRequest({ requestId: '0x3', requesterAddress: '0xbob' });
+    const apiCallRequest = createNewApiCallRequest({ id: '0x1', requesterAddress: '0xalice' });
+    const requests = {
+      apiCalls: [apiCallRequest],
+      walletAuthorizations: [],
+      withdrawals: [],
+    }
 
-    const data = {
+    const dataByAddress = {
       '0xalice': {
         requesterId: 'aliceRequesterId',
         walletIndex: 1,
@@ -105,59 +130,47 @@ describe('apply', () => {
         walletBalance: ethers.BigNumber.from('15'),
         walletMinimumBalance: ethers.BigNumber.from('5'),
       },
-      '0xbob': {
-        requesterId: 'bobRequesterId',
-        walletIndex: 2,
-        walletAddress: 'bobWalletAddress',
-        walletBalance: ethers.BigNumber.from('30'),
-        walletMinimumBalance: ethers.BigNumber.from('6'),
-      },
     };
 
-    const res = requesterDetails.apply(state, [aliceRequest, bobRequest1, bobRequest2], data);
-    expect(res.length).toEqual(3);
+    const res = requesterDetails.apply(state, requests, dataByAddress);
+    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletAuthorizations', 'withdrawals']);
 
-    const aliceFullRequest = res.find((r) => r.requestId === '0x1');
-    expect(aliceFullRequest).toEqual({
-      ...aliceRequest,
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0]).toEqual({
+      ...apiCallRequest,
       requesterId: 'aliceRequesterId',
       walletIndex: 1,
       walletAddress: 'aliceWalletAddress',
       walletBalance: ethers.BigNumber.from('15'),
       walletMinimumBalance: ethers.BigNumber.from('5'),
     });
-
-    const bobFullRequest1 = res.find((r) => r.requestId === '0x2');
-    expect(bobFullRequest1).toEqual({
-      ...bobRequest1,
-      requesterId: 'bobRequesterId',
-      walletIndex: 2,
-      walletAddress: 'bobWalletAddress',
-      walletBalance: ethers.BigNumber.from('30'),
-      walletMinimumBalance: ethers.BigNumber.from('6'),
-    });
-
-    const bobFullRequest2 = res.find((r) => r.requestId === '0x3');
-    expect(bobFullRequest2).toEqual({
-      ...bobRequest2,
-      requesterId: 'bobRequesterId',
-      walletIndex: 2,
-      walletAddress: 'bobWalletAddress',
-      walletBalance: ethers.BigNumber.from('30'),
-      walletMinimumBalance: ethers.BigNumber.from('6'),
-    });
   });
 
   it('invalidates requests that do not have any data', () => {
-    const aliceRequest = createNewApiCallRequest({ requestId: '0x1', requesterAddress: '0xalice' });
-    const res = requesterDetails.apply(state, [aliceRequest], {});
-    expect(res.length).toEqual(1);
+    const apiCallRequest = createNewApiCallRequest({ id: '0x1', requesterAddress: '0xalice' });
+    const requests = {
+      apiCalls: [apiCallRequest],
+      walletAuthorizations: [],
+      withdrawals: [],
+    };
 
-    const aliceFullRequest = res.find((r) => r.requestId === '0x1');
-    expect(aliceFullRequest).toEqual({
-      ...aliceRequest,
+    const dataByAddress = {
+      '0xbob': {
+        requesterId: 'bobRequesterId',
+        walletIndex: 1,
+        walletAddress: 'bobWalletAddress',
+        walletBalance: ethers.BigNumber.from('15'),
+        walletMinimumBalance: ethers.BigNumber.from('5'),
+      },
+    };
+
+    const res = requesterDetails.apply(state, requests, dataByAddress);
+
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0]).toEqual({
+      ...apiCallRequest,
       valid: false,
-      errorCode: ApiRequestErrorCode.RequesterDataNotFound,
+      errorCode: RequestErrorCode.RequesterDataNotFound,
       requesterId: '',
       walletIndex: -1,
       walletAddress: '',
@@ -167,7 +180,7 @@ describe('apply', () => {
   });
 });
 
-function createNewApiCallRequest(params?: any): ApiCallRequest {
+function createNewApiCallRequest(params?: any): RegularRequest<ApiCall> {
   return {
     requestId: 'requestId',
     requesterId: 'requestId',
