@@ -52,7 +52,7 @@ describe('fetch', () => {
     getDataWithClientAddressesMock.mockResolvedValueOnce(data1);
     getDataWithClientAddressesMock.mockResolvedValueOnce(data2);
 
-    const addresses = Array.from(Array(19).keys()).map(n => n.toString());
+    const addresses = Array.from(Array(19).keys()).map((n) => n.toString());
 
     const res = await requesterDetails.fetch(state, addresses);
 
@@ -85,7 +85,7 @@ describe('fetch', () => {
     getDataWithClientAddressesMock.mockRejectedValueOnce(new Error('Server says no'));
     getDataWithClientAddressesMock.mockRejectedValueOnce(new Error('Server says no'));
 
-    const addresses = Array.from(Array(19).keys()).map(n => n.toString());
+    const addresses = Array.from(Array(19).keys()).map((n) => n.toString());
 
     const res = await requesterDetails.fetch(state, addresses);
     expect(Object.keys(res).length).toEqual(10);
@@ -120,7 +120,7 @@ describe('apply', () => {
       apiCalls: [apiCallRequest],
       walletAuthorizations: [],
       withdrawals: [],
-    }
+    };
 
     const dataByAddress = {
       '0xalice': {
