@@ -32,7 +32,7 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
 
   const pendingApiCalls = apiCalls.mapPending(state, groupedLogs.apiCalls);
   // TODO: handle withdrawals and wallet authorizations
-  // const pendingWithdrawals = withdrawals.mapPendingWithdrawal(state, groupedLogs.withdrawals);
+  // const pendingWithdrawals = withdrawals.mapPending(state, groupedLogs.withdrawals);
   // const pendingWalletAuthoriaztions = walletAuthorizations.mapPending(state, groupedLogs.walletAuthorizations);
 
   const baseRequests = {
