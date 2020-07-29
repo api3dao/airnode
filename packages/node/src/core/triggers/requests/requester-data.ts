@@ -7,10 +7,10 @@ import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
 import {
   ApiCall,
-  ExtendedRegularRequest,
+  BaseRequest,
+  DirectRequest,
   GroupedProviderRequests,
   ProviderState,
-  RegularRequest,
   RequesterData,
   RequestErrorCode,
 } from '../../../types';
@@ -20,7 +20,7 @@ type RequesterDataByAddress = {
 };
 
 export interface InitialGroupedRequests {
-  apiCalls: RegularRequest<ApiCall>[];
+  apiCalls: BaseRequest<ApiCall>[];
   withdrawals: any;
   walletAuthorizations: any;
 }
@@ -90,11 +90,7 @@ export function apply(
   };
 }
 
-function applyRequesterData<T>(
-  state: ProviderState,
-  request: RegularRequest<T>,
-  data?: RequesterData
-): ExtendedRegularRequest<T> {
+function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, data?: RequesterData): DirectRequest<T> {
   if (!data) {
     const message = `Unable to find wallet data for Request ID:${request.id}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);

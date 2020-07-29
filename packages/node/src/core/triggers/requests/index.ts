@@ -4,20 +4,26 @@ import * as apiCalls from './api-calls';
 // import * as walletAuthorizations from './wallet-authorizations';
 // import * as withdrawals from './withdrawals';
 import * as requesterData from './requester-data';
+import * as discarder from './discarder';
+import * as validator from './validator';
 import { GroupedProviderRequests, ProviderState } from '../../../types';
 
-async function fetchRequesterData(state: ProviderState, requests: requesterData.InitialGroupedRequests) {
+// Alias types
+type InitialGroupedRequests = requesterData.InitialGroupedRequests;
+
+async function fetchRequesterData(state: ProviderState, requests: InitialGroupedRequests) {
+  const apiCallAddresses = requests.apiCalls.filter((a) => a.valid).map((a) => a.requesterAddress);
+  // const walletAuthorizationAddresses = requests.walletAuthorizations.filter(a => a.valid).map(a => a.requesterAddress);
+  // const withdrawalAddresses = requests.withdrawals.filter(a => a.valid).map(a => a.requesterAddress);
+
   const addresses = [
-    ...apiCalls.mapRequesterAddresses(requests.apiCalls),
-    // ...walletAuthorizations.mapAddresses(validWithdrawals),
-    // ...withdrawals.mapAddresses(validWithdrawals),
+    ...apiCallAddresses,
+    // ...walletAuthorizationAddresses,
+    // ...withdrawalAddresses,
   ];
 
   const [err, res] = await goTimeout(5_000, requesterData.fetch(state, addresses));
-  if (err || !res) {
-    return {};
-  }
-  return res;
+  return err || !res ? {} : res;
 }
 
 export async function fetchPendingRequests(state: ProviderState): Promise<GroupedProviderRequests> {
@@ -25,20 +31,25 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   const groupedLogs = await fetchGroupedLogs(state);
 
   const pendingApiCalls = apiCalls.mapPending(state, groupedLogs.apiCalls);
-
   // TODO: handle withdrawals and wallet authorizations
   // const pendingWithdrawals = withdrawals.mapPendingWithdrawal(state, groupedLogs.withdrawals);
   // const pendingWalletAuthoriaztions = walletAuthorizations.mapPending(state, groupedLogs.walletAuthorizations);
 
-  const initialRequests = {
+  const baseRequests = {
     apiCalls: pendingApiCalls,
     walletAuthorizations: [],
     withdrawals: [],
   };
 
-  const dataByAddress = await fetchRequesterData(state, initialRequests);
+  const dataByAddress = await fetchRequesterData(state, baseRequests);
 
-  const requests = requesterData.apply(state, initialRequests, dataByAddress);
+  // Merge requester data with requests
+  const requestsWithData = requesterData.apply(state, baseRequests, dataByAddress);
+
+  // Check that each request is valid
+  const validatedRequests = validator.validateRequests(state, requestsWithData);
+
+  const requests = discarder.discardUnprocessableRequests(state, validatedRequests);
 
   return requests;
 }

@@ -15,7 +15,7 @@ export enum RequestErrorCode {
   InsufficientBalance = 4,
 }
 
-export type RegularRequest<T extends {}> = T & {
+export type BaseRequest<T extends {}> = T & {
   readonly id: string;
   readonly valid: boolean;
   readonly errorCode?: RequestErrorCode;
@@ -29,7 +29,7 @@ export interface RequesterData {
   readonly walletMinimumBalance: ethers.BigNumber;
 }
 
-export type ExtendedRegularRequest<T> = RegularRequest<T> & RequesterData;
+export type DirectRequest<T> = BaseRequest<T> & RequesterData;
 
 export interface ApiCall {
   readonly requesterAddress: string;
@@ -55,7 +55,7 @@ export interface ApiCallTemplate {
 }
 
 export interface GroupedProviderRequests {
-  readonly apiCalls: ExtendedRegularRequest<ApiCall>[];
+  readonly apiCalls: DirectRequest<ApiCall>[];
   readonly walletAuthorizations: any;
   readonly withdrawals: any;
 }

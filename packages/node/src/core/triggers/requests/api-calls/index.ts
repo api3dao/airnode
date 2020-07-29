@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { ApiCall, ProviderState, RegularRequest } from '../../../../types';
+import { ApiCall, BaseRequest, ProviderState } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from './model';
@@ -20,7 +20,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-export function mapPending(state: ProviderState, logs: Log[]): RegularRequest<ApiCall>[] {
+export function mapPending(state: ProviderState, logs: Log[]): BaseRequest<ApiCall>[] {
   // Separate the logs
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
   const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
@@ -32,11 +32,4 @@ export function mapPending(state: ProviderState, logs: Log[]): RegularRequest<Ap
   const apiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
 
   return apiCallRequests;
-}
-
-export function mapRequesterAddresses(requests: RegularRequest<ApiCall>[]): string[] {
-  // Calls for requests that are already invalid are wasted
-  const validRequests = requests.filter((r) => r.valid);
-
-  return validRequests.map((r) => r.requesterAddress);
 }

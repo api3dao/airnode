@@ -23,7 +23,7 @@ jest.mock('../../config', () => ({
 import { ethers } from 'ethers';
 import * as requesterDetails from './requester-data';
 import * as providerState from '../../providers/state';
-import { ApiCall, ProviderState, RegularRequest, RequestErrorCode } from '../../../types';
+import { ApiCall, DirectRequest, ProviderState, RequestErrorCode } from '../../../types';
 
 describe('fetch', () => {
   let state: ProviderState;
@@ -180,7 +180,7 @@ describe('apply', () => {
   });
 });
 
-function createNewApiCallRequest(params?: any): RegularRequest<ApiCall> {
+function createNewApiCallRequest(params?: any): DirectRequest<ApiCall> {
   return {
     requestId: 'requestId',
     requesterId: 'requestId',

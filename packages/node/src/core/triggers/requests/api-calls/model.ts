@@ -1,12 +1,9 @@
 import { ethers } from 'ethers';
 import { tryDecodeParameters } from '../../shared/parameters';
 import * as logger from '../../../utils/logger';
-import { ApiCall, ExtendedRegularRequest, ProviderState, RegularRequest, RequestErrorCode } from '../../../../types';
+import { ApiCall, BaseRequest, ProviderState, RequestErrorCode } from '../../../../types';
 
-// We can't process requests with these errors, so they are ignored
-export const UNPROCESSABLE_ERROR_CODES = [RequestErrorCode.RequesterDataNotFound, RequestErrorCode.InsufficientBalance];
-
-function applyParameters(state: ProviderState, request: RegularRequest<ApiCall>): RegularRequest<ApiCall> {
+function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
   if (!request.encodedParameters) {
     return request;
   }
@@ -22,8 +19,8 @@ function applyParameters(state: ProviderState, request: RegularRequest<ApiCall>)
   return { ...request, parameters };
 }
 
-export function initialize(state: ProviderState, log: ethers.utils.LogDescription): RegularRequest<ApiCall> {
-  const request: RegularRequest<ApiCall> = {
+export function initialize(state: ProviderState, log: ethers.utils.LogDescription): BaseRequest<ApiCall> {
+  const request: BaseRequest<ApiCall> = {
     id: log.args.requestId,
     requesterAddress: log.args.requester,
     endpointId: log.args.endpointId || null,
@@ -39,26 +36,4 @@ export function initialize(state: ProviderState, log: ethers.utils.LogDescriptio
 
   const withParameters = applyParameters(state, request);
   return withParameters;
-}
-
-export function validate(
-  state: ProviderState,
-  request: ExtendedRegularRequest<ApiCall>
-): ExtendedRegularRequest<ApiCall> {
-  // If the request is already invalid, we don't want to overwrite the error
-  if (!request.valid) {
-    return request;
-  }
-
-  // Validation 1: Check the request wallet has enough funds to be able to make transactions
-  if (request.walletBalance.lt(request.walletMinimumBalance)) {
-    const currentBalance = ethers.utils.formatEther(request.walletBalance);
-    const minBalance = ethers.utils.formatEther(request.walletMinimumBalance);
-    const message = `Request ID:${request.id} wallet has insufficient balance of ${currentBalance} ETH. Minimum balance of ${minBalance} ETH is required.`;
-    logger.logProviderJSON(state.config.name, 'ERROR', message);
-
-    return { ...request, valid: false, errorCode: RequestErrorCode.InsufficientBalance };
-  }
-
-  return request;
 }
