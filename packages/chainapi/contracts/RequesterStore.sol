@@ -30,7 +30,7 @@ contract RequesterStore is IRequesterStore {
             noRequesters++,
             this,
             msg.sender,
-            uint256(3)
+            uint256(4)
             ));
         requesterIdToAdmin[requesterId] = admin;
         emit RequesterCreated(

@@ -27,6 +27,13 @@ contract ProviderStore is RequesterStore, IProviderStore {
         uint256 nextWalletInd;
         }
 
+    struct WalletDesignationRequest {
+        bytes32 providerId;
+        bytes32 requesterId;
+        uint256 walletInd;
+        uint256 depositAmount;
+    }
+
     struct WithdrawalRequest {
         bytes32 providerId;
         bytes32 requesterId;
@@ -34,8 +41,10 @@ contract ProviderStore is RequesterStore, IProviderStore {
         }
 
     mapping(bytes32 => Provider) internal providers;
+    mapping(bytes32 => WalletDesignationRequest) private walletDesignationRequests;
     mapping(bytes32 => WithdrawalRequest) private withdrawalRequests;
     uint256 private noProviders = 0;
+    uint256 private noWalletDesignationRequests = 0;
     uint256 private noWithdrawalRequests = 0;
 
 
@@ -187,14 +196,48 @@ contract ProviderStore is RequesterStore, IProviderStore {
         walletInd = providers[providerId].nextWalletInd;
         providers[providerId].requesterIdToWalletInd[requesterId] = walletInd;
         providers[providerId].nextWalletInd++;
+        bytes32 walletDesignationRequestId = keccak256(abi.encodePacked(
+            noWalletDesignationRequests++,
+            this,
+            msg.sender,
+            uint256(2)
+            ));
+        walletDesignationRequests[walletDesignationRequestId] = WalletDesignationRequest({
+            providerId: providerId,
+            requesterId: requesterId,
+            walletInd: walletInd,
+            depositAmount: msg.value
+            });
         emit WalletDesignationRequested(
             providerId,
             requesterId,
+            walletDesignationRequestId,
             walletInd,
             msg.value
             );
         (bool success, ) = walletDesignator.call{value: msg.value}("");
         require(success, "Transfer failed");
+    }
+
+    /// @notice Called to rebroadcast a wallet designation request in case the
+    /// provider node has missed it
+    /// @dev The node must ignore duplicate events
+    /// @param walletDesignationRequestId Wallet designation request ID
+    function rebroadcastWalletDesignationRequest(bytes32 walletDesignationRequestId)
+        external
+    {
+        bytes32 providerId = walletDesignationRequests[walletDesignationRequestId].providerId;
+        require(
+            providerId != 0,
+            "No active wallet designation request with walletDesignationRequestId"
+            );
+        emit WalletDesignationRequested(
+            providerId,
+            walletDesignationRequests[walletDesignationRequestId].requesterId,
+            walletDesignationRequestId,
+            walletDesignationRequests[walletDesignationRequestId].walletInd,
+            walletDesignationRequests[walletDesignationRequestId].depositAmount
+            );
     }
 
     /// @notice Designates a provider wallet to fulfill requests and sends
@@ -203,20 +246,19 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// only designate wallets derived from its master key.
     /// The requester should wait for enough confirmations to trust the
     /// announced walletAddress.
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequestStore
+    /// @param walletDesignationRequestId Wallet designation request ID
     /// @param walletAddress Wallet address to be designated
-    /// @param walletInd Index of the wallet to be designated
     function fulfillWalletDesignation(
-        bytes32 providerId,
-        bytes32 requesterId,
-        address walletAddress,
-        uint256 walletInd
+        bytes32 walletDesignationRequestId,
+        address walletAddress
         )
         external
         payable
         override
     {
+        bytes32 providerId = walletDesignationRequests[walletDesignationRequestId].providerId;
+        bytes32 requesterId = walletDesignationRequests[walletDesignationRequestId].requesterId;
+        uint256 walletInd = walletDesignationRequests[walletDesignationRequestId].walletInd;
         require(
             msg.sender == providers[providerId].walletDesignator,
             "Only the provider walletDesignator can do this"
@@ -234,9 +276,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
         emit WalletDesignationFulfilled(
             providerId,
             requesterId,
+            walletDesignationRequestId,
             walletAddress,
             walletInd
             );
+        delete walletDesignationRequests[walletDesignationRequestId];
         (bool success, ) = walletAddress.call{value: msg.value}("");
         require(success, "Transfer failed");
     }
@@ -268,7 +312,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             noWithdrawalRequests++,
             this,
             msg.sender,
-            uint256(2)
+            uint256(3)
             ));
         withdrawalRequests[withdrawalRequestId] = WithdrawalRequest({
             providerId: providerId,

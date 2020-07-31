@@ -57,7 +57,7 @@ describe('ChainApi', function () {
     const requesterId = await createRequester();
 
     // The requester reserves a wallet from the provider.
-    const { walletInd, depositAmount } = await requestWalletDesignation(providerId, requesterId, walletDesignationDeposit);
+    const { walletInd, depositAmount, walletDesignationRequestId } = await requestWalletDesignation(providerId, requesterId, walletDesignationDeposit);
     // Note that the requester only received the index of the wallet here, and
     // not the wallet address. This is because we can't derive the wallet address
     // on-chain (because it's computationally intensive). See deriveWalletAddressFromIndex()
@@ -67,7 +67,7 @@ describe('ChainApi', function () {
 
     // The node was listening for wallet designation events, and will authorize the
     // corresponding address with designatorAddress automatically.
-    await designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount);
+    await designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount, walletDesignationRequestId);
 
     // The requester deploys a client contract. The client contract needs two arguments:
     // ChainApi addres: I make my requests here
@@ -216,10 +216,11 @@ describe('ChainApi', function () {
     // The node needs to get depositAmount from the event in case the requester
     // sent more than walletDesignationDeposit (which is not the case here).
     const depositAmount = parsedLog.args.depositAmount;
-    return { walletInd, depositAmount };
+    const walletDesignationRequestId = parsedLog.args.walletDesignationRequestId;
+    return { walletInd, depositAmount, walletDesignationRequestId };
   }
 
-  async function designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount) {
+  async function designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount, walletDesignationRequestId) {
     // We will authorize this address
     const walletAddress = await deriveWalletAddressFromIndex(providerKeys.xpub, walletInd);
     // Now let's derive the private keys for designatorAddress because we need
@@ -227,18 +228,18 @@ describe('ChainApi', function () {
     // designatorAddress only has what the requester has sent while reserving
     // the wallet (0.05 ETH).
     const designatorWallet = deriveWalletFromPath(providerKeys.mnemonics, 'm/0/0/0');
-    // The following transaction (fulfillWalletDesignation()) takes 104,026 gas.
+    // The following transaction (fulfillWalletDesignation()) takes 126,796 gas.
     // We will leave some slack (in case a block gets uncled and transactions
     // revert, or gas costs of operations increase with a fork) and say it's
-    // 120,000.
-    const gasCost = ethers.BigNumber.from(120000);
+    // 150,000.
+    const gasCost = ethers.BigNumber.from(150000);
     const gasPrice = await waffle.provider.getGasPrice();
     // The requester sent 0.05 ETH to have their wallet authorized. We use
     // 0.0008 ETH for the transaction (gasCost x gasPrice) and send the remaining
     // 0.0492 ETH to their newly reserved wallet.
     const txCost = gasCost.mul(gasPrice);
     const fundsToSend = depositAmount.sub(txCost);
-    chainApi.connect(designatorWallet).fulfillWalletDesignation(providerId, requesterId, walletAddress, walletInd, {
+    chainApi.connect(designatorWallet).fulfillWalletDesignation(walletDesignationRequestId, walletAddress, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,

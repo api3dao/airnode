@@ -26,6 +26,7 @@ interface IProviderStore {
     event WalletDesignationRequested(
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
+        bytes32 walletDesignationRequestId,
         uint256 walletInd,
         uint256 depositAmount
         );
@@ -33,6 +34,7 @@ interface IProviderStore {
     event WalletDesignationFulfilled(
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
+        bytes32 walletDesignationRequestId,
         address walletAddress,
         uint256 walletInd
         );
@@ -76,15 +78,6 @@ interface IProviderStore {
         )
         external;
 
-    function fulfillWalletDesignation(
-        bytes32 providerId,
-        bytes32 requesterId,
-        address walletAddress,
-        uint256 walletInd
-        )
-        external
-        payable;
-
     function requestWalletDesignation(
         bytes32 providerId,
         bytes32 requesterId
@@ -92,6 +85,13 @@ interface IProviderStore {
         external
         payable
         returns(uint256 walletInd);
+
+    function fulfillWalletDesignation(
+        bytes32 walletDesignationRequestId,
+        address walletAddress
+        )
+        external
+        payable;
 
     function requestWithdrawal(
         bytes32 providerId,
