@@ -2,7 +2,7 @@
 pragma solidity 0.6.8;
 
 
-interface RequesterStoreInterface {
+interface IRequesterStore {
     event RequesterCreated(
         bytes32 indexed id,
         address admin

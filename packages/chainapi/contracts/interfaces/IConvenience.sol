@@ -3,7 +3,7 @@ pragma solidity 0.6.8;
 pragma experimental ABIEncoderV2;
 
 
-interface ConvenienceInterface {
+interface IConvenience {
     function getTemplates(bytes32[] calldata templateIds)
           external
           view

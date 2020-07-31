@@ -2,24 +2,24 @@
 pragma solidity 0.6.8;
 pragma experimental ABIEncoderV2;
 
-import "./interfaces/ConvenienceInterface.sol";
-import "./interfaces/ProviderStoreInterface.sol";
-import "./interfaces/RequesterStoreInterface.sol";
-import "./interfaces/TemplateStoreInterface.sol";
+import "./interfaces/IConvenience.sol";
+import "./interfaces/IProviderStore.sol";
+import "./interfaces/IRequesterStore.sol";
+import "./interfaces/ITemplateStore.sol";
 
 
-contract Convenience is ConvenienceInterface {
-    ProviderStoreInterface public providerStore;
-    RequesterStoreInterface public requesterStore;
-    TemplateStoreInterface public templateStore;
+contract Convenience is IConvenience {
+    IProviderStore public providerStore;
+    IRequesterStore public requesterStore;
+    ITemplateStore public templateStore;
 
 
     constructor (address _chainApi)
         public
     {
-        providerStore = ProviderStoreInterface(_chainApi);
-        requesterStore = RequesterStoreInterface(_chainApi);
-        templateStore = TemplateStoreInterface(_chainApi);
+        providerStore = IProviderStore(_chainApi);
+        requesterStore = IRequesterStore(_chainApi);
+        templateStore = ITemplateStore(_chainApi);
     }
 
     function getTemplates(bytes32[] calldata templateIds)

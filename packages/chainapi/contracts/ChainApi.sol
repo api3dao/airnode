@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/ChainApiInterface.sol";
+import "./interfaces/IChainApi.sol";
 import "./EndpointStore.sol";
 import "./TemplateStore.sol";
 
@@ -10,7 +10,7 @@ import "./TemplateStore.sol";
 /// @notice Clients use this contract to make requests that follow a
 /// request-fulfill cycle. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
-contract ChainApi is EndpointStore, TemplateStore, ChainApiInterface {
+contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     mapping(bytes32 => bytes32) private requestIdToProviderId;
     mapping(bytes32 => bool) private requestWithIdHasFailed;
     uint256 private noRequests = 0;

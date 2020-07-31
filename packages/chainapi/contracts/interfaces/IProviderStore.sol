@@ -2,7 +2,7 @@
 pragma solidity 0.6.8;
 
 
-interface ProviderStoreInterface {
+interface IProviderStore {
     event ProviderCreated(
         bytes32 indexed id,
         address admin,

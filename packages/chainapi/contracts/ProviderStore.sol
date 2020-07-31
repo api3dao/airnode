@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/ProviderStoreInterface.sol";
+import "./interfaces/IProviderStore.sol";
 import "./RequesterStore.sol";
 
 
@@ -14,7 +14,7 @@ import "./RequesterStore.sol";
 /// designated wallet is used by the provider to fund the gas costs of the
 /// fulfillment. The requester can also use this contract to request the
 /// withdrawal off all the funds in their designated wallet.
-contract ProviderStore is RequesterStore, ProviderStoreInterface {
+contract ProviderStore is RequesterStore, IProviderStore {
     struct Provider {
         address admin;
         string xpub;

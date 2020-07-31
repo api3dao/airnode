@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/EndpointStoreInterface.sol";
-import "./interfaces/AuthorizerInterface.sol";
+import "./interfaces/IEndpointStore.sol";
+import "./interfaces/IAuthorizer.sol";
 import "./ProviderStore.sol";
 
 
@@ -11,7 +11,7 @@ import "./ProviderStore.sol";
 /// endpoints so that clients can refer to them while making requests. It also
 /// allows the provider to set an authorization policy for their endpoints,
 /// which both the oracle and the requester can check to verify authorization.
-contract EndpointStore is ProviderStore, EndpointStoreInterface {
+contract EndpointStore is ProviderStore, IEndpointStore {
     // apiId is used to tag endpoints to specify that they belong to the same
     // group (or API). This can be used to enforce API-level authorization
     // policies. If you are going to treat your endpoints individually, feel
@@ -112,7 +112,7 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
     /// @dev Authorizer contracts are not trusted, so this method should only
     /// be called off-chain.
     /// The elements of the authorizer array are either addresses of Authorizer
-    /// contracts with the interface defined in AuthorizerInterface or 0.
+    /// contracts with the interface defined in IAuthorizer or 0.
     /// Say we have authorizer contracts X, Y, Z, T, and our authorizer
     /// array is [X, Y, 0, Z, T]. This means that the requester should satisfy
     /// (X AND Y) OR (Z AND T) to be considered authorized. In other words,
@@ -161,7 +161,7 @@ contract EndpointStore is ProviderStore, EndpointStoreInterface {
             // We only need to check the next authorizer if we have a good track
             // record for this group
             else if (authorizedByAll) {
-                AuthorizerInterface authorizer = AuthorizerInterface(authorizerAddress);
+                IAuthorizer authorizer = IAuthorizer(authorizerAddress);
                 // Set authorizedByAll to false if we got an unauthorized report.
                 // This means that we will not be able to return a true from
                 // this group of authorizers.

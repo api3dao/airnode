@@ -2,7 +2,7 @@
 pragma solidity 0.6.8;
 
 
-interface EndpointStoreInterface {
+interface IEndpointStore {
     event EndpointCreated(
         bytes32 indexed id,
         bytes32 providerId,

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/ClientInterface.sol";
-import "./interfaces/ChainApiInterface.sol";
+import "./interfaces/IClient.sol";
+import "./interfaces/IChainApi.sol";
 
 
 /// @title The contract to be inherited from to use ChainApi to make requests
 /// @notice In addition to referencing the ChainApi contract instance it uses,
 /// the contract authorizes a requester to endorse it by announcing its
 /// ID at requesterId.
-contract Client is ClientInterface {
-    ChainApiInterface public chainApi;
+contract Client is IClient {
+    IChainApi public chainApi;
     bytes32 public override requesterId;
 
     /// @dev ChainApi address and the endorser ID are set at deployment. If you
@@ -24,7 +24,7 @@ contract Client is ClientInterface {
         )
         public
     {
-        chainApi = ChainApiInterface(_chainApi);
+        chainApi = IChainApi(_chainApi);
         requesterId = _requesterId;
     }
 

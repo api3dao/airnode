@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/RequesterStoreInterface.sol";
-import "./interfaces/ClientInterface.sol";
+import "./interfaces/IRequesterStore.sol";
+import "./interfaces/IClient.sol";
 
 
 /// @title The contract where the requesters are stored
@@ -11,7 +11,7 @@ import "./interfaces/ClientInterface.sol";
 /// ProviderStore. This wallet is used to fulfill requests made by client
 /// contracts endorsed by the requester. This is the contract where the
 /// requester can endorse or disendorse a client contract.
-contract RequesterStore is RequesterStoreInterface {
+contract RequesterStore is IRequesterStore {
     mapping(bytes32 => address) internal requesterIdToAdmin;
     mapping(address => bytes32) private clientAdressToRequesterId;
     uint256 private noRequesters = 0;
@@ -60,7 +60,7 @@ contract RequesterStore is RequesterStoreInterface {
     /// @notice Called by the requester admin to allow a client contract to use
     /// its designated wallets
     /// @dev This also requires the client contract to announce the requester
-    /// under the public variable requesterId. See ClientInterface.sol for more
+    /// under the public variable requesterId. See IClient.sol for more
     /// details.
     /// This is not provider specific, i.e., the requester allows the client's
     /// requests to be fulfilled through its designated wallets across all
@@ -75,7 +75,7 @@ contract RequesterStore is RequesterStoreInterface {
         override
         onlyRequesterAdmin(requesterId)
     {
-        ClientInterface client = ClientInterface(clientAddress);
+        IClient client = IClient(clientAddress);
         require(
             client.requesterId() == requesterId,
             "Client contract requester ID is different"

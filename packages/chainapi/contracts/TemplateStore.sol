@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/TemplateStoreInterface.sol";
+import "./interfaces/ITemplateStore.sol";
 
 
 /// @title The contract where request templates are stored
@@ -9,7 +9,7 @@ import "./interfaces/TemplateStoreInterface.sol";
 /// This contract allows the requester to announce their parameters once, then
 /// refer to that announcement when they are making a request, instead of
 /// passing the same parameters repeatedly.
-contract TemplateStore is TemplateStoreInterface {
+contract TemplateStore is ITemplateStore {
     struct Template {
         bytes32 providerId;
         bytes32 endpointId;
