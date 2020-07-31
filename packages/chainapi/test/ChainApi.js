@@ -104,7 +104,7 @@ describe('ChainApi', function () {
 
     // Now the requester wants the amount deposited at their reserved wallet back
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const withdrawRequestId = await createWithdrawRequest(
+    const withdrawalRequestId = await createWithdrawalRequest(
       providerId,
       requesterId,
       accounts.requesterAdmin.getAddress()
@@ -112,7 +112,7 @@ describe('ChainApi', function () {
 
     // Similar to the oracle request, the provider node has been listening for this
     // and fulfills it
-    await fulfillWithdrawRequest(providerId, providerKeys);
+    await fulfillWithdrawalRequest(providerId, providerKeys);
 
     // So the node is listening for three kind of requests
     // 1 - Listens for wallet reservations and responds to them by authorizing the
@@ -390,33 +390,33 @@ describe('ChainApi', function () {
       );
   }
 
-  async function createWithdrawRequest(providerId, requesterId, destination) {
+  async function createWithdrawalRequest(providerId, requesterId, destination) {
     // Only the requester admin can do this
-    const tx = await chainApi.connect(accounts.requesterAdmin).requestWithdraw(providerId, requesterId, destination);
-    // Get the newly created withdraw request's ID from the event
+    const tx = await chainApi.connect(accounts.requesterAdmin).requestWithdrawal(providerId, requesterId, destination);
+    // Get the newly created withdrawal request's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const withdrawRequestId = parsedLog.args.withdrawRequestId;
-    return withdrawRequestId;
+    const withdrawalRequestId = parsedLog.args.withdrawalRequestId;
+    return withdrawalRequestId;
   }
 
-  async function fulfillWithdrawRequest(providerId, providerKeys) {
-    // The node gets the WithdrawRequested log
+  async function fulfillWithdrawalRequest(providerId, providerKeys) {
+    // The node gets the WithdrawalRequested log
     const providerLogs = await waffle.provider.getLogs({
       address: chainApi.address,
       fromBlock: 0, // This would be block number from ~1 hour ago
       topics: [null, providerId],
     });
     const parsedProviderLogs = providerLogs.map((providerLog) => chainApi.interface.parseLog(providerLog));
-    const parsedWithdrawRequestLog = parsedProviderLogs.filter(
-      (parsedProviderLog) => parsedProviderLog.name == 'WithdrawRequested'
+    const parsedWithdrawalRequestLog = parsedProviderLogs.filter(
+      (parsedProviderLog) => parsedProviderLog.name == 'WithdrawalRequested'
     )[0];
 
     const walletInd = await chainApi.getProviderWalletIndWithRequesterId(
       providerId,
-      parsedWithdrawRequestLog.args.requesterId
+      parsedWithdrawalRequestLog.args.requesterId
     );
     // walletInd is guaranteed to not be 0 in this case (contract doesn't allow
     // the caller to request withdrawals from non-authorized wallets).
@@ -427,7 +427,7 @@ describe('ChainApi', function () {
     // The node calculates how much gas the next transaction will cost (53,654)
     const gasCost = await chainApi
       .connect(reservedWallet)
-      .estimateGas.fulfillWithdraw(parsedWithdrawRequestLog.args.withdrawRequestId, {
+      .estimateGas.fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
         // We need to send some funds for the gas price calculation to be correct
         value: 1,
       });
@@ -439,7 +439,7 @@ describe('ChainApi', function () {
     const fundsToSend = reservedWalletBalance.sub(txCost);
 
     // Note that we're using reservedWallet to call this
-    await chainApi.connect(reservedWallet).fulfillWithdraw(parsedWithdrawRequestLog.args.withdrawRequestId, {
+    await chainApi.connect(reservedWallet).fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,
@@ -448,8 +448,8 @@ describe('ChainApi', function () {
     // the wallet. Then it may make sense to just call the gas cost a round
     // 60,000 instead of making an extra call to the Ethereum node to estimate
     // the gas cost.
-    // This final fulfillWithdraw() emits a WithdrawFulfilled event, which the
-    // node can use to tell if it has already served a WithdrawRequested event.
+    // This final fulfillWithdrawal() emits a WithdrawalFulfilled event, which the
+    // node can use to tell if it has already served a WithdrawalRequested event.
     // So we are using the same oracle request-fulfill pattern yet again.
   }
 });

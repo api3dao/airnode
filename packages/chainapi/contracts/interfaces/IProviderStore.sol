@@ -37,16 +37,16 @@ interface IProviderStore {
         uint256 walletInd
         );
 
-    event WithdrawRequested(
+    event WithdrawalRequested(
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
-        bytes32 withdrawRequestId,
+        bytes32 withdrawalRequestId,
         address destination
         );
 
-    event WithdrawFulfilled(
+    event WithdrawalFulfilled(
         bytes32 indexed providerId,
-        bytes32 withdrawRequestId,
+        bytes32 withdrawalRequestId,
         address destination,
         uint256 amount
         );
@@ -92,14 +92,14 @@ interface IProviderStore {
         payable
         returns(uint256 walletInd);
 
-    function requestWithdraw(
+    function requestWithdrawal(
         bytes32 providerId,
         bytes32 requesterId,
         address destination
     )
         external;
 
-    function fulfillWithdraw(bytes32 withdrawRequestId)
+    function fulfillWithdrawal(bytes32 withdrawalRequestId)
         external
         payable;
 

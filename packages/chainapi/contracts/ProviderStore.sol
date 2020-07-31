@@ -27,16 +27,16 @@ contract ProviderStore is RequesterStore, IProviderStore {
         uint256 nextWalletInd;
         }
 
-    struct WithdrawRequest {
+    struct WithdrawalRequest {
         bytes32 providerId;
         bytes32 requesterId;
         address destination;
         }
 
     mapping(bytes32 => Provider) internal providers;
-    mapping(bytes32 => WithdrawRequest) private withdrawRequests;
+    mapping(bytes32 => WithdrawalRequest) private withdrawalRequests;
     uint256 private noProviders = 0;
-    uint256 private noWithdrawRequests = 0;
+    uint256 private noWithdrawalRequests = 0;
 
 
     /// @notice Creates a provider with the given parameters, addressable by
@@ -244,7 +244,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequesterStore
     /// @param destination Withdrawal destination
-    function requestWithdraw(
+    function requestWithdrawal(
         bytes32 providerId,
         bytes32 requesterId,
         address destination
@@ -262,21 +262,21 @@ contract ProviderStore is RequesterStore, IProviderStore {
             providers[providerId].walletIndToAddress[walletInd] != address(0),
             "Requester does not have a wallet authorized by this provider"
             );
-        bytes32 withdrawRequestId = keccak256(abi.encodePacked(
-            noWithdrawRequests++,
+        bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
+            noWithdrawalRequests++,
             this,
             msg.sender,
             uint256(2)
             ));
-        withdrawRequests[withdrawRequestId] = WithdrawRequest({
+        withdrawalRequests[withdrawalRequestId] = WithdrawalRequest({
             providerId: providerId,
             requesterId: requesterId,
             destination: destination
             });
-        emit WithdrawRequested(
+        emit WithdrawalRequested(
             providerId,
             requesterId,
-            withdrawRequestId,
+            withdrawalRequestId,
             destination
             );
     }
@@ -285,32 +285,32 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// made by the requester
     /// @dev The oracle sends the funds through this method to emit an event
     /// that indicates that the withdrawal request has been fulfilled
-    /// @param withdrawRequestId Withdraw request ID
-    function fulfillWithdraw(bytes32 withdrawRequestId)
+    /// @param withdrawalRequestId Withdraw request ID
+    function fulfillWithdrawal(bytes32 withdrawalRequestId)
         external
         payable
         override
     {
-        bytes32 providerId = withdrawRequests[withdrawRequestId].providerId;
+        bytes32 providerId = withdrawalRequests[withdrawalRequestId].providerId;
         require(
             providerId != 0,
-            "No active withdrawal request with withdrawRequestId"
+            "No active withdrawal request with withdrawalRequestId"
             );
-        bytes32 requesterId = withdrawRequests[withdrawRequestId].requesterId;
+        bytes32 requesterId = withdrawalRequests[withdrawalRequestId].requesterId;
         uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         address walletAddress = providers[providerId].walletIndToAddress[walletInd];
         require(
             msg.sender == walletAddress,
             "Only the wallet to be withdrawn from can call this"
             );
-        address destination = withdrawRequests[withdrawRequestId].destination;
-        emit WithdrawFulfilled(
+        address destination = withdrawalRequests[withdrawalRequestId].destination;
+        emit WithdrawalFulfilled(
             providerId,
-            withdrawRequestId,
+            withdrawalRequestId,
             destination,
             msg.value
             );
-        delete withdrawRequests[withdrawRequestId];
+        delete withdrawalRequests[withdrawalRequestId];
         (bool success, ) = destination.call{ value: msg.value }("");
         require(success, "Transfer failed");
     }
