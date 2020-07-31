@@ -8,18 +8,18 @@ import "./RequesterStore.sol";
 /// @title The contract where the providers are stored
 /// @notice This contract is mostly for the management of requester-designated
 /// wallets. If a requester wants to receive services from a provider, they
-/// first make a wallet reservation. The provider node authorizes this wallet
-/// automatically, and the requester can then fund the wallet. When a client
-/// contract endorsed by the requester makes a request to the provider, this
-/// designated wallet is used by the provider to fund the gas costs of the
-/// fulfillment. The requester can also use this contract to request the
-/// withdrawal off all the funds in their designated wallet.
+/// first make a wallet designation request. The provider node fulfills this by
+/// designating a wallet automatically, and the requester can then fund that
+/// wallet. When a client contract endorsed by the requester makes a request to
+/// the provider, this designated wallet is used by the provider to fund the
+/// gas costs of the fulfillment. The requester can also use this contract to
+/// request the withdrawal of all the funds in their designated wallet.
 contract ProviderStore is RequesterStore, IProviderStore {
     struct Provider {
         address admin;
         string xpub;
-        address walletAuthorizer;
-        uint256 authorizationDeposit;
+        address walletDesignator;
+        uint256 walletDesignationDeposit;
         uint256 minBalance;
         mapping(address => uint256) walletAddressToInd;
         mapping(uint256 => address) walletIndToAddress;
@@ -41,12 +41,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
 
     /// @notice Creates a provider with the given parameters, addressable by
     /// the ID it returns
-    /// @dev walletAuthorizer and xpub are not set here, assuming the
+    /// @dev walletDesignator and xpub are not set here, assuming the
     /// provider will not have generated them at the time of provider creation
     /// @param admin Provider admin
-    /// @param authorizationDeposit Amount the requesters need to deposit to
-    /// reserve a wallet index. It should at least cover the gas cost of
-    /// calling authorizeProviderWallet().
+    /// @param walletDesignationDeposit Amount the requesters need to deposit to
+    /// have a wallet designated. It should at least cover the gas cost of
+    /// calling fulfillWalletDesignation().
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
@@ -54,7 +54,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @return providerId Provider ID
     function createProvider(
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external
@@ -70,15 +70,15 @@ contract ProviderStore is RequesterStore, IProviderStore {
         providers[providerId] = Provider({
             admin: admin,
             xpub: "",
-            walletAuthorizer: address(0),
-            authorizationDeposit: authorizationDeposit,
+            walletDesignator: address(0),
+            walletDesignationDeposit: walletDesignationDeposit,
             minBalance: minBalance,
             nextWalletInd: 1
             });
         emit ProviderCreated(
             providerId,
             admin,
-            authorizationDeposit,
+            walletDesignationDeposit,
             minBalance
             );
     }
@@ -86,9 +86,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @notice Updates the provider
     /// @param providerId Provider ID
     /// @param admin Provider admin
-    /// @param authorizationDeposit Amount the requesters need to deposit to
-    /// reserve a wallet index. It should at least cover the gas cost of
-    /// calling authorizeProviderWallet().
+    /// @param walletDesignationDeposit Amount the requesters need to deposit to
+    /// have a wallet designated. It should at least cover the gas cost of
+    /// calling fulfillWalletDesignation().
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
@@ -96,7 +96,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     function updateProvider(
         bytes32 providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external
@@ -104,29 +104,29 @@ contract ProviderStore is RequesterStore, IProviderStore {
         onlyProviderAdmin(providerId)
     {
         providers[providerId].admin = admin;
-        providers[providerId].authorizationDeposit = authorizationDeposit;
+        providers[providerId].walletDesignationDeposit = walletDesignationDeposit;
         providers[providerId].minBalance = minBalance;
         emit ProviderUpdated(
             providerId,
             admin,
-            authorizationDeposit,
+            walletDesignationDeposit,
             minBalance
             );
     }
 
     /// @notice Initializes the master public key of the provider and the
-    /// address it uses to authorize wallets
+    /// address it uses to designate wallets
     /// @dev Keys can only be initialized once. This means that the provider is
     /// not allowed to update their node key.
-    /// walletAuthorizer is typically the address of m/0/0/0 derived from xpub,
+    /// walletDesignator is typically the address of m/0/0/0 derived from xpub,
     /// yet it may change with the oracle implementation.
     /// @param providerId Provider ID
     /// @param xpub Master public key of the provider
-    /// @param walletAuthorizer Address the provider uses to authorize wallets
+    /// @param walletDesignator Address the provider uses to designate wallets
     function initializeProviderKeys(
         bytes32 providerId,
         string calldata xpub,
-        address walletAuthorizer
+        address walletDesignator
         )
         external
         override
@@ -134,33 +134,35 @@ contract ProviderStore is RequesterStore, IProviderStore {
     {
         require(
             (bytes(providers[providerId].xpub).length == 0) &&
-                (providers[providerId].walletAuthorizer == address(0)),
+                (providers[providerId].walletDesignator == address(0)),
             "Provider keys are already initialized"
             );
         require(
-            (bytes(xpub).length != 0) && (walletAuthorizer != address(0)),
+            (bytes(xpub).length != 0) && (walletDesignator != address(0)),
             "Invalid provider keys"
             );
         providers[providerId].xpub = xpub;
-        providers[providerId].walletAuthorizer = walletAuthorizer;
+        providers[providerId].walletDesignator = walletDesignator;
         emit ProviderKeysInitialized(
             providerId,
             xpub,
-            walletAuthorizer
+            walletDesignator
             );
     }
 
-    /// @notice Called by the requester to reserve a wallet from the provider
-    /// @dev The provider expects authorizationDeposit to be sent along with
-    /// this call to cover the subsequent cost of authorizing the reserved
-    /// wallet. The provider is expected to return the remaining amount
-    /// to the authorized wallet, yet this is not enforced.
-    /// Anyone can reserve a wallet for a requester, not only its admin.
+    /// @notice Called by the requester to request a wallet to be designated
+    /// by the provider
+    /// @dev The provider expects walletDesignationDeposit to be sent along with
+    /// this call to cover the subsequent cost of fulfilling the wallet
+    /// designation. The provider is expected to return the remaining amount
+    /// to the designated wallet, yet this is not enforced.
+    /// Anyone can request a wallet to be designated for a requester, not only
+    /// its admin.
     /// The requester should wait for enough confirmations to trust the
     /// announced walletInd.
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequesterStore
-    function reserveWallet(
+    function requestWalletDesignation(
         bytes32 providerId,
         bytes32 requesterId
     )
@@ -171,41 +173,41 @@ contract ProviderStore is RequesterStore, IProviderStore {
     {
         require(
             providers[providerId].requesterIdToWalletInd[requesterId] == 0,
-            "Requester already has a wallet index reserved for this provider"
+            "A wallet designation request has already been made this provider-requester pair"
             );
         require(
-            msg.value >= providers[providerId].authorizationDeposit,
-            "Send at least authorizationDeposit along with your call"
+            msg.value >= providers[providerId].walletDesignationDeposit,
+            "Send at least walletDesignationDeposit along with your call"
             );
-        address walletAuthorizer = providers[providerId].walletAuthorizer;
+        address walletDesignator = providers[providerId].walletDesignator;
         require(
-            walletAuthorizer != address(0),
-            "Provider wallet authorizer not set yet"
+            walletDesignator != address(0),
+            "Provider wallet designator not set yet"
             );
         walletInd = providers[providerId].nextWalletInd;
         providers[providerId].requesterIdToWalletInd[requesterId] = walletInd;
         providers[providerId].nextWalletInd++;
-        emit ProviderWalletReserved(
+        emit WalletDesignationRequested(
             providerId,
             requesterId,
             walletInd,
             msg.value
             );
-        (bool success, ) = walletAuthorizer.call{value: msg.value}("");
+        (bool success, ) = walletDesignator.call{value: msg.value}("");
         require(success, "Transfer failed");
     }
 
-    /// @notice Authorizes a provider wallet to fulfill requests and sends
-    /// the remains of what has been sent along with reserveWallet()
-    /// @dev Wallet authorizations cannot be revoked, so the provider should
-    /// only reserve wallets derived from its master key.
+    /// @notice Designates a provider wallet to fulfill requests and sends
+    /// the remains of what has been sent along with requestWalletDesignation()
+    /// @dev Wallet designations cannot be revoked, so the provider should
+    /// only designate wallets derived from its master key.
     /// The requester should wait for enough confirmations to trust the
     /// announced walletAddress.
     /// @param providerId Provider ID
     /// @param requesterId Requester ID from RequestStore
-    /// @param walletAddress Wallet address to be authorized
-    /// @param walletInd Index of the wallet to be authorized
-    function authorizeProviderWallet(
+    /// @param walletAddress Wallet address to be designated
+    /// @param walletInd Index of the wallet to be designated
+    function fulfillWalletDesignation(
         bytes32 providerId,
         bytes32 requesterId,
         address walletAddress,
@@ -216,20 +218,20 @@ contract ProviderStore is RequesterStore, IProviderStore {
         override
     {
         require(
-            msg.sender == providers[providerId].walletAuthorizer,
-            "Only the provider walletAuthorizer can do this"
+            msg.sender == providers[providerId].walletDesignator,
+            "Only the provider walletDesignator can do this"
             );
         require(
             providers[providerId].walletAddressToInd[walletAddress] == 0,
-            "Wallet address already authorized"
+            "Wallet address already designated"
             );
         require(
             providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
-            "No such wallet index reservation has been made"
+            "No such designation request has been made"
             );
         providers[providerId].walletAddressToInd[walletAddress] = walletInd;
         providers[providerId].walletIndToAddress[walletInd] = walletAddress;
-        emit ProviderWalletAuthorized(
+        emit WalletDesignationFulfilled(
             providerId,
             requesterId,
             walletAddress,
@@ -256,11 +258,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
         uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         require(
             walletInd != 0,
-            "Requester does not have a wallet reserved by this provider"
+            "Requester have not requested a wallet designation from this provider"
             );
         require(
             providers[providerId].walletIndToAddress[walletInd] != address(0),
-            "Requester does not have a wallet authorized by this provider"
+            "Requester have not had a wallet designated by this provider"
             );
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             noWithdrawalRequests++,
@@ -319,10 +321,10 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
-    /// @return walletAuthorizer Address the provider uses to authorize wallets
-    /// @return authorizationDeposit Amount the requesters need to deposit to
-    /// reserve a wallet index. It should at least cover the gas cost of
-    /// calling authorizeProviderWallet().
+    /// @return walletDesignator Address the provider uses to designate wallets
+    /// @return walletDesignationDeposit Amount the requesters need to deposit to
+    /// have a wallet designated. It should at least cover the gas cost of
+    /// calling fulfillWalletDesignation().
     /// @return minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
@@ -334,15 +336,15 @@ contract ProviderStore is RequesterStore, IProviderStore {
         returns (
             address admin,
             string memory xpub,
-            address walletAuthorizer,
-            uint256 authorizationDeposit,
+            address walletDesignator,
+            uint256 walletDesignationDeposit,
             uint256 minBalance
         )
     {
         admin = providers[providerId].admin;
         xpub = providers[providerId].xpub;
-        walletAuthorizer = providers[providerId].walletAuthorizer;
-        authorizationDeposit = providers[providerId].authorizationDeposit;
+        walletDesignator = providers[providerId].walletDesignator;
+        walletDesignationDeposit = providers[providerId].walletDesignationDeposit;
         minBalance = providers[providerId].minBalance;
     }
 
@@ -362,9 +364,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
     }
 
     /// @notice Gets the authorization status of a provider wallet
-    /// @dev The provider does not reserve wallet index 0 to anyone, which
+    /// @dev The provider does not designate wallet index 0 to anyone, which
     /// means that if a wallet address maps to an index of 0, it is not
-    /// reserved by anyone or authorized to fulfill requests.
+    /// designated to anyone or authorized to fulfill requests.
     /// @param providerId Provider ID
     /// @param walletAddress Wallet address
     /// @return status If the wallet is authorized to fulfill requests made to

@@ -6,31 +6,31 @@ interface IProviderStore {
     event ProviderCreated(
         bytes32 indexed providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         );
 
     event ProviderUpdated(
         bytes32 indexed providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         );
 
     event ProviderKeysInitialized(
         bytes32 indexed providerId,
         string xpub,
-        address walletAuthorizer
+        address walletDesignator
         );
 
-    event ProviderWalletReserved(
+    event WalletDesignationRequested(
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
         uint256 walletInd,
         uint256 depositAmount
         );
 
-    event ProviderWalletAuthorized(
+    event WalletDesignationFulfilled(
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
         address walletAddress,
@@ -54,7 +54,7 @@ interface IProviderStore {
 
     function createProvider(
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external
@@ -63,7 +63,7 @@ interface IProviderStore {
     function updateProvider(
         bytes32 providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external;
@@ -71,11 +71,11 @@ interface IProviderStore {
     function initializeProviderKeys(
         bytes32 providerId,
         string calldata xpub,
-        address walletAuthorizer
+        address walletDesignator
         )
         external;
 
-    function authorizeProviderWallet(
+    function fulfillWalletDesignation(
         bytes32 providerId,
         bytes32 requesterId,
         address walletAddress,
@@ -84,7 +84,7 @@ interface IProviderStore {
         external
         payable;
 
-    function reserveWallet(
+    function requestWalletDesignation(
         bytes32 providerId,
         bytes32 requesterId
     )
@@ -109,8 +109,8 @@ interface IProviderStore {
         returns (
             address admin,
             string memory xpub,
-            address walletAuthorizer,
-            uint256 authorizationDeposit,
+            address walletDesignator,
+            uint256 walletDesignationDeposit,
             uint256 minBalance
         );
 
