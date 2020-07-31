@@ -86,6 +86,9 @@ interface IProviderStore {
         payable
         returns(uint256 walletInd);
 
+    function rebroadcastWalletDesignationRequest(bytes32 walletDesignationRequestId)
+        external;
+
     function fulfillWalletDesignation(
         bytes32 walletDesignationRequestId,
         address walletAddress

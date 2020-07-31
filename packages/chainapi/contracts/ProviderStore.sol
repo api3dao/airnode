@@ -225,6 +225,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param walletDesignationRequestId Wallet designation request ID
     function rebroadcastWalletDesignationRequest(bytes32 walletDesignationRequestId)
         external
+        override
     {
         bytes32 providerId = walletDesignationRequests[walletDesignationRequestId].providerId;
         require(
