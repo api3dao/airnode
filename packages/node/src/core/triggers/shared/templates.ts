@@ -4,7 +4,14 @@ import flatten from 'lodash/flatten';
 import { goTimeout } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
 import { Convenience } from '../../ethereum/contracts';
-import { ApiCallParameters, ApiCallRequest, ApiCallTemplate, ApiRequestErrorCode, ProviderState } from '../../../types';
+import {
+  ApiCall,
+  ApiCallParameters,
+  ApiCallTemplate,
+  ClientRequest,
+  ProviderState,
+  RequestErrorCode,
+} from '../../../types';
 import * as parameters from './parameters';
 
 const TIMEOUT = 5_000;
@@ -58,10 +65,10 @@ export async function fetch(state: ProviderState, templateIds: string[]) {
 }
 
 function mergeRequestAndTemplate(
-  request: ApiCallRequest,
+  request: ClientRequest<ApiCall>,
   template: ApiCallTemplate,
   templateParameters: ApiCallParameters
-): ApiCallRequest {
+): ClientRequest<ApiCall> {
   return {
     ...request,
     // NOTE: template attributes can be overwritten by the request attributes
@@ -76,11 +83,11 @@ function mergeRequestAndTemplate(
 
 export function apply(
   state: ProviderState,
-  requests: ApiCallRequest[],
+  requests: ClientRequest<ApiCall>[],
   templates: ApiCallTemplate[]
-): ApiCallRequest[] {
+): ClientRequest<ApiCall>[] {
   return requests.reduce((acc, request) => {
-    const { requestId, templateId } = request;
+    const { id, templateId } = request;
 
     // If the request does not have a template to apply, skip it
     if (!templateId) {
@@ -91,7 +98,7 @@ export function apply(
     // If no template is found, then we aren't able to build the full request.
     // Drop the request for now and it will be retried on the next run
     if (!template) {
-      const message = `Unable to fetch template ID:${templateId} for Request ID:${requestId}. Request has been discarded until the next run.`;
+      const message = `Unable to fetch template ID:${templateId} for Request ID:${id}. Request has been discarded until the next run.`;
       logger.logProviderJSON(state.config.name, 'WARN', message);
       return acc;
     }
@@ -100,9 +107,9 @@ export function apply(
 
     // If the template contains invalid parameters, then we can't use execute the request
     if (templateParameters === null) {
-      const message = `Template ID:${requestId} contains invalid parameters: ${template.encodedParameters}`;
+      const message = `Template ID:${id} contains invalid parameters: ${template.encodedParameters}`;
       logger.logProviderJSON(state.config.name, 'ERROR', message);
-      const invalidatedRequest = { ...request, valid: false, errorCode: ApiRequestErrorCode.InvalidTemplateParameters };
+      const invalidatedRequest = { ...request, valid: false, errorCode: RequestErrorCode.InvalidTemplateParameters };
       return [...acc, invalidatedRequest];
     }
 

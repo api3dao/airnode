@@ -96,4 +96,44 @@ contract Convenience is ConvenienceInterface {
         walletBalance = walletAddress.balance;
         minBalance = providerStore.getProviderMinBalance(providerId);
     }
+
+    function getDataWithClientAddresses(
+        bytes32 providerId,
+        address[] calldata clientAddresses
+        )
+        external
+        view
+        override
+        returns (
+            bytes32[] memory requesterIds,
+            uint256[] memory walletInds,
+            address[] memory walletAddresses,
+            uint256[] memory walletBalances,
+            uint256[] memory minBalances
+            )
+    {
+        requesterIds = new bytes32[](clientAddresses.length);
+        walletInds = new uint256[](clientAddresses.length);
+        walletAddresses = new address[](clientAddresses.length);
+        walletBalances = new uint256[](clientAddresses.length);
+        minBalances = new uint256[](clientAddresses.length);
+
+        for (uint256 ind = 0; ind < clientAddresses.length; ind++)
+        {
+            bytes32 requesterId = requesterStore.getClientRequesterId(clientAddresses[ind]);
+            uint256 walletInd = providerStore.getProviderWalletIndWithRequesterId(
+                providerId,
+                requesterId
+                );
+            address walletAddress = providerStore.getProviderWalletAddressWithInd(
+                providerId,
+                walletInd
+                );
+            requesterIds[ind] = requesterId;
+            walletInds[ind] = walletInd;
+            walletAddresses[ind] = walletAddress;
+            walletBalances[ind] = walletAddress.balance;
+            minBalances[ind] = providerStore.getProviderMinBalance(providerId);
+        }
+    }
 }

@@ -8,16 +8,31 @@ export interface ApiCallParameters {
   [key: string]: string;
 }
 
-export enum ApiRequestErrorCode {
+export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
   RequesterDataNotFound = 3,
-  InsufficientBalance = 4,
+  ReservedWalletIndex = 4,
+  InsufficientBalance = 5,
 }
 
-export interface ApiCallRequest {
-  readonly requestId: string;
+export type BaseRequest<T extends {}> = T & {
+  readonly id: string;
+  readonly valid: boolean;
+  readonly errorCode?: RequestErrorCode;
+};
+
+export interface RequesterData {
   readonly requesterId: string;
+  readonly walletIndex: number;
+  readonly walletAddress: string;
+  readonly walletBalance: ethers.BigNumber;
+  readonly walletMinimumBalance: ethers.BigNumber;
+}
+
+export type ClientRequest<T> = BaseRequest<T> & RequesterData;
+
+export interface ApiCall {
   readonly requesterAddress: string;
   readonly endpointId: string | null;
   readonly templateId: string | null;
@@ -27,12 +42,6 @@ export interface ApiCallRequest {
   readonly errorFunctionId: string | null;
   readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
-  readonly valid: boolean;
-  readonly errorCode?: ApiRequestErrorCode;
-  readonly walletIndex: number;
-  readonly walletAddress: string;
-  readonly walletBalance: ethers.BigNumber;
-  readonly walletMinimumBalance: ethers.BigNumber;
 }
 
 export interface ApiCallTemplate {
@@ -46,16 +55,9 @@ export interface ApiCallTemplate {
   readonly encodedParameters: string;
 }
 
-export interface WithdrawalRequest {
-  readonly destination: string;
-  readonly providerId: string;
-  readonly requesterId: string;
-  readonly withdrawRequestId: string;
-}
-
-export interface ProviderRequests {
-  readonly apiCalls: ApiCallRequest[];
-  readonly walletAuthorizations: WithdrawalRequest[];
+export interface GroupedProviderRequests {
+  readonly apiCalls: ClientRequest<ApiCall>[];
+  readonly walletAuthorizations: any;
   readonly withdrawals: any;
 }
 
@@ -64,7 +66,7 @@ export interface ProviderState {
   readonly currentBlock: number | null;
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly requests: ProviderRequests;
+  readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
 }
 

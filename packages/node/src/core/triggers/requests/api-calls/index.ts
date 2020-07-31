@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
-import { ApiCallRequest, ProviderState } from '../../../../types';
+import { ApiCall, BaseRequest, ProviderState } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from './model';
-import * as requesterDetails from './requester-data';
 
 // Alias types
 type Log = ethers.utils.LogDescription;
@@ -21,22 +20,7 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-function discardUnprocessableRequests(state: ProviderState, requests: ApiCallRequest[]): ApiCallRequest[] {
-  return requests.reduce((acc, request) => {
-    if (request.valid || !request.errorCode) {
-      return [...acc, request];
-    }
-
-    if (model.UNPROCESSABLE_ERROR_CODES.includes(request.errorCode)) {
-      const message = `Request ID:${request.requestId} has unprocessable error code:${request.errorCode}`;
-      logger.logProviderJSON(state.config.name, 'DEBUG', message);
-    }
-
-    return [...acc, request];
-  }, []);
-}
-
-export async function mapPending(state: ProviderState, logs: Log[]): Promise<ApiCallRequest[]> {
+export function mapPending(state: ProviderState, logs: Log[]): BaseRequest<ApiCall>[] {
   // Separate the logs
   const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
   const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
