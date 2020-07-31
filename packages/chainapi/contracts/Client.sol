@@ -3,6 +3,7 @@ pragma solidity 0.6.8;
 
 import "./interfaces/IClient.sol";
 import "./interfaces/IChainApi.sol";
+import "./interfaces/IRequesterStore.sol";
 
 
 /// @title The contract to be inherited from to use ChainApi to make requests
@@ -11,13 +12,12 @@ import "./interfaces/IChainApi.sol";
 /// ID at requesterId.
 contract Client is IClient {
     IChainApi public chainApi;
-    bytes32 public override requesterId;
 
     /// @dev ChainApi address and the endorser ID are set at deployment. If you
     /// need to be able to update them, you will have to implement that
     /// functionality (and probably put it behind onlyOwner).
     /// @param _chainApi ChainApi contract address
-    /// @param _requesterId Endorser ID from RequestStore
+    /// @param _requesterId Requester ID from RequestStore
     constructor (
         address _chainApi,
         bytes32 _requesterId
@@ -25,7 +25,8 @@ contract Client is IClient {
         public
     {
         chainApi = IChainApi(_chainApi);
-        requesterId = _requesterId;
+        IRequesterStore requesterStore = IRequesterStore(_chainApi);
+        requesterStore.updateEndorsementPermission(_requesterId);
     }
 
     /// @notice Returns the ChainApi contract address used by this client

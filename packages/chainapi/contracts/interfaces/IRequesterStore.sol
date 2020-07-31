@@ -33,6 +33,9 @@ interface IRequesterStore {
         )
         external;
 
+    function updateEndorsementPermission(bytes32 requesterId)
+        external;
+
     function endorseClient(
         bytes32 requesterId,
         address clientAddress
@@ -51,6 +54,11 @@ interface IRequesterStore {
         returns (address admin);
 
     function getClientRequesterId(address clientAddress)
+        external
+        view
+        returns (bytes32 requesterId);
+
+    function getClientPermittedEndorser(address clientAddress)
         external
         view
         returns (bytes32 requesterId);

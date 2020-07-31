@@ -7,9 +7,4 @@ interface IClient {
       external
       view
       returns(address);
-
-    function requesterId()
-      external
-      view
-      returns(bytes32);
 }
