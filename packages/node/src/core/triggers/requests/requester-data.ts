@@ -34,7 +34,6 @@ async function fetchRequesterData(state: ProviderState, addresses: string[]): Pr
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
 
   const [err, data] = await go(retryableContractCall);
-  // TODO: how do we differentiate between timeouts and errors in the contract, like authorization issues?
   if (err || !data) {
     logger.logProviderError(state.config.name, 'Failed to fetch requester details', err);
     return null;
