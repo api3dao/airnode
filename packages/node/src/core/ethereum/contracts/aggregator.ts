@@ -4,6 +4,7 @@ export const Aggregator: Contract = {
   addresses: {
     1: '<TODO>',
     3: '<TODO>',
+    1337: '<TODO>',
   },
   ABI: [
     'event NewRequest(address indexed requester, uint256 requestInd)',

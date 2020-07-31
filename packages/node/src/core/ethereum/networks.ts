@@ -5,11 +5,12 @@ import { ethers } from 'ethers';
  *
  * 1 - Ethereum Mainnet
  * 3 - Ethereum Ropsten
+ * 1337 - Local Ganache (develpment)
  */
-export type ChainID = 1 | 3;
+export type ChainID = 1 | 3 | 1337;
 
 type NetworkDetails = {
-  [chainId in ChainID]: ethers.providers.Network;
+  [chainId: number]: ethers.providers.Network;
 };
 
 export const NETWORKS: NetworkDetails = {
