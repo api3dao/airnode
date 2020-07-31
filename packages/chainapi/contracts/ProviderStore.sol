@@ -8,7 +8,7 @@ import "./RequesterStore.sol";
 /// @title The contract where the providers are stored
 /// @notice This contract is mostly for the management of requester-designated
 /// wallets. If a requester wants to receive services from a provider, they
-/// first request a wallet reservation. The provider authorizes this wallet
+/// first make a wallet reservation. The provider node authorizes this wallet
 /// automatically, and the requester can then fund the wallet. When a client
 /// contract endorsed by the requester makes a request to the provider, this
 /// designated wallet is used by the provider to fund the gas costs of the
@@ -221,7 +221,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             );
         require(
             providers[providerId].walletAddressToInd[walletAddress] == 0,
-            "Wallet adderss already authorized"
+            "Wallet address already authorized"
             );
         require(
             providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
@@ -399,7 +399,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
 
     /// @notice Gets the address of a provider wallet with its index
     /// @param providerId Provider ID
-    /// @param walletInd Wallet inde
+    /// @param walletInd Wallet index
     /// @return walletAddress Address of the wallet with walletInd index
     function getProviderWalletAddressWithInd(
         bytes32 providerId,

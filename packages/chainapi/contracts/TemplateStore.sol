@@ -33,14 +33,16 @@ contract TemplateStore is ITemplateStore {
     /// Note that the requester may choose to use a template, but not its
     /// fulfill/error destinations. For example, among the methods used to make
     /// individual requests in ChainApi.sol, only makeShortRequest() uses these.
+    /// In addition, the static parameters encoded in the template can be
+    /// overriden by the dynamic parameters provided at runtime.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called if fulfillment fails
+    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     /// @param errorFunctionId Signature of the function that will be called
-    /// if fulfillment fails
+    /// to error
     /// @param parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
     /// at runtime)
@@ -93,11 +95,11 @@ contract TemplateStore is ITemplateStore {
     /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
     /// @return fulfillAddress Address that will be called to fulfill
-    /// @return errorAddress Address that will be called if fulfillment fails
+    /// @return errorAddress Address that will be called to error
     /// @return fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     /// @return errorFunctionId Signature of the function that will be called
-    /// if fulfillment fails
+    /// to error
     /// @return parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
     /// at runtime)

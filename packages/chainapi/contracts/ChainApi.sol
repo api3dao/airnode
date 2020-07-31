@@ -6,7 +6,7 @@ import "./EndpointStore.sol";
 import "./TemplateStore.sol";
 
 
-/// @title The contract used to make and fulfill individual requests
+/// @title The contract used to make and fulfill requests
 /// @notice Clients use this contract to make requests that follow a
 /// request-fulfill cycle. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
@@ -24,11 +24,11 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     /// makeShortRequest() if gas efficiency is critical.
     /// @param templateId Template ID from TemplateStore
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called if fulfillment fails
+    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     /// @param errorFunctionId Signature of the function that will be called
-    /// if fulfillment fails
+    /// to error
     /// @param parameters Dynamic request parameters (i.e., parameters that are
     /// determined at runtime, unlike the static parameters stored in the
     /// template)
@@ -65,10 +65,10 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
         );
     }
 
-    /// @notice Called by the requester to make a short request. A regular
+    /// @notice Called by the requester to make a short request. A short
     /// request refers to a template, which the provider will get all parameters
     /// from (including fulfill/error destinations). This is the most gas
-    /// efficient method making an individual request.
+    /// efficient method of making an individual request.
     /// @dev Use this if gas efficiency is critical
     /// @param templateId Template ID from TemplateStore
     /// @param parameters Dynamic request parameters (i.e., parameters that are
@@ -109,11 +109,11 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called if fulfillment fails
+    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     /// @param errorFunctionId Signature of the function that will be called
-    /// if fulfillment fails
+    /// to error
     /// @param parameters All request parameters
     /// @return requestId Request ID
     function makeFullRequest(
@@ -149,12 +149,11 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     }
 
     /// @notice Called by the oracle node to fulfill individual requests
-    /// (inclusing regular, short and full requests)
+    /// (including regular, short and full requests)
     /// @param requestId Request ID
     /// @param data Oracle response
-    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillAddress Address that will be called
     /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -188,14 +187,13 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     }
 
     /// @notice Called by the oracle node to fulfill individual requests
-    /// (inclusing regular, short and full requests) with a bytes type response
+    /// (including regular, short and full requests) with a bytes type response
     /// @dev The oracle uses this method to fulfill if the requester has
     /// specifically asked for a bytes type response
     /// @param requestId Request ID
     /// @param data Oracle response of type bytes
-    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillAddress Address that will be called
     /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)

@@ -15,7 +15,7 @@ contract Client is IClient {
 
     /// @dev ChainApi address and the endorser ID are set at deployment. If you
     /// need to be able to update them, you will have to implement that
-    /// functionality.
+    /// functionality (and probably put it behind onlyOwner).
     /// @param _chainApi ChainApi contract address
     /// @param _requesterId Endorser ID from RequestStore
     constructor (
