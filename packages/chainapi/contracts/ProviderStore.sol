@@ -308,6 +308,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         address destination = withdrawalRequests[withdrawalRequestId].destination;
         emit WithdrawalFulfilled(
             providerId,
+            requesterId,
             withdrawalRequestId,
             destination,
             msg.value

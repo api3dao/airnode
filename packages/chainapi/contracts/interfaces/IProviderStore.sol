@@ -46,6 +46,7 @@ interface IProviderStore {
 
     event WithdrawalFulfilled(
         bytes32 indexed providerId,
+        bytes32 indexed requesterId,
         bytes32 withdrawalRequestId,
         address destination,
         uint256 amount
