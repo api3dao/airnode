@@ -8,7 +8,7 @@ import {
   ApiCall,
   ApiCallParameters,
   ApiCallTemplate,
-  DirectRequest,
+  ClientRequest,
   ProviderState,
   RequestErrorCode,
 } from '../../../types';
@@ -65,10 +65,10 @@ export async function fetch(state: ProviderState, templateIds: string[]) {
 }
 
 function mergeRequestAndTemplate(
-  request: DirectRequest<ApiCall>,
+  request: ClientRequest<ApiCall>,
   template: ApiCallTemplate,
   templateParameters: ApiCallParameters
-): DirectRequest<ApiCall> {
+): ClientRequest<ApiCall> {
   return {
     ...request,
     // NOTE: template attributes can be overwritten by the request attributes
@@ -83,9 +83,9 @@ function mergeRequestAndTemplate(
 
 export function apply(
   state: ProviderState,
-  requests: DirectRequest<ApiCall>[],
+  requests: ClientRequest<ApiCall>[],
   templates: ApiCallTemplate[]
-): DirectRequest<ApiCall>[] {
+): ClientRequest<ApiCall>[] {
   return requests.reduce((acc, request) => {
     const { id, templateId } = request;
 

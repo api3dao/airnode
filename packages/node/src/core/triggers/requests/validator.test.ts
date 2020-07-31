@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import * as providerState from '../../providers/state';
-import { ApiCall, DirectRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
+import { ApiCall, ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 import * as validator from './validator';
 
 describe('validate', () => {
@@ -20,6 +20,25 @@ describe('validate', () => {
     const { apiCalls } = validator.validateRequests(state, requests);
     expect(apiCalls[0].valid).toEqual(false);
     expect(apiCalls[0].errorCode).toEqual(9999);
+  });
+
+  it('validates that the wallet index is not reserved', () => {
+    const reserved = createApiCallRequest({ walletIndex: 0 });
+    const requester = createApiCallRequest({ walletIndex: 1 });
+
+    const requests: GroupedProviderRequests = {
+      apiCalls: [reserved, requester],
+      walletAuthorizations: [],
+      withdrawals: [],
+    };
+
+    const { apiCalls } = validator.validateRequests(state, requests);
+
+    expect(apiCalls[0].valid).toEqual(false);
+    expect(apiCalls[0].errorCode).toEqual(4);
+
+    expect(apiCalls[1].valid).toEqual(true);
+    expect(apiCalls[1].errorCode).toEqual(undefined);
   });
 
   it('validates the current balance is greater than the current balance', () => {
@@ -45,7 +64,7 @@ describe('validate', () => {
     expect(apiCalls[2].errorCode).toEqual(RequestErrorCode.InsufficientBalance);
   });
 
-  function createApiCallRequest(params?: any): DirectRequest<ApiCall> {
+  function createApiCallRequest(params?: any): ClientRequest<ApiCall> {
     return {
       id: 'requestId',
       requesterId: 'requestId',

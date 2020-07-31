@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { ApiCall, DirectRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
+import { ApiCall, ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 import * as providerState from '../../providers/state';
 import * as discarder from './discarder';
 
@@ -57,7 +57,7 @@ describe('discardUnprocessableRequests', () => {
     expect(apiCalls.length).toEqual(0);
   });
 
-  function createApiCallRequest(params?: any): DirectRequest<ApiCall> {
+  function createApiCallRequest(params?: any): ClientRequest<ApiCall> {
     return {
       id: 'requestId',
       requesterId: 'requestId',

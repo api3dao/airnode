@@ -12,7 +12,8 @@ export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
   RequesterDataNotFound = 3,
-  InsufficientBalance = 4,
+  ReservedWalletIndex = 4,
+  InsufficientBalance = 5,
 }
 
 export type BaseRequest<T extends {}> = T & {
@@ -29,7 +30,7 @@ export interface RequesterData {
   readonly walletMinimumBalance: ethers.BigNumber;
 }
 
-export type DirectRequest<T> = BaseRequest<T> & RequesterData;
+export type ClientRequest<T> = BaseRequest<T> & RequesterData;
 
 export interface ApiCall {
   readonly requesterAddress: string;
@@ -55,7 +56,7 @@ export interface ApiCallTemplate {
 }
 
 export interface GroupedProviderRequests {
-  readonly apiCalls: DirectRequest<ApiCall>[];
+  readonly apiCalls: ClientRequest<ApiCall>[];
   readonly walletAuthorizations: any;
   readonly withdrawals: any;
 }

@@ -8,7 +8,7 @@ import * as logger from '../../utils/logger';
 import {
   ApiCall,
   BaseRequest,
-  DirectRequest,
+  ClientRequest,
   GroupedProviderRequests,
   ProviderState,
   RequesterData,
@@ -90,7 +90,7 @@ export function apply(
   };
 }
 
-function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, data?: RequesterData): DirectRequest<T> {
+function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, data?: RequesterData): ClientRequest<T> {
   if (!data) {
     const message = `Unable to find wallet data for Request ID:${request.id}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
