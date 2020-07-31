@@ -4,34 +4,34 @@ pragma solidity 0.6.8;
 
 interface IProviderStore {
     event ProviderCreated(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         address admin,
         uint256 authorizationDeposit,
         uint256 minBalance
         );
 
     event ProviderUpdated(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         address admin,
         uint256 authorizationDeposit,
         uint256 minBalance
         );
 
     event ProviderKeysInitialized(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         string xpub,
         address walletAuthorizer
         );
 
     event ProviderWalletReserved(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         bytes32 indexed requesterId,
         uint256 walletInd,
         uint256 depositAmount
         );
 
     event ProviderWalletAuthorized(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         bytes32 indexed requesterId,
         address walletAddress,
         uint256 walletInd

@@ -138,7 +138,7 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const providerId = parsedLog.args.id;
+    const providerId = parsedLog.args.providerId;
     return providerId;
   }
 
@@ -159,7 +159,7 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const endpointId = parsedLog.args.id;
+    const endpointId = parsedLog.args.endpointId;
     return endpointId;
   }
 
@@ -192,7 +192,7 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const requesterId = parsedLog.args.id;
+    const requesterId = parsedLog.args.requesterId;
     return requesterId;
   }
 
@@ -302,7 +302,7 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const templateId = parsedLog.args.id;
+    const templateId = parsedLog.args.templateId;
     return templateId;
   }
 

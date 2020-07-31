@@ -4,12 +4,12 @@ pragma solidity 0.6.8;
 
 interface IRequesterStore {
     event RequesterCreated(
-        bytes32 indexed id,
+        bytes32 indexed requesterId,
         address admin
         );
 
     event RequesterUpdated(
-        bytes32 indexed id,
+        bytes32 indexed requesterId,
         address admin
         );
 
