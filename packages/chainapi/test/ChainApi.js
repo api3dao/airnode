@@ -57,7 +57,11 @@ describe('ChainApi', function () {
     const requesterId = await createRequester();
 
     // The requester reserves a wallet from the provider.
-    const { walletInd, depositAmount, walletDesignationRequestId } = await requestWalletDesignation(providerId, requesterId, walletDesignationDeposit);
+    const { walletInd, depositAmount, walletDesignationRequestId } = await requestWalletDesignation(
+      providerId,
+      requesterId,
+      walletDesignationDeposit
+    );
     // Note that the requester only received the index of the wallet here, and
     // not the wallet address. This is because we can't derive the wallet address
     // on-chain (because it's computationally intensive). See deriveWalletAddressFromIndex()
@@ -220,7 +224,14 @@ describe('ChainApi', function () {
     return { walletInd, depositAmount, walletDesignationRequestId };
   }
 
-  async function designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount, walletDesignationRequestId) {
+  async function designateWallet(
+    providerId,
+    requesterId,
+    providerKeys,
+    walletInd,
+    depositAmount,
+    walletDesignationRequestId
+  ) {
     // We will authorize this address
     const walletAddress = await deriveWalletAddressFromIndex(providerKeys.xpub, walletInd);
     // Now let's derive the private keys for designatorAddress because we need
