@@ -84,7 +84,7 @@ contract RequesterStore is IRequesterStore {
     {
         require(
             endorsementPermissions[clientAddress] == requesterId,
-            "Client have not permitted this requester to endorse it"
+            "Client has not permitted this requester to endorse it"
             );
         clientAdressToRequesterId[clientAddress] = requesterId;
         emit ClientEndorsed(

@@ -303,11 +303,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
         uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         require(
             walletInd != 0,
-            "Requester have not requested a wallet designation from this provider"
+            "Requester has not requested a wallet designation from this provider"
             );
         require(
             providers[providerId].walletIndToAddress[walletInd] != address(0),
-            "Requester have not had a wallet designated by this provider"
+            "Requester has not had a wallet designated by this provider"
             );
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             noWithdrawalRequests++,
