@@ -14,13 +14,9 @@ export const API_CALL_FULFILLMENT_TOPICS = [
   ethereum.contracts.ChainAPI.topics.ApiCallFulfillmentFailed,
 ];
 
-export const WALLET_DESIGNATION_REQUEST_TOPICS = [
-  ethereum.contracts.ChainAPI.topics.WalletDesignationRequest,
-];
+export const WALLET_DESIGNATION_REQUEST_TOPICS = [ethereum.contracts.ChainAPI.topics.WalletDesignationRequest];
 
-export const WALLET_DESIGNATION_FULFILLED_TOPICS = [
-  ethereum.contracts.ChainAPI.topics.WalletDesignationFulfilled,
-];
+export const WALLET_DESIGNATION_FULFILLED_TOPICS = [ethereum.contracts.ChainAPI.topics.WalletDesignationFulfilled];
 
 export const WITHDRAWAL_REQUEST_TOPICS = [ethereum.contracts.ChainAPI.topics.WithdrawRequested];
 

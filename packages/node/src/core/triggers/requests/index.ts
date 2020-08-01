@@ -13,14 +13,12 @@ type InitialGroupedRequests = requesterData.InitialGroupedRequests;
 
 async function fetchRequesterData(state: ProviderState, requests: InitialGroupedRequests) {
   const apiCallAddresses = requests.apiCalls.filter((a) => a.valid).map((a) => a.requesterAddress);
-  const walletAuthorizationAddresses = requests.walletAuthorizations.filter(a => a.valid).map(a => a.requesterAddress);
-  const withdrawalAddresses = requests.withdrawals.filter(w => w.valid).map(w => w.destinationAddress);
+  const walletAuthorizationAddresses = requests.walletAuthorizations
+    .filter((a) => a.valid)
+    .map((a) => a.requesterAddress);
+  const withdrawalAddresses = requests.withdrawals.filter((w) => w.valid).map((w) => w.destinationAddress);
 
-  const addresses = [
-    ...apiCallAddresses,
-    ...walletAuthorizationAddresses,
-    ...withdrawalAddresses,
-  ];
+  const addresses = [...apiCallAddresses, ...walletAuthorizationAddresses, ...withdrawalAddresses];
 
   const [err, res] = await goTimeout(5_000, requesterData.fetch(state, addresses));
   return err || !res ? {} : res;
