@@ -31,7 +31,7 @@ describe('getGasPrice', () => {
     provider: new ethers.providers.JsonRpcProvider(),
     requests: {
       apiCalls: [],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     },
   };

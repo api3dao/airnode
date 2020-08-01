@@ -42,7 +42,7 @@ describe('fetchGroupedLogs', () => {
     provider: new ethers.providers.JsonRpcProvider(),
     requests: {
       apiCalls: [],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     },
   };
@@ -66,10 +66,12 @@ describe('fetchGroupedLogs', () => {
     const res = await fetcher.fetchGroupedLogs(state);
     expect(res).toEqual({
       apiCalls: [newApiCallEvent, fulfilledApiCallEvent],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     });
   });
+
+  pending('it returns wallet designation requests');
 
   it('returns withdrawal requests', async () => {
     const newWithdrawalEvent = { topic: '0x807501b4a176d068b18e979406a05a3f7d8af479ad2a683f53902fda520a9a0a' };
@@ -90,7 +92,7 @@ describe('fetchGroupedLogs', () => {
     const res = await fetcher.fetchGroupedLogs(state);
     expect(res).toEqual({
       apiCalls: [],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [newWithdrawalEvent, fulfilledWithdrawalEvent],
     });
   });

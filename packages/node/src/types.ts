@@ -56,10 +56,11 @@ export interface ApiCallTemplate {
   readonly templateId: string;
 }
 
-export interface WalletAuthorization {
-  readonly destinationAddress: string;
+export interface WalletDesignation {
+  readonly depositAmount: ethers.BigNumber;
   readonly providerId: string;
   readonly requesterId: string;
+  readonly walletIndex: number;
 }
 
 export interface Withdrawal {
@@ -70,7 +71,7 @@ export interface Withdrawal {
 
 export interface GroupedProviderRequests {
   readonly apiCalls: ClientRequest<ApiCall>[];
-  readonly walletAuthorizations: any;
+  readonly walletDesignations: BaseRequest<WalletDesignation>[];
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 

@@ -13,6 +13,7 @@ import {
   ProviderState,
   RequesterData,
   RequestErrorCode,
+  WalletDesignation,
   Withdrawal,
 } from '../../../types';
 
@@ -20,10 +21,10 @@ type RequesterDataByAddress = {
   [address: string]: RequesterData;
 };
 
-export interface InitialGroupedRequests {
+export interface GroupedBaseRequests {
   apiCalls: BaseRequest<ApiCall>[];
   withdrawals: BaseRequest<Withdrawal>[];
-  walletAuthorizations: any;
+  walletDesignations: BaseRequest<WalletDesignation>[];
 }
 
 async function fetchRequesterData(state: ProviderState, addresses: string[]): Promise<RequesterDataByAddress | null> {
@@ -78,15 +79,16 @@ export async function fetch(state: ProviderState, addresses: string[]): Promise<
 
 export function apply(
   state: ProviderState,
-  requests: InitialGroupedRequests,
+  requests: GroupedBaseRequests,
   data: RequesterDataByAddress
 ): GroupedProviderRequests {
   const apiCalls = requests.apiCalls.map((a) => applyRequesterData(state, a, data[a.requesterAddress]));
+  const withdrawals = requests.withdrawals.map((w) => applyRequesterData(state, w, data[w.destinationAddress]));
 
   return {
+    ...requests,
     apiCalls,
-    walletAuthorizations: [],
-    withdrawals: [],
+    withdrawals,
   };
 }
 

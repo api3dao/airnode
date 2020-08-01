@@ -29,7 +29,7 @@ describe('spawnNewProvider', () => {
     gasPrice: null,
     requests: {
       apiCalls: [],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     },
   };

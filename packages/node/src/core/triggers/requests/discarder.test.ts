@@ -14,7 +14,7 @@ describe('discardUnprocessableRequests', () => {
   it('does nothing if the request is valid', () => {
     const requests: GroupedProviderRequests = {
       apiCalls: [createApiCallRequest()],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 
@@ -26,7 +26,7 @@ describe('discardUnprocessableRequests', () => {
   it('does nothing for unknown error codes', () => {
     const requests: GroupedProviderRequests = {
       apiCalls: [createApiCallRequest({ valid: false, errorCode: 9999 })],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 
@@ -38,7 +38,7 @@ describe('discardUnprocessableRequests', () => {
   it('discards requests where the requester could not be found', () => {
     const requests: GroupedProviderRequests = {
       apiCalls: [createApiCallRequest({ valid: false, errorCode: RequestErrorCode.RequesterDataNotFound })],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 
@@ -49,7 +49,7 @@ describe('discardUnprocessableRequests', () => {
   it('discards requests where the requester has an insufficient wallet balance', () => {
     const requests: GroupedProviderRequests = {
       apiCalls: [createApiCallRequest({ valid: false, errorCode: RequestErrorCode.InsufficientBalance })],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 

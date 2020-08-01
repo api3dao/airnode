@@ -14,7 +14,7 @@ describe('validate', () => {
   it('does nothing if the request is already invalid', () => {
     const requests: GroupedProviderRequests = {
       apiCalls: [createApiCallRequest({ valid: false, errorCode: 9999 })],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
     const { apiCalls } = validator.validateRequests(state, requests);
@@ -28,7 +28,7 @@ describe('validate', () => {
 
     const requests: GroupedProviderRequests = {
       apiCalls: [reserved, requester],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 
@@ -48,7 +48,7 @@ describe('validate', () => {
 
     const requests: GroupedProviderRequests = {
       apiCalls: [sufficientBalance, matchingBalance, insufficientBalance],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 
