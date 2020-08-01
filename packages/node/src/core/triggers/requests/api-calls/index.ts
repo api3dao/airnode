@@ -20,10 +20,10 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-export function mapPending(state: ProviderState, logs: Log[]): BaseRequest<ApiCall>[] {
+export function mapBaseRequests(state: ProviderState, logs: Log[]): BaseRequest<ApiCall>[] {
   // Separate the logs
-  const requestLogs = logs.filter((log) => events.isApiCallEvent(log));
-  const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillmentEvent(log));
+  const requestLogs = logs.filter((log) => events.isApiCallRequest(log));
+  const fulfillmentLogs = logs.filter((log) => events.isApiCallFulfillment(log));
 
   // We don't care about request events that have already been fulfilled
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);

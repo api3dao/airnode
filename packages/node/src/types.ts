@@ -33,32 +33,45 @@ export interface RequesterData {
 export type ClientRequest<T> = BaseRequest<T> & RequesterData;
 
 export interface ApiCall {
-  readonly requesterAddress: string;
+  readonly encodedParameters: string;
   readonly endpointId: string | null;
-  readonly templateId: string | null;
-  readonly fulfillAddress: string | null;
-  readonly fulfillFunctionId: string | null;
   readonly errorAddress: string | null;
   readonly errorFunctionId: string | null;
-  readonly encodedParameters: string;
+  readonly fulfillAddress: string | null;
+  readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
+  readonly providerId: string;
+  readonly requesterAddress: string;
+  readonly templateId: string | null;
 }
 
 export interface ApiCallTemplate {
-  readonly templateId: string;
+  readonly encodedParameters: string;
   readonly endpointId: string;
-  readonly providerId: string;
-  readonly fulfillAddress: string;
-  readonly fulfillFunctionId: string;
   readonly errorAddress: string;
   readonly errorFunctionId: string;
-  readonly encodedParameters: string;
+  readonly fulfillAddress: string;
+  readonly fulfillFunctionId: string;
+  readonly providerId: string;
+  readonly templateId: string;
+}
+
+export interface WalletAuthorization {
+  readonly destinationAddress: string;
+  readonly providerId: string;
+  readonly requesterId: string;
+}
+
+export interface Withdrawal {
+  readonly destinationAddress: string;
+  readonly providerId: string;
+  readonly requesterId: string;
 }
 
 export interface GroupedProviderRequests {
   readonly apiCalls: ClientRequest<ApiCall>[];
   readonly walletAuthorizations: any;
-  readonly withdrawals: any;
+  readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
 export interface ProviderState {

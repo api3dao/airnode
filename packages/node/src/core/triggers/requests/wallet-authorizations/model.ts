@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
-import { BaseRequest, Withdrawal } from '../../../../types';
+import { BaseRequest, WalletAuthorization } from '../../../../types';
 
-export function initialize(log: ethers.utils.LogDescription): BaseRequest<Withdrawal> {
-  const request: BaseRequest<Withdrawal> = {
+export function initialize(log: ethers.utils.LogDescription): BaseRequest<WalletAuthorization> {
+  const request: BaseRequest<WalletAuthorization> = {
     id: log.args.withdrawRequestId,
     destination: log.args.destination,
     providerId: log.args.providerId,

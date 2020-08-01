@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { ProviderState, WithdrawalRequest } from '../../../../types';
+import { BaseRequest, ProviderState, Withdrawal } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from './model';
@@ -24,10 +24,10 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
-export function mapPending(state: ProviderState, logs: Log[]): WithdrawalRequest[] {
+export function mapBaseRequests(state: ProviderState, logs: Log[]): BaseRequest<Withdrawal>[] {
   // Separate the logs
-  const requestLogs = logs.filter((log) => events.isWithdrawalEvent(log));
-  const fulfillmentLogs = logs.filter((log) => events.isWithdrawalFulfillmentEvent(log));
+  const requestLogs = logs.filter((log) => events.isWithdrawalRequest(log));
+  const fulfillmentLogs = logs.filter((log) => events.isWithdrawalFulfillment(log));
 
   // We don't care about request events that have already been fulfilled
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);

@@ -13,6 +13,7 @@ import {
   ProviderState,
   RequesterData,
   RequestErrorCode,
+  Withdrawal,
 } from '../../../types';
 
 type RequesterDataByAddress = {
@@ -21,7 +22,7 @@ type RequesterDataByAddress = {
 
 export interface InitialGroupedRequests {
   apiCalls: BaseRequest<ApiCall>[];
-  withdrawals: any;
+  withdrawals: BaseRequest<Withdrawal>[];
   walletAuthorizations: any;
 }
 
