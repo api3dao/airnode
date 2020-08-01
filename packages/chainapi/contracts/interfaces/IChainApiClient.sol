@@ -2,14 +2,9 @@
 pragma solidity 0.6.8;
 
 
-interface ClientInterface {
+interface IChainApiClient {
   function chainApiAddress()
       external
       view
       returns(address);
-
-    function requesterId()
-      external
-      view
-      returns(bytes32);
 }

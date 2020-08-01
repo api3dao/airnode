@@ -2,14 +2,14 @@
 pragma solidity 0.6.8;
 
 
-interface RequesterStoreInterface {
+interface IRequesterStore {
     event RequesterCreated(
-        bytes32 indexed id,
+        bytes32 indexed requesterId,
         address admin
         );
 
     event RequesterUpdated(
-        bytes32 indexed id,
+        bytes32 indexed requesterId,
         address admin
         );
 
@@ -33,6 +33,9 @@ interface RequesterStoreInterface {
         )
         external;
 
+    function updateEndorsementPermission(bytes32 requesterId)
+        external;
+
     function endorseClient(
         bytes32 requesterId,
         address clientAddress
@@ -51,6 +54,11 @@ interface RequesterStoreInterface {
         returns (address admin);
 
     function getClientRequesterId(address clientAddress)
+        external
+        view
+        returns (bytes32 requesterId);
+
+    function getClientPermittedEndorser(address clientAddress)
         external
         view
         returns (bytes32 requesterId);

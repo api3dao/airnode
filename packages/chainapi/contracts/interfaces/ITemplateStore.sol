@@ -2,9 +2,9 @@
 pragma solidity 0.6.8;
 
 
-interface TemplateStoreInterface {
+interface ITemplateStore {
     event TemplateCreated(
-        bytes32 indexed id,
+        bytes32 indexed templateId,
         bytes32 providerId,
         bytes32 endpointId,
         address fulfillAddress,

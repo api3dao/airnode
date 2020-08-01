@@ -5,7 +5,7 @@ describe('ChainApi', function () {
   let accounts;
   let chainApi;
   let convenience;
-  let client;
+  let chainApiClient;
 
   beforeEach(async () => {
     const chainApiFactory = await ethers.getContractFactory('ChainApi');
@@ -20,17 +20,17 @@ describe('ChainApi', function () {
   });
 
   it('works', async function () {
-    // The requesters need to deposit at least authorizationDeposit ETH to have
+    // The requesters need to deposit at least walletDesignationDeposit ETH to have
     // a wallet reserved. The node uses this to automatically make a transaction
     // that authorizes the reserved wallet address to fulfill requests, and
     // deposits the rest to the reserved wallet.
-    const authorizationDeposit = ethers.utils.parseEther('0.05');
+    const walletDesignationDeposit = ethers.utils.parseEther('0.05');
     // The requesters need to have at least minBalance at their reserved wallet
     // to have a request fulfilled.
     const minBalance = ethers.utils.parseEther('0.025');
     // After sign up, ChainAPI has the provider make a transaction to create
     // a provider record at the contract and get assigned an ID.
-    const providerId = await createProvider(authorizationDeposit, minBalance);
+    const providerId = await createProvider(walletDesignationDeposit, minBalance);
 
     // The provider generates the OIS that integrates their API to an endpoint
     // using ChainAPI.
@@ -43,21 +43,25 @@ describe('ChainApi', function () {
     // The provider initiates a deployment, which creates a config.json file
     // in which this endpointId is used. The provider deploys the node. The node
     // generates keys for the provider and stores them at SSM. They send us
-    // xpub and authorizerAddress over the API (actually we only need xpub
-    // and can derive authorizerAddress from that with path m/0/0/0).
+    // xpub and designatorAddress over the API (actually we only need xpub
+    // and can derive designatorAddress from that with path m/0/0/0).
     const providerKeys = await generateProviderKey();
 
     // After they have deployed the node, the provider has to come back to ChainAPI
     // to do the transaction below to announce their extended public key. We will have
     // received these through the API so we can fill in the arguments for them.
-    await initializeProviderKey(providerId, providerKeys.xpub, providerKeys.authorizerAddress);
+    await initializeProviderKey(providerId, providerKeys.xpub, providerKeys.designatorAddress);
 
     // After sign up, ChainAPI has the requester make a transaction to create
     // a requester record at the contract and get assigned an ID.
     const requesterId = await createRequester();
 
     // The requester reserves a wallet from the provider.
-    const { walletInd, depositAmount } = await reserveWallet(providerId, requesterId, authorizationDeposit);
+    const { walletInd, depositAmount, walletDesignationRequestId } = await requestWalletDesignation(
+      providerId,
+      requesterId,
+      walletDesignationDeposit
+    );
     // Note that the requester only received the index of the wallet here, and
     // not the wallet address. This is because we can't derive the wallet address
     // on-chain (because it's computationally intensive). See deriveWalletAddressFromIndex()
@@ -65,20 +69,20 @@ describe('ChainApi', function () {
     // transaction goes through and tell the requester what their reserved wallet address
     // is.
 
-    // The node was listening for wallet reservation events, and will authorize the
-    // corresponding address with authorizerAddress automatically.
-    await authorizeWallet(providerId, requesterId, providerKeys, walletInd, depositAmount);
+    // The node was listening for wallet designation events, and will authorize the
+    // corresponding address with designatorAddress automatically.
+    await designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount, walletDesignationRequestId);
 
     // The requester deploys a client contract. The client contract needs two arguments:
     // ChainApi addres: I make my requests here
     // requesterId: I belong to this guy so let him decide for me
-    const clientFactory = await ethers.getContractFactory('ExampleClient');
-    client = await clientFactory.deploy(chainApi.address, requesterId);
+    const chainApiClientFactory = await ethers.getContractFactory('ExampleChainApiClient');
+    chainApiClient = await chainApiClientFactory.deploy(chainApi.address, requesterId);
 
     // The requester introduces the client contract to ChainApi contract as one
     // of its own. This means that the requests made by the client contract will
     // be funded by the requester's reserved wallet.
-    await endorseClient(requesterId, client.address);
+    await endorseClient(requesterId, chainApiClient.address);
     // Note that this would have reverted if the client didn't announce
     // requesterId as its potential endorser. This is because we don't want
     // random people to endorse a client contract, then underfund their reserved
@@ -100,11 +104,11 @@ describe('ChainApi', function () {
     await fulfill(providerId, providerKeys);
 
     // We got our response!
-    console.log(ethers.utils.parseBytes32String(await client.data()));
+    console.log(ethers.utils.parseBytes32String(await chainApiClient.data()));
 
     // Now the requester wants the amount deposited at their reserved wallet back
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const withdrawRequestId = await createWithdrawRequest(
+    const withdrawalRequestId = await createWithdrawalRequest(
       providerId,
       requesterId,
       accounts.requesterAdmin.getAddress()
@@ -112,11 +116,11 @@ describe('ChainApi', function () {
 
     // Similar to the oracle request, the provider node has been listening for this
     // and fulfills it
-    await fulfillWithdrawRequest(providerId, providerKeys);
+    await fulfillWithdrawalRequest(providerId, providerKeys);
 
     // So the node is listening for three kind of requests
-    // 1 - Listens for wallet reservations and responds to them by authorizing the
-    // wallet's address with its authorizerAddress
+    // 1 - Listens for wallet designation requests and responds to them by
+    // designating the wallet's address with its designatorAddress
     // 2 - Listens for oracle requests and responds to them with requester's
     // reserved wallet
     // 3 - Listens for withdrawal requests and responds to them with requester's
@@ -129,16 +133,16 @@ describe('ChainApi', function () {
     // not much is happening.
   });
 
-  async function createProvider(authorizationDeposit, minBalance) {
+  async function createProvider(walletDesignationDeposit, minBalance) {
     const tx = await chainApi
       .connect(accounts.providerAdmin)
-      .createProvider(await accounts.providerAdmin.getAddress(), authorizationDeposit, minBalance);
+      .createProvider(await accounts.providerAdmin.getAddress(), walletDesignationDeposit, minBalance);
     // Get the newly created provider's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const providerId = parsedLog.args.id;
+    const providerId = parsedLog.args.providerId;
     return providerId;
   }
 
@@ -159,7 +163,7 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const endpointId = parsedLog.args.id;
+    const endpointId = parsedLog.args.endpointId;
     return endpointId;
   }
 
@@ -171,18 +175,18 @@ describe('ChainApi', function () {
     const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
     const xpub = hdNode.neuter().extendedKey;
     // We designate m/0/0/0 as a wallet with a special function. Specifically,
-    // it is used to call ProviderStore to authorize reserved wallet addresses
+    // it is used to call ProviderStore to designate reserved wallet addresses
     // to fulfill requests.
-    const authorizerWallet = hdNode.derivePath(`m/0/0/0`);
+    const designatorWallet = hdNode.derivePath(`m/0/0/0`);
     return {
       mnemonics: wallet.mnemonic.phrase,
       xpub: xpub,
-      authorizerAddress: authorizerWallet.address,
+      designatorAddress: designatorWallet.address,
     };
   }
 
-  async function initializeProviderKey(providerId, xpub, authorizerAddress) {
-    chainApi.connect(accounts.providerAdmin).initializeProviderKeys(providerId, xpub, authorizerAddress);
+  async function initializeProviderKey(providerId, xpub, designatorAddress) {
+    chainApi.connect(accounts.providerAdmin).initializeProviderKeys(providerId, xpub, designatorAddress);
   }
 
   async function createRequester() {
@@ -192,21 +196,21 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const requesterId = parsedLog.args.id;
+    const requesterId = parsedLog.args.requesterId;
     return requesterId;
   }
 
-  async function reserveWallet(providerId, requesterId, authorizationDeposit) {
-    // Note that the requester sends authorizationDeposit amount of ETH along with
-    // this transaction. The contract sends it to authorizerAddress of the provider,
-    // which will make a transaction to authorize the newly reserved wallet to
-    // fulfill requests for this provider. Then, authorizerAddress will send the rest
+  async function requestWalletDesignation(providerId, requesterId, walletDesignationDeposit) {
+    // Note that the requester sends walletDesignationDeposit amount of ETH along with
+    // this transaction. The contract sends it to designatorAddress of the provider,
+    // which will make a transaction to designate the newly reserved wallet to
+    // fulfill requests for this provider. Then, designatorAddress will send the rest
     // of the funds to the newly reserved wallet address. This means that the requester
-    // can send more than authorizationDeposit along with this transaction to reserve
+    // can send more than walletDesignationDeposit along with this transaction to reserve
     // a wallet and fund it in a single transaction.
     const tx = await chainApi
       .connect(accounts.requesterAdmin)
-      .reserveWallet(providerId, requesterId, { value: authorizationDeposit });
+      .requestWalletDesignation(providerId, requesterId, { value: walletDesignationDeposit });
     // Get the newly reserved wallet's index from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -214,40 +218,48 @@ describe('ChainApi', function () {
     const parsedLog = chainApi.interface.parseLog(log);
     const walletInd = parsedLog.args.walletInd;
     // The node needs to get depositAmount from the event in case the requester
-    // sent more than authorizationDeposit (which is not the case here).
+    // sent more than walletDesignationDeposit (which is not the case here).
     const depositAmount = parsedLog.args.depositAmount;
-    return { walletInd, depositAmount };
+    const walletDesignationRequestId = parsedLog.args.walletDesignationRequestId;
+    return { walletInd, depositAmount, walletDesignationRequestId };
   }
 
-  async function authorizeWallet(providerId, requesterId, providerKeys, walletInd, depositAmount) {
+  async function designateWallet(
+    providerId,
+    requesterId,
+    providerKeys,
+    walletInd,
+    depositAmount,
+    walletDesignationRequestId
+  ) {
     // We will authorize this address
     const walletAddress = await deriveWalletAddressFromIndex(providerKeys.xpub, walletInd);
-    // Now let's derive the private keys for authorizerAddress because we need
+    // Now let's derive the private keys for designatorAddress because we need
     // to call the contract through the corresponding wallet. Note that
-    // authorizerAddress only has what the requester has sent while reserving
+    // designatorAddress only has what the requester has sent while reserving
     // the wallet (0.05 ETH).
-    const authorizerWallet = deriveWalletFromPath(providerKeys.mnemonics, 'm/0/0/0');
-    // The following transaction (authorizeProviderWallet()) takes 104,026 gas.
+    const designatorWallet = deriveWalletFromPath(providerKeys.mnemonics, 'm/0/0/0');
+    // The following transaction (fulfillWalletDesignation()) takes 126,796 gas.
     // We will leave some slack (in case a block gets uncled and transactions
     // revert, or gas costs of operations increase with a fork) and say it's
-    // 120,000.
-    const gasCost = ethers.BigNumber.from(120000);
+    // 150,000.
+    const gasCost = ethers.BigNumber.from(150000);
     const gasPrice = await waffle.provider.getGasPrice();
     // The requester sent 0.05 ETH to have their wallet authorized. We use
     // 0.0008 ETH for the transaction (gasCost x gasPrice) and send the remaining
     // 0.0492 ETH to their newly reserved wallet.
     const txCost = gasCost.mul(gasPrice);
     const fundsToSend = depositAmount.sub(txCost);
-    chainApi.connect(authorizerWallet).authorizeProviderWallet(providerId, requesterId, walletAddress, walletInd, {
+    chainApi.connect(designatorWallet).fulfillWalletDesignation(walletDesignationRequestId, walletAddress, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,
     });
 
     // This transaction emits an event. The node uses this event to be able to
-    // tell that it has already authorized a reserved wallet and doesn't try
+    // tell that it has already designated a wallet and doesn't try
     // again (so very similar to an oracle request-response pattern).
-    // At this point, we have very little ETH left in authorizerWallet, but the
+    // At this point, we have very little ETH left in designatorWallet, but the
     // next requester reserving a wallet will fund it with 0.05 ETH again.
   }
 
@@ -255,8 +267,8 @@ describe('ChainApi', function () {
     // This is function that the node uses to derive the private key of an
     // arbitrary wallet path.
     const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonics);
-    const authorizerHdNode = masterHdNode.derivePath(path);
-    return new ethers.Wallet(authorizerHdNode.privateKey, waffle.provider);
+    const designatorHdNode = masterHdNode.derivePath(path);
+    return new ethers.Wallet(designatorHdNode.privateKey, waffle.provider);
   }
 
   async function deriveWalletAddressFromIndex(xpub, walletInd) {
@@ -265,7 +277,7 @@ describe('ChainApi', function () {
     // by the provider.
     const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
     // We can reserve 2^256-1 different wallets as below
-    // m/0/0/0: authorizerAddress
+    // m/0/0/0: designatorAddress
     // m/0/0/1: First reserved wallet path
     // m/0/0/2: Second reserved wallet path
     // ...
@@ -302,12 +314,12 @@ describe('ChainApi', function () {
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const templateId = parsedLog.args.id;
+    const templateId = parsedLog.args.templateId;
     return templateId;
   }
 
   async function makeRequest(templateId, dynamicParameters) {
-    const tx = await client.request(templateId, dynamicParameters);
+    const tx = await chainApiClient.request(templateId, dynamicParameters);
     // Get the newly created template's ID from the event. Note that we are
     // listening from ChainApi and not Client, because that's where the event
     // is emitted.
@@ -390,36 +402,36 @@ describe('ChainApi', function () {
       );
   }
 
-  async function createWithdrawRequest(providerId, requesterId, destination) {
+  async function createWithdrawalRequest(providerId, requesterId, destination) {
     // Only the requester admin can do this
-    const tx = await chainApi.connect(accounts.requesterAdmin).requestWithdraw(providerId, requesterId, destination);
-    // Get the newly created withdraw request's ID from the event
+    const tx = await chainApi.connect(accounts.requesterAdmin).requestWithdrawal(providerId, requesterId, destination);
+    // Get the newly created withdrawal request's ID from the event
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = chainApi.interface.parseLog(log);
-    const withdrawRequestId = parsedLog.args.withdrawRequestId;
-    return withdrawRequestId;
+    const withdrawalRequestId = parsedLog.args.withdrawalRequestId;
+    return withdrawalRequestId;
   }
 
-  async function fulfillWithdrawRequest(providerId, providerKeys) {
-    // The node gets the WithdrawRequested log
+  async function fulfillWithdrawalRequest(providerId, providerKeys) {
+    // The node gets the WithdrawalRequested log
     const providerLogs = await waffle.provider.getLogs({
       address: chainApi.address,
       fromBlock: 0, // This would be block number from ~1 hour ago
       topics: [null, providerId],
     });
     const parsedProviderLogs = providerLogs.map((providerLog) => chainApi.interface.parseLog(providerLog));
-    const parsedWithdrawRequestLog = parsedProviderLogs.filter(
-      (parsedProviderLog) => parsedProviderLog.name == 'WithdrawRequested'
+    const parsedWithdrawalRequestLog = parsedProviderLogs.filter(
+      (parsedProviderLog) => parsedProviderLog.name == 'WithdrawalRequested'
     )[0];
 
     const walletInd = await chainApi.getProviderWalletIndWithRequesterId(
       providerId,
-      parsedWithdrawRequestLog.args.requesterId
+      parsedWithdrawalRequestLog.args.requesterId
     );
     // walletInd is guaranteed to not be 0 in this case (contract doesn't allow
-    // the caller to request withdrawals from non-authorized wallets).
+    // the caller to request withdrawals from non-designated wallets).
     // We need to derive the wallet to send its entire content.
     const reservedWallet = deriveWalletFromPath(providerKeys.mnemonics, `m/0/0/${walletInd}`);
 
@@ -427,7 +439,7 @@ describe('ChainApi', function () {
     // The node calculates how much gas the next transaction will cost (53,654)
     const gasCost = await chainApi
       .connect(reservedWallet)
-      .estimateGas.fulfillWithdraw(parsedWithdrawRequestLog.args.withdrawRequestId, {
+      .estimateGas.fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
         // We need to send some funds for the gas price calculation to be correct
         value: 1,
       });
@@ -439,7 +451,7 @@ describe('ChainApi', function () {
     const fundsToSend = reservedWalletBalance.sub(txCost);
 
     // Note that we're using reservedWallet to call this
-    await chainApi.connect(reservedWallet).fulfillWithdraw(parsedWithdrawRequestLog.args.withdrawRequestId, {
+    await chainApi.connect(reservedWallet).fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,
@@ -448,8 +460,8 @@ describe('ChainApi', function () {
     // the wallet. Then it may make sense to just call the gas cost a round
     // 60,000 instead of making an extra call to the Ethereum node to estimate
     // the gas cost.
-    // This final fulfillWithdraw() emits a WithdrawFulfilled event, which the
-    // node can use to tell if it has already served a WithdrawRequested event.
+    // This final fulfillWithdrawal() emits a WithdrawalFulfilled event, which the
+    // node can use to tell if it has already served a WithdrawalRequested event.
     // So we are using the same oracle request-fulfill pattern yet again.
   }
 });
