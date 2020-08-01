@@ -2,7 +2,10 @@ import * as logger from '../../utils/logger';
 import { ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 
 // We can't process requests with these errors, so they are ignored
-export const UNPROCESSABLE_CLIENT_ERROR_CODES = [RequestErrorCode.RequesterDataNotFound, RequestErrorCode.InsufficientBalance];
+export const UNPROCESSABLE_CLIENT_ERROR_CODES = [
+  RequestErrorCode.RequesterDataNotFound,
+  RequestErrorCode.InsufficientBalance,
+];
 
 function discardClientRequests<T>(state: ProviderState, requests: ClientRequest<T>[]): ClientRequest<T>[] {
   return requests.reduce((acc, request) => {
