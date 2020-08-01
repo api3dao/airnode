@@ -2,7 +2,7 @@
 pragma solidity 0.6.8;
 
 
-interface IClient {
+interface IChainApiClient {
   function chainApiAddress()
       external
       view

@@ -5,7 +5,7 @@ describe('ChainApi', function () {
   let accounts;
   let chainApi;
   let convenience;
-  let client;
+  let chainApiClient;
 
   beforeEach(async () => {
     const chainApiFactory = await ethers.getContractFactory('ChainApi');
@@ -72,13 +72,13 @@ describe('ChainApi', function () {
     // The requester deploys a client contract. The client contract needs two arguments:
     // ChainApi addres: I make my requests here
     // requesterId: I belong to this guy so let him decide for me
-    const clientFactory = await ethers.getContractFactory('ExampleClient');
-    client = await clientFactory.deploy(chainApi.address, requesterId);
+    const chainApiClientFactory = await ethers.getContractFactory('ExampleChainApiClient');
+    chainApiClient = await chainApiClientFactory.deploy(chainApi.address, requesterId);
 
     // The requester introduces the client contract to ChainApi contract as one
     // of its own. This means that the requests made by the client contract will
     // be funded by the requester's reserved wallet.
-    await endorseClient(requesterId, client.address);
+    await endorseClient(requesterId, chainApiClient.address);
     // Note that this would have reverted if the client didn't announce
     // requesterId as its potential endorser. This is because we don't want
     // random people to endorse a client contract, then underfund their reserved
@@ -100,7 +100,7 @@ describe('ChainApi', function () {
     await fulfill(providerId, providerKeys);
 
     // We got our response!
-    console.log(ethers.utils.parseBytes32String(await client.data()));
+    console.log(ethers.utils.parseBytes32String(await chainApiClient.data()));
 
     // Now the requester wants the amount deposited at their reserved wallet back
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -308,7 +308,7 @@ describe('ChainApi', function () {
   }
 
   async function makeRequest(templateId, dynamicParameters) {
-    const tx = await client.request(templateId, dynamicParameters);
+    const tx = await chainApiClient.request(templateId, dynamicParameters);
     // Get the newly created template's ID from the event. Note that we are
     // listening from ChainApi and not Client, because that's where the event
     // is emitted.

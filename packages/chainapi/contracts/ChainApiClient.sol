@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/IClient.sol";
+import "./interfaces/IChainApiClient.sol";
 import "./interfaces/IChainApi.sol";
 import "./interfaces/IRequesterStore.sol";
 
@@ -10,7 +10,7 @@ import "./interfaces/IRequesterStore.sol";
 /// @notice In addition to referencing the ChainApi contract instance it uses,
 /// the contract authorizes a requester to endorse it by announcing its
 /// ID at requesterId.
-contract Client is IClient {
+contract ChainApiClient is IChainApiClient {
     IChainApi public chainApi;
 
     /// @dev ChainApi address and the endorser ID are set at deployment. If you
