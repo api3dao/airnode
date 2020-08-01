@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./Client.sol";
+import "./ChainApiClient.sol";
 
 
 /// @title An example ChainAPI client contract
-contract ExampleClient is Client {
+contract ExampleChainApiClient is ChainApiClient {
     bytes32 public data;
     bytes32 public requestId;
     uint256 public errorCode;
@@ -19,7 +19,7 @@ contract ExampleClient is Client {
         bytes32 _requesterId
         )
         public
-        Client(_chainApi, _requesterId)
+        ChainApiClient(_chainApi, _requesterId)
     {}
 
     /// @notice Called to make a regular request to the ChainAPI contract

@@ -2,51 +2,54 @@
 pragma solidity 0.6.8;
 
 
-interface ProviderStoreInterface {
+interface IProviderStore {
     event ProviderCreated(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         );
 
     event ProviderUpdated(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         );
 
     event ProviderKeysInitialized(
-        bytes32 indexed id,
+        bytes32 indexed providerId,
         string xpub,
-        address walletAuthorizer
+        address walletDesignator
         );
 
-    event ProviderWalletReserved(
-        bytes32 indexed id,
+    event WalletDesignationRequested(
+        bytes32 indexed providerId,
         bytes32 indexed requesterId,
+        bytes32 walletDesignationRequestId,
         uint256 walletInd,
         uint256 depositAmount
         );
 
-    event ProviderWalletAuthorized(
-        bytes32 indexed id,
+    event WalletDesignationFulfilled(
+        bytes32 indexed providerId,
         bytes32 indexed requesterId,
+        bytes32 walletDesignationRequestId,
         address walletAddress,
         uint256 walletInd
         );
 
-    event WithdrawRequested(
+    event WithdrawalRequested(
         bytes32 indexed providerId,
         bytes32 indexed requesterId,
-        bytes32 withdrawRequestId,
+        bytes32 withdrawalRequestId,
         address destination
         );
 
-    event WithdrawFulfilled(
+    event WithdrawalFulfilled(
         bytes32 indexed providerId,
-        bytes32 withdrawRequestId,
+        bytes32 indexed requesterId,
+        bytes32 withdrawalRequestId,
         address destination,
         uint256 amount
         );
@@ -54,7 +57,7 @@ interface ProviderStoreInterface {
 
     function createProvider(
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external
@@ -63,7 +66,7 @@ interface ProviderStoreInterface {
     function updateProvider(
         bytes32 providerId,
         address admin,
-        uint256 authorizationDeposit,
+        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external;
@@ -71,20 +74,11 @@ interface ProviderStoreInterface {
     function initializeProviderKeys(
         bytes32 providerId,
         string calldata xpub,
-        address walletAuthorizer
+        address walletDesignator
         )
         external;
 
-    function authorizeProviderWallet(
-        bytes32 providerId,
-        bytes32 requesterId,
-        address walletAddress,
-        uint256 walletInd
-        )
-        external
-        payable;
-
-    function reserveWallet(
+    function requestWalletDesignation(
         bytes32 providerId,
         bytes32 requesterId
     )
@@ -92,14 +86,24 @@ interface ProviderStoreInterface {
         payable
         returns(uint256 walletInd);
 
-    function requestWithdraw(
+    function rebroadcastWalletDesignationRequest(bytes32 walletDesignationRequestId)
+        external;
+
+    function fulfillWalletDesignation(
+        bytes32 walletDesignationRequestId,
+        address walletAddress
+        )
+        external
+        payable;
+
+    function requestWithdrawal(
         bytes32 providerId,
         bytes32 requesterId,
         address destination
     )
         external;
 
-    function fulfillWithdraw(bytes32 withdrawRequestId)
+    function fulfillWithdrawal(bytes32 withdrawalRequestId)
         external
         payable;
 
@@ -109,8 +113,8 @@ interface ProviderStoreInterface {
         returns (
             address admin,
             string memory xpub,
-            address walletAuthorizer,
-            uint256 authorizationDeposit,
+            address walletDesignator,
+            uint256 walletDesignationDeposit,
             uint256 minBalance
         );
 

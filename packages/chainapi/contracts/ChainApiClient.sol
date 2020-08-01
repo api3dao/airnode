@@ -1,31 +1,32 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./interfaces/ClientInterface.sol";
-import "./interfaces/ChainApiInterface.sol";
+import "./interfaces/IChainApiClient.sol";
+import "./interfaces/IChainApi.sol";
+import "./interfaces/IRequesterStore.sol";
 
 
 /// @title The contract to be inherited from to use ChainApi to make requests
 /// @notice In addition to referencing the ChainApi contract instance it uses,
 /// the contract authorizes a requester to endorse it by announcing its
 /// ID at requesterId.
-contract Client is ClientInterface {
-    ChainApiInterface public chainApi;
-    bytes32 public override requesterId;
+contract ChainApiClient is IChainApiClient {
+    IChainApi public chainApi;
 
     /// @dev ChainApi address and the endorser ID are set at deployment. If you
     /// need to be able to update them, you will have to implement that
-    /// functionality.
+    /// functionality (and probably put it behind onlyOwner).
     /// @param _chainApi ChainApi contract address
-    /// @param _requesterId Endorser ID from RequestStore
+    /// @param _requesterId Requester ID from RequestStore
     constructor (
         address _chainApi,
         bytes32 _requesterId
         )
         public
     {
-        chainApi = ChainApiInterface(_chainApi);
-        requesterId = _requesterId;
+        chainApi = IChainApi(_chainApi);
+        IRequesterStore requesterStore = IRequesterStore(_chainApi);
+        requesterStore.updateEndorsementPermission(_requesterId);
     }
 
     /// @notice Returns the ChainApi contract address used by this client

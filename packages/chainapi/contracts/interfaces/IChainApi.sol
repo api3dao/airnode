@@ -2,7 +2,7 @@
 pragma solidity 0.6.8;
 
 
-interface ChainApiInterface {
+interface IChainApi {
     event RequestMade(
         bytes32 indexed providerId,
         bytes32 requestId,
