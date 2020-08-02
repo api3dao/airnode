@@ -2,7 +2,7 @@ import * as model from './model';
 import * as providerState from '../../../providers/state';
 import { ProviderState } from '../../../../types';
 
-describe('initialize', () => {
+describe('initialize ApiCall BaseRequest', () => {
   let state: ProviderState;
 
   beforeEach(() => {

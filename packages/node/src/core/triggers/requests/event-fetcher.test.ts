@@ -48,8 +48,8 @@ describe('fetchGroupedLogs', () => {
   };
 
   it('returns API call requests', async () => {
-    const newApiCallEvent = { topic: '0xcc16afda5deb199fd8f8fd4e020759442c86c50d17b076e5860480f358723f57' };
-    const fulfilledApiCallEvent = { topic: '0x3c2f447d340db42db304efeef49513562c20438b6e893f65e015096896b5d167' };
+    const newApiCallEvent = { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' };
+    const fulfilledApiCallEvent = { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' };
     const unknownEvent = { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' };
 
     const getLogs = state.provider.getLogs as jest.Mock;
