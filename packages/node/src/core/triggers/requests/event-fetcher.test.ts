@@ -73,7 +73,9 @@ describe('fetchGroupedLogs', () => {
 
   it('returns wallet designation requests', async () => {
     const newWalletDesignationEvent = { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' };
-    const fulfilledWalletDesignationEvent = { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' };
+    const fulfilledWalletDesignationEvent = {
+      topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6',
+    };
     const unknownEvent = { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' };
 
     const getLogs = state.provider.getLogs as jest.Mock;
