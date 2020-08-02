@@ -21,7 +21,9 @@ describe('API call topics', () => {
 
 describe('Wallet designation topics', () => {
   it('returns WALLET_DESIGNATION_REQUEST_TOPICS', () => {
-    expect(events.WALLET_DESIGNATION_REQUEST_TOPICS).toEqual(['0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3']);
+    expect(events.WALLET_DESIGNATION_REQUEST_TOPICS).toEqual([
+      '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3',
+    ]);
   });
 
   it('returns WALLET_DESIGNATION_FULFILLED_TOPICS', () => {
@@ -33,7 +35,9 @@ describe('Wallet designation topics', () => {
 
 describe('Withdrawal topics', () => {
   it('returns WITHDRAWAL_REQUEST_TOPICS', () => {
-    expect(events.WITHDRAWAL_REQUEST_TOPICS).toEqual(['0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b']);
+    expect(events.WITHDRAWAL_REQUEST_TOPICS).toEqual([
+      '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b',
+    ]);
   });
 
   it('returns WITHDRAWAL_FULFILLED_TOPICS', () => {

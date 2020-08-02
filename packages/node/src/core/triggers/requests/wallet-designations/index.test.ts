@@ -43,7 +43,7 @@ describe('mapBaseRequests', () => {
         requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
         valid: true,
         walletIndex: ethers.BigNumber.from('2'),
-      }
+      },
     ]);
   });
 

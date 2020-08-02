@@ -60,7 +60,9 @@ describe('ChainAPI', () => {
     ]);
 
     // API calls
-    expect(ChainAPI.topics.ApiCallRequest).toEqual('0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00');
+    expect(ChainAPI.topics.ApiCallRequest).toEqual(
+      '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00'
+    );
     expect(ChainAPI.topics.ApiCallShortRequest).toEqual(
       '0xcd6c768c11f2fbdd5198c9a5018f2f55674178a7b09acddb7db85df0990e4a4d'
     );

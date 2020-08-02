@@ -15,8 +15,12 @@ const ApiCallFulfilledBytesSuccessfulTopic = ethers.utils.id('FulfillmentBytesSu
 const ApiCallFulfilledErroredTopic = ethers.utils.id('FulfillmentErrored(bytes32,bytes32,uint256)');
 const ApiCallFulfilledFailedTopic = ethers.utils.id('FulfillmentFailed(bytes32,bytes32)');
 
-const WalletDesignationRequestTopic = ethers.utils.id('WalletDesignationRequested(bytes32,bytes32,bytes32,uint256,uint256)');
-const WalletDesignationFulfilledTopic = ethers.utils.id('WalletDesignationFulfilled(bytes32,bytes32,bytes32,address,uint256)');
+const WalletDesignationRequestTopic = ethers.utils.id(
+  'WalletDesignationRequested(bytes32,bytes32,bytes32,uint256,uint256)'
+);
+const WalletDesignationFulfilledTopic = ethers.utils.id(
+  'WalletDesignationFulfilled(bytes32,bytes32,bytes32,address,uint256)'
+);
 
 const WithdrawalRequestedTopic = ethers.utils.id('WithdrawalRequested(bytes32,bytes32,bytes32,address)');
 const WithdrawalFulfilledTopic = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32,bytes32,address,uint256)');
