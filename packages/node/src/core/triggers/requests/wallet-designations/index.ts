@@ -4,8 +4,10 @@ import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from './model';
 
-// Alias types
+// Alias type
 type Log = ethers.utils.LogDescription;
+
+type UniqueRequests = { [id: string]: Log };
 
 function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulfillmentLogs: Log[]): Log[] {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.args.walletDesignationRequestId);
@@ -24,6 +26,29 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
   }, []);
 }
 
+function discardDuplicateRequests(state: ProviderState, requestLogs: Log[]) {
+  const initialState: UniqueRequests = {};
+
+  const requestsById = requestLogs.reduce((acc, requestLog) => {
+    const { walletDesignationRequestId } = requestLog.args;
+
+    // If there is already a WalletDesignation request with the given ID, ignore the current one
+    const duplicateLog = acc[walletDesignationRequestId];
+
+    if (duplicateLog) {
+      logger.logProviderJSON(
+        state.config.name,
+        'DEBUG',
+        `Duplicate request for WalletDesignation ID:${walletDesignationRequestId} ignored`
+      );
+      return acc;
+    }
+    return { ...acc, [walletDesignationRequestId]: requestLog };
+  }, initialState);
+
+  return Object.values(requestsById);
+}
+
 export function mapBaseRequests(state: ProviderState, logs: Log[]): BaseRequest<WalletDesignation>[] {
   // Separate the logs
   const requestLogs = logs.filter((log) => events.isWalletDesignationRequest(log));
@@ -31,9 +56,10 @@ export function mapBaseRequests(state: ProviderState, logs: Log[]): BaseRequest<
 
   // We don't care about request events that have already been fulfilled
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
+  const uniqueRequestLogs = discardDuplicateRequests(state, unfulfilledRequestLogs);
 
   // Cast raw logs to typed WalletDesignation objects
-  const walletDesignationRequests = unfulfilledRequestLogs.map((rl) => model.initialize(rl));
+  const walletDesignationRequests = uniqueRequestLogs.map((rl) => model.initialize(rl));
 
   return walletDesignationRequests;
 }
