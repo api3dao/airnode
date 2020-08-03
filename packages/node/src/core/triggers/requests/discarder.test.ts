@@ -93,4 +93,3 @@ describe('discardRequestsWithWithdrawals', () => {
     expect(res.withdrawals[0].id).toEqual('withdrawalId');
   });
 });
-
