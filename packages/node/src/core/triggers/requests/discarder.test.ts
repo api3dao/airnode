@@ -1,12 +1,5 @@
-import { ethers } from 'ethers';
-import {
-  ApiCall,
-  ClientRequest,
-  GroupedProviderRequests,
-  ProviderState,
-  RequestErrorCode,
-  Withdrawal,
-} from '../../../types';
+import * as fixtures from 'test/fixtures';
+import { GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 import * as providerState from '../../providers/state';
 import * as discarder from './discarder';
 
@@ -20,7 +13,7 @@ describe('discardUnprocessableRequests', () => {
 
   it('does nothing if the request is valid', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest()],
+      apiCalls: [fixtures.requests.createApiCall()],
       walletDesignations: [],
       withdrawals: [],
     };
@@ -32,7 +25,7 @@ describe('discardUnprocessableRequests', () => {
 
   it('does nothing for unknown error codes', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ valid: false, errorCode: 9999 })],
+      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: 9999 })],
       walletDesignations: [],
       withdrawals: [],
     };
@@ -44,7 +37,7 @@ describe('discardUnprocessableRequests', () => {
 
   it('discards requests where the requester could not be found', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ valid: false, errorCode: RequestErrorCode.RequesterDataNotFound })],
+      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.RequesterDataNotFound })],
       walletDesignations: [],
       withdrawals: [],
     };
@@ -55,7 +48,7 @@ describe('discardUnprocessableRequests', () => {
 
   it('discards requests where the requester has an insufficient wallet balance', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ valid: false, errorCode: RequestErrorCode.InsufficientBalance })],
+      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InsufficientBalance })],
       walletDesignations: [],
       withdrawals: [],
     };
@@ -75,9 +68,9 @@ describe('discardRequestsWithWithdrawals', () => {
 
   it('discards pending API calls with pending withdrawals from the same wallet index', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ walletIndex: 123 })],
+      apiCalls: [fixtures.requests.createApiCall({ walletIndex: 123 })],
       walletDesignations: [],
-      withdrawals: [createWithdrawalRequest({ walletIndex: 123 })],
+      withdrawals: [fixtures.requests.createWithdrawal({ walletIndex: 123 })],
     };
 
     const res = discarder.discardRequestsWithWithdrawals(state, requests);
@@ -88,9 +81,9 @@ describe('discardRequestsWithWithdrawals', () => {
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ walletIndex: 123 })],
+      apiCalls: [fixtures.requests.createApiCall({ walletIndex: 123 })],
       walletDesignations: [],
-      withdrawals: [createWithdrawalRequest({ walletIndex: 456 })],
+      withdrawals: [fixtures.requests.createWithdrawal({ walletIndex: 456 })],
     };
 
     const res = discarder.discardRequestsWithWithdrawals(state, requests);
@@ -101,40 +94,3 @@ describe('discardRequestsWithWithdrawals', () => {
   });
 });
 
-function createApiCallRequest(params?: any): ClientRequest<ApiCall> {
-  return {
-    id: 'apiCallId',
-    requesterId: 'requestId',
-    requesterAddress: 'requesterAddress',
-    endpointId: 'endpointId',
-    templateId: null,
-    fulfillAddress: 'fulfillAddress',
-    fulfillFunctionId: 'fulfillFunctionId',
-    errorAddress: 'errorAddress',
-    errorFunctionId: 'errorFunctionId',
-    encodedParameters: 'encodedParameters',
-    parameters: { from: 'ETH' },
-    providerId: 'providerId',
-    valid: true,
-    walletIndex: 123,
-    walletAddress: 'walletAddress',
-    walletBalance: ethers.BigNumber.from('10'),
-    walletMinimumBalance: ethers.BigNumber.from('5'),
-    ...params,
-  };
-}
-
-function createWithdrawalRequest(params?: any): ClientRequest<Withdrawal> {
-  return {
-    id: 'withdrawalId',
-    requesterId: 'requesterId',
-    destinationAddress: 'destinationAddress',
-    providerId: 'providerId',
-    valid: true,
-    walletIndex: 123,
-    walletAddress: 'walletAddress',
-    walletBalance: ethers.BigNumber.from('10'),
-    walletMinimumBalance: ethers.BigNumber.from('5'),
-    ...params,
-  };
-}
