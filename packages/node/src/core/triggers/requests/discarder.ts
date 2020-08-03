@@ -38,8 +38,11 @@ export function discardUnprocessableRequests(
   };
 }
 
-export function discardRequestsWithWithdrawals(state: ProviderState, requests: GroupedProviderRequests): GroupedProviderRequests {
-  const withdrawalsByWalletIndex = fromPairs(requests.withdrawals.map(w => [w.walletIndex, w]));
+export function discardRequestsWithWithdrawals(
+  state: ProviderState,
+  requests: GroupedProviderRequests
+): GroupedProviderRequests {
+  const withdrawalsByWalletIndex = fromPairs(requests.withdrawals.map((w) => [w.walletIndex, w]));
 
   const apiCalls = requests.apiCalls.reduce((acc, apiCall) => {
     const pendingWithdrawal = withdrawalsByWalletIndex[apiCall.walletIndex];
@@ -54,5 +57,4 @@ export function discardRequestsWithWithdrawals(state: ProviderState, requests: G
   }, []);
 
   return { ...requests, apiCalls };
-
 }

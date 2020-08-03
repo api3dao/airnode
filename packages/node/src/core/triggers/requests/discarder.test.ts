@@ -1,5 +1,12 @@
 import { ethers } from 'ethers';
-import { ApiCall, ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode, Withdrawal } from '../../../types';
+import {
+  ApiCall,
+  ClientRequest,
+  GroupedProviderRequests,
+  ProviderState,
+  RequestErrorCode,
+  Withdrawal,
+} from '../../../types';
 import * as providerState from '../../providers/state';
 import * as discarder from './discarder';
 
