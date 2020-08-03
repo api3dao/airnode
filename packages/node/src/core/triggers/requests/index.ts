@@ -44,7 +44,9 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   // Check that each request is valid
   const validatedRequests = validator.validateRequests(state, requestsWithData);
 
-  const requests = discarder.discardUnprocessableRequests(state, validatedRequests);
+  // Discard requests that cannot be processed
+  const withoutUnprocessableRequests  = discarder.discardUnprocessableRequests(state, validatedRequests);
+  const withoutPendingWithdrawals = discarder.discardRequestsWithWithdrawals(state, withoutUnprocessableRequests);
 
-  return requests;
+  return withoutPendingWithdrawals;
 }
