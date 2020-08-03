@@ -1,26 +1,22 @@
 import { goTimeout } from '../../utils/promise-utils';
 import { fetchGroupedLogs } from './event-fetcher';
 import * as apiCalls from './api-calls';
-// import * as walletAuthorizations from './wallet-authorizations';
-// import * as withdrawals from './withdrawals';
+import * as walletDesignations from './wallet-designations';
+import * as withdrawals from './withdrawals';
 import * as requesterData from './requester-data';
 import * as discarder from './discarder';
 import * as validator from './validator';
 import { GroupedProviderRequests, ProviderState } from '../../../types';
 
 // Alias types
-type InitialGroupedRequests = requesterData.InitialGroupedRequests;
+type GroupedBaseRequests = requesterData.GroupedBaseRequests;
 
-async function fetchRequesterData(state: ProviderState, requests: InitialGroupedRequests) {
+async function fetchRequesterData(state: ProviderState, requests: GroupedBaseRequests) {
+  // NOTE: WalletDesignations do not need to fetch Requester Data
   const apiCallAddresses = requests.apiCalls.filter((a) => a.valid).map((a) => a.requesterAddress);
-  // const walletAuthorizationAddresses = requests.walletAuthorizations.filter(a => a.valid).map(a => a.requesterAddress);
-  // const withdrawalAddresses = requests.withdrawals.filter(a => a.valid).map(a => a.requesterAddress);
+  const withdrawalAddresses = requests.withdrawals.filter((w) => w.valid).map((w) => w.destinationAddress);
 
-  const addresses = [
-    ...apiCallAddresses,
-    // ...walletAuthorizationAddresses,
-    // ...withdrawalAddresses,
-  ];
+  const addresses = [...apiCallAddresses, ...withdrawalAddresses];
 
   const [err, res] = await goTimeout(5_000, requesterData.fetch(state, addresses));
   return err || !res ? {} : res;
@@ -30,15 +26,14 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   // Let this throw if it fails. We can't do anything if the logs cannot be fetched
   const groupedLogs = await fetchGroupedLogs(state);
 
-  const pendingApiCalls = apiCalls.mapPending(state, groupedLogs.apiCalls);
-  // TODO: handle withdrawals and wallet authorizations
-  // const pendingWithdrawals = withdrawals.mapPending(state, groupedLogs.withdrawals);
-  // const pendingWalletAuthoriaztions = walletAuthorizations.mapPending(state, groupedLogs.walletAuthorizations);
+  const pendingApiCalls = apiCalls.mapBaseRequests(state, groupedLogs.apiCalls);
+  const pendingWalletDesignations = walletDesignations.mapBaseRequests(state, groupedLogs.walletDesignations);
+  const pendingWithdrawals = withdrawals.mapBaseRequests(state, groupedLogs.withdrawals);
 
-  const baseRequests = {
+  const baseRequests: GroupedBaseRequests = {
     apiCalls: pendingApiCalls,
-    walletAuthorizations: [],
-    withdrawals: [],
+    walletDesignations: pendingWalletDesignations,
+    withdrawals: pendingWithdrawals,
   };
 
   const dataByAddress = await fetchRequesterData(state, baseRequests);

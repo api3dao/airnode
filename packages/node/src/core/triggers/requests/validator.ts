@@ -34,7 +34,7 @@ export function validateRequests(state: ProviderState, requests: GroupedProvider
 
   return {
     apiCalls,
-    walletAuthorizations: [],
+    walletDesignations: [],
     withdrawals: [],
   };
 }

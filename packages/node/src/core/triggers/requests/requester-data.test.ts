@@ -118,7 +118,7 @@ describe('apply', () => {
     const apiCallRequest = createNewApiCallRequest({ id: '0x1', requesterAddress: '0xalice' });
     const requests = {
       apiCalls: [apiCallRequest],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 
@@ -133,7 +133,7 @@ describe('apply', () => {
     };
 
     const res = requesterDetails.apply(state, requests, dataByAddress);
-    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletAuthorizations', 'withdrawals']);
+    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletDesignations', 'withdrawals']);
 
     expect(res.apiCalls.length).toEqual(1);
     expect(res.apiCalls[0]).toEqual({
@@ -150,7 +150,7 @@ describe('apply', () => {
     const apiCallRequest = createNewApiCallRequest({ id: '0x1', requesterAddress: '0xalice' });
     const requests = {
       apiCalls: [apiCallRequest],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     };
 

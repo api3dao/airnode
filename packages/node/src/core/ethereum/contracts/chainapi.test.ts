@@ -29,58 +29,73 @@ describe('ChainAPI', () => {
       'ProviderCreated',
       'ProviderKeysInitialized',
       'ProviderUpdated',
-      'ProviderWalletAuthorized',
-      'ProviderWalletReserved',
       'RequestMade',
       'RequesterCreated',
       'RequesterUpdated',
       'ShortRequestMade',
       'TemplateCreated',
-      'WithdrawFulfilled',
-      'WithdrawRequested',
+      'WalletDesignationFulfilled',
+      'WalletDesignationRequested',
+      'WithdrawalFulfilled',
+      'WithdrawalRequested',
     ]);
   });
 
   it('exposes the contract topics', () => {
     // Make sure all topics are covered
-    expect.assertions(10);
+    expect.assertions(12);
 
     expect(Object.keys(ChainAPI.topics).sort()).toEqual([
-      'FulfillmentBytesSuccessful',
-      'FulfillmentErrored',
-      'FulfillmentFailed',
-      'FulfillmentSuccessful',
-      'FullRequestMade',
-      'RequestMade',
-      'ShortRequestMade',
-      'WithdrawFulfilled',
-      'WithdrawRequested',
+      'ApiCallFulfilledBytesSuccessful',
+      'ApiCallFulfilledErrored',
+      'ApiCallFulfilledFailed',
+      'ApiCallFulfilledSuccessful',
+      'ApiCallFullRequest',
+      'ApiCallRequest',
+      'ApiCallShortRequest',
+      'WalletDesignationFulfilled',
+      'WalletDesignationRequest',
+      'WithdrawalFulfilled',
+      'WithdrawalRequested',
     ]);
 
-    expect(ChainAPI.topics.FulfillmentBytesSuccessful).toEqual(
-      '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3'
+    // API calls
+    expect(ChainAPI.topics.ApiCallRequest).toEqual(
+      '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00'
     );
-    expect(ChainAPI.topics.FulfillmentErrored).toEqual(
-      '0x7900a73e75933ef0fb889469c195a115304017644f05c24ecd3194fb12a8cc00'
-    );
-    expect(ChainAPI.topics.FulfillmentFailed).toEqual(
-      '0x8dfae166b9b592f19e4abff08df0c204461a5419c1233a86b233497bd5f559ef'
-    );
-    expect(ChainAPI.topics.FulfillmentSuccessful).toEqual(
-      '0x3c2f447d340db42db304efeef49513562c20438b6e893f65e015096896b5d167'
-    );
-    expect(ChainAPI.topics.FullRequestMade).toEqual(
-      '0xcc16afda5deb199fd8f8fd4e020759442c86c50d17b076e5860480f358723f57'
-    );
-    expect(ChainAPI.topics.RequestMade).toEqual('0x0efe0898971ca4a4ada014b6e46a0c04976f25a5b6f420bd9d368a2c67578f0b');
-    expect(ChainAPI.topics.ShortRequestMade).toEqual(
+    expect(ChainAPI.topics.ApiCallShortRequest).toEqual(
       '0xcd6c768c11f2fbdd5198c9a5018f2f55674178a7b09acddb7db85df0990e4a4d'
     );
-    expect(ChainAPI.topics.WithdrawFulfilled).toEqual(
-      '0x084726378542eff0a6413e6eedb6ee4a0627af74e550b735ad448acede3165fc'
+    expect(ChainAPI.topics.ApiCallFullRequest).toEqual(
+      '0xdde8c10b801648ba2b9956ab598b0a173307f7535ffadf4c0b4e3817aa50b245'
     );
-    expect(ChainAPI.topics.WithdrawRequested).toEqual(
-      '0x807501b4a176d068b18e979406a05a3f7d8af479ad2a683f53902fda520a9a0a'
+    expect(ChainAPI.topics.ApiCallFulfilledBytesSuccessful).toEqual(
+      '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3'
+    );
+    expect(ChainAPI.topics.ApiCallFulfilledErrored).toEqual(
+      '0x7900a73e75933ef0fb889469c195a115304017644f05c24ecd3194fb12a8cc00'
+    );
+    expect(ChainAPI.topics.ApiCallFulfilledFailed).toEqual(
+      '0x8dfae166b9b592f19e4abff08df0c204461a5419c1233a86b233497bd5f559ef'
+    );
+    expect(ChainAPI.topics.ApiCallFulfilledSuccessful).toEqual(
+      '0x3c2f447d340db42db304efeef49513562c20438b6e893f65e015096896b5d167'
+    );
+
+    // Wallet Designations
+    expect(ChainAPI.topics.WalletDesignationFulfilled).toEqual(
+      '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6'
+    );
+    expect(ChainAPI.topics.WalletDesignationRequest).toEqual(
+      '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3'
+    );
+
+    // Withdrawals
+    expect(ChainAPI.topics.WithdrawalFulfilled).toEqual(
+      '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439'
+    );
+    expect(ChainAPI.topics.WithdrawalRequested).toEqual(
+      '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b'
     );
   });
 });

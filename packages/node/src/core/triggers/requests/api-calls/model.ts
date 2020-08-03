@@ -23,6 +23,7 @@ export function initialize(state: ProviderState, log: ethers.utils.LogDescriptio
   const request: BaseRequest<ApiCall> = {
     id: log.args.requestId,
     requesterAddress: log.args.requester,
+    providerId: log.args.providerId,
     endpointId: log.args.endpointId || null,
     templateId: log.args.templateId || null,
     fulfillAddress: log.args.fulfillAddress,

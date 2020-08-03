@@ -36,7 +36,7 @@ describe('create', () => {
       provider,
       requests: {
         apiCalls: [],
-        walletAuthorizations: [],
+        walletDesignations: [],
         withdrawals: [],
       },
     });

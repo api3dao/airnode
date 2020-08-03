@@ -10,7 +10,7 @@ export function create(config: ProviderConfig, index: number): ProviderState {
     provider: ethereum.newProvider(config.url, config.chainId),
     requests: {
       apiCalls: [],
-      walletAuthorizations: [],
+      walletDesignations: [],
       withdrawals: [],
     },
     // This is fetched and set as late as possible for freshness

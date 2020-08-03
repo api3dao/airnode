@@ -56,7 +56,7 @@ describe('initialize', () => {
           provider,
           requests: {
             apiCalls: [],
-            walletAuthorizations: [],
+            walletDesignations: [],
             withdrawals: [],
           },
         },
@@ -68,7 +68,7 @@ describe('initialize', () => {
           provider,
           requests: {
             apiCalls: [],
-            walletAuthorizations: [],
+            walletDesignations: [],
             withdrawals: [],
           },
         },

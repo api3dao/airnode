@@ -2,7 +2,7 @@ import * as model from './model';
 import * as providerState from '../../../providers/state';
 import { ProviderState } from '../../../../types';
 
-describe('initialize', () => {
+describe('initialize ApiCall BaseRequest', () => {
   let state: ProviderState;
 
   beforeEach(() => {
@@ -35,6 +35,7 @@ describe('initialize', () => {
       parameters: {
         key: { something: 'value' },
       },
+      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
       id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
       requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
@@ -65,8 +66,9 @@ describe('initialize', () => {
       errorFunctionId: '0xba12a5e4',
       fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       fulfillFunctionId: '0x042f2b65',
-      parameters: {},
       id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
+      parameters: {},
+      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
       requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
       valid: false,
