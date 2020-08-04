@@ -156,7 +156,7 @@ contract Convenience is IConvenience {
         statuses = new bool[](endpointIds.length);
         for (uint256 ind = 0; ind < endpointIds.length; ind++)
         {
-            statuses[ind] = endpointStore.checkIfAuthorized(endpointIds[ind], clientAddresses[ind]);
+            statuses[ind] = endpointStore.checkAuthorizationStatus(endpointIds[ind], clientAddresses[ind]);
         }
     }
 }

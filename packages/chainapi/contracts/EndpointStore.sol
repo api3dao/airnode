@@ -133,7 +133,7 @@ contract EndpointStore is ProviderStore, IEndpointStore {
     /// @param clientAddress Address of the client contract
     /// @return status If the client contract is authorized to call the
     /// endpoint
-    function checkIfAuthorized(
+    function checkAuthorizationStatus(
         bytes32 endpointId,
         address clientAddress
         )
