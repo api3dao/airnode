@@ -4,12 +4,14 @@ pragma experimental ABIEncoderV2;
 
 import "./interfaces/IConvenience.sol";
 import "./interfaces/IProviderStore.sol";
+import "./interfaces/IEndpointStore.sol";
 import "./interfaces/IRequesterStore.sol";
 import "./interfaces/ITemplateStore.sol";
 
 
 contract Convenience is IConvenience {
     IProviderStore public providerStore;
+    IEndpointStore public endpointStore;
     IRequesterStore public requesterStore;
     ITemplateStore public templateStore;
 
@@ -18,6 +20,7 @@ contract Convenience is IConvenience {
         public
     {
         providerStore = IProviderStore(_chainApi);
+        endpointStore = IEndpointStore(_chainApi);
         requesterStore = IRequesterStore(_chainApi);
         templateStore = ITemplateStore(_chainApi);
     }
@@ -134,6 +137,26 @@ contract Convenience is IConvenience {
             walletAddresses[ind] = walletAddress;
             walletBalances[ind] = walletAddress.balance;
             minBalances[ind] = providerStore.getProviderMinBalance(providerId);
+        }
+    }
+
+    function checkAuthorizationStatuses(
+        bytes32[] calldata endpointIds,
+        address[] calldata clientAddresses
+        )
+        external
+        view
+        override
+        returns (bool[] memory statuses)
+    {
+        require(
+            endpointIds.length == clientAddresses.length,
+            "The number of endpoints should be equal to the number of clients"
+        );
+        statuses = new bool[](endpointIds.length);
+        for (uint256 ind = 0; ind < endpointIds.length; ind++)
+        {
+            statuses[ind] = endpointStore.checkIfAuthorized(endpointIds[ind], clientAddresses[ind]);
         }
     }
 }
