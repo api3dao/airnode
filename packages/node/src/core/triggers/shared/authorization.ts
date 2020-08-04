@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
+import flatten from 'lodash/flatten';
 import uniq from 'lodash/uniq';
 import * as ethereum from 'src/core/ethereum';
 import * as logger from 'src/core/utils/logger';
@@ -20,7 +21,7 @@ interface AuthorizationStatus {
 async function fetchAuthorizationStatuses(
   state: ProviderState,
   requests: AuthorizationRequest[]
-): Promise<AuthorizationStatus[]> {
+): Promise<AuthorizationStatus[] | null> {
   const { Convenience } = ethereum.contracts;
 
   // Ordering must remain the same when mapping these two arrays
@@ -34,15 +35,11 @@ async function fetchAuthorizationStatuses(
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {
     logger.logProviderError(state.config.name, 'Failed to fetch authorization details', err);
-    return [];
+    return null;
   }
 
   const authorizations = requests.reduce((acc, request, index) => {
-    const status: AuthorizationStatus = {
-      ...request,
-      authorized: data[index],
-    };
-
+    const status: AuthorizationStatus = { ...request, authorized: data[index] };
     return [...acc, status];
   }, []);
 
@@ -65,4 +62,15 @@ export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCal
   const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(state, pairs));
 
   const results = await Promise.all(promises);
+  const successfulResults = flatten(results.filter((r) => !!r)) as AuthorizationStatus[];
+
+  const dictionary = successfulResults.reduce((acc, result) => {
+    const currentEndpointRequesters = acc[result.endpointId] || {};
+    const requesterAuthorization = { [result.requesterAddress]: result.authorized };
+    const updatedEnpointRequesters = { ...currentEndpointRequesters, ...requesterAuthorization };
+
+    return { ...acc, [result.endpointId]: updatedEnpointRequesters };
+  }, {});
+
+  return dictionary;
 }
