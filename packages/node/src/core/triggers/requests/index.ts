@@ -50,4 +50,3 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
 
   return withoutPendingWithdrawals;
 }
-

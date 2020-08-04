@@ -17,12 +17,15 @@ interface AuthorizationStatus {
   requesterAddress: string;
 }
 
-async function fetchAuthorizationStatuses(state: ProviderState, requests: AuthorizationRequest[]): Promise<AuthorizationStatus[]> {
+async function fetchAuthorizationStatuses(
+  state: ProviderState,
+  requests: AuthorizationRequest[]
+): Promise<AuthorizationStatus[]> {
   const { Convenience } = ethereum.contracts;
 
   // Ordering must remain the same when mapping these two arrays
-  const endpointIds = requests.map(a => a.endpointId);
-  const requesters = requests.map(a => a.requesterAddress);
+  const endpointIds = requests.map((a) => a.endpointId);
+  const requesters = requests.map((a) => a.requesterAddress);
 
   const contract = new ethers.Contract(Convenience.addresses[state.config.chainId], Convenience.ABI, state.provider);
   const contractCall = () => contract.checkIfAuthorized(endpointIds, requesters);
@@ -48,10 +51,12 @@ async function fetchAuthorizationStatuses(state: ProviderState, requests: Author
 
 export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCall>[]) {
   // Group and remove duplicates to reduce calls
-  const endpointRequesterPairs = uniq(apiCalls.map(apiCall => ({
-    endpointId: apiCall.endpointId!,
-    requesterAddress: apiCall.requesterAddress
-  })));
+  const endpointRequesterPairs = uniq(
+    apiCalls.map((apiCall) => ({
+      endpointId: apiCall.endpointId!,
+      requesterAddress: apiCall.requesterAddress,
+    }))
+  );
 
   // Request groups of 10 at a time
   const groupedPairs = chunk(endpointRequesterPairs, 10);
