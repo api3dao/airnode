@@ -34,7 +34,7 @@ describe('goTimeout', () => {
     const fn = new Promise((res) => {
       setTimeout(() => res("Won't be reached"), 20);
     });
-    const res = await goTimeout(10, fn);
+    const res = await goTimeout(15, fn);
     expect(res).toEqual([new TimeoutError('operation timed out'), null]);
   });
 });
@@ -46,7 +46,7 @@ describe('promiseTimeout', () => {
       setTimeout(() => res("Won't be reached"), 20);
     });
     try {
-      await promiseTimeout(10, fn);
+      await promiseTimeout(15, fn);
     } catch (e) {
       expect(e).toEqual(new TimeoutError('operation timed out'));
     }

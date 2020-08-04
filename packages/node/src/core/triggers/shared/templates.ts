@@ -47,14 +47,16 @@ function mapApiCallTemplates(rawTemplates: any, templateIds: string[]): ApiCallT
   });
 }
 
-export async function fetch(state: ProviderState, templateIds: string[]) {
+export async function fetch(state: ProviderState) {
+  const templateIds = state.requests.apiCalls.filter(a => a.templateId).map(a => a.templateId);
+
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(templateIds, 10);
 
   // Fetch all groups of templates in parallel
-  const promises = groupedTemplateIds.map(async (templateIds) => {
-    const rawTemplates = await fetchTemplateGroup(state, templateIds);
-    const templates = mapApiCallTemplates(rawTemplates, templateIds);
+  const promises = groupedTemplateIds.map(async (ids: string[]) => {
+    const rawTemplates = await fetchTemplateGroup(state, ids);
+    const templates = mapApiCallTemplates(rawTemplates, ids);
     return templates;
   });
 
@@ -98,8 +100,8 @@ export function apply(
     // If no template is found, then we aren't able to build the full request.
     // Drop the request for now and it will be retried on the next run
     if (!template) {
-      const message = `Unable to fetch template ID:${templateId} for Request ID:${id}. Request has been discarded until the next run.`;
-      logger.logProviderJSON(state.config.name, 'WARN', message);
+      const message = `Unable to fetch template ID:${templateId} for Request ID:${id}. Request has been discarded.`;
+      logger.logProviderJSON(state.config.name, 'ERROR', message);
       return acc;
     }
 
