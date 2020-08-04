@@ -44,4 +44,12 @@ interface IConvenience {
             uint256[] memory walletBalances,
             uint256[] memory minBalances
             );
+
+    function checkAuthorizationStatuses(
+        bytes32[] calldata endpointIds,
+        address[] calldata clientAddresses
+        )
+        external
+        view
+        returns (bool[] memory statuses);
 }

@@ -25,15 +25,15 @@ jobs:
 
     - name: Build
       run: |
-        npm run build:contracts
+        npm run build:chainapi
         npm run build:ois
         npm run build:adapter
 
     - name: Test adapter
       run: npm run test:adapter
 
-    - name: Test contracts
-      run: npm run test:contracts
+    - name: Test chainapi contracts
+      run: npm run test:chainapi
 
     - name: Test node
       run: npm run test:node

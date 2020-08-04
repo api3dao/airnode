@@ -364,7 +364,7 @@ describe('ChainApi', function () {
     const parsedTemplateLog = chainApi.interface.parseLog(templateLogs[0]);
 
     // Check if the requester is authorized to call the endpoint
-    const authorizationStatus = await chainApi.checkIfAuthorized(
+    const authorizationStatus = await chainApi.checkAuthorizationStatus(
       parsedTemplateLog.args.endpointId,
       parsedRequestLog.args.requester
     );

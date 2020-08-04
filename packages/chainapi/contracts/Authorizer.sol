@@ -20,8 +20,8 @@ abstract contract Authorizer {
     /// @return status Authorization status of the requester for calling the
     /// endpoint according to this authorizer contract
     function checkIfAuthorized(
-        address requester,
-        bytes32 endpointId
+        bytes32 endpointId,
+        address requester
         )
         virtual
         external

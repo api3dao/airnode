@@ -41,7 +41,7 @@ interface IEndpointStore {
             address[] memory authorizers
         );
 
-    function checkIfAuthorized(
+    function checkAuthorizationStatus(
         bytes32 endpointId,
         address clientAddress
         )
