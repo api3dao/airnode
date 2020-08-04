@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
-import { ApiCall, ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
+import * as fixtures from 'test/fixtures';
+import { GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 import * as providerState from '../../providers/state';
 import * as discarder from './discarder';
 
@@ -13,31 +13,31 @@ describe('discardUnprocessableRequests', () => {
 
   it('does nothing if the request is valid', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest()],
+      apiCalls: [fixtures.requests.createApiCall()],
       walletDesignations: [],
       withdrawals: [],
     };
 
     const { apiCalls } = discarder.discardUnprocessableRequests(state, requests);
     expect(apiCalls.length).toEqual(1);
-    expect(apiCalls[0].id).toEqual('requestId');
+    expect(apiCalls[0].id).toEqual('apiCallId');
   });
 
   it('does nothing for unknown error codes', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ valid: false, errorCode: 9999 })],
+      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: 9999 })],
       walletDesignations: [],
       withdrawals: [],
     };
 
     const { apiCalls } = discarder.discardUnprocessableRequests(state, requests);
     expect(apiCalls.length).toEqual(1);
-    expect(apiCalls[0].id).toEqual('requestId');
+    expect(apiCalls[0].id).toEqual('apiCallId');
   });
 
   it('discards requests where the requester could not be found', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ valid: false, errorCode: RequestErrorCode.RequesterDataNotFound })],
+      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.RequesterDataNotFound })],
       walletDesignations: [],
       withdrawals: [],
     };
@@ -48,7 +48,7 @@ describe('discardUnprocessableRequests', () => {
 
   it('discards requests where the requester has an insufficient wallet balance', () => {
     const requests: GroupedProviderRequests = {
-      apiCalls: [createApiCallRequest({ valid: false, errorCode: RequestErrorCode.InsufficientBalance })],
+      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InsufficientBalance })],
       walletDesignations: [],
       withdrawals: [],
     };
@@ -56,26 +56,40 @@ describe('discardUnprocessableRequests', () => {
     const { apiCalls } = discarder.discardUnprocessableRequests(state, requests);
     expect(apiCalls.length).toEqual(0);
   });
+});
 
-  function createApiCallRequest(params?: any): ClientRequest<ApiCall> {
-    return {
-      id: 'requestId',
-      requesterId: 'requestId',
-      requesterAddress: 'requesterAddress',
-      endpointId: 'endpointId',
-      templateId: null,
-      fulfillAddress: 'fulfillAddress',
-      fulfillFunctionId: 'fulfillFunctionId',
-      errorAddress: 'errorAddress',
-      errorFunctionId: 'errorFunctionId',
-      encodedParameters: 'encodedParameters',
-      parameters: { from: 'ETH' },
-      valid: true,
-      walletIndex: 123,
-      walletAddress: 'walletAddress',
-      walletBalance: ethers.BigNumber.from('10'),
-      walletMinimumBalance: ethers.BigNumber.from('5'),
-      ...params,
+describe('discardRequestsWithWithdrawals', () => {
+  let state: ProviderState;
+
+  beforeEach(() => {
+    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
+    state = providerState.create(config, 0);
+  });
+
+  it('discards pending API calls with pending withdrawals from the same wallet index', () => {
+    const requests: GroupedProviderRequests = {
+      apiCalls: [fixtures.requests.createApiCall({ walletIndex: 123 })],
+      walletDesignations: [],
+      withdrawals: [fixtures.requests.createWithdrawal({ walletIndex: 123 })],
     };
-  }
+
+    const res = discarder.discardRequestsWithWithdrawals(state, requests);
+    expect(res.apiCalls.length).toEqual(0);
+    expect(res.withdrawals.length).toEqual(1);
+    expect(res.withdrawals[0].id).toEqual('withdrawalId');
+  });
+
+  it('does nothing if API call and withdrawal wallet indices do not match', () => {
+    const requests: GroupedProviderRequests = {
+      apiCalls: [fixtures.requests.createApiCall({ walletIndex: 123 })],
+      walletDesignations: [],
+      withdrawals: [fixtures.requests.createWithdrawal({ walletIndex: 456 })],
+    };
+
+    const res = discarder.discardRequestsWithWithdrawals(state, requests);
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0].id).toEqual('apiCallId');
+    expect(res.withdrawals.length).toEqual(1);
+    expect(res.withdrawals[0].id).toEqual('withdrawalId');
+  });
 });

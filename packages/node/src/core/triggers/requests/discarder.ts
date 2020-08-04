@@ -1,3 +1,4 @@
+import fromPairs from 'lodash/fromPairs';
 import * as logger from '../../utils/logger';
 import { ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 
@@ -35,4 +36,25 @@ export function discardUnprocessableRequests(
     apiCalls,
     withdrawals,
   };
+}
+
+export function discardRequestsWithWithdrawals(
+  state: ProviderState,
+  requests: GroupedProviderRequests
+): GroupedProviderRequests {
+  const withdrawalsByWalletIndex = fromPairs(requests.withdrawals.map((w) => [w.walletIndex, w]));
+
+  const apiCalls = requests.apiCalls.reduce((acc, apiCall) => {
+    const pendingWithdrawal = withdrawalsByWalletIndex[apiCall.walletIndex];
+
+    if (pendingWithdrawal) {
+      const message = `Discarding Request ID:${apiCall.id} as it has a pending Withdrawl ID:${pendingWithdrawal.id}`;
+      logger.logProviderJSON(state.config.name, 'WARN', message);
+      return acc;
+    }
+
+    return [...acc, apiCall];
+  }, []);
+
+  return { ...requests, apiCalls };
 }
