@@ -8,7 +8,7 @@ See [the wiki](https://github.com/clc-group/airnode/wiki) for more information.
 This is a monorepo managed using [Lerna](https://github.com/lerna/lerna).
 At the moment, it houses two packages:
 
-**contracts**: EVM contracts used to interact with Airnode
+**chainapi**: EVM contracts used to interact with Airnode
 
 **node**: Airnode itself
 
