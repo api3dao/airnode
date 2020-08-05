@@ -1,7 +1,7 @@
 import { decodeMap } from 'cbor-custom';
-import { ApiCallParameters } from '../../../types';
+import { ApiCallParameters } from '../../types';
 
-export function tryDecodeParameters(encodedParameters: string): ApiCallParameters | null {
+export function safeDecode(encodedParameters: string): ApiCallParameters | null {
   if (!encodedParameters) {
     return {};
   }

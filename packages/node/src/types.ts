@@ -14,6 +14,7 @@ export enum RequestErrorCode {
   RequesterDataNotFound = 3,
   ReservedWalletIndex = 4,
   InsufficientBalance = 5,
+  UnauthorizedRequester = 6,
 }
 
 export type BaseRequest<T extends {}> = T & {

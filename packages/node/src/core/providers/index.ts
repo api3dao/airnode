@@ -1,8 +1,24 @@
 import { go } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState } from '../../types';
 import * as logger from '../utils/logger';
-import * as requestHandler from '../triggers/requests';
+import * as requestTriggers from '../triggers/requests';
+import * as templates from '../templates';
 import * as state from './state';
+
+type ParallelPromise = Promise<{ id: string, data: any }>;
+
+async function fetchTemplatesAndAuthorizations(currentState: ProviderState) {
+  const [err, res] = await go(templates.fetchTemplatesAndAuthorizations(currentState));
+  if (err || !res) {
+    logger.logProviderError(currentState.config.name, 'Unable to fetch templates and authorizations', err);
+    return { id: 'templates', data: null };
+  }
+  return { id: 'templates', data: res };
+}
+
+function fetchWalletData() {
+  return Promise.resolve({ id: 'wallets', data: 'TODO' });
+}
 
 export async function initializeState(config: ProviderConfig, index: number): Promise<ProviderState | null> {
   const state1 = state.create(config, index);
@@ -24,7 +40,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // TODO: aggregator requests will be fetched in
   // parallel with this at a later point
   // =========================================================
-  const [requestsErr, requests] = await go(requestHandler.fetchPendingRequests(state2));
+  const [requestsErr, requests] = await go(requestTriggers.fetchPendingRequests(state2));
   if (requestsErr || !requests) {
     logger.logProviderError(config.name, 'Unable to get pending requests', requestsErr);
     return null;
@@ -32,9 +48,17 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   const state3 = state.update(state2, { requests });
 
   // =========================================================
-  // STEP 3: Get any templates and apply them
+  // STEP 3: Get any templates and wallet data
   // =========================================================
-  // TODO:
+  const templatesAndWalletPromises: ParallelPromise[] = [
+    fetchTemplatesAndAuthorizations(state3),
+    fetchWalletData(),
+  ];
+  const templatesAndWalletResults = await Promise.all(templatesAndWalletPromises);
+
+  const templateData = templatesAndWalletResults.find(result => result.id === 'templates');
+
+  console.log(templateData);
 
   return state3;
 }

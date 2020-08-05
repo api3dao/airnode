@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { ApiCall, BaseRequest, ProviderState } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
-import * as model from './model';
+import * as model from '../../../requests/api-calls/model';
 
 // Alias types
 type Log = ethers.utils.LogDescription;

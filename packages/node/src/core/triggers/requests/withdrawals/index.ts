@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { BaseRequest, ProviderState, Withdrawal } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
-import * as model from './model';
+import * as model from '../../../requests/withdrawals/model';
 
 // Alias types
 type Log = ethers.utils.LogDescription;
