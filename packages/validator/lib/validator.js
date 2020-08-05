@@ -30,9 +30,30 @@ const specsStructure = {
       '__keyRegexp': '^[^\\s\'"\\\\]+$',
       '__objectItem': {
         'type': {
-          '__regexp': '^(apiKey|http|oauth2|openIdConnect)$'
+          '__regexp': '^(apiKey|http)$',
+          '__level': 'error'
         },
-        'name': {},
+        '__conditions': [
+          {
+            '__if': {
+              'type': '^apiKey$'
+            },
+            '__then': {
+              'name': {}
+            }
+          },
+          {
+            '__if': {
+              'type': '^http$'
+            },
+            '__then': {
+              'scheme': {
+                '__regexp': '^(Basic|Bearer)$',
+                '__level': 'error'
+              }
+            }
+          }
+        ],
         'in': {
           '__regexp': '^(query|header|cookie)$'
         },
@@ -51,11 +72,54 @@ function validateSpecs(specs, specsStruct, paramPath) {
   let messages = [];
   let valid = true;
   let checkExtraFields = true;
+  let conditionalParams = [];
 
   for (const key of Object.keys(specsStruct)) {
+    if (key === '__conditions') {
+      for(const condition of specsStruct[key]) {
+        const paramName = Object.keys(condition['__if'])[0];
+        const paramValue = condition['__if'][paramName];
+        const thenParamName = Object.keys(condition['__then'])[0];
+
+        if (specs[paramName]) {
+          if (specs[paramName].match(new RegExp(paramValue))) {
+            if (specs[thenParamName]) {
+              conditionalParams.push(thenParamName);
+
+              if (!Object.keys(condition['__then'][thenParamName]).length) {
+                continue;
+              }
+
+              let result = validateSpecs(specs[thenParamName], condition['__then'][thenParamName], `${paramPath}${paramPath ? '.' : ''}${thenParamName}`);
+              messages.push(...result.messages);
+
+              if (!result.valid) {
+                valid = false;
+              }
+            } else {
+              valid = false;
+              messages.push({ level: 'error', message: `Missing parameter ${paramPath}${paramPath ? '.' : ''}${thenParamName}`});
+            }
+          }
+        }
+      }
+
+      continue;
+    }
+
     if (key === '__regexp') {
       if (!specs.match(new RegExp(specsStruct[key]))) {
-        messages.push({ level: 'warning', message: `${paramPath} is not formatted correctly` });
+        let level = 'warning';
+
+        if (specsStruct['__level']) {
+          level = specsStruct['__level'];
+
+          if (level === 'error') {
+            valid = false;
+          }
+        }
+
+        messages.push({ level, message: `${paramPath} is not formatted correctly` });
       }
 
       checkExtraFields = false;
@@ -111,6 +175,10 @@ function validateSpecs(specs, specsStruct, paramPath) {
       continue;
     }
 
+    if (key === '__level') {
+      continue;
+    }
+
     if (!specs[key]) {
       messages.push({ level: 'error', message: `Missing parameter ${paramPath}${paramPath ? '.' : ''}${key}`});
       valid = false;
@@ -132,7 +200,7 @@ function validateSpecs(specs, specsStruct, paramPath) {
 
   if (checkExtraFields) {
     for (const key of Object.keys(specs)) {
-      if (!specsStruct[key]) {
+      if (!specsStruct[key] && !conditionalParams.includes(key)) {
         messages.push({ level: 'warning', message: `Extra field: ${paramPath}${paramPath ? '.' : ''}${key}` });
       }
     }

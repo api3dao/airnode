@@ -96,7 +96,7 @@ const specs4 = `{
 "components": {
     "securitySchemes": {
       "mySecurityScheme ": {
-        "type": "apikey",
+        "type": "apiKey",
         "name": "X-MY-API-KEY",
         "in": "Query"
       }
@@ -160,8 +160,8 @@ const specs5 = `{
       },
       "mySecurityScheme2": {
         "type": "http",
-        "name": "X-MY-API-KEY",
-        "in": "header"
+        "in": "header",
+        "scheme": "Basic"
       }
     }
 },
@@ -226,7 +226,7 @@ const specs6 = `{
         "in": "query"
       },
       "mySecurityScheme2": {
-        "type": "http",
+        "type": "apiKey",
         "name": "X-MY-API-KEY",
         "in": "header"
       }
@@ -304,8 +304,6 @@ const specs11 = `{
 "components": {
     "securitySchemes": {
         "mySecurityScheme": {
-            "name": "X-MY-API-KEY",
-            "in": "query"
           }
     }
 }
@@ -346,7 +344,7 @@ const specs12 = `{
     "securitySchemes": {
       "mySecurityScheme": {},
       "mySecurityScheme2": {
-        "type": "http",
+        "type": "apiKey",
         "name": "X-MY-API-KEY",
         "in": "header"
       }
@@ -406,8 +404,42 @@ const specs14 = `{
     }
 }`;
 
-function formattingMessage(paramPath) {
-  return { level: 'warning', message: `${paramPath} is not formatted correctly` };
+const specs15 = `{
+"servers": [
+    {
+        "url":  "https://myapi.com/api"
+    }
+],
+"paths": {},
+"components": {
+    "securitySchemes": {
+      "mySecurityScheme": {
+        "type": "invalid",
+        "in": "query"
+      },
+      "mySecurityScheme2": {
+        "type": "apiKey",
+        "in": "query"
+      },
+      "mySecurityScheme3": {
+        "type": "apiKey",
+        "in": "query",
+        "scheme": "invalid"
+      },
+      "mySecurityScheme4": {
+        "type": "http",
+        "in": "query",
+        "scheme": "invalid"
+      }
+    }
+},
+"security": {
+  "myApiTitle": []
+}
+}`;
+
+function formattingMessage(paramPath, error = false) {
+  return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };
 }
 
 function keyFormattingMessage(key, paramPath) {
@@ -446,7 +478,6 @@ describe('validator', () => {
           keyFormattingMessage('get ', 'paths.myPath.get '),
           formattingMessage('paths.myPath.get .parameters[0].in'),
           keyFormattingMessage('mySecurityScheme ', 'components.securitySchemes.mySecurityScheme '),
-          formattingMessage('components.securitySchemes.mySecurityScheme .type'),
           formattingMessage('components.securitySchemes.mySecurityScheme .in'),
           keyFormattingMessage('myApiTitle ', 'security.myApiTitle ')
         ],
@@ -478,6 +509,7 @@ describe('validator', () => {
           missingParamMessage('servers'),
           missingParamMessage('paths./myPath.post.parameters'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
+          missingParamMessage('components.securitySchemes.mySecurityScheme.in'),
           missingParamMessage('security'),
         ],
       });
@@ -489,7 +521,6 @@ describe('validator', () => {
           missingParamMessage('paths./myPath2.post.parameters[0].name'),
           missingParamMessage('paths./myPath2.post.parameters[2].in'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.name'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.in')
         ],
       });
@@ -515,6 +546,19 @@ describe('validator', () => {
           extraFieldMessage('components.extra'),
           extraFieldMessage('extra'),
         ],
+      });
+    });
+
+    test('conditional checks', () => {
+      expect(validator.isSpecsValid(specs15)).toMatchObject({
+        valid: false,
+        messages: [
+        formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
+          missingParamMessage('components.securitySchemes.mySecurityScheme2.name'),
+          missingParamMessage('components.securitySchemes.mySecurityScheme3.name'),
+          extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme'),
+          formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true)
+        ]
       });
     });
   });
