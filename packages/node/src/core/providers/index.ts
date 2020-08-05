@@ -5,7 +5,7 @@ import * as requestTriggers from '../triggers/requests';
 import * as templates from '../templates';
 import * as state from './state';
 
-type ParallelPromise = Promise<{ id: string, data: any }>;
+type ParallelPromise = Promise<{ id: string; data: any }>;
 
 async function fetchTemplatesAndAuthorizations(currentState: ProviderState) {
   const [err, res] = await go(templates.fetchTemplatesAndAuthorizations(currentState));
@@ -50,13 +50,10 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // =========================================================
   // STEP 3: Get any templates and wallet data
   // =========================================================
-  const templatesAndWalletPromises: ParallelPromise[] = [
-    fetchTemplatesAndAuthorizations(state3),
-    fetchWalletData(),
-  ];
+  const templatesAndWalletPromises: ParallelPromise[] = [fetchTemplatesAndAuthorizations(state3), fetchWalletData()];
   const templatesAndWalletResults = await Promise.all(templatesAndWalletPromises);
 
-  const templateData = templatesAndWalletResults.find(result => result.id === 'templates');
+  const templateData = templatesAndWalletResults.find((result) => result.id === 'templates');
 
   console.log(templateData);
 
