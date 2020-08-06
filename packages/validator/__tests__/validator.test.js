@@ -30,7 +30,7 @@ const specs1 = `{
     }
 },
 "security": {
-      "myApiTitle": []
+      "mySecurityScheme": []
         }
 }`;
 
@@ -71,7 +71,7 @@ const specs3 = `{
     }
 },
 "security": {
-      "myApiTitle": []
+      "mySecurityScheme": []
         }
 }`;
 
@@ -103,7 +103,7 @@ const specs4 = `{
     }
 },
 "security": {
-  "myApiTitle ": []
+  "mySecurityScheme ": []
     }
 }`;
 
@@ -166,8 +166,8 @@ const specs5 = `{
     }
 },
 "security": {
-  "myApiTitle": [],
-  "myApiTitle2": []
+  "mySecurityScheme": [],
+  "mySecurityScheme2": []
     }
 }`;
 
@@ -233,8 +233,8 @@ const specs6 = `{
     }
 },
 "security": {
-      "myApiTitle": [],
-      "myApiTitle2": []
+      "mySecurityScheme": [],
+      "mySecurityScheme2": []
     }
 }`;
 
@@ -274,7 +274,7 @@ const specs9 = `{
     }
 },
 "security": {
-    "myApiTitle": []
+    "mySecurityScheme": []
     }
 }`;
 
@@ -292,7 +292,9 @@ const specs10 = `{
           }
     }
 },
-"security": {}
+"security": {
+  "mySecurityScheme": []
+}
 }`;
 
 const specs11 = `{
@@ -351,9 +353,8 @@ const specs12 = `{
     }
 },
 "security": {
-      "myApiTitle": [],
-          "myApiTitle2": [],
-          "myApiTitle3": []
+      "mySecurityScheme": [],
+      "mySecurityScheme2": []
         }
     }`;
 
@@ -400,7 +401,7 @@ const specs14 = `{
     "extra": {}
 },
 "security": {
-  "myApiTitle": []
+  "mySecurityScheme": []
     }
 }`;
 
@@ -434,7 +435,11 @@ const specs15 = `{
     }
 },
 "security": {
-  "myApiTitle": []
+  "mySecurityScheme": [],
+  "mySecurityScheme2": [],
+  "mySecurityScheme3": [],
+  "mySecurityScheme4": [],
+  "mySecurityScheme5": []
 }
 }`;
 
@@ -479,7 +484,7 @@ describe('validator', () => {
           formattingMessage('paths.myPath.get .parameters[0].in'),
           keyFormattingMessage('mySecurityScheme ', 'components.securitySchemes.mySecurityScheme '),
           formattingMessage('components.securitySchemes.mySecurityScheme .in'),
-          keyFormattingMessage('myApiTitle ', 'security.myApiTitle ')
+          keyFormattingMessage('mySecurityScheme ', 'security.mySecurityScheme ')
         ],
       });
     });
@@ -509,6 +514,7 @@ describe('validator', () => {
           missingParamMessage('servers'),
           missingParamMessage('paths./myPath.post.parameters'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
+          missingParamMessage('security.mySecurityScheme'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.in'),
           missingParamMessage('security'),
         ],
@@ -557,7 +563,8 @@ describe('validator', () => {
           missingParamMessage('components.securitySchemes.mySecurityScheme2.name'),
           missingParamMessage('components.securitySchemes.mySecurityScheme3.name'),
           extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme'),
-          formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true)
+          formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true),
+          missingParamMessage('components.securitySchemes.mySecurityScheme5')
         ]
       });
     });

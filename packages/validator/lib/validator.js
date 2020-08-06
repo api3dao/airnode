@@ -52,6 +52,11 @@ const specsStructure = {
                 '__level': 'error'
               }
             }
+          },
+          {
+            '__require': {
+              '/security.__this_name': {}
+            }
           }
         ],
         'in': {
@@ -63,12 +68,19 @@ const specsStructure = {
   'security': {
     '__keyRegexp': '^[^\\s\'"\\\\]+$',
     '__objectItem': {
-      '__arrayItem': {}
+      '__arrayItem': {},
+      '__conditions': [
+        {
+          '__require': {
+            '/components.securitySchemes.__this_name': {}
+          }
+        }
+      ]
     }
   }
 };
 
-function validateSpecs(specs, specsStruct, paramPath) {
+function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
   let messages = [];
   let valid = true;
   let checkExtraFields = true;
@@ -76,29 +88,92 @@ function validateSpecs(specs, specsStruct, paramPath) {
 
   for (const key of Object.keys(specsStruct)) {
     if (key === '__conditions') {
-      for(const condition of specsStruct[key]) {
-        const paramName = Object.keys(condition['__if'])[0];
-        const paramValue = condition['__if'][paramName];
-        const thenParamName = Object.keys(condition['__then'])[0];
+      for (const condition of specsStruct[key]) {
+        if (condition['__if']) {
+          const paramName = Object.keys(condition['__if'])[0];
+          const paramValue = condition['__if'][paramName];
+          const thenParamName = Object.keys(condition['__then'])[0];
 
-        if (specs[paramName]) {
-          if (specs[paramName].match(new RegExp(paramValue))) {
-            if (specs[thenParamName]) {
-              conditionalParams.push(thenParamName);
+          if (specs[paramName]) {
+            if (specs[paramName].match(new RegExp(paramValue))) {
+              if (specs[thenParamName]) {
+                conditionalParams.push(thenParamName);
 
-              if (!Object.keys(condition['__then'][thenParamName]).length) {
-                continue;
-              }
+                if (!Object.keys(condition['__then'][thenParamName]).length) {
+                  continue;
+                }
 
-              let result = validateSpecs(specs[thenParamName], condition['__then'][thenParamName], `${paramPath}${paramPath ? '.' : ''}${thenParamName}`);
-              messages.push(...result.messages);
+                let result = validateSpecs(specs[thenParamName], condition['__then'][thenParamName], `${paramPath}${paramPath ? '.' : ''}${thenParamName}`, specsRoot);
+                messages.push(...result.messages);
 
-              if (!result.valid) {
+                if (!result.valid) {
+                  valid = false;
+                }
+              } else {
                 valid = false;
+                messages.push({ level: 'error', message: `Missing parameter ${paramPath}${paramPath ? '.' : ''}${thenParamName}`});
               }
+            }
+          }
+        } else {
+          for (let requiredParam of Object.keys(condition['__require'])) {
+            let workingDir = specs;
+            let requiredPath = '';
+
+            if (requiredParam[0] === '/') {
+              requiredParam = requiredParam.slice(1);
+              workingDir = specsRoot;
+              requiredPath = requiredParam;
             } else {
-              valid = false;
-              messages.push({ level: 'error', message: `Missing parameter ${paramPath}${paramPath ? '.' : ''}${thenParamName}`});
+              requiredPath = `${paramPath}${paramPath ? '.' : ''}${requiredParam}`;
+            }
+
+            const lastDotIndex = paramPath.lastIndexOf('.');
+            let thisName = paramPath;
+
+            if (lastDotIndex >= 0) {
+              thisName = paramPath.slice(lastDotIndex + 1);
+            }
+
+            requiredPath = requiredPath.replace(/__this_name/g, thisName);
+
+            while (requiredParam.length) {
+              if (requiredParam.startsWith('__this_name')) {
+                requiredParam = requiredParam.replace('__this_name', '');
+
+                if (!workingDir[thisName]) {
+                  valid = false;
+                  messages.push({ level: 'error', message: `Missing parameter ${requiredPath}`});
+                  break;
+                }
+
+                workingDir = workingDir[thisName];
+
+                if (requiredParam.startsWith('.')) {
+                  requiredParam = requiredParam.replace('.', '');
+                }
+              } else {
+                const dotIndex = requiredParam.indexOf('.');
+                let paramName = requiredParam;
+
+                if (dotIndex > 0) {
+                  paramName = requiredParam.substr(0, dotIndex);
+                }
+
+                requiredParam = requiredParam.replace(paramName, '');
+
+                if (requiredParam.startsWith('.')) {
+                  requiredParam = requiredParam.replace('.', '');
+                }
+
+                if (!workingDir[paramName]) {
+                  valid = false;
+                  messages.push({ level: 'error', message: `Missing parameter ${requiredPath}`});
+                  break;
+                }
+
+                workingDir = workingDir[paramName];
+              }
             }
           }
         }
@@ -149,7 +224,7 @@ function validateSpecs(specs, specsStruct, paramPath) {
 
     if (key === '__arrayItem') {
       for (let i = 0; i < specs.length; i++) {
-        let result = validateSpecs(specs[i], specsStruct[key], `${paramPath}[${i}]`);
+        let result = validateSpecs(specs[i], specsStruct[key], `${paramPath}[${i}]`, specsRoot);
         messages.push(...result.messages);
 
         if (!result.valid) {
@@ -163,7 +238,7 @@ function validateSpecs(specs, specsStruct, paramPath) {
 
     if (key === '__objectItem') {
       for (const item of Object.keys(specs)) {
-        let result = validateSpecs(specs[item], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${item}`);
+        let result = validateSpecs(specs[item], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${item}`, specsRoot);
         messages.push(...result.messages);
 
         if (!result.valid) {
@@ -190,7 +265,7 @@ function validateSpecs(specs, specsStruct, paramPath) {
       continue;
     }
 
-    let result = validateSpecs(specs[key], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${key}`);
+    let result = validateSpecs(specs[key], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${key}`, specsRoot);
     messages.push(...result.messages);
 
     if (!result.valid) {
@@ -218,7 +293,7 @@ function isSpecsValid(specs) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return validateSpecs(parsedSpecs, specsStructure, '');
+  return validateSpecs(parsedSpecs, specsStructure, '', parsedSpecs);
 }
 
 module.exports = { isSpecsValid };
