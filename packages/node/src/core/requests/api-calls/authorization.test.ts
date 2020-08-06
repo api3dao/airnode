@@ -83,9 +83,7 @@ describe('fetch', () => {
     });
 
     expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(1);
-    expect(checkAuthorizationStatusesMock.mock.calls).toEqual([
-      [['endpointId-0'], ['requester-0']],
-    ]);
+    expect(checkAuthorizationStatusesMock.mock.calls).toEqual([[['endpointId-0'], ['requester-0']]]);
   });
 
   it('retries once on failure', async () => {
