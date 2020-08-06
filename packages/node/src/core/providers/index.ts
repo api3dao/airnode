@@ -53,9 +53,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   const templatesAndWalletPromises: ParallelPromise[] = [fetchTemplatesAndAuthorizations(state3), fetchWalletData()];
   const templatesAndWalletResults = await Promise.all(templatesAndWalletPromises);
 
-  const templateData = templatesAndWalletResults.find((result) => result.id === 'templates');
-
-  console.log(templateData);
+  templatesAndWalletResults.find((result) => result.id === 'templates');
 
   return state3;
 }

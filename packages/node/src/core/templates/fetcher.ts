@@ -1,12 +1,16 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
-import flatten from 'lodash/flatten';
+import uniq from 'lodash/uniq';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../utils/logger';
 import * as ethereum from '../ethereum';
 import { ApiCallTemplate, ProviderState } from '../../types';
 
-async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): Promise<ApiCallTemplate[] | null> {
+interface ApiCallTemplatesById {
+  [id: string]: ApiCallTemplate;
+}
+
+async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): Promise<ApiCallTemplatesById> {
   const { Convenience } = ethereum.contracts;
   const { config, provider } = state;
 
@@ -19,13 +23,13 @@ async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): 
   // on the next run
   if (err || !rawTemplates) {
     logger.logProviderError(config.name, 'Failed to fetch API call templates', err);
-    return [];
+    return {};
   }
 
-  return templateIds.map((templateId, index) => {
+  return templateIds.reduce((acc, templateId, index) => {
     // Templates are always returned in the same order that they
     // are called with
-    return {
+    const template: ApiCallTemplate = {
       templateId,
       endpointId: rawTemplates.endpointIds[index],
       providerId: rawTemplates.providerIds[index],
@@ -35,20 +39,21 @@ async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): 
       errorFunctionId: rawTemplates.errorFunctionIds[index],
       encodedParameters: rawTemplates.parameters[index],
     };
-  });
+    return { ...acc, [templateId]: template };
+  }, {});
 }
 
-export async function fetch(state: ProviderState): Promise<ApiCallTemplate[]> {
+export async function fetch(state: ProviderState): Promise<ApiCallTemplatesById> {
   const templateIds = state.requests.apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
 
   // Requests are made for up to 10 templates at a time
-  const groupedTemplateIds = chunk(templateIds, 10);
+  const groupedTemplateIds = chunk(uniq(templateIds), 10);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(state, ids));
 
-  const templates = await Promise.all(promises);
+  const templatesById = await Promise.all(promises);
 
-  // The templates are still in a nested array at this point so we need to flatten once
-  return flatten(templates) as ApiCallTemplate[];
+  // Merge all templates into a single object, keyed by their ID for faster/easier lookup
+  return Object.assign({}, ...templatesById);
 }
