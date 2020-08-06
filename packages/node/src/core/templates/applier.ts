@@ -21,16 +21,19 @@ function mergeRequestAndTemplate(
   return {
     ...request,
     // NOTE: template attributes can be overwritten by the request attributes
-    endpointId: template.endpointId || request.endpointId,
-    fulfillAddress: template.fulfillAddress || request.fulfillAddress,
-    fulfillFunctionId: template.fulfillFunctionId || request.fulfillFunctionId,
-    errorAddress: template.errorAddress || request.errorAddress,
-    errorFunctionId: template.errorFunctionId || request.errorFunctionId,
+    endpointId: request.endpointId || template.endpointId,
+    fulfillAddress: request.fulfillAddress || template.fulfillAddress,
+    fulfillFunctionId: request.fulfillFunctionId || template.fulfillFunctionId,
+    errorAddress: request.errorAddress || template.errorAddress,
+    errorFunctionId: request.errorFunctionId || template.errorFunctionId,
     parameters: { ...templateParameters, ...request.parameters },
   };
 }
 
-export function mapApiCallsWithTemplates(state: ProviderState, templatesById: ApiCallTemplatesById): ClientRequest<ApiCall>[] {
+export function mapApiCallsWithTemplates(
+  state: ProviderState,
+  templatesById: ApiCallTemplatesById
+): ClientRequest<ApiCall>[] {
   return state.requests.apiCalls.reduce((acc, apiCall) => {
     const { id, templateId } = apiCall;
 
