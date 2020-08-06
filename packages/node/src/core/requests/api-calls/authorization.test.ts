@@ -47,69 +47,69 @@ describe('fetch', () => {
       [apiCalls.slice(10, 19).map((a) => a.endpointId), apiCalls.slice(10, 19).map((a) => a.requesterAddress)],
     ]);
   });
-  //
-  // it('groups by endpoint ID', async () => {
-  //   const apiCalls = [
-  //     fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
-  //     fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-1' }),
-  //     fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-2' }),
-  //   ];
-  //
-  //   checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
-  //
-  //   const res = await authorization.fetch(state, apiCalls);
-  //   expect(Object.keys(res).length).toEqual(1);
-  //   expect(res['endpointId-0']).toEqual({
-  //     'requester-0': true,
-  //     'requester-1': false,
-  //     'requester-2': true,
-  //   });
-  // });
-  //
-  // it('removes duplicate endpointId and requester pairs', async () => {
-  //   const apiCalls = [
-  //     fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
-  //     fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
-  //   ];
-  //
-  //   checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
-  //
-  //   const res = await authorization.fetch(state, apiCalls);
-  //   expect(Object.keys(res).length).toEqual(1);
-  //   expect(res).toEqual({
-  //     'endpointId-0': {
-  //       'requester-0': true,
-  //     },
-  //   });
-  //
-  //   expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(1);
-  //   expect(checkAuthorizationStatusesMock.mock.calls).toEqual([
-  //     [['endpointId-0'], ['requester-0']],
-  //   ]);
-  // });
-  //
-  // it('retries once on failure', async () => {
-  //   const apiCalls = [fixtures.requests.createApiCall()];
-  //
-  //   checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
-  //   checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
-  //
-  //   const res = await authorization.fetch(state, apiCalls);
-  //   expect(res).toEqual({
-  //     endpointId: {
-  //       requesterAddress: true,
-  //     },
-  //   });
-  // });
-  //
-  // it('retries a maximum of two times', async () => {
-  //   const apiCalls = [fixtures.requests.createApiCall()];
-  //
-  //   checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
-  //   checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
-  //   checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
-  //
-  //   const res = await authorization.fetch(state, apiCalls);
-  //   expect(res).toEqual({});
-  // });
+
+  it('groups by endpoint ID', async () => {
+    const apiCalls = [
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-1' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-2' }),
+    ];
+
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
+
+    const res = await authorization.fetch(state, apiCalls);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res['endpointId-0']).toEqual({
+      'requester-0': true,
+      'requester-1': false,
+      'requester-2': true,
+    });
+  });
+
+  it('removes duplicate endpointId and requester pairs', async () => {
+    const apiCalls = [
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
+    ];
+
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
+
+    const res = await authorization.fetch(state, apiCalls);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res).toEqual({
+      'endpointId-0': {
+        'requester-0': true,
+      },
+    });
+
+    expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(1);
+    expect(checkAuthorizationStatusesMock.mock.calls).toEqual([
+      [['endpointId-0'], ['requester-0']],
+    ]);
+  });
+
+  it('retries once on failure', async () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
+
+    const res = await authorization.fetch(state, apiCalls);
+    expect(res).toEqual({
+      endpointId: {
+        requesterAddress: true,
+      },
+    });
+  });
+
+  it('retries a maximum of two times', async () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
+
+    const res = await authorization.fetch(state, apiCalls);
+    expect(res).toEqual({});
+  });
 });
