@@ -14,6 +14,6 @@ describe('mapApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: null })];
     const state = providerState.update(initialState, { apiCalls });
-    applier.mapApiCallsWithTemplates(state, []);
+    applier.mapApiCallsWithTemplates(state, {});
   });
 });

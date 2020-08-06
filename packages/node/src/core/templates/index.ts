@@ -5,10 +5,10 @@ import { ProviderState } from '../../types';
 
 export async function fetchTemplatesAndAuthorizations(state: ProviderState) {
   // Fetch templates. This should not throw
-  const templates = await fetcher.fetch(state);
+  const templatesById = await fetcher.fetch(state);
 
   // NB: This should *not* update the state at this point
-  const apiCallsWithTemplates = applier.mapApiCallsWithTemplates(state, templates);
+  const apiCallsWithTemplates = applier.mapApiCallsWithTemplates(state, templatesById);
 
   const authorizationsByEndpoint = await authorization.fetch(state, apiCallsWithTemplates);
 

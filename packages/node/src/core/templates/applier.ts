@@ -9,6 +9,10 @@ import {
   RequestErrorCode,
 } from '../../types';
 
+interface ApiCallTemplatesById {
+  [id: string]: ApiCallTemplate;
+}
+
 function mergeRequestAndTemplate(
   request: ClientRequest<ApiCall>,
   template: ApiCallTemplate,
@@ -26,7 +30,7 @@ function mergeRequestAndTemplate(
   };
 }
 
-export function mapApiCallsWithTemplates(state: ProviderState, templates: ApiCallTemplate[]): ClientRequest<ApiCall>[] {
+export function mapApiCallsWithTemplates(state: ProviderState, templatesById: ApiCallTemplatesById): ClientRequest<ApiCall>[] {
   return state.requests.apiCalls.reduce((acc, apiCall) => {
     const { id, templateId } = apiCall;
 
@@ -35,7 +39,7 @@ export function mapApiCallsWithTemplates(state: ProviderState, templates: ApiCal
       return [...acc, apiCall];
     }
 
-    const template = templates.find((t) => t.templateId === templateId);
+    const template = templatesById[templateId];
     // If no template is found, then we aren't able to build the full request.
     // Drop the request for now and it will be retried on the next run
     if (!template) {

@@ -1,6 +1,6 @@
 import { ApiCallTemplate } from '../../../src/types';
 
-export function createApiCall(params?: any): ApiCallTemplate {
+export function createApiCallTemplate(params?: any): ApiCallTemplate {
   return {
     encodedParameters: '0x6874656d706c6174656576616c7565',
     endpointId: 'endpointId',
