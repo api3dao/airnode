@@ -13,17 +13,15 @@ interface AuthorizationStatus {
   requesterAddress: string;
 }
 
-type AuthorizationRequest = Omit<AuthorizationStatus, 'authorized'>;
-
 async function fetchAuthorizationStatuses(
   state: ProviderState,
-  requests: AuthorizationRequest[]
+  apiCalls: ClientRequest<ApiCall>[]
 ): Promise<AuthorizationStatus[] | null> {
   const { Convenience } = ethereum.contracts;
 
   // Ordering must remain the same when mapping these two arrays
-  const endpointIds = requests.map((a) => a.endpointId);
-  const requesters = requests.map((a) => a.requesterAddress);
+  const endpointIds = apiCalls.map((a) => a.endpointId);
+  const requesters = apiCalls.map((a) => a.requesterAddress);
 
   const contract = new ethers.Contract(Convenience.addresses[state.config.chainId], Convenience.ABI, state.provider);
   const contractCall = () => contract.checkAuthorizationStatuses(endpointIds, requesters);
@@ -35,8 +33,12 @@ async function fetchAuthorizationStatuses(
     return null;
   }
 
-  const authorizations = requests.reduce((acc, request, index) => {
-    const status: AuthorizationStatus = { ...request, authorized: data[index] };
+  const authorizations = apiCalls.reduce((acc, apiCall, index) => {
+    const status: AuthorizationStatus = {
+      endpointId: apiCall.endpointId!,
+      requesterAddress: apiCall.requesterAddress,
+      authorized: data[index]
+    };
     return [...acc, status];
   }, []);
 
@@ -45,16 +47,10 @@ async function fetchAuthorizationStatuses(
 
 export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCall>[]) {
   // API Calls should always have an endpoint ID at this point, but filter just in case.
-  // They are also grouped into endpointId & requesterAddress pairs as some API calls
-  // might be for the same unique pair (and we want to reduce Ethereum calls)
-  const endpointRequesterPairs = apiCalls
-    .filter((a) => !!a.endpointId)
-    .map((apiCall) => ({
-      endpointId: apiCall.endpointId!,
-      requesterAddress: apiCall.requesterAddress,
-    }));
+  const filteredApiCalls = apiCalls.filter((a) => !!a.endpointId);
 
-  const uniquePairs = uniqBy(endpointRequesterPairs, (a) => `${a.endpointId}-${a.requesterAddress}`);
+  // Remove duplicate API calls with the same endpoint ID and requester address
+  const uniquePairs = uniqBy(filteredApiCalls, (a) => `${a.endpointId}-${a.requesterAddress}`);
 
   // Request groups of 10 at a time
   const groupedPairs = chunk(uniquePairs, 10);
