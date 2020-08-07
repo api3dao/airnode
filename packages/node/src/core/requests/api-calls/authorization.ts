@@ -44,18 +44,18 @@ async function fetchAuthorizationStatuses(
 }
 
 export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCall>[]) {
-  // Group and remove duplicates to reduce calls
-  const endpointRequesterPairs = uniqBy(
-    apiCalls.map((apiCall) => ({
-      // API calls should always have an endpointId at this point
-      endpointId: apiCall.endpointId!,
-      requesterAddress: apiCall.requesterAddress,
-    })),
-    (a) => `${a.endpointId}-${a.requesterAddress}`
-  );
+  // API Calls should always have an endpoint ID at this point, but filter just in case.
+  // They are also grouped into endpointId & requesterAddress pairs as some API calls
+  // might be for the same unique pair (and we want to reduce Ethereum calls)
+  const endpointRequesterPairs = apiCalls.filter((a) => !!a.endpointId).map((apiCall) => ({
+    endpointId: apiCall.endpointId!,
+    requesterAddress: apiCall.requesterAddress,
+  }));
+
+  const uniquePairs = uniqBy(endpointRequesterPairs, (a) => `${a.endpointId}-${a.requesterAddress}`);
 
   // Request groups of 10 at a time
-  const groupedPairs = chunk(endpointRequesterPairs, 10);
+  const groupedPairs = chunk(uniquePairs, 10);
 
   // Fetch all authorization statuses in parallel
   const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(state, pairs));
