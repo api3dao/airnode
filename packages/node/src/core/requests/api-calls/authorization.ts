@@ -37,7 +37,7 @@ async function fetchAuthorizationStatuses(
     const status: AuthorizationStatus = {
       endpointId: apiCall.endpointId!,
       requesterAddress: apiCall.requesterAddress,
-      authorized: data[index]
+      authorized: data[index],
     };
     return [...acc, status];
   }, []);
