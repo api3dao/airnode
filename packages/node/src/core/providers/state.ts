@@ -13,6 +13,7 @@ export function create(config: ProviderConfig, index: number): ProviderState {
       walletDesignations: [],
       withdrawals: [],
     },
+    xpub: ethereum.getExtendedPublicKey(),
     // This is fetched and set as late as possible for freshness
     gasPrice: null,
   };

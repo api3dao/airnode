@@ -15,6 +15,7 @@ export enum RequestErrorCode {
   ReservedWalletIndex = 4,
   InsufficientBalance = 5,
   UnauthorizedRequester = 6,
+  AuthorizationNotFound = 7,
 }
 
 export type BaseRequest<T extends {}> = T & {
@@ -83,6 +84,7 @@ export interface ProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
+  readonly xpub: string;
 }
 
 export interface State {

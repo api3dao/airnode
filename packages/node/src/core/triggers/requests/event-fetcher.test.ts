@@ -26,6 +26,9 @@ jest.mock('../../config', () => ({
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
     },
   },
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
   FROM_BLOCK_LIMIT: 100,
 }));
 
@@ -45,6 +48,7 @@ describe('fetchGroupedLogs', () => {
       walletDesignations: [],
       withdrawals: [],
     },
+    xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
   };
 
   it('returns API call requests', async () => {

@@ -16,6 +16,7 @@ export function createApiCall(params?: any): ClientRequest<ApiCall> {
     parameters: { from: 'ETH' },
     providerId: 'providerId',
     valid: true,
+    authorized: false,
     walletIndex: 123,
     walletAddress: 'walletAddress',
     walletBalance: ethers.BigNumber.from('10'),

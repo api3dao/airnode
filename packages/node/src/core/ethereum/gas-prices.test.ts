@@ -34,6 +34,7 @@ describe('getGasPrice', () => {
       walletDesignations: [],
       withdrawals: [],
     },
+    xpub: 'xpub',
   };
 
   it('takes the gas price feed price if it is highest', async () => {

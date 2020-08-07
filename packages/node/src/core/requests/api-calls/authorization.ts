@@ -1,16 +1,26 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
 import flatten from 'lodash/flatten';
+import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 import uniqBy from 'lodash/uniqBy';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
 import { go, retryOperation } from '../../utils/promise-utils';
-import { ApiCall, ClientRequest, ProviderState } from '../../../types';
+import { ApiCall, ClientRequest, ProviderState, RequestErrorCode } from '../../../types';
 
 interface AuthorizationStatus {
   authorized: boolean;
   endpointId: string;
   requesterAddress: string;
+}
+
+interface AuthorizationByRequester {
+  [id: string]: boolean;
+}
+
+interface AuthorizationByEndpointId {
+  [id: string]: AuthorizationByRequester;
 }
 
 async function fetchAuthorizationStatuses(
@@ -45,7 +55,7 @@ async function fetchAuthorizationStatuses(
   return authorizations;
 }
 
-export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCall>[]) {
+export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCall>[]): Promise<AuthorizationByEndpointId> {
   // API Calls should always have an endpoint ID at this point, but filter just in case.
   const filteredApiCalls = apiCalls.filter((a) => !!a.endpointId);
 
@@ -70,4 +80,36 @@ export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCal
   }, {});
 
   return authorizationsByEndpoint;
+}
+
+export function mergeAuthorizations(state: ProviderState, authorizationsByEndpoint: AuthorizationByEndpointId): ClientRequest<ApiCall>[] {
+  return state.requests.apiCalls.reduce((acc, apiCall) => {
+    // Don't overwrite any existing error codes
+    if (!apiCall.valid) {
+      return [...acc, apiCall];
+    }
+
+    // There should always be an endpointId at this point, but just in case
+    if (!apiCall.endpointId) {
+      return acc;
+    }
+
+    const isRequestedAuthorized = get(authorizationsByEndpoint, [apiCall.endpointId, apiCall.requesterAddress]);
+    if (isNil(isRequestedAuthorized)) {
+      const message = `Authorization not found for Request ID:${apiCall.id}`;
+      logger.logProviderJSON(state.config.name, 'WARN', message);
+      const invalidatedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.AuthorizationNotFound };
+      return [...acc, invalidatedApiCall];
+    }
+
+    if (isRequestedAuthorized) {
+      return [...acc, apiCall];
+    }
+
+    const message = `Requester:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`;
+    logger.logProviderJSON(state.config.name, 'WARN', message);
+
+    const unauthorizedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.UnauthorizedRequester };
+    return [...acc, unauthorizedApiCall];
+  }, []);
 }

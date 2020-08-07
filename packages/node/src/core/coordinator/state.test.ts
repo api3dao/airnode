@@ -27,6 +27,9 @@ jest.mock('../config', () => ({
       ethereumProviders: ethereumProviders,
     },
   },
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
 }));
 
 import { ethers } from 'ethers';
@@ -59,6 +62,7 @@ describe('initialize', () => {
             walletDesignations: [],
             withdrawals: [],
           },
+          xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         {
           config: ethereumProviders[1],
@@ -71,6 +75,7 @@ describe('initialize', () => {
             walletDesignations: [],
             withdrawals: [],
           },
+          xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
       ],
     });
