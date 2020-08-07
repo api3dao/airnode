@@ -1,7 +1,7 @@
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../providers/state';
 import { ApiCallTemplate, ProviderState, RequestErrorCode } from '../../types';
-import * as applier from './applier';
+import * as applier from './template-applier';
 
 describe('mapApiCallsWithTemplates', () => {
   let initialState: ProviderState;

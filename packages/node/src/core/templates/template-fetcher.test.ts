@@ -14,7 +14,7 @@ jest.mock('ethers', () => {
 import * as fixtures from 'test/fixtures';
 import { ProviderState } from 'src/types';
 import * as providerState from '../providers/state';
-import * as fetcher from './fetcher';
+import * as fetcher from './template-fetcher';
 
 describe('fetch', () => {
   let initialState: ProviderState;
