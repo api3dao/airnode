@@ -47,10 +47,12 @@ export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCal
   // API Calls should always have an endpoint ID at this point, but filter just in case.
   // They are also grouped into endpointId & requesterAddress pairs as some API calls
   // might be for the same unique pair (and we want to reduce Ethereum calls)
-  const endpointRequesterPairs = apiCalls.filter((a) => !!a.endpointId).map((apiCall) => ({
-    endpointId: apiCall.endpointId!,
-    requesterAddress: apiCall.requesterAddress,
-  }));
+  const endpointRequesterPairs = apiCalls
+    .filter((a) => !!a.endpointId)
+    .map((apiCall) => ({
+      endpointId: apiCall.endpointId!,
+      requesterAddress: apiCall.requesterAddress,
+    }));
 
   const uniquePairs = uniqBy(endpointRequesterPairs, (a) => `${a.endpointId}-${a.requesterAddress}`);
 
