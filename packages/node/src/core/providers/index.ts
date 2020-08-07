@@ -61,18 +61,22 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
 
   // Each of these promises returns it's result with an ID as the
   // order in which they resolve in not guaranteed.
-  const { apiCallsWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find((result) => result.id === 'templates+authorizations')!.data;
-  const transactionCountsByWalletIndex = templatesAndTransactionResults.find((result) => result.id === 'transaction-counts')!.data;
+  const { apiCallsWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find(
+    (result) => result.id === 'templates+authorizations'
+  )!.data;
+  const transactionCountsByWalletIndex = templatesAndTransactionResults.find(
+    (result) => result.id === 'transaction-counts'
+  )!.data;
 
   // =================================================================
   // STEP 4: Merge templates, authorizations and transaction counts
   // =================================================================
   // API calls with templates is now the source of truth
-  const state4 = state.update(state3, { requests: { ...state3.requests, apiCalls: apiCallsWithTemplates }});
+  const state4 = state.update(state3, { requests: { ...state3.requests, apiCalls: apiCallsWithTemplates } });
 
   const authorizedApiCalls = apiCallAuthorization.mergeAuthorizations(state4, authorizationsByEndpoint);
 
-  const state5 = state.update(state4, { requests: { ...state4.requests, apiCalls: authorizedApiCalls }});
+  const state5 = state.update(state4, { requests: { ...state4.requests, apiCalls: authorizedApiCalls } });
 
   return state5;
 }

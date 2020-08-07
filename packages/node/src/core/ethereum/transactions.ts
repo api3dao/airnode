@@ -8,7 +8,10 @@ interface TransactionCountByWalletIndex {
   [index: number]: number;
 }
 
-async function getWalletTransactionCount(state: ProviderState, index: number): Promise<TransactionCountByWalletIndex | null> {
+async function getWalletTransactionCount(
+  state: ProviderState,
+  index: number
+): Promise<TransactionCountByWalletIndex | null> {
   const address = wallet.deriveWalletFromIndex(state.xpub, index);
 
   const providerCall = () => state.provider.getTransactionCount(address, state.currentBlock!) as Promise<number>;
@@ -26,14 +29,11 @@ async function getWalletTransactionCount(state: ProviderState, index: number): P
 export async function getTransactionCountByIndex(state: ProviderState): Promise<TransactionCountByWalletIndex> {
   const { apiCalls, withdrawals } = state.requests;
 
-  const uniqueWalletIndices = uniq([
-    ...apiCalls.map(a => a.walletIndex),
-    ...withdrawals.map(a => a.walletIndex),
-  ]);
+  const uniqueWalletIndices = uniq([...apiCalls.map((a) => a.walletIndex), ...withdrawals.map((a) => a.walletIndex)]);
 
   // TODO: what should happen if an index 0 is present in the above array?
 
-  const promises = uniqueWalletIndices.map(index => getWalletTransactionCount(state, index));
+  const promises = uniqueWalletIndices.map((index) => getWalletTransactionCount(state, index));
 
   const results = await Promise.all(promises);
   const successfulResults = results.filter((r) => !!r) as TransactionCountByWalletIndex[];

@@ -55,7 +55,10 @@ async function fetchAuthorizationStatuses(
   return authorizations;
 }
 
-export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCall>[]): Promise<AuthorizationByEndpointId> {
+export async function fetch(
+  state: ProviderState,
+  apiCalls: ClientRequest<ApiCall>[]
+): Promise<AuthorizationByEndpointId> {
   // API Calls should always have an endpoint ID at this point, but filter just in case.
   const filteredApiCalls = apiCalls.filter((a) => !!a.endpointId);
 
@@ -82,7 +85,10 @@ export async function fetch(state: ProviderState, apiCalls: ClientRequest<ApiCal
   return authorizationsByEndpoint;
 }
 
-export function mergeAuthorizations(state: ProviderState, authorizationsByEndpoint: AuthorizationByEndpointId): ClientRequest<ApiCall>[] {
+export function mergeAuthorizations(
+  state: ProviderState,
+  authorizationsByEndpoint: AuthorizationByEndpointId
+): ClientRequest<ApiCall>[] {
   return state.requests.apiCalls.reduce((acc, apiCall) => {
     // Don't overwrite any existing error codes
     if (!apiCall.valid) {
