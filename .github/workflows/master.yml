@@ -46,3 +46,14 @@ jobs:
     - name: Build node
       run: npm run build:node
 
+    - name: Slack Notification
+      uses: homoluctus/slatify@master
+      if: always()
+      with:
+        channel: '#technical'
+        commit: true
+        job_name: 'Airnode - Continuous Build'
+        token: ${{ secrets.ACCESS_TOKEN }}
+        type: ${{ job.status }}
+        url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
