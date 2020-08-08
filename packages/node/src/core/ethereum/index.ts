@@ -1,8 +1,10 @@
 import { RetryProvider } from './retry-provider';
+import * as cbor from './cbor';
 import * as contracts from './contracts';
 import * as networks from './networks';
 
-export { contracts };
+export { cbor, contracts };
+export * from './utils';
 export * from './gas-prices';
 export * from './utils';
 

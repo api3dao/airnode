@@ -1,14 +1,14 @@
 import { ethers } from 'ethers';
-import { tryDecodeParameters } from '../../shared/parameters';
-import * as logger from '../../../utils/logger';
-import { ApiCall, BaseRequest, ProviderState, RequestErrorCode } from '../../../../types';
+import * as ethereum from '../../ethereum';
+import * as logger from '../../utils/logger';
+import { ApiCall, BaseRequest, ProviderState, RequestErrorCode } from '../../../types';
 
 function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
   if (!request.encodedParameters) {
     return request;
   }
 
-  const parameters = tryDecodeParameters(request.encodedParameters);
+  const parameters = ethereum.cbor.safeDecode(request.encodedParameters);
   if (parameters === null) {
     const { id, encodedParameters } = request;
     const message = `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`;

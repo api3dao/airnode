@@ -66,7 +66,6 @@ export async function fetch(state: ProviderState, addresses: string[]): Promise<
   const promises = groupedAddresses.map((addresses) => fetchRequesterData(state, addresses));
 
   const results = await Promise.all(promises);
-
   const successfulResults = results.filter((r) => !!r) as RequesterDataByAddress[];
 
   // Merge all results together

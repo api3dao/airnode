@@ -4,7 +4,7 @@ import { ApiCall, ClientRequest } from '../../../src/types';
 export function createApiCall(params?: any): ClientRequest<ApiCall> {
   return {
     id: 'apiCallId',
-    requesterId: 'requestId',
+    requesterId: 'requesterId',
     requesterAddress: 'requesterAddress',
     endpointId: 'endpointId',
     templateId: null,

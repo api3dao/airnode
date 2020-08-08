@@ -29,7 +29,7 @@ export const ChainAPI: Contract = {
   addresses: {
     1: '<TODO>',
     3: '<TODO>',
-    1337: '0xE75De03a0E9d585BD19E0E9956402c6a14bB70f3',
+    1337: '0xC5acEBD29c4a85CA299de6e448bffF4C170f8576',
   },
   ABI: compiledContract.abi,
   topics: {
