@@ -122,12 +122,50 @@ describe('mergeAuthorizations', () => {
 
   it('does nothing if the API call is already invalid', () => {
     const apiCalls = [
-      fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InvalidRequestParameters })
+      fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InvalidRequestParameters }),
     ];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
-
     const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
     const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
-    expect(res).toEqual({});
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(false);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
+  });
+
+  it('drops the request if it has no endpointId', () => {
+    const apiCalls = [fixtures.requests.createApiCall({ endpointId: null })];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res).toEqual([]);
+  });
+
+  it('invalidates the request if no authorization is found', () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const res = authorization.mergeAuthorizations(state, {});
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(false);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.AuthorizationNotFound);
+  });
+
+  it('returns the validated request if it is authorized', () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(true);
+    expect(res[0].errorCode).toEqual(undefined);
+  });
+
+  it('invalidates the request if it is not authorized', () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: false } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(false);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.UnauthorizedClient);
   });
 });
