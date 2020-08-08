@@ -95,8 +95,11 @@ export function mergeAuthorizations(
       return [...acc, apiCall];
     }
 
-    // There should always be an endpointId at this point, but just in case
+    // There should always be an endpointId at this point, but just in case, check again
+    // and drop the request if it is missing
     if (!apiCall.endpointId) {
+      const message = `No Endpoint ID found for Request ID:${apiCall.id}`;
+      logger.logProviderJSON(state.config.name, 'ERROR', message);
       return acc;
     }
 
@@ -112,10 +115,10 @@ export function mergeAuthorizations(
       return [...acc, apiCall];
     }
 
-    const message = `Requester:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`;
+    const message = `Client:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`;
     logger.logProviderJSON(state.config.name, 'WARN', message);
 
-    const unauthorizedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.UnauthorizedRequester };
+    const unauthorizedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.UnauthorizedClient };
     return [...acc, unauthorizedApiCall];
   }, []);
 }
