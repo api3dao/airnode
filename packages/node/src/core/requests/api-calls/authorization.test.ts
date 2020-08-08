@@ -12,7 +12,7 @@ jest.mock('ethers', () => {
 });
 
 import * as fixtures from 'test/fixtures';
-import { ProviderState } from 'src/types';
+import { ProviderState, RequestErrorCode } from 'src/types';
 import * as authorization from './authorization';
 import * as providerState from '../../providers/state';
 
@@ -108,6 +108,26 @@ describe('fetch', () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
     const res = await authorization.fetch(state, apiCalls);
+    expect(res).toEqual({});
+  });
+});
+
+describe('mergeAuthorizations', () => {
+  let initialState: ProviderState;
+
+  beforeEach(() => {
+    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
+    initialState = providerState.create(config, 0);
+  });
+
+  it('does nothing if the API call is already invalid', () => {
+    const apiCalls = [
+      fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InvalidRequestParameters })
+    ];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
     expect(res).toEqual({});
   });
 });
