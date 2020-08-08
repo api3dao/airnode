@@ -38,7 +38,7 @@ describe('getTransactionCountByIndex', () => {
     initialState = providerState.create(config, 0);
   });
 
-  it('calls getTransactionCount once for each unique index', async () => {
+  it('calls getTransactionCount once for each unique wallet index', async () => {
     getTransactionCountMock.mockResolvedValueOnce(5);
 
     const requests: GroupedProviderRequests = {
