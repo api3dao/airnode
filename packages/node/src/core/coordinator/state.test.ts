@@ -62,6 +62,7 @@ describe('initialize', () => {
             walletDesignations: [],
             withdrawals: [],
           },
+          transactionCountsByWalletIndex: {},
           xpub:
             'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
@@ -76,6 +77,7 @@ describe('initialize', () => {
             walletDesignations: [],
             withdrawals: [],
           },
+          transactionCountsByWalletIndex: {},
           xpub:
             'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },

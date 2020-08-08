@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { ApiCall, ClientRequest } from '../../../src/types';
 
-export function createApiCall(params?: any): ClientRequest<ApiCall> {
+export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
   return {
     id: 'apiCallId',
     requesterId: 'requesterId',

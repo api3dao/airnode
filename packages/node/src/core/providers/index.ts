@@ -51,7 +51,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   const state3 = state.update(state2, { requests });
 
   // =================================================================
-  // STEP 3: Get any templates and wallet data
+  // STEP 3: Fetch templates, authorization and wallet data
   // =================================================================
   const templatesAndTransactionPromises: ParallelPromise[] = [
     fetchTemplatesAndAuthorizations(state3),
@@ -68,15 +68,18 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
     (result) => result.id === 'transaction-counts'
   )!.data;
 
-  // =================================================================
-  // STEP 4: Merge templates, authorizations and transaction counts
-  // =================================================================
   // API calls with templates is now the source of truth
   const state4 = state.update(state3, { requests: { ...state3.requests, apiCalls: apiCallsWithTemplates } });
 
+  // =================================================================
+  // STEP 4: Merge authorizations and transaction counts
+  // =================================================================
   const authorizedApiCalls = apiCallAuthorization.mergeAuthorizations(state4, authorizationsByEndpoint);
 
-  const state5 = state.update(state4, { requests: { ...state4.requests, apiCalls: authorizedApiCalls } });
+  const state5 = state.update(state4, {
+    requests: { ...state4.requests, apiCalls: authorizedApiCalls },
+    transactionCountsByWalletIndex,
+  });
 
   return state5;
 }

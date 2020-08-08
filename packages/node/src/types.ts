@@ -84,6 +84,7 @@ export interface ProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
+  readonly transactionCountsByWalletIndex: { [index: number]: number };
   readonly xpub: string;
 }
 
