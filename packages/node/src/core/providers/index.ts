@@ -59,7 +59,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   ];
   const templatesAndTransactionResults = await Promise.all(templatesAndTransactionPromises);
 
-  // Each of these promises returns it's result with an ID as the
+  // Each of these promises returns its result with an ID as the
   // order in which they resolve in not guaranteed.
   const { apiCallsWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find(
     (result) => result.id === 'templates+authorizations'
