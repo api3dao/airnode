@@ -53,7 +53,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   const templatesAndWalletPromises: ParallelPromise[] = [fetchTemplatesAndAuthorizations(state3), fetchWalletData()];
   const templatesAndWalletResults = await Promise.all(templatesAndWalletPromises);
 
-  // Each of these promises returns it's result with an ID as the
+  // Each of these promises returns its result with an ID as the
   // order in which they resolve in not guaranteed.
   templatesAndWalletResults.find((result) => result.id === 'templates');
 
