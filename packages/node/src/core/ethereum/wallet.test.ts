@@ -9,7 +9,9 @@ import * as wallet from './wallet';
 describe('getExtendedPublicKey', () => {
   it('returns the extended public key for the master mnemonic', () => {
     const xpub = wallet.getExtendedPublicKey();
-    expect(xpub).toEqual('xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx');
+    expect(xpub).toEqual(
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx'
+    );
   });
 });
 
