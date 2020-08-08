@@ -19,7 +19,7 @@ interface AuthorizationByRequester {
   [id: string]: boolean;
 }
 
-interface AuthorizationByEndpointId {
+export interface AuthorizationByEndpointId {
   [id: string]: AuthorizationByRequester;
 }
 
