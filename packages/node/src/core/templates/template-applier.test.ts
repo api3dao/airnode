@@ -28,7 +28,7 @@ describe('mapApiCallsWithTemplates', () => {
         fulfillFunctionId: null,
         errorAddress: null,
         errorFunctionId: null,
-        parameters: null,
+        parameters: {},
       }),
     ];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
