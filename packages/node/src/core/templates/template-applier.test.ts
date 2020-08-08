@@ -96,7 +96,7 @@ describe('mapApiCallsWithTemplates', () => {
         fulfillFunctionId: 'requestFulfillFunctionId',
         errorAddress: 'requestErrorAddress',
         errorFunctionId: 'requestErrorFunctionId',
-        parameters: {},
+        parameters: { template: 'this will overwrite the template' },
       }),
     ];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
@@ -120,6 +120,7 @@ describe('mapApiCallsWithTemplates', () => {
     expect(res[0].fulfillFunctionId).toEqual('requestFulfillFunctionId');
     expect(res[0].errorAddress).toEqual('requestErrorAddress');
     expect(res[0].errorFunctionId).toEqual('requestErrorFunctionId');
+    expect(res[0].parameters).toEqual({ template: 'this will overwrite the template' });
   });
 
   it('discards API calls where the template cannot be found', () => {
