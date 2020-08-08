@@ -2,6 +2,12 @@ import * as model from './model';
 import * as providerState from '../../providers/state';
 import { ProviderState } from '../../../types';
 
+jest.mock('../../config', () => ({
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
+}));
+
 describe('initialize ApiCall BaseRequest', () => {
   let state: ProviderState;
 
