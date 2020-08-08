@@ -26,6 +26,13 @@ function mergeRequestAndTemplate(
     fulfillFunctionId: request.fulfillFunctionId || template.fulfillFunctionId,
     errorAddress: request.errorAddress || template.errorAddress,
     errorFunctionId: request.errorFunctionId || template.errorFunctionId,
+    // NOTE: the spread operator is case sensitive, meaning that you can
+    // have 2 (or more) parameters with the same value, but different cases.
+    // All parameters would then get included. i.e.
+    //   request: { from: 'ETH' }
+    //   template: { From: 'USDC' }
+    //
+    //   result: { From: 'USDC', from: 'ETH }
     parameters: { ...templateParameters, ...request.parameters },
   };
 }
