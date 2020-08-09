@@ -13,6 +13,12 @@ jest.mock('ethers', () => {
   };
 });
 
+jest.mock('../config', () => ({
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
+}));
+
 import { ethers } from 'ethers';
 import { ProviderConfig } from '../../types';
 import * as state from './state';
@@ -39,6 +45,9 @@ describe('create', () => {
         walletDesignations: [],
         withdrawals: [],
       },
+      transactionCountsByWalletIndex: {},
+      xpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
   });
 });

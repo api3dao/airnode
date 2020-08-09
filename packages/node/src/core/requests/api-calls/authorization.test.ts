@@ -11,8 +11,14 @@ jest.mock('ethers', () => {
   };
 });
 
+jest.mock('../../config', () => ({
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
+}));
+
 import * as fixtures from 'test/fixtures';
-import { ProviderState } from 'src/types';
+import { ProviderState, RequestErrorCode } from 'src/types';
 import * as authorization from './authorization';
 import * as providerState from '../../providers/state';
 
@@ -109,5 +115,63 @@ describe('fetch', () => {
 
     const res = await authorization.fetch(state, apiCalls);
     expect(res).toEqual({});
+  });
+});
+
+describe('mergeAuthorizations', () => {
+  let initialState: ProviderState;
+
+  beforeEach(() => {
+    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
+    initialState = providerState.create(config, 0);
+  });
+
+  it('does nothing if the API call is already invalid', () => {
+    const apiCalls = [
+      fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InvalidRequestParameters }),
+    ];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(false);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
+  });
+
+  it('drops the request if it has no endpointId', () => {
+    const apiCalls = [fixtures.requests.createApiCall({ endpointId: null })];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res).toEqual([]);
+  });
+
+  it('invalidates the request if no authorization is found', () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const res = authorization.mergeAuthorizations(state, {});
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(false);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.AuthorizationNotFound);
+  });
+
+  it('returns the validated request if it is authorized', () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(true);
+    expect(res[0].errorCode).toEqual(undefined);
+  });
+
+  it('invalidates the request if it is not authorized', () => {
+    const apiCalls = [fixtures.requests.createApiCall()];
+    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: false } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(res.length).toEqual(1);
+    expect(res[0].valid).toEqual(false);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.UnauthorizedClient);
   });
 });

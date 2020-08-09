@@ -13,12 +13,14 @@ export function create(config: ProviderConfig, index: number): ProviderState {
       walletDesignations: [],
       withdrawals: [],
     },
+    xpub: ethereum.getExtendedPublicKey(),
+    transactionCountsByWalletIndex: {},
     // This is fetched and set as late as possible for freshness
     gasPrice: null,
   };
 }
 
-export function update(state: ProviderState, newState: any): ProviderState {
+export function update(state: ProviderState, newState: Partial<ProviderState>): ProviderState {
   return { ...state, ...newState };
 }
 

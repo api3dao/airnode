@@ -17,24 +17,25 @@ jest.mock('ethers', () => {
   };
 });
 
+jest.mock('../config', () => ({
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
+}));
+
 import { ethers } from 'ethers';
 import { ProviderState } from '../../types';
+import * as providerState from '../providers/state';
 import * as utils from './utils';
 import * as gasPrices from './gas-prices';
 
 describe('getGasPrice', () => {
-  const state: ProviderState = {
-    config: { chainId: 3, name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<my-key>' },
-    currentBlock: 123456,
-    gasPrice: null,
-    index: 0,
-    provider: new ethers.providers.JsonRpcProvider(),
-    requests: {
-      apiCalls: [],
-      walletDesignations: [],
-      withdrawals: [],
-    },
-  };
+  let state: ProviderState;
+
+  beforeEach(() => {
+    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
+    state = providerState.create(config, 0);
+  });
 
   it('takes the gas price feed price if it is highest', async () => {
     const contract = new ethers.Contract('address', ['ABI']);

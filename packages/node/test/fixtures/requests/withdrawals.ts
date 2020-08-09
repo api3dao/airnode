@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { ClientRequest, Withdrawal } from '../../../src/types';
 
-export function createWithdrawal(params?: any): ClientRequest<Withdrawal> {
+export function createWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
   return {
     id: 'withdrawalId',
     requesterId: 'requesterId',

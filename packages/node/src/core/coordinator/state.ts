@@ -27,6 +27,6 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
   return { providers: successfulProviders };
 }
 
-export function update(state: State, newState: any): State {
+export function update(state: State, newState: Partial<State>): State {
   return { ...state, ...newState };
 }

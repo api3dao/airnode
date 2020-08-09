@@ -3,6 +3,12 @@ import * as providerState from '../providers/state';
 import { ApiCallTemplate, ProviderState, RequestErrorCode } from '../../types';
 import * as applier from './template-applier';
 
+jest.mock('../config', () => ({
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
+}));
+
 describe('mapApiCallsWithTemplates', () => {
   let initialState: ProviderState;
 
@@ -28,7 +34,7 @@ describe('mapApiCallsWithTemplates', () => {
         fulfillFunctionId: null,
         errorAddress: null,
         errorFunctionId: null,
-        parameters: null,
+        parameters: {},
       }),
     ];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });

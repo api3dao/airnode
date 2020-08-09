@@ -26,26 +26,24 @@ jest.mock('../../config', () => ({
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
     },
   },
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
   FROM_BLOCK_LIMIT: 100,
 }));
 
 import { ethers } from 'ethers';
+import * as providerState from '../../providers/state';
 import { ProviderState } from '../../../types';
 import * as fetcher from './event-fetcher';
 
 describe('fetchGroupedLogs', () => {
-  const state: ProviderState = {
-    config: { chainId: 1337, name: 'ganache', url: 'https://...' },
-    currentBlock: 1000,
-    gasPrice: null,
-    index: 0,
-    provider: new ethers.providers.JsonRpcProvider(),
-    requests: {
-      apiCalls: [],
-      walletDesignations: [],
-      withdrawals: [],
-    },
-  };
+  let state: ProviderState;
+
+  beforeEach(() => {
+    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
+    state = providerState.create(config, 0);
+  });
 
   it('returns API call requests', async () => {
     const newApiCallEvent = { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' };
