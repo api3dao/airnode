@@ -29,9 +29,13 @@ async function getWalletTransactionCount(
 export async function getTransactionCountByIndex(state: ProviderState): Promise<TransactionCountByWalletIndex> {
   const { apiCalls, withdrawals } = state.requests;
 
-  const uniqueWalletIndices = uniq([...apiCalls.map((a) => a.walletIndex), ...withdrawals.map((a) => a.walletIndex)]);
-
-  // TODO: what should happen if an index 0 is present in the above array?
+  const uniqueWalletIndices = uniq([
+    ...apiCalls.map((a) => a.walletIndex),
+    ...withdrawals.map((a) => a.walletIndex),
+    // We also need to get the transaction count for the "admin" wallet
+    // as it is needed to designate wallets to requesters.
+    0,
+  ]);
 
   const promises = uniqueWalletIndices.map((index) => getWalletTransactionCount(state, index));
 
