@@ -1,9 +1,14 @@
 import isEmpty from 'lodash/isEmpty';
+import keyBy from 'lodash/keyBy';
 import { goTimeout } from '../utils/promise-utils';
-import { ProviderConfig, ProviderState, State } from '../../types';
+import { CoordinatorState, ProviderConfig, ProviderState } from '../../types';
 import { spawnNewProvider } from '../providers/worker';
 
-export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
+interface ProviderStateByIndex {
+  [index: string]: ProviderState
+}
+
+export async function initializeProviders(providerConfigs: ProviderConfig[]): Promise<ProviderStateByIndex> {
   if (isEmpty(providerConfigs)) {
     throw new Error('At least one provider must be defined in config.json');
   }
@@ -24,9 +29,23 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
 
   const successfulProviders = providerStates.filter((ps) => !!ps) as ProviderState[];
 
-  return { providers: successfulProviders };
+  const providerStateByIndex = keyBy(successfulProviders, 'index');
+
+  return providerStateByIndex;
 }
 
-export function update(state: State, newState: Partial<State>): State {
+export function create(): CoordinatorState {
+  return {
+    providers: {},
+    requests: {
+      apiCalls: [],
+      walletDesignations: [],
+      withdrawals: [],
+    },
+  };
+}
+
+export function update(state: CoordinatorState, newState: Partial<CoordinatorState>): CoordinatorState {
   return { ...state, ...newState };
 }
+

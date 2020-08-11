@@ -84,12 +84,21 @@ export interface ProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
-  readonly transactionCountsByWalletIndex: { [index: number]: number };
+  readonly transactionCountsByWalletIndex: { [index: string]: number };
   readonly xpub: string;
 }
 
-export interface State {
-  readonly providers: ProviderState[];
+export type AggregatedRequest<T> = T & { providers: number[] };
+
+export interface AggregatedRequests {
+  readonly apiCalls: AggregatedRequest<ClientRequest<ApiCall>>[];
+  readonly walletDesignations: AggregatedRequest<BaseRequest<WalletDesignation>>[];
+  readonly withdrawals: AggregatedRequest<ClientRequest<Withdrawal>>[];
+}
+
+export interface CoordinatorState {
+  readonly providers: { [index: string]: ProviderState };
+  readonly requests: AggregatedRequests;
 }
 
 // ===========================================
