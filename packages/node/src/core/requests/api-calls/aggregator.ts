@@ -16,7 +16,7 @@ export function aggregate<T>(state: CoordinatorState, requestType: RequestType):
   });
 
   const uniqueRequests = allRequests.reduce((acc, request) => {
-    const duplicateRequestIndex = acc.findIndex((r: any)  => {
+    const duplicateRequestIndex = acc.findIndex((r: any) => {
       // Certain keys are not important when comparing requests
       const ignoredKeys = ['providers', 'walletBalance', 'walletMinimumBalance'];
       // First compare the ID as it's much faster, if there is a matching request then compare the
@@ -26,11 +26,10 @@ export function aggregate<T>(state: CoordinatorState, requestType: RequestType):
 
     // If a duplicate request is found, add the provider to the list of providers that reported it
     if (duplicateRequestIndex >= 0) {
-      return updateArrayAt(
-        acc,
-        duplicateRequestIndex,
-        (dupRequest) => ({ ...request, providers: [...dupRequest.providers, ...request.providers] })
-      );
+      return updateArrayAt(acc, duplicateRequestIndex, (dupRequest) => ({
+        ...request,
+        providers: [...dupRequest.providers, ...request.providers],
+      }));
     }
 
     // If this is the first time we're seeing this request, add it to the list of unique requests
@@ -39,4 +38,3 @@ export function aggregate<T>(state: CoordinatorState, requestType: RequestType):
 
   return uniqueRequests;
 }
-

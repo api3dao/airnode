@@ -5,7 +5,7 @@ import { CoordinatorState, ProviderConfig, ProviderState } from '../../types';
 import { spawnNewProvider } from '../providers/worker';
 
 interface ProviderStateByIndex {
-  [index: string]: ProviderState
+  [index: string]: ProviderState;
 }
 
 export async function initializeProviders(providerConfigs: ProviderConfig[]): Promise<ProviderStateByIndex> {
@@ -48,4 +48,3 @@ export function create(): CoordinatorState {
 export function update(state: CoordinatorState, newState: Partial<CoordinatorState>): CoordinatorState {
   return { ...state, ...newState };
 }
-

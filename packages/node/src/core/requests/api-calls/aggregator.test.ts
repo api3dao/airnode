@@ -91,7 +91,7 @@ describe('aggregate', () => {
           0: provider0,
           1: provider1,
           2: provider2,
-        }
+        },
       });
 
       const res = aggregator.aggregate(state, 'walletDesignations');
@@ -153,7 +153,7 @@ describe('aggregate', () => {
           0: provider0,
           1: provider1,
           2: provider2,
-        }
+        },
       });
 
       const res = aggregator.aggregate(state, 'withdrawals');
@@ -187,8 +187,14 @@ describe('aggregate', () => {
 
       const res = aggregator.aggregate(state, 'withdrawals');
       expect(res.length).toEqual(2);
-      expect(res[0]).toEqual({ ...fixtures.requests.createWithdrawal({ destinationAddress: '0x123' }), providers: [0] });
-      expect(res[1]).toEqual({ ...fixtures.requests.createWithdrawal({ destinationAddress: '0x456' }), providers: [1] });
+      expect(res[0]).toEqual({
+        ...fixtures.requests.createWithdrawal({ destinationAddress: '0x123' }),
+        providers: [0],
+      });
+      expect(res[1]).toEqual({
+        ...fixtures.requests.createWithdrawal({ destinationAddress: '0x456' }),
+        providers: [1],
+      });
     });
   });
 });
