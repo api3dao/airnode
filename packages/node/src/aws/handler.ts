@@ -36,3 +36,7 @@ export async function initializeProvider(event: any) {
     body: JSON.stringify(body),
   };
 }
+
+export async function callApi(event: any) {
+  
+}

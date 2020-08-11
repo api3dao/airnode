@@ -2,15 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist",
-    "paths": {
-      "@airnode/*": ["packages/*/src"]
-    }
+    "outDir": "dist"
   },
   "include": ["./src/**/*"],
   "exclude": [
     "dist/**/*",
-    "node_modules/**/*",
-    ".serverless/**/*"
+    "node_modules/**/*"
   ]
 }

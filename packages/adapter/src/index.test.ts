@@ -3,7 +3,7 @@ jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
 import { Request, ResponseParameters } from './types';
-import * as fixtures from '../test/__fixtures__';
+import * as fixtures from '../test/fixtures';
 import * as adapter from './index';
 
 describe('buildingRequest', () => {

@@ -10,6 +10,8 @@ import {
   processByEncoding,
 } from './response-processor';
 
+export * from './types';
+
 export function buildRequest(options: Options): Request {
   const state = initializeState(options);
 

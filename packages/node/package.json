@@ -14,6 +14,7 @@
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
+    "@airnode/adapter": "^0.1.0",
     "@airnode/ois": "^0.1.0",
     "aws-sdk": "^2.715.0",
     "axios": "^0.19.2",
