@@ -11,6 +11,24 @@ const specsStructure = {
   },
   'paths': {
     '__keyRegexp': '^\\/[^\\s\'"\\\\]+$',
+    '__conditions': [
+      {
+        '__if': {
+          '__this': '(?<={)[^\\/{}]+(?=})'
+        },
+        '__then': {
+          '__objectItem': {
+            'parameters': {
+              '__any': {
+                'name': {
+                  '__regexp': '^__match$'
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
     '__objectItem': {
       '__keyRegexp': '^(get|post)$',
       '__objectItem': {
@@ -80,6 +98,32 @@ const specsStructure = {
   }
 };
 
+function getLastParamName(paramPath) {
+  const lastDotIndex = paramPath.lastIndexOf('.');
+  let paramName = paramPath;
+
+  if (lastDotIndex >= 0) {
+    paramName = paramPath.slice(lastDotIndex + 1);
+  }
+
+  return paramName;
+}
+
+function replaceConditionalMatch(match, specs) {
+  let parsedSpecs = {};
+
+  for (const key of Object.keys(specs)) {
+    if (key === '__conditions') {
+      continue;
+    }
+
+    let newKey = key.replace(/__match/g, match);
+    parsedSpecs[newKey] = typeof specs[key] === 'string' ? specs[key].replace(/__match/g, match) : replaceConditionalMatch(match, specs[key]);
+  }
+
+  return parsedSpecs;
+}
+
 function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
   let messages = [];
   let valid = true;
@@ -94,7 +138,27 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
           const paramValue = condition['__if'][paramName];
           const thenParamName = Object.keys(condition['__then'])[0];
 
-          if (specs[paramName]) {
+          if (paramName === '__this') {
+            for (const thisName of Object.keys(specs)) {
+              if (!thisName) {
+                continue;
+              }
+
+              let matches = thisName.match(new RegExp(paramValue, 'g'));
+
+              if (matches) {
+                for (let param of matches) {
+                  let parsedSpecs = replaceConditionalMatch(param, condition['__then']);
+                  let result = validateSpecs(specs[thisName], parsedSpecs, `${paramPath}${paramPath ? '.' : ''}${thisName}`, specsRoot);
+
+                  if (!result.valid) {
+                    messages.push({ level: 'error', message: `Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}` });
+                    valid = false;
+                  }
+                }
+              }
+            }
+          } else if (specs[paramName]) {
             if (specs[paramName].match(new RegExp(paramValue))) {
               if (specs[thenParamName]) {
                 conditionalParams.push(thenParamName);
@@ -128,13 +192,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
               requiredPath = `${paramPath}${paramPath ? '.' : ''}${requiredParam}`;
             }
 
-            const lastDotIndex = paramPath.lastIndexOf('.');
-            let thisName = paramPath;
-
-            if (lastDotIndex >= 0) {
-              thisName = paramPath.slice(lastDotIndex + 1);
-            }
-
+            let thisName = getLastParamName(paramPath);
             requiredPath = requiredPath.replace(/__this_name/g, thisName);
 
             while (requiredParam.length) {
@@ -251,6 +309,40 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
     }
 
     if (key === '__level') {
+      continue;
+    }
+
+    if (key === '__any') {
+      if (!specs.length) {
+        messages.push({ level: 'error', message: `${paramPath} can't be empty`});
+        valid = false;
+
+        continue;
+      }
+
+      let validParamFound = true;
+
+      for (const param of specs) {
+        let result = validateSpecs(param, specsStruct[key], paramPath, specsRoot);
+        validParamFound = true;
+
+        for (const message of result.messages) {
+          if (!message.message.startsWith('Extra field: ')) {
+            validParamFound = false;
+            break;
+          }
+        }
+
+        if (validParamFound) {
+          break;
+        }
+      }
+
+      if (!validParamFound) {
+        messages.push({ level: 'error', message: `Required conditions not met in ${paramPath}`});
+        valid = false;
+      }
+
       continue;
     }
 

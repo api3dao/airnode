@@ -443,6 +443,91 @@ const specs15 = `{
 }
 }`;
 
+const specs16 = `{
+"servers": [
+    {
+        "url":  "https://myapi.com/api"
+    }
+],
+"paths": {
+  "/myPath/{myParam}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "myParam",
+            "in": "query"
+          }
+        ]
+      }
+    },
+    "/{myParam}/{myParam2}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "myParam",
+            "in": "query"
+          },
+          {
+            "name": "myParam2",
+            "in": "query"
+          }
+        ]
+      }
+    },
+    "/{myParam}": {
+      "get": {
+        "parameters": []
+      }
+    },
+    "/{myParam}/myPath/{myParam2}/subPath": {
+      "get": {
+        "parameters": [
+          {
+            "name": "myParam",
+            "in": "query"
+          },
+          {
+            "name": "myParam3",
+            "in": "query"
+          }
+        ]
+      }
+    },
+    "/{myParam}/myPath/{myParam2}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "myParam3",
+            "in": "query"
+          }
+        ]
+      }
+    },
+    "/{myParam}/{myParam2}/{myParam3}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "myParam3",
+            "in": "query"
+          },
+          {
+            "name": "myParam",
+            "in": "query"
+          },
+          {
+            "name": "myParam2",
+            "in": "query"
+          }
+        ]
+      }
+    }
+},
+"components": {
+    "securitySchemes": {}
+},
+"security": {}
+}`;
+
 function formattingMessage(paramPath, error = false) {
   return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };
 }
@@ -461,6 +546,10 @@ function missingParamMessage(param) {
 
 function extraFieldMessage(param) {
   return { level: 'warning', message: `Extra field: ${param}` };
+}
+
+function conditionNotMetMessage(paramPath, param) {
+  return { level: 'error', message: `Condition in ${paramPath} is not met with ${param}` };
 }
 
 describe('validator', () => {
@@ -565,6 +654,14 @@ describe('validator', () => {
           extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme'),
           formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true),
           missingParamMessage('components.securitySchemes.mySecurityScheme5')
+        ]
+      });
+      expect(validator.isSpecsValid(specs16)).toMatchObject({
+        valid: false, messages: [
+          conditionNotMetMessage('paths./{myParam}', 'myParam'),
+          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}/subPath', 'myParam2'),
+          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam'),
+          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam2')
         ]
       });
     });
