@@ -81,3 +81,34 @@ export function retryOperation(retriesLeft: number, operation: () => Promise<any
     });
   });
 }
+
+export interface ContinuousRetryOptions {
+  delay?: number;
+}
+
+export function retryOnTimeout(timeoutMs: number, operation: () => Promise<any>, options: ContinuousRetryOptions) {
+  const promise = new Promise((resolve, reject) => {
+    function run() {
+      // If the promise is successful, resolve it and bubble the result up
+      return operation().then(resolve).catch((reason: any) => {
+        // If there are any retries left, we call the same retryOperation function again,
+        // but decrementing the number of retries left by 1
+        if (reason instanceof Error && reason.message === 'operation timed out') {
+          // Delay the new attempt slightly
+          return wait(options.delay || 50)
+            .then(run)
+            .then(resolve)
+            .catch(reject);
+        }
+
+        // Reject (and bubble the result up) if there are no more retries
+        return reject(reason);
+      });
+    }
+
+    return run();
+  });
+
+  return promiseTimeout(timeoutMs, promise);
+}
+

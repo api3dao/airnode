@@ -1,39 +1,42 @@
 import flatMap from 'lodash/flatMap';
-import isEqual from 'lodash/isEqual';
 import { updateArrayAt } from '../../utils/array-utils';
-import { removeKeys } from '../../utils/object-utils';
-import { AggregatedRequest, CoordinatorState, GroupedProviderRequests } from '../../../types';
+import { isDuplicate } from './model';
+import { AggregatedApiCall, CoordinatorState } from '../../../types';
 
-type RequestType = keyof GroupedProviderRequests;
-
-export function aggregate<T>(state: CoordinatorState, requestType: RequestType): AggregatedRequest<T>[] {
+export function aggregate(state: CoordinatorState) {
   const providerIndices = Object.keys(state.providers);
 
   // Map all requests of the given type from all providers into a single array
   const allRequests = flatMap(providerIndices, (index) => {
-    const providerRequests = state.providers[index].requests[requestType] as any;
-    return providerRequests.map((request: AggregatedRequest<T>) => ({ ...request, providers: [Number(index)] }));
+    const providerRequests = state.providers[index].requests.apiCalls;
+    return providerRequests.map((request) => ({ ...request, providerIndex: Number(index) }));
   });
 
-  const uniqueRequests = allRequests.reduce((acc, request) => {
-    const duplicateRequestIndex = acc.findIndex((r: any) => {
-      // Certain keys are not important when comparing requests
-      const ignoredKeys = ['providers', 'walletBalance', 'walletMinimumBalance'];
+  const uniqueRequests = allRequests.reduce((acc: AggregatedApiCall[], request) => {
+    const duplicateApiCallIndex = acc.findIndex((aggregatedCall) => {
       // First compare the ID as it's much faster, if there is a matching request then compare the
-      // rest of the attributes
-      return request.id === r.id && isEqual(removeKeys(request, ignoredKeys), removeKeys(r, ignoredKeys));
+      // rest of the (relevant) attributes
+      return request.id === aggregatedCall.id && isDuplicate(request, aggregatedCall);
     });
 
     // If a duplicate request is found, add the provider to the list of providers that reported it
-    if (duplicateRequestIndex >= 0) {
-      return updateArrayAt(acc, duplicateRequestIndex, (dupRequest) => ({
-        ...request,
-        providers: [...dupRequest.providers, ...request.providers],
+    if (duplicateApiCallIndex >= 0) {
+      return updateArrayAt(acc, duplicateApiCallIndex, (dupRequest) => ({
+        ...dupRequest,
+        providers: [...dupRequest.providers, request.providerIndex],
       }));
     }
 
+    const uniqueApiCall: AggregatedApiCall = {
+      id: request.id,
+      endpointId: request.endpointId!,
+      parameters: request.parameters,
+      providers: [request.providerIndex],
+      type: 'request',
+    };
+
     // If this is the first time we're seeing this request, add it to the list of unique requests
-    return [...acc, request];
+    return [...acc, uniqueApiCall];
   }, []);
 
   return uniqueRequests;

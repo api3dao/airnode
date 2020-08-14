@@ -100,15 +100,15 @@
           ],
           "reservedParameters": [
             {
-              "name": "eType",
+              "name": "_type",
               "fixed": "uint256"
             },
             {
-              "name": "path",
+              "name": "_path",
               "fixed": "result"
             },
             {
-              "name": "times",
+              "name": "_times",
               "default": "100000"
             }
           ],

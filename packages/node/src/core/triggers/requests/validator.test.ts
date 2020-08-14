@@ -42,7 +42,7 @@ describe('validate', () => {
     const { apiCalls } = validator.validateRequests(state, requests);
 
     expect(apiCalls[0].valid).toEqual(false);
-    expect(apiCalls[0].errorCode).toEqual(4);
+    expect(apiCalls[0].errorCode).toEqual(RequestErrorCode.ReservedWalletIndex);
 
     expect(apiCalls[1].valid).toEqual(true);
     expect(apiCalls[1].errorCode).toEqual(undefined);

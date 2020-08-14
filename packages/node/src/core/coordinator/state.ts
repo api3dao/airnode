@@ -36,12 +36,8 @@ export async function initializeProviders(providerConfigs: ProviderConfig[]): Pr
 
 export function create(): CoordinatorState {
   return {
+    aggregatedApiCalls: [],
     providers: {},
-    requests: {
-      apiCalls: [],
-      walletDesignations: [],
-      withdrawals: [],
-    },
   };
 }
 

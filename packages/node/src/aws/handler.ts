@@ -37,6 +37,4 @@ export async function initializeProvider(event: any) {
   };
 }
 
-export async function callApi(event: any) {
-  
-}
+export async function callApi(event: any) {}

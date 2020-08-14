@@ -11,11 +11,13 @@ export interface ApiCallParameters {
 export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
-  RequesterDataNotFound = 3,
-  ReservedWalletIndex = 4,
-  InsufficientBalance = 5,
-  UnauthorizedClient = 6,
-  AuthorizationNotFound = 7,
+  InvalidOIS = 3,
+  InvalidResponseParameters = 4,
+  RequesterDataNotFound = 5,
+  ReservedWalletIndex = 6,
+  InsufficientBalance = 7,
+  UnauthorizedClient = 8,
+  AuthorizationNotFound = 9,
 }
 
 export type BaseRequest<T extends {}> = T & {
@@ -88,17 +90,19 @@ export interface ProviderState {
   readonly xpub: string;
 }
 
-export type AggregatedRequest<T> = T & { providers: number[] };
+export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
 
-export interface AggregatedRequests {
-  readonly apiCalls: AggregatedRequest<ClientRequest<ApiCall>>[];
-  readonly walletDesignations: AggregatedRequest<BaseRequest<WalletDesignation>>[];
-  readonly withdrawals: AggregatedRequest<ClientRequest<Withdrawal>>[];
+export interface AggregatedApiCall {
+  readonly id: string;
+  readonly endpointId: string;
+  readonly parameters: ApiCallParameters;
+  readonly providers: number[];
+  readonly type: AggregatedApiCallType;
 }
 
 export interface CoordinatorState {
+  readonly aggregatedApiCalls: AggregatedApiCall[];
   readonly providers: { [index: string]: ProviderState };
-  readonly requests: AggregatedRequests;
 }
 
 // ===========================================
