@@ -44,7 +44,6 @@ describe('executeRequest', () => {
       method: 'get',
       headers: { api_key: 'supersecret' },
       params: { from: 'ETH', to: 'USD' },
-      timeout: 10_000,
     });
   });
 
@@ -90,7 +89,6 @@ describe('executeRequest', () => {
       method: 'post',
       headers: { api_key: 'supersecret' },
       data: { from: 'ETH', to: 'USD' },
-      timeout: 10_000,
     });
   });
 
@@ -136,7 +134,6 @@ describe('buildAndExecuteRequest', () => {
         from: 'ETH',
         to: 'USD',
       },
-      timeout: 10_000,
     });
   });
 
