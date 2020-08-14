@@ -1,6 +1,7 @@
 import { config } from '../core/config';
 import * as coordinator from '../core/coordinator';
 import * as providers from '../core/providers';
+import * as apiCallExecutor from '../core/requests/api-calls/executor';
 import { removeKey } from '../core/utils/object-utils';
 
 export async function start(event: any) {
@@ -38,10 +39,13 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  console.log(event);
+  const { oisTitle, endpointName, parameters } = event.queryStringParameters;
+
+  const callOptions = { oisTitle, endpointName, parameters };
+  const encodedResponse = await apiCallExecutor.callApi(callOptions);
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ value: 'todo' }),
+    body: JSON.stringify({ value: encodedResponse }),
   };
 }

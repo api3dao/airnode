@@ -30,3 +30,7 @@ functions:
   initializeProvider:
     handler: src/aws/handler.initializeProvider
     timeout: 20
+
+  callApi:
+    handler: src/aws/handler.callApi
+    timeout: 30

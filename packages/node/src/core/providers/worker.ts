@@ -5,7 +5,7 @@ import * as workers from '../workers';
 export type CleanProviderState = Omit<ProviderState, 'provider'>;
 
 export async function spawnNewProvider(index: number): Promise<ProviderState> {
-  // This will probably need to change for other cloud providers
+  // TODO: This will probably need to change for other cloud providers
   const payload = workers.isLocalEnv() ? { pathParameters: { index } } : { index };
 
   const parameters = { functionName: 'initializeProvider', payload };
