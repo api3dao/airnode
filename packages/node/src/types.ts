@@ -18,6 +18,7 @@ export enum RequestErrorCode {
   InsufficientBalance = 7,
   UnauthorizedClient = 8,
   AuthorizationNotFound = 9,
+  ApiCallFailed = 10,
 }
 
 export type BaseRequest<T extends {}> = T & {

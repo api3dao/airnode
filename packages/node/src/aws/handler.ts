@@ -37,4 +37,11 @@ export async function initializeProvider(event: any) {
   };
 }
 
-export async function callApi(event: any) {}
+export async function callApi(event: any) {
+  console.log(event);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ value: 'todo' }),
+  };
+}

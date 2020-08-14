@@ -3,7 +3,14 @@ import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
-import { AggregatedApiCall, ApiCall, BaseRequest, ClientRequest, ProviderState, RequestErrorCode } from '../../../types';
+import {
+  AggregatedApiCall,
+  ApiCall,
+  BaseRequest,
+  ClientRequest,
+  ProviderState,
+  RequestErrorCode,
+} from '../../../types';
 
 function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
   if (!request.encodedParameters) {

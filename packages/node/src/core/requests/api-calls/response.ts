@@ -1,8 +1,12 @@
 import { Endpoint } from '@airnode/ois';
 import { ApiCallParameters } from '../../../types';
 
-export function getResponseParameterValue(name: string, endpoint: Endpoint, requestParameters: ApiCallParameters): string | undefined {
-  const reservedParameter = endpoint.reservedParameters.find(rp => rp.name === name);
+export function getResponseParameterValue(
+  name: string,
+  endpoint: Endpoint,
+  requestParameters: ApiCallParameters
+): string | undefined {
+  const reservedParameter = endpoint.reservedParameters.find((rp) => rp.name === name);
   if (!reservedParameter) {
     return requestParameters[name];
   }

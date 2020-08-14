@@ -117,9 +117,8 @@ describe('retryOnTimeout', () => {
   it('retries on timeout until the maximum timeout is reached', async () => {
     expect.assertions(3);
 
-    const operation = { perform: () => Promise.reject(new Error('First fail')) };
+    const operation = { perform: () => Promise.reject(new TimeoutError('operation timed out')) };
     const spy = jest.spyOn(operation, 'perform');
-    spy.mockRejectedValue(new TimeoutError('operation timed out'));
 
     try {
       await retryOnTimeout(50, operation.perform, { delay: 2 });
