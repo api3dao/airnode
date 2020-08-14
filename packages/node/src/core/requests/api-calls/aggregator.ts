@@ -5,9 +5,9 @@ import { AggregatedApiCall, CoordinatorState } from '../../../types';
 
 export function aggregate(state: CoordinatorState) {
   // Map all requests of the given type from all providers into a single array
-  const allRequests = flatMap(state.providers, (_provider, index) => {
-    const providerRequests = state.providers[index].requests.apiCalls;
-    return providerRequests.map((request) => ({ ...request, providerIndex: Number(index) }));
+  const allRequests = flatMap(state.providers, (provider) => {
+    const providerRequests = state.providers[provider.index].requests.apiCalls;
+    return providerRequests.map((request) => ({ ...request, providerIndex: provider.index }));
   });
 
   const uniqueRequests = allRequests.reduce((acc: AggregatedApiCall[], request) => {
