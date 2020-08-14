@@ -34,7 +34,10 @@ async function callApi(callOptions: CallOptions): Promise<string | ErrorResponse
 
   const endpoint = ois.endpoints.find((e) => e.name === callOptions.endpointName)!;
   if (!endpoint) {
-    logger.logJSON('ERROR', `Failed to call Endpoint:${callOptions.endpointName} as it was not found in OIS:${oisTitle}`);
+    logger.logJSON(
+      'ERROR',
+      `Failed to call Endpoint:${callOptions.endpointName} as it was not found in OIS:${oisTitle}`
+    );
     return {
       errorCode: RequestErrorCode.InvalidOIS,
       message: `Endpoint:${callOptions.endpointName} was not found in OIS:${oisTitle}`,
@@ -64,7 +67,9 @@ async function callApi(callOptions: CallOptions): Promise<string | ErrorResponse
   const adapterConfig: adapter.Config = { timeout: 20_000 };
 
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
-  const retryableCall = retryOnTimeout(API_CALL_TIMEOUT - 500, () => adapter.buildAndExecuteRequest(options, adapterConfig));
+  const retryableCall = retryOnTimeout(API_CALL_TIMEOUT - 500, () =>
+    adapter.buildAndExecuteRequest(options, adapterConfig)
+  );
 
   const [err, res] = await go(retryableCall);
   if (err) {
