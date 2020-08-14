@@ -96,7 +96,7 @@ export async function callApis(state: CoordinatorState) {
     });
 
   const promises = apiCallRequests.map(async (request) => {
-    const [err, res] = goTimeout(API_CALL_TIMEOUT, callApi(request));
+    const [err, res] = await goTimeout(API_CALL_TIMEOUT, callApi(request));
     return err ? null : res;
   });
 
