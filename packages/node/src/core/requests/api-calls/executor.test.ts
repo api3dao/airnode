@@ -6,7 +6,7 @@ jest.mock('../../config', () => ({
         endpoints: [
           {
             name: 'my-endpoint',
-            reservedParameters: [],
+            reservedParameters: [{ name: '_path', default: 'prices.0.latest' }],
           },
         ],
       },
@@ -35,6 +35,25 @@ describe('callApi', () => {
     };
     const res = await executor.callApi(callOptions);
     expect(res).toEqual('0x00000000000000000000000000000000000000000000000000000000000003e8');
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'my-endpoint',
+        ois: {
+          endpoints: [
+            {
+              name: 'my-endpoint',
+              reservedParameters: [{ name: '_path', default: 'prices.0.latest' }]
+            }
+          ],
+          title: 'my-api'
+        },
+        parameters: { from: 'ETH' },
+        securitySchemes: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }]
+      },
+      { timeout: 20000 }
+    );
   });
 
   it('returns an error if the OIS is not found', async () => {
