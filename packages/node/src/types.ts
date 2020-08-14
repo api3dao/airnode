@@ -19,6 +19,7 @@ export enum RequestErrorCode {
   UnauthorizedClient = 8,
   AuthorizationNotFound = 9,
   ApiCallFailed = 10,
+  ResponseValueNotFound = 11,
 }
 
 export type BaseRequest<T extends {}> = T & {
