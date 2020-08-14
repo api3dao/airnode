@@ -13,7 +13,7 @@ describe('getResponseParameterValue', () => {
       reservedParameters: [
         { name: '_type', fixed: 'int256' },
         { name: '_path', default: 'prices.0.latest' },
-      ]
+      ],
     };
   });
 
@@ -58,7 +58,7 @@ describe('getResponseParameters', () => {
       reservedParameters: [
         { name: '_type', fixed: 'int256' },
         { name: '_path', default: 'prices.0.latest' },
-      ]
+      ],
     };
   });
 
