@@ -44,13 +44,13 @@ describe('callApi', () => {
           endpoints: [
             {
               name: 'my-endpoint',
-              reservedParameters: [{ name: '_path', default: 'prices.0.latest' }]
-            }
+              reservedParameters: [{ name: '_path', default: 'prices.0.latest' }],
+            },
           ],
-          title: 'my-api'
+          title: 'my-api',
         },
         parameters: { from: 'ETH' },
-        securitySchemes: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }]
+        securitySchemes: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }],
       },
       { timeout: 20000 }
     );
