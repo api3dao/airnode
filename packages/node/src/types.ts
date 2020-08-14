@@ -103,7 +103,7 @@ export interface AggregatedApiCall {
 
 export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
-  readonly providers: { [index: string]: ProviderState };
+  readonly providers: ProviderState[];
 }
 
 // ===========================================

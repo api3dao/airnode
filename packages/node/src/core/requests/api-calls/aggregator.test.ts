@@ -27,9 +27,7 @@ describe('API call aggregator', () => {
     provider2 = providerState.update(provider2, { requests });
 
     let state = coordinatorState.create();
-    state = coordinatorState.update(state, {
-      providers: { 0: provider0, 1: provider1, 2: provider2 },
-    });
+    state = coordinatorState.update(state, { providers: [provider0, provider1, provider2] });
 
     const res = aggregator.aggregate(state);
     expect(res.length).toEqual(1);
@@ -62,9 +60,7 @@ describe('API call aggregator', () => {
     provider1 = providerState.update(provider1, { requests: requests1 });
 
     let state = coordinatorState.create();
-    state = coordinatorState.update(state, {
-      providers: { 0: provider0, 1: provider1 },
-    });
+    state = coordinatorState.update(state, { providers: [provider0, provider1] });
 
     const res = aggregator.aggregate(state);
     expect(res.length).toEqual(1);
@@ -97,9 +93,7 @@ describe('API call aggregator', () => {
     provider1 = providerState.update(provider1, { requests: requests1 });
 
     let state = coordinatorState.create();
-    state = coordinatorState.update(state, {
-      providers: { 0: provider0, 1: provider1 },
-    });
+    state = coordinatorState.update(state, { providers: [provider0, provider1] });
 
     const res = aggregator.aggregate(state);
     expect(res.length).toEqual(2);

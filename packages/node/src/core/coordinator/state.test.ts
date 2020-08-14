@@ -49,8 +49,8 @@ describe('initializeProviders', () => {
     getLogs.mockResolvedValueOnce([]);
 
     const res = await state.initializeProviders(ethereumProviders);
-    expect(res).toEqual({
-      0: {
+    expect(res).toEqual([
+      {
         config: ethereumProviders[0],
         currentBlock: 123456,
         gasPrice: null,
@@ -65,7 +65,7 @@ describe('initializeProviders', () => {
         xpub:
           'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
-      1: {
+      {
         config: ethereumProviders[1],
         currentBlock: 987654,
         gasPrice: null,
@@ -80,7 +80,7 @@ describe('initializeProviders', () => {
         xpub:
           'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
-    });
+    ]);
   });
 
   it('throws an error if no providers are configured', async () => {

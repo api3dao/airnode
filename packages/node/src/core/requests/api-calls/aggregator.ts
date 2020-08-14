@@ -4,10 +4,8 @@ import { isDuplicate } from './model';
 import { AggregatedApiCall, CoordinatorState } from '../../../types';
 
 export function aggregate(state: CoordinatorState) {
-  const providerIndices = Object.keys(state.providers);
-
   // Map all requests of the given type from all providers into a single array
-  const allRequests = flatMap(providerIndices, (index) => {
+  const allRequests = flatMap(state.providers, (_provider, index) => {
     const providerRequests = state.providers[index].requests.apiCalls;
     return providerRequests.map((request) => ({ ...request, providerIndex: Number(index) }));
   });

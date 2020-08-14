@@ -1,14 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
-import keyBy from 'lodash/keyBy';
 import { goTimeout } from '../utils/promise-utils';
 import { CoordinatorState, ProviderConfig, ProviderState } from '../../types';
 import { spawnNewProvider } from '../providers/worker';
 
-interface ProviderStateByIndex {
-  [index: string]: ProviderState;
-}
-
-export async function initializeProviders(providerConfigs: ProviderConfig[]): Promise<ProviderStateByIndex> {
+export async function initializeProviders(providerConfigs: ProviderConfig[]): Promise<ProviderState[]> {
   if (isEmpty(providerConfigs)) {
     throw new Error('At least one provider must be defined in config.json');
   }
@@ -29,15 +24,13 @@ export async function initializeProviders(providerConfigs: ProviderConfig[]): Pr
 
   const successfulProviders = providerStates.filter((ps) => !!ps) as ProviderState[];
 
-  const providerStateByIndex = keyBy(successfulProviders, 'index');
-
-  return providerStateByIndex;
+  return successfulProviders;
 }
 
 export function create(): CoordinatorState {
   return {
     aggregatedApiCalls: [],
-    providers: {},
+    providers: [],
   };
 }
 
