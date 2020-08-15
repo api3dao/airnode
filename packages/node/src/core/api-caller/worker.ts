@@ -7,7 +7,7 @@ interface CallOptions {
   parameters?: ApiCallParameters;
 }
 
-interface Response {
+export interface Response {
   value: string;
 }
 
