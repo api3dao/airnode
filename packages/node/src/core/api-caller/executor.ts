@@ -38,6 +38,7 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
     return { errorCode: RequestErrorCode.InvalidOIS, message };
   }
 
+  // Check before making the API call in case the parameters are missing
   const responseParameters = response.getResponseParameters(endpoint, callOptions.parameters || {});
   if (!responseParameters._type) {
     const message = `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`;
@@ -75,9 +76,8 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
     const extracted = adapter.extractAndEncodeResponse(res.body, responseParameters as adapter.ResponseParameters);
     encodedValue = extracted.encodedValue;
   } catch (e) {
-    const message = `Unable to find response value from ${JSON.stringify(res?.body || {})}. Path: ${
-      responseParameters._path
-    }`;
+    const body = JSON.stringify(res?.body || {});
+    const message = `Unable to find response value from ${body}. Path: ${responseParameters._path}`;
     logger.logJSON('ERROR', message);
     return { errorCode: RequestErrorCode.ResponseValueNotFound, message };
   }

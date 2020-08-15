@@ -24,7 +24,6 @@ export function getResponseParameterValue(
 }
 
 export function getResponseParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
-  // Check before making the API call in case the parameters are missing
   const _path = getResponseParameterValue('_path', endpoint, requestParameters);
   const _times = getResponseParameterValue('_times', endpoint, requestParameters);
   const _type = getResponseParameterValue('_type', endpoint, requestParameters);
