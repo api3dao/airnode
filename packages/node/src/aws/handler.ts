@@ -1,7 +1,7 @@
 import { config } from '../core/config';
 import * as coordinator from '../core/coordinator';
 import * as providers from '../core/providers';
-import * as apiCallExecutor from '../core/requests/api-calls/executor';
+import * as apiCallExecutor from '../core/api-caller/executor';
 import { removeKey } from '../core/utils/object-utils';
 
 export async function start(event: any) {

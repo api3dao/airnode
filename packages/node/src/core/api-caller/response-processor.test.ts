@@ -1,5 +1,5 @@
 import { Endpoint } from '@airnode/ois';
-import * as response from './response';
+import * as response from './response-processor';
 
 describe('getResponseParameterValue', () => {
   let baseEndpoint: Endpoint;

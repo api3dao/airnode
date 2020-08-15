@@ -1,4 +1,4 @@
-jest.mock('../../config', () => ({
+jest.mock('../config', () => ({
   config: {
     ois: [
       {

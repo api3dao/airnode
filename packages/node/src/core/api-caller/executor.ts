@@ -1,10 +1,10 @@
 import * as adapter from '@airnode/adapter';
-import { config, security } from '../../config';
-import { go, retryOnTimeout } from '../../utils/promise-utils';
-import { removeKeys } from '../../utils/object-utils';
-import * as logger from '../../utils/logger';
-import * as response from './response';
-import { ApiCallParameters, RequestErrorCode } from '../../../types';
+import { config, security } from '../config';
+import { go, retryOnTimeout } from '../utils/promise-utils';
+import { removeKeys } from '../utils/object-utils';
+import * as logger from '../utils/logger';
+import * as response from './response-processor';
+import { ApiCallParameters, RequestErrorCode } from '../../types';
 
 export interface CallOptions {
   oisTitle: string;

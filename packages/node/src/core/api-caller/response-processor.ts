@@ -1,5 +1,5 @@
 import { Endpoint } from '@airnode/ois';
-import { ApiCallParameters } from '../../../types';
+import { ApiCallParameters } from '../../types';
 
 export function getResponseParameterValue(
   name: string,
