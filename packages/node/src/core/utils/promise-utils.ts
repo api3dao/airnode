@@ -93,8 +93,7 @@ export function retryOnTimeout(maxTimeoutMs: number, operation: () => Promise<an
       return operation()
         .then(resolve)
         .catch((reason: any) => {
-          // If there are any retries left, we call the same retryOperation function again,
-          // but decrementing the number of retries left by 1
+          // Only if the error is a timeout error, do we retry the promise
           if (reason instanceof Error && reason.message === 'operation timed out') {
             // Delay the new attempt slightly
             return wait(options?.delay || 50)
@@ -103,7 +102,7 @@ export function retryOnTimeout(maxTimeoutMs: number, operation: () => Promise<an
               .catch(reject);
           }
 
-          // Reject (and bubble the result up) if there are no more retries
+          // If the error is NOT a timeout error, then we reject immediately
           return reject(reason);
         });
     }
