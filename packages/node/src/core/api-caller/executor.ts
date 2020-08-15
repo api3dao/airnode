@@ -17,7 +17,7 @@ interface ErrorResponse {
   message: string;
 }
 
-const API_CALL_TIMEOUT = 29_500;
+const API_CALL_TIMEOUT = 29_000;
 
 export async function callApi(callOptions: CallOptions): Promise<string | ErrorResponse> {
   const { endpointName, oisTitle } = callOptions;
