@@ -109,10 +109,10 @@ describe('update', () => {
       {
         id: '0x123',
         endpointId: '0xendpointId',
-        parameters: { from: 'ETH '},
+        parameters: { from: 'ETH ' },
         providers: [0, 1],
         type: 'request',
-      }
+      },
     ];
     const newState = state.create();
     const res = state.update(newState, { aggregatedApiCalls });
@@ -121,10 +121,10 @@ describe('update', () => {
         {
           id: '0x123',
           endpointId: '0xendpointId',
-          parameters: { from: 'ETH '},
+          parameters: { from: 'ETH ' },
           providers: [0, 1],
           type: 'request',
-        }
+        },
       ],
       providers: [],
     });
