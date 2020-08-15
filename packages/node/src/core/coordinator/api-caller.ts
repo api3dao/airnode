@@ -21,7 +21,7 @@ export async function callApis(state: CoordinatorState) {
     return { id: apiCall.id, data: res };
   });
 
-  const results = Promise.all(calls);
+  const results = await Promise.all(calls);
 
   return results;
 }

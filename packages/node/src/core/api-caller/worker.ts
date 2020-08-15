@@ -17,7 +17,7 @@ export async function spawnNewApiCall(callOptions: CallOptions): Promise<Respons
 
   const options = { functionName: 'callApi', payload };
 
-  // TODO: handle errors
+  // If this throws, it will be caught by the calling function
   const encodedResponse = (await workers.spawn(options)) as Response;
 
   return encodedResponse;

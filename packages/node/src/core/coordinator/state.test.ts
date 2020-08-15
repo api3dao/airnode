@@ -33,7 +33,7 @@ jest.mock('../config', () => ({
 }));
 
 import { ethers } from 'ethers';
-import { ProviderConfig } from '../../types';
+import { AggregatedApiCall, ProviderConfig } from '../../types';
 import * as state from './state';
 
 describe('initializeProviders', () => {
@@ -90,5 +90,43 @@ describe('initializeProviders', () => {
     } catch (e) {
       expect(e).toEqual(new Error('At least one provider must be defined in config.json'));
     }
+  });
+});
+
+describe('create', () => {
+  it('returns a new coordinator state object', () => {
+    const res = state.create();
+    expect(res).toEqual({
+      aggregatedApiCalls: [],
+      providers: [],
+    });
+  });
+});
+
+describe('update', () => {
+  it('updates and returns the new state', () => {
+    const aggregatedApiCalls: AggregatedApiCall[] = [
+      {
+        id: '0x123',
+        endpointId: '0xendpointId',
+        parameters: { from: 'ETH '},
+        providers: [0, 1],
+        type: 'request',
+      }
+    ];
+    const newState = state.create();
+    const res = state.update(newState, { aggregatedApiCalls });
+    expect(res).toEqual({
+      aggregatedApiCalls: [
+        {
+          id: '0x123',
+          endpointId: '0xendpointId',
+          parameters: { from: 'ETH '},
+          providers: [0, 1],
+          type: 'request',
+        }
+      ],
+      providers: [],
+    });
   });
 });
