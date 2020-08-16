@@ -2,14 +2,11 @@ import { ChainAPI } from './chainapi';
 
 describe('ChainAPI', () => {
   it('exposes the addresses for each network', () => {
-    const chainIds = Object.keys(ChainAPI.addresses).sort();
-    expect(chainIds).toEqual(['1', '1337', '3']);
-
-    // We don't care what the value of 1337 is set to
-    expect.assertions(chainIds.length);
-
-    expect(ChainAPI.addresses[1]).toEqual('<TODO>');
-    expect(ChainAPI.addresses[3]).toEqual('<TODO>');
+    expect(ChainAPI.addresses).toEqual({
+      1: '<TODO>',
+      3: '<TODO>',
+      1337: '0xe60b966B798f9a0C41724f111225A5586ff30656'
+    });
   });
 
   it('exposes the contract ABI events', () => {

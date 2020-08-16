@@ -2,14 +2,11 @@ import { Convenience } from './convenience';
 
 describe('Convenience', () => {
   it('exposes the addresses for each network', () => {
-    const chainIds = Object.keys(Convenience.addresses).sort();
-    expect(chainIds).toEqual(['1', '1337', '3']);
-
-    // We don't care what the value of 1337 is set to
-    expect.assertions(chainIds.length);
-
-    expect(Convenience.addresses[1]).toEqual('<TODO>');
-    expect(Convenience.addresses[3]).toEqual('<TODO>');
+    expect(Convenience.addresses).toEqual({
+      1: '<TODO>',
+      3: '<TODO>',
+      1337: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0'
+    });
   });
 
   it('exposes the contract ABI function', () => {

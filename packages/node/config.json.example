@@ -5,7 +5,7 @@
     "nodeKey": "chainapi-key-to-access-this-node",
     "platformKey": "key-to-access-chainapi",
     "platformUrl": "https://chainapi.com/api/todo",
-    "providerId": "0xc9bf7ba560505b5bd1e4dc65fbc618e877beb820fe37a06f80b7a9b31a3613aa",
+    "providerId": "0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d",
     "ethereumProviders": [
       { "chainId": 3, "name": "infura-ropsten", "url": "https://ropsten.infura.io/v3/<your key>" },
       { "chainId": 1, "name": "infura-mainnet", "url": "https://mainnet.infura.io/v3/<your key>" },
@@ -15,7 +15,7 @@
   "triggers": {
     "requests": [
       {
-        "endpointId": "0xd9d6a22c13f6d5a7a3aa3e1dc14a21b9c09073da49ff5a01745fec1d3b307d9b",
+        "endpointId": "0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05",
         "oisTitle": "coinlayer",
         "endpointName": "convertToUsd"
       }
