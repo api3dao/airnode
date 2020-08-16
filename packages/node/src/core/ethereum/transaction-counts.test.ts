@@ -28,7 +28,7 @@ jest.mock('../config', () => ({
 import * as fixtures from 'test/fixtures';
 import { GroupedProviderRequests, ProviderState } from 'src/types';
 import * as providerState from '../providers/state';
-import * as transactions from './transactions';
+import * as transactions from './transaction-counts';
 
 describe('getTransactionCountByIndex', () => {
   let initialState: ProviderState;

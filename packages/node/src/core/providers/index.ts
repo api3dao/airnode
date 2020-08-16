@@ -4,7 +4,7 @@ import * as apiCallAuthorization from '../requests/api-calls/authorization';
 import * as logger from '../utils/logger';
 import * as requestTriggers from '../triggers/requests';
 import * as templates from '../templates';
-import * as transactions from '../ethereum/transactions';
+import * as transactionCounts from '../ethereum/transaction-counts';
 import * as state from './state';
 
 type ParallelPromise = Promise<{ id: string; data: any }>;
@@ -17,7 +17,7 @@ async function fetchTemplatesAndAuthorizations(currentState: ProviderState) {
 
 async function fetchTransactionCounts(currentState: ProviderState) {
   // This should not throw
-  const res = await transactions.getTransactionCountByIndex(currentState);
+  const res = await transactionCounts.getTransactionCountByIndex(currentState);
   return { id: 'transaction-counts', data: res };
 }
 
