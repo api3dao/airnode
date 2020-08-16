@@ -5,7 +5,7 @@ describe('ChainAPI', () => {
     expect(ChainAPI.addresses).toEqual({
       1: '<TODO>',
       3: '<TODO>',
-      1337: '0xe60b966B798f9a0C41724f111225A5586ff30656'
+      1337: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     });
   });
 
