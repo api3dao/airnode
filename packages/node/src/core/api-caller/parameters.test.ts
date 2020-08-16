@@ -1,5 +1,13 @@
 import { Endpoint } from '@airnode/ois';
-import * as response from './response-processor';
+import * as parameters from './parameters';
+
+describe('RESERVED_PARAMETERS', () => {
+  it('returns the list of reserved parameters', () => {
+    expect(parameters.RESERVED_PARAMETERS).toEqual([
+      '_path', '_times', '_type'
+    ]);
+  });
+});
 
 describe('getResponseParameterValue', () => {
   let baseEndpoint: Endpoint;
@@ -20,28 +28,28 @@ describe('getResponseParameterValue', () => {
   it('returns the reserved parameter from the Endpoint first', () => {
     const endpoint = { ...baseEndpoint };
     // This should be ignored
-    const parameters = { _type: 'bytes32' };
-    const res = response.getResponseParameterValue('_type', endpoint, parameters);
+    const requestParameters = { _type: 'bytes32' };
+    const res = parameters.getResponseParameterValue('_type', endpoint, requestParameters);
     expect(res).toEqual('int256');
   });
 
   it('returns the request parameter from the Endpoint if no reserved parameter exists', () => {
     const endpoint = { ...baseEndpoint, reservedParameters: [] };
-    const parameters = { _type: 'bytes32' };
-    const res = response.getResponseParameterValue('_type', endpoint, parameters);
+    const requestParameters = { _type: 'bytes32' };
+    const res = parameters.getResponseParameterValue('_type', endpoint, requestParameters);
     expect(res).toEqual('bytes32');
   });
 
   it('returns the default if the request parameter does not exist', () => {
     const endpoint = { ...baseEndpoint };
-    const res = response.getResponseParameterValue('_path', endpoint, {});
+    const res = parameters.getResponseParameterValue('_path', endpoint, {});
     expect(res).toEqual('prices.0.latest');
   });
 
   it('overrides the default if the request parameter exists', () => {
     const endpoint = { ...baseEndpoint };
-    const parameters = { _path: 'new.path' };
-    const res = response.getResponseParameterValue('_path', endpoint, parameters);
+    const requestParameters = { _path: 'new.path' };
+    const res = parameters.getResponseParameterValue('_path', endpoint, requestParameters);
     expect(res).toEqual('new.path');
   });
 });
@@ -63,12 +71,12 @@ describe('getResponseParameters', () => {
   });
 
   it('fetches the response parameters', () => {
-    const res = response.getResponseParameters(baseEndpoint, { _type: 'bytes32', _path: 'updated.path' });
+    const res = parameters.getResponseParameters(baseEndpoint, { _type: 'bytes32', _path: 'updated.path' });
     expect(res).toEqual({ _type: 'int256', _path: 'updated.path' });
   });
 
   it('converts _times to a number', () => {
-    const res = response.getResponseParameters(baseEndpoint, {
+    const res = parameters.getResponseParameters(baseEndpoint, {
       _type: 'bytes32',
       _path: 'updated.path',
       _times: '1000000',

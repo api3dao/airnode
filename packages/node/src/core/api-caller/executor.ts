@@ -3,7 +3,7 @@ import { config, security } from '../config';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import * as logger from '../utils/logger';
-import * as response from './response-processor';
+import { getResponseParameters, RESERVED_PARAMETERS } from './parameters';
 import { ApiCallParameters, RequestErrorCode } from '../../types';
 
 export interface CallOptions {
@@ -39,7 +39,7 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
   }
 
   // Check before making the API call in case the parameters are missing
-  const responseParameters = response.getResponseParameters(endpoint, callOptions.parameters || {});
+  const responseParameters = getResponseParameters(endpoint, callOptions.parameters || {});
   if (!responseParameters._type) {
     const message = `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`;
     logger.logJSON('ERROR', message);
@@ -47,7 +47,7 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
   }
 
   // Don't submit the reserved parameters to the API
-  const parameters = removeKeys(callOptions.parameters || {}, ['_path', '_times', '_type']);
+  const parameters = removeKeys(callOptions.parameters || {}, RESERVED_PARAMETERS);
 
   const options: adapter.Options = {
     endpointName,

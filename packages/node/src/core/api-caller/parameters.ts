@@ -1,6 +1,8 @@
 import { Endpoint } from '@airnode/ois';
 import { ApiCallParameters } from '../../types';
 
+export const RESERVED_PARAMETERS = ['_path', '_times', '_type'];
+
 export function getResponseParameterValue(
   name: string,
   endpoint: Endpoint,
