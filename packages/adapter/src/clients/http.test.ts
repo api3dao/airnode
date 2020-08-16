@@ -20,7 +20,6 @@ describe('get', () => {
       method: 'get',
       params: { from: 'ETH', to: 'USD' },
       headers: { something: 'value' },
-      timeout: 10_000,
     });
   });
 });
@@ -42,7 +41,6 @@ describe('post', () => {
       data: { from: 'ETH', to: 'USD' },
       params: undefined,
       headers: { something: 'value' },
-      timeout: 10_000,
     });
   });
 });

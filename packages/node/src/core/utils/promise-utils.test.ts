@@ -1,5 +1,5 @@
 import { TimeoutError } from 'bluebird';
-import { go, goTimeout, promiseTimeout, retryOperation } from './promise-utils';
+import { go, goTimeout, promiseTimeout, retryOnTimeout, retryOperation } from './promise-utils';
 
 describe('go', () => {
   it('resolves successful asynchronous functions', async () => {
@@ -59,7 +59,7 @@ describe('retryOperation', () => {
     const spy = jest.spyOn(operation, 'perform');
     const res = await retryOperation(2, operation.perform, { timeouts: [50, 50] });
     expect(res).toEqual(200);
-    expect(spy).toHaveReturnedTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('retries the specified number of times', async () => {
@@ -71,7 +71,7 @@ describe('retryOperation', () => {
 
     const res = await retryOperation(3, operation.perform, { timeouts: [50, 50, 50] });
     expect(res).toEqual(500);
-    expect(spy).toHaveReturnedTimes(3);
+    expect(spy).toHaveBeenCalledTimes(3);
   });
 
   it('rejects if all retries are exhausted', async () => {
@@ -88,6 +88,44 @@ describe('retryOperation', () => {
     } catch (e) {
       expect(e).toEqual(new Error('Third Fail'));
     }
-    expect(spy).toHaveReturnedTimes(3);
+    expect(spy).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('retryOnTimeout', () => {
+  it('resolves immediately if the promise is successful', async () => {
+    const operation = { perform: () => Promise.resolve(true) };
+    const spy = jest.spyOn(operation, 'perform');
+    const res = await retryOnTimeout(50, operation.perform, { delay: 10 });
+    expect(res).toEqual(true);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects immediately if the promise is successful', async () => {
+    expect.assertions(2);
+
+    const operation = { perform: () => Promise.reject(new Error('First fail')) };
+    const spy = jest.spyOn(operation, 'perform');
+    try {
+      await retryOnTimeout(50, operation.perform, { delay: 10 });
+    } catch (e) {
+      expect(e).toEqual(new Error('First fail'));
+    }
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries on timeout until the maximum timeout is reached', async () => {
+    expect.assertions(3);
+
+    const operation = { perform: () => Promise.reject(new TimeoutError('operation timed out')) };
+    const spy = jest.spyOn(operation, 'perform');
+
+    try {
+      await retryOnTimeout(50, operation.perform, { delay: 2 });
+    } catch (e) {
+      expect(e).toEqual(new TimeoutError('operation timed out'));
+    }
+    expect(spy.mock.calls.length).toBeGreaterThan(5);
+    expect(spy.mock.calls.length).toBeLessThan(30);
   });
 });

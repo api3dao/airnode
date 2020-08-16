@@ -33,10 +33,10 @@ jest.mock('../config', () => ({
 }));
 
 import { ethers } from 'ethers';
-import { ProviderConfig } from '../../types';
+import { AggregatedApiCall, ProviderConfig } from '../../types';
 import * as state from './state';
 
-describe('initialize', () => {
+describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
 
@@ -48,49 +48,85 @@ describe('initialize', () => {
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
 
-    const res = await state.initialize(ethereumProviders);
-    expect(res).toEqual({
-      providers: [
-        {
-          config: ethereumProviders[0],
-          currentBlock: 123456,
-          gasPrice: null,
-          index: 0,
-          provider,
-          requests: {
-            apiCalls: [],
-            walletDesignations: [],
-            withdrawals: [],
-          },
-          transactionCountsByWalletIndex: {},
-          xpub:
-            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    const res = await state.initializeProviders(ethereumProviders);
+    expect(res).toEqual([
+      {
+        config: ethereumProviders[0],
+        currentBlock: 123456,
+        gasPrice: null,
+        index: 0,
+        provider,
+        requests: {
+          apiCalls: [],
+          walletDesignations: [],
+          withdrawals: [],
         },
-        {
-          config: ethereumProviders[1],
-          currentBlock: 987654,
-          gasPrice: null,
-          index: 1,
-          provider,
-          requests: {
-            apiCalls: [],
-            walletDesignations: [],
-            withdrawals: [],
-          },
-          transactionCountsByWalletIndex: {},
-          xpub:
-            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+        transactionCountsByWalletIndex: {},
+        xpub:
+          'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      },
+      {
+        config: ethereumProviders[1],
+        currentBlock: 987654,
+        gasPrice: null,
+        index: 1,
+        provider,
+        requests: {
+          apiCalls: [],
+          walletDesignations: [],
+          withdrawals: [],
         },
-      ],
-    });
+        transactionCountsByWalletIndex: {},
+        xpub:
+          'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      },
+    ]);
   });
 
   it('throws an error if no providers are configured', async () => {
     expect.assertions(1);
     try {
-      await state.initialize([]);
+      await state.initializeProviders([]);
     } catch (e) {
       expect(e).toEqual(new Error('At least one provider must be defined in config.json'));
     }
+  });
+});
+
+describe('create', () => {
+  it('returns a new coordinator state object', () => {
+    const res = state.create();
+    expect(res).toEqual({
+      aggregatedApiCalls: [],
+      providers: [],
+    });
+  });
+});
+
+describe('update', () => {
+  it('updates and returns the new state', () => {
+    const aggregatedApiCalls: AggregatedApiCall[] = [
+      {
+        id: '0x123',
+        endpointId: '0xendpointId',
+        parameters: { from: 'ETH ' },
+        providers: [0, 1],
+        type: 'request',
+      },
+    ];
+    const newState = state.create();
+    const res = state.update(newState, { aggregatedApiCalls });
+    expect(res).toEqual({
+      aggregatedApiCalls: [
+        {
+          id: '0x123',
+          endpointId: '0xendpointId',
+          parameters: { from: 'ETH ' },
+          providers: [0, 1],
+          type: 'request',
+        },
+      ],
+      providers: [],
+    });
   });
 });

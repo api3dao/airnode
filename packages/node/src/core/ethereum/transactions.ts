@@ -6,7 +6,7 @@ import * as logger from '../utils/logger';
 import { ProviderState } from '../../types';
 
 interface TransactionCountByWalletIndex {
-  [index: number]: number;
+  [index: string]: number;
 }
 
 async function getWalletTransactionCount(

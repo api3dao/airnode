@@ -1,9 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
-import { ProviderConfig, ProviderState, State } from '../../types';
+import { CoordinatorState, ProviderConfig, ProviderState } from '../../types';
 import { spawnNewProvider } from '../providers/worker';
 
-export async function initialize(providerConfigs: ProviderConfig[]): Promise<State> {
+export async function initializeProviders(providerConfigs: ProviderConfig[]): Promise<ProviderState[]> {
   if (isEmpty(providerConfigs)) {
     throw new Error('At least one provider must be defined in config.json');
   }
@@ -24,9 +24,16 @@ export async function initialize(providerConfigs: ProviderConfig[]): Promise<Sta
 
   const successfulProviders = providerStates.filter((ps) => !!ps) as ProviderState[];
 
-  return { providers: successfulProviders };
+  return successfulProviders;
 }
 
-export function update(state: State, newState: Partial<State>): State {
+export function create(): CoordinatorState {
+  return {
+    aggregatedApiCalls: [],
+    providers: [],
+  };
+}
+
+export function update(state: CoordinatorState, newState: Partial<CoordinatorState>): CoordinatorState {
   return { ...state, ...newState };
 }

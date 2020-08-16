@@ -1,7 +1,16 @@
 import { ethers } from 'ethers';
+import isEqual from 'lodash/isEqual';
+import pick from 'lodash/pick';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
-import { ApiCall, BaseRequest, ProviderState, RequestErrorCode } from '../../../types';
+import {
+  AggregatedApiCall,
+  ApiCall,
+  BaseRequest,
+  ClientRequest,
+  ProviderState,
+  RequestErrorCode,
+} from '../../../types';
 
 function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
   if (!request.encodedParameters) {
@@ -37,4 +46,9 @@ export function initialize(state: ProviderState, log: ethers.utils.LogDescriptio
 
   const withParameters = applyParameters(state, request);
   return withParameters;
+}
+
+export function isDuplicate(apiCall: ClientRequest<ApiCall>, aggregatedApiCall: AggregatedApiCall): boolean {
+  const fields = ['id', 'endpointId', 'parameters'];
+  return isEqual(pick(apiCall, fields), pick(aggregatedApiCall, fields));
 }

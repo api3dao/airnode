@@ -11,11 +11,15 @@ export interface ApiCallParameters {
 export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
-  RequesterDataNotFound = 3,
-  ReservedWalletIndex = 4,
-  InsufficientBalance = 5,
-  UnauthorizedClient = 6,
-  AuthorizationNotFound = 7,
+  InvalidOIS = 3,
+  InvalidResponseParameters = 4,
+  RequesterDataNotFound = 5,
+  ReservedWalletIndex = 6,
+  InsufficientBalance = 7,
+  UnauthorizedClient = 8,
+  AuthorizationNotFound = 9,
+  ApiCallFailed = 10,
+  ResponseValueNotFound = 11,
 }
 
 export type BaseRequest<T extends {}> = T & {
@@ -84,11 +88,22 @@ export interface ProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
-  readonly transactionCountsByWalletIndex: { [index: number]: number };
+  readonly transactionCountsByWalletIndex: { [index: string]: number };
   readonly xpub: string;
 }
 
-export interface State {
+export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
+
+export interface AggregatedApiCall {
+  readonly id: string;
+  readonly endpointId: string;
+  readonly parameters: ApiCallParameters;
+  readonly providers: number[];
+  readonly type: AggregatedApiCallType;
+}
+
+export interface CoordinatorState {
+  readonly aggregatedApiCalls: AggregatedApiCall[];
   readonly providers: ProviderState[];
 }
 
