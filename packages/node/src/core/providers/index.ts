@@ -46,7 +46,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
     logger.logProviderError(config.name, 'Unable to get pending requests', requestsErr);
     return null;
   }
-  const pendingRequestsMsg = `Pending requests: ${requests.apiCalls.length} API calls, ${requests.withdrawals.length} withdrawals, ${requests.walletDesignations.length} wallet designations`;
+  const pendingRequestsMsg = `Pending requests: ${requests.apiCalls.length} API call(s), ${requests.withdrawals.length} withdrawal(s), ${requests.walletDesignations.length} wallet designation(s)`;
   logger.logProviderJSON(config.name, 'DEBUG', pendingRequestsMsg);
   const state3 = state.update(state2, { requests });
 

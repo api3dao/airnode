@@ -17,7 +17,7 @@ export async function start() {
   // =================================================================
   const aggregatedApiCalls = apiCallAggregator.aggregate(state2);
   const state3 = state.update(state2, { aggregatedApiCalls });
-  logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API calls`);
+  logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`);
 
   // =================================================================
   // STEP 3: Group unique requests
