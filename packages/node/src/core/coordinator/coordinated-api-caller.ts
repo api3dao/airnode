@@ -35,10 +35,10 @@ export async function callApis(state: CoordinatorState) {
 
   const responses = await Promise.all(calls);
 
-  const successfulResponsesCount = responses.filter(r => !!r.response).length;
+  const successfulResponsesCount = responses.filter((r) => !!r.response).length;
   logger.logJSON('INFO', `Received ${successfulResponsesCount} successful API call(s)`);
 
-  const erroredResponsesCount = responses.filter(r => !!r.error).length;
+  const erroredResponsesCount = responses.filter((r) => !!r.error).length;
   logger.logJSON('INFO', `Received ${erroredResponsesCount} errored API call(s)`);
 
   return responses;
