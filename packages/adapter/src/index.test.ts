@@ -173,7 +173,7 @@ describe('extractAndEncodeValue', () => {
     const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: 100 };
     const res = adapter.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
-      value: 75051,
+      value: '75051',
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
   });
@@ -200,7 +200,7 @@ describe('re-exported functions', () => {
 
   it('exports multiplyValue', () => {
     const res = adapter.processByMultiplying(7.789, 1000);
-    expect(res).toEqual(7789);
+    expect(res).toEqual('7789');
   });
 
   it('exports encodedValue', () => {

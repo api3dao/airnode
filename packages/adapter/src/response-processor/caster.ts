@@ -2,6 +2,7 @@ import isArray from 'lodash/isArray';
 import isFinite from 'lodash/isFinite';
 import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
+import BigNumber from 'bignumber.js';
 import { ResponseType } from '../types';
 
 interface SpecialNumber {
@@ -74,6 +75,13 @@ export function castValue(value: unknown, type: ResponseType) {
   }
 }
 
-export function multiplyValue(value: number, times: number) {
-  return value * times;
+export function multiplyValue(value: number | string, times: number | string): string {
+  // https://blog.enuma.io/update/2019/01/31/safe-use-of-bignumber.js.html
+  // .toString(10) removes the exponential notation, if it is present
+  const stringProduct = new BigNumber(value).times(new BigNumber(times)).toString(10);
+
+  // TODO: Document this behaviour
+  // Ethers BigNumber can't handle decimals so we convert to a string and if
+  // there are still any remaining decimals, remove them (floor the result)
+  return stringProduct.split('.')[0];
 }

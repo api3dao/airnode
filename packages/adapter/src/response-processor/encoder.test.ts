@@ -3,25 +3,31 @@ import * as encoder from './encoder';
 
 describe('convertNumberToBytes32', () => {
   it('converts positive numbers to bytes32', () => {
-    expect(encoder.convertNumberToBytes32(777)).toEqual(
+    expect(encoder.convertNumberToBytes32('777')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000309'
     );
-    expect(encoder.convertNumberToBytes32(1234567890)).toEqual(
+    expect(encoder.convertNumberToBytes32('1234567890')).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000499602d2'
     );
   });
 
   it('converts negative numbers to bytes32', () => {
-    expect(encoder.convertNumberToBytes32(-777)).toEqual(
+    expect(encoder.convertNumberToBytes32('-777')).toEqual(
       '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcf7'
     );
-    expect(encoder.convertNumberToBytes32(-1234567890)).toEqual(
+    expect(encoder.convertNumberToBytes32('-1234567890')).toEqual(
       '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffb669fd2e'
     );
   });
 
+  it('converts very large numbers to bytes32', () => {
+    expect(encoder.convertNumberToBytes32('12839712893719823718973198273537864783642')).toEqual(
+      '0x00000000000000000000000000000025bb86c101e22b4eda9326a6e67b9e571a'
+    );
+  });
+
   it('converts 0 to bytes32', () => {
-    expect(encoder.convertNumberToBytes32(0)).toEqual(
+    expect(encoder.convertNumberToBytes32('0')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000000'
     );
   });

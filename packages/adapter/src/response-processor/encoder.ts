@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-export function convertNumberToBytes32(value: number) {
+export function convertNumberToBytes32(value: string) {
   const bigNumber = ethers.BigNumber.from(value);
 
   // Ethers doesn't keep the number in two's complement form but we need this to

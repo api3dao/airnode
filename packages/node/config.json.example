@@ -101,7 +101,7 @@
           "reservedParameters": [
             {
               "name": "_type",
-              "fixed": "uint256"
+              "fixed": "int256"
             },
             {
               "name": "_path",
@@ -109,7 +109,7 @@
             },
             {
               "name": "_times",
-              "default": "100000"
+              "default": "10000000"
             }
           ],
           "parameters": [
