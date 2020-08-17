@@ -109,7 +109,7 @@
             },
             {
               "name": "_times",
-              "default": "10000000"
+              "default": "1000000"
             }
           ],
           "parameters": [
