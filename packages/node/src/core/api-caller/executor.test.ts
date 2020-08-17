@@ -34,7 +34,7 @@ describe('callApi', () => {
       parameters: { _type: 'int256', _path: 'price', from: 'ETH' },
     };
     const res = await executor.callApi(callOptions);
-    expect(res).toEqual('0x00000000000000000000000000000000000000000000000000000000000003e8');
+    expect(res).toEqual({ value: '0x00000000000000000000000000000000000000000000000000000000000003e8' });
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
