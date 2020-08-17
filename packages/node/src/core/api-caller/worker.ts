@@ -1,5 +1,5 @@
 import * as workers from '../workers';
-import { ApiCallParameters } from '../../types';
+import { ApiCallParameters, ErroredApiCallResponse, SuccessfulApiCallResponse } from '../../types';
 
 interface CallOptions {
   oisTitle: string;
@@ -7,18 +7,16 @@ interface CallOptions {
   parameters?: ApiCallParameters;
 }
 
-export interface Response {
-  value: string;
-}
+export type AnyApiCallResponse = Partial<SuccessfulApiCallResponse & ErroredApiCallResponse>;
 
-export async function spawnNewApiCall(callOptions: CallOptions): Promise<Response> {
+export async function spawnNewApiCall(callOptions: CallOptions): Promise<AnyApiCallResponse> {
   // TODO: This will probably need to change for other cloud providers
   const payload = workers.isLocalEnv() ? { queryStringParameters: callOptions } : callOptions;
 
   const options = { functionName: 'callApi', payload };
 
   // If this throws, it will be caught by the calling function
-  const encodedResponse = (await workers.spawn(options)) as Response;
+  const response = (await workers.spawn(options)) as AnyApiCallResponse;
 
-  return encodedResponse;
+  return response;
 }

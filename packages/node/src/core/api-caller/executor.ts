@@ -4,7 +4,7 @@ import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import * as logger from '../utils/logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from './parameters';
-import { ApiCallParameters, RequestErrorCode } from '../../types';
+import { ApiCallParameters, ErroredApiCallResponse, RequestErrorCode, SuccessfulApiCallResponse } from '../../types';
 
 export interface CallOptions {
   oisTitle: string;
@@ -12,14 +12,9 @@ export interface CallOptions {
   parameters?: ApiCallParameters;
 }
 
-interface ErrorResponse {
-  errorCode: number;
-  message: string;
-}
-
 const API_CALL_TIMEOUT = 29_000;
 
-export async function callApi(callOptions: CallOptions): Promise<string | ErrorResponse> {
+export async function callApi(callOptions: CallOptions): Promise<SuccessfulApiCallResponse | ErroredApiCallResponse> {
   const { endpointName, oisTitle } = callOptions;
 
   const securitySchemes = security.apiCredentials[callOptions.oisTitle] || [];
@@ -82,5 +77,5 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
     return { errorCode: RequestErrorCode.ResponseValueNotFound, message };
   }
 
-  return encodedValue;
+  return { value: encodedValue };
 }

@@ -2,6 +2,7 @@ import { config } from '../config';
 import * as state from './state';
 import * as logger from '../utils/logger';
 import * as apiCallAggregator from '../requests/api-calls/aggregator';
+import * as apiCaller from './coordinated-api-caller';
 
 export async function start() {
   const state1 = state.create();
@@ -20,8 +21,10 @@ export async function start() {
   logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`);
 
   // =================================================================
-  // STEP 3: Group unique requests
+  // STEP 3: Make API calls and save the responses
   // =================================================================
+  const aggregatedCallsWithResponses = await apiCaller.callApis(state3);
+  const state4 = state.update(state3, { aggregatedApiCalls: aggregatedCallsWithResponses });
 
-  return state3;
+  return state4;
 }
