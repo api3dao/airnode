@@ -31,6 +31,12 @@ describe('convertNumberToBytes32', () => {
       '0x0000000000000000000000000000000000000000000000000000000000000000'
     );
   });
+
+  it('throws if attempting to convert a decimal number', () => {
+    expect(() => {
+      encoder.convertNumberToBytes32('12.3');
+    }).toThrowError();
+  });
 });
 
 describe('convertStringToBytes32', () => {
