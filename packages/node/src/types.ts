@@ -106,6 +106,8 @@ export interface ErroredApiCallResponse {
 export interface AggregatedApiCall {
   readonly id: string;
   readonly endpointId: string;
+  readonly endpointName?: string;
+  readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
   readonly providers: number[];
   readonly type: AggregatedApiCallType;

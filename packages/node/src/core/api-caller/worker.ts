@@ -1,17 +1,12 @@
 import * as workers from '../workers';
-import { ApiCallParameters, ErroredApiCallResponse, SuccessfulApiCallResponse } from '../../types';
-
-interface CallOptions {
-  oisTitle: string;
-  endpointName: string;
-  parameters?: ApiCallParameters;
-}
+import { AggregatedApiCall, ErroredApiCallResponse, SuccessfulApiCallResponse } from '../../types';
 
 export type AnyApiCallResponse = Partial<SuccessfulApiCallResponse & ErroredApiCallResponse>;
 
-export async function spawnNewApiCall(callOptions: CallOptions): Promise<AnyApiCallResponse> {
+export async function spawnNewApiCall(aggregatedApiCall: AggregatedApiCall): Promise<AnyApiCallResponse> {
   // TODO: This will probably need to change for other cloud providers
-  const payload = workers.isLocalEnv() ? { queryStringParameters: callOptions } : callOptions;
+  // TODO: queryStringParameters is probably not right...
+  const payload = workers.isLocalEnv() ? { queryStringParameters: aggregatedApiCall } : aggregatedApiCall;
 
   const options = { functionName: 'callApi', payload };
 

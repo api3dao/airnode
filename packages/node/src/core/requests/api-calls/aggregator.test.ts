@@ -1,4 +1,11 @@
 jest.mock('../../config', () => ({
+  config: {
+    triggers: {
+      requests: [
+        { endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' },
+      ],
+    },
+  },
   security: {
     masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
   },
@@ -33,7 +40,9 @@ describe('API call aggregator', () => {
     expect(res.length).toEqual(1);
     expect(res[0]).toEqual({
       endpointId: 'endpointId',
+      endpointName: 'endpointName',
       id: 'apiCallId',
+      oisTitle: 'oisTitle',
       parameters: { from: 'ETH' },
       providers: [0, 1, 2],
       type: 'request',
@@ -66,7 +75,9 @@ describe('API call aggregator', () => {
     expect(res.length).toEqual(1);
     expect(res[0]).toEqual({
       endpointId: 'endpointId',
+      endpointName: 'endpointName',
       id: 'apiCallId',
+      oisTitle: 'oisTitle',
       parameters: { from: 'ETH' },
       providers: [0, 1],
       type: 'request',
@@ -99,14 +110,18 @@ describe('API call aggregator', () => {
     expect(res.length).toEqual(2);
     expect(res[0]).toEqual({
       endpointId: 'endpointId',
+      endpointName: 'endpointName',
       id: 'apiCallId',
+      oisTitle: 'oisTitle',
       parameters: { to: 'ETH' },
       providers: [0],
       type: 'request',
     });
     expect(res[1]).toEqual({
       endpointId: 'endpointId',
+      endpointName: 'endpointName',
       id: 'apiCallId',
+      oisTitle: 'oisTitle',
       parameters: { to: 'USDC' },
       providers: [1],
       type: 'request',

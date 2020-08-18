@@ -1,4 +1,5 @@
 import flatMap from 'lodash/flatMap';
+import { config } from '../../config';
 import { updateArrayAt } from '../../utils/array-utils';
 import { isDuplicate } from './model';
 import { AggregatedApiCall, CoordinatorState } from '../../../types';
@@ -25,12 +26,17 @@ export function aggregate(state: CoordinatorState) {
       }));
     }
 
+    const trigger = config.triggers.requests.find(t => t.endpointId === request.endpointId);
+
     const uniqueApiCall: AggregatedApiCall = {
       id: request.id,
       endpointId: request.endpointId!,
       parameters: request.parameters,
       providers: [request.providerIndex],
       type: 'request',
+      // If the trigger was not found, the request will be invalidated at validation time
+      endpointName: trigger?.endpointName,
+      oisTitle: trigger?.oisTitle,
     };
 
     // If this is the first time we're seeing this request, add it to the list of unique requests
