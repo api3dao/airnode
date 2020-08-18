@@ -12,7 +12,7 @@ export function validateAggregatedApiCall(aggregatedApiCall: AggregatedApiCall):
     return { ...aggregatedApiCall, error };
   }
 
-  const ois = config.ois.find(o => o.title === oisTitle);
+  const ois = config.ois.find((o) => o.title === oisTitle);
   if (!ois) {
     const message = `OIS:${oisTitle} not found for Request:${id}`;
     logger.logJSON('ERROR', message);

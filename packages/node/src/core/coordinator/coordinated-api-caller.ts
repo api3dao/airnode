@@ -6,7 +6,7 @@ import { CoordinatorState, ErroredApiCallResponse, RequestErrorCode, SuccessfulA
 const WORKER_TIMEOUT = 29_500;
 
 export async function callApis(state: CoordinatorState) {
-  const validAggregatedCalls = state.aggregatedApiCalls.filter(ac => !ac.error);
+  const validAggregatedCalls = state.aggregatedApiCalls.filter((ac) => !ac.error);
 
   const calls = validAggregatedCalls.map(async (aggregatedApiCall) => {
     const [err, res] = await goTimeout(WORKER_TIMEOUT, spawnNewApiCall(aggregatedApiCall));

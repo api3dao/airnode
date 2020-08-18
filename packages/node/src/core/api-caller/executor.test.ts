@@ -6,9 +6,7 @@ jest.mock('../config', () => ({
         endpoints: [
           {
             name: 'endpointName',
-            reservedParameters: [
-              { name: '_path', default: 'prices.0.latest' }
-            ],
+            reservedParameters: [{ name: '_path', default: 'prices.0.latest' }],
           },
         ],
       },
@@ -16,7 +14,7 @@ jest.mock('../config', () => ({
   },
   security: {
     apiCredentials: {
-      'oisTitle': [{ securitySchemeName: 'scheme-1', value: 'supersecret' }],
+      oisTitle: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }],
     },
   },
 }));

@@ -1,9 +1,7 @@
 jest.mock('../../config', () => ({
   config: {
     triggers: {
-      requests: [
-        { endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' },
-      ],
+      requests: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
     },
   },
   security: {

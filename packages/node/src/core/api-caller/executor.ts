@@ -9,7 +9,9 @@ import { AggregatedApiCall, ErroredApiCallResponse, RequestErrorCode, Successful
 
 const API_CALL_TIMEOUT = 29_000;
 
-export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<SuccessfulApiCallResponse | ErroredApiCallResponse> {
+export async function callApi(
+  aggregatedApiCall: AggregatedApiCall
+): Promise<SuccessfulApiCallResponse | ErroredApiCallResponse> {
   const validatedCall = validateAggregatedApiCall(aggregatedApiCall);
 
   // An invalid API call should never reach this point, but just in case it does
