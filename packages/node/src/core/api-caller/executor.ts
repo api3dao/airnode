@@ -73,11 +73,11 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
 
   let encodedValue: string;
   try {
-    const extracted = adapter.extractAndEncodeResponse(res.body, responseParameters as adapter.ResponseParameters);
+    const extracted = adapter.extractAndEncodeResponse(res.data, responseParameters as adapter.ResponseParameters);
     encodedValue = extracted.encodedValue;
   } catch (e) {
-    const body = JSON.stringify(res?.body || {});
-    const message = `Unable to find response value from ${body}. Path: ${responseParameters._path}`;
+    const data = JSON.stringify(res?.data || {});
+    const message = `Unable to find response value from ${data}. Path: ${responseParameters._path}`;
     logger.logJSON('ERROR', message);
     return { errorCode: RequestErrorCode.ResponseValueNotFound, message };
   }

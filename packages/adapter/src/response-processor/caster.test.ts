@@ -140,8 +140,28 @@ describe('castValue', () => {
 });
 
 describe('multiplyValue', () => {
-  it('multiplies the value by the times parameter', () => {
+  it('multiplies number values by the times parameter', () => {
     const res = caster.multiplyValue(777.7777, 10_000);
-    expect(res).toEqual(7777777);
+    expect(res).toEqual('7777777');
+  });
+
+  it('multiplies string values by the times parameter', () => {
+    const res = caster.multiplyValue('777.7777', '10000');
+    expect(res).toEqual('7777777');
+  });
+
+  it('floors the result if there are any remaining decimals', () => {
+    const res = caster.multiplyValue(777.7777, 3);
+    expect(res).toEqual('2333');
+  });
+
+  it('handles very large numbers', () => {
+    const res = caster.multiplyValue('123479127389712587938092347987348719823', 987298123);
+    expect(res).toEqual('121910710701541127580751015368572218827700792229');
+  });
+
+  it('floors very large decimals', () => {
+    const res = caster.multiplyValue('12479127389712987348782.371238923', 10);
+    expect(res).toEqual('124791273897129873487823');
   });
 });
