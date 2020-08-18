@@ -40,7 +40,6 @@ export async function initializeProvider(event: any) {
 
 export async function callApi(event: any) {
   const { aggregatedApiCall } = event.queryStringParameters;
-
   const response = await apiCallExecutor.callApi(aggregatedApiCall);
 
   return {

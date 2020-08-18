@@ -30,7 +30,7 @@ export function logJSON(level: LogLevel, message: any) {
 }
 
 export function logProviderJSON(name: string, level: LogLevel, message: string) {
-  logJSON(level, `[${name}] ${message}`);
+  logJSON(level, `[provider: ${name}] ${message}`);
 }
 
 export function logProviderError(name: string, message: string, err: Error | null) {

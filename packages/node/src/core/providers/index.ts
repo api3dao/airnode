@@ -47,7 +47,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
     return null;
   }
   const pendingRequestsMsg = `Pending requests: ${requests.apiCalls.length} API call(s), ${requests.withdrawals.length} withdrawal(s), ${requests.walletDesignations.length} wallet designation(s)`;
-  logger.logProviderJSON(config.name, 'DEBUG', pendingRequestsMsg);
+  logger.logProviderJSON(config.name, 'INFO', pendingRequestsMsg);
   const state3 = state.update(state2, { requests });
 
   // =================================================================
