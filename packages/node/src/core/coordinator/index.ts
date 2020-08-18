@@ -1,12 +1,13 @@
 import { config } from '../config';
 import * as state from './state';
 import * as logger from '../utils/logger';
+import { formatDateTime } from '../utils/date-utils';
 import * as apiCallAggregator from '../requests/api-calls/aggregator';
 import * as apiCaller from './coordinated-api-caller';
 
 export async function start() {
   const startedAt = new Date();
-  logger.logJSON('INFO', `Coordinator starting at ${startedAt.toISOString()}...`);
+  logger.logJSON('INFO', `Coordinator starting at ${formatDateTime(startedAt)}...`);
 
   // =================================================================
   // STEP 1: Creat a blank coordinator state
@@ -34,6 +35,6 @@ export async function start() {
 
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
-  logger.logJSON('INFO', `Coordinator completed at ${completedAt.toISOString()}. Total time: ${durationMs}ms`)
+  logger.logJSON('INFO', `Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`);
   return state4;
 }

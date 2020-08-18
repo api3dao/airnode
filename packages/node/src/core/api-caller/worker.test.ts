@@ -30,9 +30,11 @@ describe('spawnNewApiCall', () => {
       functionName: 'callApi',
       payload: {
         queryStringParameters: {
-          oisTitle: 'my-api',
-          endpointName: 'my-endpoint',
-          parameters: { from: 'ETH' },
+          aggregatedApiCall: {
+            oisTitle: 'my-api',
+            endpointName: 'my-endpoint',
+            parameters: { from: 'ETH' },
+          },
         },
       },
     });
