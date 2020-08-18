@@ -26,7 +26,7 @@ import { RequestErrorCode } from 'src/types';
 describe('callApi', () => {
   it('calls the adapter with the given parameters', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
-    spy.mockResolvedValueOnce({ body: { price: 1000 } });
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
 
     const callOptions: executor.CallOptions = {
       oisTitle: 'my-api',
@@ -113,7 +113,7 @@ describe('callApi', () => {
 
   it('returns an error if the value cannot be found with the _path', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
-    spy.mockResolvedValueOnce({ body: { price: 1000 } });
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
 
     const callOptions: executor.CallOptions = {
       oisTitle: 'my-api',

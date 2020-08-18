@@ -33,9 +33,10 @@ export function processByCasting(rawValue: unknown, type: ResponseType) {
   return caster.castValue(rawValue, type);
 }
 
-export function processByMultiplying(value: number, times?: number) {
+export function processByMultiplying(value: number | string, times?: number | string): string {
   if (!times) {
-    return value;
+    // Remove any trailing decimals if they exist (floor the number)
+    return value.toString().split('.')[0];
   }
   return caster.multiplyValue(value, times);
 }
@@ -44,7 +45,7 @@ export function processByEncoding(value: ValueType, type: ResponseType) {
   // NOTE: value should be in the matching type at this point
   switch (type) {
     case 'int256':
-      return encoder.convertNumberToBytes32(value as number);
+      return encoder.convertNumberToBytes32(value as string);
 
     case 'bool':
       return encoder.convertBoolToBytes32(value as boolean);

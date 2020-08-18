@@ -47,12 +47,12 @@ describe('processByCasting', () => {
 describe('processByMultiplying', () => {
   it('multiplies number values by the times', () => {
     const res = proccessor.processByMultiplying(7.789, 1000);
-    expect(res).toEqual(7789);
+    expect(res).toEqual('7789');
   });
 
-  it('does nothing if times is not provided', () => {
-    const res = proccessor.processByMultiplying(1234);
-    expect(res).toEqual(1234);
+  it('floors and converts to a string if times is not provided', () => {
+    const res = proccessor.processByMultiplying(1234.75);
+    expect(res).toEqual('1234');
   });
 });
 
