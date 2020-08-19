@@ -24,6 +24,11 @@ describe('getRawValue', () => {
     expect(getRawValue(obj, 'foo.bar.0.baz')).toEqual(888);
   });
 
+  it('returns undefined if the value cannot be found', () => {
+    const obj = { a: 1 };
+    expect(getRawValue(obj, 'unknown')).toEqual(undefined);
+  });
+
   it('returns the default value if unable to find the specified value', () => {
     const obj = { a: 1 };
     expect(getRawValue(obj, 'unknown', 'default')).toEqual('default');
