@@ -12,17 +12,14 @@ describe('getRawValue', () => {
   });
 
   it('gets the value from an array', () => {
-    const obj = [
-      { values: [422, 413, 401] },
-      { values: [731, 728, 739] },
-    ];
+    const obj = [{ values: [422, 413, 401] }, { values: [731, 728, 739] }];
     expect(getRawValue(obj, '1.values.2')).toEqual(739);
   });
 
   it('prefers the value from the array an ambiguous object', () => {
     const obj = {
       'foo.bar.0': { baz: 555 },
-      foo: { bar: [{ baz: 888 }] }
+      foo: { bar: [{ baz: 888 }] },
     };
     expect(getRawValue(obj, 'foo.bar.0.baz')).toEqual(888);
   });

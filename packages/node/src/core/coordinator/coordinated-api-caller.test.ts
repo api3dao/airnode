@@ -62,9 +62,9 @@ describe('callApis', () => {
     expect(res[0]).toEqual({
       ...aggregatedApiCall,
       response: {
-        value: '0x00000000000000000000000000000000000000000000000000000000000001b9'
+        value: '0x00000000000000000000000000000000000000000000000000000000000001b9',
       },
-      error: undefined
+      error: undefined,
     });
     // Check that the correct value was selected
     expect(ethers.BigNumber.from(res[0].response!.value).toString()).toEqual('441');
