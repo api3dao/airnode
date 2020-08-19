@@ -36,7 +36,7 @@ export async function start() {
   // =================================================================
   // STEP 5: Map API responses back to each provider's API requests
   // =================================================================
-  const providersWithAPIResponses = apiCallAggregator.segregate(state2);
+  const providersWithAPIResponses = apiCallAggregator.segregate(state4);
   const state5 = state.update(state4, { providers: providersWithAPIResponses });
 
   // =================================================================
