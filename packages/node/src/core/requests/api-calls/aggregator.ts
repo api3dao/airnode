@@ -3,13 +3,7 @@ import { config } from '../../config';
 import { updateArrayAt } from '../../utils/array-utils';
 import * as logger from '../../utils/logger';
 import { isDuplicate } from './model';
-import {
-  AggregatedApiCall,
-  ApiCall,
-  ClientRequest,
-  CoordinatorState,
-  ProviderState,
-} from '../../../types';
+import { AggregatedApiCall, ApiCall, ClientRequest, CoordinatorState, ProviderState } from '../../../types';
 
 export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
   // Map all requests of the given type from all providers into a single array
