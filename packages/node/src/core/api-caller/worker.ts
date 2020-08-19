@@ -1,7 +1,7 @@
 import * as workers from '../workers';
-import { AggregatedApiCall, ErroredApiCallResponse, SuccessfulApiCallResponse } from '../../types';
+import { AggregatedApiCall, ApiCallError, ApiCallResponse } from '../../types';
 
-export type AnyApiCallResponse = Partial<SuccessfulApiCallResponse & ErroredApiCallResponse>;
+export type AnyApiCallResponse = Partial<ApiCallResponse & ApiCallError>;
 
 export async function spawnNewApiCall(aggregatedApiCall: AggregatedApiCall): Promise<AnyApiCallResponse> {
   // TODO: This will probably need to change for other cloud providers

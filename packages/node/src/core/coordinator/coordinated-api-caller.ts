@@ -1,11 +1,11 @@
 import * as logger from '../utils/logger';
 import { goTimeout } from '../utils/promise-utils';
 import { spawnNewApiCall } from '../api-caller/worker';
-import { CoordinatorState, ErroredApiCallResponse, RequestErrorCode, SuccessfulApiCallResponse } from '../../types';
+import { AggregatedApiCall, ApiCallError, ApiCallResponse, CoordinatorState, RequestErrorCode } from '../../types';
 
 const WORKER_TIMEOUT = 29_500;
 
-export async function callApis(state: CoordinatorState) {
+export async function callApis(state: CoordinatorState): Promise<AggregatedApiCall[]> {
   const validAggregatedCalls = state.aggregatedApiCalls.filter((ac) => !ac.error);
 
   const calls = validAggregatedCalls.map(async (aggregatedApiCall) => {
@@ -18,11 +18,11 @@ export async function callApis(state: CoordinatorState) {
     // If the request completed but has an errorCode, then it means that something
     // went wrong. Save the errorCode and message if one exists.
     if (res.errorCode) {
-      return { ...aggregatedApiCall, error: res as ErroredApiCallResponse };
+      return { ...aggregatedApiCall, error: res as ApiCallError };
     }
 
     // We can assume that the request was successful at this point
-    return { ...aggregatedApiCall, response: res as SuccessfulApiCallResponse };
+    return { ...aggregatedApiCall, response: res as ApiCallResponse };
   });
 
   const responses = await Promise.all(calls);

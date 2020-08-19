@@ -94,11 +94,11 @@ export interface ProviderState {
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
 
-export interface SuccessfulApiCallResponse {
+export interface ApiCallResponse {
   value: string;
 }
 
-export interface ErroredApiCallResponse {
+export interface ApiCallError {
   errorCode: number;
   message?: string;
 }
@@ -111,8 +111,8 @@ export interface AggregatedApiCall {
   readonly parameters: ApiCallParameters;
   readonly providers: number[];
   readonly type: AggregatedApiCallType;
-  readonly error?: ErroredApiCallResponse;
-  readonly response?: SuccessfulApiCallResponse;
+  readonly error?: ApiCallError;
+  readonly response?: ApiCallResponse;
 }
 
 export interface CoordinatorState {

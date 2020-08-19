@@ -41,7 +41,7 @@ export function extractAndEncodeResponse(data: unknown, parameters: ResponsePara
 
   let value = processByCasting(rawValue, parameters._type);
 
-  if (parameters._times && isNumberType(parameters._type)) {
+  if (isNumberType(parameters._type)) {
     value = processByMultiplying(value as number | string, parameters._times);
   }
 
