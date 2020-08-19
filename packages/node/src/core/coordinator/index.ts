@@ -2,7 +2,7 @@ import { config } from '../config';
 import * as state from './state';
 import * as logger from '../utils/logger';
 import { formatDateTime } from '../utils/date-utils';
-import * as apiCallAggregator from '../requests/api-calls/aggregator';
+import * as apiCallAggregator from './api-call-aggregator';
 import * as apiCaller from './coordinated-api-caller';
 
 export async function start() {
@@ -33,8 +33,20 @@ export async function start() {
   const aggregatedCallsWithResponses = await apiCaller.callApis(state3);
   const state4 = state.update(state3, { aggregatedApiCalls: aggregatedCallsWithResponses });
 
+  // =================================================================
+  // STEP 5: Map API responses back to each provider's API requests
+  // =================================================================
+  const providersWithAPIResponses = apiCallAggregator.segregate(state2);
+  const state5 = state.update(state4, { providers: providersWithAPIResponses });
+
+  // =================================================================
+  // STEP 6: Initiate transactions for each provider
+  // =================================================================
+  // TODO:
+
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
   logger.logJSON('INFO', `Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`);
-  return state4;
+
+  return state5;
 }
