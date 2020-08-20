@@ -4,42 +4,28 @@ import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import * as logger from '../utils/logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from './parameters';
-import { ApiCallParameters, RequestErrorCode } from '../../types';
-
-export interface CallOptions {
-  oisTitle: string;
-  endpointName: string;
-  parameters?: ApiCallParameters;
-}
-
-interface ErrorResponse {
-  errorCode: number;
-  message: string;
-}
+import { validateAggregatedApiCall } from './preprocessor';
+import { AggregatedApiCall, ApiCallError, ApiCallResponse, RequestErrorCode } from '../../types';
 
 const API_CALL_TIMEOUT = 29_000;
 
-export async function callApi(callOptions: CallOptions): Promise<string | ErrorResponse> {
-  const { endpointName, oisTitle } = callOptions;
+export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<ApiCallResponse | ApiCallError> {
+  const validatedCall = validateAggregatedApiCall(aggregatedApiCall);
 
-  const securitySchemes = security.apiCredentials[callOptions.oisTitle] || [];
+  // An invalid API call should never reach this point, but just in case it does
+  if (validatedCall.error?.errorCode) {
+    return validatedCall.error;
+  }
+
+  const { endpointName, oisTitle } = validatedCall;
+
+  const securitySchemes = security.apiCredentials[validatedCall.oisTitle!] || [];
 
   const ois = config.ois.find((o) => o.title === oisTitle)!;
-  if (!ois) {
-    const message = `OIS:${oisTitle} was not found`;
-    logger.logJSON('ERROR', message);
-    return { errorCode: RequestErrorCode.InvalidOIS, message };
-  }
-
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-  if (!endpoint) {
-    const message = `Endpoint:${endpointName} was not found in OIS:${oisTitle}`;
-    logger.logJSON('ERROR', message);
-    return { errorCode: RequestErrorCode.InvalidOIS, message };
-  }
 
   // Check before making the API call in case the parameters are missing
-  const responseParameters = getResponseParameters(endpoint, callOptions.parameters || {});
+  const responseParameters = getResponseParameters(endpoint, validatedCall.parameters || {});
   if (!responseParameters._type) {
     const message = `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`;
     logger.logJSON('ERROR', message);
@@ -47,10 +33,10 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
   }
 
   // Don't submit the reserved parameters to the API
-  const parameters = removeKeys(callOptions.parameters || {}, RESERVED_PARAMETERS);
+  const parameters = removeKeys(validatedCall.parameters || {}, RESERVED_PARAMETERS);
 
   const options: adapter.Options = {
-    endpointName,
+    endpointName: validatedCall.endpointName!,
     parameters,
     ois,
     securitySchemes,
@@ -66,7 +52,7 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
 
   const [err, res] = await go(retryableCall);
   if (err) {
-    const message = `Failed to call Endpoint:${callOptions.endpointName}. ${err}`;
+    const message = `Failed to call Endpoint:${validatedCall.endpointName}. ${err}`;
     logger.logJSON('ERROR', message);
     return { errorCode: RequestErrorCode.ApiCallFailed, message };
   }
@@ -82,5 +68,5 @@ export async function callApi(callOptions: CallOptions): Promise<string | ErrorR
     return { errorCode: RequestErrorCode.ResponseValueNotFound, message };
   }
 
-  return encodedValue;
+  return { value: encodedValue };
 }

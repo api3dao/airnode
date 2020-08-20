@@ -39,13 +39,11 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { oisTitle, endpointName, parameters } = event.queryStringParameters;
-
-  const callOptions = { oisTitle, endpointName, parameters };
-  const encodedResponse = await apiCallExecutor.callApi(callOptions);
+  const { aggregatedApiCall } = event.queryStringParameters;
+  const response = await apiCallExecutor.callApi(aggregatedApiCall);
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ value: encodedResponse }),
+    body: JSON.stringify(response),
   };
 }

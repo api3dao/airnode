@@ -49,6 +49,8 @@ export interface ApiCall {
   readonly providerId: string;
   readonly requesterAddress: string;
   readonly templateId: string | null;
+  readonly error?: ApiCallError;
+  readonly response?: ApiCallResponse;
 }
 
 export interface ApiCallTemplate {
@@ -94,12 +96,25 @@ export interface ProviderState {
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
 
+export interface ApiCallResponse {
+  value: string;
+}
+
+export interface ApiCallError {
+  errorCode: number;
+  message?: string;
+}
+
 export interface AggregatedApiCall {
   readonly id: string;
   readonly endpointId: string;
+  readonly endpointName?: string;
+  readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
   readonly providers: number[];
   readonly type: AggregatedApiCallType;
+  readonly error?: ApiCallError;
+  readonly response?: ApiCallResponse;
 }
 
 export interface CoordinatorState {
