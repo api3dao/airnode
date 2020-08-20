@@ -47,7 +47,7 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
   return uniqueRequests;
 }
 
-export function segregate(state: CoordinatorState): ProviderState[] {
+export function disaggregate(state: CoordinatorState): ProviderState[] {
   // We only care about aggregated API calls for requests
   const aggregatedApiCalls = state.aggregatedApiCalls.filter((ac) => ac.type === 'request');
 

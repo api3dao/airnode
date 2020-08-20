@@ -7,8 +7,8 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
   return aggregatedRequests;
 }
 
-export function segregate(state: CoordinatorState): ProviderState[] {
-  const providersWithRequests = requestAggregator.segregate(state);
+export function disaggregate(state: CoordinatorState): ProviderState[] {
+  const providersWithRequests = requestAggregator.disaggregate(state);
 
   return providersWithRequests;
 }

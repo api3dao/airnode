@@ -128,7 +128,7 @@ describe('aggregate ClientRequests', () => {
   });
 });
 
-describe('segregate - ClientRequests', () => {
+describe('disaggregate - ClientRequests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
     const requests0 = {
       apiCalls: [fixtures.requests.createApiCall()],
@@ -160,7 +160,7 @@ describe('segregate - ClientRequests', () => {
     let state = coordinatorState.create();
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1, provider2] });
 
-    const res = aggregator.segregate(state);
+    const res = aggregator.disaggregate(state);
     expect(res[0].requests.apiCalls[0].response).toEqual({ value: '0x123' });
     expect(res[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
     expect(res[2].requests.apiCalls[0].response).toEqual(undefined);
@@ -193,7 +193,7 @@ describe('segregate - ClientRequests', () => {
     let state = coordinatorState.create();
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
-    const res = aggregator.segregate(state);
+    const res = aggregator.disaggregate(state);
     expect(res[0].requests.apiCalls[0].response).toEqual({ value: '0x123' });
     expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
     expect(res[1].requests.apiCalls[0].response).toEqual(undefined);
@@ -230,7 +230,7 @@ describe('segregate - ClientRequests', () => {
     let state = coordinatorState.create();
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
-    const res = aggregator.segregate(state);
+    const res = aggregator.disaggregate(state);
     expect(res[0].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
     expect(res[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
@@ -267,7 +267,7 @@ describe('segregate - ClientRequests', () => {
     let state = coordinatorState.create();
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
-    const res = aggregator.segregate(state);
+    const res = aggregator.disaggregate(state);
     expect(res[0].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
     expect(res[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
@@ -304,7 +304,7 @@ describe('segregate - ClientRequests', () => {
     let state = coordinatorState.create();
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
-    const res = aggregator.segregate(state);
+    const res = aggregator.disaggregate(state);
     expect(res[0].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
     expect(res[1].requests.apiCalls[0].response).toEqual(undefined);
