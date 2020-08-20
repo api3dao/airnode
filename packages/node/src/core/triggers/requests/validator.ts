@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
 import { ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
 
@@ -9,15 +10,18 @@ function validateRequest<T>(state: ProviderState, request: ClientRequest<T>): Cl
   }
 
   // Check the request is not for the reserved wallet at index 0
-  if (request.walletIndex === 0) {
+  if (request.walletIndex === '0') {
     const message = `Request ID:${request.id} has reserved wallet index 0.`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
 
     return { ...request, valid: false, errorCode: RequestErrorCode.ReservedWalletIndex };
   }
 
+  const balance = ethereum.weiToBigNumber(request.walletBalance);
+  const minBalance = ethereum.weiToBigNumber(request.walletMinimumBalance);
+
   // Check the request wallet has enough funds to be able to make transactions
-  if (request.walletBalance.lt(request.walletMinimumBalance)) {
+  if (balance.lt(minBalance)) {
     const currentBalance = ethers.utils.formatEther(request.walletBalance);
     const minBalance = ethers.utils.formatEther(request.walletMinimumBalance);
     const message = `Request ID:${request.id} wallet has insufficient balance of ${currentBalance} ETH. Minimum balance of ${minBalance} ETH is required.`;

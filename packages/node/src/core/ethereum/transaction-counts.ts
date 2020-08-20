@@ -11,7 +11,7 @@ interface TransactionCountByWalletIndex {
 
 async function getWalletTransactionCount(
   state: ProviderState,
-  index: number
+  index: string
 ): Promise<TransactionCountByWalletIndex | null> {
   const address = wallet.deriveWalletFromIndex(state.xpub, index);
 
@@ -33,7 +33,7 @@ export async function getTransactionCountByIndex(state: ProviderState): Promise<
   // If there are any pending wallet designations, then we also need to fetch
   // the transaction count for the "admin" wallet at index 0, as it will
   // be needed to fulfill these requests
-  const adminWalletIndex = isEmpty(walletDesignations) ? [] : [0];
+  const adminWalletIndex = isEmpty(walletDesignations) ? [] : ['0'];
 
   // Filter out duplicates to reduce Ethereum node calls
   const uniqueWalletIndices = uniq([

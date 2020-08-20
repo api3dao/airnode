@@ -13,10 +13,22 @@ export async function spawnNewProvider(index: number): Promise<ProviderState> {
   // If this throws, it will be caught by the calling function
   const initialState = (await workers.spawn(options)) as CleanProviderState;
 
-  // The serverless function does not return an instance
-  // of an Ethereum provider, so we create a new one
-  // before returning the state
+  // The serverless function does not return an instance of an Ethereum
+  // provider, so we create a new one before returning the state
   const provider = ethereum.newProvider(initialState.config.url, initialState.config.chainId);
 
   return { ...initialState, provider };
+}
+
+export async function spawnProviderRequestProcessor(state: ProviderState): Promise<boolean> {
+  // TODO: This will probably need to change for other cloud providers
+  // TODO: queryStringParameters is probably not right...
+  const payload = workers.isLocalEnv() ? { queryStringParameters: { state } } : state;
+
+  const options = { functionName: 'processProviderRequests', payload };
+
+  // If this throws, it will be caught by the calling function
+  const response = (await workers.spawn(options)) as boolean;
+
+  return response;
 }

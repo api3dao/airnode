@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { ApiCall, ClientRequest } from '../../../src/types';
 
 export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
@@ -16,10 +15,10 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
     parameters: { from: 'ETH' },
     providerId: 'providerId',
     valid: true,
-    walletIndex: 123,
+    walletIndex: '1',
     walletAddress: 'walletAddress',
-    walletBalance: ethers.BigNumber.from('10'),
-    walletMinimumBalance: ethers.BigNumber.from('5'),
+    walletBalance: '100000',
+    walletMinimumBalance: '50000',
     ...params,
   };
 }

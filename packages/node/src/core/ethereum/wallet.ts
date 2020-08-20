@@ -16,7 +16,7 @@ export function getExtendedPublicKey() {
 // m/0/1/1
 // ...
 // but there is no need for more than 2^31-1 per provider
-export function deriveWalletFromIndex(xpub: string, index: number) {
+export function deriveWalletFromIndex(xpub: string, index: number | string) {
   const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
   const wallet = hdNode.derivePath(`m/0/0/${index}`);
   return wallet.address;

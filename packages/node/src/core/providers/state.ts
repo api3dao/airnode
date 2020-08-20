@@ -15,8 +15,9 @@ export function create(config: ProviderConfig, index: number): ProviderState {
     },
     xpub: ethereum.getExtendedPublicKey(),
     transactionCountsByWalletIndex: {},
-    // This is fetched and set as late as possible for freshness
+    // These are fetched and set as late as possible for freshness
     gasPrice: null,
+    walletAddressesByIndex: {},
   };
 }
 

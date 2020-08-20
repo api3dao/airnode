@@ -45,9 +45,9 @@ async function fetchRequesterData(state: ProviderState, addresses: string[]): Pr
     const requesterData: RequesterData = {
       requesterId: data.requesterIds[index],
       walletAddress: data.walletAddresses[index],
-      walletIndex: data.walletInds[index],
-      walletBalance: data.walletBalances[index],
-      walletMinimumBalance: data.minBalances[index],
+      walletIndex: data.walletInds[index].toString(),
+      walletBalance: data.walletBalances[index].toString(),
+      walletMinimumBalance: data.minBalances[index].toString(),
     };
     return { ...acc, [address]: requesterData };
   }, {});
@@ -101,10 +101,10 @@ function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, da
       valid: false,
       errorCode: RequestErrorCode.RequesterDataNotFound,
       requesterId: '',
-      walletIndex: -1,
+      walletIndex: '-1',
       walletAddress: '',
-      walletBalance: ethereum.weiToBigNumber('0'),
-      walletMinimumBalance: ethereum.weiToBigNumber('0'),
+      walletBalance: '0',
+      walletMinimumBalance: '0',
     };
   }
 

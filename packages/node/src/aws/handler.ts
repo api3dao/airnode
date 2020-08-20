@@ -47,3 +47,13 @@ export async function callApi(event: any) {
     body: JSON.stringify(response),
   };
 }
+
+export async function processProviderRequests(event: any) {
+  const { state } = event.queryStringParameters;
+  const response = await providers.processTransactions(state);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(response),
+  };
+}
