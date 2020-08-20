@@ -166,7 +166,8 @@ describe('disaggregate - ClientRequests', () => {
     expect(res[2].requests.apiCalls[0].response).toEqual(undefined);
   });
 
-  it('does not update the request if the aggregated call was not linked to the provider', () => {
+  it('updates each request based on the provider(s) it was linked to', () => {
+    // The 2 calls are exactly the same, but are linked to different providers
     const requests0 = {
       apiCalls: [fixtures.requests.createApiCall()],
       walletDesignations: [],
