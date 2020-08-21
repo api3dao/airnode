@@ -582,7 +582,7 @@ describe('validator', () => {
       expect(validator.isSpecsValid(specs5)).toMatchObject({ valid: true, messages: [] });
       expect(validator.isSpecsValid(specs6)).toMatchObject({
         valid: false,
-        messages: [sizeExceededMessage('servers.__maxSize', 1)],
+        messages: [sizeExceededMessage('servers', 1)],
       });
     });
 

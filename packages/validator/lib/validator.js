@@ -272,7 +272,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
 
     if (key === '__maxSize') {
       if (specsStruct[key] < specs.length) {
-        messages.push({ level: 'error', message: `${paramPath}${paramPath ? '.' : ''}${key} must contain ${specsStruct[key]} or less items` });
+        messages.push({ level: 'error', message: `${paramPath} must contain ${specsStruct[key]} or less items` });
         valid = false;
       }
 
