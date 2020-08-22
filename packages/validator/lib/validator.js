@@ -241,7 +241,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
     }
 
     if (key === '__regexp') {
-      if (!specs.match(new RegExp(specsStruct[key]))) {
+      if (typeof specs !== 'string' || !specs.match(new RegExp(specsStruct[key]))) {
         let level = 'warning';
 
         if (specsStruct['__level']) {
