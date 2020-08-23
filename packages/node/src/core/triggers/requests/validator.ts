@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
-import { ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
+import { ClientRequest, GroupedRequests, ProviderState, RequestErrorCode } from '../../../types';
 
 function validateRequest<T>(state: ProviderState, request: ClientRequest<T>): ClientRequest<T> {
   // If the request is already invalid, we don't want to overwrite the error
@@ -33,7 +33,7 @@ function validateRequest<T>(state: ProviderState, request: ClientRequest<T>): Cl
   return request;
 }
 
-export function validateRequests(state: ProviderState, requests: GroupedProviderRequests): GroupedProviderRequests {
+export function validateRequests(state: ProviderState, requests: GroupedRequests): GroupedRequests {
   const apiCalls = requests.apiCalls.map((a) => validateRequest(state, a));
 
   return {

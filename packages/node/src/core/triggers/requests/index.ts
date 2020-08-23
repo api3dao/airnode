@@ -6,7 +6,7 @@ import * as withdrawals from './withdrawals';
 import * as requesterData from './requester-data';
 import * as discarder from './discarder';
 import * as validator from './validator';
-import { GroupedProviderRequests, ProviderState } from '../../../types';
+import { GroupedRequests, ProviderState } from '../../../types';
 
 // Alias types
 type GroupedBaseRequests = requesterData.GroupedBaseRequests;
@@ -22,7 +22,7 @@ async function fetchRequesterData(state: ProviderState, requests: GroupedBaseReq
   return err || !res ? {} : res;
 }
 
-export async function fetchPendingRequests(state: ProviderState): Promise<GroupedProviderRequests> {
+export async function fetchPendingRequests(state: ProviderState): Promise<GroupedRequests> {
   // Let this throw if it fails. We can't do anything if the logs cannot be fetched
   const groupedLogs = await fetchGroupedLogs(state);
 

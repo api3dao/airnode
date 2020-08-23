@@ -7,7 +7,7 @@ jest.mock('../../config', () => ({
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../../providers/state';
-import { GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
+import { GroupedRequests, ProviderState, RequestErrorCode } from '../../../types';
 import * as validator from './validator';
 
 describe('validate', () => {
@@ -19,7 +19,7 @@ describe('validate', () => {
   });
 
   it('does nothing if the request is already invalid', () => {
-    const requests: GroupedProviderRequests = {
+    const requests: GroupedRequests = {
       apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: 9999 })],
       walletDesignations: [],
       withdrawals: [],
@@ -30,10 +30,10 @@ describe('validate', () => {
   });
 
   it('validates that the wallet index is not reserved', () => {
-    const reserved = fixtures.requests.createApiCall({ walletIndex: 0 });
-    const requester = fixtures.requests.createApiCall({ walletIndex: 1 });
+    const reserved = fixtures.requests.createApiCall({ walletIndex: '0' });
+    const requester = fixtures.requests.createApiCall({ walletIndex: '1' });
 
-    const requests: GroupedProviderRequests = {
+    const requests: GroupedRequests = {
       apiCalls: [reserved, requester],
       walletDesignations: [],
       withdrawals: [],
@@ -49,11 +49,11 @@ describe('validate', () => {
   });
 
   it('validates the current balance is greater than the current balance', () => {
-    const sufficientBalance = fixtures.requests.createApiCall({ walletBalance: ethers.BigNumber.from('10') });
-    const matchingBalance = fixtures.requests.createApiCall({ walletBalance: ethers.BigNumber.from('5') });
-    const insufficientBalance = fixtures.requests.createApiCall({ walletBalance: ethers.BigNumber.from('2') });
+    const sufficientBalance = fixtures.requests.createApiCall({ walletBalance: '10' });
+    const matchingBalance = fixtures.requests.createApiCall({ walletBalance: '5' });
+    const insufficientBalance = fixtures.requests.createApiCall({ walletBalance: '2' });
 
-    const requests: GroupedProviderRequests = {
+    const requests: GroupedRequests = {
       apiCalls: [sufficientBalance, matchingBalance, insufficientBalance],
       walletDesignations: [],
       withdrawals: [],

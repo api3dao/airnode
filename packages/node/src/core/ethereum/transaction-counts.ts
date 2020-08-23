@@ -50,3 +50,4 @@ export async function getTransactionCountByIndex(state: ProviderState): Promise<
   // Merge all successful results into a single object
   return Object.assign({}, ...successfulResults);
 }
+

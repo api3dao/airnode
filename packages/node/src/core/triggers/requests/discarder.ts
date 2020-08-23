@@ -1,6 +1,6 @@
 import fromPairs from 'lodash/fromPairs';
 import * as logger from '../../utils/logger';
-import { ClientRequest, GroupedProviderRequests, ProviderState, RequestErrorCode } from '../../../types';
+import { ClientRequest, GroupedRequests, ProviderState, RequestErrorCode } from '../../../types';
 
 // We can't process requests with these errors, so they are ignored
 export const UNPROCESSABLE_CLIENT_ERROR_CODES = [
@@ -26,8 +26,8 @@ function discardClientRequests<T>(state: ProviderState, requests: ClientRequest<
 
 export function discardUnprocessableRequests(
   state: ProviderState,
-  requests: GroupedProviderRequests
-): GroupedProviderRequests {
+  requests: GroupedRequests
+): GroupedRequests {
   const apiCalls = discardClientRequests(state, requests.apiCalls);
   const withdrawals = discardClientRequests(state, requests.withdrawals);
 
@@ -38,10 +38,7 @@ export function discardUnprocessableRequests(
   };
 }
 
-export function discardRequestsWithWithdrawals(
-  state: ProviderState,
-  requests: GroupedProviderRequests
-): GroupedProviderRequests {
+export function discardRequestsWithWithdrawals(state: ProviderState, requests: GroupedRequests): GroupedRequests {
   const withdrawalsByWalletIndex = fromPairs(requests.withdrawals.map((w) => [w.walletIndex, w]));
 
   const apiCalls = requests.apiCalls.reduce((acc, apiCall) => {

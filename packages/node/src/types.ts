@@ -24,6 +24,7 @@ export enum RequestErrorCode {
 
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
+  readonly blockNumber: number;
   readonly errorCode?: RequestErrorCode;
   readonly nonce?: number;
   readonly valid: boolean;
@@ -78,10 +79,20 @@ export interface Withdrawal {
   readonly requesterId: string;
 }
 
-export interface GroupedProviderRequests {
+export interface GroupedRequests {
   readonly apiCalls: ClientRequest<ApiCall>[];
   readonly walletDesignations: BaseRequest<WalletDesignation>[];
   readonly withdrawals: ClientRequest<Withdrawal>[];
+}
+
+export interface WalletData {
+  readonly address: string;
+  readonly requests: GroupedRequests
+  readonly transactionCount: number;
+}
+
+export interface WalletDataByIndex {
+  [index: string]: WalletData;
 }
 
 export interface ProviderState {
@@ -89,11 +100,9 @@ export interface ProviderState {
   readonly currentBlock: number | null;
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
-  readonly transactionCountsByWalletIndex: { [index: string]: number };
   readonly xpub: string;
-  readonly walletAddressesByIndex: { [index: string]: string };
+  readonly walletDataByIndex: WalletDataByIndex;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';

@@ -9,7 +9,7 @@ import {
   ApiCall,
   BaseRequest,
   ClientRequest,
-  GroupedProviderRequests,
+  GroupedRequests,
   ProviderState,
   RequesterData,
   RequestErrorCode,
@@ -80,7 +80,7 @@ export function apply(
   state: ProviderState,
   requests: GroupedBaseRequests,
   data: RequesterDataByAddress
-): GroupedProviderRequests {
+): GroupedRequests {
   const apiCalls = requests.apiCalls.map((a) => applyRequesterData(state, a, data[a.requesterAddress]));
   const withdrawals = requests.withdrawals.map((w) => applyRequesterData(state, w, data[w.destinationAddress]));
 

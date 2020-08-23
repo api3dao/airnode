@@ -21,3 +21,7 @@ export function deriveWalletFromIndex(xpub: string, index: number | string) {
   const wallet = hdNode.derivePath(`m/0/0/${index}`);
   return wallet.address;
 }
+
+export function isAdminWalletIndex(index: string) {
+  return index === '0';
+}
