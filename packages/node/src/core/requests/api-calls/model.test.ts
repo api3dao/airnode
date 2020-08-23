@@ -30,9 +30,12 @@ describe('initialize ApiCall BaseRequest', () => {
         errorFunctionId: '0xba12a5e4',
         parameters: '0x636b6579a169736f6d657468696e676576616c7565',
       },
+      blockNumber: 10716082,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
     expect(model.initialize(state, log)).toEqual({
+      blockNumber: 10716082,
       endpointId: null,
       errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       errorFunctionId: '0xba12a5e4',
@@ -46,6 +49,7 @@ describe('initialize ApiCall BaseRequest', () => {
       id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
       requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       valid: true,
     });
   });
@@ -63,9 +67,12 @@ describe('initialize ApiCall BaseRequest', () => {
         errorFunctionId: '0xba12a5e4',
         parameters: '0xincorrectparameters',
       },
+      blockNumber: 10716082,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
     expect(model.initialize(state, log)).toEqual({
+      blockNumber: 10716082,
       encodedParameters: '0xincorrectparameters',
       endpointId: null,
       errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
@@ -78,6 +85,7 @@ describe('initialize ApiCall BaseRequest', () => {
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
       requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       valid: false,
     });
   });

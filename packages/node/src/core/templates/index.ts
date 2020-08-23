@@ -9,7 +9,7 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState) {
 
   // NB: This should *not* update the state at this point. We don't want to update
   // state while in a promise
-  const apiCallsWithTemplates = applier.mapApiCallsWithTemplates(state, templatesById);
+  const apiCallsWithTemplates = applier.mergeApiCallsWithTemplates(state, templatesById);
 
   // Fetch authorizations. This should not throw
   const authorizationsByEndpoint = await authorization.fetch(state, apiCallsWithTemplates);

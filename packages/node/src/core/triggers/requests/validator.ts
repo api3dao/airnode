@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
-import { ClientRequest, GroupedRequests, ProviderState, RequestErrorCode } from '../../../types';
+import { ClientRequest, GroupedRequests, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
 
 function validateRequest<T>(state: ProviderState, request: ClientRequest<T>): ClientRequest<T> {
   // If the request is already invalid, we don't want to overwrite the error
-  if (!request.valid) {
+  if (request.status !== RequestStatus.Pending) {
     return request;
   }
 
@@ -14,7 +14,7 @@ function validateRequest<T>(state: ProviderState, request: ClientRequest<T>): Cl
     const message = `Request ID:${request.id} has reserved wallet index 0.`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
 
-    return { ...request, valid: false, errorCode: RequestErrorCode.ReservedWalletIndex };
+    return { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.ReservedWalletIndex };
   }
 
   const balance = ethereum.weiToBigNumber(request.walletBalance);
@@ -27,7 +27,7 @@ function validateRequest<T>(state: ProviderState, request: ClientRequest<T>): Cl
     const message = `Request ID:${request.id} wallet has insufficient balance of ${currentBalance} ETH. Minimum balance of ${minBalance} ETH is required.`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
 
-    return { ...request, valid: false, errorCode: RequestErrorCode.InsufficientBalance };
+    return { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.InsufficientBalance };
   }
 
   return request;

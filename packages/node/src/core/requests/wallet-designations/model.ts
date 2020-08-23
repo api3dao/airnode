@@ -1,14 +1,17 @@
-import { ethers } from 'ethers';
-import { BaseRequest, WalletDesignation } from '../../../types';
+import { BaseRequest, LogWithMetadata, RequestStatus, WalletDesignation } from '../../../types';
 
-export function initialize(log: ethers.utils.LogDescription): BaseRequest<WalletDesignation> {
+export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<WalletDesignation> {
+  const { parsedLog } = logWithMetadata;
+
   const request: BaseRequest<WalletDesignation> = {
-    id: log.args.walletDesignationRequestId,
-    depositAmount: log.args.depositAmount,
-    providerId: log.args.providerId,
-    requesterId: log.args.requesterId,
-    walletIndex: log.args.walletInd,
-    valid: true,
+    id: parsedLog.args.walletDesignationRequestId,
+    status: RequestStatus.Pending,
+    blockNumber: logWithMetadata.blockNumber,
+    transactionHash: logWithMetadata.transactionHash,
+    depositAmount: parsedLog.args.depositAmount,
+    providerId: parsedLog.args.providerId,
+    requesterId: parsedLog.args.requesterId,
+    walletIndex: parsedLog.args.walletInd,
   };
 
   return request;

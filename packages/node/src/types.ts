@@ -22,12 +22,20 @@ export enum RequestErrorCode {
   ResponseValueNotFound = 11,
 }
 
+export enum RequestStatus {
+  Pending,
+  Fufilled,
+  Errored,
+  Blocked,
+}
+
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
   readonly blockNumber: number;
   readonly errorCode?: RequestErrorCode;
+  readonly status: RequestStatus;
   readonly nonce?: number;
-  readonly valid: boolean;
+  readonly transactionHash: string;
 };
 
 export interface RequesterData {
@@ -131,6 +139,15 @@ export interface AggregatedApiCall {
 export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
   readonly providers: ProviderState[];
+}
+
+// ===========================================
+// Events
+// ===========================================
+export interface LogWithMetadata {
+  blockNumber: number;
+  parsedLog: ethers.utils.LogDescription;
+  transactionHash: string;
 }
 
 // ===========================================

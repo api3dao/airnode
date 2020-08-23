@@ -2,7 +2,7 @@ import { go } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState } from '../../types';
 import * as apiCallAuthorization from '../requests/api-calls/authorization';
 import * as logger from '../utils/logger';
-import * as requestTriggers from '../triggers/requests';
+import * as triggers from '../triggers';
 import * as templates from '../templates';
 import * as transactionCounts from '../ethereum/transaction-counts';
 import * as state from './state';
@@ -43,14 +43,12 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   //
   // TODO: aggregator requests will be fetched in parallel here
   // =================================================================
-  const [requestsErr, requests] = await go(requestTriggers.fetchPendingRequests(state2));
-  if (requestsErr || !requests) {
-    logger.logProviderError(config.name, 'Unable to get pending requests', requestsErr);
+  const [dataErr, walletDataByIndex] = await go(triggers.fetchWalletDataByIndex(state2));
+  if (dataErr || !walletDataByIndex) {
+    logger.logProviderError(config.name, 'Unable to get pending requests and wallet data', dataErr);
     return null;
   }
-  const pendingRequestsMsg = `Pending requests: ${requests.apiCalls.length} API call(s), ${requests.withdrawals.length} withdrawal(s), ${requests.walletDesignations.length} wallet designation(s)`;
-  logger.logProviderJSON(config.name, 'INFO', pendingRequestsMsg);
-  const state3 = state.update(state2, { requests });
+  const state3 = state.update(state2, { walletDataByIndex });
 
   // =================================================================
   // STEP 4: Fetch templates, authorization and wallet data

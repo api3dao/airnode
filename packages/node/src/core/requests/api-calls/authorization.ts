@@ -7,7 +7,7 @@ import uniqBy from 'lodash/uniqBy';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
 import { go, retryOperation } from '../../utils/promise-utils';
-import { ApiCall, ClientRequest, ProviderState, RequestErrorCode } from '../../../types';
+import { ApiCall, ClientRequest, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
 
 interface AuthorizationStatus {
   authorized: boolean;
@@ -107,7 +107,7 @@ export function mergeAuthorizations(
     if (isNil(isRequestedAuthorized)) {
       const message = `Authorization not found for Request ID:${apiCall.id}`;
       logger.logProviderJSON(state.config.name, 'WARN', message);
-      const invalidatedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.AuthorizationNotFound };
+      const invalidatedApiCall = { ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.AuthorizationNotFound };
       return [...acc, invalidatedApiCall];
     }
 
@@ -118,7 +118,7 @@ export function mergeAuthorizations(
     const message = `Client:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`;
     logger.logProviderJSON(state.config.name, 'WARN', message);
 
-    const unauthorizedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.UnauthorizedClient };
+    const unauthorizedApiCall = { ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.UnauthorizedClient };
     return [...acc, unauthorizedApiCall];
   }, []);
 }

@@ -28,7 +28,7 @@ export function groupRequestsByWalletIndex(state: ProviderState, requests: Group
         withdrawals: withdrawalsByWalletIndex[index],
         walletDesignations: ethereum.isAdminWalletIndex(index) ? walletDataByIndex : [],
       },
-      // Transcation count 
+      // Transcation count gets fetched and set for each wallet at a later point
       transactionCount: -1,
     };
 

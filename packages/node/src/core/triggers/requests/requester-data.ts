@@ -13,6 +13,7 @@ import {
   ProviderState,
   RequesterData,
   RequestErrorCode,
+  RequestStatus,
   WalletDesignation,
   Withdrawal,
 } from '../../../types';
@@ -49,6 +50,7 @@ async function fetchRequesterData(state: ProviderState, addresses: string[]): Pr
       walletBalance: data.walletBalances[index].toString(),
       walletMinimumBalance: data.minBalances[index].toString(),
     };
+
     return { ...acc, [address]: requesterData };
   }, {});
 
@@ -93,12 +95,12 @@ export function apply(
 
 function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, data?: RequesterData): ClientRequest<T> {
   if (!data) {
-    const message = `Unable to find wallet data for Request ID:${request.id}`;
+    const message = `Unable to find requester data for Request ID:${request.id}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
 
     return {
       ...request,
-      valid: false,
+      valid: RequestStatus.Errored,
       errorCode: RequestErrorCode.RequesterDataNotFound,
       requesterId: '',
       walletIndex: '-1',

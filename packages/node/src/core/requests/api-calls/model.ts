@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import * as ethereum from '../../ethereum';
@@ -8,8 +7,10 @@ import {
   ApiCall,
   BaseRequest,
   ClientRequest,
+  LogWithMetadata,
   ProviderState,
   RequestErrorCode,
+  RequestStatus,
 } from '../../../types';
 
 function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
@@ -22,25 +23,29 @@ function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): B
     const { id, encodedParameters } = request;
     const message = `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
-    return { ...request, valid: false, errorCode: RequestErrorCode.InvalidRequestParameters };
+    return { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidRequestParameters };
   }
 
   return { ...request, parameters };
 }
 
-export function initialize(state: ProviderState, log: ethers.utils.LogDescription): BaseRequest<ApiCall> {
+export function initialize(state: ProviderState, logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
+  const { parsedLog } = logWithMetadata;
+
   const request: BaseRequest<ApiCall> = {
-    id: log.args.requestId,
-    requesterAddress: log.args.requester,
-    providerId: log.args.providerId,
-    endpointId: log.args.endpointId || null,
-    templateId: log.args.templateId || null,
-    fulfillAddress: log.args.fulfillAddress,
-    fulfillFunctionId: log.args.fulfillFunctionId,
-    errorAddress: log.args.errorAddress,
-    errorFunctionId: log.args.errorFunctionId,
-    encodedParameters: log.args.parameters,
-    valid: true,
+    id: parsedLog.args.requestId,
+    status: RequestStatus.Pending,
+    blockNumber: logWithMetadata.blockNumber,
+    transactionHash: logWithMetadata.transactionHash,
+    requesterAddress: parsedLog.args.requester,
+    providerId: parsedLog.args.providerId,
+    endpointId: parsedLog.args.endpointId || null,
+    templateId: parsedLog.args.templateId || null,
+    fulfillAddress: parsedLog.args.fulfillAddress,
+    fulfillFunctionId: parsedLog.args.fulfillFunctionId,
+    errorAddress: parsedLog.args.errorAddress,
+    errorFunctionId: parsedLog.args.errorFunctionId,
+    encodedParameters: parsedLog.args.parameters,
     parameters: {},
   };
 

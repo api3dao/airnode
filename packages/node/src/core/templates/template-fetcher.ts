@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
+import flatMap from 'lodash/flatMap';
 import uniq from 'lodash/uniq';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../utils/logger';
@@ -44,7 +45,9 @@ async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): 
 }
 
 export async function fetch(state: ProviderState): Promise<ApiCallTemplatesById> {
-  const templateIds = state.requests.apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
+  const apiCalls = flatMap(Object.values(state.walletDataByIndex).map(wd => wd.requests.apiCalls));
+
+  const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
 
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(uniq(templateIds), 10);

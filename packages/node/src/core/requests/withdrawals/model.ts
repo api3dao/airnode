@@ -1,13 +1,16 @@
-import { ethers } from 'ethers';
-import { BaseRequest, Withdrawal } from '../../../types';
+import { BaseRequest, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
 
-export function initialize(log: ethers.utils.LogDescription): BaseRequest<Withdrawal> {
+export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdrawal> {
+  const { parsedLog } = logWithMetadata;
+
   const request: BaseRequest<Withdrawal> = {
-    id: log.args.withdrawalRequestId,
-    providerId: log.args.providerId,
-    requesterId: log.args.requesterId,
-    destinationAddress: log.args.destination,
-    valid: true,
+    id: parsedLog.args.withdrawalRequestId,
+    status: RequestStatus.Pending,
+    blockNumber: logWithMetadata.blockNumber,
+    transactionHash: logWithMetadata.transactionHash,
+    providerId: parsedLog.args.providerId,
+    requesterId: parsedLog.args.requesterId,
+    destinationAddress: parsedLog.args.destination,
   };
 
   return request;

@@ -1,17 +1,14 @@
-import { ethers } from 'ethers';
-import { BaseRequest, ProviderState, Withdrawal } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from '../../../requests/withdrawals/model';
+import { BaseRequest, LogWithMetadata, ProviderState, Withdrawal } from '../../../../types';
 
-// Alias types
-type Log = ethers.utils.LogDescription;
-
-function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulfillmentLogs: Log[]): Log[] {
-  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.args.withdrawRequestId);
+function discardFulfilledRequests(state: ProviderState, requestLogs: LogWithMetadata[], fulfillmentLogs: LogWithMetadata[]): LogWithMetadata[] {
+  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
 
   return requestLogs.reduce((acc, requestLog) => {
-    const { withdrawRequestId } = requestLog.args;
+    const { withdrawRequestId } = requestLog.parsedLog.args;
+
     if (fulfilledRequestIds.includes(withdrawRequestId)) {
       logger.logProviderJSON(
         state.config.name,
@@ -20,14 +17,15 @@ function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulf
       );
       return acc;
     }
+
     return [...acc, requestLog];
   }, []);
 }
 
-export function mapBaseRequests(state: ProviderState, logs: Log[]): BaseRequest<Withdrawal>[] {
+export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<Withdrawal>[] {
   // Separate the logs
-  const requestLogs = logs.filter((log) => events.isWithdrawalRequest(log));
-  const fulfillmentLogs = logs.filter((log) => events.isWithdrawalFulfillment(log));
+  const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
+  const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));
 
   // We don't care about request events that have already been fulfilled
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);

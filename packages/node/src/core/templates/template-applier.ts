@@ -7,6 +7,8 @@ import {
   ClientRequest,
   ProviderState,
   RequestErrorCode,
+  RequestStatus,
+  WalletDataByIndex,
 } from '../../types';
 
 interface ApiCallTemplatesById {
@@ -37,39 +39,52 @@ function mergeRequestAndTemplate(
   };
 }
 
-export function mapApiCallsWithTemplates(
+export function mergeApiCallsWithTemplates(
   state: ProviderState,
   templatesById: ApiCallTemplatesById
-): ClientRequest<ApiCall>[] {
-  return state.requests.apiCalls.reduce((acc, apiCall) => {
-    const { id, templateId } = apiCall;
+): WalletDataByIndex {
+  const walletIndices = Object.keys(state.walletDataByIndex);
 
-    // If the request does not have a template to apply, skip it
-    if (!templateId) {
-      return [...acc, apiCall];
-    }
+  return walletIndices.reduce((acc, index) => {
+    const walletData = state.walletDataByIndex[index];
 
-    const template = templatesById[templateId];
-    // If no template is found, then we aren't able to build the full request.
-    // Drop the request for now and it will be retried on the next run
-    if (!template) {
-      const message = `Unable to fetch template ID:${templateId} for Request ID:${id}. Request has been discarded.`;
-      logger.logProviderJSON(state.config.name, 'ERROR', message);
-      return acc;
-    }
+    const apiCallsWithTemplates = walletData.requests.apiCalls.map((apiCall) => {
+      const { id, templateId } = apiCall;
 
-    const templateParameters = ethereum.cbor.safeDecode(template.encodedParameters);
+      // If the request does not have a template to apply, skip it
+      if (!templateId) {
+        return apiCall;
+      }
 
-    // If the template contains invalid parameters, then we can't use execute the request
-    if (templateParameters === null) {
-      const message = `Template ID:${id} contains invalid parameters: ${template.encodedParameters}`;
-      logger.logProviderJSON(state.config.name, 'ERROR', message);
-      const invalidatedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.InvalidTemplateParameters };
-      return [...acc, invalidatedApiCall];
-    }
+      const template = templatesById[templateId];
+      // If no template is found, then we aren't able to build the full request.
+      // Block the request for now and it will be retried on the next run
+      if (!template) {
+        const message = `Unable to fetch template ID:${templateId} for Request ID:${id}. Request has been blocked.`;
+        logger.logProviderJSON(state.config.name, 'ERROR', message);
+        return { ...apiCall, status: RequestStatus.Blocked };
+      }
 
-    const updatedApiCall = mergeRequestAndTemplate(apiCall, template, templateParameters);
+      const templateParameters = ethereum.cbor.safeDecode(template.encodedParameters);
 
-    return [...acc, updatedApiCall];
-  }, []);
+      // If the template contains invalid parameters, then we can't use execute the request
+      if (templateParameters === null) {
+        const message = `Template ID:${id} contains invalid parameters: ${template.encodedParameters}`;
+        logger.logProviderJSON(state.config.name, 'ERROR', message);
+        return { ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidTemplateParameters };
+      }
+
+      const updatedApiCall = mergeRequestAndTemplate(apiCall, template, templateParameters);
+
+      return updatedApiCall;
+    });
+
+    return {
+      ...acc,
+      [index]: {
+        ...walletData,
+        requests: { ...walletData.requests, apiCalls: apiCallsWithTemplates },
+      }
+    };
+  }, {});
 }
