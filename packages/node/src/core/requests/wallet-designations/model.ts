@@ -6,10 +6,10 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Wallet
   const request: BaseRequest<WalletDesignation> = {
     id: parsedLog.args.walletDesignationRequestId,
     status: RequestStatus.Pending,
-    depositAmount: parsedLog.args.depositAmount,
+    depositAmount: parsedLog.args.depositAmount.toString(),
     providerId: parsedLog.args.providerId,
     requesterId: parsedLog.args.requesterId,
-    walletIndex: parsedLog.args.walletInd,
+    walletIndex: parsedLog.args.walletInd.toString(),
     logMetadata: {
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,

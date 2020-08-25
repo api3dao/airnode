@@ -1,5 +1,4 @@
-import { ethers } from 'ethers';
-import { ClientRequest, Withdrawal } from '../../../src/types';
+import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
 
 export function createWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
   return {
@@ -7,11 +6,15 @@ export function createWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): C
     requesterId: 'requesterId',
     destinationAddress: 'destinationAddress',
     providerId: 'providerId',
-    valid: true,
-    walletIndex: 123,
+    status: RequestStatus.Pending,
+    walletIndex: '12',
     walletAddress: 'walletAddress',
-    walletBalance: ethers.BigNumber.from('10'),
-    walletMinimumBalance: ethers.BigNumber.from('5'),
+    walletBalance: '100000',
+    walletMinimumBalance: '500000',
+    logMetadata: {
+      blockNumber: 10716082,
+      transactionHash: 'logTransactionHash',
+    },
     ...params,
   };
 }

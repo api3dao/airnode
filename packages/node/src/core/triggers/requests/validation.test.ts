@@ -6,10 +6,10 @@ jest.mock('../../config', () => ({
 
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../../providers/state';
-import { GroupedRequests, ProviderState, RequestErrorCode } from '../../../types';
-import * as validator from './validator';
+import { GroupedRequests, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
+import * as validation from './validation';
 
-describe('validate', () => {
+describe('validation', () => {
   let state: ProviderState;
 
   beforeEach(() => {
@@ -19,31 +19,35 @@ describe('validate', () => {
 
   it('does nothing if the request is already invalid', () => {
     const requests: GroupedRequests = {
-      apiCalls: [fixtures.requests.createApiCall({ valid: false, errorCode: 9999 })],
+      apiCalls: [
+        fixtures.requests.createApiCall({ status: RequestStatus.Blocked, errorCode: 9999 }),
+        fixtures.requests.createApiCall({ status: RequestStatus.Errored, errorCode: 9999 }),
+      ],
       walletDesignations: [],
       withdrawals: [],
     };
-    const { apiCalls } = validator.validateRequests(state, requests);
-    expect(apiCalls[0].valid).toEqual(false);
+
+    const { apiCalls } = validation.validateRequests(state, requests);
+    expect(apiCalls[0].status).toEqual(RequestStatus.Blocked);
     expect(apiCalls[0].errorCode).toEqual(9999);
+    expect(apiCalls[1].status).toEqual(RequestStatus.Errored);
+    expect(apiCalls[1].errorCode).toEqual(9999);
   });
 
   it('validates that the wallet index is not reserved', () => {
     const reserved = fixtures.requests.createApiCall({ walletIndex: '0' });
-    const requester = fixtures.requests.createApiCall({ walletIndex: '1' });
+    const unreserved = fixtures.requests.createApiCall({ walletIndex: '1' });
 
     const requests: GroupedRequests = {
-      apiCalls: [reserved, requester],
+      apiCalls: [reserved, unreserved],
       walletDesignations: [],
       withdrawals: [],
     };
 
-    const { apiCalls } = validator.validateRequests(state, requests);
-
-    expect(apiCalls[0].valid).toEqual(false);
+    const { apiCalls } = validation.validateRequests(state, requests);
+    expect(apiCalls[0].status).toEqual(RequestStatus.Errored);
     expect(apiCalls[0].errorCode).toEqual(RequestErrorCode.ReservedWalletIndex);
-
-    expect(apiCalls[1].valid).toEqual(true);
+    expect(apiCalls[1].status).toEqual(RequestStatus.Pending);
     expect(apiCalls[1].errorCode).toEqual(undefined);
   });
 
@@ -58,15 +62,12 @@ describe('validate', () => {
       withdrawals: [],
     };
 
-    const { apiCalls } = validator.validateRequests(state, requests);
-
-    expect(apiCalls[0].valid).toEqual(true);
+    const { apiCalls } = validation.validateRequests(state, requests);
+    expect(apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(apiCalls[0].errorCode).toEqual(undefined);
-
-    expect(apiCalls[1].valid).toEqual(true);
+    expect(apiCalls[1].status).toEqual(RequestStatus.Pending);
     expect(apiCalls[1].errorCode).toEqual(undefined);
-
-    expect(apiCalls[2].valid).toEqual(false);
+    expect(apiCalls[2].status).toEqual(RequestStatus.Errored);
     expect(apiCalls[2].errorCode).toEqual(RequestErrorCode.InsufficientBalance);
   });
 });

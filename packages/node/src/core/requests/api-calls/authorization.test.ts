@@ -18,19 +18,22 @@ jest.mock('../../config', () => ({
 }));
 
 import * as fixtures from 'test/fixtures';
-import { ProviderState, RequestErrorCode } from 'src/types';
+import { ProviderState, RequestErrorCode, RequestStatus } from 'src/types';
 import * as authorization from './authorization';
 import * as providerState from '../../providers/state';
 
 describe('fetch', () => {
-  let state: ProviderState;
+  let initialState: ProviderState;
 
   beforeEach(() => {
     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    state = providerState.create(config, 0);
+    initialState = providerState.create(config, 0);
   });
 
   it('calls the contract with groups of 10', async () => {
+    checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(10).fill(true));
+    checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(9).fill(true));
+
     const apiCalls = Array.from(Array(19).keys()).map((n) => {
       return fixtures.requests.createApiCall({
         id: `${n}`,
@@ -39,10 +42,18 @@ describe('fetch', () => {
       });
     });
 
-    checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(10).fill(true));
-    checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(9).fill(true));
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: apiCalls,
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
-    const res = await authorization.fetch(state, apiCalls);
+    const res = await authorization.fetch(state);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['endpointId-0']).toEqual({ 'requesterAddress-0': true });
     expect(res['endpointId-18']).toEqual({ 'requesterAddress-18': true });
@@ -55,15 +66,26 @@ describe('fetch', () => {
   });
 
   it('groups by endpoint ID', async () => {
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
+
     const apiCalls = [
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-1' }),
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-2' }),
     ];
 
-    checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: apiCalls,
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
-    const res = await authorization.fetch(state, apiCalls);
+    const res = await authorization.fetch(state);
     expect(Object.keys(res).length).toEqual(1);
     expect(res['endpointId-0']).toEqual({
       'requester-0': true,
@@ -73,14 +95,25 @@ describe('fetch', () => {
   });
 
   it('removes duplicate endpointId and requester pairs', async () => {
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
+
     const apiCalls = [
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
     ];
 
-    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: apiCalls,
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
-    const res = await authorization.fetch(state, apiCalls);
+    const res = await authorization.fetch(state);
     expect(Object.keys(res).length).toEqual(1);
     expect(res).toEqual({
       'endpointId-0': {
@@ -93,12 +126,21 @@ describe('fetch', () => {
   });
 
   it('retries once on failure', async () => {
-    const apiCalls = [fixtures.requests.createApiCall()];
-
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const res = await authorization.fetch(state, apiCalls);
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
+
+    const res = await authorization.fetch(state);
     expect(res).toEqual({
       endpointId: {
         requesterAddress: true,
@@ -107,13 +149,22 @@ describe('fetch', () => {
   });
 
   it('retries a maximum of two times', async () => {
-    const apiCalls = [fixtures.requests.createApiCall()];
-
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const res = await authorization.fetch(state, apiCalls);
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
+
+    const res = await authorization.fetch(state);
     expect(res).toEqual({});
   });
 });
@@ -127,51 +178,93 @@ describe('mergeAuthorizations', () => {
   });
 
   it('does nothing if the API call is already invalid', () => {
-    const apiCalls = [
-      fixtures.requests.createApiCall({ valid: false, errorCode: RequestErrorCode.InvalidRequestParameters }),
-    ];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [
+          fixtures.requests.createApiCall({ status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidRequestParameters }),
+        ],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
     const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
     const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
-    expect(res.length).toEqual(1);
-    expect(res[0].valid).toEqual(false);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
+    expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
   });
 
-  it('drops the request if it has no endpointId', () => {
-    const apiCalls = [fixtures.requests.createApiCall({ endpointId: null })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+  it('blocks the request if it has no endpointId', () => {
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ endpointId: null })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
     const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
     const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
-    expect(res).toEqual([]);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+    expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
   });
 
-  it('invalidates the request if no authorization is found', () => {
-    const apiCalls = [fixtures.requests.createApiCall()];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+  it('blocks the request if no authorization is found', () => {
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
     const res = authorization.mergeAuthorizations(state, {});
-    expect(res.length).toEqual(1);
-    expect(res[0].valid).toEqual(false);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.AuthorizationNotFound);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+    expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
   });
 
   it('returns the validated request if it is authorized', () => {
-    const apiCalls = [fixtures.requests.createApiCall()];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
     const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
     const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
-    expect(res.length).toEqual(1);
-    expect(res[0].valid).toEqual(true);
-    expect(res[0].errorCode).toEqual(undefined);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
+    expect(res[1].requests.apiCalls[0].errorCode).toEqual(undefined);
   });
 
   it('invalidates the request if it is not authorized', () => {
-    const apiCalls = [fixtures.requests.createApiCall()];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
     const authorizationsByEndpoint = { endpointId: { requesterAddress: false } };
     const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
-    expect(res.length).toEqual(1);
-    expect(res[0].valid).toEqual(false);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.UnauthorizedClient);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
+    expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnauthorizedClient);
   });
 });

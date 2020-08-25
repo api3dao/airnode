@@ -61,7 +61,17 @@ describe('fetch', () => {
       });
     });
 
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: apiCalls,
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const res = await fetching.fetch(state);
     expect(Object.keys(res).length).toEqual(19);
@@ -87,8 +97,17 @@ describe('fetch', () => {
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const res = await fetching.fetch(state);
     expect(res).toEqual({
@@ -117,11 +136,19 @@ describe('fetch', () => {
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [
-      fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
-      fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
-    ];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [
+          fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
+          fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
+        ],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const res = await fetching.fetch(state);
     expect(res).toEqual({
@@ -142,8 +169,16 @@ describe('fetch', () => {
   });
 
   it('ignores API calls without a template ID', async () => {
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: null })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ templateId: null })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const res = await fetching.fetch(state);
     expect(res).toEqual({});
@@ -163,8 +198,16 @@ describe('fetch', () => {
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const res = await fetching.fetch(state);
     expect(res).toEqual({
@@ -197,8 +240,16 @@ describe('fetch', () => {
     // This shouldn't be reached
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const res = await fetching.fetch(state);
     expect(res).toEqual({});

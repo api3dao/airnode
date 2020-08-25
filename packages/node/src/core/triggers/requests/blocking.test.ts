@@ -25,10 +25,10 @@ describe('blockRequestsWithWithdrawals', () => {
     };
 
     const res = blocking.blockRequestsWithWithdrawals(state, requests);
-    expect(res.apiCalls.length).toEqual(0);
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0].status).toEqual(RequestStatus.Blocked);
     expect(res.withdrawals.length).toEqual(1);
-    expect(res.withdrawals[0].id).toEqual('withdrawalId');
-    expect(res.withdrawals[0].status).toEqual(RequestStatus.Blocked);
+    expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {

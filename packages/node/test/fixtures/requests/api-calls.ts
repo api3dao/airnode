@@ -1,4 +1,4 @@
-import { ApiCall, ClientRequest } from '../../../src/types';
+import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
 
 export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
   return {
@@ -14,7 +14,11 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
     encodedParameters: 'encodedParameters',
     parameters: { from: 'ETH' },
     providerId: 'providerId',
-    valid: true,
+    status: RequestStatus.Pending,
+    logMetadata: {
+      blockNumber: 10716082,
+      transactionHash: 'logTransactionHash',
+    },
     walletIndex: '1',
     walletAddress: 'walletAddress',
     walletBalance: '100000',

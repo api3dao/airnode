@@ -17,20 +17,32 @@ import * as disaggregation from './disaggregation';
 
 describe('disaggregate - ClientRequests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
-    const requests0 = {
-      apiCalls: [fixtures.requests.createApiCall()],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData0 = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 2,
     };
-    const requests1 = {
-      apiCalls: [fixtures.requests.createApiCall()],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData1 = {
+      address: '0x2',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 5,
     };
-    const requests2 = {
-      apiCalls: [fixtures.requests.createApiCall()],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData2 = {
+      address: '0x3',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 8,
     };
 
     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
@@ -38,9 +50,9 @@ describe('disaggregate - ClientRequests', () => {
     let provider1 = providerState.create(config, 1);
     let provider2 = providerState.create(config, 2);
 
-    provider0 = providerState.update(provider0, { requests: requests0 });
-    provider1 = providerState.update(provider1, { requests: requests1 });
-    provider2 = providerState.update(provider2, { requests: requests2 });
+    provider0 = providerState.update(provider0, { walletDataByIndex: { 1: walletData0 } });
+    provider1 = providerState.update(provider1, { walletDataByIndex: { 1: walletData1 } });
+    provider2 = providerState.update(provider2, { walletDataByIndex: { 1: walletData2 } });
 
     const aggregatedApiCalls = [fixtures.createAggregatedApiCall({ providers: [0, 1], response: { value: '0x123' } })];
 
@@ -48,30 +60,38 @@ describe('disaggregate - ClientRequests', () => {
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1, provider2] });
 
     const res = disaggregation.disaggregate(state);
-    expect(res[0].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[2].requests.apiCalls[0].response).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
+    expect(res[2].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
   });
 
   it('updates each request based on the provider(s) it was linked to', () => {
     // The 2 calls are exactly the same, but are linked to different providers
-    const requests0 = {
-      apiCalls: [fixtures.requests.createApiCall()],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData0 = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 2,
     };
-    const requests1 = {
-      apiCalls: [fixtures.requests.createApiCall()],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData1 = {
+      address: '0x2',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall()],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 5,
     };
 
     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
     let provider0 = providerState.create(config, 0);
     let provider1 = providerState.create(config, 1);
 
-    provider0 = providerState.update(provider0, { requests: requests0 });
-    provider1 = providerState.update(provider1, { requests: requests1 });
+    provider0 = providerState.update(provider0, { walletDataByIndex: { 2: walletData0 } });
+    provider1 = providerState.update(provider1, { walletDataByIndex: { 3: walletData1 } });
 
     const aggregatedApiCalls = [
       fixtures.createAggregatedApiCall({ providers: [0], response: { value: '0x123' } }),
@@ -82,30 +102,38 @@ describe('disaggregate - ClientRequests', () => {
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
     const res = disaggregation.disaggregate(state);
-    expect(res[0].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
-    expect(res[1].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[1].requests.apiCalls[0].error).toEqual({ errorCode: RequestErrorCode.ApiCallFailed });
+    expect(res[0].walletDataByIndex[2].requests.apiCalls[0].response).toEqual({ value: '0x123' });
+    expect(res[0].walletDataByIndex[2].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].response).toEqual(undefined);
+    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].error).toEqual({ errorCode: RequestErrorCode.ApiCallFailed });
   });
 
   it('does not update the request if the parameters are different', () => {
-    const requests0 = {
-      apiCalls: [fixtures.requests.createApiCall({ parameters: { from: 'ETH' } })],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData0 = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ parameters: { from: 'ETH' } })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 2,
     };
-    const requests1 = {
-      apiCalls: [fixtures.requests.createApiCall({ parameters: { from: 'BTC' } })],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData1 = {
+      address: '0x2',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ parameters: { from: 'BTC' } })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 5,
     };
 
     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
     let provider0 = providerState.create(config, 0);
     let provider1 = providerState.create(config, 1);
 
-    provider0 = providerState.update(provider0, { requests: requests0 });
-    provider1 = providerState.update(provider1, { requests: requests1 });
+    provider0 = providerState.update(provider0, { walletDataByIndex: { 1: walletData0 } });
+    provider1 = providerState.update(provider1, { walletDataByIndex: { 1: walletData1 } });
 
     const aggregatedApiCalls = [
       fixtures.createAggregatedApiCall({
@@ -119,30 +147,38 @@ describe('disaggregate - ClientRequests', () => {
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
     const res = disaggregation.disaggregate(state);
-    expect(res[0].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
-    expect(res[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
   });
 
   it('does not update the request if the endpoint IDs are different', () => {
-    const requests0 = {
-      apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xunknown' })],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData0 = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xunknown' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 2,
     };
-    const requests1 = {
-      apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xendpointId' })],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData1 = {
+      address: '0x2',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xendpointId' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 5,
     };
 
     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
     let provider0 = providerState.create(config, 0);
     let provider1 = providerState.create(config, 1);
 
-    provider0 = providerState.update(provider0, { requests: requests0 });
-    provider1 = providerState.update(provider1, { requests: requests1 });
+    provider0 = providerState.update(provider0, { walletDataByIndex: { 1: walletData0 } });
+    provider1 = providerState.update(provider1, { walletDataByIndex: { 1: walletData1 } });
 
     const aggregatedApiCalls = [
       fixtures.createAggregatedApiCall({
@@ -156,30 +192,38 @@ describe('disaggregate - ClientRequests', () => {
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
     const res = disaggregation.disaggregate(state);
-    expect(res[0].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
-    expect(res[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
   });
 
   it('does not update the request if the request IDs are different', () => {
-    const requests0 = {
-      apiCalls: [fixtures.requests.createApiCall({ id: '0xunknown' })],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData0 = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ id: '0xunknown' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 2,
     };
-    const requests1 = {
-      apiCalls: [fixtures.requests.createApiCall({ id: '0xid' })],
-      walletDesignations: [],
-      withdrawals: [],
+    const walletData1 = {
+      address: '0x2',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ id: '0xid' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 5,
     };
 
     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
     let provider0 = providerState.create(config, 0);
     let provider1 = providerState.create(config, 1);
 
-    provider0 = providerState.update(provider0, { requests: requests0 });
-    provider1 = providerState.update(provider1, { requests: requests1 });
+    provider0 = providerState.update(provider0, { walletDataByIndex: { 1: walletData0 } });
+    provider1 = providerState.update(provider1, { walletDataByIndex: { 1: walletData1 } });
 
     const aggregatedApiCalls = [
       fixtures.createAggregatedApiCall({
@@ -193,10 +237,10 @@ describe('disaggregate - ClientRequests', () => {
     state = coordinatorState.update(state, { aggregatedApiCalls, providers: [provider0, provider1] });
 
     const res = disaggregation.disaggregate(state);
-    expect(res[0].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[0].requests.apiCalls[0].error).toEqual(undefined);
-    expect(res[1].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[1].requests.apiCalls[0].error).toEqual({
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].error).toEqual({
       errorCode: RequestErrorCode.ApiCallFailed,
       message: 'Failed to call API',
     });

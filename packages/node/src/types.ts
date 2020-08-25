@@ -82,10 +82,10 @@ export interface ApiCallTemplate {
 }
 
 export interface WalletDesignation {
-  readonly depositAmount: ethers.BigNumber;
+  readonly depositAmount: string;
   readonly providerId: string;
   readonly requesterId: string;
-  readonly walletIndex: ethers.BigNumber;
+  readonly walletIndex: string;
 }
 
 export interface Withdrawal {

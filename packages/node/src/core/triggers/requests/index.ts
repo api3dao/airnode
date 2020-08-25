@@ -3,7 +3,7 @@ import { fetchGroupedLogs } from './event-fetcher';
 import * as apiCalls from './api-calls';
 import * as blocking from './blocking';
 import * as requesterData from './requester-data';
-import * as validator from './validator';
+import * as validation from './validation';
 import * as walletDesignations from './wallet-designations';
 import * as withdrawals from './withdrawals';
 import { GroupedRequests, ProviderState } from '../../../types';
@@ -44,7 +44,7 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   const requestsWithData = requesterData.apply(state, baseRequests, dataByAddress);
 
   // Check that each request is valid
-  const validatedRequests = validator.validateRequests(state, requestsWithData);
+  const validatedRequests = validation.validateRequests(state, requestsWithData);
 
   // Block any requests that cannot be processed
   // 1. API calls related to a wallet with a pending withdrawal cannot be processed
