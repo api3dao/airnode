@@ -3,7 +3,11 @@ import * as events from '../events';
 import * as model from '../../../requests/withdrawals/model';
 import { BaseRequest, LogWithMetadata, ProviderState, Withdrawal } from '../../../../types';
 
-function discardFulfilledRequests(state: ProviderState, requestLogs: LogWithMetadata[], fulfillmentLogs: LogWithMetadata[]): LogWithMetadata[] {
+function discardFulfilledRequests(
+  state: ProviderState,
+  requestLogs: LogWithMetadata[],
+  fulfillmentLogs: LogWithMetadata[]
+): LogWithMetadata[] {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
 
   return requestLogs.reduce((acc, requestLog) => {

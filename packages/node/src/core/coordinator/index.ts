@@ -2,9 +2,9 @@ import { config } from '../config';
 import * as state from './state';
 import * as logger from '../utils/logger';
 import { formatDateTime } from '../utils/date-utils';
-import * as apiCallAggregator from './api-call-aggregator';
+import * as apiCallAggregation from './api-call-aggregation';
 import * as apiCaller from './coordinated-api-caller';
-import * as pw from '../providers/worker';
+// import * as pw from '../providers/worker';
 
 export async function start() {
   const startedAt = new Date();
@@ -24,7 +24,7 @@ export async function start() {
   // =================================================================
   // STEP 3: Group unique API calls
   // =================================================================
-  const aggregatedApiCalls = apiCallAggregator.aggregate(state2);
+  const aggregatedApiCalls = apiCallAggregation.aggregate(state2);
   const state3 = state.update(state2, { aggregatedApiCalls });
   logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`);
 
@@ -37,18 +37,18 @@ export async function start() {
   // =================================================================
   // STEP 5: Map API responses back to each provider's API requests
   // =================================================================
-  const providersWithAPIResponses = apiCallAggregator.disaggregate(state4);
+  const providersWithAPIResponses = apiCallAggregation.disaggregate(state4);
   const state5 = state.update(state4, { providers: providersWithAPIResponses });
 
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  const asd = state5.providers.map(async (provider) => {
-    return await pw.spawnProviderRequestProcessor(provider);
-  });
-
-  const responses = await Promise.all(asd);
-  console.log(responses);
+  // const asd = state5.providers.map(async (provider) => {
+  //   return await pw.spawnProviderRequestProcessor(provider);
+  // });
+  //
+  // const responses = await Promise.all(asd);
+  // console.log(responses);
 
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());

@@ -17,25 +17,32 @@ export enum RequestErrorCode {
   ReservedWalletIndex = 6,
   InsufficientBalance = 7,
   UnauthorizedClient = 8,
-  AuthorizationNotFound = 9,
-  ApiCallFailed = 10,
-  ResponseValueNotFound = 11,
+  TemplateNotFound = 9,
+  AuthorizationNotFound = 10,
+  ApiCallFailed = 11,
+  ResponseValueNotFound = 12,
+  UnableToMatchAggregatedCall = 13,
 }
 
 export enum RequestStatus {
   Pending,
+  TransactionInitiated,
   Fufilled,
   Errored,
   Blocked,
 }
 
+export interface RequestMetadata {
+  readonly blockNumber: number;
+  readonly transactionHash: string;
+}
+
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
-  readonly blockNumber: number;
   readonly errorCode?: RequestErrorCode;
-  readonly status: RequestStatus;
+  readonly logMetadata: RequestMetadata;
   readonly nonce?: number;
-  readonly transactionHash: string;
+  readonly status: RequestStatus;
 };
 
 export interface RequesterData {
@@ -95,7 +102,7 @@ export interface GroupedRequests {
 
 export interface WalletData {
   readonly address: string;
-  readonly requests: GroupedRequests
+  readonly requests: GroupedRequests;
   readonly transactionCount: number;
 }
 

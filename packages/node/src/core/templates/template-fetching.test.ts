@@ -20,7 +20,7 @@ jest.mock('../config', () => ({
 import * as fixtures from 'test/fixtures';
 import { ProviderState } from 'src/types';
 import * as providerState from '../providers/state';
-import * as fetcher from './template-fetcher';
+import * as fetching from './template-fetching';
 
 describe('fetch', () => {
   let initialState: ProviderState;
@@ -63,7 +63,7 @@ describe('fetch', () => {
 
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
 
-    const res = await fetcher.fetch(state);
+    const res = await fetching.fetch(state);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['templateId-0']['endpointId']).toEqual('endpointId-0');
     expect(res['templateId-18']['endpointId']).toEqual('endpointId-18');
@@ -90,7 +90,7 @@ describe('fetch', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
 
-    const res = await fetcher.fetch(state);
+    const res = await fetching.fetch(state);
     expect(res).toEqual({
       'templateId-0': {
         endpointId: 'endpointId-0',
@@ -123,7 +123,7 @@ describe('fetch', () => {
     ];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
 
-    const res = await fetcher.fetch(state);
+    const res = await fetching.fetch(state);
     expect(res).toEqual({
       'templateId-0': {
         endpointId: 'endpointId-0',
@@ -145,7 +145,7 @@ describe('fetch', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: null })];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
 
-    const res = await fetcher.fetch(state);
+    const res = await fetching.fetch(state);
     expect(res).toEqual({});
     expect(getTemplatesMock).not.toHaveBeenCalled();
   });
@@ -166,7 +166,7 @@ describe('fetch', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
 
-    const res = await fetcher.fetch(state);
+    const res = await fetching.fetch(state);
     expect(res).toEqual({
       'templateId-0': {
         endpointId: 'endpointId-0',
@@ -200,7 +200,7 @@ describe('fetch', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
 
-    const res = await fetcher.fetch(state);
+    const res = await fetching.fetch(state);
     expect(res).toEqual({});
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
   });

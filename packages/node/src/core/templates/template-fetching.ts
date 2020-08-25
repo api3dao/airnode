@@ -45,7 +45,7 @@ async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): 
 }
 
 export async function fetch(state: ProviderState): Promise<ApiCallTemplatesById> {
-  const apiCalls = flatMap(Object.values(state.walletDataByIndex).map(wd => wd.requests.apiCalls));
+  const apiCalls = flatMap(Object.values(state.walletDataByIndex).map((wd) => wd.requests.apiCalls));
 
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
 

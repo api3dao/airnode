@@ -35,7 +35,5 @@ export function groupRequestsByWalletIndex(state: ProviderState, requests: Group
     return { ...acc, [index]: walletData };
   }, {});
 
-
   return walletDataByIndex;
 }
-

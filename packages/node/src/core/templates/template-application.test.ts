@@ -1,7 +1,7 @@
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../providers/state';
 import { ApiCallTemplate, ProviderState, RequestErrorCode } from '../../types';
-import * as applier from './template-applier';
+import * as application from './template-application';
 
 jest.mock('../config', () => ({
   security: {
@@ -20,7 +20,7 @@ describe('mapApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: null })];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
-    const res = applier.mapApiCallsWithTemplates(state, {});
+    const res = application.mapApiCallsWithTemplates(state, {});
     expect(res.length).toEqual(1);
     expect(res[0].templateId).toEqual(null);
   });
@@ -52,7 +52,7 @@ describe('mapApiCallsWithTemplates', () => {
       },
     };
 
-    const res = applier.mapApiCallsWithTemplates(state, templatesById);
+    const res = application.mapApiCallsWithTemplates(state, templatesById);
     expect(res[0].endpointId).toEqual('templateEndpointId-0');
     expect(res[0].fulfillAddress).toEqual('templateFulfillAddress-0');
     expect(res[0].fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
@@ -85,7 +85,7 @@ describe('mapApiCallsWithTemplates', () => {
       },
     };
 
-    const res = applier.mapApiCallsWithTemplates(state, templatesById);
+    const res = application.mapApiCallsWithTemplates(state, templatesById);
     expect(res[0].parameters).toEqual({
       from: 'ETH',
       amount: '1',
@@ -120,7 +120,7 @@ describe('mapApiCallsWithTemplates', () => {
       },
     };
 
-    const res = applier.mapApiCallsWithTemplates(state, templatesById);
+    const res = application.mapApiCallsWithTemplates(state, templatesById);
     expect(res[0].endpointId).toEqual('requestEndpointId');
     expect(res[0].fulfillAddress).toEqual('requestFulfillAddress');
     expect(res[0].fulfillFunctionId).toEqual('requestFulfillFunctionId');
@@ -132,7 +132,7 @@ describe('mapApiCallsWithTemplates', () => {
   it('discards API calls where the template cannot be found', () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
     const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
-    const res = applier.mapApiCallsWithTemplates(state, {});
+    const res = application.mapApiCallsWithTemplates(state, {});
     expect(res).toEqual([]);
   });
 
@@ -153,7 +153,7 @@ describe('mapApiCallsWithTemplates', () => {
       },
     };
 
-    const res = applier.mapApiCallsWithTemplates(state, templatesById);
+    const res = application.mapApiCallsWithTemplates(state, templatesById);
     expect(res[0].valid).toEqual(false);
     expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
   });

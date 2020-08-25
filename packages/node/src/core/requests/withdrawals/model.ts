@@ -6,11 +6,13 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdr
   const request: BaseRequest<Withdrawal> = {
     id: parsedLog.args.withdrawalRequestId,
     status: RequestStatus.Pending,
-    blockNumber: logWithMetadata.blockNumber,
-    transactionHash: logWithMetadata.transactionHash,
     providerId: parsedLog.args.providerId,
     requesterId: parsedLog.args.requesterId,
     destinationAddress: parsedLog.args.destination,
+    logMetadata: {
+      blockNumber: logWithMetadata.blockNumber,
+      transactionHash: logWithMetadata.transactionHash,
+    },
   };
 
   return request;

@@ -1,3 +1,4 @@
+import flatMap from 'lodash/flatMap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 import * as ethereum from '../../ethereum';
@@ -35,8 +36,6 @@ export function initialize(state: ProviderState, logWithMetadata: LogWithMetadat
   const request: BaseRequest<ApiCall> = {
     id: parsedLog.args.requestId,
     status: RequestStatus.Pending,
-    blockNumber: logWithMetadata.blockNumber,
-    transactionHash: logWithMetadata.transactionHash,
     requesterAddress: parsedLog.args.requester,
     providerId: parsedLog.args.providerId,
     endpointId: parsedLog.args.endpointId || null,
@@ -47,6 +46,10 @@ export function initialize(state: ProviderState, logWithMetadata: LogWithMetadat
     errorFunctionId: parsedLog.args.errorFunctionId,
     encodedParameters: parsedLog.args.parameters,
     parameters: {},
+    logMetadata: {
+      blockNumber: logWithMetadata.blockNumber,
+      transactionHash: logWithMetadata.transactionHash,
+    },
   };
 
   const withParameters = applyParameters(state, request);
@@ -56,4 +59,12 @@ export function initialize(state: ProviderState, logWithMetadata: LogWithMetadat
 export function isDuplicate(apiCall: ClientRequest<ApiCall>, aggregatedApiCall: AggregatedApiCall): boolean {
   const fields = ['id', 'endpointId', 'parameters'];
   return isEqual(pick(apiCall, fields), pick(aggregatedApiCall, fields));
+}
+
+export function flatten(state: ProviderState): ClientRequest<ApiCall>[] {
+  const walletIndices = Object.keys(state.walletDataByIndex);
+
+  return flatMap(walletIndices, (index) => {
+    return state.walletDataByIndex[index].requests.apiCalls;
+  });
 }

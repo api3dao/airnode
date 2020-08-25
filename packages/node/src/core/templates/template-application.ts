@@ -8,7 +8,6 @@ import {
   ProviderState,
   RequestErrorCode,
   RequestStatus,
-  WalletDataByIndex,
 } from '../../types';
 
 interface ApiCallTemplatesById {
@@ -39,16 +38,15 @@ function mergeRequestAndTemplate(
   };
 }
 
-export function mergeApiCallsWithTemplates(
-  state: ProviderState,
-  templatesById: ApiCallTemplatesById
-): WalletDataByIndex {
+export function mergeApiCallsWithTemplates(state: ProviderState, templatesById: ApiCallTemplatesById): ProviderState {
   const walletIndices = Object.keys(state.walletDataByIndex);
 
-  return walletIndices.reduce((acc, index) => {
+  const updatedWalletDataByIndex = walletIndices.reduce((acc, index) => {
     const walletData = state.walletDataByIndex[index];
+    const { requests } = walletData;
 
-    const apiCallsWithTemplates = walletData.requests.apiCalls.map((apiCall) => {
+    // Update each API call if it is linked to a template
+    const apiCallsWithTemplates = requests.apiCalls.map((apiCall) => {
       const { id, templateId } = apiCall;
 
       // If the request does not have a template to apply, skip it
@@ -62,9 +60,10 @@ export function mergeApiCallsWithTemplates(
       if (!template) {
         const message = `Unable to fetch template ID:${templateId} for Request ID:${id}. Request has been blocked.`;
         logger.logProviderJSON(state.config.name, 'ERROR', message);
-        return { ...apiCall, status: RequestStatus.Blocked };
+        return { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.TemplateNotFound };
       }
 
+      // Attempt to decode the template parameters
       const templateParameters = ethereum.cbor.safeDecode(template.encodedParameters);
 
       // If the template contains invalid parameters, then we can't use execute the request
@@ -79,12 +78,11 @@ export function mergeApiCallsWithTemplates(
       return updatedApiCall;
     });
 
-    return {
-      ...acc,
-      [index]: {
-        ...walletData,
-        requests: { ...walletData.requests, apiCalls: apiCallsWithTemplates },
-      }
-    };
+    const updatedRequests = { ...requests, apiCalls: apiCallsWithTemplates };
+    const updatedWalletData = { ...walletData, requests: updatedRequests };
+
+    return { ...acc, [index]: updatedWalletData };
   }, {});
+
+  return { ...state, walletDataByIndex: updatedWalletDataByIndex };
 }

@@ -4,7 +4,6 @@ jest.mock('../../config', () => ({
   },
 }));
 
-import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../../providers/state';
 import { GroupedRequests, ProviderState, RequestErrorCode } from '../../../types';

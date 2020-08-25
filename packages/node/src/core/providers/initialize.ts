@@ -59,27 +59,28 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   ];
   const templatesAndTransactionResults = await Promise.all(templatesAndTransactionPromises);
 
-  // Each of these promises returns its result with an ID as the
-  // order in which they resolve in not guaranteed.
-  const { apiCallsWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find(
+  // // Each of these promises returns its result with an ID as the
+  // // order in which they resolve in not guaranteed.
+  const { walletDataWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find(
     (result) => result.id === 'templates+authorizations'
   )!.data;
   const transactionCountsByWalletIndex = templatesAndTransactionResults.find(
     (result) => result.id === 'transaction-counts'
   )!.data;
 
-  // API calls with templates is now the source of truth
-  const state4 = state.update(state3, { requests: { ...state3.requests, apiCalls: apiCallsWithTemplates } });
+  const walletDataWithTransactionCounts = templates.mergeTemplatesAndTransactionCounts(
+    walletDataWithTemplates,
+    transactionCountsByWalletIndex
+  );
 
-  // =================================================================
-  // STEP 5: Merge authorizations and transaction counts
-  // =================================================================
-  const authorizedApiCalls = apiCallAuthorization.mergeAuthorizations(state4, authorizationsByEndpoint);
+  const state4 = state.update(state3, { walletDataByIndex: walletDataWithTransactionCounts });
 
-  const state5 = state.update(state4, {
-    requests: { ...state4.requests, apiCalls: authorizedApiCalls },
-    transactionCountsByWalletIndex,
-  });
+  // // =================================================================
+  // // STEP 5: Merge authorizations and transaction counts
+  // // =================================================================
+  const walletDataWithAuthorizations = apiCallAuthorization.mergeAuthorizations(state4, authorizationsByEndpoint);
+
+  const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
 
   return state5;
 }

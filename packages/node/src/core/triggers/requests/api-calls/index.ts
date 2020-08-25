@@ -3,7 +3,11 @@ import * as events from '../events';
 import * as model from '../../../requests/api-calls/model';
 import { ApiCall, BaseRequest, LogWithMetadata, ProviderState } from '../../../../types';
 
-function discardFulfilledRequests(state: ProviderState, requestLogs: LogWithMetadata[], fulfillmentLogs: LogWithMetadata[]): LogWithMetadata[] {
+function discardFulfilledRequests(
+  state: ProviderState,
+  requestLogs: LogWithMetadata[],
+  fulfillmentLogs: LogWithMetadata[]
+): LogWithMetadata[] {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
 
   return requestLogs.reduce((acc, requestLog) => {

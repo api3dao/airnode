@@ -5,7 +5,11 @@ import { BaseRequest, LogWithMetadata, ProviderState, WalletDesignation } from '
 
 type UniqueRequests = { [id: string]: LogWithMetadata };
 
-function discardFulfilledRequests(state: ProviderState, requestLogs: LogWithMetadata[], fulfillmentLogs: LogWithMetadata[]): LogWithMetadata[] {
+function discardFulfilledRequests(
+  state: ProviderState,
+  requestLogs: LogWithMetadata[],
+  fulfillmentLogs: LogWithMetadata[]
+): LogWithMetadata[] {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.walletDesignationRequestId);
 
   return requestLogs.reduce((acc, requestLog) => {
@@ -48,7 +52,10 @@ function discardDuplicateRequests(state: ProviderState, requestLogs: LogWithMeta
   return Object.values(requestsById);
 }
 
-export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<WalletDesignation>[] {
+export function mapBaseRequests(
+  state: ProviderState,
+  logsWithMetadata: LogWithMetadata[]
+): BaseRequest<WalletDesignation>[] {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWalletDesignationRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWalletDesignationFulfillment(log.parsedLog));
