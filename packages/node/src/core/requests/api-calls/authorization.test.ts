@@ -182,7 +182,10 @@ describe('mergeAuthorizations', () => {
       address: '0x1',
       requests: {
         apiCalls: [
-          fixtures.requests.createApiCall({ status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidRequestParameters }),
+          fixtures.requests.createApiCall({
+            status: RequestStatus.Errored,
+            errorCode: RequestErrorCode.InvalidRequestParameters,
+          }),
         ],
         walletDesignations: [],
         withdrawals: [],

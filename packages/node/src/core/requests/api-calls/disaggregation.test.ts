@@ -105,7 +105,9 @@ describe('disaggregate - ClientRequests', () => {
     expect(res[0].walletDataByIndex[2].requests.apiCalls[0].response).toEqual({ value: '0x123' });
     expect(res[0].walletDataByIndex[2].requests.apiCalls[0].error).toEqual(undefined);
     expect(res[1].walletDataByIndex[3].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].error).toEqual({ errorCode: RequestErrorCode.ApiCallFailed });
+    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].error).toEqual({
+      errorCode: RequestErrorCode.ApiCallFailed,
+    });
   });
 
   it('does not update the request if the parameters are different', () => {
