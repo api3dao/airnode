@@ -14,7 +14,6 @@ import {
   RequestStatus,
 } from '../../../types';
 
-
 export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
 

@@ -16,7 +16,6 @@ describe('initialize Withdrawal ClientRequest', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
-
     expect(model.initialize(logWithMetadata)).toEqual({
       destinationAddress: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
       id: '0xea425b2e05d25bbcfa2e9ea76c247e20f37d9dc3c0f50bd28b2bf19676f790e8',

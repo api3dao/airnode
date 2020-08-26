@@ -67,10 +67,7 @@ describe('getTransactionCountByIndex', () => {
       address: '0x0',
       requests: {
         apiCalls: [],
-        walletDesignations: [
-          fixtures.requests.createWalletDesignation(),
-          fixtures.requests.createWalletDesignation(),
-        ],
+        walletDesignations: [fixtures.requests.createWalletDesignation(), fixtures.requests.createWalletDesignation()],
         withdrawals: [],
       },
       transactionCount: 2,
