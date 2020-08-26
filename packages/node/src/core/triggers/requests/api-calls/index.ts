@@ -31,7 +31,8 @@ export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithM
   const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
 
   // Cast raw logs to typed API request objects
-  const apiCallRequests = unfulfilledRequestLogs.map((log) => model.initialize(state, log));
+  const apiCallBaseRequests = unfulfilledRequestLogs.map((log) => model.initialize(log));
+  const apiCallsWithParameters = apiCallBaseRequests.map((request) => model.applyParameters(state, request));
 
-  return apiCallRequests;
+  return apiCallsWithParameters;
 }

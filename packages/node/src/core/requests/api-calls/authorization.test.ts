@@ -232,7 +232,7 @@ describe('mergeAuthorizations', () => {
     const res = authorization.mergeAuthorizations(state, {});
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
+    expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.AuthorizationNotFound);
   });
 
   it('returns the validated request if it is authorized', () => {

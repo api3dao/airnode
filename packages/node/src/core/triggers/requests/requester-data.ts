@@ -100,7 +100,7 @@ function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, da
 
     return {
       ...request,
-      valid: RequestStatus.Blocked,
+      status: RequestStatus.Blocked,
       errorCode: RequestErrorCode.RequesterDataNotFound,
       requesterId: '',
       walletIndex: '-1',

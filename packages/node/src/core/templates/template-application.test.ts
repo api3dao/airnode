@@ -1,6 +1,6 @@
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../providers/state';
-import { ApiCallTemplate, ProviderState, RequestErrorCode } from '../../types';
+import { ApiCallTemplate, ProviderState, RequestErrorCode, RequestStatus } from '../../types';
 import * as application from './template-application';
 
 jest.mock('../config', () => ({
@@ -161,11 +161,21 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(resApiCall.parameters).toEqual({ template: 'this will overwrite the template' });
   });
 
-  it('discards API calls where the template cannot be found', () => {
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
-    const res = application.mapApiCallsWithTemplates(state, {});
-    expect(res).toEqual([]);
+  it('blocks API calls where the template cannot be found', () => {
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
+    const res = application.mergeApiCallsWithTemplates(state, {});
+    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    expect(resApiCall.status).toEqual(RequestStatus.Blocked);
+    expect(resApiCall.errorCode).toEqual(RequestErrorCode.TemplateNotFound);
   });
 
   it('invalidates API calls with invalid template parameters', () => {
@@ -185,7 +195,7 @@ describe('mergeApiCallsWithTemplates', () => {
       },
     };
 
-    const res = application.mapApiCallsWithTemplates(state, templatesById);
+    const res = application.mergeApiCallsWithTemplates(state, templatesById);
     expect(res[0].valid).toEqual(false);
     expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
   });

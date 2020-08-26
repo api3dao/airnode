@@ -27,7 +27,7 @@ async function getWalletTransactionCount(
 
 export async function getTransactionCountByIndex(state: ProviderState): Promise<TransactionCountByWalletIndex> {
   // Filter out duplicates to reduce Ethereum node calls
-  const walletIndices = Object.keys(state.walletDataByIndex);
+  const walletIndices = Object.keys(state.walletDataByIndex).sort();
 
   // Fetch all transaction counts in parallel
   const promises = walletIndices.map((index) => getWalletTransactionCount(state, index));

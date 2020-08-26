@@ -14,23 +14,8 @@ import {
   RequestStatus,
 } from '../../../types';
 
-function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
-  if (!request.encodedParameters) {
-    return request;
-  }
 
-  const parameters = ethereum.cbor.safeDecode(request.encodedParameters);
-  if (parameters === null) {
-    const { id, encodedParameters } = request;
-    const message = `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`;
-    logger.logProviderJSON(state.config.name, 'ERROR', message);
-    return { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidRequestParameters };
-  }
-
-  return { ...request, parameters };
-}
-
-export function initialize(state: ProviderState, logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
+export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
 
   const request: BaseRequest<ApiCall> = {
@@ -45,6 +30,7 @@ export function initialize(state: ProviderState, logWithMetadata: LogWithMetadat
     errorAddress: parsedLog.args.errorAddress,
     errorFunctionId: parsedLog.args.errorFunctionId,
     encodedParameters: parsedLog.args.parameters,
+    // Parameters are decoded separately
     parameters: {},
     logMetadata: {
       blockNumber: logWithMetadata.blockNumber,
@@ -52,8 +38,23 @@ export function initialize(state: ProviderState, logWithMetadata: LogWithMetadat
     },
   };
 
-  const withParameters = applyParameters(state, request);
-  return withParameters;
+  return request;
+}
+
+export function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
+  if (!request.encodedParameters) {
+    return request;
+  }
+
+  const parameters = ethereum.cbor.safeDecode(request.encodedParameters);
+  if (parameters === null) {
+    const { id, encodedParameters } = request;
+    const message = `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`;
+    logger.logProviderJSON(state.config.name, 'ERROR', message);
+    return { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidRequestParameters };
+  }
+
+  return { ...request, parameters };
 }
 
 export function isDuplicate(apiCall: ClientRequest<ApiCall>, aggregatedApiCall: AggregatedApiCall): boolean {

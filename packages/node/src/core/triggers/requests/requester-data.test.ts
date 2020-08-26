@@ -24,9 +24,10 @@ jest.mock('../../config', () => ({
 }));
 
 import { ethers } from 'ethers';
+import * as fixtures from 'test/fixtures';
 import * as requesterDetails from './requester-data';
 import * as providerState from '../../providers/state';
-import { ApiCall, ClientRequest, ProviderState, RequestErrorCode } from '../../../types';
+import { ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
 
 describe('fetch', () => {
   let state: ProviderState;
@@ -63,9 +64,9 @@ describe('fetch', () => {
     expect(res['1']).toEqual({
       requesterId: '0xrequesterId',
       walletAddress: 'walletAddress',
-      walletIndex: 1,
-      walletBalance: ethers.BigNumber.from('15'),
-      walletMinimumBalance: ethers.BigNumber.from('5'),
+      walletIndex: '1',
+      walletBalance: '15',
+      walletMinimumBalance: '5',
     });
 
     expect(getDataWithClientAddressesMock).toHaveBeenCalledTimes(2);
@@ -95,9 +96,9 @@ describe('fetch', () => {
     expect(res['0']).toEqual({
       requesterId: '0xrequesterId',
       walletAddress: 'walletAddress',
-      walletIndex: 1,
-      walletBalance: ethers.BigNumber.from('15'),
-      walletMinimumBalance: ethers.BigNumber.from('5'),
+      walletIndex: '1',
+      walletBalance: '15',
+      walletMinimumBalance: '5',
     });
 
     expect(getDataWithClientAddressesMock).toHaveBeenCalledTimes(3);
@@ -118,7 +119,7 @@ describe('apply', () => {
   });
 
   it('applies requester data to the API call request', () => {
-    const apiCallRequest = createNewApiCallRequest({ id: '0x1', requesterAddress: '0xalice' });
+    const apiCallRequest = fixtures.requests.createApiCall({ id: '0x1', requesterAddress: '0xalice' });
     const requests = {
       apiCalls: [apiCallRequest],
       walletDesignations: [],
@@ -128,10 +129,10 @@ describe('apply', () => {
     const dataByAddress = {
       '0xalice': {
         requesterId: 'aliceRequesterId',
-        walletIndex: 1,
+        walletIndex: '1',
         walletAddress: 'aliceWalletAddress',
-        walletBalance: ethers.BigNumber.from('15'),
-        walletMinimumBalance: ethers.BigNumber.from('5'),
+        walletBalance: '150000',
+        walletMinimumBalance: '50000',
       },
     };
 
@@ -142,15 +143,15 @@ describe('apply', () => {
     expect(res.apiCalls[0]).toEqual({
       ...apiCallRequest,
       requesterId: 'aliceRequesterId',
-      walletIndex: 1,
+      walletIndex: '1',
       walletAddress: 'aliceWalletAddress',
-      walletBalance: ethers.BigNumber.from('15'),
-      walletMinimumBalance: ethers.BigNumber.from('5'),
+      walletBalance: '150000',
+      walletMinimumBalance: '50000',
     });
   });
 
   it('invalidates requests that do not have any data', () => {
-    const apiCallRequest = createNewApiCallRequest({ id: '0x1', requesterAddress: '0xalice' });
+    const apiCallRequest = fixtures.requests.createApiCall({ id: '0x1', requesterAddress: '0xalice' });
     const requests = {
       apiCalls: [apiCallRequest],
       walletDesignations: [],
@@ -160,10 +161,10 @@ describe('apply', () => {
     const dataByAddress = {
       '0xbob': {
         requesterId: 'bobRequesterId',
-        walletIndex: 1,
+        walletIndex: '1',
         walletAddress: 'bobWalletAddress',
-        walletBalance: ethers.BigNumber.from('15'),
-        walletMinimumBalance: ethers.BigNumber.from('5'),
+        walletBalance: '150000',
+        walletMinimumBalance: '50000',
       },
     };
 
@@ -172,31 +173,13 @@ describe('apply', () => {
     expect(res.apiCalls.length).toEqual(1);
     expect(res.apiCalls[0]).toEqual({
       ...apiCallRequest,
-      valid: false,
+      status: RequestStatus.Blocked,
       errorCode: RequestErrorCode.RequesterDataNotFound,
       requesterId: '',
-      walletIndex: -1,
+      walletIndex: '-1',
       walletAddress: '',
-      walletBalance: ethers.BigNumber.from('0'),
-      walletMinimumBalance: ethers.BigNumber.from('0'),
+      walletBalance: '0',
+      walletMinimumBalance: '0',
     });
   });
 });
-
-function createNewApiCallRequest(params?: any): ClientRequest<ApiCall> {
-  return {
-    requestId: 'requestId',
-    requesterId: 'requestId',
-    requesterAddress: 'requesterAddress',
-    endpointId: 'endpointId',
-    templateId: null,
-    fulfillAddress: 'fulfillAddress',
-    fulfillFunctionId: 'fulfillFunctionId',
-    errorAddress: 'errorAddress',
-    errorFunctionId: 'errorFunctionId',
-    encodedParameters: 'encodedParameters',
-    parameters: { from: 'ETH' },
-    valid: true,
-    ...params,
-  };
-}

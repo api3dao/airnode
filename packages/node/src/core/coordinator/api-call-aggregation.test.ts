@@ -12,7 +12,7 @@ jest.mock('../config', () => ({
 import * as fixtures from 'test/fixtures';
 import * as coordinatorState from '../coordinator/state';
 import * as providerState from '../providers/state';
-import * as aggregator from './api-call-aggregator';
+import * as aggregation from './api-call-aggregation';
 
 describe('API call aggregator', () => {
   it('groups API calls from requests', () => {
@@ -34,7 +34,7 @@ describe('API call aggregator', () => {
     let state = coordinatorState.create();
     state = coordinatorState.update(state, { providers: [provider0, provider1, provider2] });
 
-    const res = aggregator.aggregate(state);
+    const res = aggregation.aggregate(state);
     expect(res.length).toEqual(1);
     expect(res[0]).toEqual({
       endpointId: 'endpointId',
