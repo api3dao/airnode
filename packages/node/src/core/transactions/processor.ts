@@ -6,7 +6,7 @@ export async function submit(state: ProviderState) {
 
   const { xpub } = state;
 
-  const walletIndices = Object.keys(state.transactionCountsByWalletIndex);
+  const walletIndices = Object.keys(state.walletDataByIndex);
   const walletAddressesByIndex = walletIndices.reduce((acc, index) => {
     const address = deriveWalletFromIndex(xpub, index);
     return { ...acc, [index]: address };
