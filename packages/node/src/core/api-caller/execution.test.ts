@@ -21,7 +21,7 @@ jest.mock('../config', () => ({
 
 import * as adapter from '@airnode/adapter';
 import * as fixtures from 'test/fixtures';
-import * as executor from './executor';
+import * as execution from './execution';
 import { RequestErrorCode } from 'src/types';
 
 describe('callApi', () => {
@@ -31,7 +31,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const res = await executor.callApi(aggregatedCall);
+    const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({ value: '0x00000000000000000000000000000000000000000000000000000000000003e8' });
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe('callApi', () => {
 
   it('returns an error if the OIS is not found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ oisTitle: 'unknownOis' });
-    const res = await executor.callApi(aggregatedCall);
+    const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
       errorCode: RequestErrorCode.InvalidOIS,
       message: 'OIS:unknownOis not found for Request:apiCallId',
@@ -65,7 +65,7 @@ describe('callApi', () => {
 
   it('returns an error if the endpoint is not found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
-    const res = await executor.callApi(aggregatedCall);
+    const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
       errorCode: RequestErrorCode.InvalidOIS,
       message: 'Endpoint:unknownEndpoint not found in OIS:oisTitle for Request:apiCallId',
@@ -74,7 +74,7 @@ describe('callApi', () => {
 
   it('returns an error if no _type parameter is found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall();
-    const res = await executor.callApi(aggregatedCall);
+    const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
       errorCode: RequestErrorCode.InvalidResponseParameters,
       message: "No '_type' parameter was found for Endpoint:endpointName, OIS:oisTitle",
@@ -87,7 +87,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const res = await executor.callApi(aggregatedCall);
+    const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ApiCallFailed,
       message: 'Failed to call Endpoint:endpointName. Error: Network is down',
@@ -100,7 +100,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const res = await executor.callApi(aggregatedCall);
+    const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ResponseValueNotFound,
       message: 'Unable to find response value from {"price":1000}. Path: unknown',

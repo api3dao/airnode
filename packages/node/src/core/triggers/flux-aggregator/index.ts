@@ -1,1 +1,1 @@
-export { detect as detectEvents } from './event-detector';
+export { detect as detectEvents } from './event-detection';
