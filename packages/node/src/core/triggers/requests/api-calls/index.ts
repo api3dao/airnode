@@ -1,25 +1,23 @@
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from '../../../requests/api-calls/model';
-import { ApiCall, BaseRequest, LogWithMetadata, ProviderState } from '../../../../types';
+import { ApiCall, BaseRequest, LogWithMetadata, ProviderState, RequestStatus } from '../../../../types';
 
-function discardFulfilledRequests(
+function updateFulfilledRequests(
   state: ProviderState,
-  requestLogs: LogWithMetadata[],
+  apiCalls: BaseRequest<ApiCall>[],
   fulfillmentLogs: LogWithMetadata[]
-): LogWithMetadata[] {
+): BaseRequest<ApiCall>[] {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
 
-  return requestLogs.reduce((acc, requestLog) => {
-    const { requestId } = requestLog.parsedLog.args;
-
-    if (fulfilledRequestIds.includes(requestId)) {
-      logger.logProviderJSON(state.config.name, 'DEBUG', `Request ID:${requestId} has already been fulfilled`);
-      return acc;
+  return apiCalls.map((apiCall) => {
+    if (fulfilledRequestIds.includes(apiCall.id)) {
+      logger.logProviderJSON(state.config.name, 'DEBUG', `Request ID:${apiCall.id} has already been fulfilled`);
+      return { ...apiCall, status: RequestStatus.Fulfilled };
     }
 
-    return [...acc, requestLog];
-  }, []);
+    return apiCall;
+  });
 }
 
 export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<ApiCall>[] {
@@ -27,12 +25,14 @@ export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithM
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isApiCallFulfillment(log.parsedLog));
 
-  // We don't care about request events that have already been fulfilled
-  const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
-
   // Cast raw logs to typed API request objects
-  const apiCallBaseRequests = unfulfilledRequestLogs.map((log) => model.initialize(log));
+  const apiCallBaseRequests = requestLogs.map((log) => model.initialize(log));
+
+  // Decode and apply parameters for each API call
   const apiCallsWithParameters = apiCallBaseRequests.map((request) => model.applyParameters(state, request));
 
-  return apiCallsWithParameters;
+  // Update the status of requests that have already been fulfilled
+  const apiCallsWithUpdatedStatus = updateFulfilledRequests(state, apiCallsWithParameters, fulfillmentLogs);
+
+  return apiCallsWithUpdatedStatus;
 }
