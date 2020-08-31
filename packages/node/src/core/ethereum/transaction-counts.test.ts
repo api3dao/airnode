@@ -52,7 +52,7 @@ describe('getTransactionCountByIndex', () => {
     };
     const state = providerState.update(initialState, {
       currentBlock: 10716082,
-      walletDataByIndex: { 2: walletData }
+      walletDataByIndex: { 2: walletData },
     });
 
     const res = await transactions.getTransactionCountByIndex(state);

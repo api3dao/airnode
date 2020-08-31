@@ -190,7 +190,7 @@ describe('fetchGroupedLogs', () => {
           },
           transactionHash: '0x2',
         },
-      ]
+      ],
     });
   });
 });
