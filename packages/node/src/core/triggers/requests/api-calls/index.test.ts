@@ -27,7 +27,7 @@ const requestLog: any = {
   transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
 };
 
-describe('mapBaseRequests', () => {
+describe('mapBaseRequests (ApiCall)', () => {
   let state: ProviderState;
 
   beforeEach(() => {
@@ -61,5 +61,6 @@ describe('mapBaseRequests', () => {
     ]);
   });
 
-  pending('ignores fulfilled ApiCall requests');
+  // TODO: get some example events to use here
+  pending('updates the status of fulfilled ApiCall requests');
 });

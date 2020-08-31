@@ -39,7 +39,7 @@ const fulfilledLog: any = {
   transactionHash: '0xdc9cadc2a505643b89ca739b3cc4022c2f1c3652d873160eb18e20bb3e45c57e',
 };
 
-describe('mapBaseRequests', () => {
+describe('mapBaseRequests (WalletDesignation)', () => {
   let state: ProviderState;
 
   beforeEach(() => {
@@ -65,12 +65,25 @@ describe('mapBaseRequests', () => {
     ]);
   });
 
-  it('ignores fulfilled WalletDesignation requests', () => {
+  it('updates the status of fulfilled WalletDesignation requests', () => {
     const res = walletDesignations.mapBaseRequests(state, [requestLog, fulfilledLog]);
-    expect(res).toEqual([]);
+    expect(res).toEqual([
+      {
+        depositAmount: '250',
+        id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
+        logMetadata: {
+          blockNumber: 10716082,
+          transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
+        },
+        providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',
+        requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
+        status: 2,
+        walletIndex: '2',
+      },
+    ]);
   });
 
-  it('ignores duplicate WalletDesignation requests', () => {
+  it('filers out duplicate WalletDesignation requests', () => {
     const res = walletDesignations.mapBaseRequests(state, [requestLog, requestLog, requestLog]);
     expect(res).toEqual([
       {

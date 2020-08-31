@@ -27,6 +27,7 @@ export enum RequestErrorCode {
 export enum RequestStatus {
   Pending,
   TransactionInitiated,
+  Fulfilled,
   Errored,
   Blocked,
 }
