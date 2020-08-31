@@ -3,13 +3,9 @@ import * as requestDisaggregation from '../requests/api-calls/disaggregation';
 import { AggregatedApiCall, CoordinatorState, ProviderState } from '../../types';
 
 export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
-  const aggregatedRequests = requestAggregation.aggregate(state);
-
-  return aggregatedRequests;
+  return requestAggregation.aggregate(state);
 }
 
 export function disaggregate(state: CoordinatorState): ProviderState[] {
-  const providersWithRequests = requestDisaggregation.disaggregate(state);
-
-  return providersWithRequests;
+  return requestDisaggregation.disaggregate(state);
 }

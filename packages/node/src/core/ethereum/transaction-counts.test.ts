@@ -50,12 +50,15 @@ describe('getTransactionCountByIndex', () => {
       },
       transactionCount: 2,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 2: walletData } });
+    const state = providerState.update(initialState, {
+      currentBlock: 10716082,
+      walletDataByIndex: { 2: walletData }
+    });
 
     const res = await transactions.getTransactionCountByIndex(state);
     expect(res).toEqual({ 2: 5 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
-    expect(getTransactionCountMock).toHaveBeenCalledWith('0x6722FC66C05d7092833CC772fD2C00Fdc0f939a6', 123456);
+    expect(getTransactionCountMock).toHaveBeenCalledWith('0x6722FC66C05d7092833CC772fD2C00Fdc0f939a6', 10716082);
   });
 
   it('returns transaction counts for multiple wallets', async () => {

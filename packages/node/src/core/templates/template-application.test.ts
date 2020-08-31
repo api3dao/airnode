@@ -179,8 +179,16 @@ describe('mergeApiCallsWithTemplates', () => {
   });
 
   it('invalidates API calls with invalid template parameters', () => {
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-    const state = providerState.update(initialState, { requests: { ...initialState.requests, apiCalls } });
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
@@ -196,7 +204,8 @@ describe('mergeApiCallsWithTemplates', () => {
     };
 
     const res = application.mergeApiCallsWithTemplates(state, templatesById);
-    expect(res[0].valid).toEqual(false);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
+    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    expect(resApiCall.status).toEqual(RequestStatus.Errored);
+    expect(resApiCall.errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
   });
 });

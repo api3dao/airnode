@@ -52,9 +52,9 @@ describe('validation', () => {
   });
 
   it('validates the current balance is greater than the current balance', () => {
-    const sufficientBalance = fixtures.requests.createApiCall({ walletBalance: '10' });
-    const matchingBalance = fixtures.requests.createApiCall({ walletBalance: '5' });
-    const insufficientBalance = fixtures.requests.createApiCall({ walletBalance: '2' });
+    const sufficientBalance = fixtures.requests.createApiCall({ walletBalance: '10', walletMinimumBalance: '5' });
+    const matchingBalance = fixtures.requests.createApiCall({ walletBalance: '5', walletMinimumBalance: '5' });
+    const insufficientBalance = fixtures.requests.createApiCall({ walletBalance: '2', walletMinimumBalance: '5' });
 
     const requests: GroupedRequests = {
       apiCalls: [sufficientBalance, matchingBalance, insufficientBalance],
