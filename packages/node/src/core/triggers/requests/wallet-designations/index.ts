@@ -26,7 +26,10 @@ function updateFulfilledRequests(
   });
 }
 
-function filterDuplicateRequests(state: ProviderState, walletDesignations: BaseRequest<WalletDesignation>[]): BaseRequest<WalletDesignation>[] {
+function filterDuplicateRequests(
+  state: ProviderState,
+  walletDesignations: BaseRequest<WalletDesignation>[]
+): BaseRequest<WalletDesignation>[] {
   const initialState: UniqueRequests = {};
 
   const requestsById = walletDesignations.reduce((acc, walletDesignation) => {
