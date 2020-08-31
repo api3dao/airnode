@@ -43,12 +43,7 @@ export async function start() {
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  // const asd = state5.providers.map(async (provider) => {
-  //   return await pw.spawnProviderRequestProcessor(provider);
-  // });
-  //
-  // const responses = await Promise.all(asd);
-  // console.log(responses);
+  // TODO
 
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
