@@ -1,65 +1,72 @@
-import { ethers } from 'ethers';
-import { BaseRequest, ProviderState, WalletDesignation } from '../../../../types';
 import * as logger from '../../../utils/logger';
 import * as events from '../events';
 import * as model from '../../../requests/wallet-designations/model';
+import { BaseRequest, LogWithMetadata, ProviderState, RequestStatus, WalletDesignation } from '../../../../types';
 
-// Alias type
-type Log = ethers.utils.LogDescription;
+type UniqueRequests = { [id: string]: BaseRequest<WalletDesignation> };
 
-type UniqueRequests = { [id: string]: Log };
+function updateFulfilledRequests(
+  state: ProviderState,
+  walletDesignations: BaseRequest<WalletDesignation>[],
+  fulfillmentLogs: LogWithMetadata[]
+): BaseRequest<WalletDesignation>[] {
+  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.walletDesignationRequestId);
 
-function discardFulfilledRequests(state: ProviderState, requestLogs: Log[], fulfillmentLogs: Log[]): Log[] {
-  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.args.walletDesignationRequestId);
-
-  return requestLogs.reduce((acc, requestLog) => {
-    const { walletDesignationRequestId } = requestLog.args;
-    if (fulfilledRequestIds.includes(walletDesignationRequestId)) {
+  return walletDesignations.map((walletDesignation) => {
+    if (fulfilledRequestIds.includes(walletDesignation.id)) {
       logger.logProviderJSON(
         state.config.name,
         'DEBUG',
-        `WalletDesignation ID:${walletDesignationRequestId} has already been fulfilled`
+        `WalletDesignation ID:${walletDesignation.id} has already been fulfilled`
       );
-      return acc;
+      return { ...walletDesignation, status: RequestStatus.Fulfilled };
     }
-    return [...acc, requestLog];
-  }, []);
+
+    return walletDesignation;
+  });
 }
 
-function discardDuplicateRequests(state: ProviderState, requestLogs: Log[]) {
+function filterDuplicateRequests(
+  state: ProviderState,
+  walletDesignations: BaseRequest<WalletDesignation>[]
+): BaseRequest<WalletDesignation>[] {
   const initialState: UniqueRequests = {};
 
-  const requestsById = requestLogs.reduce((acc, requestLog) => {
-    const { walletDesignationRequestId } = requestLog.args;
-
+  const requestsById = walletDesignations.reduce((acc, walletDesignation) => {
     // If there is already a WalletDesignation request with the given ID, ignore the current one
-    const duplicateLog = acc[walletDesignationRequestId];
+    const duplicateLog = acc[walletDesignation.id];
 
     if (duplicateLog) {
       logger.logProviderJSON(
         state.config.name,
         'DEBUG',
-        `Duplicate request for WalletDesignation ID:${walletDesignationRequestId} ignored`
+        `Duplicate request for WalletDesignation ID:${walletDesignation.id} ignored`
       );
       return acc;
     }
-    return { ...acc, [walletDesignationRequestId]: requestLog };
+
+    return { ...acc, [walletDesignation.id]: walletDesignation };
   }, initialState);
 
   return Object.values(requestsById);
 }
 
-export function mapBaseRequests(state: ProviderState, logs: Log[]): BaseRequest<WalletDesignation>[] {
+export function mapBaseRequests(
+  state: ProviderState,
+  logsWithMetadata: LogWithMetadata[]
+): BaseRequest<WalletDesignation>[] {
   // Separate the logs
-  const requestLogs = logs.filter((log) => events.isWalletDesignationRequest(log));
-  const fulfillmentLogs = logs.filter((log) => events.isWalletDesignationFulfillment(log));
-
-  // We don't care about request events that have already been fulfilled
-  const unfulfilledRequestLogs = discardFulfilledRequests(state, requestLogs, fulfillmentLogs);
-  const uniqueRequestLogs = discardDuplicateRequests(state, unfulfilledRequestLogs);
+  const requestLogs = logsWithMetadata.filter((log) => events.isWalletDesignationRequest(log.parsedLog));
+  const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWalletDesignationFulfillment(log.parsedLog));
 
   // Cast raw logs to typed WalletDesignation objects
-  const walletDesignationRequests = uniqueRequestLogs.map((rl) => model.initialize(rl));
+  const walletDesignationRequests = requestLogs.map((rl) => model.initialize(rl));
 
-  return walletDesignationRequests;
+  // Update the status of requests that have already been fulfilled
+  const designationsWithUpdatedStatus = updateFulfilledRequests(state, walletDesignationRequests, fulfillmentLogs);
+
+  // The user is able to rebroadcast the event, so we need to filter out duplicate requests
+  const uniqueWalletDesignations = filterDuplicateRequests(state, designationsWithUpdatedStatus);
+
+  return uniqueWalletDesignations;
 }

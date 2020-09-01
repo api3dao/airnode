@@ -4,10 +4,18 @@ import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import uniqBy from 'lodash/uniqBy';
+import * as model from './model';
 import * as ethereum from '../../ethereum';
 import * as logger from '../../utils/logger';
 import { go, retryOperation } from '../../utils/promise-utils';
-import { ApiCall, ClientRequest, ProviderState, RequestErrorCode } from '../../../types';
+import {
+  ApiCall,
+  ClientRequest,
+  ProviderState,
+  RequestErrorCode,
+  RequestStatus,
+  WalletDataByIndex,
+} from '../../../types';
 
 interface AuthorizationStatus {
   authorized: boolean;
@@ -55,15 +63,15 @@ async function fetchAuthorizationStatuses(
   return authorizations;
 }
 
-export async function fetch(
-  state: ProviderState,
-  apiCalls: ClientRequest<ApiCall>[]
-): Promise<AuthorizationByEndpointId> {
-  // API Calls should always have an endpoint ID at this point, but filter just in case.
-  const filteredApiCalls = apiCalls.filter((a) => !!a.endpointId);
+export async function fetch(state: ProviderState): Promise<AuthorizationByEndpointId> {
+  const flatApiCalls = model.flatten(state);
+
+  // If an API call has a templateId but the template failed to load, then we cannot process
+  // that request. These requests will be marked as blocked.
+  const pendingApiCalls = flatApiCalls.filter((a) => a.status === RequestStatus.Pending);
 
   // Remove duplicate API calls with the same endpoint ID and requester address
-  const uniquePairs = uniqBy(filteredApiCalls, (a) => `${a.endpointId}-${a.requesterAddress}`);
+  const uniquePairs = uniqBy(pendingApiCalls, (a) => `${a.endpointId}-${a.requesterAddress}`);
 
   // Request groups of 10 at a time
   const groupedPairs = chunk(uniquePairs, 10);
@@ -74,6 +82,7 @@ export async function fetch(
   const results = await Promise.all(promises);
   const successfulResults = flatten(results.filter((r) => !!r)) as AuthorizationStatus[];
 
+  // Store each "authorization" against the endpointId so it can be easily looked up
   const authorizationsByEndpoint = successfulResults.reduce((acc, result) => {
     const currentEndpointRequesters = acc[result.endpointId] || {};
     const requesterAuthorization = { [result.requesterAddress]: result.authorized };
@@ -88,37 +97,52 @@ export async function fetch(
 export function mergeAuthorizations(
   state: ProviderState,
   authorizationsByEndpoint: AuthorizationByEndpointId
-): ClientRequest<ApiCall>[] {
-  return state.requests.apiCalls.reduce((acc, apiCall) => {
-    // Don't overwrite any existing error codes
-    if (!apiCall.valid) {
-      return [...acc, apiCall];
-    }
+): WalletDataByIndex {
+  const walletIndices = Object.keys(state.walletDataByIndex);
 
-    // There should always be an endpointId at this point, but just in case, check again
-    // and drop the request if it is missing
-    if (!apiCall.endpointId) {
-      const message = `No Endpoint ID found for Request ID:${apiCall.id}`;
-      logger.logProviderJSON(state.config.name, 'ERROR', message);
-      return acc;
-    }
+  const walletDataByIndex = walletIndices.reduce((acc, index) => {
+    const walletData = state.walletDataByIndex[index];
+    const { requests } = walletData;
 
-    const isRequestedAuthorized = get(authorizationsByEndpoint, [apiCall.endpointId, apiCall.requesterAddress]);
-    if (isNil(isRequestedAuthorized)) {
-      const message = `Authorization not found for Request ID:${apiCall.id}`;
+    const updatedApiCalls = requests.apiCalls.map((apiCall) => {
+      // Don't overwrite any existing error codes
+      if (apiCall.errorCode) {
+        return apiCall;
+      }
+
+      // There should always be an endpointId at this point, but just in case, check again
+      // and drop the request if it is missing. If endpointId is missing, it means that the
+      // template was not loaded
+      if (!apiCall.endpointId) {
+        const message = `No Endpoint ID found for Request ID:${apiCall.id}`;
+        logger.logProviderJSON(state.config.name, 'ERROR', message);
+        return { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.TemplateNotFound };
+      }
+
+      const isRequestedAuthorized = get(authorizationsByEndpoint, [apiCall.endpointId, apiCall.requesterAddress]);
+
+      // If we couldn't fetch the authorization status, block the request until the next run
+      if (isNil(isRequestedAuthorized)) {
+        const message = `Authorization not found for Request ID:${apiCall.id}`;
+        logger.logProviderJSON(state.config.name, 'WARN', message);
+        return { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.AuthorizationNotFound };
+      }
+
+      if (isRequestedAuthorized) {
+        return apiCall;
+      }
+
+      const message = `Client:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`;
       logger.logProviderJSON(state.config.name, 'WARN', message);
-      const invalidatedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.AuthorizationNotFound };
-      return [...acc, invalidatedApiCall];
-    }
 
-    if (isRequestedAuthorized) {
-      return [...acc, apiCall];
-    }
+      return { ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.UnauthorizedClient };
+    });
 
-    const message = `Client:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`;
-    logger.logProviderJSON(state.config.name, 'WARN', message);
+    const updatedRequests = { ...requests, apiCalls: updatedApiCalls };
+    const updatedWalletData = { ...walletData, requests: updatedRequests };
 
-    const unauthorizedApiCall = { ...apiCall, valid: false, errorCode: RequestErrorCode.UnauthorizedClient };
-    return [...acc, unauthorizedApiCall];
-  }, []);
+    return { ...acc, [index]: updatedWalletData };
+  }, {});
+
+  return walletDataByIndex;
 }

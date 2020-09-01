@@ -1,16 +1,19 @@
-import { ethers } from 'ethers';
-import { BaseRequest, WalletDesignation } from '../../../src/types';
+import { BaseRequest, RequestStatus, WalletDesignation } from '../../../src/types';
 
 export function createWalletDesignation(
   params?: Partial<BaseRequest<WalletDesignation>>
 ): BaseRequest<WalletDesignation> {
   return {
     id: 'walletDesignationId',
-    depositAmount: ethers.BigNumber.from('20'),
+    depositAmount: '2000000',
     providerId: 'providerId',
     requesterId: 'requesterId',
-    walletIndex: 5,
-    valid: true,
+    walletIndex: '5',
+    status: RequestStatus.Pending,
+    logMetadata: {
+      blockNumber: 10716082,
+      transactionHash: 'logTransactionHash',
+    },
     ...params,
   };
 }

@@ -1,16 +1,26 @@
 import flatMap from 'lodash/flatMap';
 import { config } from '../../config';
 import { updateArrayAt } from '../../utils/array-utils';
-import * as logger from '../../utils/logger';
 import { isDuplicate } from './model';
-import { AggregatedApiCall, ApiCall, ClientRequest, CoordinatorState, ProviderState } from '../../../types';
+import { AggregatedApiCall, CoordinatorState } from '../../../types';
 
-export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
-  // Map all requests of the given type from all providers into a single array
+function flattenApiCalls(state: CoordinatorState) {
+  // Map all API call requests from all providers into a single array with their provider index
   const allRequests = flatMap(state.providers, (provider) => {
-    const providerRequests = state.providers[provider.index].requests.apiCalls;
+    const walletIndices = Object.keys(provider.walletDataByIndex);
+    const providerRequests = flatMap(
+      walletIndices.map((index) => {
+        return provider.walletDataByIndex[index].requests.apiCalls;
+      })
+    );
     return providerRequests.map((request) => ({ ...request, providerIndex: provider.index }));
   });
+
+  return allRequests;
+}
+
+export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
+  const allRequests = flattenApiCalls(state);
 
   const uniqueRequests = allRequests.reduce((acc: AggregatedApiCall[], request) => {
     const duplicateApiCallIndex = acc.findIndex((aggregatedCall) => {
@@ -45,30 +55,4 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
   }, []);
 
   return uniqueRequests;
-}
-
-export function disaggregate(state: CoordinatorState): ProviderState[] {
-  // We only care about aggregated API calls for requests
-  const aggregatedApiCalls = state.aggregatedApiCalls.filter((ac) => ac.type === 'request');
-
-  return state.providers.map((provider) => {
-    const apiCalls: ClientRequest<ApiCall>[] = provider.requests.apiCalls.map((apiCallRequest) => {
-      // Find the aggregated API call that matches the initial grouping and is required for this provider
-      const aggregatedApiCall = aggregatedApiCalls.find((ac) => {
-        return ac.id === apiCallRequest.id && isDuplicate(apiCallRequest, ac) && ac.providers.includes(provider.index);
-      });
-
-      // There should always be an aggregated API call when working backwards/ungrouping, but if there is
-      // not we need to catch and log an error
-      if (!aggregatedApiCall) {
-        logger.logJSON('ERROR', `Unable to find matching aggregated API call for Request:${apiCallRequest.id}`);
-        return apiCallRequest;
-      }
-
-      // Add the error to the ApiCall
-      return { ...apiCallRequest, error: aggregatedApiCall.error, response: aggregatedApiCall.response };
-    });
-
-    return { ...provider, requests: { ...provider.requests, apiCalls } };
-  });
 }

@@ -9,10 +9,11 @@ import {
   ApiCall,
   BaseRequest,
   ClientRequest,
-  GroupedProviderRequests,
+  GroupedRequests,
   ProviderState,
   RequesterData,
   RequestErrorCode,
+  RequestStatus,
   WalletDesignation,
   Withdrawal,
 } from '../../../types';
@@ -45,10 +46,11 @@ async function fetchRequesterData(state: ProviderState, addresses: string[]): Pr
     const requesterData: RequesterData = {
       requesterId: data.requesterIds[index],
       walletAddress: data.walletAddresses[index],
-      walletIndex: data.walletInds[index],
-      walletBalance: data.walletBalances[index],
-      walletMinimumBalance: data.minBalances[index],
+      walletIndex: data.walletInds[index].toString(),
+      walletBalance: data.walletBalances[index].toString(),
+      walletMinimumBalance: data.minBalances[index].toString(),
     };
+
     return { ...acc, [address]: requesterData };
   }, {});
 
@@ -80,7 +82,7 @@ export function apply(
   state: ProviderState,
   requests: GroupedBaseRequests,
   data: RequesterDataByAddress
-): GroupedProviderRequests {
+): GroupedRequests {
   const apiCalls = requests.apiCalls.map((a) => applyRequesterData(state, a, data[a.requesterAddress]));
   const withdrawals = requests.withdrawals.map((w) => applyRequesterData(state, w, data[w.destinationAddress]));
 
@@ -93,18 +95,18 @@ export function apply(
 
 function applyRequesterData<T>(state: ProviderState, request: BaseRequest<T>, data?: RequesterData): ClientRequest<T> {
   if (!data) {
-    const message = `Unable to find wallet data for Request ID:${request.id}`;
+    const message = `Unable to find requester data for Request ID:${request.id}`;
     logger.logProviderJSON(state.config.name, 'ERROR', message);
 
     return {
       ...request,
-      valid: false,
+      status: RequestStatus.Blocked,
       errorCode: RequestErrorCode.RequesterDataNotFound,
       requesterId: '',
-      walletIndex: -1,
+      walletIndex: '-1',
       walletAddress: '',
-      walletBalance: ethereum.weiToBigNumber('0'),
-      walletMinimumBalance: ethereum.weiToBigNumber('0'),
+      walletBalance: '0',
+      walletMinimumBalance: '0',
     };
   }
 

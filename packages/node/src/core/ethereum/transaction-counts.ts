@@ -1,5 +1,3 @@
-import isEmpty from 'lodash/isEmpty';
-import uniq from 'lodash/uniq';
 import * as wallet from './wallet';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../utils/logger';
@@ -11,7 +9,7 @@ interface TransactionCountByWalletIndex {
 
 async function getWalletTransactionCount(
   state: ProviderState,
-  index: number
+  index: string
 ): Promise<TransactionCountByWalletIndex | null> {
   const address = wallet.deriveWalletFromIndex(state.xpub, index);
 
@@ -28,22 +26,11 @@ async function getWalletTransactionCount(
 }
 
 export async function getTransactionCountByIndex(state: ProviderState): Promise<TransactionCountByWalletIndex> {
-  const { apiCalls, walletDesignations, withdrawals } = state.requests;
-
-  // If there are any pending wallet designations, then we also need to fetch
-  // the transaction count for the "admin" wallet at index 0, as it will
-  // be needed to fulfill these requests
-  const adminWalletIndex = isEmpty(walletDesignations) ? [] : [0];
-
   // Filter out duplicates to reduce Ethereum node calls
-  const uniqueWalletIndices = uniq([
-    ...apiCalls.map((a) => a.walletIndex),
-    ...withdrawals.map((a) => a.walletIndex),
-    ...adminWalletIndex,
-  ]);
+  const walletIndices = Object.keys(state.walletDataByIndex).sort();
 
   // Fetch all transaction counts in parallel
-  const promises = uniqueWalletIndices.map((index) => getWalletTransactionCount(state, index));
+  const promises = walletIndices.map((index) => getWalletTransactionCount(state, index));
   const results = await Promise.all(promises);
   const successfulResults = results.filter((r) => !!r) as TransactionCountByWalletIndex[];
 

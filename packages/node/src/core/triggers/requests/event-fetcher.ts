@@ -1,19 +1,16 @@
 import { ethers } from 'ethers';
 import { config, FROM_BLOCK_LIMIT } from '../../config';
-import { ProviderState } from '../../../types';
 import * as ethereum from '../../ethereum';
 import * as events from './events';
+import { LogWithMetadata, ProviderState } from '../../../types';
 
 interface GroupedLogs {
-  apiCalls: Log[];
-  walletDesignations: Log[];
-  withdrawals: Log[];
+  apiCalls: LogWithMetadata[];
+  walletDesignations: LogWithMetadata[];
+  withdrawals: LogWithMetadata[];
 }
 
-// Shortening the type
-type Log = ethers.utils.LogDescription;
-
-async function fetchLogs(state: ProviderState): Promise<Log[]> {
+async function fetchLogs(state: ProviderState): Promise<LogWithMetadata[]> {
   const filter: ethers.providers.Filter = {
     fromBlock: state.currentBlock! - FROM_BLOCK_LIMIT,
     toBlock: state.currentBlock!,
@@ -26,28 +23,34 @@ async function fetchLogs(state: ProviderState): Promise<Log[]> {
   const rawLogs = await state.provider.getLogs(filter);
 
   const chainAPIInterface = new ethers.utils.Interface(ethereum.contracts.ChainAPI.ABI);
-  const logs = rawLogs.map((log) => chainAPIInterface.parseLog(log));
+  const logsWithBlocks = rawLogs.map((log) => ({
+    blockNumber: log.blockNumber,
+    transactionHash: log.transactionHash,
+    parsedLog: chainAPIInterface.parseLog(log),
+  }));
 
-  return logs;
+  return logsWithBlocks;
 }
 
-function groupLogs(logs: Log[]): GroupedLogs {
+function groupLogs(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
     walletDesignations: [],
     withdrawals: [],
   };
 
-  return logs.reduce((acc, log) => {
-    if (events.isApiCallRequest(log) || events.isApiCallFulfillment(log)) {
+  return logsWithMetadata.reduce((acc, log) => {
+    const { parsedLog } = log;
+
+    if (events.isApiCallRequest(parsedLog) || events.isApiCallFulfillment(parsedLog)) {
       return { ...acc, apiCalls: [...acc.apiCalls, log] };
     }
 
-    if (events.isWalletDesignationRequest(log) || events.isWalletDesignationFulfillment(log)) {
+    if (events.isWalletDesignationRequest(parsedLog) || events.isWalletDesignationFulfillment(parsedLog)) {
       return { ...acc, walletDesignations: [...acc.walletDesignations, log] };
     }
 
-    if (events.isWithdrawalRequest(log) || events.isWithdrawalFulfillment(log)) {
+    if (events.isWithdrawalRequest(parsedLog) || events.isWithdrawalFulfillment(parsedLog)) {
       return { ...acc, withdrawals: [...acc.withdrawals, log] };
     }
 
@@ -59,5 +62,7 @@ function groupLogs(logs: Log[]): GroupedLogs {
 export async function fetchGroupedLogs(state: ProviderState): Promise<GroupedLogs> {
   const logs = await fetchLogs(state);
 
-  return groupLogs(logs);
+  const groupedLogs = groupLogs(logs);
+
+  return groupedLogs;
 }

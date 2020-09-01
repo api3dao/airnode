@@ -11,29 +11,50 @@ export interface ApiCallParameters {
 export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
-  InvalidOIS = 3,
   InvalidResponseParameters = 4,
   RequesterDataNotFound = 5,
   ReservedWalletIndex = 6,
   InsufficientBalance = 7,
   UnauthorizedClient = 8,
-  AuthorizationNotFound = 9,
-  ApiCallFailed = 10,
-  ResponseValueNotFound = 11,
+  TemplateNotFound = 9,
+  AuthorizationNotFound = 10,
+  ApiCallFailed = 11,
+  ResponseValueNotFound = 12,
+  UnableToMatchAggregatedCall = 13,
+  UnableToCastResponse = 14,
+  PendingWithdrawal = 15,
+  UnknownEndpoint = 16,
+  UnknownOIS = 17,
+}
+
+export enum RequestStatus {
+  Pending,
+  TransactionInitiated,
+  Fulfilled,
+  Ignored,
+  Blocked,
+  Errored,
+}
+
+export interface RequestMetadata {
+  readonly blockNumber: number;
+  readonly transactionHash: string;
 }
 
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
-  readonly valid: boolean;
   readonly errorCode?: RequestErrorCode;
+  readonly logMetadata: RequestMetadata;
+  readonly nonce?: number;
+  readonly status: RequestStatus;
 };
 
 export interface RequesterData {
   readonly requesterId: string;
-  readonly walletIndex: number;
+  readonly walletIndex: string;
   readonly walletAddress: string;
-  readonly walletBalance: ethers.BigNumber;
-  readonly walletMinimumBalance: ethers.BigNumber;
+  readonly walletBalance: string;
+  readonly walletMinimumBalance: string;
 }
 
 export type ClientRequest<T> = BaseRequest<T> & RequesterData;
@@ -65,10 +86,10 @@ export interface ApiCallTemplate {
 }
 
 export interface WalletDesignation {
-  readonly depositAmount: ethers.BigNumber;
+  readonly depositAmount: string;
   readonly providerId: string;
   readonly requesterId: string;
-  readonly walletIndex: number;
+  readonly walletIndex: string;
 }
 
 export interface Withdrawal {
@@ -77,10 +98,20 @@ export interface Withdrawal {
   readonly requesterId: string;
 }
 
-export interface GroupedProviderRequests {
+export interface GroupedRequests {
   readonly apiCalls: ClientRequest<ApiCall>[];
   readonly walletDesignations: BaseRequest<WalletDesignation>[];
   readonly withdrawals: ClientRequest<Withdrawal>[];
+}
+
+export interface WalletData {
+  readonly address: string;
+  readonly requests: GroupedRequests;
+  readonly transactionCount: number;
+}
+
+export interface WalletDataByIndex {
+  [index: string]: WalletData;
 }
 
 export interface ProviderState {
@@ -88,10 +119,9 @@ export interface ProviderState {
   readonly currentBlock: number | null;
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly requests: GroupedProviderRequests;
   readonly provider: ethers.providers.Provider;
-  readonly transactionCountsByWalletIndex: { [index: string]: number };
   readonly xpub: string;
+  readonly walletDataByIndex: WalletDataByIndex;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
@@ -120,6 +150,15 @@ export interface AggregatedApiCall {
 export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
   readonly providers: ProviderState[];
+}
+
+// ===========================================
+// Events
+// ===========================================
+export interface LogWithMetadata {
+  blockNumber: number;
+  parsedLog: ethers.utils.LogDescription;
+  transactionHash: string;
 }
 
 // ===========================================

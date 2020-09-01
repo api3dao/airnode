@@ -1,20 +1,22 @@
 import { goTimeout } from '../../utils/promise-utils';
 import { fetchGroupedLogs } from './event-fetcher';
 import * as apiCalls from './api-calls';
+import * as blocking from './blocking';
+import * as requesterData from './requester-data';
+import * as validation from './validation';
 import * as walletDesignations from './wallet-designations';
 import * as withdrawals from './withdrawals';
-import * as requesterData from './requester-data';
-import * as discarder from './discarder';
-import * as validator from './validator';
-import { GroupedProviderRequests, ProviderState } from '../../../types';
+import { GroupedRequests, ProviderState } from '../../../types';
+
+export { groupRequestsByWalletIndex } from './grouping';
 
 // Alias types
 type GroupedBaseRequests = requesterData.GroupedBaseRequests;
 
 async function fetchRequesterData(state: ProviderState, requests: GroupedBaseRequests) {
   // NOTE: WalletDesignations do not need to fetch Requester Data
-  const apiCallAddresses = requests.apiCalls.filter((a) => a.valid).map((a) => a.requesterAddress);
-  const withdrawalAddresses = requests.withdrawals.filter((w) => w.valid).map((w) => w.destinationAddress);
+  const apiCallAddresses = requests.apiCalls.map((a) => a.requesterAddress);
+  const withdrawalAddresses = requests.withdrawals.map((w) => w.destinationAddress);
 
   const addresses = [...apiCallAddresses, ...withdrawalAddresses];
 
@@ -22,7 +24,7 @@ async function fetchRequesterData(state: ProviderState, requests: GroupedBaseReq
   return err || !res ? {} : res;
 }
 
-export async function fetchPendingRequests(state: ProviderState): Promise<GroupedProviderRequests> {
+export async function fetchPendingRequests(state: ProviderState): Promise<GroupedRequests> {
   // Let this throw if it fails. We can't do anything if the logs cannot be fetched
   const groupedLogs = await fetchGroupedLogs(state);
 
@@ -42,11 +44,11 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   const requestsWithData = requesterData.apply(state, baseRequests, dataByAddress);
 
   // Check that each request is valid
-  const validatedRequests = validator.validateRequests(state, requestsWithData);
+  const validatedRequests = validation.validateRequests(state, requestsWithData);
 
-  // Discard requests that cannot be processed
-  const withoutUnprocessableRequests = discarder.discardUnprocessableRequests(state, validatedRequests);
-  const withoutPendingWithdrawals = discarder.discardRequestsWithWithdrawals(state, withoutUnprocessableRequests);
+  // Block any requests that cannot be processed
+  // 1. API calls related to a wallet with a pending withdrawal cannot be processed
+  const blockedRequestsWithWithdrawals = blocking.blockRequestsWithWithdrawals(state, validatedRequests);
 
-  return withoutPendingWithdrawals;
+  return blockedRequestsWithWithdrawals;
 }
