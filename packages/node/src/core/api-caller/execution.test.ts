@@ -58,8 +58,8 @@ describe('callApi', () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ oisTitle: 'unknownOis' });
     const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'OIS:unknownOis not found for Request:apiCallId',
+      errorCode: RequestErrorCode.UnknownOIS,
+      message: 'Unknown OIS:unknownOis received for Request:apiCallId',
     });
   });
 
@@ -67,8 +67,8 @@ describe('callApi', () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
     const res = await execution.callApi(aggregatedCall);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'Endpoint:unknownEndpoint not found in OIS:oisTitle for Request:apiCallId',
+      errorCode: RequestErrorCode.UnknownEndpoint,
+      message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId',
     });
   });
 

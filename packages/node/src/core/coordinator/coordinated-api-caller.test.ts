@@ -40,7 +40,7 @@ describe('callApis', () => {
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
 
-    const error: ApiCallError = { errorCode: RequestErrorCode.InvalidOIS };
+    const error: ApiCallError = { errorCode: RequestErrorCode.UnauthorizedClient };
     const aggregatedApiCalls = [fixtures.createAggregatedApiCall({ error })];
     const newState = state.update(initialState, { aggregatedApiCalls });
 

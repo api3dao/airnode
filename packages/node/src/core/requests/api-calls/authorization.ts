@@ -66,8 +66,8 @@ async function fetchAuthorizationStatuses(
 export async function fetch(state: ProviderState): Promise<AuthorizationByEndpointId> {
   const flatApiCalls = model.flatten(state);
 
-  // API calls that are linked to a template, but the template failed will not have
-  // an endpointId set. These requests will be marked as blocked
+  // If an API call has a templateId but the template failed to load, then we cannot process
+  // that request. These requests will be marked as blocked.
   const pendingApiCalls = flatApiCalls.filter((a) => a.status === RequestStatus.Pending);
 
   // Remove duplicate API calls with the same endpoint ID and requester address

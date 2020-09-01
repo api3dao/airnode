@@ -36,7 +36,7 @@ import { ethers } from 'ethers';
 import * as providerState from '../../providers/state';
 import { ProviderState } from '../../../types';
 import { removeKeys } from '../../utils/object-utils';
-import * as fetcher from './event-fetcher';
+import * as fetcher from './event-fetching';
 
 describe('fetchGroupedLogs', () => {
   let state: ProviderState;

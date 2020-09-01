@@ -13,49 +13,31 @@ jest.mock('../config', () => ({
 }));
 
 import * as fixtures from 'test/fixtures';
-import * as preprocessor from './preprocessor';
+import * as preprocessing from './preprocessing';
 import { CoordinatorState, RequestErrorCode } from '../../types';
 
 describe('validateAggregatedApiCall', () => {
   it('returns no errors if the aggregated API call is valid', () => {
     const aggCall = fixtures.createAggregatedApiCall();
-    const res = preprocessor.validateAggregatedApiCall(aggCall);
+    const res = preprocessing.validateAggregatedApiCall(aggCall);
     expect(res.error).toEqual(undefined);
-  });
-
-  it('returns an error if the aggregated API call has no oisTitle', () => {
-    const aggCall = fixtures.createAggregatedApiCall({ oisTitle: undefined });
-    const res = preprocessor.validateAggregatedApiCall(aggCall);
-    expect(res.error).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'OIS or Endpoint not found for Request:apiCallId',
-    });
-  });
-
-  it('returns an error if the aggregated API call has no endpointName', () => {
-    const aggCall = fixtures.createAggregatedApiCall({ endpointName: undefined });
-    const res = preprocessor.validateAggregatedApiCall(aggCall);
-    expect(res.error).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'OIS or Endpoint not found for Request:apiCallId',
-    });
   });
 
   it('returns an error if the OIS cannot be found', () => {
     const aggCall = fixtures.createAggregatedApiCall({ oisTitle: 'unknownOIS' });
-    const res = preprocessor.validateAggregatedApiCall(aggCall);
+    const res = preprocessing.validateAggregatedApiCall(aggCall);
     expect(res.error).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'OIS:unknownOIS not found for Request:apiCallId',
+      errorCode: RequestErrorCode.UnknownOIS,
+      message: 'Unknown OIS:unknownOIS received for Request:apiCallId',
     });
   });
 
   it('returns an error if the Endpoint cannot be found', () => {
     const aggCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
-    const res = preprocessor.validateAggregatedApiCall(aggCall);
+    const res = preprocessing.validateAggregatedApiCall(aggCall);
     expect(res.error).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'Endpoint:unknownEndpoint not found in OIS:oisTitle for Request:apiCallId',
+      errorCode: RequestErrorCode.UnknownEndpoint,
+      message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId',
     });
   });
 });
@@ -65,18 +47,18 @@ describe('validateAllAggregatedCalls', () => {
     const state: CoordinatorState = {
       aggregatedApiCalls: [
         fixtures.createAggregatedApiCall({ oisTitle: 'unknownOIS' }),
-        fixtures.createAggregatedApiCall({ endpointName: undefined }),
+        fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' }),
       ],
       providers: [],
     };
-    const res = preprocessor.validateAllAggregatedCalls(state);
+    const res = preprocessing.validateAllAggregatedCalls(state);
     expect(res[0].error).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'OIS:unknownOIS not found for Request:apiCallId',
+      errorCode: RequestErrorCode.UnknownOIS,
+      message: 'Unknown OIS:unknownOIS received for Request:apiCallId',
     });
     expect(res[1].error).toEqual({
-      errorCode: RequestErrorCode.InvalidOIS,
-      message: 'OIS or Endpoint not found for Request:apiCallId',
+      errorCode: RequestErrorCode.UnknownEndpoint,
+      message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId',
     });
   });
 });
