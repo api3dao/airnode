@@ -11,7 +11,6 @@ export interface ApiCallParameters {
 export enum RequestErrorCode {
   InvalidRequestParameters = 1,
   InvalidTemplateParameters = 2,
-  InvalidOIS = 3,
   InvalidResponseParameters = 4,
   RequesterDataNotFound = 5,
   ReservedWalletIndex = 6,
@@ -22,14 +21,19 @@ export enum RequestErrorCode {
   ApiCallFailed = 11,
   ResponseValueNotFound = 12,
   UnableToMatchAggregatedCall = 13,
+  UnableToCastResponse = 14,
+  PendingWithdrawal = 15,
+  UnknownEndpoint = 16,
+  UnknownOIS = 17,
 }
 
 export enum RequestStatus {
   Pending,
   TransactionInitiated,
   Fulfilled,
-  Errored,
+  Ignored,
   Blocked,
+  Errored,
 }
 
 export interface RequestMetadata {
