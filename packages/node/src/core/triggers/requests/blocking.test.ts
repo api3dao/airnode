@@ -5,7 +5,7 @@ jest.mock('../../config', () => ({
 }));
 
 import * as fixtures from 'test/fixtures';
-import { GroupedRequests, ProviderState, RequestStatus } from '../../../types';
+import { GroupedRequests, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
 import * as providerState from '../../providers/state';
 import * as blocking from './blocking';
 
@@ -26,7 +26,8 @@ describe('blockRequestsWithWithdrawals', () => {
 
     const res = blocking.blockRequestsWithWithdrawals(state, requests);
     expect(res.apiCalls.length).toEqual(1);
-    expect(res.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+    expect(res.apiCalls[0].status).toEqual(RequestStatus.Ignored);
+    expect(res.apiCalls[0].errorCode).toEqual(RequestErrorCode.PendingWithdrawal);
     expect(res.withdrawals.length).toEqual(1);
     expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
