@@ -4,7 +4,7 @@ import * as logger from '../utils/logger';
 import { formatDateTime } from '../utils/date-utils';
 import * as apiCallAggregation from './api-call-aggregation';
 import * as apiCaller from './coordinated-api-caller';
-// import * as pw from '../providers/worker';
+import * as pw from '../providers/worker';
 
 export async function start() {
   const startedAt = new Date();
@@ -43,7 +43,10 @@ export async function start() {
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  // TODO
+  const providerTransactions = state5.providers.map(async (provider) => {
+    return await pw.spawnProviderRequestProcessor(provider);
+  });
+  await Promise.all(providerTransactions);
 
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());

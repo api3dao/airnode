@@ -42,9 +42,11 @@ function groupRequests(flatRequests: BaseRequest<any>[]): GroupedRequests {
   const apiCalls = flatRequests
     .filter((request) => request.type === RequestType.ApiCall)
     .map((request) => removeKey(request, 'type')) as ClientRequest<ApiCall>[];
+
   const walletDesignations = flatRequests
     .filter((request) => request.type === RequestType.WalletDesignation)
     .map((request) => removeKey(request, 'type')) as BaseRequest<WalletDesignation>[];
+
   const withdrawals = flatRequests
     .filter((request) => request.type === RequestType.Withdrawal)
     .map((request) => removeKey(request, 'type')) as ClientRequest<Withdrawal>[];
@@ -82,7 +84,7 @@ function assignWalletNonces(
       };
     }
 
-    const nonce = transactionCount + Number(index);
+    const nonce = transactionCount + Number(index) + 1;
     const withNonce = { ...request, nonce: nonce };
     return {
       ...acc,
