@@ -37,10 +37,18 @@ describe('sortRequests', () => {
   });
 
   it('sorts wallet designations by block number then by transaction hash', () => {
-    const first = fixtures.requests.createWalletDesignation({ logMetadata: { blockNumber: 100, transactionHash: '0x1' } });
-    const second = fixtures.requests.createWalletDesignation({ logMetadata: { blockNumber: 100, transactionHash: '0x2' } });
-    const third = fixtures.requests.createWalletDesignation({ logMetadata: { blockNumber: 101, transactionHash: '0x3' } });
-    const fourth = fixtures.requests.createWalletDesignation({ logMetadata: { blockNumber: 101, transactionHash: '0x4' } });
+    const first = fixtures.requests.createWalletDesignation({
+      logMetadata: { blockNumber: 100, transactionHash: '0x1' },
+    });
+    const second = fixtures.requests.createWalletDesignation({
+      logMetadata: { blockNumber: 100, transactionHash: '0x2' },
+    });
+    const third = fixtures.requests.createWalletDesignation({
+      logMetadata: { blockNumber: 101, transactionHash: '0x3' },
+    });
+    const fourth = fixtures.requests.createWalletDesignation({
+      logMetadata: { blockNumber: 101, transactionHash: '0x4' },
+    });
 
     const walletDataByIndex: WalletDataByIndex = {
       0: {

@@ -1,4 +1,3 @@
-
 import orderBy from 'lodash/orderBy';
 import { BaseRequest, GroupedRequests, WalletDataByIndex } from '../../types';
 
