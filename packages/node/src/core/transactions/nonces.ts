@@ -1,6 +1,15 @@
 import { removeKey } from '../utils/object-utils';
 import * as sorting from './sorting';
-import { ApiCall, BaseRequest, ClientRequest, GroupedRequests, ProviderState, RequestStatus, WalletDesignation, Withdrawal } from '../../types';
+import {
+  ApiCall,
+  BaseRequest,
+  ClientRequest,
+  GroupedRequests,
+  ProviderState,
+  RequestStatus,
+  WalletDesignation,
+  Withdrawal,
+} from '../../types';
 
 enum RequestType {
   ApiCall,
@@ -13,8 +22,14 @@ type AnyRequest = ApiCall | WalletDesignation | Withdrawal;
 function flattenRequests(groupedRequests: GroupedRequests): BaseRequest<any>[] {
   // Store the type as well temporarily so that requests can be ungrouped again
   const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, type: RequestType.ApiCall }));
-  const walletDesignations = groupedRequests.walletDesignations.map((designation) => ({ ...designation, type: RequestType.WalletDesignation }));
-  const withdrawals = groupedRequests.withdrawals.map((withdrawal) => ({ ...withdrawal, type: RequestType.Withdrawal }));
+  const walletDesignations = groupedRequests.walletDesignations.map((designation) => ({
+    ...designation,
+    type: RequestType.WalletDesignation,
+  }));
+  const withdrawals = groupedRequests.withdrawals.map((withdrawal) => ({
+    ...withdrawal,
+    type: RequestType.Withdrawal,
+  }));
 
   // Requests are processed with the following priority:
   //   1. API calls
@@ -24,9 +39,15 @@ function flattenRequests(groupedRequests: GroupedRequests): BaseRequest<any>[] {
 }
 
 function groupRequests(flatRequests: BaseRequest<any>[]): GroupedRequests {
-  const apiCalls = flatRequests.filter((request) => request.type === RequestType.ApiCall).map((request) => removeKey(request, 'type')) as ClientRequest<ApiCall>[];
-  const walletDesignations = flatRequests.filter((request) => request.type === RequestType.WalletDesignation).map((request) => removeKey(request, 'type')) as BaseRequest<WalletDesignation>[];
-  const withdrawals = flatRequests.filter((request) => request.type === RequestType.Withdrawal).map((request) => removeKey(request, 'type')) as ClientRequest<Withdrawal>[];
+  const apiCalls = flatRequests
+    .filter((request) => request.type === RequestType.ApiCall)
+    .map((request) => removeKey(request, 'type')) as ClientRequest<ApiCall>[];
+  const walletDesignations = flatRequests
+    .filter((request) => request.type === RequestType.WalletDesignation)
+    .map((request) => removeKey(request, 'type')) as BaseRequest<WalletDesignation>[];
+  const withdrawals = flatRequests
+    .filter((request) => request.type === RequestType.Withdrawal)
+    .map((request) => removeKey(request, 'type')) as ClientRequest<Withdrawal>[];
 
   return { apiCalls, walletDesignations, withdrawals };
 }
@@ -34,7 +55,7 @@ function groupRequests(flatRequests: BaseRequest<any>[]): GroupedRequests {
 function assignWalletNonces(
   flatRequests: BaseRequest<AnyRequest>[],
   transactionCount: number,
-  currentBlock: number,
+  currentBlock: number
 ): BaseRequest<any>[] {
   const initialState = {
     assignmentBlocked: false,
@@ -57,7 +78,7 @@ function assignWalletNonces(
       return {
         ...acc,
         assignmentBlocked,
-        requests: [...acc.requests, request]
+        requests: [...acc.requests, request],
       };
     }
 
