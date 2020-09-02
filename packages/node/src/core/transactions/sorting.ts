@@ -4,8 +4,8 @@ import { BaseRequest, GroupedRequests, WalletDataByIndex } from '../../types';
 function sortRequests<T>(requests: BaseRequest<T>[]): BaseRequest<T>[] {
   // In order to keep consistency between runs, requests are sorted by the following criteria:
   //
-  //   1. Block number ascending
-  //   2. Transaction hash ascending
+  //   1. Block number (ascending)
+  //   2. Transaction hash (ascending)
   return orderBy(requests, ['logMetadata.blockNumber', 'logMetadata.transactionHash']);
 }
 
