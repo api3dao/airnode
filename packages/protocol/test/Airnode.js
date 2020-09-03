@@ -1,14 +1,14 @@
 /* global ethers, waffle */
 const { expect } = require('chai');
 
-describe('ChainApi', function () {
+describe('Airnode', function () {
   let accounts;
   let chainApi;
   let convenience;
   let chainApiClient;
 
   beforeEach(async () => {
-    const chainApiFactory = await ethers.getContractFactory('ChainApi');
+    const chainApiFactory = await ethers.getContractFactory('Airnode');
     chainApi = await chainApiFactory.deploy();
     const convenienceFactory = await ethers.getContractFactory('Convenience');
     convenience = await convenienceFactory.deploy(chainApi.address);
@@ -74,12 +74,12 @@ describe('ChainApi', function () {
     await designateWallet(providerId, requesterId, providerKeys, walletInd, depositAmount, walletDesignationRequestId);
 
     // The requester deploys a client contract. The client contract needs two arguments:
-    // ChainApi addres: I make my requests here
+    // Airnode addres: I make my requests here
     // requesterId: I belong to this guy so let him decide for me
-    const chainApiClientFactory = await ethers.getContractFactory('ExampleChainApiClient');
+    const chainApiClientFactory = await ethers.getContractFactory('ExampleAirnodeClient');
     chainApiClient = await chainApiClientFactory.deploy(chainApi.address, requesterId);
 
-    // The requester introduces the client contract to ChainApi contract as one
+    // The requester introduces the client contract to Airnode contract as one
     // of its own. This means that the requests made by the client contract will
     // be funded by the requester's reserved wallet.
     await endorseClient(requesterId, chainApiClient.address);
@@ -99,7 +99,7 @@ describe('ChainApi', function () {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const requestId = await makeRequest(templateId, ethers.utils.randomBytes(4));
 
-    // The provider node has been listening for events from the ChainApi contract
+    // The provider node has been listening for events from the Airnode contract
     // so the request will see and fulfill it.
     await fulfill(providerId, providerKeys);
 
@@ -321,7 +321,7 @@ describe('ChainApi', function () {
   async function makeRequest(templateId, dynamicParameters) {
     const tx = await chainApiClient.request(templateId, dynamicParameters);
     // Get the newly created template's ID from the event. Note that we are
-    // listening from ChainApi and not Client, because that's where the event
+    // listening from Airnode and not Client, because that's where the event
     // is emitted.
     const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
       (log) => log.transactionHash === tx.hash

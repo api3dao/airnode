@@ -1,6 +1,6 @@
 # TODO
 
-- Consider not returning anything from `fulfill()` in `ChainApi`
+- Consider not returning anything from `fulfill()` in `Airnode.sol`
 
 - Hand off adminship/platformAgency in two steps in `ProviderStore` and `RequesterStore`
 

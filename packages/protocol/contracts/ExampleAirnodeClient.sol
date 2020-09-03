@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
-import "./ChainApiClient.sol";
+import "./AirnodeClient.sol";
 
 
-/// @title An example ChainAPI client contract
-contract ExampleChainApiClient is ChainApiClient {
+/// @title An example Airnode client contract
+contract ExampleAirnodeClient is AirnodeClient {
     bytes32 public data;
     bytes32 public requestId;
     uint256 public errorCode;
 
 
-    /// @dev ChainApi address and endorser IDs are set at deployment
-    /// @param _chainApi ChainApi contract address
+    /// @dev Airnode address and endorser IDs are set at deployment
+    /// @param _airnode Airnode contract address
     /// @param _requesterId Endorser ID from RequestStore
     constructor (
-        address _chainApi,
+        address _airnode,
         bytes32 _requesterId
         )
         public
-        ChainApiClient(_chainApi, _requesterId)
+        AirnodeClient(_airnode, _requesterId)
     {}
 
-    /// @notice Called to make a regular request to the ChainAPI contract
+    /// @notice Called to make a regular request to the Airnode contract
     /// @param templateId Template ID from TemplateStore
     /// @param parameters Dynamic request parameters (i.e., parameters that are
     /// determined at runtime, unlike the static parameters stored in the
@@ -33,7 +33,7 @@ contract ExampleChainApiClient is ChainApiClient {
         )
         external
     {
-        requestId = chainApi.makeRequest(
+        requestId = airnode.makeRequest(
             templateId,
             address(this),
             address(this),
@@ -43,7 +43,7 @@ contract ExampleChainApiClient is ChainApiClient {
             );
     }
 
-    /// @notice Called by the provider wallet through the ChainAPI contract to
+    /// @notice Called by the provider wallet through the Airnode contract to
     /// deliver the response
     /// @param _requestId Request ID
     /// @param _data Data returned by the provider
@@ -52,7 +52,7 @@ contract ExampleChainApiClient is ChainApiClient {
         bytes32 _data
         )
         external
-        onlyChainApi()
+        onlyAirnode()
     {
         require(
             _requestId == requestId,
@@ -70,7 +70,7 @@ contract ExampleChainApiClient is ChainApiClient {
         uint256 _errorCode
         )
         external
-        onlyChainApi()
+        onlyAirnode()
     {
         require(
             _requestId == requestId,

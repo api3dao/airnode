@@ -59,7 +59,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from ChainApi.sol a few times.
+    /// fail() from Airnode.sol a few times.
     /// @return providerId Provider ID
     function createProvider(
         address admin,
@@ -101,7 +101,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from ChainApi.sol a few times.
+    /// fail() from Airnode.sol a few times.
     function updateProvider(
         bytes32 providerId,
         address admin,
@@ -374,7 +374,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @return minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from ChainApi.sol a few times.
+    /// fail() from Airnode.sol a few times.
     function getProvider(bytes32 providerId)
         external
         view
@@ -399,7 +399,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @return minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from ChainApi.sol a few times.
+    /// fail() from Airnode.sol a few times.
     function getProviderMinBalance(bytes32 providerId)
         external
         view

@@ -2,8 +2,8 @@
 pragma solidity 0.6.8;
 
 
-interface IChainApiClient {
-  function chainApiAddress()
+interface IAirnodeClient {
+  function airnodeAddress()
       external
       view
       returns(address);

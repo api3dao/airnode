@@ -5,7 +5,7 @@ import "./IEndpointStore.sol";
 import "./ITemplateStore.sol";
 
 
-interface IChainApi is IEndpointStore, ITemplateStore {
+interface IAirnode is IEndpointStore, ITemplateStore {
     event RequestMade(
         bytes32 indexed providerId,
         bytes32 requestId,
