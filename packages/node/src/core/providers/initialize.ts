@@ -39,9 +39,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   const state2 = state.update(state1, { currentBlock });
 
   // =================================================================
-  // STEP 3: Get the pending requests
-  //
-  // TODO: aggregator requests will be fetched in parallel here
+  // STEP 3: Get the pending actionable items from triggers
   // =================================================================
   const [dataErr, walletDataByIndex] = await go(triggers.fetchWalletDataByIndex(state2));
   if (dataErr || !walletDataByIndex) {
