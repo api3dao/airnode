@@ -61,7 +61,7 @@ contract ExampleAirnodeClient is AirnodeClient {
         data = _data;
     }
 
-    /// @notice Called by the provider wallet through the ChainAPI contract if
+    /// @notice Called by the provider wallet through the Airnode contract if
     /// the fulfillment has failed
     /// @param _requestId Request ID
     /// @param _errorCode Error code

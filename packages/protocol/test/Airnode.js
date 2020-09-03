@@ -3,15 +3,15 @@ const { expect } = require('chai');
 
 describe('Airnode', function () {
   let accounts;
-  let chainApi;
+  let airnode;
   let convenience;
-  let chainApiClient;
+  let airnodeClient;
 
   beforeEach(async () => {
-    const chainApiFactory = await ethers.getContractFactory('Airnode');
-    chainApi = await chainApiFactory.deploy();
+    const airnodeFactory = await ethers.getContractFactory('Airnode');
+    airnode = await airnodeFactory.deploy();
     const convenienceFactory = await ethers.getContractFactory('Convenience');
-    convenience = await convenienceFactory.deploy(chainApi.address);
+    convenience = await convenienceFactory.deploy(airnode.address);
     const accountList = await ethers.getSigners();
     accounts = {
       providerAdmin: accountList[0],
@@ -76,13 +76,13 @@ describe('Airnode', function () {
     // The requester deploys a client contract. The client contract needs two arguments:
     // Airnode addres: I make my requests here
     // requesterId: I belong to this guy so let him decide for me
-    const chainApiClientFactory = await ethers.getContractFactory('ExampleAirnodeClient');
-    chainApiClient = await chainApiClientFactory.deploy(chainApi.address, requesterId);
+    const airnodeClientFactory = await ethers.getContractFactory('ExampleAirnodeClient');
+    airnodeClient = await airnodeClientFactory.deploy(airnode.address, requesterId);
 
     // The requester introduces the client contract to Airnode contract as one
     // of its own. This means that the requests made by the client contract will
     // be funded by the requester's reserved wallet.
-    await endorseClient(requesterId, chainApiClient.address);
+    await endorseClient(requesterId, airnodeClient.address);
     // Note that this would have reverted if the client didn't announce
     // requesterId as its potential endorser. This is because we don't want
     // random people to endorse a client contract, then underfund their reserved
@@ -104,7 +104,7 @@ describe('Airnode', function () {
     await fulfill(providerId, providerKeys);
 
     // We got our response!
-    console.log(ethers.utils.parseBytes32String(await chainApiClient.data()));
+    console.log(ethers.utils.parseBytes32String(await airnodeClient.data()));
 
     // Now the requester wants the amount deposited at their reserved wallet back
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -134,14 +134,14 @@ describe('Airnode', function () {
   });
 
   async function createProvider(walletDesignationDeposit, minBalance) {
-    const tx = await chainApi
+    const tx = await airnode
       .connect(accounts.providerAdmin)
       .createProvider(await accounts.providerAdmin.getAddress(), walletDesignationDeposit, minBalance);
     // Get the newly created provider's ID from the event
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const providerId = parsedLog.args.providerId;
     return providerId;
   }
@@ -155,14 +155,14 @@ describe('Airnode', function () {
     // Note that we are assigning a random bytes32 as the apiId, because we don't
     // really care about what it is here. The Authorizer will use this API ID
     // to bundle the endpoints from the same API together.
-    const tx = await chainApi
+    const tx = await airnode
       .connect(accounts.providerAdmin)
       .createEndpoint(providerId, ethers.BigNumber.from(ethers.utils.randomBytes(32)), []);
     // Get the newly created endpoint's ID from the event
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const endpointId = parsedLog.args.endpointId;
     return endpointId;
   }
@@ -186,16 +186,16 @@ describe('Airnode', function () {
   }
 
   async function initializeProviderKey(providerId, xpub, designatorAddress) {
-    chainApi.connect(accounts.providerAdmin).initializeProviderKeys(providerId, xpub, designatorAddress);
+    airnode.connect(accounts.providerAdmin).initializeProviderKeys(providerId, xpub, designatorAddress);
   }
 
   async function createRequester() {
-    const tx = await chainApi.connect(accounts.requesterAdmin).createRequester(accounts.requesterAdmin.getAddress());
+    const tx = await airnode.connect(accounts.requesterAdmin).createRequester(accounts.requesterAdmin.getAddress());
     // Get the newly created requester's ID from the event
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const requesterId = parsedLog.args.requesterId;
     return requesterId;
   }
@@ -208,14 +208,14 @@ describe('Airnode', function () {
     // of the funds to the newly reserved wallet address. This means that the requester
     // can send more than walletDesignationDeposit along with this transaction to reserve
     // a wallet and fund it in a single transaction.
-    const tx = await chainApi
+    const tx = await airnode
       .connect(accounts.requesterAdmin)
       .requestWalletDesignation(providerId, requesterId, { value: walletDesignationDeposit });
     // Get the newly reserved wallet's index from the event
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const walletInd = parsedLog.args.walletInd;
     // The node needs to get depositAmount from the event in case the requester
     // sent more than walletDesignationDeposit (which is not the case here).
@@ -250,7 +250,7 @@ describe('Airnode', function () {
     // 0.0492 ETH to their newly reserved wallet.
     const txCost = gasCost.mul(gasPrice);
     const fundsToSend = depositAmount.sub(txCost);
-    chainApi.connect(designatorWallet).fulfillWalletDesignation(walletDesignationRequestId, walletAddress, {
+    airnode.connect(designatorWallet).fulfillWalletDesignation(walletDesignationRequestId, walletAddress, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,
@@ -294,13 +294,13 @@ describe('Airnode', function () {
     // Endorsing a client contract is essentially the requester saying "I accept
     // that the requests made by this client contract will be funded from my
     // reserved wallet."
-    chainApi.connect(accounts.requesterAdmin).endorseClient(requesterId, clientAddress);
+    airnode.connect(accounts.requesterAdmin).endorseClient(requesterId, clientAddress);
   }
 
   async function createTemplate(providerId, endpointId, staticParameters) {
     // Note that we are not connecting to the contract as requesterAdmin.
     // That's because it doesn't matter who creates the template.
-    const tx = await chainApi.createTemplate(
+    const tx = await airnode.createTemplate(
       providerId,
       endpointId,
       ethers.constants.AddressZero,
@@ -310,23 +310,23 @@ describe('Airnode', function () {
       staticParameters
     );
     // Get the newly created template's ID from the event
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const templateId = parsedLog.args.templateId;
     return templateId;
   }
 
   async function makeRequest(templateId, dynamicParameters) {
-    const tx = await chainApiClient.request(templateId, dynamicParameters);
+    const tx = await airnodeClient.request(templateId, dynamicParameters);
     // Get the newly created template's ID from the event. Note that we are
     // listening from Airnode and not Client, because that's where the event
     // is emitted.
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const requestId = parsedLog.args.requestId;
     return requestId;
     // There is an alternative way of making a request. If the request doesn't have
@@ -342,18 +342,18 @@ describe('Airnode', function () {
   async function fulfill(providerId, providerKeys) {
     // The provider node can get all events that concern it with a single call.
     const providerLogs = await waffle.provider.getLogs({
-      address: chainApi.address,
+      address: airnode.address,
       fromBlock: 0, // This would be block number from ~1 hour ago
       topics: [null, providerId],
     });
-    const parsedProviderLogs = providerLogs.map((providerLog) => chainApi.interface.parseLog(providerLog));
+    const parsedProviderLogs = providerLogs.map((providerLog) => airnode.interface.parseLog(providerLog));
     // Although that's super cool, we're only interested in the oracle request events here
     const parsedRequestLog = parsedProviderLogs.filter(
       (parsedProviderLog) => parsedProviderLog.name == 'RequestMade'
     )[0];
     // The node has the templateId now, let's fetch the endpointId and static parameters
     const templateLogs = await waffle.provider.getLogs({
-      address: chainApi.address,
+      address: airnode.address,
       fromBlock: 0,
       topics: [
         ethers.utils.id('TemplateCreated(bytes32,bytes32,bytes32,address,address,bytes4,bytes4,bytes)'),
@@ -361,10 +361,10 @@ describe('Airnode', function () {
       ],
     });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const parsedTemplateLog = chainApi.interface.parseLog(templateLogs[0]);
+    const parsedTemplateLog = airnode.interface.parseLog(templateLogs[0]);
 
     // Check if the requester is authorized to call the endpoint
-    const authorizationStatus = await chainApi.checkAuthorizationStatus(
+    const authorizationStatus = await airnode.checkAuthorizationStatus(
       parsedTemplateLog.args.endpointId,
       parsedRequestLog.args.requester
     );
@@ -386,7 +386,7 @@ describe('Airnode', function () {
     // shouldn't be responded to. Fortunately we got 1.
     const reservedWallet = deriveWalletFromPath(providerKeys.mnemonics, `m/0/0/${walletInd}`);
     // The node fulfills the request with the derived wallet.
-    await chainApi
+    await airnode
       .connect(reservedWallet)
       .fulfill(
         parsedRequestLog.args.requestId,
@@ -404,12 +404,12 @@ describe('Airnode', function () {
 
   async function createWithdrawalRequest(providerId, requesterId, destination) {
     // Only the requester admin can do this
-    const tx = await chainApi.connect(accounts.requesterAdmin).requestWithdrawal(providerId, requesterId, destination);
+    const tx = await airnode.connect(accounts.requesterAdmin).requestWithdrawal(providerId, requesterId, destination);
     // Get the newly created withdrawal request's ID from the event
-    const log = (await waffle.provider.getLogs({ address: chainApi.address })).filter(
+    const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
-    const parsedLog = chainApi.interface.parseLog(log);
+    const parsedLog = airnode.interface.parseLog(log);
     const withdrawalRequestId = parsedLog.args.withdrawalRequestId;
     return withdrawalRequestId;
   }
@@ -417,16 +417,16 @@ describe('Airnode', function () {
   async function fulfillWithdrawalRequest(providerId, providerKeys) {
     // The node gets the WithdrawalRequested log
     const providerLogs = await waffle.provider.getLogs({
-      address: chainApi.address,
+      address: airnode.address,
       fromBlock: 0, // This would be block number from ~1 hour ago
       topics: [null, providerId],
     });
-    const parsedProviderLogs = providerLogs.map((providerLog) => chainApi.interface.parseLog(providerLog));
+    const parsedProviderLogs = providerLogs.map((providerLog) => airnode.interface.parseLog(providerLog));
     const parsedWithdrawalRequestLog = parsedProviderLogs.filter(
       (parsedProviderLog) => parsedProviderLog.name == 'WithdrawalRequested'
     )[0];
 
-    const walletInd = await chainApi.getProviderWalletIndWithRequesterId(
+    const walletInd = await airnode.getProviderWalletIndWithRequesterId(
       providerId,
       parsedWithdrawalRequestLog.args.requesterId
     );
@@ -437,7 +437,7 @@ describe('Airnode', function () {
 
     const gasPrice = await waffle.provider.getGasPrice();
     // The node calculates how much gas the next transaction will cost (53,654)
-    const gasCost = await chainApi
+    const gasCost = await airnode
       .connect(reservedWallet)
       .estimateGas.fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
         // We need to send some funds for the gas price calculation to be correct
@@ -451,7 +451,7 @@ describe('Airnode', function () {
     const fundsToSend = reservedWalletBalance.sub(txCost);
 
     // Note that we're using reservedWallet to call this
-    await chainApi.connect(reservedWallet).fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
+    await airnode.connect(reservedWallet).fulfillWithdrawal(parsedWithdrawalRequestLog.args.withdrawalRequestId, {
       gasLimit: gasCost,
       gasPrice: gasPrice,
       value: fundsToSend,
