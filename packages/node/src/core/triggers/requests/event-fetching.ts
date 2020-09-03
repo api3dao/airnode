@@ -14,7 +14,7 @@ async function fetchLogs(state: ProviderState): Promise<LogWithMetadata[]> {
   const filter: ethers.providers.Filter = {
     fromBlock: state.currentBlock! - FROM_BLOCK_LIMIT,
     toBlock: state.currentBlock!,
-    address: ethereum.contracts.ChainAPI.addresses[state.config.chainId],
+    address: ethereum.contracts.Airnode.addresses[state.config.chainId],
     // @ts-ignore
     topics: [null, config.nodeSettings.providerId],
   };
@@ -22,11 +22,11 @@ async function fetchLogs(state: ProviderState): Promise<LogWithMetadata[]> {
   // Let this throw if something goes wrong
   const rawLogs = await state.provider.getLogs(filter);
 
-  const chainAPIInterface = new ethers.utils.Interface(ethereum.contracts.ChainAPI.ABI);
+  const airnodeInterface = new ethers.utils.Interface(ethereum.contracts.Airnode.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     transactionHash: log.transactionHash,
-    parsedLog: chainAPIInterface.parseLog(log),
+    parsedLog: airnodeInterface.parseLog(log),
   }));
 
   return logsWithBlocks;

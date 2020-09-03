@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
+import "./IProviderStore.sol";
 
-interface IEndpointStore {
+
+interface IEndpointStore is IProviderStore {
     event EndpointCreated(
         bytes32 indexed endpointId,
         bytes32 providerId,

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import compiledContract from './json/chainapi.json';
+import compiledContract from './json/airnode.json';
 import { Contract } from './types';
 
 const ApiCallRequestTopic = ethers.utils.id(
@@ -25,7 +25,7 @@ const WalletDesignationFulfilledTopic = ethers.utils.id(
 const WithdrawalRequestedTopic = ethers.utils.id('WithdrawalRequested(bytes32,bytes32,bytes32,address)');
 const WithdrawalFulfilledTopic = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32,bytes32,address,uint256)');
 
-export const ChainAPI: Contract = {
+export const Airnode: Contract = {
   addresses: {
     1: '<TODO>',
     3: '<TODO>',
