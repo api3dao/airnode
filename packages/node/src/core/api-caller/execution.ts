@@ -4,7 +4,7 @@ import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import * as logger from '../utils/logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from './parameters';
-import { validateAggregatedApiCall } from './preprocessor';
+import { validateAggregatedApiCall } from './preprocessing';
 import { AggregatedApiCall, ApiCallError, ApiCallResponse, RequestErrorCode } from '../../types';
 
 const API_CALL_TIMEOUT = 29_000;

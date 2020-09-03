@@ -11,7 +11,7 @@ export async function fetchWalletDataByIndex(state: ProviderState): Promise<Wall
   const pendingRequestsMsg = `Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s), ${walletDesignations.length} wallet designation(s)`;
   logger.logProviderJSON(state.config.name, 'INFO', pendingRequestsMsg);
 
-  const walletDataByIndex = requests.groupRequestsByWalletIndex(state, pendingRequests);
+  const walletDataByIndex = requests.groupRequestsByWalletIndex(pendingRequests);
 
   return walletDataByIndex;
 }

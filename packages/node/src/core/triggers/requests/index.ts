@@ -1,5 +1,5 @@
 import { goTimeout } from '../../utils/promise-utils';
-import { fetchGroupedLogs } from './event-fetcher';
+import { fetchGroupedLogs } from './event-fetching';
 import * as apiCalls from './api-calls';
 import * as blocking from './blocking';
 import * as requesterData from './requester-data';
