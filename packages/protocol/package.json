@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/chainapi",
+  "name": "@airnode/protocol",
   "scripts": {
     "build": "buidler compile",
     "test": "buidler test"
