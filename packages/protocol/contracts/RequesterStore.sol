@@ -11,7 +11,7 @@ import "./interfaces/IRequesterStore.sol";
 /// endorsed by the requester. This is the contract where clients allow
 /// requesters to endorse them and requesters endorse or disendorse clients.
 contract RequesterStore is IRequesterStore {
-    mapping(bytes32 => address) internal requesterIdToAdmin;
+    mapping(bytes32 => address) private requesterIdToAdmin;
     mapping(address => bytes32) private endorsementPermissions;
     mapping(address => bytes32) private clientAdressToRequesterId;
     uint256 private noRequesters = 0;

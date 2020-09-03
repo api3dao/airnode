@@ -40,7 +40,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         address destination;
         }
 
-    mapping(bytes32 => Provider) internal providers;
+    mapping(bytes32 => Provider) private providers;
     mapping(bytes32 => WalletDesignationRequest) private walletDesignationRequests;
     mapping(bytes32 => WithdrawalRequest) private withdrawalRequests;
     uint256 private noProviders = 0;
@@ -421,7 +421,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         bytes32 providerId,
         address walletAddress
         )
-        external
+        public
         view
         override
         returns (bool status)

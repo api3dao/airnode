@@ -172,7 +172,7 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     {
         bytes32 providerId = requestIdToProviderId[requestId];
         require(
-            this.getProviderWalletStatus(providerId, msg.sender),
+            getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
             );
         delete requestIdToProviderId[requestId];
@@ -212,7 +212,7 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     {
         bytes32 providerId = requestIdToProviderId[requestId];
         require(
-            this.getProviderWalletStatus(providerId, msg.sender),
+            getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
             );
         delete requestIdToProviderId[requestId];
@@ -253,7 +253,7 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     {
         bytes32 providerId = requestIdToProviderId[requestId];
         require(
-            this.getProviderWalletStatus(providerId, msg.sender),
+            getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
             );
         delete requestIdToProviderId[requestId];
@@ -278,7 +278,7 @@ contract ChainApi is EndpointStore, TemplateStore, IChainApi {
     {
         bytes32 providerId = requestIdToProviderId[requestId];
         require(
-            this.getProviderWalletStatus(providerId, msg.sender),
+            getProviderWalletStatus(providerId, msg.sender),
             "Not a valid wallet of the provider"
             );
         delete requestIdToProviderId[requestId];
