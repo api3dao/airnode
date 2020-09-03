@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
+import "./IRequesterStore.sol";
 
-interface IProviderStore {
+
+interface IProviderStore is IRequesterStore {
     event ProviderCreated(
         bytes32 indexed providerId,
         address admin,
