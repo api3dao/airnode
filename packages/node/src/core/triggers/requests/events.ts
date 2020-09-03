@@ -2,25 +2,25 @@ import { ethers } from 'ethers';
 import * as ethereum from '../../ethereum';
 
 export const API_CALL_REQUEST_TOPICS = [
-  ethereum.contracts.ChainAPI.topics.ApiCallRequest,
-  ethereum.contracts.ChainAPI.topics.ApiCallShortRequest,
-  ethereum.contracts.ChainAPI.topics.ApiCallFullRequest,
+  ethereum.contracts.Airnode.topics.ApiCallRequest,
+  ethereum.contracts.Airnode.topics.ApiCallShortRequest,
+  ethereum.contracts.Airnode.topics.ApiCallFullRequest,
 ];
 
 export const API_CALL_FULFILLED_TOPICS = [
-  ethereum.contracts.ChainAPI.topics.ApiCallFulfilledSuccessful,
-  ethereum.contracts.ChainAPI.topics.ApiCallFulfilledBytesSuccessful,
-  ethereum.contracts.ChainAPI.topics.ApiCallFulfilledErrored,
-  ethereum.contracts.ChainAPI.topics.ApiCallFulfilledFailed,
+  ethereum.contracts.Airnode.topics.ApiCallFulfilledSuccessful,
+  ethereum.contracts.Airnode.topics.ApiCallFulfilledBytesSuccessful,
+  ethereum.contracts.Airnode.topics.ApiCallFulfilledErrored,
+  ethereum.contracts.Airnode.topics.ApiCallFulfilledFailed,
 ];
 
-export const WALLET_DESIGNATION_REQUEST_TOPICS = [ethereum.contracts.ChainAPI.topics.WalletDesignationRequest];
+export const WALLET_DESIGNATION_REQUEST_TOPICS = [ethereum.contracts.Airnode.topics.WalletDesignationRequest];
 
-export const WALLET_DESIGNATION_FULFILLED_TOPICS = [ethereum.contracts.ChainAPI.topics.WalletDesignationFulfilled];
+export const WALLET_DESIGNATION_FULFILLED_TOPICS = [ethereum.contracts.Airnode.topics.WalletDesignationFulfilled];
 
-export const WITHDRAWAL_REQUEST_TOPICS = [ethereum.contracts.ChainAPI.topics.WithdrawalRequested];
+export const WITHDRAWAL_REQUEST_TOPICS = [ethereum.contracts.Airnode.topics.WithdrawalRequested];
 
-export const WITHDRAWAL_FULFILLED_TOPICS = [ethereum.contracts.ChainAPI.topics.WithdrawalFulfilled];
+export const WITHDRAWAL_FULFILLED_TOPICS = [ethereum.contracts.Airnode.topics.WithdrawalFulfilled];
 
 export function isApiCallRequest(log: ethers.utils.LogDescription) {
   return API_CALL_REQUEST_TOPICS.includes(log.topic);
