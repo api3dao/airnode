@@ -24,7 +24,7 @@ export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDat
 
   const walletDataByIndex = uniqueWalletIndices.reduce((acc, index) => {
     const walletData = {
-      address: ethereum.deriveWalletFromIndex(xpub, index),
+      address: ethereum.deriveWalletAddressFromIndex(xpub, index),
       requests: {
         apiCalls: apiCallsByWalletIndex[index] || [],
         withdrawals: withdrawalsByWalletIndex[index] || [],

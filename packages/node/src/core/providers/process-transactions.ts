@@ -2,6 +2,7 @@ import { ProviderState } from '../../types';
 import * as ethereum from '../ethereum';
 import * as logger from '../utils/logger';
 import * as nonces from '../transactions/nonces';
+import * as transactions from '../transactions/submitting';
 import * as state from './state';
 
 export async function processTransactions(initialState: ProviderState) {
@@ -22,7 +23,7 @@ export async function processTransactions(initialState: ProviderState) {
   // =================================================================
   // STEP 3: Submit transactions for each wallet
   // =================================================================
-  console.log(state2);
+  const receipts = await transactions.submit(state2);
 
-  return state2;
+  return receipts;
 }

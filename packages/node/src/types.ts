@@ -29,7 +29,6 @@ export enum RequestErrorCode {
 
 export enum RequestStatus {
   Pending,
-  TransactionInitiated,
   Fulfilled,
   Ignored,
   Blocked,
@@ -119,7 +118,7 @@ export interface ProviderState {
   readonly currentBlock: number | null;
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
-  readonly provider: ethers.providers.Provider;
+  readonly provider: ethers.providers.JsonRpcProvider;
   readonly xpub: string;
   readonly walletDataByIndex: WalletDataByIndex;
 }

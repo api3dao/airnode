@@ -1,5 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
+import * as logger from '../utils/logger';
 import { CoordinatorState, ProviderConfig, ProviderState } from '../../types';
 import { spawnNewProvider } from '../providers/worker';
 
@@ -10,7 +11,8 @@ export async function initializeProviders(providerConfigs: ProviderConfig[]): Pr
 
   // Providers are identified by their index in the array. This allows users
   // to configure duplicate providers safely (if they want the added redundancy)
-  const initializations = providerConfigs.map(async (_config, index) => {
+  const initializations = providerConfigs.map(async (config, index) => {
+    logger.logJSON('INFO', `Forking to initialize provider:${config.name} (chain:${config.chainId})...`);
     const initialization = spawnNewProvider(index);
     // Each provider gets 20 seconds to initialize. If it fails to initialize
     // in this time, it is ignored.
