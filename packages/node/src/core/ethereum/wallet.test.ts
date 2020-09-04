@@ -18,8 +18,8 @@ describe('getExtendedPublicKey', () => {
 describe('deriveWalletFromIndex', () => {
   it('returns the wallet address for the given index', () => {
     const xpub = wallet.getExtendedPublicKey();
-    const wallet1 = wallet.deriveWalletFromIndex(xpub, 1);
-    const wallet2 = wallet.deriveWalletFromIndex(xpub, 777);
+    const wallet1 = wallet.deriveWalletAddressFromIndex(xpub, 1);
+    const wallet2 = wallet.deriveWalletAddressFromIndex(xpub, 777);
     expect(wallet1).toEqual('0xBff368EaD703f07fC6C9585e25d9755A47361562');
     expect(wallet2).toEqual('0x36c6c96d0ce55c37613a8acA1D895B923C557FA4');
   });
