@@ -3,26 +3,17 @@ pragma solidity 0.6.8;
 pragma experimental ABIEncoderV2;
 
 import "./interfaces/IConvenience.sol";
-import "./interfaces/IProviderStore.sol";
-import "./interfaces/IEndpointStore.sol";
-import "./interfaces/IRequesterStore.sol";
-import "./interfaces/ITemplateStore.sol";
+import "./interfaces/IAirnode.sol";
 
 
 contract Convenience is IConvenience {
-    IProviderStore public providerStore;
-    IEndpointStore public endpointStore;
-    IRequesterStore public requesterStore;
-    ITemplateStore public templateStore;
+    IAirnode public airnode;
 
 
-    constructor (address _chainApi)
+    constructor (address _airnode)
         public
     {
-        providerStore = IProviderStore(_chainApi);
-        endpointStore = IEndpointStore(_chainApi);
-        requesterStore = IRequesterStore(_chainApi);
-        templateStore = ITemplateStore(_chainApi);
+        airnode = IAirnode(_airnode);
     }
 
     function getTemplates(bytes32[] calldata templateIds)
@@ -56,7 +47,7 @@ contract Convenience is IConvenience {
                 fulfillFunctionIds[ind],
                 errorFunctionIds[ind],
                 parameters[ind]
-            ) = templateStore.getTemplate(templateIds[ind]);
+            ) = airnode.getTemplate(templateIds[ind]);
         }
     }
 
@@ -87,17 +78,17 @@ contract Convenience is IConvenience {
             uint256 minBalance
             )
     {
-        requesterId = requesterStore.getClientRequesterId(clientAddress);
-        walletInd = providerStore.getProviderWalletIndWithRequesterId(
+        requesterId = airnode.getClientRequesterId(clientAddress);
+        walletInd = airnode.getProviderWalletIndWithRequesterId(
             providerId,
             requesterId
             );
-        walletAddress = providerStore.getProviderWalletAddressWithInd(
+        walletAddress = airnode.getProviderWalletAddressWithInd(
             providerId,
             walletInd
             );
         walletBalance = walletAddress.balance;
-        minBalance = providerStore.getProviderMinBalance(providerId);
+        minBalance = airnode.getProviderMinBalance(providerId);
     }
 
     function getDataWithClientAddresses(
@@ -123,12 +114,12 @@ contract Convenience is IConvenience {
 
         for (uint256 ind = 0; ind < clientAddresses.length; ind++)
         {
-            bytes32 requesterId = requesterStore.getClientRequesterId(clientAddresses[ind]);
-            uint256 walletInd = providerStore.getProviderWalletIndWithRequesterId(
+            bytes32 requesterId = airnode.getClientRequesterId(clientAddresses[ind]);
+            uint256 walletInd = airnode.getProviderWalletIndWithRequesterId(
                 providerId,
                 requesterId
                 );
-            address walletAddress = providerStore.getProviderWalletAddressWithInd(
+            address walletAddress = airnode.getProviderWalletAddressWithInd(
                 providerId,
                 walletInd
                 );
@@ -136,7 +127,7 @@ contract Convenience is IConvenience {
             walletInds[ind] = walletInd;
             walletAddresses[ind] = walletAddress;
             walletBalances[ind] = walletAddress.balance;
-            minBalances[ind] = providerStore.getProviderMinBalance(providerId);
+            minBalances[ind] = airnode.getProviderMinBalance(providerId);
         }
     }
 
@@ -156,7 +147,7 @@ contract Convenience is IConvenience {
         statuses = new bool[](endpointIds.length);
         for (uint256 ind = 0; ind < endpointIds.length; ind++)
         {
-            statuses[ind] = endpointStore.checkAuthorizationStatus(endpointIds[ind], clientAddresses[ind]);
+            statuses[ind] = airnode.checkAuthorizationStatus(endpointIds[ind], clientAddresses[ind]);
         }
     }
 }

@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.8;
 
+import "./IEndpointStore.sol";
+import "./ITemplateStore.sol";
 
-interface IChainApi {
+
+interface IAirnode is IEndpointStore, ITemplateStore {
     event RequestMade(
         bytes32 indexed providerId,
         bytes32 requestId,

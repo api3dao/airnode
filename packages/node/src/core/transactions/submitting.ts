@@ -113,7 +113,7 @@ async function submitWithdrawal(
 
 export async function submit(state: ProviderState) {
   const { name } = state.config;
-  const { ChainAPI } = ethereum.contracts;
+  const { Airnode } = ethereum.contracts;
 
   const walletIndices = Object.keys(state.walletDataByIndex);
 
@@ -121,7 +121,7 @@ export async function submit(state: ProviderState) {
     const walletData = state.walletDataByIndex[index];
     const wallet = ethereum.deriveSignerFromIndex(state.provider, index);
     const signer = wallet.connect(state.provider);
-    const contract = new ethers.Contract(ChainAPI.addresses[state.config.chainId], ChainAPI.ABI, signer);
+    const contract = new ethers.Contract(Airnode.addresses[state.config.chainId], Airnode.ABI, signer);
 
     const submittedApiCalls = walletData.requests.apiCalls.map(async (apiCall) => {
       const [err, res] = await goTimeout(4000, submitApiCall(state, apiCall, contract));

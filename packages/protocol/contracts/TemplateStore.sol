@@ -32,7 +32,7 @@ contract TemplateStore is ITemplateStore {
     /// same template ID.
     /// Note that the requester may choose to use a template, but not its
     /// fulfill/error destinations. For example, among the methods used to make
-    /// individual requests in ChainApi.sol, only makeShortRequest() uses these.
+    /// individual requests in Airnode.sol, only makeShortRequest() uses these.
     /// In addition, the static parameters encoded in the template can be
     /// overriden by the dynamic parameters provided at runtime.
     /// @param providerId Provider ID from ProviderStore

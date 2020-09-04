@@ -15,14 +15,11 @@ describe('Convenience', () => {
       .sort();
 
     expect(functions).toEqual([
+      'airnode',
       'checkAuthorizationStatuses',
-      'endpointStore',
       'getDataWithClientAddress',
       'getDataWithClientAddresses',
       'getTemplates',
-      'providerStore',
-      'requesterStore',
-      'templateStore',
     ]);
   });
 });
