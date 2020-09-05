@@ -8,7 +8,6 @@ export function create(config: ProviderConfig, index: number): ProviderState {
     index,
     provider: ethereum.newProvider(config.url, config.chainId),
     walletDataByIndex: {},
-    xpub: ethereum.getExtendedPublicKey(),
     // This is fetched and set as late as possible for freshness
     gasPrice: null,
   };

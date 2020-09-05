@@ -6,7 +6,6 @@ import * as networks from './networks';
 export { cbor, contracts };
 export * from './utils';
 export * from './gas-prices';
-export * from './wallet';
 
 export function newProvider(url: string, chainId: number) {
   // Ethers makes a call to get the network in the background if it is

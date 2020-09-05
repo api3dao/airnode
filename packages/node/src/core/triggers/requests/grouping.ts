@@ -1,11 +1,11 @@
 import groupBy from 'lodash/groupBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
-import * as ethereum from '../../ethereum';
+import * as wallet from '../../ethereum/wallet';
 import { GroupedRequests, WalletDataByIndex } from '../../../types';
 
 export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDataByIndex {
-  const xpub = ethereum.getExtendedPublicKey();
+  const xpub = wallet.getExtendedPublicKey();
 
   const { apiCalls, walletDesignations, withdrawals } = requests;
 
@@ -24,12 +24,12 @@ export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDat
 
   const walletDataByIndex = uniqueWalletIndices.reduce((acc, index) => {
     const walletData = {
-      address: ethereum.deriveWalletFromIndex(xpub, index),
+      address: wallet.deriveWalletFromIndex(xpub, index),
       requests: {
         apiCalls: apiCallsByWalletIndex[index] || [],
         withdrawals: withdrawalsByWalletIndex[index] || [],
         // Only the admin wallet can process wallet designations
-        walletDesignations: ethereum.isAdminWalletIndex(index) ? walletDesignations : [],
+        walletDesignations: wallet.isAdminWalletIndex(index) ? walletDesignations : [],
       },
       // Transcation count gets fetched and set for each wallet at a later point
       transactionCount: 0,

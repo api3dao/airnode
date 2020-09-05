@@ -18,9 +18,6 @@ jest.mock('../../config', () => ({
       providerId,
     },
   },
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
 }));
 
 import { ethers } from 'ethers';

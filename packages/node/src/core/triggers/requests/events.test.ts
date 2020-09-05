@@ -1,9 +1,3 @@
-jest.mock('../../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import * as events from './events';
 
 describe('API call topics', () => {
