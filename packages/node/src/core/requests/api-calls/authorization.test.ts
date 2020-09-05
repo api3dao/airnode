@@ -200,6 +200,23 @@ describe('mergeAuthorizations', () => {
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
   });
 
+  it('does nothing if the API call is not pending', () => {
+    const walletData = {
+      address: '0x1',
+      requests: {
+        apiCalls: [fixtures.requests.createApiCall({ status: RequestStatus.Blocked })],
+        walletDesignations: [],
+        withdrawals: [],
+      },
+      transactionCount: 3,
+    };
+    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
+    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
+    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    expect(Object.keys(res).length).toEqual(1);
+    expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+  });
+
   it('blocks the request if it has no endpointId', () => {
     const walletData = {
       address: '0x1',

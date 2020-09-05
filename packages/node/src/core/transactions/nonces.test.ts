@@ -1,3 +1,9 @@
+jest.mock('../config', () => ({
+  security: {
+    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+  },
+}));
+
 import shuffle from 'lodash/shuffle';
 import * as fixtures from 'test/fixtures';
 import { ProviderState, RequestStatus, WalletData } from 'src/types';
