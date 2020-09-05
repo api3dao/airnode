@@ -186,7 +186,7 @@ export async function submit(state: ProviderState) {
   });
 
   const receipts = await Promise.all(promises);
-  const sucessfulReceipts = receipts.filter(r => !!r) as Receipt[];
+  const sucessfulReceipts = receipts.filter((r) => !!r) as Receipt[];
 
   return sucessfulReceipts;
 }

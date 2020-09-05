@@ -111,7 +111,11 @@ export function assign(state: ProviderState) {
     const flatRequests = flattenRequests(walletData.requests);
 
     // Assign nonces to each request
-    const flattenRequestsWithNonces = assignWalletNonces(flatRequests, walletData.transactionCount, state.currentBlock!);
+    const flattenRequestsWithNonces = assignWalletNonces(
+      flatRequests,
+      walletData.transactionCount,
+      state.currentBlock!
+    );
 
     // Re-group requests so they can be added back to the state
     const groupedRequestsWithNonces = groupRequests(flattenRequestsWithNonces);
