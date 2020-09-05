@@ -14,6 +14,14 @@ import {
   Withdrawal,
 } from '../../types';
 
+type RequestType = 'api-call' | 'wallet-designation' | 'withdrawal';
+
+interface Receipt {
+  id: string;
+  transactionHash: string;
+  type: RequestType;
+}
+
 async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCall>, chainAPI: ethers.Contract) {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
@@ -22,19 +30,22 @@ async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCal
 
   if (request.status === RequestStatus.Errored) {
     logger.logProviderJSON(state.config.name, 'INFO', `Erroring API call for Request:${request.id}...`);
-    return await chainAPI.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId);
+    // TODO: what should the gas limit be here?
+    return await chainAPI.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
+      gasPrice: state.gasPrice!,
+    });
   }
 
   if (request.status === RequestStatus.Pending) {
     logger.logProviderJSON(state.config.name, 'INFO', `Fulfilling API call for Request:${request.id}...`);
     return await chainAPI.fulfill(
       request.id,
-      request.response?.value,
+      request.response!.value,
       request.fulfillAddress,
       request.fulfillFunctionId,
       {
         gasPrice: state.gasPrice!,
-        gasLimit: 500000, // For some reason, the default gas limit is too high
+        gasLimit: 500000, // TODO: the default gas limit is too high?
       }
     );
   }
@@ -60,7 +71,7 @@ async function submitWalletDesignation(
   if (request.status === RequestStatus.Pending) {
     logger.logProviderJSON(state.config.name, 'INFO', `Fulfilling wallet designation for Request:${request.id}...`);
     return await chainAPI.fulfillWalletDesignation(request.id, request.walletIndex, {
-      gasPrice: state,
+      gasPrice: state.gasPrice!,
       gasLimit: 150000,
     });
   }
@@ -175,6 +186,7 @@ export async function submit(state: ProviderState) {
   });
 
   const receipts = await Promise.all(promises);
+  const sucessfulReceipts = receipts.filter(r => !!r) as Receipt[];
 
-  return receipts;
+  return sucessfulReceipts;
 }
