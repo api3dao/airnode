@@ -26,7 +26,7 @@ export function deriveWalletAddressFromIndex(xpub: string, index: number | strin
   return wallet.address;
 }
 
-export function deriveSignerFromIndex(provider: ethers.providers.JsonRpcProvider, index: number | string) {
+export function deriveSigningWalletFromIndex(provider: ethers.providers.JsonRpcProvider, index: number | string) {
   const masterHdNode = ethers.utils.HDNode.fromMnemonic(security.masterKeyMnemonic);
   const signerHdNode = masterHdNode.derivePath(getPathFromIndex(index));
   return new ethers.Wallet(signerHdNode.privateKey, provider);

@@ -65,7 +65,7 @@ function assignWalletNonces(
     requests: [],
   };
 
-  const withNonces = flatRequests.reduce((acc, request, index) => {
+  const withNonces = flatRequests.reduce((acc, request) => {
     if (acc.assignmentBlocked) {
       return { ...acc, requests: [...acc.requests, request] };
     }
@@ -75,7 +75,7 @@ function assignWalletNonces(
       // then ignore the request so as to not block subsequent
       // requests indefinitely.
       const maxBlockNumber = request.logMetadata.blockNumber + 20;
-      const assignmentBlocked = currentBlock > maxBlockNumber;
+      const assignmentBlocked = maxBlockNumber > currentBlock;
 
       return {
         ...acc,
@@ -84,12 +84,11 @@ function assignWalletNonces(
       };
     }
 
-    const nonce = transactionCount + Number(index) + 1;
-    const withNonce = { ...request, nonce: nonce };
+    const withNonce = { ...request, nonce: acc.nextNonce };
     return {
       ...acc,
       requests: [...acc.requests, withNonce],
-      nextNonce: nonce + 1,
+      nextNonce: acc.nextNonce + 1,
     };
   }, initialState);
 

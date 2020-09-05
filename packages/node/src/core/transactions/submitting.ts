@@ -119,7 +119,7 @@ export async function submit(state: ProviderState) {
 
   const promises = flatMap(walletIndices, (index) => {
     const walletData = state.walletDataByIndex[index];
-    const wallet = ethereum.deriveSignerFromIndex(state.provider, index);
+    const wallet = ethereum.deriveSigningWalletFromIndex(state.provider, index);
     const signer = wallet.connect(state.provider);
     const contract = new ethers.Contract(Airnode.addresses[state.config.chainId], Airnode.ABI, signer);
 
