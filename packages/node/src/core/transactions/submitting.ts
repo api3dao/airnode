@@ -16,7 +16,7 @@ import {
 
 type RequestType = 'api-call' | 'wallet-designation' | 'withdrawal';
 
-interface Receipt {
+export interface Receipt {
   id: string;
   transactionHash: string;
   type: RequestType;
