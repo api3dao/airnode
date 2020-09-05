@@ -26,9 +26,6 @@ jest.mock('../../config', () => ({
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
     },
   },
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
   FROM_BLOCK_LIMIT: 100,
 }));
 

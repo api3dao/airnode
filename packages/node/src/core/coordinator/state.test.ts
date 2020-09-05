@@ -56,8 +56,6 @@ describe('initializeProviders', () => {
         gasPrice: null,
         index: 0,
         provider,
-        xpub:
-          'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         walletDataByIndex: {},
       },
       {
@@ -66,8 +64,6 @@ describe('initializeProviders', () => {
         gasPrice: null,
         index: 1,
         provider,
-        xpub:
-          'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         walletDataByIndex: {},
       },
     ]);

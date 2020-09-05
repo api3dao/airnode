@@ -1,9 +1,3 @@
-jest.mock('../../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../../providers/state';
 import { GroupedRequests, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';

@@ -4,9 +4,6 @@ jest.mock('../config', () => ({
       requests: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
     },
   },
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
 }));
 
 import * as fixtures from 'test/fixtures';

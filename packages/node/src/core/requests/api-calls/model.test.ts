@@ -3,12 +3,6 @@ import * as model from './model';
 import * as providerState from '../../providers/state';
 import { AggregatedApiCall, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
 
-jest.mock('../../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 describe('initialize ApiCall BaseRequest', () => {
   it('initializes a new ApiCall request', () => {
     const logWithMetadata: any = {

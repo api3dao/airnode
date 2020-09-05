@@ -3,12 +3,6 @@ import * as providerState from '../providers/state';
 import { ApiCallTemplate, ProviderState, RequestErrorCode, RequestStatus } from '../../types';
 import * as application from './template-application';
 
-jest.mock('../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 describe('mergeApiCallsWithTemplates', () => {
   let initialState: ProviderState;
 

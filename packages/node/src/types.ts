@@ -119,7 +119,6 @@ export interface ProviderState {
   readonly index: number;
   readonly gasPrice: ethers.BigNumber | null;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly xpub: string;
   readonly walletDataByIndex: WalletDataByIndex;
 }
 
