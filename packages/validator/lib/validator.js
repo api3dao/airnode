@@ -124,11 +124,43 @@ function replaceConditionalMatch(match, specs) {
   return parsedSpecs;
 }
 
-function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
+function checkRedundancy(nonRedundant, specs, paramPath, messages) {
+  if (typeof specs === 'object') {
+    if (Array.isArray(specs)) {
+      for (let i = 0; i < specs.length; i++) {
+        checkRedundancy(nonRedundant[i], specs[i], `${paramPath}[${i}]`, messages);
+      }
+    } else {
+      for (let param of Object.keys(specs)) {
+        if (nonRedundant[param]) {
+          checkRedundancy(nonRedundant[param], specs[param], `${paramPath}${paramPath ? '.' : ''}${param}`, messages);
+        } else {
+          messages.push({ level: 'warning', message: `Extra field: ${paramPath}${paramPath ? '.' : ''}${param}` });
+        }
+      }
+    }
+  }
+}
+
+function insertNonRedundantParam(param, specsStruct, nonRedundantParams, specs) {
+  if (!nonRedundantParams[param]) {
+    if (typeof specsStruct === 'object') {
+      if ('__arrayItem' in (specsStruct[param] || {}) ) {
+        nonRedundantParams[param] = [];
+      } else if (('__any' in (specsStruct[param] || {})) && Array.isArray(specs)) {
+        nonRedundantParams[param] = [];
+      } else {
+        nonRedundantParams[param] = {};
+      }
+    } else {
+      nonRedundantParams[param] = {};
+    }
+  }
+}
+
+function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantParams, nonRedundantParamsRoot) {
   let messages = [];
   let valid = true;
-  let checkExtraFields = true;
-  let conditionalParams = [];
 
   for (const key of Object.keys(specsStruct)) {
     if (key === '__conditions') {
@@ -148,10 +180,24 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
 
               if (matches) {
                 for (let param of matches) {
+                  let nonRedundantParamsCopy = {};
                   let parsedSpecs = replaceConditionalMatch(param, condition['__then']);
-                  let result = validateSpecs(specs[thisName], parsedSpecs, `${paramPath}${paramPath ? '.' : ''}${thisName}`, specsRoot);
+
+                  if (nonRedundantParams[thisName]) {
+                    nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thisName]));
+                  } else {
+                    insertNonRedundantParam(thisName, parsedSpecs, nonRedundantParams, specs[thisName]);
+                  }
+
+                  let result = validateSpecs(specs[thisName], parsedSpecs, `${paramPath}${paramPath ? '.' : ''}${thisName}`, specsRoot, nonRedundantParams[thisName], nonRedundantParamsRoot);
 
                   if (!result.valid) {
+                    if (Object.keys(nonRedundantParamsCopy).length) {
+                      nonRedundantParams[thisName] = nonRedundantParamsCopy;
+                    } else {
+                      delete nonRedundantParams[thisName];
+                    }
+                    
                     messages.push({ level: 'error', message: `Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}` });
                     valid = false;
                   }
@@ -161,21 +207,43 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
           } else if (specs[paramName]) {
             if (specs[paramName].match(new RegExp(paramValue))) {
               if (specs[thenParamName]) {
-                conditionalParams.push(thenParamName);
+                let nonRedundantParamsCopy = {};
+
+                if (nonRedundantParams[thenParamName]) {
+                  nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thenParamName]));
+                } else {
+                  insertNonRedundantParam(thenParamName, condition['__then'][thenParamName], nonRedundantParams, specs[thenParamName]);
+                }
 
                 if (!Object.keys(condition['__then'][thenParamName]).length) {
                   continue;
                 }
 
-                let result = validateSpecs(specs[thenParamName], condition['__then'][thenParamName], `${paramPath}${paramPath ? '.' : ''}${thenParamName}`, specsRoot);
+                let result = validateSpecs(specs[thenParamName], condition['__then'][thenParamName], `${paramPath}${paramPath ? '.' : ''}${thenParamName}`, specsRoot, nonRedundantParams[thenParamName], nonRedundantParamsRoot);
                 messages.push(...result.messages);
 
                 if (!result.valid) {
+                  let keepRedundantParams = true;
+
+                  for (let message of result.messages) {
+                    if (message.message.startsWith('Missing parameter ')) {
+                      keepRedundantParams = false;
+                    }
+                  }
+
+                  if (!keepRedundantParams) {
+                    if (Object.keys(nonRedundantParamsCopy).length) {
+                      nonRedundantParams[thenParamName] = nonRedundantParamsCopy;
+                    } else {
+                      delete nonRedundantParams[thenParamName];
+                    }
+                  }
+
                   valid = false;
                 }
               } else {
                 valid = false;
-                messages.push({ level: 'error', message: `Missing parameter ${paramPath}${paramPath ? '.' : ''}${thenParamName}`});
+                messages.push({ level: 'error', message: `Missing parameter ${paramPath}${(paramPath && thenParamName) ? '.' : ''}${thenParamName}`});
               }
             }
           }
@@ -183,54 +251,71 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
           for (let requiredParam of Object.keys(condition['__require'])) {
             let workingDir = specs;
             let requiredPath = '';
+            let currentDir = paramPath;
+            let nonRedundantWD = nonRedundantParams;
+
+            let thisName = getLastParamName(paramPath);
+            requiredParam = requiredParam.replace(/__this_name/g, thisName);
 
             if (requiredParam[0] === '/') {
               requiredParam = requiredParam.slice(1);
               workingDir = specsRoot;
-              requiredPath = requiredParam;
-            } else {
-              requiredPath = `${paramPath}${paramPath ? '.' : ''}${requiredParam}`;
+              currentDir = '';
+              nonRedundantWD = nonRedundantParamsRoot;
             }
 
-            let thisName = getLastParamName(paramPath);
-            requiredPath = requiredPath.replace(/__this_name/g, thisName);
+            requiredPath = requiredParam;
 
-            while (requiredParam.length) {
-              if (requiredParam.startsWith('__this_name')) {
-                requiredParam = requiredParam.replace('__this_name', '');
+            while (requiredPath.length) {
+              const dotIndex = requiredPath.indexOf('.');
+              let paramName = requiredPath;
 
-                if (!workingDir[thisName]) {
+              if (dotIndex > 0) {
+                paramName = requiredPath.substr(0, dotIndex);
+              }
+
+              currentDir = `${currentDir}${currentDir ? '.' : ''}${paramName}`;
+              requiredPath = requiredPath.replace(paramName, '');
+
+              if (requiredPath.startsWith('.')) {
+                requiredPath = requiredPath.replace('.', '');
+              }
+
+              let index = 0;
+              let indexMatches = paramName.match(/(?<=\[)[\d]+(?=])/);
+
+              if (indexMatches && indexMatches.length) {
+                index = parseInt(indexMatches[0]);
+              }
+
+              if (!workingDir[paramName]) {
+                valid = false;
+                messages.push({ level: 'error', message: `Missing parameter ${currentDir}${(currentDir && requiredPath) ? '.' : ''}${requiredPath}`});
+                break;
+              }
+
+              if (!nonRedundantWD[paramName]) {
+                if (typeof workingDir === 'object') {
+                  nonRedundantWD[paramName] = Array.isArray(workingDir[paramName]) ? [] : {};
+                } else {
+                  nonRedundantWD[paramName] = {};
+                }
+              }
+
+              nonRedundantWD = nonRedundantWD[paramName];
+              workingDir = workingDir[paramName];
+
+              if (index) {
+                if (!workingDir[index]) {
                   valid = false;
-                  messages.push({ level: 'error', message: `Missing parameter ${requiredPath}`});
+                  messages.push({ level: 'error', message: `Array out of bounds, attempted to access element on index ${index} in ${currentDir}`});
                   break;
                 }
 
-                workingDir = workingDir[thisName];
+                workingDir = workingDir[index];
 
-                if (requiredParam.startsWith('.')) {
-                  requiredParam = requiredParam.replace('.', '');
-                }
-              } else {
-                const dotIndex = requiredParam.indexOf('.');
-                let paramName = requiredParam;
-
-                if (dotIndex > 0) {
-                  paramName = requiredParam.substr(0, dotIndex);
-                }
-
-                requiredParam = requiredParam.replace(paramName, '');
-
-                if (requiredParam.startsWith('.')) {
-                  requiredParam = requiredParam.replace('.', '');
-                }
-
-                if (!workingDir[paramName]) {
-                  valid = false;
-                  messages.push({ level: 'error', message: `Missing parameter ${requiredPath}`});
-                  break;
-                }
-
-                workingDir = workingDir[paramName];
+                nonRedundantWD.push({});
+                nonRedundantWD = nonRedundantWD[nonRedundantWD.size() - 1];
               }
             }
           }
@@ -255,7 +340,6 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
         messages.push({ level, message: `${paramPath} is not formatted correctly` });
       }
 
-      checkExtraFields = false;
       continue;
     }
 
@@ -266,7 +350,6 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
         }
       }
 
-      checkExtraFields = false;
       continue;
     }
 
@@ -276,13 +359,17 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
         valid = false;
       }
 
-      checkExtraFields = false;
       continue;
     }
 
     if (key === '__arrayItem') {
+      if (!nonRedundantParams) {
+        nonRedundantParams = [];
+      }
+
       for (let i = 0; i < specs.length; i++) {
-        let result = validateSpecs(specs[i], specsStruct[key], `${paramPath}[${i}]`, specsRoot);
+        nonRedundantParams.push({});
+        let result = validateSpecs(specs[i], specsStruct[key], `${paramPath}[${i}]`, specsRoot, nonRedundantParams[i], nonRedundantParamsRoot);
         messages.push(...result.messages);
 
         if (!result.valid) {
@@ -290,13 +377,14 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
         }
       }
 
-      checkExtraFields = false;
       continue;
     }
 
     if (key === '__objectItem') {
       for (const item of Object.keys(specs)) {
-        let result = validateSpecs(specs[item], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${item}`, specsRoot);
+        insertNonRedundantParam(item, specsStruct, nonRedundantParams, specs[item]);
+
+        let result = validateSpecs(specs[item], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${item}`, specsRoot, nonRedundantParams[item], nonRedundantParamsRoot);
         messages.push(...result.messages);
 
         if (!result.valid) {
@@ -304,7 +392,6 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
         }
       }
 
-      checkExtraFields = false;
       continue;
     }
 
@@ -320,21 +407,45 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
         continue;
       }
 
-      let validParamFound = true;
+      let validParamFound = false;
 
-      for (const param of specs) {
-        let result = validateSpecs(param, specsStruct[key], paramPath, specsRoot);
-        validParamFound = true;
+      if (Array.isArray(specs)) {
+        for (let paramIndex = 0; paramIndex < specs.length; paramIndex++) {
+          let nonRedundantParamsCopy = {};
 
-        for (const message of result.messages) {
-          if (!message.message.startsWith('Extra field: ')) {
-            validParamFound = false;
+          if (nonRedundantParams[paramIndex]) {
+            nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramIndex]));
+          } else {
+            nonRedundantParams.push({});
+          }
+
+          let result = validateSpecs(specs[paramIndex], specsStruct[key], paramPath, specsRoot, nonRedundantParams[nonRedundantParams.length - 1], nonRedundantParamsRoot);
+
+          if (!result.messages.length) {
+            validParamFound = true;
             break;
           }
-        }
 
-        if (validParamFound) {
-          break;
+          nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
+        }
+      } else {
+        for (const paramKey of Object.keys(specs)) {
+          let nonRedundantParamsCopy = {};
+
+          if (nonRedundantParams[paramKey]) {
+            nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramKey]));
+          } else {
+            insertNonRedundantParam(paramKey, specsStruct[key], nonRedundantParams, specs[paramKey]);
+          }
+
+          let result = validateSpecs(specs[paramKey], specsStruct[key], paramPath, specsRoot, nonRedundantParams[paramKey], nonRedundantParamsRoot);
+
+          if (!result.messages.length) {
+            validParamFound = true;
+            break;
+          }
+
+          nonRedundantParams[paramKey] = nonRedundantParamsCopy;
         }
       }
 
@@ -347,17 +458,19 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
     }
 
     if (!specs[key]) {
-      messages.push({ level: 'error', message: `Missing parameter ${paramPath}${paramPath ? '.' : ''}${key}`});
+      messages.push({ level: 'error', message: `Missing parameter ${paramPath}${(paramPath && key) ? '.' : ''}${key}`});
       valid = false;
 
       continue;
     }
 
+    insertNonRedundantParam(key, specsStruct, nonRedundantParams, specs[key]);
+
     if (!Object.keys(specsStruct[key]).length) {
       continue;
     }
 
-    let result = validateSpecs(specs[key], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${key}`, specsRoot);
+    let result = validateSpecs(specs[key], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${key}`, specsRoot, nonRedundantParams[key], nonRedundantParamsRoot);
     messages.push(...result.messages);
 
     if (!result.valid) {
@@ -365,12 +478,8 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
     }
   }
 
-  if (checkExtraFields) {
-    for (const key of Object.keys(specs)) {
-      if (!specsStruct[key] && !conditionalParams.includes(key)) {
-        messages.push({ level: 'warning', message: `Extra field: ${paramPath}${paramPath ? '.' : ''}${key}` });
-      }
-    }
+  if (specs === specsRoot) {
+    checkRedundancy(nonRedundantParamsRoot, specs, '', messages);
   }
 
   return { valid, messages };
@@ -378,6 +487,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot) {
 
 function isSpecsValid(specs) {
   let parsedSpecs;
+  let nonRedundant = {};
 
   try {
     parsedSpecs = JSON.parse(specs);
@@ -385,7 +495,7 @@ function isSpecsValid(specs) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return validateSpecs(parsedSpecs, specsStructure, '', parsedSpecs);
+  return validateSpecs(parsedSpecs, specsStructure, '', parsedSpecs, nonRedundant, nonRedundant);
 }
 
 module.exports = { isSpecsValid };

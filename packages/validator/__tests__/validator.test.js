@@ -634,12 +634,12 @@ describe('validator', () => {
       expect(validator.isSpecsValid(specs14)).toMatchObject({
         valid: true,
         messages: [
+          extraFieldMessage('extra'),
           extraFieldMessage('servers[0].extra'),
           extraFieldMessage('paths./myPath.get.parameters[0].extra'),
           extraFieldMessage('paths./myPath.get.others'),
           extraFieldMessage('components.securitySchemes.mySecurityScheme.extra'),
           extraFieldMessage('components.extra'),
-          extraFieldMessage('extra'),
         ],
       });
     });
@@ -651,9 +651,9 @@ describe('validator', () => {
         formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
           missingParamMessage('components.securitySchemes.mySecurityScheme2.name'),
           missingParamMessage('components.securitySchemes.mySecurityScheme3.name'),
-          extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme'),
           formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true),
-          missingParamMessage('components.securitySchemes.mySecurityScheme5')
+          missingParamMessage('components.securitySchemes.mySecurityScheme5'),
+          extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme')
         ]
       });
       expect(validator.isSpecsValid(specs16)).toMatchObject({
