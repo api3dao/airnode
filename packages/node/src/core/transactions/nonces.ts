@@ -1,5 +1,5 @@
 import { removeKey } from '../utils/object-utils';
-import * as sorting from './sorting';
+import * as sorting from '../requests/sorting';
 import {
   ApiCall,
   BaseRequest,

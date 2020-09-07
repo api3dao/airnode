@@ -35,6 +35,12 @@ export enum RequestStatus {
   Errored,
 }
 
+export enum RequestType {
+  ApiCall,
+  WalletDesignation,
+  Withdrawal,
+}
+
 export interface RequestMetadata {
   readonly blockNumber: number;
   readonly transactionHash: string;

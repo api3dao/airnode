@@ -10,11 +10,10 @@ import {
   ClientRequest,
   ProviderState,
   RequestStatus,
+  RequestType,
   WalletDesignation,
   Withdrawal,
 } from '../../types';
-
-type RequestType = 'api-call' | 'wallet-designation' | 'withdrawal';
 
 export interface Receipt {
   id: string;
@@ -22,23 +21,23 @@ export interface Receipt {
   type: RequestType;
 }
 
-async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCall>, chainAPI: ethers.Contract) {
+async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCall>, airnode: ethers.Contract) {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
-    return {};
+    return null;
   }
 
   if (request.status === RequestStatus.Errored) {
     logger.logProviderJSON(state.config.name, 'INFO', `Erroring API call for Request:${request.id}...`);
     // TODO: what should the gas limit be here?
-    return await chainAPI.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
+    return await airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
       gasPrice: state.gasPrice!,
     });
   }
 
   if (request.status === RequestStatus.Pending) {
     logger.logProviderJSON(state.config.name, 'INFO', `Fulfilling API call for Request:${request.id}...`);
-    return await chainAPI.fulfill(
+    return await airnode.fulfill(
       request.id,
       request.response!.value,
       request.fulfillAddress,
@@ -56,21 +55,21 @@ async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCal
     `API call for Request:${request.id} not actioned as it has status:${request.status}`
   );
 
-  return {};
+  return null;
 }
 
 async function submitWalletDesignation(
   state: ProviderState,
   request: BaseRequest<WalletDesignation>,
-  chainAPI: ethers.Contract
+  airnode: ethers.Contract
 ) {
   if (request.status === RequestStatus.Fulfilled) {
-    return {};
+    return null;
   }
 
   if (request.status === RequestStatus.Pending) {
     logger.logProviderJSON(state.config.name, 'INFO', `Fulfilling wallet designation for Request:${request.id}...`);
-    return await chainAPI.fulfillWalletDesignation(request.id, request.walletIndex, {
+    return await airnode.fulfillWalletDesignation(request.id, request.walletIndex, {
       gasPrice: state.gasPrice!,
       gasLimit: 150000,
     });
@@ -82,22 +81,22 @@ async function submitWalletDesignation(
     `API call for Request:${request.id} not actioned as it has status:${request.status}`
   );
 
-  return {};
+  return null;
 }
 
 async function submitWithdrawal(
   state: ProviderState,
   request: ClientRequest<Withdrawal>,
-  chainAPI: ethers.Contract,
+  airnode: ethers.Contract,
   index: string
 ) {
   if (request.status === RequestStatus.Fulfilled) {
-    return {};
+    return null;
   }
 
   if (request.status === RequestStatus.Pending) {
     // The node calculates how much gas the next transaction will cost (53,654)
-    const gasCost = await chainAPI.estimateGas.fulfillWithdrawal(request.id, {
+    const gasCost = await airnode.estimateGas.fulfillWithdrawal(request.id, {
       // We need to send some funds for the gas price calculation to be correct
       value: 1,
     });
@@ -114,14 +113,14 @@ async function submitWithdrawal(
     logger.logProviderJSON(state.config.name, 'INFO', `Fulfilling withdrawal for Request:${request.id}...`);
 
     // Note that we're using the requester wallet to call this
-    return await chainAPI.fulfillWithdrawal(request.id, {
+    return await airnode.fulfillWithdrawal(request.id, {
       gasLimit: gasCost,
       gasPrice: state.gasPrice!,
       value: fundsToSend,
     });
   }
 
-  return {};
+  return null;
 }
 
 export async function submit(state: ProviderState) {
@@ -147,7 +146,21 @@ export async function submit(state: ProviderState) {
         return null;
       }
       logger.logProviderJSON(name, 'INFO', `Submitted tx:${res.hash} for API call Request:${apiCall.id}`);
-      return { id: apiCall.id, type: 'api-call', transactionHash: res.hash };
+      return { id: apiCall.id, type: RequestType.ApiCall, transactionHash: res.hash };
+    });
+
+    const submittedWithdrawals = walletData.requests.withdrawals.map(async (withdrawal) => {
+      const [err, res] = await goTimeout(4000, submitWithdrawal(state, withdrawal, contract, index));
+      if (err || !res) {
+        logger.logProviderJSON(
+          name,
+          'ERROR',
+          `Failed to submit transaction for withdrawal Request:${withdrawal.id}. ${err}`
+        );
+        return null;
+      }
+      logger.logProviderJSON(name, 'INFO', `Submitted tx:${res.hash} for withdrawal Request:${withdrawal.id}`);
+      return { id: withdrawal.id, type: RequestType.Withdrawal, transactionHash: res.hash };
     });
 
     const submittedWalletDesignations = walletData.requests.walletDesignations.map(async (walletDesignation) => {
@@ -165,24 +178,10 @@ export async function submit(state: ProviderState) {
         'INFO',
         `Submitted tx:${res.hash} for wallet designation Request:${walletDesignation.id}`
       );
-      return { id: walletDesignation.id, type: 'wallet-designation', transactionHash: res.hash };
+      return { id: walletDesignation.id, type: RequestType.WalletDesignation, transactionHash: res.hash };
     });
 
-    const submittedWithdrawals = walletData.requests.withdrawals.map(async (withdrawal) => {
-      const [err, res] = await goTimeout(4000, submitWithdrawal(state, withdrawal, contract, index));
-      if (err || !res) {
-        logger.logProviderJSON(
-          name,
-          'ERROR',
-          `Failed to submit transaction for withdrawal Request:${withdrawal.id}. ${err}`
-        );
-        return null;
-      }
-      logger.logProviderJSON(name, 'INFO', `Submitted tx:${res.hash} for withdrawal Request:${withdrawal.id}`);
-      return { id: withdrawal.id, type: 'withdrawal', transactionHash: res.hash };
-    });
-
-    return [...submittedApiCalls, ...submittedWalletDesignations, ...submittedWithdrawals];
+    return [...submittedApiCalls, ...submittedWithdrawals, ...submittedWalletDesignations];
   });
 
   const receipts = await Promise.all(promises);
