@@ -53,16 +53,15 @@ describe('submit', () => {
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
-      expect(res).toEqual([
-        { id: apiCall.id, type: RequestType.ApiCall, transactionHash: '0xsuccessful' },
-      ]);
+      expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, transactionHash: '0xsuccessful' }]);
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
       expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
       expect(contract.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.fulfill).toHaveBeenCalledWith(
-        apiCall.id, '0xresponse', 'fulfillAddress', 'fulfillFunctionId', { gasLimit: 500000, gasPrice }
-      );
+      expect(contract.fulfill).toHaveBeenCalledWith(apiCall.id, '0xresponse', 'fulfillAddress', 'fulfillFunctionId', {
+        gasLimit: 500000,
+        gasPrice,
+      });
     });
 
     it('submits an error transaction for errored requests', async () => {
@@ -85,15 +84,17 @@ describe('submit', () => {
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
-      expect(res).toEqual([
-        { id: apiCall.id, type: RequestType.ApiCall, transactionHash: '0xerrored' },
-      ]);
+      expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, transactionHash: '0xerrored' }]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
       expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
       expect(contract.error).toHaveBeenCalledTimes(1);
       expect(contract.error).toHaveBeenCalledWith(
-        apiCall.id, RequestErrorCode.ApiCallFailed, 'errorAddress', 'errorFunctionId', { gasPrice }
+        apiCall.id,
+        RequestErrorCode.ApiCallFailed,
+        'errorAddress',
+        'errorFunctionId',
+        { gasPrice }
       );
     });
 
@@ -165,7 +166,9 @@ describe('submit', () => {
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).toHaveBeenCalledTimes(1);
       expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
-        walletDesignation.id, walletDesignation.walletIndex, { gasPrice, gasLimit: 150000 }
+        walletDesignation.id,
+        walletDesignation.walletIndex,
+        { gasPrice, gasLimit: 150000 }
       );
     });
 
@@ -213,18 +216,16 @@ describe('submit', () => {
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 3: walletData } });
       const res = await submitting.submit(state);
-      expect(res).toEqual([
-        { id: withdrawal.id, type: RequestType.Withdrawal, transactionHash: '0xsuccessful' },
-      ]);
+      expect(res).toEqual([{ id: withdrawal.id, type: RequestType.Withdrawal, transactionHash: '0xsuccessful' }]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
-      expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
-        withdrawal.id, { gasPrice, gasLimit: ethers.BigNumber.from('1000'), value: ethers.BigNumber.from('1500000') }
-      );
+      expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(withdrawal.id, {
+        gasPrice,
+        gasLimit: ethers.BigNumber.from('1000'),
+        value: ethers.BigNumber.from('1500000'),
+      });
     });
   });
 });
-
-
