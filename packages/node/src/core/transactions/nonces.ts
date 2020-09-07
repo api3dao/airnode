@@ -7,15 +7,10 @@ import {
   GroupedRequests,
   ProviderState,
   RequestStatus,
+  RequestType,
   WalletDesignation,
   Withdrawal,
 } from '../../types';
-
-enum RequestType {
-  ApiCall,
-  WalletDesignation,
-  Withdrawal,
-}
 
 type AnyRequest = ApiCall | WalletDesignation | Withdrawal;
 

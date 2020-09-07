@@ -4,7 +4,7 @@ import * as logger from '../utils/logger';
 import { formatDateTime } from '../utils/date-utils';
 import * as apiCallAggregation from './api-call-aggregation';
 import * as apiCaller from './coordinated-api-caller';
-import * as pw from '../providers/worker';
+import { spawnProviderRequestProcessor } from '../providers/worker';
 
 export async function start() {
   const startedAt = new Date();
@@ -49,11 +49,14 @@ export async function start() {
   // =================================================================
   const providerTransactions = state5.providers.map(async (provider) => {
     logger.logJSON('INFO', `Forking to submit transactions for provider:${provider.config.name}...`);
-    return await pw.spawnProviderRequestProcessor(provider);
+    return await spawnProviderRequestProcessor(provider);
   });
   await Promise.all(providerTransactions);
   logger.logJSON('INFO', 'Forking to submit transactions complete');
 
+  // =================================================================
+  // STEP 7: Log run stats
+  // =================================================================
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
   logger.logJSON('INFO', `Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`);
