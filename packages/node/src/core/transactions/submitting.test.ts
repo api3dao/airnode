@@ -139,6 +139,33 @@ describe('submit', () => {
       expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
       expect(contract.error).not.toHaveBeenCalled();
     });
+
+    it('returns nothing if the transaction fails to submit', async () => {
+      const contract = new ethers.Contract('address', ['ABI']);
+      contract.fulfill.mockRejectedValueOnce(new Error('Server failed to respond'));
+      const gasPrice = ethers.BigNumber.from('1000');
+      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const walletData: WalletData = {
+        address: '0x123',
+        requests: {
+          apiCalls: [apiCall],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 4,
+      };
+      const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
+      const res = await submitting.submit(state);
+      expect(res).toEqual([]);
+      expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
+      expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
+      expect(contract.error).not.toHaveBeenCalled();
+      expect(contract.fulfill).toHaveBeenCalledTimes(1);
+      expect(contract.fulfill).toHaveBeenCalledWith(apiCall.id, '0xresponse', 'fulfillAddress', 'fulfillFunctionId', {
+        gasLimit: 500000,
+        gasPrice,
+      });
+    });
   });
 
   describe('wallet designations', () => {
@@ -194,13 +221,44 @@ describe('submit', () => {
       expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
       expect(contract.error).not.toHaveBeenCalled();
     });
+
+    it('returns nothing if the transaction fails to submit', async () => {
+      const contract = new ethers.Contract('address', ['ABI']);
+      contract.fulfillWalletDesignation.mockRejectedValueOnce(new Error('Server failed to respond'));
+      const gasPrice = ethers.BigNumber.from('1000');
+      const walletDesignation = fixtures.requests.createWalletDesignation({ status: RequestStatus.Pending });
+      const walletData: WalletData = {
+        address: '0x123',
+        requests: {
+          apiCalls: [],
+          walletDesignations: [walletDesignation],
+          withdrawals: [],
+        },
+        transactionCount: 4,
+      };
+      const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 0: walletData } });
+      const res = await submitting.submit(state);
+      expect(res).toEqual([]);
+      expect(contract.fulfill).not.toHaveBeenCalled();
+      expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
+      expect(contract.error).not.toHaveBeenCalled();
+      expect(contract.fulfillWalletDesignation).toHaveBeenCalledTimes(1);
+      expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
+        walletDesignation.id,
+        walletDesignation.walletIndex,
+        { gasPrice, gasLimit: 150000 }
+      );
+    });
   });
 
   describe('withdrawals', () => {
-    it('returns all of the requester funds minus the transaction cost', async () => {
+    beforeEach(() => {
       estimateWithdrawalGasMock.mockResolvedValueOnce(ethers.BigNumber.from('1000'));
       const spy = jest.spyOn(initialState.provider, 'getBalance');
       spy.mockResolvedValueOnce(ethers.BigNumber.from('2500000'));
+    });
+
+    it('returns all of the requester funds minus the transaction cost', async () => {
       const contract = new ethers.Contract('address', ['ABI']);
       contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xsuccessful' });
       const gasPrice = ethers.BigNumber.from('1000');
@@ -224,8 +282,55 @@ describe('submit', () => {
       expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(withdrawal.id, {
         gasPrice,
         gasLimit: ethers.BigNumber.from('1000'),
+        // 2500000 - (1000 * 1000)
         value: ethers.BigNumber.from('1500000'),
       });
+    });
+
+    it('does nothing if the request is fulfilled, blocked or errored', async () => {
+      const contract = new ethers.Contract('address', ['ABI']);
+      const gasPrice = ethers.BigNumber.from('1000');
+      const blocked = fixtures.requests.createWithdrawal({ status: RequestStatus.Blocked });
+      const fulfilled = fixtures.requests.createWithdrawal({ status: RequestStatus.Fulfilled });
+      const errored = fixtures.requests.createWithdrawal({ status: RequestStatus.Errored });
+      const walletData: WalletData = {
+        address: '0x123',
+        requests: {
+          apiCalls: [],
+          walletDesignations: [],
+          withdrawals: [blocked, fulfilled, errored],
+        },
+        transactionCount: 4,
+      };
+      const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 3: walletData } });
+      const res = await submitting.submit(state);
+      expect(res).toEqual([]);
+      expect(contract.fulfill).not.toHaveBeenCalled();
+      expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
+      expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
+      expect(contract.error).not.toHaveBeenCalled();
+    });
+
+    it('returns nothing if the transaction fails to submit', async () => {
+      const contract = new ethers.Contract('address', ['ABI']);
+      contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server failed to respond'));
+      const withdrawal = fixtures.requests.createWithdrawal({ status: RequestStatus.Pending });
+      const walletData: WalletData = {
+        address: '0x123',
+        requests: {
+          apiCalls: [],
+          walletDesignations: [],
+          withdrawals: [withdrawal],
+        },
+        transactionCount: 4,
+      };
+      const state = providerState.update(initialState, { walletDataByIndex: { 3: walletData } });
+      const res = await submitting.submit(state);
+      expect(res).toEqual([]);
+      expect(contract.fulfill).not.toHaveBeenCalled();
+      expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
+      expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
+      expect(contract.error).not.toHaveBeenCalled();
     });
   });
 });
