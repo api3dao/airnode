@@ -1,8 +1,8 @@
 import flatMap from 'lodash/flatMap';
-import * as events from '../events';
-import * as model from '../../../requests/api-calls/model';
 import * as logger from 'src/core/utils/logger';
-import { ApiCall, BaseRequest, LogWithMetadata, ProviderState } from '../../../../types';
+import * as model from 'src/core/requests/api-calls/model';
+import * as events from './events';
+import { ApiCall, BaseRequest, LogWithMetadata, ProviderState } from 'src/types';
 
 export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<ApiCall>[] {
   // Separate the logs
@@ -14,8 +14,9 @@ export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithM
 
   // Decode and apply parameters for each API call
   const parameterized = apiCallBaseRequests.map((request) => model.applyParameters(request));
-  // const parameterLogs = flatMap(parameterized, p => p[0]);
+  const parameterLogs = flatMap(parameterized, (p) => p[0]);
   const parameterizedRequests = flatMap(parameterized, (p) => p[1]);
+  logger.logPendingMessages(state.config.name, parameterLogs);
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);

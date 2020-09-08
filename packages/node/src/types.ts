@@ -187,6 +187,16 @@ export interface Triggers {
 }
 
 // ===========================================
+// Logging
+// ===========================================
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+
+export interface PendingLog {
+  level: LogLevel;
+  message: string;
+}
+
+// ===========================================
 // Config
 // ===========================================
 export interface ProviderConfig {

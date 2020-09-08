@@ -1,18 +1,20 @@
 import flatMap from 'lodash/flatMap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
-import * as ethereum from '../../ethereum';
-import * as logger from '../../utils/logger';
+import * as ethereum from 'src/core/ethereum';
 import {
   AggregatedApiCall,
   ApiCall,
   BaseRequest,
   ClientRequest,
   LogWithMetadata,
+  PendingLog,
   ProviderState,
   RequestErrorCode,
   RequestStatus,
-} from '../../../types';
+} from 'src/types';
+
+type LogsAndRequests = [PendingLog[], BaseRequest<ApiCall>[]];
 
 export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
@@ -40,20 +42,61 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCal
   return request;
 }
 
-export function applyParameters(state: ProviderState, request: BaseRequest<ApiCall>): BaseRequest<ApiCall> {
+export function applyParameters(request: BaseRequest<ApiCall>): [PendingLog[], BaseRequest<ApiCall>] {
   if (!request.encodedParameters) {
-    return request;
+    return [[], request];
   }
 
   const parameters = ethereum.cbor.safeDecode(request.encodedParameters);
   if (parameters === null) {
     const { id, encodedParameters } = request;
-    const message = `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`;
-    logger.logProviderJSON(state.config.name, 'ERROR', message);
-    return { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.InvalidRequestParameters };
+
+    const log: PendingLog = {
+      level: 'ERROR',
+      message: `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`,
+    };
+
+    const updatedRequest = {
+      ...request,
+      status: RequestStatus.Errored,
+      errorCode: RequestErrorCode.InvalidRequestParameters,
+    };
+
+    return [[log], updatedRequest];
   }
 
-  return { ...request, parameters };
+  return [[], { ...request, parameters }];
+}
+
+export function updateFulfilledRequests(
+  apiCalls: BaseRequest<ApiCall>[],
+  fulfilledRequestIds: string[]
+): LogsAndRequests {
+  const initialState = {
+    logs: [],
+    requests: [],
+  };
+
+  const fulfilledApiCalls = apiCalls.reduce((acc, apiCall) => {
+    if (fulfilledRequestIds.includes(apiCall.id)) {
+      const log: PendingLog = {
+        level: 'DEBUG',
+        message: `Request ID:${apiCall.id} has already been fulfilled`,
+      };
+
+      const fulfilledApiCall = { ...apiCall, status: RequestStatus.Fulfilled };
+
+      return {
+        ...acc,
+        logs: [...acc.logs, log],
+        requests: [...acc.requests, fulfilledApiCall],
+      };
+    }
+
+    return acc;
+  }, initialState);
+
+  return [fulfilledApiCalls.logs, fulfilledApiCalls.requests];
 }
 
 export function isDuplicate(apiCall: ClientRequest<ApiCall>, aggregatedApiCall: AggregatedApiCall): boolean {

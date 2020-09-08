@@ -1,9 +1,8 @@
-import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
+import { ApiCall, BaseRequest, ClientRequest, RequestStatus } from '../../../src/types';
 
-export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
+export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseRequest<ApiCall> {
   return {
     id: 'apiCallId',
-    requesterId: 'requesterId',
     requesterAddress: 'requesterAddress',
     endpointId: 'endpointId',
     templateId: null,
@@ -19,6 +18,14 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
       blockNumber: 10716082,
       transactionHash: 'logTransactionHash',
     },
+    ...params,
+  };
+}
+
+export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
+  return {
+    ...createBaseApiCall(params),
+    requesterId: 'requesterId',
     walletIndex: '1',
     walletAddress: 'walletAddress',
     walletBalance: '100000',
