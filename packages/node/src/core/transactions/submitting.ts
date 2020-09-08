@@ -3,7 +3,7 @@ import flatMap from 'lodash/flatMap';
 import * as ethereum from '../ethereum';
 import * as wallet from '../ethereum/wallet';
 import * as logger from '../utils/logger';
-import { goTimeout } from '../utils/promise-utils';
+import { go } from '../utils/promise-utils';
 import {
   ApiCall,
   BaseRequest,
@@ -32,6 +32,7 @@ async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCal
     // TODO: what should the gas limit be here?
     return await airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
       gasPrice: state.gasPrice!,
+      nonce: request.nonce!,
     });
   }
 
@@ -45,6 +46,7 @@ async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCal
       {
         gasPrice: state.gasPrice!,
         gasLimit: 500000, // TODO: the default gas limit is too high?
+        nonce: request.nonce!,
       }
     );
   }
@@ -72,6 +74,7 @@ async function submitWalletDesignation(
     return await airnode.fulfillWalletDesignation(request.id, request.walletIndex, {
       gasPrice: state.gasPrice!,
       gasLimit: 150000,
+      nonce: request.nonce!,
     });
   }
 
@@ -116,6 +119,7 @@ async function submitWithdrawal(
     return await airnode.fulfillWithdrawal(request.id, {
       gasLimit: gasCost,
       gasPrice: state.gasPrice!,
+      nonce: request.nonce!,
       value: fundsToSend,
     });
   }
@@ -135,8 +139,9 @@ export async function submit(state: ProviderState) {
     const signer = signingWallet.connect(state.provider);
     const contract = new ethers.Contract(Airnode.addresses[state.config.chainId], Airnode.ABI, signer);
 
+    // Submit transactions for API calls
     const submittedApiCalls = walletData.requests.apiCalls.map(async (apiCall) => {
-      const [err, res] = await goTimeout(4000, submitApiCall(state, apiCall, contract));
+      const [err, res] = await go(submitApiCall(state, apiCall, contract));
       if (err || !res) {
         logger.logProviderJSON(
           name,
@@ -149,8 +154,9 @@ export async function submit(state: ProviderState) {
       return { id: apiCall.id, type: RequestType.ApiCall, transactionHash: res.hash };
     });
 
+    // Submit transactions for withdrawals
     const submittedWithdrawals = walletData.requests.withdrawals.map(async (withdrawal) => {
-      const [err, res] = await goTimeout(4000, submitWithdrawal(state, withdrawal, contract, index));
+      const [err, res] = await go(submitWithdrawal(state, withdrawal, contract, index));
       if (err || !res) {
         logger.logProviderJSON(
           name,
@@ -163,8 +169,9 @@ export async function submit(state: ProviderState) {
       return { id: withdrawal.id, type: RequestType.Withdrawal, transactionHash: res.hash };
     });
 
+    // Submit transactions for wallet designations
     const submittedWalletDesignations = walletData.requests.walletDesignations.map(async (walletDesignation) => {
-      const [err, res] = await goTimeout(4000, submitWalletDesignation(state, walletDesignation, contract));
+      const [err, res] = await go(submitWalletDesignation(state, walletDesignation, contract));
       if (err || !res) {
         logger.logProviderJSON(
           name,
