@@ -46,9 +46,9 @@ describe('assign', () => {
     const state = providerState.update(initialState, { walletDataByIndex: { 3: walletData } });
     const res = nonces.assign(state);
     const assignedReqs = res[3].requests.apiCalls;
-    expect(assignedReqs[0]).toEqual({ ...first, nonce: 4 });
-    expect(assignedReqs[1]).toEqual({ ...second, nonce: 5 });
-    expect(assignedReqs[2]).toEqual({ ...third, nonce: 6 });
+    expect(assignedReqs[0]).toEqual({ ...first, nonce: 3 });
+    expect(assignedReqs[1]).toEqual({ ...second, nonce: 4 });
+    expect(assignedReqs[2]).toEqual({ ...third, nonce: 5 });
   });
 
   it('sorts and assigns nonces to wallet designations', () => {
@@ -79,9 +79,9 @@ describe('assign', () => {
     const state = providerState.update(initialState, { walletDataByIndex: { 0: walletData } });
     const res = nonces.assign(state);
     const assignedReqs = res[0].requests.walletDesignations;
-    expect(assignedReqs[0]).toEqual({ ...first, nonce: 8 });
-    expect(assignedReqs[1]).toEqual({ ...second, nonce: 9 });
-    expect(assignedReqs[2]).toEqual({ ...third, nonce: 10 });
+    expect(assignedReqs[0]).toEqual({ ...first, nonce: 7 });
+    expect(assignedReqs[1]).toEqual({ ...second, nonce: 8 });
+    expect(assignedReqs[2]).toEqual({ ...third, nonce: 9 });
   });
 
   it('sorts and assigns nonces requests withdrawals', () => {
@@ -112,9 +112,9 @@ describe('assign', () => {
     const state = providerState.update(initialState, { walletDataByIndex: { 7: walletData } });
     const res = nonces.assign(state);
     const assignedReqs = res[7].requests.withdrawals;
-    expect(assignedReqs[0]).toEqual({ ...first, nonce: 12 });
-    expect(assignedReqs[1]).toEqual({ ...second, nonce: 13 });
-    expect(assignedReqs[2]).toEqual({ ...third, nonce: 14 });
+    expect(assignedReqs[0]).toEqual({ ...first, nonce: 11 });
+    expect(assignedReqs[1]).toEqual({ ...second, nonce: 12 });
+    expect(assignedReqs[2]).toEqual({ ...third, nonce: 13 });
   });
 
   it('does not share nonces between wallets', () => {
@@ -148,9 +148,9 @@ describe('assign', () => {
     const walletDataByIndex = { 0: adminWalletData, 3: wallet1Data, 7: wallet2Data };
     const state = providerState.update(initialState, { walletDataByIndex });
     const res = nonces.assign(state);
-    expect(res[0].requests.walletDesignations[0].nonce).toEqual(12);
-    expect(res[3].requests.apiCalls[0].nonce).toEqual(12);
-    expect(res[7].requests.apiCalls[0].nonce).toEqual(8);
+    expect(res[0].requests.walletDesignations[0].nonce).toEqual(11);
+    expect(res[3].requests.apiCalls[0].nonce).toEqual(11);
+    expect(res[7].requests.apiCalls[0].nonce).toEqual(7);
   });
 
   it('blocks nonce assignment if a request is blocked', () => {
@@ -182,7 +182,7 @@ describe('assign', () => {
     const state = providerState.update(initialState, { currentBlock: 102, walletDataByIndex: { 3: walletData } });
     const res = nonces.assign(state);
     const assignedReqs = res[3].requests.apiCalls;
-    expect(assignedReqs[0]).toEqual({ ...first, nonce: 4 });
+    expect(assignedReqs[0]).toEqual({ ...first, nonce: 3 });
     expect(assignedReqs[1]).toEqual({ ...second, nonce: undefined });
     expect(assignedReqs[2]).toEqual({ ...third, nonce: undefined });
   });
@@ -216,8 +216,8 @@ describe('assign', () => {
     const state = providerState.update(initialState, { currentBlock: 122, walletDataByIndex: { 3: walletData } });
     const res = nonces.assign(state);
     const assignedReqs = res[3].requests.apiCalls;
-    expect(assignedReqs[0]).toEqual({ ...first, nonce: 4 });
+    expect(assignedReqs[0]).toEqual({ ...first, nonce: 3 });
     expect(assignedReqs[1]).toEqual({ ...second, nonce: undefined });
-    expect(assignedReqs[2]).toEqual({ ...third, nonce: 5 });
+    expect(assignedReqs[2]).toEqual({ ...third, nonce: 4 });
   });
 });

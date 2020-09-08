@@ -49,7 +49,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
@@ -61,6 +61,7 @@ describe('submit', () => {
       expect(contract.fulfill).toHaveBeenCalledWith(apiCall.id, '0xresponse', 'fulfillAddress', 'fulfillFunctionId', {
         gasLimit: 500000,
         gasPrice,
+        nonce: 5,
       });
     });
 
@@ -80,7 +81,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
@@ -94,7 +95,7 @@ describe('submit', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        { gasPrice }
+        { gasPrice, nonce: 5 }
       );
     });
 
@@ -108,7 +109,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
@@ -129,7 +130,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
@@ -152,7 +153,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
       const res = await submitting.submit(state);
@@ -164,6 +165,7 @@ describe('submit', () => {
       expect(contract.fulfill).toHaveBeenCalledWith(apiCall.id, '0xresponse', 'fulfillAddress', 'fulfillFunctionId', {
         gasLimit: 500000,
         gasPrice,
+        nonce: 5,
       });
     });
   });
@@ -173,7 +175,7 @@ describe('submit', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       contract.fulfillWalletDesignation.mockResolvedValueOnce({ hash: '0xsuccessful' });
       const gasPrice = ethers.BigNumber.from('1000');
-      const walletDesignation = fixtures.requests.createWalletDesignation({ status: RequestStatus.Pending });
+      const walletDesignation = fixtures.requests.createWalletDesignation({ nonce: 5, status: RequestStatus.Pending });
       const walletData: WalletData = {
         address: '0x123',
         requests: {
@@ -181,7 +183,7 @@ describe('submit', () => {
           walletDesignations: [walletDesignation],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 0: walletData } });
       const res = await submitting.submit(state);
@@ -195,7 +197,7 @@ describe('submit', () => {
       expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
         walletDesignation.id,
         walletDesignation.walletIndex,
-        { gasPrice, gasLimit: 150000 }
+        { gasPrice, gasLimit: 150000, nonce: 5 }
       );
     });
 
@@ -211,7 +213,7 @@ describe('submit', () => {
           walletDesignations: [fulfilled, blocked, errored],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 0: walletData } });
       const res = await submitting.submit(state);
@@ -226,7 +228,7 @@ describe('submit', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       contract.fulfillWalletDesignation.mockRejectedValueOnce(new Error('Server failed to respond'));
       const gasPrice = ethers.BigNumber.from('1000');
-      const walletDesignation = fixtures.requests.createWalletDesignation({ status: RequestStatus.Pending });
+      const walletDesignation = fixtures.requests.createWalletDesignation({ nonce: 5, status: RequestStatus.Pending });
       const walletData: WalletData = {
         address: '0x123',
         requests: {
@@ -234,7 +236,7 @@ describe('submit', () => {
           walletDesignations: [walletDesignation],
           withdrawals: [],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 0: walletData } });
       const res = await submitting.submit(state);
@@ -246,7 +248,7 @@ describe('submit', () => {
       expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
         walletDesignation.id,
         walletDesignation.walletIndex,
-        { gasPrice, gasLimit: 150000 }
+        { gasPrice, gasLimit: 150000, nonce: 5 }
       );
     });
   });
@@ -262,7 +264,7 @@ describe('submit', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xsuccessful' });
       const gasPrice = ethers.BigNumber.from('1000');
-      const withdrawal = fixtures.requests.createWithdrawal({ status: RequestStatus.Pending });
+      const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
       const walletData: WalletData = {
         address: '0x123',
         requests: {
@@ -270,7 +272,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [withdrawal],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 3: walletData } });
       const res = await submitting.submit(state);
@@ -278,10 +280,12 @@ describe('submit', () => {
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
       expect(contract.error).not.toHaveBeenCalled();
+      expect(contract.estimateGas.fulfillWithdrawal).toHaveBeenCalledTimes(1);
       expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
       expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(withdrawal.id, {
         gasPrice,
         gasLimit: ethers.BigNumber.from('1000'),
+        nonce: 5,
         // 2500000 - (1000 * 1000)
         value: ethers.BigNumber.from('1500000'),
       });
@@ -300,7 +304,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [blocked, fulfilled, errored],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 3: walletData } });
       const res = await submitting.submit(state);
@@ -322,7 +326,7 @@ describe('submit', () => {
           walletDesignations: [],
           withdrawals: [withdrawal],
         },
-        transactionCount: 4,
+        transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 3: walletData } });
       const res = await submitting.submit(state);
