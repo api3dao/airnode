@@ -26,7 +26,7 @@ import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { ProviderState, RequestErrorCode, RequestStatus, RequestType, WalletData } from 'src/types';
 import * as providerState from '../providers/state';
-import * as submitting from './submitting';
+import * as transactions from './transactions';
 
 describe('submit', () => {
   let initialState: ProviderState;
@@ -52,7 +52,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, transactionHash: '0xsuccessful' }]);
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -84,7 +84,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, transactionHash: '0xerrored' }]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 8: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 8: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -156,7 +156,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 8: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
       expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 0: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([
         { id: walletDesignation.id, type: RequestType.WalletDesignation, transactionHash: '0xsuccessful' },
       ]);
@@ -216,7 +216,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 0: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -239,7 +239,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 0: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
@@ -275,7 +275,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 3: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([{ id: withdrawal.id, type: RequestType.Withdrawal, transactionHash: '0xsuccessful' }]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -307,7 +307,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { gasPrice, walletDataByIndex: { 3: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
@@ -329,7 +329,7 @@ describe('submit', () => {
         transactionCount: 5,
       };
       const state = providerState.update(initialState, { walletDataByIndex: { 3: walletData } });
-      const res = await submitting.submit(state);
+      const res = await transactions.submit(state);
       expect(res).toEqual([]);
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fulfillWalletDesignation).not.toHaveBeenCalled();
