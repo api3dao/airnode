@@ -58,7 +58,7 @@ function assignWalletNonces(
 ): BaseRequest<any>[] {
   const initialState = {
     assignmentBlocked: false,
-    nextNonce: transactionCount + 1,
+    nextNonce: transactionCount,
     requests: [],
   };
 
