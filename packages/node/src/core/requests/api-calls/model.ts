@@ -93,7 +93,7 @@ export function updateFulfilledRequests(
       };
     }
 
-    return acc;
+    return { ...acc, requests: [...acc.requests, apiCall] };
   }, initialState);
 
   return [fulfilledApiCalls.logs, fulfilledApiCalls.requests];
