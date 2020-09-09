@@ -166,6 +166,20 @@ export interface LogWithMetadata {
 }
 
 // ===========================================
+// Transactions
+// ===========================================
+export interface TransactionOptions {
+  gasPrice: number | ethers.BigNumber;
+  logs: PendingLog[];
+}
+
+export interface TransactionReceipt {
+  id: string;
+  transactionHash: string;
+  type: RequestType;
+}
+
+// ===========================================
 // Triggers
 // ===========================================
 export interface RequestTrigger {
@@ -184,6 +198,22 @@ export interface Triggers {
   aggregator: AggregatorTrigger[];
   flux: AggregatorTrigger[];
   requests: RequestTrigger[];
+}
+
+// ===========================================
+// Logging
+// ===========================================
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+
+export interface PendingLog {
+  level: LogLevel;
+  message: string;
+}
+
+export interface LogsWithData {
+  logs: PendingLog[];
+  data?: any;
+  error?: any;
 }
 
 // ===========================================
