@@ -29,8 +29,8 @@ async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCal
 
   if (request.status === RequestStatus.Errored) {
     logger.logProviderJSON(state.config.name, 'INFO', `Erroring API call for Request:${request.id}...`);
-    // TODO: what should the gas limit be here?
     return await airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
+      gasLimit: 500000,
       gasPrice: state.gasPrice!,
       nonce: request.nonce!,
     });
@@ -44,8 +44,8 @@ async function submitApiCall(state: ProviderState, request: ClientRequest<ApiCal
       request.fulfillAddress,
       request.fulfillFunctionId,
       {
+        gasLimit: 500000,
         gasPrice: state.gasPrice!,
-        gasLimit: 500000, // TODO: the default gas limit is too high?
         nonce: request.nonce!,
       }
     );
