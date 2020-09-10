@@ -1,9 +1,16 @@
 import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
-import { ApiCall, ClientRequest, LogsWithData, RequestStatus, TransactionOptions } from '../../../types';
+import {
+  ApiCall,
+  ClientRequest,
+  LogsWithData,
+  RequestErrorCode,
+  RequestStatus,
+  TransactionOptions,
+} from '../../../types';
 
-const GAS_LIMIT = 500000;
+const GAS_LIMIT = 500_000;
 
 // NOTE:
 // This module definitely appears convoluted, but unfortunately there are quite a few different
@@ -33,11 +40,11 @@ async function testError(
 ): Promise<LogsWithData> {
   const noticeLog = logger.pend('DEBUG', `Attempting to error API call for Request:${request.id}...`);
 
-  const attemptedTx = airnode.callStatic.fulfill(
+  const attemptedTx = airnode.callStatic.error(
     request.id,
-    request.response!.value,
-    request.fulfillAddress,
-    request.fulfillFunctionId,
+    request.errorCode || RequestErrorCode.Unknown,
+    request.errorAddress,
+    request.errorFunctionId,
     {
       gasLimit: GAS_LIMIT,
       gasPrice: options.gasPrice,
@@ -58,13 +65,19 @@ async function submitError(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsWithData> {
-  const noticeLog = logger.pend('INFO', `Erroring API call for Request:${request.id}...`);
+  const noticeLog = logger.pend('INFO', `Submitting API call error for Request:${request.id}...`);
 
-  const tx = airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
-    gasLimit: GAS_LIMIT,
-    gasPrice: options.gasPrice,
-    nonce: request.nonce!,
-  });
+  const tx = airnode.error(
+    request.id,
+    request.errorCode || RequestErrorCode.Unknown,
+    request.errorAddress,
+    request.errorFunctionId,
+    {
+      gasLimit: GAS_LIMIT,
+      gasPrice: options.gasPrice,
+      nonce: request.nonce!,
+    }
+  );
 
   const [err, res] = await go(tx);
   if (err) {
@@ -86,7 +99,7 @@ async function testAndSubmitError(
   const [testLogs, testErr, testData] = await testError(airnode, request, options);
 
   if (testErr || !testData?.callSuccess) {
-    const [submitLogs, submitErr, submitData] = await fail(airnode, request, options);
+    const [submitLogs, submitErr, submitData] = await submitFail(airnode, request, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
 
@@ -139,7 +152,7 @@ async function submitFulfill(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsWithData> {
-  const noticeLog = logger.pend('INFO', `Fulfilling API call for Request:${request.id}...`);
+  const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
 
   const tx = airnode.fulfill(request.id, request.response!.value, request.fulfillAddress, request.fulfillFunctionId, {
     gasLimit: GAS_LIMIT,
@@ -188,12 +201,12 @@ async function testAndSubmitFulfill(
 // =================================================================
 // Failures
 // =================================================================
-async function fail(
+async function submitFail(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsWithData> {
-  const noticeLog = logger.pend('INFO', `Failing API call for Request:${request.id}`);
+  const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = airnode.fail(request.id, { gasLimit: GAS_LIMIT, gasPrice: options.gasPrice, nonce: request.nonce! });
 
