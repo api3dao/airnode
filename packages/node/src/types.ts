@@ -170,7 +170,8 @@ export interface LogWithMetadata {
 // ===========================================
 export interface TransactionOptions {
   gasPrice: number | ethers.BigNumber;
-  logs: PendingLog[];
+  provider?: ethers.providers.JsonRpcProvider;
+  walletIndex?: string | number;
 }
 
 export interface TransactionReceipt {
@@ -210,11 +211,7 @@ export interface PendingLog {
   message: string;
 }
 
-export interface LogsWithData {
-  logs: PendingLog[];
-  data?: any;
-  error?: any;
-}
+export type LogsWithData = [PendingLog[], Error | null, any];
 
 // ===========================================
 // Config

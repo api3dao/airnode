@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
-import * as logger from 'src/core/utils/logger';
-import { go } from 'src/core/utils/promise-utils';
+import * as logger from '../../utils/logger';
+import { go } from '../../utils/promise-utils';
 import {
   BaseRequest,
   LogsWithData,
   RequestStatus,
   TransactionOptions,
   WalletDesignation,
-} from 'src/types';
+} from '../../../types';
 
 export async function submitWalletDesignation(
   airnode: ethers.Contract,
@@ -16,7 +16,7 @@ export async function submitWalletDesignation(
 ): Promise<LogsWithData> {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
-    return { logs: options.logs, data: null };
+    return [[], null, null];
   }
 
   if (request.status === RequestStatus.Pending) {
@@ -31,12 +31,12 @@ export async function submitWalletDesignation(
     const [err, res] = await go(tx);
     if (err) {
       const errorLog = logger.pend('ERROR', `Error submitting withdrawal for Request:${request.id}. ${err}`);
-      return { logs: [...options.logs, noticeLog, errorLog], error: err };
+      return [[noticeLog, errorLog], err, null];
     }
-    return { logs: [...options.logs, noticeLog], data: res };
+    return [[noticeLog], null, res];
   }
 
-  const log = logger.pend('INFO', `Withdrawal for Request:${request.id} not actioned as it has status:${request.status}`);
+  const noticeLog = logger.pend('INFO', `Withdrawal for Request:${request.id} not actioned as it has status:${request.status}`);
 
-  return { logs: [...options.logs, log], data: null };
+  return [[noticeLog], null, null];
 }
