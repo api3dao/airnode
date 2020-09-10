@@ -158,6 +158,56 @@ function insertNonRedundantParam(param, specsStruct, nonRedundantParams, specs) 
   }
 }
 
+function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundantParams, nonRedundantParamsRoot) {
+  if (!specs) {
+    return false;
+  }
+
+  let validParamFound = false;
+
+  if (Array.isArray(specs)) {
+    for (let paramIndex = 0; paramIndex < specs.length; paramIndex++) {
+      let nonRedundantParamsCopy = {};
+
+      if (nonRedundantParams[paramIndex]) {
+        nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramIndex]));
+      } else {
+        nonRedundantParams.push({});
+      }
+
+      let result = validateSpecs(specs[paramIndex], specsStruct, paramPath, specsRoot, nonRedundantParams[nonRedundantParams.length - 1], nonRedundantParamsRoot);
+
+      if (!result.messages.length) {
+        validParamFound = true;
+        break;
+      }
+
+      nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
+    }
+  } else {
+    for (const paramKey of Object.keys(specs)) {
+      let nonRedundantParamsCopy = {};
+
+      if (nonRedundantParams[paramKey]) {
+        nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramKey]));
+      } else {
+        insertNonRedundantParam(paramKey, specsStruct, nonRedundantParams, specs[paramKey]);
+      }
+
+      let result = validateSpecs(specs[paramKey], specsStruct, paramPath, specsRoot, nonRedundantParams[paramKey], nonRedundantParamsRoot);
+
+      if (!result.messages.length) {
+        validParamFound = true;
+        break;
+      }
+
+      nonRedundantParams[paramKey] = nonRedundantParamsCopy;
+    }
+  }
+
+  return validParamFound;
+}
+
 function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantParams, nonRedundantParamsRoot) {
   let messages = [];
   let valid = true;
@@ -241,13 +291,18 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
 
                   valid = false;
                 }
+              } else if (thenParamName === '__any') {
+                if (!findAnyValidParam(specs, specsRoot, condition['__then']['__any'], paramPath, nonRedundantParams, nonRedundantParamsRoot)) {
+                  messages.push({ level: 'error', message: `Required conditions not met in ${paramPath}`});
+                  valid = false;
+                }
               } else {
                 valid = false;
                 messages.push({ level: 'error', message: `Missing parameter ${paramPath}${(paramPath && thenParamName) ? '.' : ''}${thenParamName}`});
               }
             }
           }
-        } else {
+        } else if (condition['__require']) {
           for (let requiredParam of Object.keys(condition['__require'])) {
             let workingDir = specs;
             let requiredPath = '';
@@ -400,56 +455,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
     }
 
     if (key === '__any') {
-      if (!specs.length) {
-        messages.push({ level: 'error', message: `${paramPath} can't be empty`});
-        valid = false;
-
-        continue;
-      }
-
-      let validParamFound = false;
-
-      if (Array.isArray(specs)) {
-        for (let paramIndex = 0; paramIndex < specs.length; paramIndex++) {
-          let nonRedundantParamsCopy = {};
-
-          if (nonRedundantParams[paramIndex]) {
-            nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramIndex]));
-          } else {
-            nonRedundantParams.push({});
-          }
-
-          let result = validateSpecs(specs[paramIndex], specsStruct[key], paramPath, specsRoot, nonRedundantParams[nonRedundantParams.length - 1], nonRedundantParamsRoot);
-
-          if (!result.messages.length) {
-            validParamFound = true;
-            break;
-          }
-
-          nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
-        }
-      } else {
-        for (const paramKey of Object.keys(specs)) {
-          let nonRedundantParamsCopy = {};
-
-          if (nonRedundantParams[paramKey]) {
-            nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramKey]));
-          } else {
-            insertNonRedundantParam(paramKey, specsStruct[key], nonRedundantParams, specs[paramKey]);
-          }
-
-          let result = validateSpecs(specs[paramKey], specsStruct[key], paramPath, specsRoot, nonRedundantParams[paramKey], nonRedundantParamsRoot);
-
-          if (!result.messages.length) {
-            validParamFound = true;
-            break;
-          }
-
-          nonRedundantParams[paramKey] = nonRedundantParamsCopy;
-        }
-      }
-
-      if (!validParamFound) {
+      if (!findAnyValidParam(specs, specsRoot, specsStruct[key], paramPath, nonRedundantParams, nonRedundantParamsRoot)) {
         messages.push({ level: 'error', message: `Required conditions not met in ${paramPath}`});
         valid = false;
       }
