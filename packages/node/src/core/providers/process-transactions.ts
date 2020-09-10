@@ -25,7 +25,11 @@ export async function processTransactions(initialState: ProviderState) {
   // =================================================================
   const receipts = await transactions.submit(state2);
   receipts.forEach((receipt) => {
-    logger.logProviderJSON(state2.config.name, 'INFO', `Transaction:${receipt.transactionHash} submitted for Request:${receipt.id}`);
+    logger.logProviderJSON(
+      state2.config.name,
+      'INFO',
+      `Transaction:${receipt.transactionHash} submitted for Request:${receipt.id}`
+    );
   });
 
   return receipts;

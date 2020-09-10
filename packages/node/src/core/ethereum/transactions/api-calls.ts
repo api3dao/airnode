@@ -1,13 +1,7 @@
 import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
-import {
-  ApiCall,
-  ClientRequest,
-  LogsWithData,
-  RequestStatus,
-  TransactionOptions,
-} from '../../../types';
+import { ApiCall, ClientRequest, LogsWithData, RequestStatus, TransactionOptions } from '../../../types';
 
 const GAS_LIMIT = 500000;
 
@@ -32,7 +26,11 @@ const GAS_LIMIT = 500000;
 // =================================================================
 // Errors
 // =================================================================
-async function testError(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function testError(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   const noticeLog = logger.pend('DEBUG', `Attempting to error API call for Request:${request.id}...`);
 
   const attemptedTx = airnode.callStatic.fulfill(
@@ -55,7 +53,11 @@ async function testError(airnode: ethers.Contract, request: ClientRequest<ApiCal
   return [[noticeLog], null, res];
 }
 
-async function submitError(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function submitError(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   const noticeLog = logger.pend('INFO', `Erroring API call for Request:${request.id}...`);
 
   const tx = airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
@@ -66,13 +68,20 @@ async function submitError(airnode: ethers.Contract, request: ClientRequest<ApiC
 
   const [err, res] = await go(tx);
   if (err) {
-    const errorLog = logger.pend('ERROR', `Error submitting API call error transaction for Request:${request.id}. ${err}`);
+    const errorLog = logger.pend(
+      'ERROR',
+      `Error submitting API call error transaction for Request:${request.id}. ${err}`
+    );
     return [[noticeLog, errorLog], err, null];
   }
   return [[noticeLog], null, res];
 }
 
-async function testAndSubmitError(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function testAndSubmitError(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   // Should not throw
   const [testLogs, testErr, testData] = await testError(airnode, request, options);
 
@@ -98,7 +107,11 @@ async function testAndSubmitError(airnode: ethers.Contract, request: ClientReque
 // =================================================================
 // Fulfillments
 // =================================================================
-async function testFulfill(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function testFulfill(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
 
   const attemptedTx = airnode.callStatic.fulfill(
@@ -121,30 +134,35 @@ async function testFulfill(airnode: ethers.Contract, request: ClientRequest<ApiC
   return [[noticeLog], null, res];
 }
 
-async function submitFulfill(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function submitFulfill(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   const noticeLog = logger.pend('INFO', `Fulfilling API call for Request:${request.id}...`);
 
-  const tx = airnode.fulfill(
-    request.id,
-    request.response!.value,
-    request.fulfillAddress,
-    request.fulfillFunctionId,
-    {
-      gasLimit: GAS_LIMIT,
-      gasPrice: options.gasPrice,
-      nonce: request.nonce!,
-    }
-  );
+  const tx = airnode.fulfill(request.id, request.response!.value, request.fulfillAddress, request.fulfillFunctionId, {
+    gasLimit: GAS_LIMIT,
+    gasPrice: options.gasPrice,
+    nonce: request.nonce!,
+  });
 
   const [err, res] = await go(tx);
   if (err) {
-    const errorLog = logger.pend('ERROR', `Error submitting API call fulfillment transaction for Request:${request.id}. ${err}`);
+    const errorLog = logger.pend(
+      'ERROR',
+      `Error submitting API call fulfillment transaction for Request:${request.id}. ${err}`
+    );
     return [[noticeLog, errorLog], err, null];
   }
   return [[noticeLog], null, res];
 }
 
-async function testAndSubmitFulfill(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function testAndSubmitFulfill(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
 
@@ -170,14 +188,21 @@ async function testAndSubmitFulfill(airnode: ethers.Contract, request: ClientReq
 // =================================================================
 // Failures
 // =================================================================
-async function fail(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+async function fail(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   const noticeLog = logger.pend('INFO', `Failing API call for Request:${request.id}`);
 
   const tx = airnode.fail(request.id, { gasLimit: GAS_LIMIT, gasPrice: options.gasPrice, nonce: request.nonce! });
 
   const [err, res] = await go(tx);
   if (err) {
-    const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}. ${err}`);
+    const errorLog = logger.pend(
+      'ERROR',
+      `Error submitting API call fail transaction for Request:${request.id}. ${err}`
+    );
     return [[noticeLog, errorLog], err, null];
   }
   return [[noticeLog], null, res];
@@ -186,7 +211,11 @@ async function fail(airnode: ethers.Contract, request: ClientRequest<ApiCall>, o
 // =================================================================
 // Main functions
 // =================================================================
-export async function submitApiCall(airnode: ethers.Contract, request: ClientRequest<ApiCall>, options: TransactionOptions): Promise<LogsWithData> {
+export async function submitApiCall(
+  airnode: ethers.Contract,
+  request: ClientRequest<ApiCall>,
+  options: TransactionOptions
+): Promise<LogsWithData> {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
@@ -204,7 +233,10 @@ export async function submitApiCall(airnode: ethers.Contract, request: ClientReq
     return [submitLogs, submitErr, submitData];
   }
 
-  const noticeLog = logger.pend('INFO', `API call for Request:${request.id} not actioned as it has status:${request.status}`);
+  const noticeLog = logger.pend(
+    'INFO',
+    `API call for Request:${request.id} not actioned as it has status:${request.status}`
+  );
 
   return [[noticeLog], null, null];
 }

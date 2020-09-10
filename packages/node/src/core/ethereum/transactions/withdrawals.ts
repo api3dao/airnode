@@ -2,18 +2,12 @@ import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
 import * as wallet from '../wallet';
-import {
-  ClientRequest,
-  LogsWithData,
-  RequestStatus,
-  TransactionOptions,
-  Withdrawal,
-} from '../../../types';
+import { ClientRequest, LogsWithData, RequestStatus, TransactionOptions, Withdrawal } from '../../../types';
 
 export async function submitWithdrawal(
   airnode: ethers.Contract,
   request: ClientRequest<Withdrawal>,
-  options: TransactionOptions,
+  options: TransactionOptions
 ): Promise<LogsWithData> {
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
@@ -28,10 +22,16 @@ export async function submitWithdrawal(
     // The node calculates how much gas the next transaction will cost (53,654)
     const [estimateErr, estimatedGasLimit] = await go(estimateTx);
     if (estimateErr || !estimatedGasLimit) {
-      const estimateErrorLog = logger.pend('ERROR', `Error estimating withdrawal gas limit for Request:${request.id}. ${estimateErr}`);
+      const estimateErrorLog = logger.pend(
+        'ERROR',
+        `Error estimating withdrawal gas limit for Request:${request.id}. ${estimateErr}`
+      );
       return [[estimateErrorLog], estimateErr, null];
     }
-    const estimateLog = logger.pend('DEBUG', `Gas limit estimated at ${estimatedGasLimit?.toString()} for Request:${request.id}`);
+    const estimateLog = logger.pend(
+      'DEBUG',
+      `Gas limit estimated at ${estimatedGasLimit?.toString()} for Request:${request.id}`
+    );
 
     const txCost = estimatedGasLimit.mul(options.gasPrice);
     // We set aside some ETH to pay for the gas of the following transaction,
@@ -54,7 +54,10 @@ export async function submitWithdrawal(
     // Note that we're using the requester wallet to call this
     const [withdrawalErr, withdrawalRes] = await go(withdrawalTx);
     if (withdrawalErr || !withdrawalRes) {
-      const withdrawalErrLog = logger.pend('ERROR', `Error submitting withdrawal for Request:${request.id}. ${withdrawalErr}`);
+      const withdrawalErrLog = logger.pend(
+        'ERROR',
+        `Error submitting withdrawal for Request:${request.id}. ${withdrawalErr}`
+      );
       const logs = [estimateLog, noticeLog, withdrawalErrLog];
       return [logs, withdrawalErr, null];
     }
@@ -62,7 +65,10 @@ export async function submitWithdrawal(
     return [[estimateLog, noticeLog], null, withdrawalRes];
   }
 
-  const noticeLog = logger.pend('INFO', `Withdrawal for Request:${request.id} not actioned as it has status:${request.status}`);
+  const noticeLog = logger.pend(
+    'INFO',
+    `Withdrawal for Request:${request.id} not actioned as it has status:${request.status}`
+  );
 
   return [[noticeLog], null, null];
 }
