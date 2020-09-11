@@ -114,7 +114,10 @@ async function testAndSubmitError(
     return [[...testLogs, ...submitLogs], submitErr, null];
   }
 
-  const errorLog = logger.pend('ERROR', `Error attempt for Request:${request.id} responded with unexpected value: '${testData}'`);
+  const errorLog = logger.pend(
+    'ERROR',
+    `Error attempt for Request:${request.id} responded with unexpected value: '${testData}'`
+  );
 
   return [[...testLogs, errorLog], testErr, null];
 }
@@ -197,7 +200,10 @@ async function testAndSubmitFulfill(
     return [[...testLogs, ...submitLogs], submitErr, null];
   }
 
-  const errorLog = logger.pend('ERROR', `Fulfill attempt for Request:${request.id} responded with unexpected value: '${testData}'`);
+  const errorLog = logger.pend(
+    'ERROR',
+    `Fulfill attempt for Request:${request.id} responded with unexpected value: '${testData}'`
+  );
 
   return [[...testLogs, errorLog], testErr, null];
 }

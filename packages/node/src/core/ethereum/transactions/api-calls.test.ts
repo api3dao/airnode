@@ -49,7 +49,10 @@ describe('submitApiCall', () => {
       const apiCall = fixtures.requests.createApiCall({ status: RequestStatus.Blocked });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'INFO', message: `API call for Request:apiCallId not actioned as it has status:${RequestStatus.Blocked}` },
+        {
+          level: 'INFO',
+          message: `API call for Request:apiCallId not actioned as it has status:${RequestStatus.Blocked}`,
+        },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
@@ -323,7 +326,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.error).toHaveBeenCalledTimes(1);
       expect(contract.error).toHaveBeenCalledWith(
@@ -331,7 +334,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.fail).not.toHaveBeenCalled();
     });
@@ -348,7 +351,10 @@ describe('submitApiCall', () => {
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to error API call for Request:apiCallId...' },
-        { level: 'ERROR', message: 'Error attempting API call error for Request:apiCallId. Error: Server did not respond' },
+        {
+          level: 'ERROR',
+          message: 'Error attempting API call error for Request:apiCallId. Error: Server did not respond',
+        },
         { level: 'INFO', message: 'Submitting API call fail for Request:apiCallId...' },
       ]);
       expect(err).toEqual(null);
@@ -361,7 +367,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
@@ -391,7 +397,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
@@ -410,7 +416,10 @@ describe('submitApiCall', () => {
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to error API call for Request:apiCallId...' },
         { level: 'INFO', message: 'Submitting API call error for Request:apiCallId...' },
-        { level: 'ERROR', message: 'Error submitting API call error transaction for Request:apiCallId. Error: Server did not respond' },
+        {
+          level: 'ERROR',
+          message: 'Error submitting API call error transaction for Request:apiCallId. Error: Server did not respond',
+        },
       ]);
       expect(err).toEqual(new Error('Server did not respond'));
       expect(data).toEqual(null);
@@ -422,7 +431,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.error).toHaveBeenCalledTimes(1);
       expect(contract.error).toHaveBeenCalledWith(
@@ -430,7 +439,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.fail).not.toHaveBeenCalled();
     });
@@ -459,7 +468,7 @@ describe('submitApiCall', () => {
         RequestErrorCode.ApiCallFailed,
         'errorAddress',
         'errorFunctionId',
-        txOpts,
+        txOpts
       );
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fail).not.toHaveBeenCalled();
