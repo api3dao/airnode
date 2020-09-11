@@ -211,6 +211,9 @@ export interface PendingLog {
   message: string;
 }
 
+// Making this type a tuple, forces the user to handle logs and errors first.
+// If it was an object ({ logs: [], error?: Error, data?: any }), then it's
+// very easy to forgot to handle logs and errors
 export type LogsWithData = [PendingLog[], Error | null, any];
 
 // ===========================================
