@@ -98,7 +98,7 @@ async function testAndSubmitError(
   // Should not throw
   const [testLogs, testErr, testData] = await testError(airnode, request, options);
 
-  if (testErr || !testData?.callSuccess) {
+  if (testErr || (testData && !testData.callSuccess)) {
     const [submitLogs, submitErr, submitData] = await submitFail(airnode, request, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
@@ -114,7 +114,9 @@ async function testAndSubmitError(
     return [[...testLogs, ...submitLogs], submitErr, null];
   }
 
-  return [testLogs, testErr, null];
+  const errorLog = logger.pend('ERROR', `Error attempt for Request:${request.id} responded with unexpected value: '${testData}'`);
+
+  return [[...testLogs, errorLog], testErr, null];
 }
 
 // =================================================================
@@ -179,7 +181,7 @@ async function testAndSubmitFulfill(
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
 
-  if (testErr || !testData?.callSuccess) {
+  if (testErr || (testData && !testData.callSuccess)) {
     const [submitLogs, submitErr, submitData] = await testAndSubmitError(airnode, request, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
@@ -195,7 +197,9 @@ async function testAndSubmitFulfill(
     return [[...testLogs, ...submitLogs], submitErr, null];
   }
 
-  return [testLogs, testErr, null];
+  const errorLog = logger.pend('ERROR', `Fulfill attempt for Request:${request.id} responded with unexpected value: '${testData}'`);
+
+  return [[...testLogs, errorLog], testErr, null];
 }
 
 // =================================================================
