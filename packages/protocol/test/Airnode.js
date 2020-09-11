@@ -157,11 +157,7 @@ describe('Airnode', function () {
     // to bundle the endpoints from the same API together.
     const tx = await airnode
       .connect(accounts.providerAdmin)
-      .createEndpoint(
-        providerId,
-        ethers.BigNumber.from(ethers.utils.randomBytes(32)),
-        [ethers.constants.AddressZero]
-        );
+      .createEndpoint(providerId, ethers.BigNumber.from(ethers.utils.randomBytes(32)), [ethers.constants.AddressZero]);
     // Get the newly created endpoint's ID from the event
     const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
