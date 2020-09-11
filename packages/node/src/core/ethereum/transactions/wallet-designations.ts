@@ -3,6 +3,8 @@ import * as logger from '../../utils/logger';
 import { go } from '../../utils/promise-utils';
 import { BaseRequest, LogsWithData, RequestStatus, TransactionOptions, WalletDesignation } from '../../../types';
 
+const GAS_LIMIT = 150_000;
+
 export async function submitWalletDesignation(
   airnode: ethers.Contract,
   request: BaseRequest<WalletDesignation>,
@@ -14,17 +16,17 @@ export async function submitWalletDesignation(
   }
 
   if (request.status === RequestStatus.Pending) {
-    const noticeLog = logger.pend('INFO', `Fulfilling wallet designation for Request:${request.id}...`);
+    const noticeLog = logger.pend('INFO', `Submitting wallet designation index:${request.walletIndex} for Request:${request.id}...`);
 
     const tx = airnode.fulfillWalletDesignation(request.id, request.walletIndex, {
       gasPrice: options.gasPrice!,
-      gasLimit: 150000,
+      gasLimit: GAS_LIMIT,
       nonce: request.nonce!,
     });
 
     const [err, res] = await go(tx);
     if (err) {
-      const errorLog = logger.pend('ERROR', `Error submitting withdrawal for Request:${request.id}. ${err}`);
+      const errorLog = logger.pend('ERROR', `Error submitting wallet designation index:${request.walletIndex} for Request:${request.id}. ${err}`);
       return [[noticeLog, errorLog], err, null];
     }
     return [[noticeLog], null, res];
@@ -32,7 +34,7 @@ export async function submitWalletDesignation(
 
   const noticeLog = logger.pend(
     'INFO',
-    `Withdrawal for Request:${request.id} not actioned as it has status:${request.status}`
+    `Wallet designation index:${request.walletIndex} for Request:${request.id} not actioned as it has status:${request.status}`
   );
 
   return [[noticeLog], null, null];
