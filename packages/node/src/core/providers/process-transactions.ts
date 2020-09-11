@@ -24,11 +24,12 @@ export async function processTransactions(initialState: ProviderState) {
   // STEP 3: Submit transactions for each wallet
   // =================================================================
   const receipts = await transactions.submit(state2);
-  receipts.forEach((receipt) => {
+  const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
+  successfulReceipts.forEach((receipt) => {
     logger.logProviderJSON(
       state2.config.name,
       'INFO',
-      `Transaction:${receipt.transactionHash} submitted for Request:${receipt.id}`
+      `Transaction:${receipt.data.hash} submitted for Request:${receipt.id}`
     );
   });
 

@@ -25,7 +25,7 @@ export enum RequestErrorCode {
   PendingWithdrawal = 15,
   UnknownEndpoint = 16,
   UnknownOIS = 17,
-  Unknown = 99,
+  FulfillTransactionFailed = 18,
 }
 
 export enum RequestStatus {

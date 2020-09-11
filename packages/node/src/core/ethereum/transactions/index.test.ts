@@ -84,9 +84,7 @@ describe('submit', () => {
       requests: {
         apiCalls: [],
         walletDesignations: [],
-        withdrawals: [
-          fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3 }),
-        ],
+        withdrawals: [fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3 })],
       },
       transactionCount: 3,
     };
@@ -108,19 +106,19 @@ describe('submit', () => {
     const res = await transactions.submit(state);
     expect(res.length).toEqual(5);
 
-    const apiCallReceipts = res.filter(r => r.type === RequestType.ApiCall);
+    const apiCallReceipts = res.filter((r) => r.type === RequestType.ApiCall);
     expect(apiCallReceipts).toEqual([
       { id: '0x1', type: RequestType.ApiCall, data: { hash: '0xapicall_tx1' } },
       { id: '0x2', type: RequestType.ApiCall, data: { hash: '0xapicall_tx2' } },
     ]);
 
-    const designationReceipts = res.filter(r => r.type === RequestType.WalletDesignation);
+    const designationReceipts = res.filter((r) => r.type === RequestType.WalletDesignation);
     expect(designationReceipts).toEqual([
       { id: '0x3', type: RequestType.WalletDesignation, data: { hash: '0xwalletdesignation_tx1' } },
       { id: '0x4', type: RequestType.WalletDesignation, data: { hash: '0xwalletdesignation_tx2' } },
     ]);
 
-    const withdrawalReceipts = res.filter(r => r.type === RequestType.Withdrawal);
+    const withdrawalReceipts = res.filter((r) => r.type === RequestType.Withdrawal);
     expect(withdrawalReceipts).toEqual([
       { id: '0x5', type: RequestType.Withdrawal, data: { hash: '0xwithdrawal_tx1' } },
     ]);
@@ -147,9 +145,7 @@ describe('submit', () => {
     contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await transactions.submit(state);
-    expect(res).toEqual([
-      { id: apiCall.id, type: RequestType.ApiCall, error: new Error('Server did not respond') },
-    ]);
+    expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, error: new Error('Server did not respond') }]);
   });
 
   it('returns error responses for wallet designations', async () => {

@@ -42,7 +42,7 @@ async function testError(
 
   const attemptedTx = airnode.callStatic.error(
     request.id,
-    request.errorCode || RequestErrorCode.Unknown,
+    request.errorCode,
     request.errorAddress,
     request.errorFunctionId,
     {
@@ -69,7 +69,7 @@ async function submitError(
 
   const tx = airnode.error(
     request.id,
-    request.errorCode || RequestErrorCode.Unknown,
+    request.errorCode,
     request.errorAddress,
     request.errorFunctionId,
     {
@@ -185,7 +185,8 @@ async function testAndSubmitFulfill(
   const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
-    const [submitLogs, submitErr, submitData] = await testAndSubmitError(airnode, request, options);
+    const updatedRequest = { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.FulfillTransactionFailed };
+    const [submitLogs, submitErr, submitData] = await testAndSubmitError(airnode, updatedRequest, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
 
