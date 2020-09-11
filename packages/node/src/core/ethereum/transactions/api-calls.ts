@@ -67,17 +67,11 @@ async function submitError(
 ): Promise<LogsWithData> {
   const noticeLog = logger.pend('INFO', `Submitting API call error for Request:${request.id}...`);
 
-  const tx = airnode.error(
-    request.id,
-    request.errorCode,
-    request.errorAddress,
-    request.errorFunctionId,
-    {
-      gasLimit: GAS_LIMIT,
-      gasPrice: options.gasPrice,
-      nonce: request.nonce!,
-    }
-  );
+  const tx = airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
+    gasLimit: GAS_LIMIT,
+    gasPrice: options.gasPrice,
+    nonce: request.nonce!,
+  });
 
   const [err, res] = await go(tx);
   if (err) {
@@ -185,7 +179,11 @@ async function testAndSubmitFulfill(
   const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
-    const updatedRequest = { ...request, status: RequestStatus.Errored, errorCode: RequestErrorCode.FulfillTransactionFailed };
+    const updatedRequest = {
+      ...request,
+      status: RequestStatus.Errored,
+      errorCode: RequestErrorCode.FulfillTransactionFailed,
+    };
     const [submitLogs, submitErr, submitData] = await testAndSubmitError(airnode, updatedRequest, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }

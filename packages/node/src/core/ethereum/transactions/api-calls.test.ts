@@ -158,9 +158,21 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.callStatic.error).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.error).toHaveBeenCalledWith(apiCall.id, RequestErrorCode.FulfillTransactionFailed, 'errorAddress', 'errorFunctionId', txOpts);
+      expect(contract.callStatic.error).toHaveBeenCalledWith(
+        apiCall.id,
+        RequestErrorCode.FulfillTransactionFailed,
+        'errorAddress',
+        'errorFunctionId',
+        txOpts
+      );
       expect(contract.error).toHaveBeenCalledTimes(1);
-      expect(contract.error).toHaveBeenCalledWith(apiCall.id, RequestErrorCode.FulfillTransactionFailed, 'errorAddress', 'errorFunctionId', txOpts);
+      expect(contract.error).toHaveBeenCalledWith(
+        apiCall.id,
+        RequestErrorCode.FulfillTransactionFailed,
+        'errorAddress',
+        'errorFunctionId',
+        txOpts
+      );
     });
 
     it('submits an error transaction if the test fulfill call fails', async () => {
@@ -191,9 +203,21 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.callStatic.error).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.error).toHaveBeenCalledWith(apiCall.id, RequestErrorCode.FulfillTransactionFailed, 'errorAddress', 'errorFunctionId', txOpts);
+      expect(contract.callStatic.error).toHaveBeenCalledWith(
+        apiCall.id,
+        RequestErrorCode.FulfillTransactionFailed,
+        'errorAddress',
+        'errorFunctionId',
+        txOpts
+      );
       expect(contract.error).toHaveBeenCalledTimes(1);
-      expect(contract.error).toHaveBeenCalledWith(apiCall.id, RequestErrorCode.FulfillTransactionFailed, 'errorAddress', 'errorFunctionId', txOpts);
+      expect(contract.error).toHaveBeenCalledWith(
+        apiCall.id,
+        RequestErrorCode.FulfillTransactionFailed,
+        'errorAddress',
+        'errorFunctionId',
+        txOpts
+      );
     });
 
     it('submits a fail transaction if the both the fulfill and error attempts fail', async () => {
@@ -228,7 +252,13 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.callStatic.error).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.error).toHaveBeenCalledWith(apiCall.id, RequestErrorCode.FulfillTransactionFailed, 'errorAddress', 'errorFunctionId', txOpts);
+      expect(contract.callStatic.error).toHaveBeenCalledWith(
+        apiCall.id,
+        RequestErrorCode.FulfillTransactionFailed,
+        'errorAddress',
+        'errorFunctionId',
+        txOpts
+      );
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
     });
@@ -295,7 +325,13 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.callStatic.error).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.error).toHaveBeenCalledWith(apiCall.id, RequestErrorCode.FulfillTransactionFailed, 'errorAddress', 'errorFunctionId', txOpts);
+      expect(contract.callStatic.error).toHaveBeenCalledWith(
+        apiCall.id,
+        RequestErrorCode.FulfillTransactionFailed,
+        'errorAddress',
+        'errorFunctionId',
+        txOpts
+      );
       expect(contract.error).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
     });
