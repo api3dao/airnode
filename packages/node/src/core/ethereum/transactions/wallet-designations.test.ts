@@ -24,12 +24,19 @@ describe('submitWalletDesignation', () => {
     const walletDesignation = fixtures.requests.createWalletDesignation({ nonce: 5, status: RequestStatus.Pending });
     const [logs, err, data] = await designations.submitWalletDesignation(contract, walletDesignation, { gasPrice });
     expect(logs).toEqual([
-      { level: 'INFO', message: `Submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}...`},
+      {
+        level: 'INFO',
+        message: `Submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}...`,
+      },
     ]);
     expect(err).toEqual(null);
     expect(data).toEqual({ hash: '0xsuccessful' });
     expect(contract.fulfillWalletDesignation).toHaveBeenCalledTimes(1);
-    expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(walletDesignation.id, walletDesignation.walletIndex, txOpts);
+    expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
+      walletDesignation.id,
+      walletDesignation.walletIndex,
+      txOpts
+    );
   });
 
   it('does nothing if the request is already fulfilled', async () => {
@@ -54,12 +61,18 @@ describe('submitWalletDesignation', () => {
     const erroredRes = await designations.submitWalletDesignation(contract, errored, { gasPrice });
 
     expect(blockedRes[0]).toEqual([
-      { level: 'INFO', message: `Wallet designation index:${blocked.walletIndex} for Request:${blocked.id} not actioned as it has status:${blocked.status}`}
+      {
+        level: 'INFO',
+        message: `Wallet designation index:${blocked.walletIndex} for Request:${blocked.id} not actioned as it has status:${blocked.status}`,
+      },
     ]);
     expect(blockedRes[1]).toEqual(null);
     expect(blockedRes[2]).toEqual(null);
     expect(erroredRes[0]).toEqual([
-      { level: 'INFO', message: `Wallet designation index:${errored.walletIndex} for Request:${errored.id} not actioned as it has status:${errored.status}`}
+      {
+        level: 'INFO',
+        message: `Wallet designation index:${errored.walletIndex} for Request:${errored.id} not actioned as it has status:${errored.status}`,
+      },
     ]);
     expect(erroredRes[1]).toEqual(null);
     expect(erroredRes[2]).toEqual(null);
@@ -73,13 +86,23 @@ describe('submitWalletDesignation', () => {
     const walletDesignation = fixtures.requests.createWalletDesignation({ nonce: 5, status: RequestStatus.Pending });
     const [logs, err, data] = await designations.submitWalletDesignation(contract, walletDesignation, { gasPrice });
     expect(logs).toEqual([
-      { level: 'INFO', message: `Submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}...`},
-      { level: 'ERROR', message: `Error submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}. Error: Server did not respond`},
+      {
+        level: 'INFO',
+        message: `Submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}...`,
+      },
+      {
+        level: 'ERROR',
+        message: `Error submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}. Error: Server did not respond`,
+      },
     ]);
     expect(err).toEqual(new Error('Server did not respond'));
     expect(data).toEqual(null);
     expect(contract.fulfillWalletDesignation).toHaveBeenCalledTimes(1);
-    expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(walletDesignation.id, walletDesignation.walletIndex, txOpts);
+    expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
+      walletDesignation.id,
+      walletDesignation.walletIndex,
+      txOpts
+    );
   });
 
   it('returns null if the fulfill transaction returns null', async () => {
@@ -89,11 +112,18 @@ describe('submitWalletDesignation', () => {
     const walletDesignation = fixtures.requests.createWalletDesignation({ nonce: 5, status: RequestStatus.Pending });
     const [logs, err, data] = await designations.submitWalletDesignation(contract, walletDesignation, { gasPrice });
     expect(logs).toEqual([
-      { level: 'INFO', message: `Submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}...`},
+      {
+        level: 'INFO',
+        message: `Submitting wallet designation index:${walletDesignation.walletIndex} for Request:${walletDesignation.id}...`,
+      },
     ]);
     expect(err).toEqual(null);
     expect(data).toEqual(null);
     expect(contract.fulfillWalletDesignation).toHaveBeenCalledTimes(1);
-    expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(walletDesignation.id, walletDesignation.walletIndex, txOpts);
+    expect(contract.fulfillWalletDesignation).toHaveBeenCalledWith(
+      walletDesignation.id,
+      walletDesignation.walletIndex,
+      txOpts
+    );
   });
 });

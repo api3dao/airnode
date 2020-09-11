@@ -16,7 +16,10 @@ export async function submitWalletDesignation(
   }
 
   if (request.status === RequestStatus.Pending) {
-    const noticeLog = logger.pend('INFO', `Submitting wallet designation index:${request.walletIndex} for Request:${request.id}...`);
+    const noticeLog = logger.pend(
+      'INFO',
+      `Submitting wallet designation index:${request.walletIndex} for Request:${request.id}...`
+    );
 
     const tx = airnode.fulfillWalletDesignation(request.id, request.walletIndex, {
       gasPrice: options.gasPrice!,
@@ -26,7 +29,10 @@ export async function submitWalletDesignation(
 
     const [err, res] = await go(tx);
     if (err) {
-      const errorLog = logger.pend('ERROR', `Error submitting wallet designation index:${request.walletIndex} for Request:${request.id}. ${err}`);
+      const errorLog = logger.pend(
+        'ERROR',
+        `Error submitting wallet designation index:${request.walletIndex} for Request:${request.id}. ${err}`
+      );
       return [[noticeLog, errorLog], err, null];
     }
     return [[noticeLog], null, res];

@@ -172,7 +172,6 @@ export interface LogWithMetadata {
 export interface TransactionOptions {
   gasPrice: number | ethers.BigNumber;
   provider?: ethers.providers.JsonRpcProvider;
-  walletIndex?: string | number;
 }
 
 export interface TransactionReceipt {

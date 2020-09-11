@@ -30,7 +30,7 @@ export async function submitWithdrawal(
     }
     const estimateLog = logger.pend(
       'DEBUG',
-      `Gas limit estimated at ${estimatedGasLimit?.toString()} for Request:${request.id}`
+      `Withdrawal gas limit estimated at ${estimatedGasLimit.toString()} for Request:${request.id}`
     );
 
     const txCost = estimatedGasLimit.mul(options.gasPrice);
@@ -38,11 +38,22 @@ export async function submitWithdrawal(
     // send all the rest along with the transaction. The contract will direct
     // these funds to the destination given at the request.
     const xpub = wallet.getExtendedPublicKey();
-    const requesterAddress = wallet.deriveWalletAddressFromIndex(xpub, options.walletIndex!);
-    const reservedWalletBalance = await options.provider!.getBalance(requesterAddress);
-    const fundsToSend = reservedWalletBalance.sub(txCost);
+    const requesterAddress = wallet.deriveWalletAddressFromIndex(xpub, request.walletIndex!);
+    const [balanceErr, currentBalance] = await go(options.provider!.getBalance(requesterAddress));
+    if (balanceErr || !currentBalance) {
+      const balanceErrorLog = logger.pend(
+        'ERROR',
+        `Failed to fetch wallet index:${request.walletIndex} balance for Request:${request.id}. ${balanceErr}`
+      );
+      return [[estimateLog, balanceErrorLog], balanceErr, null];
+    }
 
-    const noticeLog = logger.pend('INFO', `Fulfilling withdrawal for Request:${request.id}...`);
+    const fundsToSend = currentBalance.sub(txCost);
+
+    const noticeLog = logger.pend(
+      'INFO',
+      `Submitting withdrawal wallet index:${request.walletIndex} for Request:${request.id}...`
+    );
 
     const withdrawalTx = airnode.fulfillWithdrawal(request.id, {
       gasLimit: estimatedGasLimit,
@@ -56,7 +67,7 @@ export async function submitWithdrawal(
     if (withdrawalErr || !withdrawalRes) {
       const withdrawalErrLog = logger.pend(
         'ERROR',
-        `Error submitting withdrawal for Request:${request.id}. ${withdrawalErr}`
+        `Error submitting wallet index:${request.walletIndex} withdrawal for Request:${request.id}. ${withdrawalErr}`
       );
       const logs = [estimateLog, noticeLog, withdrawalErrLog];
       return [logs, withdrawalErr, null];
@@ -67,7 +78,7 @@ export async function submitWithdrawal(
 
   const noticeLog = logger.pend(
     'INFO',
-    `Withdrawal for Request:${request.id} not actioned as it has status:${request.status}`
+    `Withdrawal wallet index:${request.walletIndex} for Request:${request.id} not actioned as it has status:${request.status}`
   );
 
   return [[noticeLog], null, null];
