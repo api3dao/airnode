@@ -1,7 +1,7 @@
 import { ProviderState } from '../../types';
 import * as ethereum from '../ethereum';
 import * as logger from '../utils/logger';
-import * as nonces from '../transactions/nonces';
+import * as nonces from '../requests/nonces';
 import * as transactions from '../ethereum/transactions';
 import * as state from './state';
 
@@ -24,6 +24,14 @@ export async function processTransactions(initialState: ProviderState) {
   // STEP 3: Submit transactions for each wallet
   // =================================================================
   const receipts = await transactions.submit(state2);
+  const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
+  successfulReceipts.forEach((receipt) => {
+    logger.logProviderJSON(
+      state2.config.name,
+      'INFO',
+      `Transaction:${receipt.data.hash} submitted for Request:${receipt.id}`
+    );
+  });
 
   return receipts;
 }

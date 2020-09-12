@@ -25,6 +25,7 @@ export enum RequestErrorCode {
   PendingWithdrawal = 15,
   UnknownEndpoint = 16,
   UnknownOIS = 17,
+  FulfillTransactionFailed = 18,
 }
 
 export enum RequestStatus {
@@ -166,6 +167,20 @@ export interface LogWithMetadata {
 }
 
 // ===========================================
+// Transactions
+// ===========================================
+export interface TransactionOptions {
+  gasPrice: number | ethers.BigNumber;
+  provider?: ethers.providers.JsonRpcProvider;
+}
+
+export interface TransactionReceipt {
+  id: string;
+  transactionHash: string;
+  type: RequestType;
+}
+
+// ===========================================
 // Triggers
 // ===========================================
 export interface RequestTrigger {
@@ -195,6 +210,11 @@ export interface PendingLog {
   level: LogLevel;
   message: string;
 }
+
+// Making this type a tuple, forces the user to handle logs and errors first.
+// If it was an object ({ logs: [], error?: Error, data?: any }), then it's
+// very easy to forgot to handle logs and errors
+export type LogsWithData = [PendingLog[], Error | null, any];
 
 // ===========================================
 // Config

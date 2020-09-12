@@ -44,6 +44,10 @@ export function logPendingMessages(name: string, pendingLogs: PendingLog[]) {
   });
 }
 
+export function pend(level: LogLevel, message: string): PendingLog {
+  return { level, message };
+}
+
 export function logProviderError(name: string, message: string, err: Error | null) {
   logProviderJSON(name, 'ERROR', message);
   if (err && err.stack) {
