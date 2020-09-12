@@ -72,7 +72,7 @@ export async function fetch(options: FetchOptions, requests: GroupedBaseRequests
   const promises = groupedAddresses.map((addresses) => fetchRequesterDataGroup(convenience, addresses));
 
   const fetchLogsWithRequesterData = await Promise.all(promises);
-  const fetchLogs = flatMap(fetchLogsWithRequesterData, fl => fl[0]);
+  const fetchLogs = flatMap(fetchLogsWithRequesterData, (fl) => fl[0]);
 
   // Merge all results together
   const allRequesterDataByAddress = fetchLogsWithRequesterData.reduce((acc, result) => {
@@ -82,7 +82,10 @@ export async function fetch(options: FetchOptions, requests: GroupedBaseRequests
   return [fetchLogs, allRequesterDataByAddress];
 }
 
-function applyRequesterDataToRequest<T>(request: BaseRequest<T>, data?: RequesterData): LogsErrorData<ClientRequest<T>> {
+function applyRequesterDataToRequest<T>(
+  request: BaseRequest<T>,
+  data?: RequesterData
+): LogsErrorData<ClientRequest<T>> {
   if (!data) {
     const log = logger.pend('ERROR', `Unable to find requester data for Request ID:${request.id}`);
 
@@ -114,14 +117,14 @@ export function apply(requests: GroupedBaseRequests, data: RequesterDataByAddres
   const logsWithApiCalls = requests.apiCalls.map((apiCall) => {
     return applyRequesterDataToRequest(apiCall, data[apiCall.requesterAddress]);
   });
-  const apiCallLogs = flatMap(logsWithApiCalls, la => la[0]);
-  const apiCalls = logsWithApiCalls.map(la => la[2]);
+  const apiCallLogs = flatMap(logsWithApiCalls, (la) => la[0]);
+  const apiCalls = logsWithApiCalls.map((la) => la[2]);
 
   const logsWithWithdrawals = requests.withdrawals.map((withdrawal) => {
     return applyRequesterDataToRequest(withdrawal, data[withdrawal.destinationAddress]);
   });
-  const withdrawalLogs = flatMap(logsWithWithdrawals, lw => lw[0]);
-  const withdrawals = logsWithWithdrawals.map(lw => lw[2]);
+  const withdrawalLogs = flatMap(logsWithWithdrawals, (lw) => lw[0]);
+  const withdrawals = logsWithWithdrawals.map((lw) => lw[2]);
 
   const logs = [...apiCallLogs, ...withdrawalLogs];
   const groupedRequests: GroupedRequests = { ...requests, apiCalls, withdrawals };

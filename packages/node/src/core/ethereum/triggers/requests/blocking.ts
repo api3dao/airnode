@@ -18,12 +18,15 @@ export function blockRequestsWithWithdrawals(requests: GroupedRequests): LogsWit
     const pendingWithdrawal = withdrawalsByWalletIndex[apiCall.walletIndex];
 
     if (pendingWithdrawal) {
-      const warningLog = logger.pend('WARN', `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawl ID:${pendingWithdrawal.id}`);
+      const warningLog = logger.pend(
+        'WARN',
+        `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawl ID:${pendingWithdrawal.id}`
+      );
       const blockedCall = { ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.PendingWithdrawal };
       return {
         ...acc,
         logs: [...acc.logs, warningLog],
-        apiCalls: [...acc.apiCalls, blockedCall]
+        apiCalls: [...acc.apiCalls, blockedCall],
       };
     }
 
