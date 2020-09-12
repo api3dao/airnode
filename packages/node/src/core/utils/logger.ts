@@ -41,11 +41,15 @@ export function logProviderJSON(name: string, level: LogLevel, message: string) 
 export function logPendingMessages(name: string, pendingLogs: PendingLog[]) {
   pendingLogs.forEach((pendingLog) => {
     logProviderJSON(name, pendingLog.level, pendingLog.message);
+
+    if (pendingLog.error && pendingLog.error.stack) {
+      logProviderJSON(name, 'ERROR', pendingLog.error.stack);
+    }
   });
 }
 
-export function pend(level: LogLevel, message: string): PendingLog {
-  return { level, message };
+export function pend(level: LogLevel, message: string, error?: Error | null): PendingLog {
+  return { error, level, message };
 }
 
 export function logProviderError(name: string, message: string, err: Error | null) {

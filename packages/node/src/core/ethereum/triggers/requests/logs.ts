@@ -1,8 +1,14 @@
 import { ethers } from 'ethers';
-import { LogWithMetadata, ProviderState } from 'src/types';
 import { config, FROM_BLOCK_LIMIT } from 'src/core/config';
 import * as ethereum from 'src/core/ethereum';
 import * as events from './events';
+import { LogWithMetadata } from 'src/types';
+
+interface FetchOptions {
+  address: string;
+  currentBlock: number;
+  provider: ethers.providers.JsonRpcProvider;
+}
 
 interface GroupedLogs {
   apiCalls: LogWithMetadata[];
@@ -10,18 +16,18 @@ interface GroupedLogs {
   withdrawals: LogWithMetadata[];
 }
 
-export async function fetch(state: ProviderState): Promise<LogWithMetadata[]> {
+export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   const filter: ethers.providers.Filter = {
-    fromBlock: state.currentBlock! - FROM_BLOCK_LIMIT,
-    toBlock: state.currentBlock!,
-    address: ethereum.contracts.Airnode.addresses[state.config.chainId],
+    fromBlock: options.currentBlock - FROM_BLOCK_LIMIT,
+    toBlock: options.currentBlock,
+    address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
     topics: [null, config.nodeSettings.providerId],
   };
 
   // Let this throw if something goes wrong
-  const rawLogs = await state.provider.getLogs(filter);
+  const rawLogs = await options.provider.getLogs(filter);
 
   const airnodeInterface = new ethers.utils.Interface(ethereum.contracts.Airnode.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({

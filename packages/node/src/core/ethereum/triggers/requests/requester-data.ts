@@ -1,51 +1,47 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
+import flatMap from 'lodash/flatMap';
 import uniq from 'lodash/uniq';
 import { config } from 'src/core/config';
-import * as ethereum from 'src/core/ethereum';
+import * as contracts from '../../contracts';
 import { go, retryOperation } from 'src/core/utils/promise-utils';
 import * as logger from 'src/core/utils/logger';
 import {
-  ApiCall,
   BaseRequest,
   ClientRequest,
+  GroupedBaseRequests,
   GroupedRequests,
-  ProviderState,
+  LogsErrorData,
+  PendingLog,
   RequesterData,
   RequestErrorCode,
   RequestStatus,
-  WalletDesignation,
-  Withdrawal,
 } from 'src/types';
 
-type RequesterDataByAddress = {
-  [address: string]: RequesterData;
-};
-
-export interface GroupedBaseRequests {
-  apiCalls: BaseRequest<ApiCall>[];
-  withdrawals: BaseRequest<Withdrawal>[];
-  walletDesignations: BaseRequest<WalletDesignation>[];
+interface FetchOptions {
+  address: string;
+  provider: ethers.providers.JsonRpcProvider;
 }
 
-async function fetchRequesterDataGroup(
-  state: ProviderState,
-  addresses: string[]
-): Promise<RequesterDataByAddress | null> {
-  const { Convenience } = ethereum.contracts;
+interface RequesterDataByAddress {
+  [address: string]: RequesterData;
+}
+
+type LogsRequesterData = [PendingLog[], RequesterDataByAddress];
+
+async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: string[]): Promise<LogsRequesterData> {
   const { providerId } = config.nodeSettings;
 
-  const contract = new ethers.Contract(Convenience.addresses[state.config.chainId], Convenience.ABI, state.provider);
-  const contractCall = () => contract.getDataWithClientAddresses(providerId, addresses);
+  const contractCall = () => convenience.getDataWithClientAddresses(providerId, addresses);
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
 
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {
-    logger.logProviderError(state.config.name, 'Failed to fetch requester details', err);
-    return null;
+    const errorLog = logger.pend('ERROR', 'Failed to fetch requester details', err);
+    return [[errorLog], {}];
   }
 
-  const responses = addresses.reduce((acc, address, index) => {
+  const requesterDataByAddress = addresses.reduce((acc, address, index) => {
     const requesterData: RequesterData = {
       requesterId: data.requesterIds[index],
       walletAddress: data.walletAddresses[index],
@@ -57,10 +53,14 @@ async function fetchRequesterDataGroup(
     return { ...acc, [address]: requesterData };
   }, {});
 
-  return responses;
+  return [[], requesterDataByAddress];
 }
 
-export async function fetch(state: ProviderState, addresses: string[]): Promise<RequesterDataByAddress> {
+export async function fetch(options: FetchOptions, requests: GroupedBaseRequests): Promise<LogsRequesterData> {
+  const apiCallAddresses = requests.apiCalls.map((a) => a.requesterAddress);
+  const withdrawalAddresses = requests.withdrawals.map((w) => w.destinationAddress);
+  const addresses = [...apiCallAddresses, ...withdrawalAddresses];
+
   // Remove duplicate addresses to reduce calls
   const uniqueAddresses = uniq(addresses);
 
@@ -68,29 +68,25 @@ export async function fetch(state: ProviderState, addresses: string[]): Promise<
   const groupedAddresses = chunk(uniqueAddresses, 10);
 
   // Fetch all unique requester details in parallel
-  const promises = groupedAddresses.map((addresses) => fetchRequesterDataGroup(state, addresses));
+  const convenience = new ethers.Contract(options.address, contracts.Convenience.ABI, options.provider);
+  const promises = groupedAddresses.map((addresses) => fetchRequesterDataGroup(convenience, addresses));
 
-  const results = await Promise.all(promises);
-  const successfulResults = results.filter((r) => !!r) as RequesterDataByAddress[];
+  const fetchLogsWithRequesterData = await Promise.all(promises);
+  const fetchLogs = flatMap(fetchLogsWithRequesterData, fl => fl[0]);
 
   // Merge all results together
-  const resultsByAddress = successfulResults.reduce((acc, result) => {
-    return { ...acc, ...result };
+  const allRequesterDataByAddress = fetchLogsWithRequesterData.reduce((acc, result) => {
+    return { ...acc, ...result[1] };
   }, {});
 
-  return resultsByAddress;
+  return [fetchLogs, allRequesterDataByAddress];
 }
 
-function applyRequesterDataToRequest<T>(
-  state: ProviderState,
-  request: BaseRequest<T>,
-  data?: RequesterData
-): ClientRequest<T> {
+function applyRequesterDataToRequest<T>(request: BaseRequest<T>, data?: RequesterData): LogsErrorData<ClientRequest<T>> {
   if (!data) {
-    const message = `Unable to find requester data for Request ID:${request.id}`;
-    logger.logProviderJSON(state.config.name, 'ERROR', message);
+    const log = logger.pend('ERROR', `Unable to find requester data for Request ID:${request.id}`);
 
-    return {
+    const updatedRequest = {
       ...request,
       status: RequestStatus.Blocked,
       errorCode: RequestErrorCode.RequesterDataNotFound,
@@ -100,9 +96,10 @@ function applyRequesterDataToRequest<T>(
       walletBalance: '0',
       walletMinimumBalance: '0',
     };
+    return [[log], null, updatedRequest];
   }
 
-  return {
+  const updatedRequest = {
     ...request,
     requesterId: data.requesterId,
     walletIndex: data.walletIndex,
@@ -110,18 +107,24 @@ function applyRequesterDataToRequest<T>(
     walletBalance: data.walletBalance,
     walletMinimumBalance: data.walletMinimumBalance,
   };
+  return [[], null, updatedRequest];
 }
 
-export function apply(
-  state: ProviderState,
-  requests: GroupedBaseRequests,
-  data: RequesterDataByAddress
-): GroupedRequests {
-  // NOTE: wallet designations do not have requester data
-  const apiCalls = requests.apiCalls.map((a) => applyRequesterDataToRequest(state, a, data[a.requesterAddress]));
-  const withdrawals = requests.withdrawals.map((w) =>
-    applyRequesterDataToRequest(state, w, data[w.destinationAddress])
-  );
+export function apply(requests: GroupedBaseRequests, data: RequesterDataByAddress): LogsErrorData<GroupedRequests> {
+  const logsWithApiCalls = requests.apiCalls.map((apiCall) => {
+    return applyRequesterDataToRequest(apiCall, data[apiCall.requesterAddress]);
+  });
+  const apiCallLogs = flatMap(logsWithApiCalls, la => la[0]);
+  const apiCalls = logsWithApiCalls.map(la => la[2]);
 
-  return { ...requests, apiCalls, withdrawals };
+  const logsWithWithdrawals = requests.withdrawals.map((withdrawal) => {
+    return applyRequesterDataToRequest(withdrawal, data[withdrawal.destinationAddress]);
+  });
+  const withdrawalLogs = flatMap(logsWithWithdrawals, lw => lw[0]);
+  const withdrawals = logsWithWithdrawals.map(lw => lw[2]);
+
+  const logs = [...apiCallLogs, ...withdrawalLogs];
+  const groupedRequests: GroupedRequests = { ...requests, apiCalls, withdrawals };
+
+  return [logs, null, groupedRequests];
 }

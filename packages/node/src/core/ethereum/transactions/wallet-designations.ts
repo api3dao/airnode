@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as logger from '../../utils/logger';
 import { go } from '../../utils/promise-utils';
-import { BaseRequest, LogsWithData, RequestStatus, TransactionOptions, WalletDesignation } from '../../../types';
+import { BaseRequest, LogsErrorData, RequestStatus, TransactionOptions, WalletDesignation } from '../../../types';
 
 const GAS_LIMIT = 150_000;
 
@@ -9,7 +9,7 @@ export async function submitWalletDesignation(
   airnode: ethers.Contract,
   request: BaseRequest<WalletDesignation>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData> {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
