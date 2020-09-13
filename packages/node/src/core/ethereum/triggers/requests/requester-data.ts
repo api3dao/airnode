@@ -12,7 +12,6 @@ import {
   GroupedBaseRequests,
   GroupedRequests,
   LogsErrorData,
-  PendingLog,
   RequesterData,
   RequestErrorCode,
   RequestStatus,
@@ -27,9 +26,7 @@ interface RequesterDataByAddress {
   [address: string]: RequesterData;
 }
 
-type LogsRequesterData = [PendingLog[], RequesterDataByAddress];
-
-async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: string[]): Promise<LogsRequesterData> {
+async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: string[]): Promise<LogsErrorData<RequesterDataByAddress>> {
   const { providerId } = config.nodeSettings;
 
   const contractCall = () => convenience.getDataWithClientAddresses(providerId, addresses);
@@ -38,7 +35,7 @@ async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: 
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {
     const errorLog = logger.pend('ERROR', 'Failed to fetch requester details', err);
-    return [[errorLog], {}];
+    return [[errorLog], err, {}];
   }
 
   const requesterDataByAddress = addresses.reduce((acc, address, index) => {
@@ -53,10 +50,10 @@ async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: 
     return { ...acc, [address]: requesterData };
   }, {});
 
-  return [[], requesterDataByAddress];
+  return [[], null, requesterDataByAddress];
 }
 
-export async function fetch(options: FetchOptions, requests: GroupedBaseRequests): Promise<LogsRequesterData> {
+export async function fetch(options: FetchOptions, requests: GroupedBaseRequests): Promise<LogsErrorData<RequesterDataByAddress>> {
   const apiCallAddresses = requests.apiCalls.map((a) => a.requesterAddress);
   const withdrawalAddresses = requests.withdrawals.map((w) => w.destinationAddress);
   const addresses = [...apiCallAddresses, ...withdrawalAddresses];
@@ -73,13 +70,14 @@ export async function fetch(options: FetchOptions, requests: GroupedBaseRequests
 
   const fetchLogsWithRequesterData = await Promise.all(promises);
   const fetchLogs = flatMap(fetchLogsWithRequesterData, (fl) => fl[0]);
+  // Ignore possible errors at index 1. An empty object is returned when that happens
 
   // Merge all results together
   const allRequesterDataByAddress = fetchLogsWithRequesterData.reduce((acc, result) => {
-    return { ...acc, ...result[1] };
+    return { ...acc, ...result[2] };
   }, {});
 
-  return [fetchLogs, allRequesterDataByAddress];
+  return [fetchLogs, null, allRequesterDataByAddress];
 }
 
 function applyRequesterDataToRequest<T>(

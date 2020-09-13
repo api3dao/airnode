@@ -44,12 +44,12 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   // Fetch requester data (requesterId, wallet details etc) for each request type
   const fetchRequesterData = requesterData.fetch(fetchReqDataOptions, baseRequests);
   const [_fetchReqDataErr, fetchedReqDataWithLogs] = await goTimeout(5000, fetchRequesterData);
-  if (fetchedReqDataWithLogs) {
+  if (fetchedReqDataWithLogs && fetchedReqDataWithLogs[0]) {
     logger.logPendingMessages(state.config.name, fetchedReqDataWithLogs[0]);
   }
 
   // Merge requester data with requests
-  const reqDataByAddress = fetchedReqDataWithLogs && fetchedReqDataWithLogs[1] ? fetchedReqDataWithLogs[1] : {};
+  const reqDataByAddress = fetchedReqDataWithLogs && fetchedReqDataWithLogs[2] ? fetchedReqDataWithLogs[2] : {};
   const [requestsWithDataLogs, _requestsWithDataErr, requestsWithData] = requesterData.apply(
     baseRequests,
     reqDataByAddress

@@ -85,7 +85,7 @@ describe('EVM event logs - fetch', () => {
         blockNumber: 10716082,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
-      }
+      },
     ]);
   });
 
@@ -122,7 +122,9 @@ describe('EVM event logs - fetch', () => {
     // a stable way to have the ABI accessible in the tests
     const contractInterface = new ethers.utils.Interface('abi here');
     const parseLog = contractInterface.parseLog as jest.Mock;
-    parseLog.mockImplementationOnce(() => { throw new Error('Unable to parse topic'); });
+    parseLog.mockImplementationOnce(() => {
+      throw new Error('Unable to parse topic');
+    });
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
@@ -155,7 +157,7 @@ describe('EVM event logs - group', () => {
         blockNumber: 10716082,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
-      }
+      },
     ];
 
     const res = eventLogs.group(logsWithMetadata);
@@ -194,7 +196,7 @@ describe('EVM event logs - group', () => {
         blockNumber: 10716082,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
-      }
+      },
     ];
 
     const res = eventLogs.group(logsWithMetadata);
@@ -210,7 +212,7 @@ describe('EVM event logs - group', () => {
           blockNumber: 10716083,
           parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
           transactionHash: '0x2',
-        }
+        },
       ],
       withdrawals: [],
     });
@@ -233,7 +235,7 @@ describe('EVM event logs - group', () => {
         blockNumber: 10716082,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
-      }
+      },
     ];
 
     const res = eventLogs.group(logsWithMetadata);
@@ -250,7 +252,7 @@ describe('EVM event logs - group', () => {
           blockNumber: 10716083,
           parsedLog: { topic: '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439' },
           transactionHash: '0x2',
-        }
+        },
       ],
     });
   });
