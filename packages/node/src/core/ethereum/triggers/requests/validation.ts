@@ -2,7 +2,14 @@ import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../../utils/logger';
 import * as utils from '../../utils';
-import { ClientRequest, GroupedRequests, LogsErrorData, PendingLog, RequestErrorCode, RequestStatus } from '../../../../types';
+import {
+  ClientRequest,
+  GroupedRequests,
+  LogsErrorData,
+  PendingLog,
+  RequestErrorCode,
+  RequestStatus,
+} from '../../../../types';
 
 type LogsWithRequest<T> = [PendingLog[], ClientRequest<T>];
 

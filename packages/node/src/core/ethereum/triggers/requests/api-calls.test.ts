@@ -1,5 +1,4 @@
-import { ProviderState, RequestStatus } from 'src/types';
-import * as providerState from 'src/core/providers/state';
+import { RequestStatus } from 'src/types';
 import * as apiCalls from './api-calls';
 
 describe('mapBaseRequests (ApiCall)', () => {
@@ -22,15 +21,10 @@ describe('mapBaseRequests (ApiCall)', () => {
     transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
   };
 
-  let state: ProviderState;
-
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    state = providerState.create(config, 0);
-  });
-
   it('returns API call base requests', () => {
-    const res = apiCalls.mapBaseRequests(state, [requestLog]);
+    const [logs, err, res] = apiCalls.mapBaseRequests([requestLog]);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(res).toEqual([
       {
         endpointId: null,

@@ -9,7 +9,7 @@ export async function submitWalletDesignation(
   airnode: ethers.Contract,
   request: BaseRequest<WalletDesignation>,
   options: TransactionOptions
-): Promise<LogsErrorData> {
+): Promise<LogsErrorData<any>> {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];

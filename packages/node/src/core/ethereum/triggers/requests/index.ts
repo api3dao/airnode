@@ -25,7 +25,9 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
 
   // Cast the logs into the various typed request models
   const [baseApiLogs, _baseApiErr, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls);
-  const [baseDesigLogs, _baseDesigErr, baseDesignations] = walletDesignations.mapBaseRequests(groupedLogs.walletDesignations);
+  const [baseDesigLogs, _baseDesigErr, baseDesignations] = walletDesignations.mapBaseRequests(
+    groupedLogs.walletDesignations
+  );
   const [baseWithdrawLogs, _baseWithdrawErr, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals);
   logger.logPendingMessages(state.config.name, [...baseApiLogs, ...baseDesigLogs, ...baseWithdrawLogs]);
 
@@ -48,7 +50,10 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
 
   // Merge requester data with requests
   const reqDataByAddress = fetchedReqDataWithLogs && fetchedReqDataWithLogs[1] ? fetchedReqDataWithLogs[1] : {};
-  const [requestsWithDataLogs, _requestsWithDataErr, requestsWithData] = requesterData.apply(baseRequests, reqDataByAddress);
+  const [requestsWithDataLogs, _requestsWithDataErr, requestsWithData] = requesterData.apply(
+    baseRequests,
+    reqDataByAddress
+  );
   logger.logPendingMessages(state.config.name, requestsWithDataLogs);
 
   // Check that each request is valid

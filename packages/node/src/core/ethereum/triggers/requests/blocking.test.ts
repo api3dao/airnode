@@ -1,24 +1,21 @@
 import * as fixtures from 'test/fixtures';
-import { GroupedRequests, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
-import * as providerState from '../../providers/state';
+import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
 import * as blocking from './blocking';
 
 describe('blockRequestsWithWithdrawals', () => {
-  let state: ProviderState;
-
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    state = providerState.create(config, 0);
-  });
-
   it('blocks API calls with pending withdrawals from the same wallet index', () => {
+    const apiCall = fixtures.requests.createApiCall({ walletIndex: '123' });
+    const withdrawal = fixtures.requests.createWithdrawal({ walletIndex: '123' });
     const requests: GroupedRequests = {
-      apiCalls: [fixtures.requests.createApiCall({ walletIndex: '123' })],
+      apiCalls: [apiCall],
       walletDesignations: [],
-      withdrawals: [fixtures.requests.createWithdrawal({ walletIndex: '123' })],
+      withdrawals: [withdrawal],
     };
-
-    const res = blocking.blockRequestsWithWithdrawals(state, requests);
+    const [logs, err, res] = blocking.blockRequestsWithWithdrawals(requests);
+    expect(logs).toEqual([
+      { level: 'WARN', message: `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawl ID:${withdrawal.id}` },
+    ]);
+    expect(err).toEqual(null);
     expect(res.apiCalls.length).toEqual(1);
     expect(res.apiCalls[0].status).toEqual(RequestStatus.Ignored);
     expect(res.apiCalls[0].errorCode).toEqual(RequestErrorCode.PendingWithdrawal);
@@ -27,19 +24,21 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
+    const apiCall = fixtures.requests.createApiCall({ walletIndex: '123' });
+    const withdrawal = fixtures.requests.createWithdrawal({ walletIndex: '456' });
     const requests: GroupedRequests = {
-      apiCalls: [fixtures.requests.createApiCall({ walletIndex: '123' })],
+      apiCalls: [apiCall],
       walletDesignations: [],
-      withdrawals: [fixtures.requests.createWithdrawal({ walletIndex: '456' })],
+      withdrawals: [withdrawal],
     };
-
-    const res = blocking.blockRequestsWithWithdrawals(state, requests);
+    const [logs, err, res] = blocking.blockRequestsWithWithdrawals(requests);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(res.apiCalls.length).toEqual(1);
-    expect(res.apiCalls[0].id).toEqual('apiCallId');
+    expect(res.apiCalls[0].id).toEqual(apiCall.id);
     expect(res.apiCalls[0].status).toEqual(RequestStatus.Pending);
-
     expect(res.withdrawals.length).toEqual(1);
-    expect(res.withdrawals[0].id).toEqual('withdrawalId');
+    expect(res.withdrawals[0].id).toEqual(withdrawal.id);
     expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
 });

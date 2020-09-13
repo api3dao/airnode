@@ -1,6 +1,13 @@
 import * as model from '../../../requests/wallet-designations/model';
 import * as events from './events';
-import { BaseRequest, LogsErrorData, LogWithMetadata, PendingLog, RequestStatus, WalletDesignation } from '../../../../types';
+import {
+  BaseRequest,
+  LogsErrorData,
+  LogWithMetadata,
+  PendingLog,
+  RequestStatus,
+  WalletDesignation,
+} from '../../../../types';
 
 type LogsAndRequests = [PendingLog[], BaseRequest<WalletDesignation>[]];
 

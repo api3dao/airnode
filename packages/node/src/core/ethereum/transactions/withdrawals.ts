@@ -8,7 +8,7 @@ export async function submitWithdrawal(
   airnode: ethers.Contract,
   request: ClientRequest<Withdrawal>,
   options: TransactionOptions
-): Promise<LogsErrorData> {
+): Promise<LogsErrorData<any>> {
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
   }
