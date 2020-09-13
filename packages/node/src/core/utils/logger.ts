@@ -49,7 +49,10 @@ export function logPendingMessages(name: string, pendingLogs: PendingLog[]) {
 }
 
 export function pend(level: LogLevel, message: string, error?: Error | null): PendingLog {
-  return { error, level, message };
+  if (error) {
+    return { error, level, message };
+  }
+  return { level, message };
 }
 
 export function logProviderError(name: string, message: string, err: Error | null) {

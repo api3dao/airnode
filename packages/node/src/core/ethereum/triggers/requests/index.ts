@@ -2,8 +2,8 @@ import { goTimeout } from '../../../utils/promise-utils';
 import * as apiCalls from './api-calls';
 import * as contracts from '../../contracts';
 import * as blocking from './blocking';
+import * as eventLogs from './event-logs';
 import * as logger from '../../../utils/logger';
-import * as logs from './logs';
 import * as requesterData from './requester-data';
 import * as validation from './validation';
 import * as walletDesignations from './wallet-designations';
@@ -20,8 +20,8 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   };
   // Fetch event logs from the provider. Let this throw if something goes wrong.
   // We can't do anything if logs cannot be fetched or parsed successfully.
-  const flatLogs = await logs.fetch(fetchOptions);
-  const groupedLogs = logs.group(flatLogs);
+  const flatLogs = await eventLogs.fetch(fetchOptions);
+  const groupedLogs = eventLogs.group(flatLogs);
 
   // Cast the logs into the various typed request models
   const [baseApiLogs, _baseApiErr, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls);
