@@ -26,7 +26,10 @@ interface RequesterDataByAddress {
   [address: string]: RequesterData;
 }
 
-async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: string[]): Promise<LogsErrorData<RequesterDataByAddress>> {
+async function fetchRequesterDataGroup(
+  convenience: ethers.Contract,
+  addresses: string[]
+): Promise<LogsErrorData<RequesterDataByAddress>> {
   const { providerId } = config.nodeSettings;
 
   const contractCall = () => convenience.getDataWithClientAddresses(providerId, addresses);
@@ -53,7 +56,10 @@ async function fetchRequesterDataGroup(convenience: ethers.Contract, addresses: 
   return [[], null, requesterDataByAddress];
 }
 
-export async function fetch(options: FetchOptions, requests: GroupedBaseRequests): Promise<LogsErrorData<RequesterDataByAddress>> {
+export async function fetch(
+  options: FetchOptions,
+  requests: GroupedBaseRequests
+): Promise<LogsErrorData<RequesterDataByAddress>> {
   const apiCallAddresses = requests.apiCalls.map((a) => a.requesterAddress);
   const withdrawalAddresses = requests.withdrawals.map((w) => w.destinationAddress);
   const addresses = [...apiCallAddresses, ...withdrawalAddresses];

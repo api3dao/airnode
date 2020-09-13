@@ -46,7 +46,9 @@ describe('requester data - fetch', () => {
     getDataWithClientAddressesMock.mockResolvedValueOnce(data1);
     getDataWithClientAddressesMock.mockResolvedValueOnce(data2);
 
-    const apiCalls = Array.from(Array(19).keys()).map((n) => fixtures.requests.createBaseApiCall({ id: `0x${n}`, requesterAddress: `${n}` }));
+    const apiCalls = Array.from(Array(19).keys()).map((n) =>
+      fixtures.requests.createBaseApiCall({ id: `0x${n}`, requesterAddress: `${n}` })
+    );
     const groupedBaseRequests: GroupedBaseRequests = { apiCalls, walletDesignations: [], withdrawals: [] };
 
     const fetchOptions = { address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0', provider };
@@ -85,7 +87,9 @@ describe('requester data - fetch', () => {
     getDataWithClientAddressesMock.mockRejectedValueOnce(new Error('Server says no'));
     getDataWithClientAddressesMock.mockRejectedValueOnce(new Error('Server says no'));
 
-    const apiCalls = Array.from(Array(19).keys()).map((n) => fixtures.requests.createBaseApiCall({ id: `0x${n}`, requesterAddress: `${n}` }));
+    const apiCalls = Array.from(Array(19).keys()).map((n) =>
+      fixtures.requests.createBaseApiCall({ id: `0x${n}`, requesterAddress: `${n}` })
+    );
     const groupedBaseRequests: GroupedBaseRequests = { apiCalls, walletDesignations: [], withdrawals: [] };
 
     const fetchOptions = { address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0', provider };
@@ -120,7 +124,7 @@ describe('requester data - fetch', () => {
     const groupedBaseRequests: GroupedBaseRequests = {
       apiCalls: [fixtures.requests.createBaseApiCall()],
       walletDesignations: [],
-      withdrawals: []
+      withdrawals: [],
     };
 
     const fetchOptions = { address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0', provider };
@@ -140,76 +144,113 @@ describe('requester data - fetch', () => {
   });
 });
 
-// describe('apply', () => {
-//   let state: ProviderState;
-//
-//   beforeEach(() => {
-//     const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-//     state = providerState.create(config, 0);
-//   });
-//
-//   it('applies requester data to the API call request', () => {
-//     const apiCallRequest = fixtures.requests.createApiCall({ id: '0x1', requesterAddress: '0xalice' });
-//     const requests = {
-//       apiCalls: [apiCallRequest],
-//       walletDesignations: [],
-//       withdrawals: [],
-//     };
-//
-//     const dataByAddress = {
-//       '0xalice': {
-//         requesterId: 'aliceRequesterId',
-//         walletIndex: '1',
-//         walletAddress: 'aliceWalletAddress',
-//         walletBalance: '150000',
-//         walletMinimumBalance: '50000',
-//       },
-//     };
-//
-//     const res = requesterDetails.apply(state, requests, dataByAddress);
-//     expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletDesignations', 'withdrawals']);
-//
-//     expect(res.apiCalls.length).toEqual(1);
-//     expect(res.apiCalls[0]).toEqual({
-//       ...apiCallRequest,
-//       requesterId: 'aliceRequesterId',
-//       walletIndex: '1',
-//       walletAddress: 'aliceWalletAddress',
-//       walletBalance: '150000',
-//       walletMinimumBalance: '50000',
-//     });
-//   });
-//
-//   it('invalidates requests that do not have any data', () => {
-//     const apiCallRequest = fixtures.requests.createApiCall({ id: '0x1', requesterAddress: '0xalice' });
-//     const requests = {
-//       apiCalls: [apiCallRequest],
-//       walletDesignations: [],
-//       withdrawals: [],
-//     };
-//
-//     const dataByAddress = {
-//       '0xbob': {
-//         requesterId: 'bobRequesterId',
-//         walletIndex: '1',
-//         walletAddress: 'bobWalletAddress',
-//         walletBalance: '150000',
-//         walletMinimumBalance: '50000',
-//       },
-//     };
-//
-//     const res = requesterDetails.apply(state, requests, dataByAddress);
-//
-//     expect(res.apiCalls.length).toEqual(1);
-//     expect(res.apiCalls[0]).toEqual({
-//       ...apiCallRequest,
-//       status: RequestStatus.Blocked,
-//       errorCode: RequestErrorCode.RequesterDataNotFound,
-//       requesterId: '',
-//       walletIndex: '-1',
-//       walletAddress: '',
-//       walletBalance: '0',
-//       walletMinimumBalance: '0',
-//     });
-//   });
-// });
+describe('requester data - apply', () => {
+  it('applies requester data to API calls', () => {
+    const apiCall = fixtures.requests.createBaseApiCall({ id: '0x1', requesterAddress: '0xalice' });
+    const requests = {
+      apiCalls: [apiCall],
+      walletDesignations: [],
+      withdrawals: [],
+    };
+    const dataByAddress = {
+      '0xalice': {
+        requesterId: 'aliceRequesterId',
+        walletIndex: '1',
+        walletAddress: 'aliceWalletAddress',
+        walletBalance: '150000',
+        walletMinimumBalance: '50000',
+      },
+    };
+    const [logs, err, res] = requesterDetails.apply(requests, dataByAddress);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletDesignations', 'withdrawals']);
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0]).toEqual({
+      ...apiCall,
+      requesterId: 'aliceRequesterId',
+      walletIndex: '1',
+      walletAddress: 'aliceWalletAddress',
+      walletBalance: '150000',
+      walletMinimumBalance: '50000',
+    });
+  });
+
+  it('applies requester data to withdrawals', () => {
+    const withdrawal = fixtures.requests.createBaseWithdrawal({ id: '0x1', destinationAddress: '0xalice' });
+    const requests = {
+      apiCalls: [],
+      walletDesignations: [],
+      withdrawals: [withdrawal],
+    };
+    const dataByAddress = {
+      '0xalice': {
+        requesterId: 'aliceRequesterId',
+        walletIndex: '1',
+        walletAddress: 'aliceWalletAddress',
+        walletBalance: '150000',
+        walletMinimumBalance: '50000',
+      },
+    };
+    const [logs, err, res] = requesterDetails.apply(requests, dataByAddress);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletDesignations', 'withdrawals']);
+    expect(res.withdrawals.length).toEqual(1);
+    expect(res.withdrawals[0]).toEqual({
+      ...withdrawal,
+      requesterId: 'aliceRequesterId',
+      walletIndex: '1',
+      walletAddress: 'aliceWalletAddress',
+      walletBalance: '150000',
+      walletMinimumBalance: '50000',
+    });
+  });
+
+  it('invalidates requests that do not have any data', () => {
+    const apiCall = fixtures.requests.createApiCall({ requesterAddress: '0xalice' });
+    const withdrawal = fixtures.requests.createBaseWithdrawal({ destinationAddress: '0xbob' });
+    const requests = {
+      apiCalls: [apiCall],
+      walletDesignations: [],
+      withdrawals: [withdrawal],
+    };
+    const dataByAddress = {
+      '0xcharles': {
+        requesterId: 'charlesRequesterId',
+        walletIndex: '1',
+        walletAddress: 'charlesWalletAddress',
+        walletBalance: '150000',
+        walletMinimumBalance: '50000',
+      },
+    };
+    const [logs, err, res] = requesterDetails.apply(requests, dataByAddress);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: `Unable to find requester data for Request ID:${apiCall.id}` },
+      { level: 'ERROR', message: `Unable to find requester data for Request ID:${withdrawal.id}` },
+    ]);
+    expect(err).toEqual(null);
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0]).toEqual({
+      ...apiCall,
+      status: RequestStatus.Blocked,
+      errorCode: RequestErrorCode.RequesterDataNotFound,
+      requesterId: '',
+      walletIndex: '-1',
+      walletAddress: '',
+      walletBalance: '0',
+      walletMinimumBalance: '0',
+    });
+    expect(res.withdrawals.length).toEqual(1);
+    expect(res.withdrawals[0]).toEqual({
+      ...withdrawal,
+      status: RequestStatus.Blocked,
+      errorCode: RequestErrorCode.RequesterDataNotFound,
+      requesterId: '',
+      walletIndex: '-1',
+      walletAddress: '',
+      walletBalance: '0',
+      walletMinimumBalance: '0',
+    });
+  });
+});
