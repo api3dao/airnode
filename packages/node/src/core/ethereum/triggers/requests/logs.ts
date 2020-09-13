@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
-import { config, FROM_BLOCK_LIMIT } from 'src/core/config';
-import * as ethereum from 'src/core/ethereum';
+import { config, FROM_BLOCK_LIMIT } from '../../../config';
+import * as contracts from '../../contracts';
 import * as events from './events';
-import { LogWithMetadata } from 'src/types';
+import { LogWithMetadata } from '../../../../types';
 
 interface FetchOptions {
   address: string;
@@ -29,7 +29,8 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   // Let this throw if something goes wrong
   const rawLogs = await options.provider.getLogs(filter);
 
-  const airnodeInterface = new ethers.utils.Interface(ethereum.contracts.Airnode.ABI);
+  // If the provider returns a bad response, mapping logs could also throw
+  const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     transactionHash: log.transactionHash,

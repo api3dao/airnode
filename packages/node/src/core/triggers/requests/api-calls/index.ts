@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import * as events from '../events';
 import * as model from '../../../requests/api-calls/model';
-import * as logger from 'src/core/utils/logger';
+import * as logger from '../../../utils/logger';
 import { ApiCall, BaseRequest, LogWithMetadata, ProviderState } from '../../../../types';
 
 export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<ApiCall>[] {

@@ -9,6 +9,7 @@ import * as validation from './validation';
 import * as walletDesignations from './wallet-designations';
 import * as withdrawals from './withdrawals';
 import { GroupedBaseRequests, GroupedRequests, ProviderState } from '../../../../types';
+
 export { groupRequestsByWalletIndex } from './grouping';
 
 export async function fetchPendingRequests(state: ProviderState): Promise<GroupedRequests> {
@@ -17,28 +18,38 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
     currentBlock: state.currentBlock!,
     provider: state.provider,
   };
-  const [fetchLogsLogs, fetchLogsErr, fetchLogsData] = await logs.fetch(fetchOptions);
-  logger.logPendingMessages(state.config.name, fetchLogsLogs);
+  // Fetch event logs from the provider. Let this throw if something goes wrong.
+  // We can't do anything if logs cannot be fetched or parsed successfully.
+  const flatLogs = await logs.fetch(fetchOptions);
+  const groupedLogs = logs.group(flatLogs);
 
-  const pendingApiCalls = apiCalls.mapBaseRequests(state, groupedLogs.apiCalls);
-  const pendingWalletDesignations = walletDesignations.mapBaseRequests(state, groupedLogs.walletDesignations);
-  const pendingWithdrawals = withdrawals.mapBaseRequests(state, groupedLogs.withdrawals);
+  // Cast the logs into the various typed request models
+  const [baseApiLogs, _baseApiErr, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls);
+  const [baseDesigLogs, _baseDesigErr, baseDesignations] = walletDesignations.mapBaseRequests(groupedLogs.walletDesignations);
+  const [baseWithdrawLogs, _baseWithdrawErr, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals);
+  logger.logPendingMessages(state.config.name, [...baseApiLogs, ...baseDesigLogs, ...baseWithdrawLogs]);
 
   const baseRequests: GroupedBaseRequests = {
-    apiCalls: pendingApiCalls,
-    walletDesignations: pendingWalletDesignations,
-    withdrawals: pendingWithdrawals,
+    apiCalls: baseApiCalls,
+    walletDesignations: baseDesignations,
+    withdrawals: baseWithdrawals,
   };
 
-  const fetchRequesterDataOptions = {
+  const fetchReqDataOptions = {
     address: contracts.Convenience.addresses[state.config.chainId],
     provider: state.provider,
   };
-  const fetchRequesterData = requesterData.fetch(fetchRequesterDataOptions, baseRequests);
-  const [requesterDataLogs, requesterDataErr, requesterData] = await goTimeout(5000, fetchRequesterData);
+  // Fetch requester data (requesterId, wallet details etc) for each request type
+  const fetchRequesterData = requesterData.fetch(fetchReqDataOptions, baseRequests);
+  const [_fetchReqDataErr, fetchedReqDataWithLogs] = await goTimeout(5000, fetchRequesterData);
+  if (fetchedReqDataWithLogs) {
+    logger.logPendingMessages(state.config.name, fetchedReqDataWithLogs[0]);
+  }
 
   // Merge requester data with requests
-  const requestsWithData = requesterData.apply(state, baseRequests, dataByAddress);
+  const reqDataByAddress = fetchedReqDataWithLogs && fetchedReqDataWithLogs[1] ? fetchedReqDataWithLogs[1] : {};
+  const [requestsWithDataLogs, _requestsWithDataErr, requestsWithData] = requesterData.apply(baseRequests, reqDataByAddress);
+  logger.logPendingMessages(state.config.name, requestsWithDataLogs);
 
   // Check that each request is valid
   const [validationLogs, _validationErr, validatedRequests] = validation.validateRequests(requestsWithData);

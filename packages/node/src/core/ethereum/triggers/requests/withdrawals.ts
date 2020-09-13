@@ -1,9 +1,8 @@
-import * as logger from 'src/core/utils/logger';
-import * as model from 'src/core/requests/withdrawals/model';
+import * as model from '../../../requests/withdrawals/model';
 import * as events from './events';
-import { BaseRequest, LogWithMetadata, ProviderState, Withdrawal } from 'src/types';
+import { BaseRequest, LogsErrorData, LogWithMetadata, Withdrawal } from '../../../../types';
 
-export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<Withdrawal>[] {
+export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsErrorData<BaseRequest<Withdrawal>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));
@@ -13,7 +12,6 @@ export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithM
 
   // Update the status of requests that have already been fulfilled
   const [fulfilledLogs, fulfilledWithdrawals] = model.updateFulfilledRequests(withdrawalRequests, fulfillmentLogs);
-  logger.logPendingMessages(state.config.name, fulfilledLogs);
 
-  return fulfilledWithdrawals;
+  return [fulfilledLogs, null, fulfilledWithdrawals];
 }

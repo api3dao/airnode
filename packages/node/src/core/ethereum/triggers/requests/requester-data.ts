@@ -2,10 +2,10 @@ import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
 import uniq from 'lodash/uniq';
-import { config } from 'src/core/config';
+import { config } from '../../../config';
 import * as contracts from '../../contracts';
-import { go, retryOperation } from 'src/core/utils/promise-utils';
-import * as logger from 'src/core/utils/logger';
+import { go, retryOperation } from '../../../utils/promise-utils';
+import * as logger from '../../../utils/logger';
 import {
   BaseRequest,
   ClientRequest,
@@ -16,7 +16,7 @@ import {
   RequesterData,
   RequestErrorCode,
   RequestStatus,
-} from 'src/types';
+} from '../../../../types';
 
 interface FetchOptions {
   address: string;

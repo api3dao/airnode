@@ -1,4 +1,4 @@
-import { LogLevel, PendingLog } from 'src/types';
+import { LogLevel, PendingLog } from '../../types';
 
 const logLevels: { [key in LogLevel]: number } = {
   DEBUG: 0,

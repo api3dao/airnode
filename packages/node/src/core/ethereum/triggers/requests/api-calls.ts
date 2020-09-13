@@ -1,10 +1,9 @@
 import flatMap from 'lodash/flatMap';
-import * as logger from 'src/core/utils/logger';
-import * as model from 'src/core/requests/api-calls/model';
+import * as model from '../../../requests/api-calls/model';
 import * as events from './events';
-import { ApiCall, BaseRequest, LogWithMetadata, ProviderState } from 'src/types';
+import { ApiCall, BaseRequest, LogsErrorData, LogWithMetadata } from '../../../../types';
 
-export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithMetadata[]): BaseRequest<ApiCall>[] {
+export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsErrorData<BaseRequest<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isApiCallFulfillment(log.parsedLog));
@@ -16,12 +15,11 @@ export function mapBaseRequests(state: ProviderState, logsWithMetadata: LogWithM
   const parameterized = apiCallBaseRequests.map((request) => model.applyParameters(request));
   const parameterLogs = flatMap(parameterized, (p) => p[0]);
   const parameterizedRequests = flatMap(parameterized, (p) => p[1]);
-  logger.logPendingMessages(state.config.name, parameterLogs);
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
   const [fulfilledLogs, fulfilledRequests] = model.updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
-  logger.logPendingMessages(state.config.name, fulfilledLogs);
 
-  return fulfilledRequests;
+  const logs = [...parameterLogs, ...fulfilledLogs];
+  return [logs, null, fulfilledRequests];
 }

@@ -1,6 +1,6 @@
 import fromPairs from 'lodash/fromPairs';
-import * as logger from '../../utils/logger';
-import { ApiCall, ClientRequest, GroupedRequests, PendingLog, RequestErrorCode, RequestStatus } from '../../../types';
+import * as logger from '../../../utils/logger';
+import { ApiCall, ClientRequest, GroupedRequests, PendingLog, RequestErrorCode, RequestStatus } from '../../../../types';
 
 interface ApiCallsWithLogs {
   apiCalls: ClientRequest<ApiCall>[];

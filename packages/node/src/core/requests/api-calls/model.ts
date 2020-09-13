@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
-import * as ethereum from 'src/core/ethereum';
+import * as ethereum from '../../ethereum';
 import {
   AggregatedApiCall,
   ApiCall,
@@ -12,7 +12,7 @@ import {
   ProviderState,
   RequestErrorCode,
   RequestStatus,
-} from 'src/types';
+} from '../../../types';
 
 type LogsAndRequests = [PendingLog[], BaseRequest<ApiCall>[]];
 

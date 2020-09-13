@@ -2,7 +2,7 @@ import { go } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState } from '../../types';
 import * as apiCallAuthorization from '../requests/api-calls/authorization';
 import * as logger from '../utils/logger';
-import * as triggers from '../triggers';
+import * as triggers from '../ethereum/triggers';
 import * as templates from '../templates';
 import * as transactionCounts from '../ethereum/transaction-counts';
 import * as state from './state';

@@ -1,7 +1,6 @@
-import * as logger from 'src/core/utils/logger';
-import * as model from 'src/core/requests/wallet-designations/model';
+import * as model from '../../../requests/wallet-designations/model';
 import * as events from './events';
-import { BaseRequest, LogWithMetadata, PendingLog, ProviderState, RequestStatus, WalletDesignation } from 'src/types';
+import { BaseRequest, LogsErrorData, LogWithMetadata, PendingLog, RequestStatus, WalletDesignation } from '../../../../types';
 
 type LogsAndRequests = [PendingLog[], BaseRequest<WalletDesignation>[]];
 
@@ -64,10 +63,7 @@ export function filterDuplicateRequests(walletDesignations: BaseRequest<WalletDe
   return [uniqueRequests.logs, flatRequests];
 }
 
-export function mapBaseRequests(
-  state: ProviderState,
-  logsWithMetadata: LogWithMetadata[]
-): BaseRequest<WalletDesignation>[] {
+export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsErrorData<BaseRequest<WalletDesignation>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWalletDesignationRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWalletDesignationFulfillment(log.parsedLog));
@@ -77,11 +73,10 @@ export function mapBaseRequests(
 
   // Update the status of requests that have already been fulfilled
   const [fulfilledLogs, fulfilledRequests] = updateFulfilledRequests(walletDesignationRequests, fulfillmentLogs);
-  logger.logPendingMessages(state.config.name, fulfilledLogs);
 
   // The user is able to rebroadcast the event, so we need to filter out duplicate requests
   const [duplicateLogs, uniqueRequests] = filterDuplicateRequests(fulfilledRequests);
-  logger.logPendingMessages(state.config.name, duplicateLogs);
 
-  return uniqueRequests;
+  const logs = [...fulfilledLogs, ...duplicateLogs];
+  return [logs, null, uniqueRequests];
 }

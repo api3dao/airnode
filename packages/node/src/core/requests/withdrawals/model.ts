@@ -1,4 +1,4 @@
-import { BaseRequest, LogWithMetadata, PendingLog, RequestStatus, Withdrawal } from 'src/types';
+import { BaseRequest, LogWithMetadata, PendingLog, RequestStatus, Withdrawal } from '../../../types';
 
 type LogsAndRequests = [PendingLog[], BaseRequest<Withdrawal>[]];
 
