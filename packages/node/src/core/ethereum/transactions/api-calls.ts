@@ -27,8 +27,13 @@ const GAS_LIMIT = 500_000;
 //   - Test the error function (follow through if successful)
 //   - Fail
 //
-// On top of this, we need to handle errors for each call to the Ethereum provider
-// e.g. The provider goes down temporarily and doesn't respond
+// Testing fulfill/error responds with `callSuccess` which indicates whether or not
+// the transaction would revert.
+//
+// We also need to handle when the Ethereum provider. If we fail to get a response,
+// then a log entry is created (although not posted to console) and the error is caught
+// and returned. The code then proceeds to the next step in the list of paths. If the
+// provider is not responding at all then all of the error logs are collected and returned.
 
 // =================================================================
 // Errors
