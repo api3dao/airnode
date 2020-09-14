@@ -1,6 +1,13 @@
 import * as logger from '../../utils/logger';
 import { isDuplicate } from './model';
-import { ApiCall, ClientRequest, CoordinatorState, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
+import {
+  ApiCall,
+  ClientRequest,
+  CoordinatorState,
+  ProviderState,
+  RequestErrorCode,
+  RequestStatus,
+} from '../../../types';
 
 export function disaggregate(state: CoordinatorState): ProviderState[] {
   // We only care about aggregated API calls for requests
