@@ -6,7 +6,6 @@ import {
   ClientRequest,
   GroupedRequests,
   LogsErrorData,
-  PendingLog,
   RequestErrorCode,
   RequestStatus,
 } from '../../../../types';

@@ -24,7 +24,7 @@ export function updateFulfilledRequests(
     if (fulfilledRequestIds.includes(walletDesignation.id)) {
       const log: PendingLog = {
         level: 'DEBUG',
-        message: `WalletDesignation ID:${walletDesignation.id} has already been fulfilled`,
+        message: `Wallet designation Request ID:${walletDesignation.id} has already been fulfilled`,
       };
 
       const fulfilledDesignation = { ...walletDesignation, status: RequestStatus.Fulfilled };
@@ -32,17 +32,19 @@ export function updateFulfilledRequests(
       return {
         ...acc,
         logs: [...acc.logs, log],
-        request: [...acc.requests, fulfilledDesignation],
+        requests: [...acc.requests, fulfilledDesignation],
       };
     }
 
-    return acc;
+    return { ...acc, requests: [...acc.requests, walletDesignation] };
   }, initialState);
 
   return [fulfilledDesignations.logs, null, fulfilledDesignations.requests];
 }
 
-export function filterDuplicateRequests(walletDesignations: BaseRequest<WalletDesignation>[]): LogsErrorData<BaseRequest<WalletDesignation>[]> {
+export function filterDuplicateRequests(
+  walletDesignations: BaseRequest<WalletDesignation>[]
+): LogsErrorData<BaseRequest<WalletDesignation>[]> {
   const initialState = {
     logs: [],
     requestsById: {},
@@ -50,18 +52,21 @@ export function filterDuplicateRequests(walletDesignations: BaseRequest<WalletDe
 
   const uniqueRequests = walletDesignations.reduce((acc, walletDesignation) => {
     // If there is already a WalletDesignation request with the given ID, ignore the current one
-    const duplicateLog = acc[walletDesignation.id];
+    const duplicateLog = acc.requestsById[walletDesignation.id];
 
     if (duplicateLog) {
       const log: PendingLog = {
         level: 'INFO',
-        message: `Ignored duplicate request for WalletDesignation ID:${walletDesignation.id}`,
+        message: `Ignored duplicate request for wallet designation Request ID:${walletDesignation.id}`,
       };
 
       return { ...acc, logs: [...acc.logs, log] };
     }
 
-    return { ...acc, requests: { ...acc.requestsById, [walletDesignation.id]: walletDesignation } };
+    return {
+      ...acc,
+      requestsById: { ...acc.requestsById, [walletDesignation.id]: walletDesignation },
+    };
   }, initialState);
 
   const flatRequests = Object.values(uniqueRequests.requestsById) as BaseRequest<WalletDesignation>[];
@@ -77,7 +82,10 @@ export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsErrorD
   const walletDesignationRequests = requestLogs.map((rl) => model.initialize(rl));
 
   // Update the status of requests that have already been fulfilled
-  const [fulfilledLogs, _fulfilledErr, fulfilledRequests] = updateFulfilledRequests(walletDesignationRequests, fulfillmentLogs);
+  const [fulfilledLogs, _fulfilledErr, fulfilledRequests] = updateFulfilledRequests(
+    walletDesignationRequests,
+    fulfillmentLogs
+  );
 
   // The user is able to rebroadcast the event, so we need to filter out duplicate requests
   const [duplicateLogs, _duplicateErr, uniqueRequests] = filterDuplicateRequests(fulfilledRequests);
