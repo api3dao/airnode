@@ -105,8 +105,8 @@ export function mergeAuthorizations(
     const { requests } = walletData;
 
     const updatedApiCalls = requests.apiCalls.map((apiCall) => {
-      // Don't overwrite any existing error codes
-      if (apiCall.errorCode) {
+      // Don't overwrite any existing error codes or statuses
+      if (apiCall.errorCode || apiCall.status !== RequestStatus.Pending) {
         return apiCall;
       }
 

@@ -4,7 +4,7 @@ import * as logger from '../utils/logger';
 import { formatDateTime } from '../utils/date-utils';
 import * as apiCallAggregation from './api-call-aggregation';
 import * as apiCaller from './coordinated-api-caller';
-// import * as pw from '../providers/worker';
+import { spawnProviderRequestProcessor } from '../providers/worker';
 
 export async function start() {
   const startedAt = new Date();
@@ -18,8 +18,12 @@ export async function start() {
   // =================================================================
   // STEP 2: Get the initial state from each provider
   // =================================================================
-  const providerStateByIndex = await state.initializeProviders(config.nodeSettings.ethereumProviders);
-  const state2 = state.update(state1, { providers: providerStateByIndex });
+  const providers = await state.initializeProviders(config.nodeSettings.ethereumProviders);
+  const state2 = state.update(state1, { providers });
+  state2.providers.forEach((provider) => {
+    logger.logJSON('INFO', `Initialized provider:${provider.config.name} (chain:${provider.config.chainId})`);
+  });
+  logger.logJSON('INFO', 'Forking to initialize providers complete');
 
   // =================================================================
   // STEP 3: Group unique API calls
@@ -43,8 +47,16 @@ export async function start() {
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  // TODO
+  const providerTransactions = state5.providers.map(async (provider) => {
+    logger.logJSON('INFO', `Forking to submit transactions for provider:${provider.config.name}...`);
+    return await spawnProviderRequestProcessor(provider);
+  });
+  await Promise.all(providerTransactions);
+  logger.logJSON('INFO', 'Forking to submit transactions complete');
 
+  // =================================================================
+  // STEP 7: Log run stats
+  // =================================================================
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
   logger.logJSON('INFO', `Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`);

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import * as providerState from '../../../providers/state';
-import { ProviderState } from '../../../../types';
+import { ProviderState, RequestStatus } from '../../../../types';
 import * as walletDesignations from './index';
 
 const requestLog: any = {
@@ -53,7 +53,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
         },
         providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',
         requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
-        status: 0,
+        status: RequestStatus.Pending,
         walletIndex: '2',
       },
     ]);
@@ -71,7 +71,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
         },
         providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',
         requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
-        status: 2,
+        status: RequestStatus.Fulfilled,
         walletIndex: '2',
       },
     ]);
@@ -89,7 +89,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
         },
         providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',
         requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
-        status: 0,
+        status: RequestStatus.Pending,
         walletIndex: '2',
       },
     ]);

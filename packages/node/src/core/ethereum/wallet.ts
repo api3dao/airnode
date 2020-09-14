@@ -16,10 +16,20 @@ export function getExtendedPublicKey() {
 // m/0/1/1
 // ...
 // but there is no need for more than 2^31-1 per provider
-export function deriveWalletFromIndex(xpub: string, index: number | string) {
+function getPathFromIndex(index: number | string) {
+  return `m/0/0/${index}`;
+}
+
+export function deriveWalletAddressFromIndex(xpub: string, index: number | string) {
   const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
-  const wallet = hdNode.derivePath(`m/0/0/${index}`);
+  const wallet = hdNode.derivePath(getPathFromIndex(index));
   return wallet.address;
+}
+
+export function deriveSigningWalletFromIndex(provider: ethers.providers.JsonRpcProvider, index: number | string) {
+  const masterHdNode = ethers.utils.HDNode.fromMnemonic(security.masterKeyMnemonic);
+  const signerHdNode = masterHdNode.derivePath(getPathFromIndex(index));
+  return new ethers.Wallet(signerHdNode.privateKey, provider);
 }
 
 export function isAdminWalletIndex(index: string) {

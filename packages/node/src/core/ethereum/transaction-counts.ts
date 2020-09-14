@@ -12,7 +12,7 @@ async function getWalletTransactionCount(
   index: string
 ): Promise<TransactionCountByWalletIndex | null> {
   const xpub = wallet.getExtendedPublicKey();
-  const address = wallet.deriveWalletFromIndex(xpub, index);
+  const address = wallet.deriveWalletAddressFromIndex(xpub, index);
 
   const providerCall = () => state.provider.getTransactionCount(address, state.currentBlock!) as Promise<number>;
   const retryableCall = retryOperation(2, providerCall, { timeouts: [4000, 4000] }) as Promise<number>;

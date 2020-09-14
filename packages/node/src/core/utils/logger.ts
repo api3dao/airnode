@@ -1,4 +1,4 @@
-export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+import { LogLevel, PendingLog } from 'src/types';
 
 const logLevels: { [key in LogLevel]: number } = {
   DEBUG: 0,
@@ -31,6 +31,21 @@ export function logJSON(level: LogLevel, message: any) {
 
 export function logProviderJSON(name: string, level: LogLevel, message: string) {
   logJSON(level, `[provider: ${name}] ${message}`);
+}
+
+// NOTE: In many cases it is not ideal to pass the entire state in to a
+// function just to have access to the provider name. This would tightly
+// couple many parts of the application together. For this reason, functions
+// can build up a list of "pending" logs and have them all output at once
+// (from a higher level function).
+export function logPendingMessages(name: string, pendingLogs: PendingLog[]) {
+  pendingLogs.forEach((pendingLog) => {
+    logProviderJSON(name, pendingLog.level, pendingLog.message);
+  });
+}
+
+export function pend(level: LogLevel, message: string): PendingLog {
+  return { level, message };
 }
 
 export function logProviderError(name: string, message: string, err: Error | null) {
