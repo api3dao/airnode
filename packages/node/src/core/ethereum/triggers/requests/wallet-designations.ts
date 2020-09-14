@@ -9,12 +9,10 @@ import {
   WalletDesignation,
 } from '../../../../types';
 
-type LogsAndRequests = [PendingLog[], BaseRequest<WalletDesignation>[]];
-
 export function updateFulfilledRequests(
   walletDesignations: BaseRequest<WalletDesignation>[],
   fulfillmentLogs: LogWithMetadata[]
-): LogsAndRequests {
+): LogsErrorData<BaseRequest<WalletDesignation>[]> {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.walletDesignationRequestId);
 
   const initialState = {
@@ -41,10 +39,10 @@ export function updateFulfilledRequests(
     return acc;
   }, initialState);
 
-  return [fulfilledDesignations.logs, fulfilledDesignations.requests];
+  return [fulfilledDesignations.logs, null, fulfilledDesignations.requests];
 }
 
-export function filterDuplicateRequests(walletDesignations: BaseRequest<WalletDesignation>[]): LogsAndRequests {
+export function filterDuplicateRequests(walletDesignations: BaseRequest<WalletDesignation>[]): LogsErrorData<BaseRequest<WalletDesignation>[]> {
   const initialState = {
     logs: [],
     requestsById: {},
@@ -67,7 +65,7 @@ export function filterDuplicateRequests(walletDesignations: BaseRequest<WalletDe
   }, initialState);
 
   const flatRequests = Object.values(uniqueRequests.requestsById) as BaseRequest<WalletDesignation>[];
-  return [uniqueRequests.logs, flatRequests];
+  return [uniqueRequests.logs, null, flatRequests];
 }
 
 export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsErrorData<BaseRequest<WalletDesignation>[]> {
@@ -79,10 +77,10 @@ export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsErrorD
   const walletDesignationRequests = requestLogs.map((rl) => model.initialize(rl));
 
   // Update the status of requests that have already been fulfilled
-  const [fulfilledLogs, fulfilledRequests] = updateFulfilledRequests(walletDesignationRequests, fulfillmentLogs);
+  const [fulfilledLogs, _fulfilledErr, fulfilledRequests] = updateFulfilledRequests(walletDesignationRequests, fulfillmentLogs);
 
   // The user is able to rebroadcast the event, so we need to filter out duplicate requests
-  const [duplicateLogs, uniqueRequests] = filterDuplicateRequests(fulfilledRequests);
+  const [duplicateLogs, _duplicateErr, uniqueRequests] = filterDuplicateRequests(fulfilledRequests);
 
   const logs = [...fulfilledLogs, ...duplicateLogs];
   return [logs, null, uniqueRequests];
