@@ -129,6 +129,7 @@ contract EndpointStore is ProviderStore, IEndpointStore {
     /// be false.
     /// Note that authorizers should not start or end with 0, and 0s should
     /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
+    /// [] returns false (deny everyone), [0] returns true (accept everyone).
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param clientAddress Address of the client contract
     /// @return status If the client contract is authorized to call the
@@ -143,6 +144,11 @@ contract EndpointStore is ProviderStore, IEndpointStore {
         returns(bool status)
     {
         uint256 noAuthorizers = endpoints[endpointId].authorizers.length;
+        // If no authorizers have been set, deny access by default
+        if (noAuthorizers == 0)
+        {
+            return false;
+        }
         // authorizedByAll will remain true as long as none of the authorizers
         // in a group reports that the client is unauthorized
         bool authorizedByAll = true;
