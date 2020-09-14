@@ -2,13 +2,7 @@ import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../../utils/logger';
 import * as utils from '../../utils';
-import {
-  ClientRequest,
-  GroupedRequests,
-  LogsErrorData,
-  RequestErrorCode,
-  RequestStatus,
-} from '../../../../types';
+import { ClientRequest, GroupedRequests, LogsErrorData, RequestErrorCode, RequestStatus } from '../../../../types';
 
 function validateRequest<T>(request: ClientRequest<T>): LogsErrorData<ClientRequest<T>> {
   // If the request is already invalid, we don't want to overwrite the error
