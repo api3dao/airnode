@@ -76,7 +76,6 @@ export interface ApiCall {
   readonly providerId: string;
   readonly requesterAddress: string;
   readonly templateId: string | null;
-  readonly error?: ApiCallError;
   readonly response?: ApiCallResponse;
 }
 
