@@ -2,7 +2,15 @@ import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../../utils/logger';
 import * as utils from '../../utils';
-import { ApiCall, ClientRequest, GroupedRequests, LogsErrorData, RequestErrorCode, RequestStatus, Withdrawal } from '../../../../types';
+import {
+  ApiCall,
+  ClientRequest,
+  GroupedRequests,
+  LogsErrorData,
+  RequestErrorCode,
+  RequestStatus,
+  Withdrawal,
+} from '../../../../types';
 
 function validateWalletIndex<T>(request: ClientRequest<T>): LogsErrorData<ClientRequest<T>> {
   // If the request is already invalid, we don't want to overwrite the error
