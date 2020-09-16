@@ -12,7 +12,7 @@
     "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.aws.yml)",
     "lint": "npm run lint:eslint && npm run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
-    "lint:solhint": "solhint \"./packages/protocol/src/**/*.sol\"",
+    "lint:solhint": "solhint ./**/*.sol",
     "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && npm run test)",

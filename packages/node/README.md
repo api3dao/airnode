@@ -1,5 +1,56 @@
 # @airnode/node
 
-## Potential errors and how they are handled
+> The node part of Airnode that allows for connecting multiple blockchains to the rest of the world
+
+## Features
+
+- Earn money by exposing your API to the rapidly growing blockchain dApp market
+- Listen for on-chain events and respond with off-chain data
+- Requesters pay all transaction costs
+- Simple installation and limited to no day-to-day maintenance
+- Serverless allows for paying as you use and limitless scalability
+
+## Installation
+
+**Important: Airnode is in active development and likely to change before the stable release**
+
+Airnode has not yet been published, so you will need to clone and install the entire repository. This can be done by running:
+
+```sh
+git clone git@github.com:api3dao/airnode.git
+
+# Run from the repository root
+npm run bootstrap
+```
+
+## Configuration
+
+Before running Airnode, you will need to have a valid `config.json` and `security.json` placed in the packages/node folder. You can find more information on these files in the API3 documentation [repository](https://github.com/api3dao/api3-docs).
+
+## Usage
+
+Airnode does not yet have an stable API for usage. However, you can run for development and testing by running the following from the repository root:
+
+```sh
+# Run Airnode once using the AWS serverless handler
+npm run invoke:aws
+
+# Expose a local endpoint at localhost:3000 where you can initiate actions by sending HTTP requests
+npm run dev:aws
+```
+
+## Behaviour
+
+This is a running list of how different errors are handled by the node and test tracking. It is likely to change in the future.
 
 https://docs.google.com/spreadsheets/d/1DanVn7WyP96D5max2_5T5enJz7TcCsRceoqDfDfCcnA/edit?usp=sharing
+
+## Security
+
+API3 and Airnode take security very seriously. If you find a security related incident please let the team know privately.
+
+## Contributing
+
+Airnode welcomes all contributors, regardless of how big or small the change is!
+
+If you find a bug, please log an [issue](https://github.com/api3dao/api3-docs)
