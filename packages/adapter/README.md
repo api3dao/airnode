@@ -1,6 +1,6 @@
 # @airnode/adapter
 
-The adapter package for @airnode contains logic for building requests from an [Oracle Integration Specification (OIS)](https://github.com/clc-group/airnode/wiki/OIS-v1.0.0), executing those requests and returning a single value from the response.
+The adapter package for @airnode contains logic for building requests from an [Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/2-6-ois.md), executing those requests and returning a single value from the response.
 
 ## Getting Started
 
@@ -16,7 +16,7 @@ yarn add @airnode/adapter
 
 ## Types
 
-You can find the types mentioned below in [src/types.ts](https://github.com/clc-group/airnode/blob/master/packages/adapter/src/types.ts)
+You can find the types mentioned below in [src/types.ts](https://github.com/api3dao/airnode/blob/master/packages/adapter/src/types.ts)
 
 ## API
 
