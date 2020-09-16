@@ -148,7 +148,9 @@ describe('disaggregate - ClientRequests', () => {
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnableToMatchAggregatedCall);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(
+      RequestErrorCode.UnableToMatchAggregatedCall
+    );
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(undefined);
@@ -195,7 +197,9 @@ describe('disaggregate - ClientRequests', () => {
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnableToMatchAggregatedCall);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(
+      RequestErrorCode.UnableToMatchAggregatedCall
+    );
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(undefined);
@@ -242,7 +246,9 @@ describe('disaggregate - ClientRequests', () => {
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnableToMatchAggregatedCall);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(
+      RequestErrorCode.UnableToMatchAggregatedCall
+    );
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.ApiCallFailed);
