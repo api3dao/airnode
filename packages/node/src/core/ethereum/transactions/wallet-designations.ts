@@ -5,11 +5,13 @@ import { BaseRequest, LogsErrorData, RequestStatus, TransactionOptions, WalletDe
 
 const GAS_LIMIT = 150_000;
 
+type SubmitResponse = ethers.Transaction | null;
+
 export async function submitWalletDesignation(
   airnode: ethers.Contract,
   request: BaseRequest<WalletDesignation>,
   options: TransactionOptions
-): Promise<LogsErrorData<any>> {
+): Promise<LogsErrorData<SubmitResponse>> {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
@@ -35,7 +37,7 @@ export async function submitWalletDesignation(
       );
       return [[noticeLog, errorLog], err, null];
     }
-    return [[noticeLog], null, res];
+    return [[noticeLog], null, res as ethers.Transaction];
   }
 
   const noticeLog = logger.pend(

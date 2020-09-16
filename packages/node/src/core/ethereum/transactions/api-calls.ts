@@ -14,9 +14,7 @@ const GAS_LIMIT = 500_000;
 
 type StaticResponse = { callSuccess: boolean } | null;
 
-type TransactionResponse = Promise<ethers.Transaction>;
-
-type SubmitResponse = TransactionResponse | null;
+type SubmitResponse = ethers.Transaction | null;
 
 // NOTE:
 // This module definitely appears convoluted, but unfortunately there are quite a few different
@@ -92,7 +90,7 @@ async function submitError(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as TransactionResponse];
+  return [[noticeLog], null, res as ethers.Transaction];
 }
 
 async function testAndSubmitError(
@@ -178,7 +176,7 @@ async function submitFulfill(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as TransactionResponse];
+  return [[noticeLog], null, res as ethers.Transaction];
 }
 
 async function testAndSubmitFulfill(
@@ -238,7 +236,7 @@ async function submitFail(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as TransactionResponse];
+  return [[noticeLog], null, res as ethers.Transaction];
 }
 
 // =================================================================
