@@ -1,10 +1,5 @@
 import Bluebird from 'bluebird';
 
-// http://bluebirdjs.com/docs/api/promise.config.html
-Bluebird.config({
-  cancellation: true,
-});
-
 // Adapted from:
 // https://github.com/then/is-promise
 export function isPromise(obj: any) {
