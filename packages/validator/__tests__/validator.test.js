@@ -555,16 +555,16 @@ function conditionNotMetMessage(paramPath, param) {
 describe('validator', () => {
   describe('api specs', () => {
     test('valid configuration', () => {
-      expect(validator.isSpecsValid(specs1)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isSpecsValid(specs2)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.isApiSpecsValid(specs1)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.isApiSpecsValid(specs2)).toMatchObject({ valid: true, messages: [] });
     });
 
     test('invalid formatting', () => {
-      expect(validator.isSpecsValid(specs3)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs3)).toMatchObject({
         valid: true,
         messages: [formattingMessage('servers[0].url')],
       });
-      expect(validator.isSpecsValid(specs4)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs4)).toMatchObject({
         valid: true,
         messages: [
           formattingMessage('servers[0].url'),
@@ -579,25 +579,25 @@ describe('validator', () => {
     });
 
     test('multiple array items', () => {
-      expect(validator.isSpecsValid(specs5)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isSpecsValid(specs6)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs5)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.isApiSpecsValid(specs6)).toMatchObject({
         valid: false,
         messages: [sizeExceededMessage('servers', 1)],
       });
     });
 
     test('edge cases', () => {
-      expect(validator.isSpecsValid(specs7)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isSpecsValid(specs8)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs7)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.isApiSpecsValid(specs8)).toMatchObject({
         valid: false,
         messages: [{ level: 'error', message: 'SyntaxError: Unexpected end of JSON input' }],
       });
-      expect(validator.isSpecsValid(specs9)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isSpecsValid(specs10)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.isApiSpecsValid(specs9)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.isApiSpecsValid(specs10)).toMatchObject({ valid: true, messages: [] });
     });
 
     test('missing parameters', () => {
-      expect(validator.isSpecsValid(specs11)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs11)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('servers'),
@@ -608,7 +608,7 @@ describe('validator', () => {
           missingParamMessage('security'),
         ],
       });
-      expect(validator.isSpecsValid(specs12)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs12)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('paths./myPath.get.parameters[0].name'),
@@ -619,7 +619,7 @@ describe('validator', () => {
           missingParamMessage('components.securitySchemes.mySecurityScheme.in')
         ],
       });
-      expect(validator.isSpecsValid(specs13)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs13)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('servers'),
@@ -631,7 +631,7 @@ describe('validator', () => {
     });
 
     test('extra fields', () => {
-      expect(validator.isSpecsValid(specs14)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs14)).toMatchObject({
         valid: true,
         messages: [
           extraFieldMessage('extra'),
@@ -645,7 +645,7 @@ describe('validator', () => {
     });
 
     test('conditional checks', () => {
-      expect(validator.isSpecsValid(specs15)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs15)).toMatchObject({
         valid: false,
         messages: [
         formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
@@ -656,7 +656,7 @@ describe('validator', () => {
           extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme')
         ]
       });
-      expect(validator.isSpecsValid(specs16)).toMatchObject({
+      expect(validator.isApiSpecsValid(specs16)).toMatchObject({
         valid: false, messages: [
           conditionNotMetMessage('paths./{myParam}', 'myParam'),
           conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}/subPath', 'myParam2'),

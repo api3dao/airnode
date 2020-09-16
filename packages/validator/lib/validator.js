@@ -1,102 +1,7 @@
 'use strict';
 
-const specsStructure = {
-  'servers': {
-    '__maxSize': 1,
-    '__arrayItem': {
-      'url': {
-        '__regexp': '^(https?|ftp)://[^\\s/$.?#].[^\\s]*$'
-      },
-    },
-  },
-  'paths': {
-    '__keyRegexp': '^\\/[^\\s\'"\\\\]+$',
-    '__conditions': [
-      {
-        '__if': {
-          '__this': '(?<={)[^\\/{}]+(?=})'
-        },
-        '__then': {
-          '__objectItem': {
-            'parameters': {
-              '__any': {
-                'name': {
-                  '__regexp': '^__match$'
-                }
-              }
-            }
-          }
-        }
-      }
-    ],
-    '__objectItem': {
-      '__keyRegexp': '^(get|post)$',
-      '__objectItem': {
-        'parameters': {
-          '__arrayItem': {
-            'name': {},
-            'in': {
-              '__regexp': '^(path|query|header|cookie)$'
-            },
-          },
-        }
-      }
-    }
-  },
-  'components': {
-    'securitySchemes': {
-      '__keyRegexp': '^[^\\s\'"\\\\]+$',
-      '__objectItem': {
-        'type': {
-          '__regexp': '^(apiKey|http)$',
-          '__level': 'error'
-        },
-        '__conditions': [
-          {
-            '__if': {
-              'type': '^apiKey$'
-            },
-            '__then': {
-              'name': {}
-            }
-          },
-          {
-            '__if': {
-              'type': '^http$'
-            },
-            '__then': {
-              'scheme': {
-                '__regexp': '^(Basic|Bearer)$',
-                '__level': 'error'
-              }
-            }
-          },
-          {
-            '__require': {
-              '/security.__this_name': {}
-            }
-          }
-        ],
-        'in': {
-          '__regexp': '^(query|header|cookie)$'
-        },
-      }
-    }
-  },
-  'security': {
-    '__keyRegexp': '^[^\\s\'"\\\\]+$',
-    '__objectItem': {
-      '__arrayItem': {},
-      '__conditions': [
-        {
-          '__require': {
-            '/components.securitySchemes.__this_name': {}
-          }
-        }
-      ]
-    }
-  }
-};
+const fs = require('fs');
+const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
 
 function getLastParamName(paramPath) {
   const lastDotIndex = paramPath.lastIndexOf('.');
@@ -491,7 +396,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
   return { valid, messages };
 }
 
-function isSpecsValid(specs) {
+function isApiSpecsValid(specs) {
   let parsedSpecs;
   let nonRedundant = {};
 
@@ -501,7 +406,7 @@ function isSpecsValid(specs) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return validateSpecs(parsedSpecs, specsStructure, '', parsedSpecs, nonRedundant, nonRedundant);
+  return validateSpecs(parsedSpecs, apiSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
 }
 
-module.exports = { isSpecsValid };
+module.exports = { isApiSpecsValid };
