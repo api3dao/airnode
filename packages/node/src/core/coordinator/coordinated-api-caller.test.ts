@@ -25,6 +25,7 @@ import * as fixtures from 'test/fixtures';
 import * as coordinatedCaller from './coordinated-api-caller';
 import * as state from './state';
 import * as workers from '../workers/index';
+import { removeKey } from '../utils/object-utils';
 import { ApiCallError, CoordinatorState, RequestErrorCode } from '../../types';
 
 describe('callApis', () => {
@@ -95,18 +96,15 @@ describe('callApis', () => {
   it('returns an error if the worker crashes', async () => {
     const spy = jest.spyOn(workers, 'spawn');
     spy.mockRejectedValueOnce(new Error('Worker crashed'));
-
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
     const aggregatedApiCalls = [aggregatedApiCall];
     const newState = state.update(initialState, { aggregatedApiCalls });
-
     const res = await coordinatedCaller.callApis(newState);
-
-    expect(res[0]).toEqual({
-      ...aggregatedApiCall,
-      response: undefined,
-      error: { errorCode: RequestErrorCode.ApiCallFailed },
-    });
+    const resApiCall = removeKey(res[0], 'error');
+    expect(resApiCall).toEqual({ ...aggregatedApiCall, response: undefined });
+    expect(res[0].error!.errorCode).toEqual(RequestErrorCode.ApiCallFailed);
+    expect(res[0].error!.message).toContain('API call to Endpoint:endpointName errored after');
+    expect(res[0].error!.message).toContain('Error: Worker crashed');
     expect(spy).toHaveBeenCalledTimes(1);
   });
 });
