@@ -528,6 +528,21 @@ const specs16 = `{
 "security": {}
 }`;
 
+/* OIS SPECS */
+const specs17 = `{
+"oisFormat": "1.10.0",
+"title": "myOisTitle",
+"version": "1.2.3",
+"apiSpecifications": ${specs1}
+}`;
+
+const specs18 = `{
+"oisFormat": "1..0",
+"title": "myOisTitle",
+"version": "1.0",
+"apiSpecifications": ${specs15}
+}`;
+
 function formattingMessage(paramPath, error = false) {
   return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };
 }
@@ -648,7 +663,7 @@ describe('validator', () => {
       expect(validator.isApiSpecsValid(specs15)).toMatchObject({
         valid: false,
         messages: [
-        formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
+          formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
           missingParamMessage('components.securitySchemes.mySecurityScheme2.name'),
           missingParamMessage('components.securitySchemes.mySecurityScheme3.name'),
           formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true),
@@ -664,6 +679,27 @@ describe('validator', () => {
           conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam2')
         ]
       });
+    });
+  });
+
+  test('ois specs', () => {
+    expect(validator.isOisValid(specs17)).toMatchObject({
+      valid: true,
+      messages: []
+    });
+
+    expect(validator.isOisValid(specs18)).toMatchObject({
+      valid: false,
+      messages: [
+        formattingMessage('oisFormat'),
+        formattingMessage('version'),
+        formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
+        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2.name'),
+        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme3.name'),
+        formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme4.scheme', true),
+        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme5'),
+        extraFieldMessage('apiSpecifications.components.securitySchemes.mySecurityScheme3.scheme')
+      ]
     });
   });
 });
