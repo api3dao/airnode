@@ -44,7 +44,7 @@ describe('validation', () => {
       expect(res.apiCalls[1].errorCode).toEqual(undefined);
     });
 
-    it('validates the current balance is greater than the current balance', () => {
+    it('validates the current balance is greater than the minimum balance', () => {
       const sufficientBalance = fixtures.requests.createApiCall({ walletBalance: '10', walletMinimumBalance: '5' });
       const matchingBalance = fixtures.requests.createApiCall({ walletBalance: '5', walletMinimumBalance: '5' });
       const insufficientBalance = fixtures.requests.createApiCall({
@@ -76,7 +76,7 @@ describe('validation', () => {
   });
 
   describe('validating withdrawals', () => {
-    it('validates the current balance is greater than the current balance', () => {
+    it('validates the current balance is greater than the minimum balance', () => {
       const sufficientBalance = fixtures.requests.createWithdrawal({ walletBalance: '10', walletMinimumBalance: '5' });
       const matchingBalance = fixtures.requests.createWithdrawal({ walletBalance: '5', walletMinimumBalance: '5' });
       const insufficientBalance = fixtures.requests.createWithdrawal({
