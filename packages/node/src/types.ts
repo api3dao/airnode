@@ -76,7 +76,6 @@ export interface ApiCall {
   readonly providerId: string;
   readonly requesterAddress: string;
   readonly templateId: string | null;
-  readonly error?: ApiCallError;
   readonly response?: ApiCallResponse;
 }
 
@@ -102,6 +101,12 @@ export interface Withdrawal {
   readonly destinationAddress: string;
   readonly providerId: string;
   readonly requesterId: string;
+}
+
+export interface GroupedBaseRequests {
+  readonly apiCalls: BaseRequest<ApiCall>[];
+  readonly walletDesignations: BaseRequest<WalletDesignation>[];
+  readonly withdrawals: BaseRequest<Withdrawal>[];
 }
 
 export interface GroupedRequests {
@@ -207,6 +212,7 @@ export interface Triggers {
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
 export interface PendingLog {
+  error?: Error;
   level: LogLevel;
   message: string;
 }
@@ -214,7 +220,7 @@ export interface PendingLog {
 // Making this type a tuple, forces the user to handle logs and errors first.
 // If it was an object ({ logs: [], error?: Error, data?: any }), then it's
 // very easy to forgot to handle logs and errors
-export type LogsWithData = [PendingLog[], Error | null, any];
+export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 
 // ===========================================
 // Config

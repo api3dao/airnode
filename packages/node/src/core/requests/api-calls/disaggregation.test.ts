@@ -7,7 +7,7 @@ jest.mock('../../config', () => ({
 }));
 
 import * as fixtures from 'test/fixtures';
-import { RequestErrorCode } from 'src/types';
+import { RequestErrorCode, RequestStatus } from 'src/types';
 import * as coordinatorState from '../../coordinator/state';
 import * as providerState from '../../providers/state';
 import * as disaggregation from './disaggregation';
@@ -100,11 +100,11 @@ describe('disaggregate - ClientRequests', () => {
 
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[2].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[0].walletDataByIndex[2].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[0].walletDataByIndex[2].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
+    expect(res[0].walletDataByIndex[2].requests.apiCalls[0].errorCode).toEqual(undefined);
     expect(res[1].walletDataByIndex[3].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].error).toEqual({
-      errorCode: RequestErrorCode.ApiCallFailed,
-    });
+    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
+    expect(res[1].walletDataByIndex[3].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.ApiCallFailed);
   });
 
   it('does not update the request if the parameters are different', () => {
@@ -147,9 +147,13 @@ describe('disaggregate - ClientRequests', () => {
 
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(
+      RequestErrorCode.UnableToMatchAggregatedCall
+    );
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(undefined);
   });
 
   it('does not update the request if the endpoint IDs are different', () => {
@@ -192,9 +196,13 @@ describe('disaggregate - ClientRequests', () => {
 
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(
+      RequestErrorCode.UnableToMatchAggregatedCall
+    );
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual({ value: '0x123' });
-    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(undefined);
   });
 
   it('does not update the request if the request IDs are different', () => {
@@ -237,11 +245,12 @@ describe('disaggregate - ClientRequests', () => {
 
     const res = disaggregation.disaggregate(state);
     expect(res[0].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].error).toEqual(undefined);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
+    expect(res[0].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(
+      RequestErrorCode.UnableToMatchAggregatedCall
+    );
     expect(res[1].walletDataByIndex[1].requests.apiCalls[0].response).toEqual(undefined);
-    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].error).toEqual({
-      errorCode: RequestErrorCode.ApiCallFailed,
-      message: 'Failed to call API',
-    });
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
+    expect(res[1].walletDataByIndex[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.ApiCallFailed);
   });
 });

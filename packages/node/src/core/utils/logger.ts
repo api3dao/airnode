@@ -1,4 +1,4 @@
-import { LogLevel, PendingLog } from 'src/types';
+import { LogLevel, PendingLog } from '../../types';
 
 const logLevels: { [key in LogLevel]: number } = {
   DEBUG: 0,
@@ -41,10 +41,17 @@ export function logProviderJSON(name: string, level: LogLevel, message: string) 
 export function logPendingMessages(name: string, pendingLogs: PendingLog[]) {
   pendingLogs.forEach((pendingLog) => {
     logProviderJSON(name, pendingLog.level, pendingLog.message);
+
+    if (pendingLog.error && pendingLog.error.stack) {
+      logProviderJSON(name, 'ERROR', pendingLog.error.stack);
+    }
   });
 }
 
-export function pend(level: LogLevel, message: string): PendingLog {
+export function pend(level: LogLevel, message: string, error?: Error | null): PendingLog {
+  if (error) {
+    return { error, level, message };
+  }
   return { level, message };
 }
 

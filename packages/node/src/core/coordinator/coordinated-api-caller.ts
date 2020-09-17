@@ -19,8 +19,9 @@ export async function callApis(state: CoordinatorState): Promise<AggregatedApiCa
 
     // If the worker crashes for whatever reason, mark the request as failed
     if (err || !res) {
-      logger.logJSON('ERROR', `${logMsg} errored after ${durationMs}. ${err}`);
-      return { ...aggregatedApiCall, error: { errorCode: RequestErrorCode.ApiCallFailed } };
+      const message = `${logMsg} errored after ${durationMs}. ${err}`;
+      logger.logJSON('ERROR', message);
+      return { ...aggregatedApiCall, error: { errorCode: RequestErrorCode.ApiCallFailed, message } };
     }
 
     // If the request completed but has an errorCode, then it means that something

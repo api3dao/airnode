@@ -2,13 +2,15 @@ import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
 import * as wallet from '../wallet';
-import { ClientRequest, LogsWithData, RequestStatus, TransactionOptions, Withdrawal } from '../../../types';
+import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../../types';
+
+type SubmitResponse = ethers.Transaction | null;
 
 export async function submitWithdrawal(
   airnode: ethers.Contract,
   request: ClientRequest<Withdrawal>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
   }
@@ -73,7 +75,7 @@ export async function submitWithdrawal(
       return [logs, withdrawalErr, null];
     }
 
-    return [[estimateLog, noticeLog], null, withdrawalRes];
+    return [[estimateLog, noticeLog], null, withdrawalRes as ethers.Transaction];
   }
 
   const noticeLog = logger.pend(

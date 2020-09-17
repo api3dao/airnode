@@ -1,6 +1,13 @@
 import * as logger from '../../utils/logger';
 import { isDuplicate } from './model';
-import { CoordinatorState, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
+import {
+  ApiCall,
+  ClientRequest,
+  CoordinatorState,
+  ProviderState,
+  RequestErrorCode,
+  RequestStatus,
+} from '../../../types';
 
 export function disaggregate(state: CoordinatorState): ProviderState[] {
   // We only care about aggregated API calls for requests
@@ -13,7 +20,7 @@ export function disaggregate(state: CoordinatorState): ProviderState[] {
       const walletData = provider.walletDataByIndex[index];
       const { requests } = walletData;
 
-      const updatedApiCalls = requests.apiCalls.map((apiCall) => {
+      const updatedApiCalls: ClientRequest<ApiCall>[] = requests.apiCalls.map((apiCall) => {
         // Find the aggregated API call that matches the initial grouping and is required for this provider
         const aggregatedApiCall = aggregatedApiCalls.find((aggregatedCall) => {
           return (
@@ -27,11 +34,15 @@ export function disaggregate(state: CoordinatorState): ProviderState[] {
         // not we need to catch and log an error
         if (!aggregatedApiCall) {
           logger.logJSON('ERROR', `Unable to find matching aggregated API call for Request:${apiCall.id}`);
-          return { apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.UnableToMatchAggregatedCall };
+          return { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.UnableToMatchAggregatedCall };
         }
 
         // Add the error to the ApiCall
-        return { ...apiCall, error: aggregatedApiCall.error, response: aggregatedApiCall.response };
+        if (aggregatedApiCall.error?.errorCode) {
+          return { ...apiCall, status: RequestStatus.Errored, errorCode: aggregatedApiCall.error.errorCode };
+        }
+
+        return { ...apiCall, response: aggregatedApiCall.response };
       });
 
       const updatedRequests = { ...requests, apiCalls: updatedApiCalls };

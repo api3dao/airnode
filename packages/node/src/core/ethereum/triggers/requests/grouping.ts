@@ -1,8 +1,8 @@
 import groupBy from 'lodash/groupBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
-import * as wallet from '../../ethereum/wallet';
-import { GroupedRequests, WalletDataByIndex } from '../../../types';
+import * as wallet from '../../wallet';
+import { GroupedRequests, WalletDataByIndex } from '../../../../types';
 
 export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDataByIndex {
   const xpub = wallet.getExtendedPublicKey();

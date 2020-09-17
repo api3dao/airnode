@@ -1,7 +1,6 @@
 import * as fixtures from 'test/fixtures';
 import * as model from './model';
-import * as providerState from '../../providers/state';
-import { AggregatedApiCall, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
+import { AggregatedApiCall, RequestErrorCode, RequestStatus } from '../../../types';
 
 describe('initialize ApiCall BaseRequest', () => {
   it('initializes a new ApiCall request', () => {
@@ -45,13 +44,6 @@ describe('initialize ApiCall BaseRequest', () => {
 });
 
 describe('applyParameters', () => {
-  let state: ProviderState;
-
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    state = providerState.create(config, 0);
-  });
-
   it('does nothing if encodedParameters is falsey', () => {
     const logWithMetadata: any = {
       parsedLog: {
@@ -74,7 +66,8 @@ describe('applyParameters', () => {
     const initialRequest = model.initialize(logWithMetadata);
     expect(initialRequest.parameters).toEqual({});
 
-    const withParameters = model.applyParameters(state, initialRequest);
+    const [logs, withParameters] = model.applyParameters(initialRequest);
+    expect(logs).toEqual([]);
     expect(withParameters).toEqual(initialRequest);
   });
 
@@ -100,23 +93,26 @@ describe('applyParameters', () => {
     const initialRequest = model.initialize(logWithMetadata);
     expect(initialRequest.parameters).toEqual({});
 
-    const withParameters = model.applyParameters(state, initialRequest);
+    const [logs, withParameters] = model.applyParameters(initialRequest);
+    expect(logs).toEqual([]);
     expect(withParameters).toEqual({ ...initialRequest, parameters: { key: { something: 'value' } } });
   });
 
   it('sets the request to errored if the parameters cannot be decoded', () => {
+    const requestId = '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49';
+    const parameters = '0xincorrectparameters';
     const logWithMetadata: any = {
       parsedLog: {
         args: {
+          requestId,
+          parameters,
           providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
           requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
           fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           fulfillFunctionId: '0x042f2b65',
           errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           errorFunctionId: '0xba12a5e4',
-          parameters: '0xincorrectparameters',
         },
       },
       blockNumber: 10716082,
@@ -126,12 +122,30 @@ describe('applyParameters', () => {
     const initialRequest = model.initialize(logWithMetadata);
     expect(initialRequest.parameters).toEqual({});
 
-    const withParameters = model.applyParameters(state, initialRequest);
+    const [logs, withParameters] = model.applyParameters(initialRequest);
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Request ID:${requestId} submitted with invalid parameters: ${parameters}`,
+      },
+    ]);
     expect(withParameters).toEqual({
       ...initialRequest,
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.InvalidRequestParameters,
     });
+  });
+});
+
+describe('updateFulfilledRequests (ApiCall)', () => {
+  // TODO: get some example events to use here
+  pending('updates requests to be fulfilled if they have a matching log');
+
+  it('returns the request if it is not fulfilled', () => {
+    const apiCall = fixtures.requests.createBaseApiCall();
+    const [logs, requests] = model.updateFulfilledRequests([apiCall], []);
+    expect(logs).toEqual([]);
+    expect(requests).toEqual([apiCall]);
   });
 });
 

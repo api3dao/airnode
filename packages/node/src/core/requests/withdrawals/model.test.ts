@@ -1,7 +1,8 @@
+import * as fixtures from 'test/fixtures';
 import * as model from './model';
 import { RequestStatus } from 'src/types';
 
-describe('initialize Withdrawal ClientRequest', () => {
+describe('initialize Withdrawal BaseRequest', () => {
   it('initializes a new Withdrawal request', () => {
     const logWithMetadata: any = {
       parsedLog: {
@@ -27,5 +28,17 @@ describe('initialize Withdrawal ClientRequest', () => {
       requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
       status: RequestStatus.Pending,
     });
+  });
+});
+
+describe('updateFulfilledRequests (withdrawals)', () => {
+  // TODO: get some example events to use here
+  pending('updates requests to be fulfilled if they have a matching log');
+
+  it('returns the request if it is not fulfilled', () => {
+    const withdrawal = fixtures.requests.createBaseWithdrawal();
+    const [logs, requests] = model.updateFulfilledRequests([withdrawal], []);
+    expect(logs).toEqual([]);
+    expect(requests).toEqual([withdrawal]);
   });
 });

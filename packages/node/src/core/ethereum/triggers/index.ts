@@ -1,6 +1,6 @@
 import * as requests from './requests';
-import * as logger from '../utils/logger';
-import { ProviderState, WalletDataByIndex } from '../../types';
+import * as logger from '../../utils/logger';
+import { ProviderState, WalletDataByIndex } from '../../../types';
 
 export async function fetchWalletDataByIndex(state: ProviderState): Promise<WalletDataByIndex> {
   // Let this throw if it fails. We can't do anything if the logs cannot be fetched

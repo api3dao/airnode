@@ -1,8 +1,14 @@
 import { ethers } from 'ethers';
-import { config, FROM_BLOCK_LIMIT } from '../../config';
-import * as ethereum from '../../ethereum';
+import { config, FROM_BLOCK_LIMIT } from '../../../config';
+import * as contracts from '../../contracts';
 import * as events from './events';
-import { LogWithMetadata, ProviderState } from '../../../types';
+import { LogWithMetadata } from '../../../../types';
+
+interface FetchOptions {
+  address: string;
+  currentBlock: number;
+  provider: ethers.providers.JsonRpcProvider;
+}
 
 interface GroupedLogs {
   apiCalls: LogWithMetadata[];
@@ -10,19 +16,21 @@ interface GroupedLogs {
   withdrawals: LogWithMetadata[];
 }
 
-async function fetchLogs(state: ProviderState): Promise<LogWithMetadata[]> {
+export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   const filter: ethers.providers.Filter = {
-    fromBlock: state.currentBlock! - FROM_BLOCK_LIMIT,
-    toBlock: state.currentBlock!,
-    address: ethereum.contracts.Airnode.addresses[state.config.chainId],
+    fromBlock: options.currentBlock - FROM_BLOCK_LIMIT,
+    toBlock: options.currentBlock,
+    address: options.address,
+    // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
     topics: [null, config.nodeSettings.providerId],
   };
 
   // Let this throw if something goes wrong
-  const rawLogs = await state.provider.getLogs(filter);
+  const rawLogs = await options.provider.getLogs(filter);
 
-  const airnodeInterface = new ethers.utils.Interface(ethereum.contracts.Airnode.ABI);
+  // If the provider returns a bad response, mapping logs could also throw
+  const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     transactionHash: log.transactionHash,
@@ -32,7 +40,7 @@ async function fetchLogs(state: ProviderState): Promise<LogWithMetadata[]> {
   return logsWithBlocks;
 }
 
-function groupLogs(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
+export function group(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
     walletDesignations: [],
@@ -57,12 +65,4 @@ function groupLogs(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
     // Ignore other events
     return acc;
   }, initialState);
-}
-
-export async function fetchGroupedLogs(state: ProviderState): Promise<GroupedLogs> {
-  const logs = await fetchLogs(state);
-
-  const groupedLogs = groupLogs(logs);
-
-  return groupedLogs;
 }

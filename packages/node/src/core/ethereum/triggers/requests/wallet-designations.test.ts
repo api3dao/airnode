@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
-import * as providerState from '../../../providers/state';
-import { ProviderState, RequestStatus } from '../../../../types';
-import * as walletDesignations from './index';
+import { RequestStatus } from '../../../../types';
+import * as walletDesignations from './wallet-designations';
 
 const requestLog: any = {
   parsedLog: {
@@ -34,15 +33,10 @@ const fulfilledLog: any = {
 };
 
 describe('mapBaseRequests (WalletDesignation)', () => {
-  let state: ProviderState;
-
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    state = providerState.create(config, 0);
-  });
-
   it('returns WalletDesignation base requests', () => {
-    const res = walletDesignations.mapBaseRequests(state, [requestLog]);
+    const [logs, err, res] = walletDesignations.mapBaseRequests([requestLog]);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(res).toEqual([
       {
         depositAmount: '250',
@@ -60,7 +54,14 @@ describe('mapBaseRequests (WalletDesignation)', () => {
   });
 
   it('updates the status of fulfilled WalletDesignation requests', () => {
-    const res = walletDesignations.mapBaseRequests(state, [requestLog, fulfilledLog]);
+    const [logs, err, res] = walletDesignations.mapBaseRequests([requestLog, fulfilledLog]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Wallet designation Request ID:${requestLog.parsedLog.args.walletDesignationRequestId} has already been fulfilled`,
+      },
+    ]);
+    expect(err).toEqual(null);
     expect(res).toEqual([
       {
         depositAmount: '250',
@@ -78,7 +79,18 @@ describe('mapBaseRequests (WalletDesignation)', () => {
   });
 
   it('filers out duplicate WalletDesignation requests', () => {
-    const res = walletDesignations.mapBaseRequests(state, [requestLog, requestLog, requestLog]);
+    const [logs, err, res] = walletDesignations.mapBaseRequests([requestLog, requestLog, requestLog]);
+    expect(logs).toEqual([
+      {
+        level: 'INFO',
+        message: `Ignored duplicate request for wallet designation Request ID:${requestLog.parsedLog.args.walletDesignationRequestId}`,
+      },
+      {
+        level: 'INFO',
+        message: `Ignored duplicate request for wallet designation Request ID:${requestLog.parsedLog.args.walletDesignationRequestId}`,
+      },
+    ]);
+    expect(err).toEqual(null);
     expect(res).toEqual([
       {
         depositAmount: '250',

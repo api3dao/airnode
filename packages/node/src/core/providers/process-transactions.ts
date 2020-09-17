@@ -29,7 +29,7 @@ export async function processTransactions(initialState: ProviderState) {
     logger.logProviderJSON(
       state2.config.name,
       'INFO',
-      `Transaction:${receipt.data.hash} submitted for Request:${receipt.id}`
+      `Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`
     );
   });
 

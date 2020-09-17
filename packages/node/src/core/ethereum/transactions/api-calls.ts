@@ -4,13 +4,17 @@ import * as logger from '../../utils/logger';
 import {
   ApiCall,
   ClientRequest,
-  LogsWithData,
+  LogsErrorData,
   RequestErrorCode,
   RequestStatus,
   TransactionOptions,
 } from '../../../types';
 
 const GAS_LIMIT = 500_000;
+
+type StaticResponse = { callSuccess: boolean } | null;
+
+type SubmitResponse = ethers.Transaction | null;
 
 // NOTE:
 // This module definitely appears convoluted, but unfortunately there are quite a few different
@@ -42,7 +46,7 @@ async function testError(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<StaticResponse>> {
   const noticeLog = logger.pend('DEBUG', `Attempting to error API call for Request:${request.id}...`);
 
   const attemptedTx = airnode.callStatic.error(
@@ -69,7 +73,7 @@ async function submitError(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call error for Request:${request.id}...`);
 
   const tx = airnode.error(request.id, request.errorCode, request.errorAddress, request.errorFunctionId, {
@@ -86,14 +90,14 @@ async function submitError(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res];
+  return [[noticeLog], null, res as ethers.Transaction];
 }
 
 async function testAndSubmitError(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   // Should not throw
   const [testLogs, testErr, testData] = await testError(airnode, request, options);
 
@@ -128,7 +132,7 @@ async function testFulfill(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<StaticResponse>> {
   const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
 
   const attemptedTx = airnode.callStatic.fulfill(
@@ -155,7 +159,7 @@ async function submitFulfill(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
 
   const tx = airnode.fulfill(request.id, request.response!.value, request.fulfillAddress, request.fulfillFunctionId, {
@@ -172,14 +176,14 @@ async function submitFulfill(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res];
+  return [[noticeLog], null, res as ethers.Transaction];
 }
 
 async function testAndSubmitFulfill(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
 
@@ -219,7 +223,7 @@ async function submitFail(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = airnode.fail(request.id, { gasLimit: GAS_LIMIT, gasPrice: options.gasPrice, nonce: request.nonce! });
@@ -232,7 +236,7 @@ async function submitFail(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res];
+  return [[noticeLog], null, res as ethers.Transaction];
 }
 
 // =================================================================
@@ -242,7 +246,7 @@ export async function submitApiCall(
   airnode: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
-): Promise<LogsWithData> {
+): Promise<LogsErrorData<SubmitResponse>> {
   // No need to log anything if the request is already fulfilled
   if (request.status === RequestStatus.Fulfilled) {
     return [[], null, null];
