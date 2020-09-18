@@ -14,6 +14,7 @@ jest.mock('ethers', () => {
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import * as authorization from './authorization-fetching';
+import { RequestStatus } from 'src/types';
 
 describe('fetch (authorizations)', () => {
   let fetchOptions: any;
@@ -23,6 +24,14 @@ describe('fetch (authorizations)', () => {
       address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
+  });
+
+  it('returns an empty object if there are no pending API calls', async () => {
+    const apiCalls = [fixtures.requests.createApiCall({ status: RequestStatus.Blocked })];
+    const [logs, err, res] = await authorization.fetch(apiCalls, fetchOptions);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    expect(res).toEqual({});
   });
 
   it('calls the contract with groups of 10', async () => {
