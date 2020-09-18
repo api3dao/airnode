@@ -1,122 +1,156 @@
 import * as fixtures from 'test/fixtures';
-import { ProviderState, RequestErrorCode, RequestStatus } from 'src/types';
+import { RequestErrorCode, RequestStatus, WalletDataByIndex } from 'src/types';
 import * as authorization from './authorization-application';
-import * as providerState from '../../providers/state';
 
 describe('mergeAuthorizations', () => {
-  let initialState: ProviderState;
-
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    initialState = providerState.create(config, 0);
-  });
-
   it('does nothing if the API call is already invalid', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [
-          fixtures.requests.createApiCall({
-            status: RequestStatus.Errored,
-            errorCode: RequestErrorCode.InvalidRequestParameters,
-          }),
-        ],
-        walletDesignations: [],
-        withdrawals: [],
+    const apiCalls = [
+      fixtures.requests.createApiCall({
+        endpointId: '0xendpointId',
+        requesterAddress: '0xrequesterAddress',
+        status: RequestStatus.Errored,
+        errorCode: RequestErrorCode.InvalidRequestParameters,
+      }),
+    ];
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: apiCalls,
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
-    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
   });
 
   it('does nothing if the API call is not pending', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall({ status: RequestStatus.Blocked })],
-        walletDesignations: [],
-        withdrawals: [],
+    const apiCalls = [
+      fixtures.requests.createApiCall({
+        endpointId: '0xendpointId',
+        requesterAddress: '0xrequesterAddress',
+        status: RequestStatus.Blocked,
+        errorCode: RequestErrorCode.TemplateNotFound,
+      }),
+    ];
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: apiCalls,
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
-    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
   });
 
   it('blocks the request if it has no endpointId', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall({ endpointId: null })],
-        walletDesignations: [],
-        withdrawals: [],
+    const apiCalls = [fixtures.requests.createApiCall({ endpointId: null })];
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: apiCalls,
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
-    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'No endpoint ID found for Request ID:apiCallId' }]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
   });
 
   it('blocks the request if no authorization is found', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [fixtures.requests.createApiCall()],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const res = authorization.mergeAuthorizations(state, {});
+    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, {});
+    expect(logs).toEqual([{ level: 'WARN', message: 'Authorization not found for Request ID:apiCallId' }]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.AuthorizationNotFound);
   });
 
   it('returns the validated request if it is authorized', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
-        withdrawals: [],
+    const apiCalls = [
+      fixtures.requests.createApiCall({ endpointId: '0xendpointId', requesterAddress: '0xrequesterAddress' }),
+    ];
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: apiCalls,
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const authorizationsByEndpoint = { endpointId: { requesterAddress: true } };
-    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(undefined);
   });
 
   it('invalidates the request if it is not authorized', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
-        withdrawals: [],
+    const apiCalls = [
+      fixtures.requests.createApiCall({ endpointId: '0xendpointId', requesterAddress: '0xrequesterAddress' }),
+    ];
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: apiCalls,
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const authorizationsByEndpoint = { endpointId: { requesterAddress: false } };
-    const res = authorization.mergeAuthorizations(state, authorizationsByEndpoint);
+    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': false } };
+    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    expect(logs).toEqual([
+      {
+        level: 'WARN',
+        message:
+          'Client:0xrequesterAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:apiCallId',
+      },
+    ]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnauthorizedClient);

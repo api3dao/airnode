@@ -26,7 +26,7 @@ function mapApiCalls(
     // and drop the request if it is missing. If endpointId is missing, it means that the
     // template was not loaded
     if (!apiCall.endpointId) {
-      const log = logger.pend('ERROR', `No Endpoint ID found for Request ID:${apiCall.id}`);
+      const log = logger.pend('ERROR', `No endpoint ID found for Request ID:${apiCall.id}`);
       const updatedApiCall = {
         ...apiCall,
         status: RequestStatus.Blocked,

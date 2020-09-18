@@ -1,10 +1,11 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
+import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../utils/logger';
-import * as ethereum from '../../ethereum';
+import { Convenience } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsErrorData } from '../../../types';
 
 interface FetchOptions {
@@ -54,13 +55,16 @@ export async function fetch(
   apiCalls: ClientRequest<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsErrorData<ApiCallTemplatesById>> {
-  const { Convenience } = ethereum.contracts;
-  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
-
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
+  if (isEmpty(templateIds)) {
+    return [[], null, {}];
+  }
 
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(uniq(templateIds), 10);
+
+  // Create an instance of the contract that we can re-use
+  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(convenience, ids));
