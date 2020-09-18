@@ -9,9 +9,9 @@ import {
   ClientRequest,
   LogWithMetadata,
   PendingLog,
-  ProviderState,
   RequestErrorCode,
   RequestStatus,
+  WalletDataByIndex,
 } from '../../../types';
 
 type LogsAndRequests = [PendingLog[], BaseRequest<ApiCall>[]];
@@ -104,10 +104,10 @@ export function isDuplicate(apiCall: ClientRequest<ApiCall>, aggregatedApiCall: 
   return isEqual(pick(apiCall, fields), pick(aggregatedApiCall, fields));
 }
 
-export function flatten(state: ProviderState): ClientRequest<ApiCall>[] {
-  const walletIndices = Object.keys(state.walletDataByIndex);
+export function flatten(walletDataByIndex: WalletDataByIndex): ClientRequest<ApiCall>[] {
+  const walletIndices = Object.keys(walletDataByIndex);
 
   return flatMap(walletIndices, (index) => {
-    return state.walletDataByIndex[index].requests.apiCalls;
+    return walletDataByIndex[index].requests.apiCalls;
   });
 }

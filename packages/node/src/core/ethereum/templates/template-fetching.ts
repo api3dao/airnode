@@ -2,32 +2,33 @@ import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
 import uniq from 'lodash/uniq';
-import { go, retryOperation } from '../utils/promise-utils';
-import * as logger from '../utils/logger';
-import * as ethereum from '../ethereum';
-import { ApiCallTemplate, ProviderState } from '../../types';
+import { go, retryOperation } from '../../utils/promise-utils';
+import * as logger from '../../utils/logger';
+import * as ethereum from '../../ethereum';
+import { ApiCall, ApiCallTemplate, ClientRequest, LogsErrorData } from '../../../types';
+
+interface FetchOptions {
+  address: string;
+  provider: ethers.providers.JsonRpcProvider;
+}
 
 interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
 }
 
-async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): Promise<ApiCallTemplatesById> {
-  const { Convenience } = ethereum.contracts;
-  const { config, provider } = state;
-
-  const contract = new ethers.Contract(Convenience.addresses[config.chainId], Convenience.ABI, provider);
-  const contractCall = () => contract.getTemplates(templateIds) as Promise<any>;
+async function fetchTemplateGroup(convenience: ethers.Contract, templateIds: string[]): Promise<LogsErrorData<ApiCallTemplatesById>> {
+  const contractCall = () => convenience.getTemplates(templateIds) as Promise<any>;
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
 
   const [err, rawTemplates] = await go(retryableContractCall);
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
   if (err || !rawTemplates) {
-    logger.logProviderError(config.name, 'Failed to fetch API call templates', err);
-    return {};
+    const log = logger.pend('ERROR', 'Failed to fetch API call templates', err);
+    return [[log], null, {}];
   }
 
-  return templateIds.reduce((acc, templateId, index) => {
+  const templatesById = templateIds.reduce((acc, templateId, index) => {
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
@@ -42,10 +43,14 @@ async function fetchTemplateGroup(state: ProviderState, templateIds: string[]): 
     };
     return { ...acc, [templateId]: template };
   }, {});
+
+  return [[], null, templatesById];
 }
 
-export async function fetch(state: ProviderState): Promise<ApiCallTemplatesById> {
-  const apiCalls = flatMap(Object.values(state.walletDataByIndex).map((wd) => wd.requests.apiCalls));
+export async function fetch(apiCalls: ClientRequest<ApiCall>[], fetchOptions: FetchOptions): Promise<LogsErrorData<ApiCallTemplatesById>> {
+  const { Convenience } = ethereum.contracts;
+  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
+
 
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
 
@@ -53,10 +58,15 @@ export async function fetch(state: ProviderState): Promise<ApiCallTemplatesById>
   const groupedTemplateIds = chunk(uniq(templateIds), 10);
 
   // Fetch all groups of templates in parallel
-  const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(state, ids));
+  const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(convenience, ids));
 
-  const templatesById = await Promise.all(promises);
+  const templateResponses = await Promise.all(promises);
+  const templateResponseLogs = flatMap(templateResponses, (t) => t[0]);
 
   // Merge all templates into a single object, keyed by their ID for faster/easier lookup
-  return Object.assign({}, ...templatesById);
+  const templatesById = templateResponses.reduce((acc, result) => {
+    return { ...acc, ...result[2] };
+  }, {});
+
+  return [templateResponseLogs, null, templatesById];
 }

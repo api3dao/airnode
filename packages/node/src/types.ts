@@ -134,6 +134,22 @@ export interface ProviderState {
   readonly walletDataByIndex: WalletDataByIndex;
 }
 
+export interface CoordinatorState {
+  readonly aggregatedApiCalls: AggregatedApiCall[];
+  readonly providers: ProviderState[];
+}
+
+// ===========================================
+// API calls
+// ===========================================
+export interface AuthorizationByRequester {
+  [id: string]: boolean;
+}
+
+export interface AuthorizationByEndpointId {
+  [id: string]: AuthorizationByRequester;
+}
+
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
 
 export interface ApiCallResponse {
@@ -155,11 +171,6 @@ export interface AggregatedApiCall {
   readonly type: AggregatedApiCallType;
   readonly error?: ApiCallError;
   readonly response?: ApiCallResponse;
-}
-
-export interface CoordinatorState {
-  readonly aggregatedApiCalls: AggregatedApiCall[];
-  readonly providers: ProviderState[];
 }
 
 // ===========================================

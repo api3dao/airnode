@@ -1,6 +1,6 @@
 import * as fixtures from 'test/fixtures';
 import * as providerState from '../providers/state';
-import { ApiCallTemplate, ProviderState, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCallTemplate, ProviderState, RequestErrorCode, RequestStatus } from '../../../types';
 import * as application from './template-application';
 
 describe('mergeApiCallsWithTemplates', () => {
