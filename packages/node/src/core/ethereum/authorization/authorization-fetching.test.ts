@@ -15,7 +15,7 @@ import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import * as authorization from './authorization-fetching';
 
-describe('fetch', () => {
+describe('fetch (authorizations)', () => {
   let fetchOptions: any;
 
   beforeEach(() => {
