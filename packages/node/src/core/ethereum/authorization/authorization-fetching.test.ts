@@ -11,17 +11,18 @@ jest.mock('ethers', () => {
   };
 });
 
+import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import { ProviderState } from 'src/types';
 import * as authorization from './authorization-fetching';
-import * as providerState from '../../providers/state';
 
 describe('fetch', () => {
-  let initialState: ProviderState;
+  let fetchOptions: any;
 
   beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    initialState = providerState.create(config, 0);
+    fetchOptions = {
+      address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+      provider: new ethers.providers.JsonRpcProvider(),
+    };
   });
 
   it('calls the contract with groups of 10', async () => {
@@ -36,18 +37,9 @@ describe('fetch', () => {
       });
     });
 
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: apiCalls,
-        walletDesignations: [],
-        withdrawals: [],
-      },
-      transactionCount: 3,
-    };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-
-    const res = await authorization.fetch(state);
+    const [logs, err, res] = await authorization.fetch(apiCalls, fetchOptions);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['endpointId-0']).toEqual({ 'requesterAddress-0': true });
     expect(res['endpointId-18']).toEqual({ 'requesterAddress-18': true });
@@ -68,18 +60,9 @@ describe('fetch', () => {
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-2' }),
     ];
 
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: apiCalls,
-        walletDesignations: [],
-        withdrawals: [],
-      },
-      transactionCount: 3,
-    };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-
-    const res = await authorization.fetch(state);
+    const [logs, err, res] = await authorization.fetch(apiCalls, fetchOptions);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res['endpointId-0']).toEqual({
       'requester-0': true,
@@ -96,18 +79,9 @@ describe('fetch', () => {
       fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
     ];
 
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: apiCalls,
-        walletDesignations: [],
-        withdrawals: [],
-      },
-      transactionCount: 3,
-    };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-
-    const res = await authorization.fetch(state);
+    const [logs, err, res] = await authorization.fetch(apiCalls, fetchOptions);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res).toEqual({
       'endpointId-0': {
@@ -123,18 +97,11 @@ describe('fetch', () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
-        withdrawals: [],
-      },
-      transactionCount: 3,
-    };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
+    const apiCalls = [fixtures.requests.createApiCall()];
 
-    const res = await authorization.fetch(state);
+    const [logs, err, res] = await authorization.fetch(apiCalls, fetchOptions);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
     expect(res).toEqual({
       endpointId: {
         requesterAddress: true,
@@ -147,18 +114,13 @@ describe('fetch', () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
-        withdrawals: [],
-      },
-      transactionCount: 3,
-    };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
+    const apiCalls = [fixtures.requests.createApiCall()];
 
-    const res = await authorization.fetch(state);
+    const [logs, err, res] = await authorization.fetch(apiCalls, fetchOptions);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to fetch authorization details', error: new Error('Server says no') },
+    ]);
+    expect(err).toEqual(null);
     expect(res).toEqual({});
   });
 });
