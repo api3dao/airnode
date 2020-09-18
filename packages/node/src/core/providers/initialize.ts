@@ -74,7 +74,10 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // // =================================================================
   // // STEP 5: Merge authorizations and transaction counts
   // // =================================================================
-  const [authLogs, _authErr, walletDataWithAuthorizations] = authorization.mergeAuthorizations(walletDataWithTransactionCounts, authorizationsByEndpoint);
+  const [authLogs, _authErr, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
+    walletDataWithTransactionCounts,
+    authorizationsByEndpoint
+  );
   logger.logPendingMessages(state3.config.name, authLogs);
 
   const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });

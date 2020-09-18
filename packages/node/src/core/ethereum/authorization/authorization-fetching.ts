@@ -5,13 +5,7 @@ import uniqBy from 'lodash/uniqBy';
 import { Convenience } from '../contracts';
 import * as logger from '../../utils/logger';
 import { go, retryOperation } from '../../utils/promise-utils';
-import {
-  ApiCall,
-  AuthorizationByEndpointId,
-  ClientRequest,
-  LogsErrorData,
-  RequestStatus,
-} from '../../../types';
+import { ApiCall, AuthorizationByEndpointId, ClientRequest, LogsErrorData, RequestStatus } from '../../../types';
 
 interface FetchOptions {
   address: string;
@@ -53,7 +47,10 @@ async function fetchAuthorizationStatuses(
   return [[], null, authorizations];
 }
 
-export async function fetch(apiCalls: ClientRequest<ApiCall>[], fetchOptions: FetchOptions): Promise<LogsErrorData<AuthorizationByEndpointId>> {
+export async function fetch(
+  apiCalls: ClientRequest<ApiCall>[],
+  fetchOptions: FetchOptions
+): Promise<LogsErrorData<AuthorizationByEndpointId>> {
   const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
 
   // If an API call has a templateId but the template failed to load, then we cannot process
@@ -70,8 +67,8 @@ export async function fetch(apiCalls: ClientRequest<ApiCall>[], fetchOptions: Fe
   const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(convenience, pairs));
 
   const responses = await Promise.all(promises);
-  const responseLogs = flatMap(responses, r => r[0]);
-  const authorizationStatuses = flatMap(responses, r => r[2]);
+  const responseLogs = flatMap(responses, (r) => r[0]);
+  const authorizationStatuses = flatMap(responses, (r) => r[2]);
 
   // Store each "authorization" against the endpointId so it can be easily looked up
   const authorizationsByEndpoint = authorizationStatuses.reduce((acc, authorization) => {
@@ -84,4 +81,3 @@ export async function fetch(apiCalls: ClientRequest<ApiCall>[], fetchOptions: Fe
 
   return [responseLogs, null, authorizationsByEndpoint];
 }
-

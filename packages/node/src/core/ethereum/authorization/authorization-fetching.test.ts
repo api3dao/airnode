@@ -162,4 +162,3 @@ describe('fetch', () => {
     expect(res).toEqual({});
   });
 });
-

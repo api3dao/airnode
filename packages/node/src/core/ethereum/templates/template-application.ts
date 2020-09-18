@@ -10,7 +10,7 @@ import {
   PendingLog,
   RequestErrorCode,
   RequestStatus,
-  WalletDataByIndex
+  WalletDataByIndex,
 } from '../../../types';
 
 interface ApiCallTemplatesById {
@@ -46,7 +46,10 @@ function mergeRequestAndTemplate(
   };
 }
 
-function mapApiCalls(apiCalls: ClientRequest<ApiCall>[], templatesById: ApiCallTemplatesById): LogsErrorData<ClientRequest<ApiCall>[]> {
+function mapApiCalls(
+  apiCalls: ClientRequest<ApiCall>[],
+  templatesById: ApiCallTemplatesById
+): LogsErrorData<ClientRequest<ApiCall>[]> {
   const logsWithApiCalls: LogsErrorData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
     const { id, templateId } = apiCall;
 
@@ -93,26 +96,32 @@ function mapApiCalls(apiCalls: ClientRequest<ApiCall>[], templatesById: ApiCallT
   return [logs, null, updatedApiCalls];
 }
 
-export function mergeApiCallsWithTemplates(walletDataByIndex: WalletDataByIndex, templatesById: ApiCallTemplatesById): LogsErrorData<WalletDataByIndex> {
+export function mergeApiCallsWithTemplates(
+  walletDataByIndex: WalletDataByIndex,
+  templatesById: ApiCallTemplatesById
+): LogsErrorData<WalletDataByIndex> {
   const walletIndices = Object.keys(walletDataByIndex);
 
-  const updatedWalletDataWithLogs: LogsWithWalletData = walletIndices.reduce((acc, index) => {
-    const walletData = walletDataByIndex[index];
-    const { requests } = walletData;
+  const updatedWalletDataWithLogs: LogsWithWalletData = walletIndices.reduce(
+    (acc, index) => {
+      const walletData = walletDataByIndex[index];
+      const { requests } = walletData;
 
-    // Update each API call if it is linked to a template
-    const [mapApiCallLogs, _mapApiCallErr, apiCalls] = mapApiCalls(requests.apiCalls, templatesById);
+      // Update each API call if it is linked to a template
+      const [mapApiCallLogs, _mapApiCallErr, apiCalls] = mapApiCalls(requests.apiCalls, templatesById);
 
-    const updatedLogs = [...acc.logs, ...mapApiCallLogs];
+      const updatedLogs = [...acc.logs, ...mapApiCallLogs];
 
-    const updatedWalletData = { ...walletData, requests: { ...requests, apiCalls } };
-    const updatedWalletDataByIndex = {
-      ...acc.walletDataByIndex,
-      [index]: updatedWalletData
-    };
+      const updatedWalletData = { ...walletData, requests: { ...requests, apiCalls } };
+      const updatedWalletDataByIndex = {
+        ...acc.walletDataByIndex,
+        [index]: updatedWalletData,
+      };
 
-    return { logs: updatedLogs, walletDataByIndex: updatedWalletDataByIndex };
-  }, { logs: [], walletDataByIndex: {} });
+      return { logs: updatedLogs, walletDataByIndex: updatedWalletDataByIndex };
+    },
+    { logs: [], walletDataByIndex: {} }
+  );
 
   return [updatedWalletDataWithLogs.logs, null, updatedWalletDataWithLogs.walletDataByIndex];
 }

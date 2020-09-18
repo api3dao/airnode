@@ -16,7 +16,10 @@ interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
 }
 
-async function fetchTemplateGroup(convenience: ethers.Contract, templateIds: string[]): Promise<LogsErrorData<ApiCallTemplatesById>> {
+async function fetchTemplateGroup(
+  convenience: ethers.Contract,
+  templateIds: string[]
+): Promise<LogsErrorData<ApiCallTemplatesById>> {
   const contractCall = () => convenience.getTemplates(templateIds) as Promise<any>;
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
 
@@ -47,10 +50,12 @@ async function fetchTemplateGroup(convenience: ethers.Contract, templateIds: str
   return [[], null, templatesById];
 }
 
-export async function fetch(apiCalls: ClientRequest<ApiCall>[], fetchOptions: FetchOptions): Promise<LogsErrorData<ApiCallTemplatesById>> {
+export async function fetch(
+  apiCalls: ClientRequest<ApiCall>[],
+  fetchOptions: FetchOptions
+): Promise<LogsErrorData<ApiCallTemplatesById>> {
   const { Convenience } = ethereum.contracts;
   const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
-
 
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
 

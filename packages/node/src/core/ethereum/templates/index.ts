@@ -21,14 +21,20 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState) {
   const [fetchTemplLogs, _fetchTemplErr, templatesById] = await templates.fetch(flatApiCalls, fetchOptions);
   logger.logPendingMessages(state.config.name, fetchTemplLogs);
 
-  const [appliedTemplLogs, _appliedTemplErr, walletDataWithTemplates] = application.mergeApiCallsWithTemplates(state.walletDataByIndex, templatesById);
+  const [appliedTemplLogs, _appliedTemplErr, walletDataWithTemplates] = application.mergeApiCallsWithTemplates(
+    state.walletDataByIndex,
+    templatesById
+  );
   logger.logPendingMessages(state.config.name, appliedTemplLogs);
 
   // We need to flatten again as the API calls previously didn't have templates applied
   const flatApiCallsWithTemplates = apiCalls.flatten(walletDataWithTemplates);
 
   // Fetch authorizations. This should not throw
-  const [authLogs, _authErr, authorizationsByEndpoint] = await authorization.fetch(flatApiCallsWithTemplates, fetchOptions);
+  const [authLogs, _authErr, authorizationsByEndpoint] = await authorization.fetch(
+    flatApiCallsWithTemplates,
+    fetchOptions
+  );
   logger.logPendingMessages(state.config.name, authLogs);
 
   return { authorizationsByEndpoint, walletDataWithTemplates };
