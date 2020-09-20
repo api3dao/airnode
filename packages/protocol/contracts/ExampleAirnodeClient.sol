@@ -13,13 +13,9 @@ contract ExampleAirnodeClient is AirnodeClient {
 
     /// @dev Airnode address and endorser IDs are set at deployment
     /// @param _airnode Airnode contract address
-    /// @param _requesterId Endorser ID from RequestStore
-    constructor (
-        address _airnode,
-        bytes32 _requesterId
-        )
+    constructor (address _airnode)
         public
-        AirnodeClient(_airnode, _requesterId)
+        AirnodeClient(_airnode)
     {}
 
     /// @notice Called to make a regular request to the Airnode contract

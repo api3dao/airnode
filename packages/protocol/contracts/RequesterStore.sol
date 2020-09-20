@@ -6,162 +6,108 @@ import "./interfaces/IRequesterStore.sol";
 
 /// @title The contract where the requesters are stored
 /// @notice This contract is used by requesters to manage their endorsemenets.
-/// The requester first gets a wallet designated from a provider through
-/// ProviderStore. This wallet is used to fulfill requests made by clients
-/// endorsed by the requester. This is the contract where clients allow
-/// requesters to endorse them and requesters endorse or disendorse clients.
+/// A requester endorsing a client means that the client can request their
+/// requests to be fulfilled by the respective requester's designated wallets.
 contract RequesterStore is IRequesterStore {
-    mapping(bytes32 => address) private requesterIdToAdmin;
-    mapping(address => bytes32) private endorsementPermissions;
-    mapping(address => bytes32) private clientAdressToRequesterId;
+    mapping(uint256 => address) private requesterIndToAdmin;
+    mapping(uint256 => mapping(address => bool)) private requesterIndToClientAddressToEndorsementStatus;
     uint256 private noRequesters = 0;
 
 
     /// @notice Creates a requester with the given parameters, addressable by
-    /// the ID it returns
+    /// the index it returns
     /// @param admin Requester admin
-    /// @return requesterId Requester ID
+    /// @return requesterInd Requester index
     function createRequester(address admin)
         external
         override
-        returns (bytes32 requesterId)
+        returns (uint256 requesterInd)
     {
-        requesterId = keccak256(abi.encodePacked(
-            noRequesters++,
-            this,
-            msg.sender,
-            uint256(4)
-            ));
-        requesterIdToAdmin[requesterId] = admin;
+        requesterInd = noRequesters++;
+        requesterIndToAdmin[requesterInd] = admin;
         emit RequesterCreated(
-            requesterId,
+            requesterInd,
             admin
             );
     }
 
     /// @notice Updates the requester admin
-    /// @param requesterId Requester ID
+    /// @param requesterInd Requester index
     /// @param admin Requester admin
     function updateRequesterAdmin(
-        bytes32 requesterId,
+        uint256 requesterInd,
         address admin
         )
         external
         override
-        onlyRequesterAdmin(requesterId)
+        onlyRequesterAdmin(requesterInd)
     {
-        requesterIdToAdmin[requesterId] = admin;
+        requesterIndToAdmin[requesterInd] = admin;
         emit RequesterUpdated(
-            requesterId,
+            requesterInd,
             admin
             );
     }
 
-    /// @notice Called by the client to permit a requester to endorse it
-    /// @dev Client can be a wallet or a contract.
-    /// @param requesterId Requester ID
-    function updateEndorsementPermission(bytes32 requesterId)
-        external
-        override
-    {
-        endorsementPermissions[msg.sender] = requesterId;
-    }
-
-    /// @notice Called by the requester admin to allow a client to use its
-    /// designated wallets
+    /// @notice Called by the requester admin to endorse a client, i.e., allow
+    /// a client to use its designated wallets
     /// @dev This is not provider specific, i.e., the requester allows the
     /// client's requests to be fulfilled through its designated wallets across
     /// all providers
-    /// @param requesterId Requester ID
+    /// @param requesterInd Requester index
     /// @param clientAddress Client address
-    function endorseClient(
-        bytes32 requesterId,
-        address clientAddress
+    function updateClientEndorsementStatus(
+        uint256 requesterInd,
+        address clientAddress,
+        bool endorsementStatus
         )
         external
         override
-        onlyRequesterAdmin(requesterId)
+        onlyRequesterAdmin(requesterInd)
     {
-        require(
-            endorsementPermissions[clientAddress] == requesterId,
-            "Client has not permitted this requester to endorse it"
-            );
-        clientAdressToRequesterId[clientAddress] = requesterId;
-        emit ClientEndorsed(
-            requesterId,
-            clientAddress
-            );
-    }
-
-    /// @notice Called by the requester admin to disallow a client from using
-    /// its designated wallets
-    /// @dev This is one-sided, meaning that it does not require permission
-    /// from the client. It requires the caller to be the current
-    /// endorser of the client.
-    /// @param requesterId Requester ID
-    /// @param clientAddress Client address
-    function disendorseClient(
-        bytes32 requesterId,
-        address clientAddress
-        )
-        external
-        override
-        onlyRequesterAdmin(requesterId)
-    {
-        require(
-            clientAdressToRequesterId[clientAddress] == requesterId,
-            "Caller is not the endorser of the client"
-            );
-        clientAdressToRequesterId[clientAddress] = 0;
-        emit ClientDisendorsed(
-            requesterId,
-            clientAddress
+        requesterIndToClientAddressToEndorsementStatus[requesterInd][clientAddress] = endorsementStatus;
+        emit ClientEndorsementStatusUpdated(
+            requesterInd,
+            clientAddress,
+            endorsementStatus
             );
     }
 
     /// @notice Retrieves the requester admin
-    /// @param requesterId Requester ID
+    /// @param requesterInd Requester index
     /// @return admin Requester admin
-    function getRequesterAdmin(bytes32 requesterId)
+    function getRequesterAdmin(uint256 requesterInd)
         external
         view
         override
         returns (address admin)
     {
-        admin = requesterIdToAdmin[requesterId];
+        admin = requesterIndToAdmin[requesterInd];
     }
 
-    /// @notice Retrieves the ID of the endorser of a client
+    /// @notice Retrieves the endorsement status of a client address by a
+    /// requester
+    /// @param requesterInd Requester index
     /// @param clientAddress Client address
-    /// @return requesterId Requester ID
-    function getClientRequesterId(address clientAddress)
+    /// @return endorsementStatus Endorsement status
+    function getRequesterEndorsementStatusOfClientAddress(
+        uint256 requesterInd,
+        address clientAddress
+        )
         external
         view
         override
-        returns (bytes32 requesterId)
+        returns (bool endorsementStatus)
     {
-        requesterId = clientAdressToRequesterId[clientAddress];
-    }
-
-    /// @notice Retrieves the ID of the requester the client has permitted to
-    /// be its endorser
-    /// @param clientAddress Client address
-    /// @return requesterId Requester ID
-    function getClientPermittedEndorser(address clientAddress)
-        external
-        view
-        override
-        returns (bytes32 requesterId)
-    {
-        requesterId = endorsementPermissions[clientAddress];
+        endorsementStatus = requesterIndToClientAddressToEndorsementStatus[requesterInd][clientAddress];
     }
 
     /// @dev Reverts if the caller is not the requester admin
-    /// @param requesterId Requester ID
-    modifier onlyRequesterAdmin(bytes32 requesterId)
+    /// @param requesterInd Requester index
+    modifier onlyRequesterAdmin(uint256 requesterInd)
     {
         require(
-            msg.sender == requesterIdToAdmin[requesterId],
+            msg.sender == requesterIndToAdmin[requesterInd],
             "Caller is not the requester admin"
             );
         _;

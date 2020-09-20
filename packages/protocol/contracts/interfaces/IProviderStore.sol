@@ -100,7 +100,7 @@ interface IProviderStore is IRequesterStore {
 
     function requestWithdrawal(
         bytes32 providerId,
-        bytes32 requesterId,
+        uint256 requesterInd,
         address destination
     )
         external;

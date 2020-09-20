@@ -289,18 +289,18 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @notice Called by the requester admin to create a request for the
     /// provider to send the funds kept in their designated wallet to destination
     /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequesterStore
+    /// @param requesterInd Requester index from RequesterStore
     /// @param destination Withdrawal destination
     function requestWithdrawal(
         bytes32 providerId,
-        bytes32 requesterId,
+        uint256 requesterInd,
         address destination
     )
         external
         override
-        onlyRequesterAdmin(requesterId)
+        onlyRequesterAdmin(requesterInd)
     {
-        uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
+        /*uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
         require(
             walletInd != 0,
             "Requester has not requested a wallet designation from this provider"
@@ -325,7 +325,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             requesterId,
             withdrawalRequestId,
             destination
-            );
+            );*/
     }
 
     /// @notice Called by the reserved wallet to fulfill the withdrawal request
