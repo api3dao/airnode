@@ -56,6 +56,7 @@ function mapApiCalls(
       'WARN',
       `Client:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
     );
+    // If the request is unauthorized, update the status of the request
     const updatedApiCall = {
       ...apiCall,
       status: RequestStatus.Errored,

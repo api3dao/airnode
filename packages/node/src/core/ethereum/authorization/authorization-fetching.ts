@@ -36,6 +36,7 @@ async function fetchAuthorizationStatuses(
     return [[log], null, []];
   }
 
+  // Authorization statuses are returned in the same order that they are requested.
   const authorizations = apiCalls.reduce((acc, apiCall, index) => {
     const status: AuthorizationStatus = {
       endpointId: apiCall.endpointId!,
@@ -55,6 +56,8 @@ export async function fetch(
   // If an API call has a templateId but the template failed to load, then we cannot process
   // that request. These requests will be marked as blocked.
   const pendingApiCalls = apiCalls.filter((a) => a.status === RequestStatus.Pending);
+
+  // If there are no pending API calls then there is no need to make an ETH call
   if (isEmpty(pendingApiCalls)) {
     return [[], null, {}];
   }
