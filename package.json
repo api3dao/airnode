@@ -19,6 +19,7 @@
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:solhint": "solhint ./**/*.sol",
     "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
+    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|ts)\"",
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && npm run test)",
     "test:adapter:watch": "(cd packages/adapter && npm run test:watch)",
@@ -36,6 +37,7 @@
     "jest": "^26.4.2",
     "lerna": "^3.22.1",
     "prettier": "^2.1.2",
+    "pretty-quick": "^3.0.2",
     "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
     "ts-jest": "^26.3.0",
@@ -43,7 +45,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run prettify && npm run lint"
+      "pre-commit": "npm run pretty-quick && npm run lint"
     }
   }
 }

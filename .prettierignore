@@ -10,3 +10,5 @@
 **/.serverless/**
 **/coverage/**
 **/dist/**
+
+*.json
