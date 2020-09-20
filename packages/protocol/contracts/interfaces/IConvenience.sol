@@ -2,20 +2,14 @@
 pragma solidity 0.6.8;
 pragma experimental ABIEncoderV2;
 
+import "./IAirnode.sol";
+
 
 interface IConvenience {
     function getTemplates(bytes32[] calldata templateIds)
         external
         view
-        returns (
-            bytes32[] memory providerIds,
-            bytes32[] memory endpointIds,
-            address[] memory fulfillAddresses,
-            address[] memory errorAddresses,
-            bytes4[] memory fulfillFunctionIds,
-            bytes4[] memory errorFunctionIds,
-            bytes[] memory parameters
-        );
+        returns (IAirnode.Template[] memory templates);
 
     function getDataWithClientAddress(
         bytes32 providerId,
