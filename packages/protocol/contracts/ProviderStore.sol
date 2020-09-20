@@ -10,21 +10,8 @@ contract ProviderStore is RequesterStore, IProviderStore {
     struct Provider {
         address admin;
         string xpub;
-        address walletDesignator;
-        uint256 walletDesignationDeposit;
         uint256 minBalance;
-        mapping(address => uint256) walletAddressToInd;
-        mapping(uint256 => address) walletIndToAddress;
-        mapping(bytes32 => uint256) requesterIdToWalletInd;
-        uint256 nextWalletInd;
         }
-
-    struct WalletDesignationRequest {
-        bytes32 providerId;
-        bytes32 requesterId;
-        uint256 walletInd;
-        uint256 depositAmount;
-    }
 
     struct WithdrawalRequest {
         bytes32 providerId;
@@ -34,10 +21,8 @@ contract ProviderStore is RequesterStore, IProviderStore {
         }
 
     mapping(bytes32 => Provider) internal providers;
-    mapping(bytes32 => WalletDesignationRequest) private walletDesignationRequests;
     mapping(bytes32 => WithdrawalRequest) private withdrawalRequests;
     uint256 private noProviders = 0;
-    uint256 private noWalletDesignationRequests = 0;
     uint256 private noWithdrawalRequests = 0;
 
 
@@ -46,9 +31,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @dev walletDesignator and xpub are not set here, assuming the
     /// provider will not have generated them at the time of provider creation
     /// @param admin Provider admin
-    /// @param walletDesignationDeposit Amount the requesters need to deposit to
-    /// have a wallet designated. It should at least cover the gas cost of
-    /// calling fulfillWalletDesignation().
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
@@ -56,7 +38,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @return providerId Provider ID
     function createProvider(
         address admin,
-        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external
@@ -72,15 +53,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
         providers[providerId] = Provider({
             admin: admin,
             xpub: "",
-            walletDesignator: address(0),
-            walletDesignationDeposit: walletDesignationDeposit,
-            minBalance: minBalance,
-            nextWalletInd: 1
+            minBalance: minBalance
             });
         emit ProviderCreated(
             providerId,
             admin,
-            walletDesignationDeposit,
             minBalance
             );
     }
@@ -88,9 +65,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @notice Updates the provider
     /// @param providerId Provider ID
     /// @param admin Provider admin
-    /// @param walletDesignationDeposit Amount the requesters need to deposit to
-    /// have a wallet designated. It should at least cover the gas cost of
-    /// calling fulfillWalletDesignation().
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
@@ -98,7 +72,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
     function updateProvider(
         bytes32 providerId,
         address admin,
-        uint256 walletDesignationDeposit,
         uint256 minBalance
         )
         external
@@ -106,177 +79,40 @@ contract ProviderStore is RequesterStore, IProviderStore {
         onlyProviderAdmin(providerId)
     {
         providers[providerId].admin = admin;
-        providers[providerId].walletDesignationDeposit = walletDesignationDeposit;
         providers[providerId].minBalance = minBalance;
         emit ProviderUpdated(
             providerId,
             admin,
-            walletDesignationDeposit,
             minBalance
             );
     }
 
-    /// @notice Initializes the master public key of the provider and the
-    /// address it uses to designate wallets
+    /// @notice Initializes the master public key of the provider
     /// @dev Keys can only be initialized once. This means that the provider is
     /// not allowed to update their node key.
-    /// walletDesignator is typically the address of m/0/0/0 derived from xpub,
-    /// yet it may change with the oracle implementation.
     /// @param providerId Provider ID
     /// @param xpub Master public key of the provider
-    /// @param walletDesignator Address the provider uses to designate wallets
     function initializeProviderKeys(
         bytes32 providerId,
-        string calldata xpub,
-        address walletDesignator
+        string calldata xpub
         )
         external
         override
         onlyProviderAdmin(providerId)
     {
         require(
-            (bytes(providers[providerId].xpub).length == 0) &&
-                (providers[providerId].walletDesignator == address(0)),
-            "Provider keys are already initialized"
+            bytes(providers[providerId].xpub).length == 0,
+            "Provider key is already initialized"
             );
         require(
-            (bytes(xpub).length != 0) && (walletDesignator != address(0)),
-            "Invalid provider keys"
+            bytes(xpub).length != 0,
+            "Invalid provider key"
             );
         providers[providerId].xpub = xpub;
-        providers[providerId].walletDesignator = walletDesignator;
         emit ProviderKeysInitialized(
             providerId,
-            xpub,
-            walletDesignator
+            xpub
             );
-    }
-
-    /// @notice Called by the requester to request a wallet to be designated
-    /// by the provider
-    /// @dev The provider expects walletDesignationDeposit to be sent along with
-    /// this call to cover the subsequent cost of fulfilling the wallet
-    /// designation. The provider is expected to return the remaining amount
-    /// to the designated wallet, yet this is not enforced.
-    /// Anyone can request a wallet to be designated for a requester, not only
-    /// its admin.
-    /// The requester should wait for enough confirmations to trust the
-    /// announced walletInd.
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequesterStore
-    function requestWalletDesignation(
-        bytes32 providerId,
-        bytes32 requesterId
-    )
-        external
-        payable
-        override
-        returns(uint256 walletInd)
-    {
-        require(
-            providers[providerId].requesterIdToWalletInd[requesterId] == 0,
-            "A wallet designation request has already been made this provider-requester pair"
-            );
-        require(
-            msg.value >= providers[providerId].walletDesignationDeposit,
-            "Send at least walletDesignationDeposit along with your call"
-            );
-        address walletDesignator = providers[providerId].walletDesignator;
-        require(
-            walletDesignator != address(0),
-            "Provider wallet designator not set yet"
-            );
-        walletInd = providers[providerId].nextWalletInd;
-        providers[providerId].requesterIdToWalletInd[requesterId] = walletInd;
-        providers[providerId].nextWalletInd++;
-        bytes32 walletDesignationRequestId = keccak256(abi.encodePacked(
-            noWalletDesignationRequests++,
-            this,
-            msg.sender,
-            uint256(2)
-            ));
-        walletDesignationRequests[walletDesignationRequestId] = WalletDesignationRequest({
-            providerId: providerId,
-            requesterId: requesterId,
-            walletInd: walletInd,
-            depositAmount: msg.value
-            });
-        emit WalletDesignationRequested(
-            providerId,
-            requesterId,
-            walletDesignationRequestId,
-            walletInd,
-            msg.value
-            );
-        (bool success, ) = walletDesignator.call{value: msg.value}("");
-        require(success, "Transfer failed");
-    }
-
-    /// @notice Called to rebroadcast a wallet designation request in case the
-    /// provider node has missed it
-    /// @dev The node must ignore duplicate events
-    /// @param walletDesignationRequestId Wallet designation request ID
-    function rebroadcastWalletDesignationRequest(bytes32 walletDesignationRequestId)
-        external
-        override
-    {
-        bytes32 providerId = walletDesignationRequests[walletDesignationRequestId].providerId;
-        require(
-            providerId != 0,
-            "No active wallet designation request with walletDesignationRequestId"
-            );
-        emit WalletDesignationRequested(
-            providerId,
-            walletDesignationRequests[walletDesignationRequestId].requesterId,
-            walletDesignationRequestId,
-            walletDesignationRequests[walletDesignationRequestId].walletInd,
-            walletDesignationRequests[walletDesignationRequestId].depositAmount
-            );
-    }
-
-    /// @notice Designates a provider wallet to fulfill requests and sends
-    /// the remains of what has been sent along with requestWalletDesignation()
-    /// @dev Wallet designations cannot be revoked, so the provider should
-    /// only designate wallets derived from its master key.
-    /// The requester should wait for enough confirmations to trust the
-    /// announced walletAddress.
-    /// @param walletDesignationRequestId Wallet designation request ID
-    /// @param walletAddress Wallet address to be designated
-    function fulfillWalletDesignation(
-        bytes32 walletDesignationRequestId,
-        address walletAddress
-        )
-        external
-        payable
-        override
-    {
-        bytes32 providerId = walletDesignationRequests[walletDesignationRequestId].providerId;
-        bytes32 requesterId = walletDesignationRequests[walletDesignationRequestId].requesterId;
-        uint256 walletInd = walletDesignationRequests[walletDesignationRequestId].walletInd;
-        require(
-            msg.sender == providers[providerId].walletDesignator,
-            "Only the provider walletDesignator can do this"
-            );
-        require(
-            providers[providerId].walletAddressToInd[walletAddress] == 0,
-            "Wallet address already designated"
-            );
-        require(
-            providers[providerId].requesterIdToWalletInd[requesterId] == walletInd,
-            "No such designation request has been made"
-            );
-        providers[providerId].walletAddressToInd[walletAddress] = walletInd;
-        providers[providerId].walletIndToAddress[walletInd] = walletAddress;
-        emit WalletDesignationFulfilled(
-            providerId,
-            requesterId,
-            walletDesignationRequestId,
-            walletAddress,
-            walletInd
-            );
-        delete walletDesignationRequests[walletDesignationRequestId];
-        (bool success, ) = walletAddress.call{value: msg.value}("");
-        require(success, "Transfer failed");
     }
 
     /// @notice Called by the requester admin to create a request for the
@@ -358,10 +194,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
-    /// @return walletDesignator Address the provider uses to designate wallets
-    /// @return walletDesignationDeposit Amount the requesters need to deposit to
-    /// have a wallet designated. It should at least cover the gas cost of
-    /// calling fulfillWalletDesignation().
     /// @return minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
     /// their endorsed client contracts. It should cover the gas cost of calling
@@ -373,99 +205,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
         returns (
             address admin,
             string memory xpub,
-            address walletDesignator,
-            uint256 walletDesignationDeposit,
             uint256 minBalance
         )
     {
         admin = providers[providerId].admin;
         xpub = providers[providerId].xpub;
-        walletDesignator = providers[providerId].walletDesignator;
-        walletDesignationDeposit = providers[providerId].walletDesignationDeposit;
         minBalance = providers[providerId].minBalance;
-    }
-
-    /// @notice Retrieves the minBalance of the provider
-    /// @param providerId Provider ID
-    /// @return minBalance The minimum balance the provider expects a requester
-    /// to have in their designated wallet to attempt to fulfill requests from
-    /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from Airnode.sol a few times.
-    function getProviderMinBalance(bytes32 providerId)
-        external
-        view
-        override
-        returns (uint256 minBalance)
-    {
-        minBalance = providers[providerId].minBalance;
-    }
-
-    /// @notice Gets the authorization status of a provider wallet
-    /// @dev The provider does not designate wallet index 0 to anyone, which
-    /// means that if a wallet address maps to an index of 0, it is not
-    /// designated to anyone or authorized to fulfill requests.
-    /// @param providerId Provider ID
-    /// @param walletAddress Wallet address
-    /// @return status If the wallet is authorized to fulfill requests made to
-    /// the provider
-    function getProviderWalletStatus(
-        bytes32 providerId,
-        address walletAddress
-        )
-        public
-        view
-        override
-        returns (bool status)
-    {
-        status = providers[providerId].walletAddressToInd[walletAddress] != 0;
-    }
-
-    /// @notice Gets the index of a provider wallet with its address
-    /// @param providerId Provider ID
-    /// @param walletAddress Wallet address
-    /// @return walletInd Index of the wallet with walletAddress address
-    function getProviderWalletIndWithAddress(
-        bytes32 providerId,
-        address walletAddress
-        )
-        external
-        view
-        override
-        returns (uint256 walletInd)
-    {
-        walletInd = providers[providerId].walletAddressToInd[walletAddress];
-    }
-
-    /// @notice Gets the address of a provider wallet with its index
-    /// @param providerId Provider ID
-    /// @param walletInd Wallet index
-    /// @return walletAddress Address of the wallet with walletInd index
-    function getProviderWalletAddressWithInd(
-        bytes32 providerId,
-        uint256 walletInd
-        )
-        external
-        view
-        override
-        returns (address walletAddress)
-    {
-        walletAddress = providers[providerId].walletIndToAddress[walletInd];
-    }
-
-    /// @notice Gets the index of the provider wallet reserved by the requester
-    /// @param providerId Provider ID
-    /// @param requesterId Requester ID from RequestStore
-    /// @return walletInd Wallet index reserved by the requester with requesterId
-    function getProviderWalletIndWithRequesterId(
-        bytes32 providerId,
-        bytes32 requesterId
-        )
-        external
-        view
-        override
-        returns (uint256 walletInd)
-    {
-        walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
     }
 
     /// @dev Reverts if the caller is not the provider admin
