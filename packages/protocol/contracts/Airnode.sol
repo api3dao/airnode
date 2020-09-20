@@ -320,23 +320,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         status = requestWithIdHasFailed[requestId];
     }
 
-    /// @dev Reverts if the designated wallet balance is lower than minBalance
-    /// of the provider it belongs to
-    /// @param designatedWallet Designated wallet
-    /// @param minBalance Minimum balance the designated wallet needs to
-    /// contain for the provider to process the request
-    modifier onlyIfDesignatedWalletIsFunded(
-        address designatedWallet,
-        uint256 minBalance
-        )
-    {
-        require(
-            designatedWallet.balance >= minBalance,
-            "Designated wallet does not have enough funds"
-            );
-        _;
-    }
-
     /// @dev Reverts unless the caller is not the designated wallet requested
     /// to fulfill the respective request
     /// @param requestId Request ID

@@ -6,14 +6,6 @@ import "./RequesterStore.sol";
 
 
 /// @title The contract where the providers are stored
-/// @notice This contract is mostly for the management of requester-designated
-/// wallets. If a requester wants to receive services from a provider, they
-/// first make a wallet designation request. The provider node fulfills this by
-/// designating a wallet automatically, and the requester can then fund that
-/// wallet. When a client contract endorsed by the requester makes a request to
-/// the provider, this designated wallet is used by the provider to fund the
-/// gas costs of the fulfillment. The requester can also use this contract to
-/// request the withdrawal of all the funds in their designated wallet.
 contract ProviderStore is RequesterStore, IProviderStore {
     struct Provider {
         address admin;
@@ -36,7 +28,8 @@ contract ProviderStore is RequesterStore, IProviderStore {
 
     struct WithdrawalRequest {
         bytes32 providerId;
-        bytes32 requesterId;
+        uint256 requesterInd;
+        address designatedWallet;
         address destination;
         }
 
@@ -287,28 +280,27 @@ contract ProviderStore is RequesterStore, IProviderStore {
     }
 
     /// @notice Called by the requester admin to create a request for the
-    /// provider to send the funds kept in their designated wallet to destination
+    /// provider to send the funds kept in their designated wallet to
+    /// destination
     /// @param providerId Provider ID
     /// @param requesterInd Requester index from RequesterStore
+    /// @param designatedWallet Designated wallet that the withdrawal is
+    /// requested from
     /// @param destination Withdrawal destination
     function requestWithdrawal(
         bytes32 providerId,
         uint256 requesterInd,
+        address designatedWallet,
         address destination
     )
         external
         override
         onlyRequesterAdmin(requesterInd)
+        onlyIfDesignatedWalletIsFunded(
+          designatedWallet,
+          providers[providerId].minBalance
+          )
     {
-        /*uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
-        require(
-            walletInd != 0,
-            "Requester has not requested a wallet designation from this provider"
-            );
-        require(
-            providers[providerId].walletIndToAddress[walletInd] != address(0),
-            "Requester has not had a wallet designated by this provider"
-            );
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             noWithdrawalRequests++,
             this,
@@ -317,43 +309,42 @@ contract ProviderStore is RequesterStore, IProviderStore {
             ));
         withdrawalRequests[withdrawalRequestId] = WithdrawalRequest({
             providerId: providerId,
-            requesterId: requesterId,
+            requesterInd: requesterInd,
+            designatedWallet: designatedWallet,
             destination: destination
             });
         emit WithdrawalRequested(
             providerId,
-            requesterId,
-            withdrawalRequestId,
+            requesterInd,
+            withdrawalRequestId,    
+            designatedWallet,
             destination
-            );*/
+            );
     }
 
-    /// @notice Called by the reserved wallet to fulfill the withdrawal request
-    /// made by the requester
-    /// @dev The oracle sends the funds through this method to emit an event
-    /// that indicates that the withdrawal request has been fulfilled
-    /// @param withdrawalRequestId Withdraw request ID
+    /// @notice Called by the designated wallet to fulfill the withdrawal
+    /// request made by the requester
+    /// @dev The oracle node sends the funds through this method to emit an
+    /// event that indicates that the withdrawal request has been fulfilled
+    /// @param withdrawalRequestId Withdrawal request ID
     function fulfillWithdrawal(bytes32 withdrawalRequestId)
         external
         payable
         override
     {
-        bytes32 providerId = withdrawalRequests[withdrawalRequestId].providerId;
+        address designatedWallet = withdrawalRequests[withdrawalRequestId].designatedWallet;
         require(
-            providerId != 0,
+            designatedWallet != address(0),
             "No active withdrawal request with withdrawalRequestId"
             );
-        bytes32 requesterId = withdrawalRequests[withdrawalRequestId].requesterId;
-        uint256 walletInd = providers[providerId].requesterIdToWalletInd[requesterId];
-        address walletAddress = providers[providerId].walletIndToAddress[walletInd];
         require(
-            msg.sender == walletAddress,
+            msg.sender == designatedWallet,
             "Only the wallet to be withdrawn from can call this"
             );
         address destination = withdrawalRequests[withdrawalRequestId].destination;
         emit WithdrawalFulfilled(
-            providerId,
-            requesterId,
+            withdrawalRequests[withdrawalRequestId].providerId,
+            withdrawalRequests[withdrawalRequestId].requesterInd,
             withdrawalRequestId,
             destination,
             msg.value
@@ -484,6 +475,23 @@ contract ProviderStore is RequesterStore, IProviderStore {
         require(
             msg.sender == providers[providerId].admin,
             "Caller is not the provider admin"
+            );
+        _;
+    }
+
+    /// @dev Reverts if the designated wallet balance is lower than minBalance
+    /// of the provider it belongs to
+    /// @param designatedWallet Designated wallet
+    /// @param minBalance Minimum balance the designated wallet needs to
+    /// contain for the provider to process the request
+    modifier onlyIfDesignatedWalletIsFunded(
+        address designatedWallet,
+        uint256 minBalance
+        )
+    {
+        require(
+            designatedWallet.balance >= minBalance,
+            "Designated wallet does not have enough funds"
             );
         _;
     }
