@@ -18,7 +18,6 @@ interface IEndpointStore is IProviderStore {
         address[] authorizers
         );
 
-
     function createEndpoint(
         bytes32 providerId,
         bytes32 apiId,
