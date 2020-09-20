@@ -13,6 +13,9 @@ import { GroupedBaseRequests, GroupedRequests, ProviderState } from '../../../..
 export { groupRequestsByWalletIndex } from './grouping';
 
 export async function fetchPendingRequests(state: ProviderState): Promise<GroupedRequests> {
+  // =================================================================
+  // STEP 1: Fetch all requests and group them
+  // =================================================================
   const fetchOptions = {
     address: contracts.Airnode.addresses[state.config.chainId],
     currentBlock: state.currentBlock!,
@@ -23,13 +26,18 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   const flatLogs = await eventLogs.fetch(fetchOptions);
   const groupedLogs = eventLogs.group(flatLogs);
 
-  // Cast the logs into the various typed request models
-  const [baseApiLogs, _baseApiErr, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls);
-  const [baseDesigLogs, _baseDesigErr, baseDesignations] = walletDesignations.mapBaseRequests(
-    groupedLogs.walletDesignations
+  // Cast the raw logs into the various typed request models
+  const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls, state.index);
+  logger.logPendingMessages(state.config.name, baseApiLogs);
+
+  const [baseDesigLogs, baseDesignations] = walletDesignations.mapBaseRequests(
+    groupedLogs.walletDesignations,
+    state.index
   );
-  const [baseWithdrawLogs, _baseWithdrawErr, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals);
-  logger.logPendingMessages(state.config.name, [...baseApiLogs, ...baseDesigLogs, ...baseWithdrawLogs]);
+  logger.logPendingMessages(state.config.name, baseDesigLogs);
+
+  const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals, state.index);
+  logger.logPendingMessages(state.config.name, baseWithdrawLogs);
 
   const baseRequests: GroupedBaseRequests = {
     apiCalls: baseApiCalls,
@@ -37,6 +45,9 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
     withdrawals: baseWithdrawals,
   };
 
+  // =================================================================
+  // STEP 2: Fetch and merge requester data
+  // =================================================================
   const fetchReqDataOptions = {
     address: contracts.Convenience.addresses[state.config.chainId],
     provider: state.provider,
@@ -56,6 +67,9 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   );
   logger.logPendingMessages(state.config.name, requestsWithDataLogs);
 
+  // =================================================================
+  // STEP 3: Perform additional validations and checks
+  // =================================================================
   // Check that each request is valid
   const [validationLogs, _validationErr, validatedRequests] = validation.validateRequests(requestsWithData);
   logger.logPendingMessages(state.config.name, validationLogs);

@@ -1,6 +1,6 @@
 import { BaseRequest, LogWithMetadata, RequestStatus, WalletDesignation } from '../../../types';
 
-export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<WalletDesignation> {
+export function initialize(logWithMetadata: LogWithMetadata, providerIndex: number): BaseRequest<WalletDesignation> {
   const { parsedLog } = logWithMetadata;
 
   const request: BaseRequest<WalletDesignation> = {
@@ -10,7 +10,8 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Wallet
     providerId: parsedLog.args.providerId,
     requesterId: parsedLog.args.requesterId,
     walletIndex: parsedLog.args.walletInd.toString(),
-    logMetadata: {
+    metadata: {
+      providerIndex,
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },

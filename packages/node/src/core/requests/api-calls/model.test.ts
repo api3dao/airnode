@@ -30,7 +30,7 @@ describe('initialize ApiCall BaseRequest', () => {
       fulfillFunctionId: '0x042f2b65',
       encodedParameters: '0x636b6579a169736f6d657468696e676576616c7565',
       id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-      logMetadata: {
+      metadata: {
         blockNumber: 10716082,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },

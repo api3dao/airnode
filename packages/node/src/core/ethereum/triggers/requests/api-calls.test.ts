@@ -33,7 +33,7 @@ describe('mapBaseRequests (ApiCall)', () => {
         fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         fulfillFunctionId: '0x042f2b65',
         encodedParameters: '0x636b6579a169736f6d657468696e676576616c7565',
-        logMetadata: {
+        metadata: {
           blockNumber: 10716082,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },

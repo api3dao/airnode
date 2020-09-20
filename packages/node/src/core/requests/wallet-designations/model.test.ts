@@ -25,7 +25,7 @@ describe('initialize WalletDesignation BaseRequest', () => {
       requesterId: '0xaafaf90b0dd28800d2d3ade24c60b0c798b83c082f6dd1cca7aaf1b319dbd533',
       status: RequestStatus.Pending,
       walletIndex: '2',
-      logMetadata: {
+      metadata: {
         blockNumber: 10716082,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },

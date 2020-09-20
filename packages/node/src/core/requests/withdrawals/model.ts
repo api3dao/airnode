@@ -2,7 +2,7 @@ import { BaseRequest, LogWithMetadata, PendingLog, RequestStatus, Withdrawal } f
 
 type LogsAndRequests = [PendingLog[], BaseRequest<Withdrawal>[]];
 
-export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdrawal> {
+export function initialize(logWithMetadata: LogWithMetadata, providerIndex: number): BaseRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
   const request: BaseRequest<Withdrawal> = {
@@ -11,8 +11,9 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdr
     providerId: parsedLog.args.providerId,
     requesterId: parsedLog.args.requesterId,
     destinationAddress: parsedLog.args.destination,
-    logMetadata: {
+    metadata: {
       blockNumber: logWithMetadata.blockNumber,
+      providerIndex,
       transactionHash: logWithMetadata.transactionHash,
     },
   };

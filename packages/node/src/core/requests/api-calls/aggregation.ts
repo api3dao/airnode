@@ -1,19 +1,15 @@
 import flatMap from 'lodash/flatMap';
 import { config } from '../../config';
 import { updateArrayAt } from '../../utils/array-utils';
-import { isDuplicate } from './model';
+import * as apiCalls from './model';
 import { AggregatedApiCall, CoordinatorState } from '../../../types';
 
 function flattenApiCalls(state: CoordinatorState) {
   // Map all API call requests from all providers into a single array with their provider index
   const allRequests = flatMap(state.providers, (provider) => {
-    const walletIndices = Object.keys(provider.walletDataByIndex);
-    const providerRequests = flatMap(
-      walletIndices.map((index) => {
-        return provider.walletDataByIndex[index].requests.apiCalls;
-      })
-    );
-    return providerRequests.map((request) => ({ ...request, providerIndex: provider.index }));
+    const flatProviderApiCalls = apiCalls.flatten(provider.walletDataByIndex);
+
+    return flatProviderApiCalls.map((apiCall) => ({ ...apiCall, providerIndex: provider.index }));
   });
 
   return allRequests;
@@ -26,7 +22,7 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
     const duplicateApiCallIndex = acc.findIndex((aggregatedCall) => {
       // First compare the ID as it's much faster, if there is a matching request then compare the
       // rest of the (relevant) attributes
-      return request.id === aggregatedCall.id && isDuplicate(request, aggregatedCall);
+      return request.id === aggregatedCall.id && apiCalls.isDuplicate(request, aggregatedCall);
     });
 
     // If a duplicate request is found, add the provider to the list of providers that reported it

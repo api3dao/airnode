@@ -44,13 +44,14 @@ export enum RequestType {
 
 export interface RequestMetadata {
   readonly blockNumber: number;
+  readonly providerIndex: number;
   readonly transactionHash: string;
 }
 
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
-  readonly logMetadata: RequestMetadata;
+  readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly status: RequestStatus;
 };
@@ -228,9 +229,15 @@ export interface PendingLog {
   message: string;
 }
 
-// Making this type a tuple, forces the user to handle logs and errors first.
+// There are many places where we need the context of the current state but
+// don't want to pass the entire state down to these functions - mostly for
+// logging. These types are introduced in order to reduce the amount of coupling
+// between modules throughout the app.
+//
+// Making this type a tuple, also forces the user to handle logs and errors first.
 // If it was an object ({ logs: [], error?: Error, data?: any }), then it's
 // very easy to forgot to handle logs and errors
+export type LogsData<T> = [PendingLog[], T];
 export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 
 // ===========================================

@@ -41,7 +41,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
       {
         depositAmount: '250',
         id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
-        logMetadata: {
+        metadata: {
           blockNumber: 10716082,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
@@ -66,7 +66,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
       {
         depositAmount: '250',
         id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
-        logMetadata: {
+        metadata: {
           blockNumber: 10716082,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
@@ -95,7 +95,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
       {
         depositAmount: '250',
         id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
-        logMetadata: {
+        metadata: {
           blockNumber: 10716082,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
