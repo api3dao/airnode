@@ -33,14 +33,14 @@ contract ExampleAirnodeClient is AirnodeClient {
         )
         external
     {
-        requestId = airnode.makeRequest(
+        /*requestId = airnode.makeRequest(
             templateId,
             address(this),
             address(this),
             this.fulfill.selector,
             this.error.selector,
             parameters
-            );
+            );*/
     }
 
     /// @notice Called by the provider wallet through the Airnode contract to

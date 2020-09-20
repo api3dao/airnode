@@ -23,6 +23,7 @@ import "./interfaces/ITemplateStore.sol";
 contract TemplateStore is ITemplateStore {
     mapping(bytes32 => Template) internal templates;
 
+
     /// @notice Creates a request template with the given parameters,
     /// addressable by the ID it returns
     /// @dev A specific set of request parameters will always have

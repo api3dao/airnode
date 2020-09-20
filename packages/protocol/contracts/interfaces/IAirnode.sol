@@ -12,6 +12,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 requestId,
         address requester,
         bytes32 templateId,
+        uint256 requesterInd,
+        address designatedWallet,
         address fulfillAddress,
         address errorAddress,
         bytes4 fulfillFunctionId,
@@ -32,6 +34,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 requestId,
         address requester,
         bytes32 endpointId,
+        uint256 requesterInd,
+        address designatedWallet,
         address fulfillAddress,
         address errorAddress,
         bytes4 fulfillFunctionId,
@@ -65,6 +69,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
 
     function makeRequest(
         bytes32 templateId,
+        uint256 requesterInd,
+        address designatedWallet,
         address fulfillAddress,
         address errorAddress,
         bytes4 fulfillFunctionId,
@@ -84,6 +90,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     function makeFullRequest(
         bytes32 providerId,
         bytes32 endpointId,
+        uint256 requesterInd,
+        address designatedWallet,
         address fulfillAddress,
         address errorAddress,
         bytes4 fulfillFunctionId,
@@ -94,6 +102,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         returns (bytes32 requestId);
 
     function fulfill(
+        bytes32 providerId,
         bytes32 requestId,
         bytes32 data,
         address fulfillAddress,
@@ -106,6 +115,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         );
 
     function fulfillBytes(
+        bytes32 providerId,
         bytes32 requestId,
         bytes calldata data,
         address fulfillAddress,
@@ -118,6 +128,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         );
 
     function error(
+        bytes32 providerId,
         bytes32 requestId,
         uint256 errorCode,
         address errorAddress,
@@ -129,6 +140,9 @@ interface IAirnode is IEndpointStore, ITemplateStore {
             bytes memory callData
         );
 
-    function fail(bytes32 requestId)
+    function fail(
+        bytes32 providerId,
+        bytes32 requestId
+        )
         external;
 }
