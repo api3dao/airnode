@@ -7,9 +7,7 @@ import { AggregatedApiCall, CoordinatorState } from '../../../types';
 function flattenApiCalls(state: CoordinatorState) {
   // Map all API call requests from all providers into a single array with their provider index
   const allRequests = flatMap(state.providers, (provider) => {
-    const flatProviderApiCalls = apiCalls.flatten(provider.walletDataByIndex);
-
-    return flatProviderApiCalls.map((apiCall) => ({ ...apiCall, providerIndex: provider.index }));
+    return apiCalls.flatten(provider.walletDataByIndex);
   });
 
   return allRequests;
@@ -29,7 +27,7 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
     if (duplicateApiCallIndex >= 0) {
       return updateArrayAt(acc, duplicateApiCallIndex, (dupRequest) => ({
         ...dupRequest,
-        providers: [...dupRequest.providers, request.providerIndex],
+        providers: [...dupRequest.providers, request.metadata.providerIndex],
       }));
     }
 
@@ -39,7 +37,7 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
       id: request.id,
       endpointId: request.endpointId!,
       parameters: request.parameters,
-      providers: [request.providerIndex],
+      providers: [request.metadata.providerIndex],
       type: 'request',
       // If the trigger was not found, the request will be invalidated at validation time
       endpointName: trigger?.endpointName,
