@@ -8,6 +8,7 @@ interface IProviderStore is IRequesterStore {
     event ProviderCreated(
         bytes32 indexed providerId,
         address admin,
+        string xpub,
         uint256 minBalance
         );
 
@@ -15,11 +16,6 @@ interface IProviderStore is IRequesterStore {
         bytes32 indexed providerId,
         address admin,
         uint256 minBalance
-        );
-
-    event ProviderKeysInitialized(
-        bytes32 indexed providerId,
-        string xpub
         );
 
     event WithdrawalRequested(
@@ -41,6 +37,7 @@ interface IProviderStore is IRequesterStore {
 
     function createProvider(
         address admin,
+        string calldata xpub,
         uint256 minBalance
         )
         external
@@ -50,12 +47,6 @@ interface IProviderStore is IRequesterStore {
         bytes32 providerId,
         address admin,
         uint256 minBalance
-        )
-        external;
-
-    function initializeProviderKeys(
-        bytes32 providerId,
-        string calldata xpub
         )
         external;
 

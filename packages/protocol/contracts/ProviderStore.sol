@@ -26,38 +26,39 @@ contract ProviderStore is RequesterStore, IProviderStore {
     uint256 private noWithdrawalRequests = 0;
 
 
-    /// @notice Creates a provider with the given parameters, addressable by
-    /// the ID it returns
-    /// @dev walletDesignator and xpub are not set here, assuming the
-    /// provider will not have generated them at the time of provider creation
+    /// @notice Allows the master wallet (m) of the provider to create a
+    /// provider record on this chain
+    /// @dev The oracle node should calculate their providerId off-chain and
+    /// retrieve its details with a getProvider() call. If the xpub is does not
+    /// match, it should call this method to update the provider record.
+    /// Note that the provider private key can be used to update
+    /// admin/minBalance through this method. This is allowed on purpose, as
+    /// the provide private key is more privileged than the provider admin.
     /// @param admin Provider admin
+    /// @param xpub Master public key of the provider node
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
-    /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from Airnode.sol a few times.
+    /// their endorsed client contracts.
     /// @return providerId Provider ID
     function createProvider(
         address admin,
+        string calldata xpub,
         uint256 minBalance
         )
         external
         override
         returns (bytes32 providerId)
     {
-        providerId = keccak256(abi.encodePacked(
-            noProviders++,
-            this,
-            msg.sender,
-            uint256(1)
-            ));
+        providerId = keccak256(abi.encodePacked(msg.sender));
         providers[providerId] = Provider({
             admin: admin,
-            xpub: "",
+            xpub: xpub,
             minBalance: minBalance
             });
         emit ProviderCreated(
             providerId,
             admin,
+            xpub,
             minBalance
             );
     }
@@ -67,8 +68,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param admin Provider admin
     /// @param minBalance The minimum balance the provider expects a requester
     /// to have in their designated wallet to attempt to fulfill requests from
-    /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from Airnode.sol a few times.
+    /// their endorsed client contracts.
     function updateProvider(
         bytes32 providerId,
         address admin,
@@ -84,34 +84,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
             providerId,
             admin,
             minBalance
-            );
-    }
-
-    /// @notice Initializes the master public key of the provider
-    /// @dev Keys can only be initialized once. This means that the provider is
-    /// not allowed to update their node key.
-    /// @param providerId Provider ID
-    /// @param xpub Master public key of the provider
-    function initializeProviderKeys(
-        bytes32 providerId,
-        string calldata xpub
-        )
-        external
-        override
-        onlyProviderAdmin(providerId)
-    {
-        require(
-            bytes(providers[providerId].xpub).length == 0,
-            "Provider key is already initialized"
-            );
-        require(
-            bytes(xpub).length != 0,
-            "Invalid provider key"
-            );
-        providers[providerId].xpub = xpub;
-        emit ProviderKeysInitialized(
-            providerId,
-            xpub
             );
     }
 
