@@ -1,7 +1,7 @@
 import get from 'lodash/get';
 import flatMap from 'lodash/flatMap';
 import isNil from 'lodash/isNil';
-import * as logger from '../../utils/logger';
+import * as logger from '../../logger';
 import {
   ApiCall,
   AuthorizationByEndpointId,

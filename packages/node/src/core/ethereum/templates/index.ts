@@ -1,9 +1,9 @@
 import { Convenience } from '../contracts';
-import * as apiCalls from '../../requests/api-calls/model';
+import * as apiCalls from '../../requests/api-calls';
 import * as application from './template-application';
 import * as authorization from '../authorization';
 import * as templates from './template-fetching';
-import * as logger from '../../utils/logger';
+import * as logger from '../../logger';
 import { ProviderState, WalletData, WalletDataByIndex } from '../../../types';
 
 interface TransactionCountByWalletIndex {

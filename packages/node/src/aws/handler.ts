@@ -1,7 +1,7 @@
 import { config } from '../core/config';
 import * as coordinator from '../core/coordinator';
 import * as providers from '../core/providers';
-import * as apiCallExecution from '../core/api-caller/execution';
+import * as http from '../core/adapters/http/execution';
 import { removeKey } from '../core/utils/object-utils';
 
 export async function start(event: any) {
@@ -40,7 +40,7 @@ export async function initializeProvider(event: any) {
 
 export async function callApi(event: any) {
   const { aggregatedApiCall } = event.queryStringParameters;
-  const response = await apiCallExecution.callApi(aggregatedApiCall);
+  const response = await http.callApi(aggregatedApiCall);
 
   return {
     statusCode: 200,

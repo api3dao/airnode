@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
-import * as logger from '../../utils/logger';
+import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../../types';
 

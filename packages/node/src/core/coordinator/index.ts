@@ -1,9 +1,8 @@
 import { config } from '../config';
 import * as state from './state';
-import * as logger from '../utils/logger';
+import * as logger from '../logger';
 import { formatDateTime } from '../utils/date-utils';
-import * as apiCalls from '../requests/api-calls';
-import * as apiCaller from './coordinated-api-caller';
+import * as http from './http';
 import { spawnProviderRequestProcessor } from '../providers/worker';
 
 export async function start() {
@@ -28,20 +27,20 @@ export async function start() {
   // =================================================================
   // STEP 3: Group unique API calls
   // =================================================================
-  const aggregatedApiCalls = apiCalls.aggregate(state2);
+  const aggregatedApiCalls = http.aggregate(state2);
   const state3 = state.update(state2, { aggregatedApiCalls });
   logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`);
 
   // =================================================================
   // STEP 4: Execute API calls and save the responses
   // =================================================================
-  const aggregatedCallsWithResponses = await apiCaller.callApis(state3);
+  const aggregatedCallsWithResponses = await http.callApis(state3);
   const state4 = state.update(state3, { aggregatedApiCalls: aggregatedCallsWithResponses });
 
   // =================================================================
   // STEP 5: Map API responses back to each provider's API requests
   // =================================================================
-  const providersWithAPIResponses = apiCalls.disaggregate(state4);
+  const providersWithAPIResponses = http.disaggregate(state4);
   const state5 = state.update(state4, { providers: providersWithAPIResponses });
 
   // =================================================================

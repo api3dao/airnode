@@ -9,6 +9,7 @@ export function createBaseWithdrawal(params?: Partial<BaseRequest<Withdrawal>>):
     status: RequestStatus.Pending,
     metadata: {
       blockNumber: 10716082,
+      providerIndex: 0,
       transactionHash: 'logTransactionHash',
     },
     ...params,

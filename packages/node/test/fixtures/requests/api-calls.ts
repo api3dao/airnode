@@ -16,6 +16,7 @@ export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseR
     status: RequestStatus.Pending,
     metadata: {
       blockNumber: 10716082,
+      providerIndex: 0,
       transactionHash: 'logTransactionHash',
     },
     ...params,
