@@ -27,16 +27,17 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   const groupedLogs = eventLogs.group(flatLogs);
 
   // Cast the raw logs into the various typed request models
-  const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls, state.index);
+  const metadata = { providerIndex: state.index };
+  const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls, metadata);
   logger.logPendingMessages(state.config.name, baseApiLogs);
 
   const [baseDesigLogs, baseDesignations] = walletDesignations.mapBaseRequests(
     groupedLogs.walletDesignations,
-    state.index
+    metadata
   );
   logger.logPendingMessages(state.config.name, baseDesigLogs);
 
-  const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals, state.index);
+  const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals, metadata);
   logger.logPendingMessages(state.config.name, baseWithdrawLogs);
 
   const baseRequests: GroupedBaseRequests = {
