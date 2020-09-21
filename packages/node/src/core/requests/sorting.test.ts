@@ -5,10 +5,19 @@ import * as sorting from './sorting';
 
 describe('sortRequests', () => {
   it('sorts API calls by block number then by transaction hash', () => {
-    const first = fixtures.requests.createApiCall({ metadata: { blockNumber: 100, transactionHash: '0x1' } });
-    const second = fixtures.requests.createApiCall({ metadata: { blockNumber: 100, transactionHash: '0x2' } });
-    const third = fixtures.requests.createApiCall({ metadata: { blockNumber: 101, transactionHash: '0x3' } });
-    const fourth = fixtures.requests.createApiCall({ metadata: { blockNumber: 101, transactionHash: '0x4' } });
+    const metadata = { providerIndex: 0 };
+    const first = fixtures.requests.createApiCall({
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0x1' },
+    });
+    const second = fixtures.requests.createApiCall({
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0x2' },
+    });
+    const third = fixtures.requests.createApiCall({
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0x3' },
+    });
+    const fourth = fixtures.requests.createApiCall({
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0x4' },
+    });
 
     const walletDataByIndex: WalletDataByIndex = {
       42: {
@@ -37,17 +46,18 @@ describe('sortRequests', () => {
   });
 
   it('sorts wallet designations by block number then by transaction hash', () => {
+    const metadata = { providerIndex: 0 };
     const first = fixtures.requests.createWalletDesignation({
-      metadata: { blockNumber: 100, transactionHash: '0x1' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0x1' },
     });
     const second = fixtures.requests.createWalletDesignation({
-      metadata: { blockNumber: 100, transactionHash: '0x2' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0x2' },
     });
     const third = fixtures.requests.createWalletDesignation({
-      metadata: { blockNumber: 101, transactionHash: '0x3' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0x3' },
     });
     const fourth = fixtures.requests.createWalletDesignation({
-      metadata: { blockNumber: 101, transactionHash: '0x4' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0x4' },
     });
 
     const walletDataByIndex: WalletDataByIndex = {
@@ -77,10 +87,19 @@ describe('sortRequests', () => {
   });
 
   it('sorts withdrawals by block number then by transaction hash', () => {
-    const first = fixtures.requests.createWithdrawal({ metadata: { blockNumber: 100, transactionHash: '0x1' } });
-    const second = fixtures.requests.createWithdrawal({ metadata: { blockNumber: 100, transactionHash: '0x2' } });
-    const third = fixtures.requests.createWithdrawal({ metadata: { blockNumber: 101, transactionHash: '0x3' } });
-    const fourth = fixtures.requests.createWithdrawal({ metadata: { blockNumber: 101, transactionHash: '0x4' } });
+    const metadata = { providerIndex: 0 };
+    const first = fixtures.requests.createWithdrawal({
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0x1' },
+    });
+    const second = fixtures.requests.createWithdrawal({
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0x2' },
+    });
+    const third = fixtures.requests.createWithdrawal({
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0x3' },
+    });
+    const fourth = fixtures.requests.createWithdrawal({
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0x4' },
+    });
 
     const walletDataByIndex: WalletDataByIndex = {
       42: {
