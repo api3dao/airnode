@@ -34,7 +34,7 @@ export async function start() {
   // =================================================================
   // STEP 4: Execute API calls and save the responses
   // =================================================================
-  const aggregatedCallsWithResponses = await http.callApis(state3);
+  const aggregatedCallsWithResponses = await http.callApis(state3.aggregatedApiCalls);
   const state4 = state.update(state3, { aggregatedApiCalls: aggregatedCallsWithResponses });
 
   // =================================================================

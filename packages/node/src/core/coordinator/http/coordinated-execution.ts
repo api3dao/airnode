@@ -1,12 +1,12 @@
 import * as logger from '../../logger';
 import { goTimeout } from '../../utils/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
-import { AggregatedApiCall, ApiCallError, ApiCallResponse, CoordinatorState, RequestErrorCode } from '../../../types';
+import { AggregatedApiCall, ApiCallError, ApiCallResponse, RequestErrorCode } from '../../../types';
 
 const WORKER_TIMEOUT = 29_500;
 
-export async function callApis(state: CoordinatorState): Promise<AggregatedApiCall[]> {
-  const validAggregatedCalls = state.aggregatedApiCalls.filter((ac) => !ac.error);
+export async function callApis(aggregatedApiCalls: AggregatedApiCall[]): Promise<AggregatedApiCall[]> {
+  const validAggregatedCalls = aggregatedApiCalls.filter((ac) => !ac.error);
 
   const calls = validAggregatedCalls.map(async (aggregatedApiCall) => {
     const startedAt = new Date();

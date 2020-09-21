@@ -23,29 +23,16 @@ import { ethers } from 'ethers';
 import * as adapter from '@airnode/adapter';
 import * as fixtures from 'test/fixtures';
 import * as coordinatedExecution from './coordinated-execution';
-import * as state from '../state';
 import * as workers from '../../workers/index';
 import { removeKey } from '../../utils/object-utils';
-import { ApiCallError, CoordinatorState, RequestErrorCode } from '../../../types';
+import { ApiCallError, RequestErrorCode } from '../../../types';
 
 describe('callApis', () => {
-  let initialState: CoordinatorState;
-
-  beforeEach(() => {
-    initialState = {
-      aggregatedApiCalls: [],
-      providers: [],
-    };
-  });
-
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
-
     const error: ApiCallError = { errorCode: RequestErrorCode.UnauthorizedClient };
     const aggregatedApiCalls = [fixtures.createAggregatedApiCall({ error })];
-    const newState = state.update(initialState, { aggregatedApiCalls });
-
-    const res = await coordinatedExecution.callApis(newState);
+    const res = await coordinatedExecution.callApis(aggregatedApiCalls);
     expect(res).toEqual([]);
     expect(spy).not.toHaveBeenCalled();
   });
@@ -53,13 +40,9 @@ describe('callApis', () => {
   it('returns each API call with the response if successful', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
-
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
     const aggregatedApiCalls = [aggregatedApiCall];
-    const newState = state.update(initialState, { aggregatedApiCalls });
-
-    const res = await coordinatedExecution.callApis(newState);
-
+    const res = await coordinatedExecution.callApis(aggregatedApiCalls);
     expect(res[0]).toEqual({
       ...aggregatedApiCall,
       response: {
@@ -75,13 +58,9 @@ describe('callApis', () => {
   it('returns an error if the API call fails', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockRejectedValueOnce(new Error('API call failed'));
-
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
     const aggregatedApiCalls = [aggregatedApiCall];
-    const newState = state.update(initialState, { aggregatedApiCalls });
-
-    const res = await coordinatedExecution.callApis(newState);
-
+    const res = await coordinatedExecution.callApis(aggregatedApiCalls);
     expect(res[0]).toEqual({
       ...aggregatedApiCall,
       response: undefined,
@@ -98,8 +77,7 @@ describe('callApis', () => {
     spy.mockRejectedValueOnce(new Error('Worker crashed'));
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
     const aggregatedApiCalls = [aggregatedApiCall];
-    const newState = state.update(initialState, { aggregatedApiCalls });
-    const res = await coordinatedExecution.callApis(newState);
+    const res = await coordinatedExecution.callApis(aggregatedApiCalls);
     const resApiCall = removeKey(res[0], 'error');
     expect(resApiCall).toEqual({ ...aggregatedApiCall, response: undefined });
     expect(res[0].error!.errorCode).toEqual(RequestErrorCode.ApiCallFailed);
