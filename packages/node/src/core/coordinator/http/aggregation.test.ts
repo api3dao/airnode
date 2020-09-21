@@ -167,7 +167,7 @@ describe('aggregate ClientRequests', () => {
       id: 'apiCallId',
       oisTitle: 'oisTitle',
       parameters: { to: 'USDC' },
-      providers: [0],
+      providers: [1],
       type: 'request',
     });
   });
