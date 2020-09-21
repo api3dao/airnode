@@ -1,30 +1,25 @@
 import * as fixtures from 'test/fixtures';
-import * as providerState from '../providers/state';
-import { ApiCallTemplate, ProviderState, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCallTemplate, RequestErrorCode, RequestStatus, WalletDataByIndex } from '../../../types';
 import * as application from './template-application';
 
 describe('mergeApiCallsWithTemplates', () => {
-  let initialState: ProviderState;
-
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    initialState = providerState.create(config, 0);
-  });
-
   it('returns API calls without a template ID', () => {
     const apiCall = fixtures.requests.createApiCall({ templateId: null });
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [apiCall],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [apiCall],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const res = application.mergeApiCallsWithTemplates(state, {});
-    expect(res.walletDataByIndex[1].requests.apiCalls).toEqual([apiCall]);
+    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, {});
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    expect(res[1].requests.apiCalls).toEqual([apiCall]);
   });
 
   it('merges the template into the API call', () => {
@@ -37,16 +32,17 @@ describe('mergeApiCallsWithTemplates', () => {
       errorFunctionId: null,
       parameters: {},
     });
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [apiCall],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [apiCall],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
@@ -61,8 +57,10 @@ describe('mergeApiCallsWithTemplates', () => {
       },
     };
 
-    const res = application.mergeApiCallsWithTemplates(state, templatesById);
-    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    const resApiCall = res[1].requests.apiCalls[0];
     expect(resApiCall.endpointId).toEqual('templateEndpointId-0');
     expect(resApiCall.fulfillAddress).toEqual('templateFulfillAddress-0');
     expect(resApiCall.fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
@@ -78,16 +76,17 @@ describe('mergeApiCallsWithTemplates', () => {
         amount: '1',
       },
     });
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [apiCall],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [apiCall],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
@@ -102,8 +101,10 @@ describe('mergeApiCallsWithTemplates', () => {
       },
     };
 
-    const res = application.mergeApiCallsWithTemplates(state, templatesById);
-    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    const resApiCall = res[1].requests.apiCalls[0];
     expect(resApiCall.parameters).toEqual({
       from: 'ETH',
       amount: '1',
@@ -121,16 +122,17 @@ describe('mergeApiCallsWithTemplates', () => {
       errorFunctionId: 'requestErrorFunctionId',
       parameters: { template: 'this will overwrite the template' },
     });
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [apiCall],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [apiCall],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
@@ -145,8 +147,10 @@ describe('mergeApiCallsWithTemplates', () => {
       },
     };
 
-    const res = application.mergeApiCallsWithTemplates(state, templatesById);
-    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
+    expect(logs).toEqual([]);
+    expect(err).toEqual(null);
+    const resApiCall = res[1].requests.apiCalls[0];
     expect(resApiCall.endpointId).toEqual('requestEndpointId');
     expect(resApiCall.fulfillAddress).toEqual('requestFulfillAddress');
     expect(resApiCall.fulfillFunctionId).toEqual('requestFulfillFunctionId');
@@ -156,33 +160,39 @@ describe('mergeApiCallsWithTemplates', () => {
   });
 
   it('blocks API calls where the template cannot be found', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
-    const res = application.mergeApiCallsWithTemplates(state, {});
-    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, {});
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Unable to fetch template ID:templateId-0 for Request ID:apiCallId' },
+    ]);
+    expect(err).toEqual(null);
+    const resApiCall = res[1].requests.apiCalls[0];
     expect(resApiCall.status).toEqual(RequestStatus.Blocked);
     expect(resApiCall.errorCode).toEqual(RequestErrorCode.TemplateNotFound);
   });
 
   it('invalidates API calls with invalid template parameters', () => {
-    const walletData = {
-      address: '0x1',
-      requests: {
-        apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
-        walletDesignations: [],
-        withdrawals: [],
+    const walletDataByIndex: WalletDataByIndex = {
+      1: {
+        address: '0x1',
+        requests: {
+          apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
+          walletDesignations: [],
+          withdrawals: [],
+        },
+        transactionCount: 3,
       },
-      transactionCount: 3,
     };
-    const state = providerState.update(initialState, { walletDataByIndex: { 1: walletData } });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
@@ -197,8 +207,12 @@ describe('mergeApiCallsWithTemplates', () => {
       },
     };
 
-    const res = application.mergeApiCallsWithTemplates(state, templatesById);
-    const resApiCall = res.walletDataByIndex[1].requests.apiCalls[0];
+    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Template ID:apiCallId contains invalid parameters: invalid-parameters' },
+    ]);
+    expect(err).toEqual(null);
+    const resApiCall = res[1].requests.apiCalls[0];
     expect(resApiCall.status).toEqual(RequestStatus.Errored);
     expect(resApiCall.errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
   });

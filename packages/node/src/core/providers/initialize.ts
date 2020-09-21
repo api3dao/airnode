@@ -1,9 +1,9 @@
 import { go } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState } from '../../types';
-import * as apiCallAuthorization from '../requests/api-calls/authorization';
+import * as authorization from '../ethereum/authorization';
 import * as logger from '../utils/logger';
 import * as triggers from '../ethereum/triggers';
-import * as templates from '../templates';
+import * as templates from '../ethereum/templates';
 import * as transactionCounts from '../ethereum/transaction-counts';
 import * as state from './state';
 
@@ -71,12 +71,14 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
     transactionCountsByWalletIndex
   );
 
-  const state4 = state.update(state3, { walletDataByIndex: walletDataWithTransactionCounts });
-
   // // =================================================================
   // // STEP 5: Merge authorizations and transaction counts
   // // =================================================================
-  const walletDataWithAuthorizations = apiCallAuthorization.mergeAuthorizations(state4, authorizationsByEndpoint);
+  const [authLogs, _authErr, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
+    walletDataWithTransactionCounts,
+    authorizationsByEndpoint
+  );
+  logger.logPendingMessages(state3.config.name, authLogs);
 
   const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
 
