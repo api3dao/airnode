@@ -8,7 +8,7 @@ function execute(config: AxiosRequestConfig) {
     headers: config.headers,
     data: config.data,
     params: config.params,
-    timeout: config.timeout || 10_000,
+    timeout: config.timeout,
   });
 }
 

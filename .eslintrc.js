@@ -21,6 +21,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     // TypeScript
+    '@typescript-eslint/ban-ts-comment': 0,
     '@typescript-eslint/ban-ts-ignore': 0,
     '@typescript-eslint/ban-types': 0,
     '@typescript-eslint/camelcase': 0,
@@ -30,7 +31,9 @@ module.exports = {
     '@typescript-eslint/no-empty-function': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-non-null-assertion': 0,
-    '@typescript-eslint/no-unused-vars': ['error', { vars: 'all' }],
+    // Leave vars as 'all' to force everything to be handled when pattern matching
+    // Variables can be ignored by prefixing with an '_'
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', vars: 'all' }],
     '@typescript-eslint/no-use-before-define': 0,
     '@typescript-eslint/no-var-requires': 0,
 

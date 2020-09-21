@@ -3,7 +3,7 @@ jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
 import { Request, ResponseParameters } from './types';
-import * as fixtures from '../test/__fixtures__';
+import * as fixtures from '../test/fixtures';
 import * as adapter from './index';
 
 describe('buildingRequest', () => {
@@ -44,7 +44,6 @@ describe('executeRequest', () => {
       method: 'get',
       headers: { api_key: 'supersecret' },
       params: { from: 'ETH', to: 'USD' },
-      timeout: 10_000,
     });
   });
 
@@ -90,7 +89,6 @@ describe('executeRequest', () => {
       method: 'post',
       headers: { api_key: 'supersecret' },
       data: { from: 'ETH', to: 'USD' },
-      timeout: 10_000,
     });
   });
 
@@ -136,7 +134,6 @@ describe('buildAndExecuteRequest', () => {
         from: 'ETH',
         to: 'USD',
       },
-      timeout: 10_000,
     });
   });
 
@@ -176,7 +173,7 @@ describe('extractAndEncodeValue', () => {
     const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: 100 };
     const res = adapter.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
-      value: 75051,
+      value: '75051',
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
   });
@@ -203,7 +200,7 @@ describe('re-exported functions', () => {
 
   it('exports multiplyValue', () => {
     const res = adapter.processByMultiplying(7.789, 1000);
-    expect(res).toEqual(7789);
+    expect(res).toEqual('7789');
   });
 
   it('exports encodedValue', () => {

@@ -1,10 +1,5 @@
 import Bluebird from 'bluebird';
 
-// http://bluebirdjs.com/docs/api/promise.config.html
-Bluebird.config({
-  cancellation: true,
-});
-
 // Adapted from:
 // https://github.com/then/is-promise
 export function isPromise(obj: any) {
@@ -45,4 +40,70 @@ export function goTimeout<T>(ms: number, fn: Promise<T>): Promise<Response<T>> {
 // duration has been reached which is a problem.
 export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
   return Bluebird.resolve(promise).timeout(ms);
+}
+
+export function wait(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+export interface RetryOptions {
+  delay?: number;
+  timeouts: number[];
+}
+
+export function retryOperation(retriesLeft: number, operation: () => Promise<any>, options: RetryOptions) {
+  return new Promise((resolve, reject) => {
+    const { timeouts } = options;
+    // Find the timeout for this specific iteration
+    const timeout = timeouts[timeouts.length - retriesLeft];
+
+    // Wrap the original operation in a timeout
+    const execution = promiseTimeout(timeout, operation());
+
+    // If the promise is successful, resolve it and bubble the result up
+    return execution.then(resolve).catch((reason: any) => {
+      // If there are any retries left, we call the same retryOperation function again,
+      // but decrementing the number of retries left by 1
+      if (retriesLeft - 1 > 0) {
+        // Delay the new attempt slightly
+        return wait(options.delay || 50)
+          .then(retryOperation.bind(null, retriesLeft - 1, operation, options))
+          .then(resolve)
+          .catch(reject);
+      }
+      // Reject (and bubble the result up) if there are no more retries
+      return reject(reason);
+    });
+  });
+}
+
+export interface ContinuousRetryOptions {
+  delay?: number;
+}
+
+export function retryOnTimeout(maxTimeoutMs: number, operation: () => Promise<any>, options?: ContinuousRetryOptions) {
+  const promise = new Promise((resolve, reject) => {
+    function run() {
+      // If the promise is successful, resolve it and bubble the result up
+      return operation()
+        .then(resolve)
+        .catch((reason: any) => {
+          // Only if the error is a timeout error, do we retry the promise
+          if (reason instanceof Error && reason.message === 'operation timed out') {
+            // Delay the new attempt slightly
+            return wait(options?.delay || 50)
+              .then(run)
+              .then(resolve)
+              .catch(reject);
+          }
+
+          // If the error is NOT a timeout error, then we reject immediately
+          return reject(reason);
+        });
+    }
+
+    return run();
+  });
+
+  return promiseTimeout(maxTimeoutMs, promise);
 }

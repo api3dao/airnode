@@ -1,7 +1,7 @@
 import { EndpointParameter, FixedParameter } from '@airnode/ois';
 import { State } from '../types';
 import { initialize as initializeState } from '../state';
-import * as fixtures from '../../test/__fixtures__';
+import * as fixtures from '../../test/fixtures';
 import * as parameters from './parameters';
 
 describe('building parameters', () => {

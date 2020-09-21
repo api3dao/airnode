@@ -21,7 +21,16 @@ provider:
 functions:
   start:
     handler: src/aws/handler.start
+    timeout: 60
     events:
       - http:
           method: get
-          path: hello
+          path: start
+
+  initializeProvider:
+    handler: src/aws/handler.initializeProvider
+    timeout: 20
+
+  callApi:
+    handler: src/aws/handler.callApi
+    timeout: 30

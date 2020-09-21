@@ -1,6 +1,8 @@
 {
   "name": "@airnode/adapter",
   "version": "0.1.0",
+  "main": "dist/index",
+  "types": "dist/index",
   "files": [
     "dist"
   ],
@@ -15,14 +17,11 @@
   "dependencies": {
     "@airnode/ois": "^0.1.0",
     "axios": "^0.19.2",
-    "ethers": "^5.0.5",
-    "lodash": "^4.17.19"
+    "bignumber.js": "^9.0.0",
+    "ethers": "^5.0.13",
+    "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.4",
-    "@types/lodash": "^4.14.155",
-    "@types/node": "^14.0.22",
-    "jest": "^26.1.0",
-    "ts-jest": "^26.1.1"
+    "@types/lodash": "^4.14.161"
   }
 }

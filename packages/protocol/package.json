@@ -1,0 +1,16 @@
+{
+  "name": "@airnode/protocol",
+  "scripts": {
+    "build": "buidler compile",
+    "test": "buidler test"
+  },
+  "devDependencies": {
+    "@nomiclabs/buidler": "^1.4.6",
+    "@nomiclabs/buidler-ethers": "^2.0.0",
+    "@nomiclabs/buidler-waffle": "^2.1.0",
+    "chai": "^4.2.0",
+    "ethereum-waffle": "^3.1.0",
+    "ethers": "^5.0.13",
+    "ganache-core": "^2.11.3"
+  }
+}

@@ -25,16 +25,35 @@ jobs:
 
     - name: Build
       run: |
-        npm run build:contracts
+        npm run build:protocol
         npm run build:ois
         npm run build:adapter
 
     - name: Test adapter
       run: npm run test:adapter
 
-    - name: Test contracts
-      run: npm run test:contracts
+    - name: Test protocol contracts
+      run: npm run test:protocol
 
     - name: Test node
       run: npm run test:node
+
+    - name: Prepare config
+      run: |
+        cp packages/node/config.json.example packages/node/config.json
+        cp packages/node/security.json.example packages/node/security.json
+
+    - name: Build node
+      run: npm run build:node
+
+    - name: Slack Notification
+      uses: homoluctus/slatify@master
+      if: always()
+      with:
+        channel: '#technical'
+        commit: true
+        job_name: 'Airnode - Continuous Build'
+        token: ${{ secrets.ACCESS_TOKEN }}
+        type: ${{ job.status }}
+        url: ${{ secrets.SLACK_WEBHOOK_URL }}
 

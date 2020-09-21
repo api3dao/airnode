@@ -1,5 +1,5 @@
 import * as state from './state';
-import * as fixtures from '../test/__fixtures__';
+import * as fixtures from '../test/fixtures';
 
 describe('initialize', () => {
   it('caches the operation to use', () => {

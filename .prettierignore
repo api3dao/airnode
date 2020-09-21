@@ -1,15 +1,14 @@
-.eslintrc.js
-node_modules/
-
-**/.build/**
-**/.serverless/**
-**/dist/**
-
 **/node_modules/**
-
-**/coverage/**
+.eslintrc.js
 
 # Buidler
 **/cache/**
 **/artifacts/**
 **/buidler.config.js
+
+**/.build/**
+**/.serverless/**
+**/coverage/**
+**/dist/**
+
+*.json
