@@ -4,7 +4,7 @@ A tool capable of determining if provided OIS is valid or not.
 
 ## Usage
 
-Function `isSpecsValid` takes json string as parameter and returns object with following structure:
+Function `isOisValid` in `lib/validator.js` takes json string of OIS as parameter and returns object with following structure:
 ```
 {
     valid: boolean,
@@ -18,7 +18,7 @@ Where array `messages` contains message objects:
     message: string
 }
 ```
-If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages.
+If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages. Similarly functions `isApiSpecsValid` and `isEndpointsValid` check only the API and endpoint specifications contained in the OIS.
 
 
 ## Validator structure
