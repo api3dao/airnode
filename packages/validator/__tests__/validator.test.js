@@ -528,19 +528,88 @@ const specs16 = `{
 "security": {}
 }`;
 
+/* ENDPOINTS SPECS */
+const specs17 = `[
+  {
+    "name": "test",
+    "operation": {
+      "path": "/myPath",
+      "method": "get"
+    }
+  },
+  {
+    "name": "two",
+    "operation": {
+      "path": "/myPath2",
+      "method": "post"
+    }
+  }
+]`;
+
+const specs18 = `[
+  {
+    "name": "test",
+    "operation": {
+      "method": "undefined"
+    },
+    "fixedOperationParameters": [],
+    "reservedParameters": [
+      {
+        "name": "path",
+        "fixed": "int256",
+        "default": "data.0.price"
+      },
+      {
+        "name": "_path"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "_incorrect",
+        "default": "",
+        "description": "",
+        "required": "",
+        "example": "",
+        "summary": "",
+        "externalDocs": ""
+      },
+      {
+        "name": "correct",
+        "operationParameter": {
+          "name": "operation",
+          "in": "header"
+        }
+      }
+    ]
+  },
+  {
+    "extra": "extra",
+    "fixedOperationParameters": [
+      {
+        "operationParameter": {
+          "in": "none"
+        },
+        "value": "param value"
+      }
+    ]
+  }
+]`;
+
 /* OIS SPECS */
-const specs17 = `{
+const specs19 = `{
 "oisFormat": "1.10.0",
 "title": "myOisTitle",
 "version": "1.2.3",
-"apiSpecifications": ${specs1}
+"apiSpecifications": ${specs1},
+"endpoints": ${specs17}
 }`;
 
-const specs18 = `{
+const specs20 = `{
 "oisFormat": "1..0",
 "title": "myOisTitle",
 "version": "1.0",
-"apiSpecifications": ${specs15}
+"apiSpecifications": ${specs15},
+"endpoints": ${specs17}
 }`;
 
 function formattingMessage(paramPath, error = false) {
@@ -682,13 +751,36 @@ describe('validator', () => {
     });
   });
 
-  test('ois specs', () => {
-    expect(validator.isOisValid(specs17)).toMatchObject({
+  test('endpoints specs', () => {
+    expect(validator.isEndpointsValid(specs17)).toMatchObject({
       valid: true,
       messages: []
     });
 
-    expect(validator.isOisValid(specs18)).toMatchObject({
+    expect(validator.isEndpointsValid(specs18)).toMatchObject({
+      valid: false,
+      messages: [
+        missingParamMessage('[0].operation.path'),
+        formattingMessage('[0].operation.method'),
+        formattingMessage('[0].reservedParameters[0].name'),
+        formattingMessage('[0].parameters[0].name'),
+        missingParamMessage('[0].parameters[0].operationParameter'),
+        missingParamMessage('[1].name'),
+        missingParamMessage('[1].operation'),
+        missingParamMessage('[1].fixedOperationParameters[0].operationParameter.name'),
+        formattingMessage('[1].fixedOperationParameters[0].operationParameter.in'),
+        extraFieldMessage('[1].extra')
+      ]
+    });
+  });
+
+  test('ois specs', () => {
+    expect(validator.isOisValid(specs19)).toMatchObject({
+      valid: true,
+      messages: []
+    });
+
+    expect(validator.isOisValid(specs20)).toMatchObject({
       valid: false,
       messages: [
         formattingMessage('oisFormat'),

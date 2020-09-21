@@ -3,6 +3,7 @@
 const fs = require('fs');
 const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
 const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
+const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
 
 function getLastParamName(paramPath) {
   const lastDotIndex = paramPath.lastIndexOf('.');
@@ -34,7 +35,9 @@ function checkRedundancy(nonRedundant, specs, paramPath, messages) {
   if (typeof specs === 'object') {
     if (Array.isArray(specs)) {
       for (let i = 0; i < specs.length; i++) {
-        checkRedundancy(nonRedundant[i], specs[i], `${paramPath}[${i}]`, messages);
+        if (nonRedundant[i]) {
+          checkRedundancy(nonRedundant[i], specs[i], `${paramPath}[${i}]`, messages);
+        }
       }
     } else {
       for (let param of Object.keys(specs)) {
@@ -360,6 +363,25 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
       continue;
     }
 
+    if (key === '__optional') {
+      for (const optionalItem of Object.keys(specsStruct[key])) {
+        for (const item of Object.keys(specs)) {
+          if (item === optionalItem) {
+            insertNonRedundantParam(item, specsStruct[key], nonRedundantParams, specs[item]);
+
+            let result = validateSpecs(specs[item], specsStruct[key][item], `${paramPath}${paramPath ? '.' : ''}${item}`, specsRoot, nonRedundantParams[item], nonRedundantParamsRoot, paramPathPrefix);
+            messages.push(...result.messages);
+
+            if (!result.valid) {
+              valid = false;
+            }
+          }
+        }
+      }
+
+      continue;
+    }
+
     if (key === '__level') {
       continue;
     }
@@ -376,6 +398,20 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
     if (key === '__apiSpecs') {
       let nonRedundant = {};
       let result = validateSpecs(specs, apiSpecs, paramPath, specs, nonRedundant, nonRedundant, paramPath);
+      messages.push(...result.messages);
+
+      if (!result.valid) {
+        valid = false;
+      }
+
+      nonRedundantParams['__noCheck'] = {};
+
+      continue;
+    }
+
+    if (key === '__endpointsSpecs') {
+      let nonRedundant = [];
+      let result = validateSpecs(specs, endpointsSpecs, paramPath, specs, nonRedundant, nonRedundant, paramPath);
       messages.push(...result.messages);
 
       if (!result.valid) {
@@ -428,6 +464,19 @@ function isApiSpecsValid(specs) {
   return validateSpecs(parsedSpecs, apiSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
 }
 
+function isEndpointsValid(specs) {
+  let parsedSpecs;
+  let nonRedundant = [];
+
+  try {
+    parsedSpecs = JSON.parse(specs);
+  } catch (e) {
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+  }
+
+  return validateSpecs(parsedSpecs, endpointsSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
+}
+
 function isOisValid(specs) {
   let parsedSpecs;
   let nonRedundant = {};
@@ -441,4 +490,4 @@ function isOisValid(specs) {
   return validateSpecs(parsedSpecs, oisSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
 }
 
-module.exports = { isApiSpecsValid, isOisValid };
+module.exports = { isApiSpecsValid, isEndpointsValid, isOisValid };

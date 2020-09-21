@@ -103,7 +103,10 @@ To ensure parameters are in correct format, regular expressions are used. Token 
 **Cheatsheet**
 
 `^(one|two)$` - all the valid strings are `one` and `two`
+
 `(?<={)[^\/{}]+(?=})` - anything thats between `{` and `}` (usage example at parameters in paths)
+
+`^[^\s'"\\]+$` - any string with at least 1 character and not containing any whitespaces, `'`, `"` or `\\`
 
 ### Arrays and objects
 

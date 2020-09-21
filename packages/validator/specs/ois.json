@@ -8,5 +8,8 @@
   },
   "apiSpecifications": {
     "__apiSpecs": {}
+  },
+  "endpoints": {
+    "__endpointsSpecs": {}
   }
 }
