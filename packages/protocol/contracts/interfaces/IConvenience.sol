@@ -12,7 +12,9 @@ interface IConvenience {
         returns (IAirnode.Template[] memory templates);
 
     function checkAuthorizationStatuses(
+        bytes32[] calldata providerIds,
         bytes32[] calldata endpointIds,
+        uint256[] calldata requesterInds,
         address[] calldata clientAddresses
         )
         external

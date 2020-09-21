@@ -30,7 +30,9 @@ contract Convenience is IConvenience {
     }
 
     function checkAuthorizationStatuses(
+        bytes32[] calldata providerIds,
         bytes32[] calldata endpointIds,
+        uint256[] calldata requesterInds,
         address[] calldata clientAddresses
         )
         external
@@ -39,13 +41,20 @@ contract Convenience is IConvenience {
         returns (bool[] memory statuses)
     {
         require(
-            endpointIds.length == clientAddresses.length,
-            "The number of endpoints should be equal to the number of clients"
+            providerIds.length == endpointIds.length
+                && providerIds.length == requesterInds.length
+                && providerIds.length == clientAddresses.length,
+            "Parameter lengths must be equal"
         );
-        statuses = new bool[](endpointIds.length);
-        for (uint256 ind = 0; ind < endpointIds.length; ind++)
+        statuses = new bool[](providerIds.length);
+        for (uint256 ind = 0; ind < providerIds.length; ind++)
         {
-            statuses[ind] = airnode.checkAuthorizationStatus(endpointIds[ind], clientAddresses[ind]);
+            statuses[ind] = airnode.checkAuthorizationStatus(
+                providerIds[ind],
+                endpointIds[ind],
+                requesterInds[ind],
+                clientAddresses[ind]
+                );
         }
     }
 }

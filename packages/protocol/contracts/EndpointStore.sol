@@ -7,109 +7,55 @@ import "./ProviderStore.sol";
 
 
 /// @title The contract where the endpoints are stored
-/// @notice This contract is used by the provider to create an ID for their
-/// endpoints so that clients can refer to them while making requests. It also
-/// allows the provider to set an authorization policy for their endpoints,
-/// which both the oracle node and the requester can check to verify
-/// authorization.
+/// @notice This contract is used by the provider admin to associate their
+/// endpoints with authorization policies, which both the oracle node and the
+/// requester can check to verify authorization.
 contract EndpointStore is ProviderStore, IEndpointStore {
-    // apiId is used to tag endpoints to specify that they belong to the same
-    // group (or API). This can be used to enforce API-level authorization
-    // policies. If you are going to treat your endpoints individually, feel
-    // free to leave apiId as 0.
-    struct Endpoint {
-        bytes32 providerId;
-        bytes32 apiId;
-        address[] authorizers;
-        }
-
-    mapping(bytes32 => Endpoint) private endpoints;
-    uint256 private noEndpoints = 0;
+    mapping(bytes32 => mapping(bytes32 => address[])) private providerEndpointAuthorizers;
 
 
-    /// @notice Creates an endpoint with the given parameters, addressable by
-    /// the ID it returns
+    /// @notice Updates the endpoint authorizers of a provider
     /// @param providerId Provider ID from ProviderStore
-    /// @param apiId API ID
+    /// @param endpointId Endpoint ID
     /// @param authorizers Authorizer contract addresses
-    /// @return endpointId Endpoint ID
-    function createEndpoint(
+    function updateEndpointAuthorizers(
         bytes32 providerId,
-        bytes32 apiId,
+        bytes32 endpointId,
         address[] calldata authorizers
         )
         external
         override
         onlyProviderAdmin(providerId)
-        returns(bytes32 endpointId)
     {
-        endpointId = keccak256(abi.encodePacked(
-            noEndpoints++,
-            this,
-            msg.sender,
-            uint256(0)
-            ));
-        endpoints[endpointId] = Endpoint({
-            providerId: providerId,
-            apiId: apiId,
-            authorizers: authorizers
-        });
-        emit EndpointCreated(
-            endpointId,
-            providerId,
-            apiId,
-            authorizers
-            );
-    }
-
-    /// @notice Updates the endpoint
-    /// @dev Endpoints cannot be transferred to other providers
-    /// @param endpointId Endpoint ID
-    /// @param apiId API ID
-    /// @param authorizers Authorizer contract addresses
-    function updateEndpoint(
-        bytes32 endpointId,
-        bytes32 apiId,
-        address[] calldata authorizers
-        )
-        external
-        override
-        onlyProviderAdmin(endpoints[endpointId].providerId)
-    {
-        endpoints[endpointId].apiId = apiId;
-        endpoints[endpointId].authorizers = authorizers;
+        providerEndpointAuthorizers[providerId][endpointId] = authorizers;
         emit EndpointUpdated(
+            providerId,
             endpointId,
-            apiId,
             authorizers
             );
     }
 
     /// @notice Retrieves the endpoint parameters addressed by the ID
+    /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID
-    /// @return providerId Provider ID from ProviderStore
-    /// @return apiId API ID
     /// @return authorizers Authorizer contract addresses
-    function getEndpoint(bytes32 endpointId)
+    function getEndpointAuthorizers(
+        bytes32 providerId,
+        bytes32 endpointId
+        )
         external
         view
         override
-        returns(
-            bytes32 providerId,
-            bytes32 apiId,
-            address[] memory authorizers
-        )
+        returns(address[] memory authorizers)
     {
-        providerId = endpoints[endpointId].providerId;
-        apiId = endpoints[endpointId].apiId;
-        authorizers = endpoints[endpointId].authorizers;
+        authorizers = providerEndpointAuthorizers[providerId][endpointId];
     }
 
-    /// @notice Uses authorizer contracts of an endpoint to decide if a client
-    /// contract is authorized to call an endpoint. Once an oracle receives a
-    /// request, it calls this method to determine if it should respond.
-    /// Similarly, third parties can use this method to determine if a client
-    /// contract is authorized to call an endpoint.
+    /// @notice Uses the authorizer contracts of an endpoint of a provider to
+    /// decide if a client contract is authorized to call the endpoint. Once an
+    /// oracle node receives a request, it calls this method to determine if it
+    /// should respond. Similarly, third parties can use this method to
+    /// determine if a client contract is authorized to call an endpoint.
     /// @dev Authorizer contracts are not trusted, so this method should only
     /// be called off-chain.
     /// The elements of the authorizer array are either addresses of Authorizer
@@ -130,12 +76,15 @@ contract EndpointStore is ProviderStore, IEndpointStore {
     /// Note that authorizers should not start or end with 0, and 0s should
     /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
     /// [] returns false (deny everyone), [0] returns true (accept everyone).
+    /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param clientAddress Address of the client contract
-    /// @return status If the client contract is authorized to call the
-    /// endpoint
+    /// @param requesterInd Requester index from RequesterStore
+    /// @param clientAddress Client address
+    /// @return status Authorization status of the request
     function checkAuthorizationStatus(
+        bytes32 providerId,
         bytes32 endpointId,
+        uint256 requesterInd,
         address clientAddress
         )
         external
@@ -143,7 +92,8 @@ contract EndpointStore is ProviderStore, IEndpointStore {
         override
         returns(bool status)
     {
-        uint256 noAuthorizers = endpoints[endpointId].authorizers.length;
+        address[] storage authorizers = providerEndpointAuthorizers[providerId][endpointId];
+        uint256 noAuthorizers = authorizers.length;
         // If no authorizers have been set, deny access by default
         if (noAuthorizers == 0)
         {
@@ -154,7 +104,7 @@ contract EndpointStore is ProviderStore, IEndpointStore {
         bool authorizedByAll = true;
         for (uint256 ind = 0; ind < noAuthorizers; ind++)
         {
-            address authorizerAddress = endpoints[endpointId].authorizers[ind];
+            address authorizerAddress = authorizers[ind];
             if (authorizerAddress == address(0)) {
                 // If we have reached a 0 without getting any unauthorized
                 // reports, we can return true
@@ -172,7 +122,9 @@ contract EndpointStore is ProviderStore, IEndpointStore {
                 // Set authorizedByAll to false if we got an unauthorized report.
                 // This means that we will not be able to return a true from
                 // this group of authorizers.
-                if (!authorizer.checkIfAuthorized(endpointId, clientAddress)) {
+                if (!authorizer.checkIfAuthorized(
+                    providerId, endpointId, requesterInd, clientAddress
+                    )) {
                     authorizedByAll = false;
                 }
             }
