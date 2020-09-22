@@ -14,10 +14,11 @@ import * as disaggregation from './disaggregation';
 
 describe('disaggregate - ClientRequests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
+    const metadata = { blockNumber: 100, transactionHash: '0xa' };
     const walletData0 = {
       address: '0x1',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
+        apiCalls: [fixtures.requests.createApiCall({ metadata: { ...metadata, providerIndex: 0 } })],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -26,7 +27,7 @@ describe('disaggregate - ClientRequests', () => {
     const walletData1 = {
       address: '0x2',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
+        apiCalls: [fixtures.requests.createApiCall({ metadata: { ...metadata, providerIndex: 1 } })],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -35,7 +36,7 @@ describe('disaggregate - ClientRequests', () => {
     const walletData2 = {
       address: '0x3',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
+        apiCalls: [fixtures.requests.createApiCall({ metadata: { ...metadata, providerIndex: 2 } })],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -63,11 +64,12 @@ describe('disaggregate - ClientRequests', () => {
   });
 
   it('updates each request based on the provider(s) it was linked to', () => {
+    const metadata = { blockNumber: 100, transactionHash: '0xa' };
     // The 2 calls are exactly the same, but are linked to different providers
     const walletData0 = {
       address: '0x1',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
+        apiCalls: [fixtures.requests.createApiCall({ metadata: { ...metadata, providerIndex: 0 } })],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -76,7 +78,7 @@ describe('disaggregate - ClientRequests', () => {
     const walletData1 = {
       address: '0x2',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall()],
+        apiCalls: [fixtures.requests.createApiCall({ metadata: { ...metadata, providerIndex: 1 } })],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -108,10 +110,13 @@ describe('disaggregate - ClientRequests', () => {
   });
 
   it('does not update the request if the parameters are different', () => {
+    const metadata = { blockNumber: 100, transactionHash: '0xa' };
     const walletData0 = {
       address: '0x1',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall({ parameters: { from: 'ETH' } })],
+        apiCalls: [
+          fixtures.requests.createApiCall({ parameters: { from: 'ETH' }, metadata: { ...metadata, providerIndex: 0 } }),
+        ],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -120,7 +125,9 @@ describe('disaggregate - ClientRequests', () => {
     const walletData1 = {
       address: '0x2',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall({ parameters: { from: 'BTC' } })],
+        apiCalls: [
+          fixtures.requests.createApiCall({ parameters: { from: 'BTC' }, metadata: { ...metadata, providerIndex: 1 } }),
+        ],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -157,10 +164,13 @@ describe('disaggregate - ClientRequests', () => {
   });
 
   it('does not update the request if the endpoint IDs are different', () => {
+    const metadata = { blockNumber: 100, transactionHash: '0xa' };
     const walletData0 = {
       address: '0x1',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xunknown' })],
+        apiCalls: [
+          fixtures.requests.createApiCall({ endpointId: '0xunknown', metadata: { ...metadata, providerIndex: 0 } }),
+        ],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -169,7 +179,9 @@ describe('disaggregate - ClientRequests', () => {
     const walletData1 = {
       address: '0x2',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xendpointId' })],
+        apiCalls: [
+          fixtures.requests.createApiCall({ endpointId: '0xendpointId', metadata: { ...metadata, providerIndex: 0 } }),
+        ],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -206,10 +218,11 @@ describe('disaggregate - ClientRequests', () => {
   });
 
   it('does not update the request if the request IDs are different', () => {
+    const metadata = { blockNumber: 100, transactionHash: '0xa' };
     const walletData0 = {
       address: '0x1',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall({ id: '0xunknown' })],
+        apiCalls: [fixtures.requests.createApiCall({ id: '0xunknown', metadata: { ...metadata, providerIndex: 0 } })],
         walletDesignations: [],
         withdrawals: [],
       },
@@ -218,7 +231,7 @@ describe('disaggregate - ClientRequests', () => {
     const walletData1 = {
       address: '0x2',
       requests: {
-        apiCalls: [fixtures.requests.createApiCall({ id: '0xid' })],
+        apiCalls: [fixtures.requests.createApiCall({ id: '0xid', metadata: { ...metadata, providerIndex: 1 } })],
         walletDesignations: [],
         withdrawals: [],
       },
