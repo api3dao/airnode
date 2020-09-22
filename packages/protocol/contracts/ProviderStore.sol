@@ -113,7 +113,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             noWithdrawalRequests++,
             this,
             msg.sender,
-            uint256(3)
+            uint256(1)
             ));
         withdrawalRequests[withdrawalRequestId] = WithdrawalRequest({
             providerId: providerId,
