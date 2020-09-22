@@ -88,8 +88,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         returns (bytes32 requestId);
 
     function fulfill(
-        bytes32 providerId,
         bytes32 requestId,
+        bytes32 providerId,
         uint256 statusCode,
         bytes32 data,
         address fulfillAddress,
@@ -102,8 +102,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         );
 
     function fulfillBytes(
-        bytes32 providerId,
         bytes32 requestId,
+        bytes32 providerId,
         uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
@@ -116,8 +116,8 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         );
 
     function fail(
-        bytes32 providerId,
         bytes32 requestId,
+        bytes32 providerId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )

@@ -187,8 +187,8 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
 
     /// @notice Called by the oracle node to fulfill individual requests
     /// (including regular, short and full requests)
-    /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
+    /// @param providerId Provider ID from ProviderStore
     /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
@@ -198,8 +198,8 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfill(
-        bytes32 providerId,
         bytes32 requestId,
+        bytes32 providerId,
         uint256 statusCode,
         bytes32 data,
         address fulfillAddress,
@@ -234,8 +234,8 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// (including regular, short and full requests) with a bytes type response
     /// @dev The oracle uses this method to fulfill if the requester has
     /// specifically asked for a bytes type response
-    /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
+    /// @param providerId Provider ID from ProviderStore
     /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data of type bytes
     /// @param fulfillAddress Address that will be called to fulfill
@@ -245,8 +245,8 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfillBytes(
-        bytes32 providerId,
         bytes32 requestId,
+        bytes32 providerId,
         uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
@@ -280,14 +280,14 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @notice Called by the oracle node if a request cannot be fulfilled
     /// @dev The oracle should fall back to this if a request cannot be
     /// fulfilled because fulfill() reverts
-    /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
+    /// @param providerId Provider ID from ProviderStore
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     function fail(
-        bytes32 providerId,
         bytes32 requestId,
+        bytes32 providerId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )
