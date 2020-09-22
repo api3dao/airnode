@@ -12,7 +12,7 @@ import "./TemplateStore.sol";
 /// request-response scheme. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
 contract Airnode is EndpointStore, TemplateStore, IAirnode {
-    mapping(bytes32 => address) private requestIdToDesignatedWallet;
+    mapping(bytes32 => bytes32) private requestIdToResponseParameters;
     mapping(bytes32 => bool) private requestWithIdHasFailed;
     uint256 private noRequests = 0;
 
@@ -59,9 +59,17 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             this,
             msg.sender
             ));
-        requestIdToDesignatedWallet[requestId] = designatedWallet;
+        bytes32 providerId = templates[templateId].providerId;
+        requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
+            providerId,
+            designatedWallet,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            ));
         emit RequestMade(
-            templates[templateId].providerId,
+            providerId,
             requestId,
             msg.sender,
             templateId,
@@ -101,7 +109,15 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             this,
             msg.sender
             ));
-        requestIdToDesignatedWallet[requestId] = templates[templateId].designatedWallet;
+        Template storage template = templates[templateId];
+        requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
+            template.providerId,
+            template.designatedWallet,
+            template.fulfillAddress,
+            template.errorAddress,
+            template.fulfillFunctionId,
+            template.errorFunctionId
+            ));
         emit ShortRequestMade(
             templates[templateId].providerId,
             requestId,
@@ -155,7 +171,14 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             this,
             msg.sender
             ));
-        requestIdToDesignatedWallet[requestId] = designatedWallet;
+        requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
+            providerId,
+            designatedWallet,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            ));
         emit FullRequestMade(
             providerId,
             requestId,
@@ -176,8 +199,12 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param data Oracle response
-    /// @param fulfillAddress Address that will be called
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @param errorFunctionId Signature of the function that will be called
+    /// to error
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -186,17 +213,26 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         bytes32 requestId,
         bytes32 data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
         )
         external
         override
-        onlyDesignatedWallet(requestId)
+        onlyCorrectResponseParameters(
+            requestId,
+            providerId,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            )
         returns(
             bool callSuccess,
             bytes memory callData
         )
     {
-        delete requestIdToDesignatedWallet[requestId];
+        delete requestIdToResponseParameters[requestId];
         emit FulfillmentSuccessful(
             providerId,
             requestId,
@@ -214,8 +250,12 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param data Oracle response of type bytes
-    /// @param fulfillAddress Address that will be called
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @param errorFunctionId Signature of the function that will be called
+    /// to error
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -224,17 +264,26 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         bytes32 requestId,
         bytes calldata data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
         )
         external
         override
-        onlyDesignatedWallet(requestId)
+        onlyCorrectResponseParameters(
+            requestId,
+            providerId,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            )
         returns(
             bool callSuccess,
             bytes memory callData
         )
     {
-        delete requestIdToDesignatedWallet[requestId];
+        delete requestIdToResponseParameters[requestId];
         emit FulfillmentBytesSuccessful(
             providerId,
             requestId,
@@ -253,8 +302,12 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param errorCode Error code
-    /// @param errorAddress Address that will be called
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called to error
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
     /// @param errorFunctionId Signature of the function that will be called
+    /// to error
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
@@ -262,18 +315,27 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         bytes32 providerId,
         bytes32 requestId,
         uint256 errorCode,
+        address fulfillAddress,
         address errorAddress,
+        bytes4 fulfillFunctionId,
         bytes4 errorFunctionId
         )
         external
         override
-        onlyDesignatedWallet(requestId)
+        onlyCorrectResponseParameters(
+            requestId,
+            providerId,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            )
         returns(
             bool callSuccess,
             bytes memory callData
         )
     {
-        delete requestIdToDesignatedWallet[requestId];
+        delete requestIdToResponseParameters[requestId];
         emit FulfillmentErrored(
             providerId,
             requestId,
@@ -290,15 +352,32 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// and error() is reverting
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called to error
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @param errorFunctionId Signature of the function that will be called
+    /// to error
     function fail(
         bytes32 providerId,
-        bytes32 requestId
+        bytes32 requestId,
+        address fulfillAddress,
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
         )
         external
         override
-        onlyDesignatedWallet(requestId)
+        onlyCorrectResponseParameters(
+            requestId,
+            providerId,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            )
     {
-        delete requestIdToDesignatedWallet[requestId];
+        delete requestIdToResponseParameters[requestId];
         // Failure is recorded so that it can be checked externally with
         // checkIfRequestHasFailed()
         requestWithIdHasFailed[requestId] = true;
@@ -320,14 +399,36 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         status = requestWithIdHasFailed[requestId];
     }
 
-    /// @dev Reverts unless the caller is not the designated wallet requested
-    /// to fulfill the respective request
+    /// @dev Reverts unless the incoming response parameters do not match the
+    /// ones provided in the request
     /// @param requestId Request ID
-    modifier onlyDesignatedWallet(bytes32 requestId)
+    /// @param providerId Provider ID from ProviderStore
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param errorAddress Address that will be called to error
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @param errorFunctionId Signature of the function that will be called
+    /// to error
+    modifier onlyCorrectResponseParameters(
+        bytes32 requestId,
+        bytes32 providerId,
+        address fulfillAddress,
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
+        )
     {
+        bytes32 incomingResponseParameters = keccak256(abi.encodePacked(
+            providerId,
+            msg.sender,
+            fulfillAddress,
+            errorAddress,
+            fulfillFunctionId,
+            errorFunctionId
+            ));
         require(
-            requestIdToDesignatedWallet[requestId] == msg.sender,
-            "Not the wallet requested to fulfill this request"
+            incomingResponseParameters == requestIdToResponseParameters[requestId],
+            "Response parameters do not match"
             );
         _;
     }

@@ -106,7 +106,9 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 requestId,
         bytes32 data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
         )
         external
         returns(
@@ -119,7 +121,9 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 requestId,
         bytes calldata data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
         )
         external
         returns(
@@ -131,7 +135,9 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 providerId,
         bytes32 requestId,
         uint256 errorCode,
+        address fulfillAddress,
         address errorAddress,
+        bytes4 fulfillFunctionId,
         bytes4 errorFunctionId
         )
         external
@@ -142,7 +148,11 @@ interface IAirnode is IEndpointStore, ITemplateStore {
 
     function fail(
         bytes32 providerId,
-        bytes32 requestId
+        bytes32 requestId,
+        address fulfillAddress,
+        address errorAddress,
+        bytes4 fulfillFunctionId,
+        bytes4 errorFunctionId
         )
         external;
 }
