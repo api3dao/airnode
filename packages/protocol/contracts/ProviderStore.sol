@@ -13,13 +13,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
         uint256 minBalance;
         }
 
-    struct WithdrawalRequest {
-        bytes32 providerId;
-        uint256 requesterInd;
-        address designatedWallet;
-        address destination;
-        }
-
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => bool) private withdrawalRequestWithParametersHashExists;
     uint256 private noProviders = 0;
