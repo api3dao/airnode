@@ -6,16 +6,16 @@ import "./AirnodeClient.sol";
 
 /// @title An example Airnode client contract
 contract ExampleAirnodeClient is AirnodeClient {
-    bytes32 public data;
     bytes32 public requestId;
-    uint256 public errorCode;
+    uint256 public statusCode;
+    bytes32 public data;
 
 
-    /// @dev Airnode address and endorser IDs are set at deployment
-    /// @param _airnode Airnode contract address
-    constructor (address _airnode)
+    /// @dev Airnode address is set at deployment
+    /// @param airnodeAddress Airnode contract address
+    constructor (address airnodeAddress)
         public
-        AirnodeClient(_airnode)
+        AirnodeClient(airnodeAddress)
     {}
 
     /// @notice Called to make a regular request to the Airnode contract
@@ -29,49 +29,32 @@ contract ExampleAirnodeClient is AirnodeClient {
         )
         external
     {
-        /*requestId = airnode.makeRequest(
+        requestId = airnode.makeShortRequest(
             templateId,
-            address(this),
-            address(this),
-            this.fulfill.selector,
-            this.error.selector,
             parameters
-            );*/
+            );
     }
 
-    /// @notice Called by the provider wallet through the Airnode contract to
+    /// @notice Called by the designated wallet through the Airnode contract to
     /// deliver the response
     /// @param _requestId Request ID
+    /// @param _statusCode Status code returned by the provider
     /// @param _data Data returned by the provider
     function fulfill(
         bytes32 _requestId,
+        uint256 _statusCode,
         bytes32 _data
         )
         external
         onlyAirnode()
     {
-        require(
-            _requestId == requestId,
-            "Example request ID check"
-            );
-        data = _data;
-    }
-
-    /// @notice Called by the provider wallet through the Airnode contract if
-    /// the fulfillment has failed
-    /// @param _requestId Request ID
-    /// @param _errorCode Error code
-    function error(
-        bytes32 _requestId,
-        uint256 _errorCode
-        )
-        external
-        onlyAirnode()
-    {
-        require(
-            _requestId == requestId,
-            "Example request ID check"
-            );
-        errorCode = _errorCode;
+        if (_statusCode == 0)
+        {
+            require(
+                _requestId == requestId,
+                "Example request ID check"
+                );
+            data = _data;
+        }
     }
 }

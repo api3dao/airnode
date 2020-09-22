@@ -6,5 +6,5 @@ interface IAirnodeClient {
   function airnodeAddress()
       external
       view
-      returns(address);
+      returns(address _airnodeAddress);
 }

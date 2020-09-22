@@ -10,13 +10,13 @@ contract AirnodeClient is IAirnodeClient {
     IAirnode public airnode;
 
     /// @dev Airnode address is set at deployment. If you need to be able to
-    /// update them, you will have to implement that functionality (and
-    /// probably put it behind onlyOwner).
-    /// @param _airnode Airnode contract address
-    constructor (address _airnode)
+    /// update it, you will have to implement that functionality (and probably
+    /// put it behind onlyOwner).
+    /// @param airnodeAddress Airnode contract address
+    constructor (address airnodeAddress)
         public
     {
-        airnode = IAirnode(_airnode);
+        airnode = IAirnode(airnodeAddress);
     }
 
     /// @notice Returns the Airnode contract address used by this client
