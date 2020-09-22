@@ -20,12 +20,34 @@ contract Convenience is IConvenience {
         external
         view
         override
-        returns (IAirnode.Template[] memory templates)
+        returns (
+            bytes32[] memory providerIds,
+            bytes32[] memory endpointIds,
+            uint256[] memory requesterInd,
+            address[] memory designatedWallets,
+            address[] memory fulfillAddresses,
+            bytes4[] memory fulfillFunctionIds,
+            bytes[] memory parameters
+        )
     {
-        templates = new IAirnode.Template[](templateIds.length);
+        providerIds = new bytes32[](templateIds.length);
+        endpointIds = new bytes32[](templateIds.length);
+        requesterInd = new uint256[](templateIds.length);
+        designatedWallets = new address[](templateIds.length);
+        fulfillAddresses = new address[](templateIds.length);
+        fulfillFunctionIds = new bytes4[](templateIds.length);
+        parameters = new bytes[](templateIds.length);
         for (uint256 ind = 0; ind < templateIds.length; ind++)
         {
-            templates[ind] = airnode.getTemplate(templateIds[ind]);
+            (
+                providerIds[ind],
+                endpointIds[ind],
+                requesterInd[ind],
+                designatedWallets[ind],
+                fulfillAddresses[ind],
+                fulfillFunctionIds[ind],
+                parameters[ind]
+            ) = airnode.getTemplate(templateIds[ind]);
         }
     }
 

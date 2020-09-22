@@ -27,11 +27,8 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     /// @param parameters Dynamic request parameters (i.e., parameters that are
     /// determined at runtime, unlike the static parameters stored in the
     /// template)
@@ -41,9 +38,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -64,11 +59,9 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             providerId,
             designatedWallet,
             fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
+            fulfillFunctionId
             ));
-        emit RequestMade(
+        emit ClientRequestCreated(
             providerId,
             requestId,
             msg.sender,
@@ -76,9 +69,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requesterInd,
             designatedWallet,
             fulfillAddress,
-            errorAddress,
             fulfillFunctionId,
-            errorFunctionId,
             parameters
         );
     }
@@ -114,11 +105,9 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             template.providerId,
             template.designatedWallet,
             template.fulfillAddress,
-            template.errorAddress,
-            template.fulfillFunctionId,
-            template.errorFunctionId
+            template.fulfillFunctionId
             ));
-        emit ShortRequestMade(
+        emit ClientShortRequestCreated(
             templates[templateId].providerId,
             requestId,
             msg.sender,
@@ -140,11 +129,8 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     /// @param parameters All request parameters
     /// @return requestId Request ID
     function makeFullRequest(
@@ -153,9 +139,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -175,11 +159,9 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             providerId,
             designatedWallet,
             fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
+            fulfillFunctionId
             ));
-        emit FullRequestMade(
+        emit ClientFullRequestCreated(
             providerId,
             requestId,
             msg.sender,
@@ -187,9 +169,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requesterInd,
             designatedWallet,
             fulfillAddress,
-            errorAddress,
             fulfillFunctionId,
-            errorFunctionId,
             parameters
         );
     }
@@ -198,24 +178,21 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// (including regular, short and full requests)
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
-    /// @param data Oracle response
+    /// @param statusCode Status code of the fulfillment
+    /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfill(
         bytes32 providerId,
         bytes32 requestId,
+        uint256 statusCode,
         bytes32 data,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
         external
         override
@@ -223,9 +200,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requestId,
             providerId,
             fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
+            fulfillFunctionId
             )
         returns(
             bool callSuccess,
@@ -233,13 +208,14 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
     {
         delete requestIdToResponseParameters[requestId];
-        emit FulfillmentSuccessful(
+        emit ClientRequestFulfilled(
             providerId,
             requestId,
+            statusCode,
             data
             );
         (callSuccess, callData) = fulfillAddress.call(
-            abi.encodeWithSelector(fulfillFunctionId, requestId, data)
+            abi.encodeWithSelector(fulfillFunctionId, requestId, statusCode, data)
             );
     }
 
@@ -249,24 +225,21 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// specifically asked for a bytes type response
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
-    /// @param data Oracle response of type bytes
+    /// @param statusCode Status code of the fulfillment
+    /// @param data Fulfillment data of type bytes
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     /// @return callSuccess If the fulfillment call succeeded
     /// @return callData Data returned by the fulfillment call (if there is
     /// any)
     function fulfillBytes(
         bytes32 providerId,
         bytes32 requestId,
+        uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
         external
         override
@@ -274,9 +247,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requestId,
             providerId,
             fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
+            fulfillFunctionId
             )
         returns(
             bool callSuccess,
@@ -284,87 +255,30 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
     {
         delete requestIdToResponseParameters[requestId];
-        emit FulfillmentBytesSuccessful(
+        emit ClientRequestFulfilledWithBytes(
             providerId,
             requestId,
+            statusCode,
             data
             );
         (callSuccess, callData) = fulfillAddress.call(
-            abi.encodeWithSelector(fulfillFunctionId, requestId, data)
+            abi.encodeWithSelector(fulfillFunctionId, requestId, statusCode, data)
             );
     }
 
-    /// @notice Called by the oracle node if a request could not be fulfilled
-    /// for any reason
-    /// @dev The oracle may specify the error using errorCode. The specification
-    /// format is outside the scope of this contract. Refer to the specific
-    /// oracle node documentations for more information.
-    /// @param providerId Provider ID from ProviderStore
-    /// @param requestId Request ID
-    /// @param errorCode Error code
-    /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
-    /// @return callSuccess If the fulfillment call succeeded
-    /// @return callData Data returned by the fulfillment call (if there is
-    /// any)
-    function error(
-        bytes32 providerId,
-        bytes32 requestId,
-        uint256 errorCode,
-        address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
-        )
-        external
-        override
-        onlyCorrectResponseParameters(
-            requestId,
-            providerId,
-            fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
-            )
-        returns(
-            bool callSuccess,
-            bytes memory callData
-        )
-    {
-        delete requestIdToResponseParameters[requestId];
-        emit FulfillmentErrored(
-            providerId,
-            requestId,
-            errorCode
-            );
-        (callSuccess, callData) = errorAddress.call(
-            abi.encodeWithSelector(errorFunctionId, requestId, errorCode)
-            );
-    }
-
-    /// @notice Called by the oracle node if a request could neither be fulfilled
-    /// nor errored
-    /// @dev The oracle should fall back to this if a request cannot be fulfilled
-    /// and error() is reverting
+    /// @notice Called by the oracle node if a request cannot be fulfilled
+    /// @dev The oracle should fall back to this if a request cannot be
+    /// fulfilled because fulfill() reverts
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     function fail(
         bytes32 providerId,
         bytes32 requestId,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
         external
         override
@@ -372,23 +286,21 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requestId,
             providerId,
             fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
+            fulfillFunctionId
             )
     {
         delete requestIdToResponseParameters[requestId];
         // Failure is recorded so that it can be checked externally with
         // checkIfRequestHasFailed()
         requestWithIdHasFailed[requestId] = true;
-        emit FulfillmentFailed(
+        emit ClientRequestFailed(
             providerId,
             requestId
             );
     }
 
-    /// @notice Used to check if a request has failed because it could neither
-    /// be fulfilled nor errored
+    /// @notice Used to check if a request has failed because it could not be
+    /// fulfilled
     /// @param requestId Request ID
     /// @return status If the request has failed
     function checkIfRequestHasFailed(bytes32 requestId)
@@ -404,27 +316,20 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     modifier onlyCorrectResponseParameters(
         bytes32 requestId,
         bytes32 providerId,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
     {
         bytes32 incomingResponseParameters = keccak256(abi.encodePacked(
             providerId,
             msg.sender,
             fulfillAddress,
-            errorAddress,
-            fulfillFunctionId,
-            errorFunctionId
+            fulfillFunctionId
             ));
         require(
             incomingResponseParameters == requestIdToResponseParameters[requestId],

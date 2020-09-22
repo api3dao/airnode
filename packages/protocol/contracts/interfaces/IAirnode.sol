@@ -7,7 +7,7 @@ import "./ITemplateStore.sol";
 
 
 interface IAirnode is IEndpointStore, ITemplateStore {
-    event RequestMade(
+    event ClientRequestCreated(
         bytes32 indexed providerId,
         bytes32 requestId,
         address requester,
@@ -15,13 +15,11 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes parameters
         );
 
-    event ShortRequestMade(
+    event ClientShortRequestCreated(
         bytes32 indexed providerId,
         bytes32 requestId,
         address requester,
@@ -29,7 +27,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes parameters
         );
 
-    event FullRequestMade(
+    event ClientFullRequestCreated(
         bytes32 indexed providerId,
         bytes32 requestId,
         address requester,
@@ -37,44 +35,35 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes parameters
         );
 
-    event FulfillmentSuccessful(
+    event ClientRequestFulfilled(
         bytes32 indexed providerId,
         bytes32 requestId,
+        uint256 statusCode,
         bytes32 data
         );
 
-    event FulfillmentBytesSuccessful(
+    event ClientRequestFulfilledWithBytes(
         bytes32 indexed providerId,
         bytes32 requestId,
+        uint256 statusCode,
         bytes data
         );
 
-    event FulfillmentErrored(
-        bytes32 indexed providerId,
-        bytes32 requestId,
-        uint256 errorCode
-        );
-
-    event FulfillmentFailed(
+    event ClientRequestFailed(
         bytes32 indexed providerId,
         bytes32 requestId
         );
-
 
     function makeRequest(
         bytes32 templateId,
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -93,9 +82,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -104,11 +91,10 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     function fulfill(
         bytes32 providerId,
         bytes32 requestId,
+        uint256 statusCode,
         bytes32 data,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
         external
         returns(
@@ -119,26 +105,10 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     function fulfillBytes(
         bytes32 providerId,
         bytes32 requestId,
+        uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
-        )
-        external
-        returns(
-            bool callSuccess,
-            bytes memory callData
-        );
-
-    function error(
-        bytes32 providerId,
-        bytes32 requestId,
-        uint256 errorCode,
-        address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
         external
         returns(
@@ -150,9 +120,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 providerId,
         bytes32 requestId,
         address fulfillAddress,
-        address errorAddress,
-        bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId
+        bytes4 fulfillFunctionId
         )
         external;
 }

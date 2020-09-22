@@ -13,14 +13,24 @@ import "./interfaces/ITemplateStore.sol";
 /// @dev A template is composed of two groups of parameters. The first group is
 /// requester-agnostic (providerId, endpointInd, parameters), while the second
 /// group is requester-specific (requesterInd, designatedWallet, fulfillAddress,
-/// errorAddress, fulfillFunctionId, errorFunctionId). Short requests refer to
-/// a template and use both of these groups of parameters. Regular requests
-/// refer to a template, but only use the requester-agnostic parameters of it,
-/// and require the client to provide the requester-specific parameters. In
-/// addition, both regular and short requests can overwrite parameters encoded
-/// in the parameters field of the template at request-time. See Airnode.sol
-/// for more information (specifically makeShortRequest() and makeRequest()).
+/// fulfillFunctionId). Short requests refer to a template and use both of
+/// these groups of parameters. Regular requests refer to a template, but only
+/// use the requester-agnostic parameters of it, and require the client to
+/// provide the requester-specific parameters. In addition, both regular and
+/// short requests can overwrite parameters encoded in the parameters field of
+/// the template at request-time. See Airnode.sol for more information
+/// (specifically makeShortRequest() and makeRequest()).
 contract TemplateStore is ITemplateStore {
+    struct Template {
+        bytes32 providerId;
+        bytes32 endpointId;
+        uint256 requesterInd;
+        address designatedWallet;
+        address fulfillAddress;
+        bytes4 fulfillFunctionId;
+        bytes parameters;
+        }
+
     mapping(bytes32 => Template) internal templates;
 
 
@@ -39,11 +49,8 @@ contract TemplateStore is ITemplateStore {
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
-    /// @param errorAddress Address that will be called to error
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param errorFunctionId Signature of the function that will be called
-    /// to error
     /// @param parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
     /// at runtime)
@@ -54,9 +61,7 @@ contract TemplateStore is ITemplateStore {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -69,9 +74,7 @@ contract TemplateStore is ITemplateStore {
             requesterInd,
             designatedWallet,
             fulfillAddress,
-            errorAddress,
             fulfillFunctionId,
-            errorFunctionId,
             parameters
             ));
         templates[templateId] = Template({
@@ -80,9 +83,7 @@ contract TemplateStore is ITemplateStore {
             requesterInd: requesterInd,
             designatedWallet: designatedWallet,
             fulfillAddress: fulfillAddress,
-            errorAddress: errorAddress,
             fulfillFunctionId: fulfillFunctionId,
-            errorFunctionId: errorFunctionId,
             parameters: parameters
         });
         emit TemplateCreated(
@@ -92,22 +93,44 @@ contract TemplateStore is ITemplateStore {
           requesterInd,
           designatedWallet,
           fulfillAddress,
-          errorAddress,
           fulfillFunctionId,
-          errorFunctionId,
           parameters
           );
     }
 
-    /// @notice Retrieves the request template addressed by the ID
+    /// @notice Retrieves request parameters addressed by the ID
     /// @param templateId Request template ID
-    /// @return template Request template
+    /// @return providerId Provider ID from ProviderStore
+    /// @return endpointId Endpoint ID from EndpointStore
+    /// @return requesterInd Requester index from RequesterStore
+    /// @return designatedWallet Designated wallet that is requested to fulfill
+    /// the request
+    /// @return fulfillAddress Address that will be called to fulfill
+    /// @return fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @return parameters Static request parameters (i.e., parameters that will
+    /// not change between requests, unlike the dynamic parameters determined
+    /// at runtime)
     function getTemplate(bytes32 templateId)
         external
         view
         override
-        returns (Template memory template)
+        returns (
+            bytes32 providerId,
+            bytes32 endpointId,
+            uint256 requesterInd,
+            address designatedWallet,
+            address fulfillAddress,
+            bytes4 fulfillFunctionId,
+            bytes memory parameters
+        )
     {
-        template = templates[templateId];
+        providerId = templates[templateId].providerId;
+        endpointId = templates[templateId].endpointId;
+        requesterInd = templates[templateId].requesterInd;
+        designatedWallet = templates[templateId].designatedWallet;
+        fulfillAddress = templates[templateId].fulfillAddress;
+        fulfillFunctionId = templates[templateId].fulfillFunctionId;
+        parameters = templates[templateId].parameters;
     }
 }

@@ -4,18 +4,6 @@ pragma experimental ABIEncoderV2;
 
 
 interface ITemplateStore {
-    struct Template {
-        bytes32 providerId;
-        bytes32 endpointId;
-        uint256 requesterInd;
-        address designatedWallet;
-        address fulfillAddress;
-        address errorAddress;
-        bytes4 fulfillFunctionId;
-        bytes4 errorFunctionId;
-        bytes parameters;
-        }
-
     event TemplateCreated(
         bytes32 indexed templateId,
         bytes32 providerId,
@@ -23,9 +11,7 @@ interface ITemplateStore {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes parameters
         );
 
@@ -35,9 +21,7 @@ interface ITemplateStore {
         uint256 requesterInd,
         address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -46,5 +30,13 @@ interface ITemplateStore {
     function getTemplate(bytes32 templateId)
         external
         view
-        returns (Template memory template);
+        returns (
+            bytes32 providerId,
+            bytes32 endpointId,
+            uint256 requesterInd,
+            address designatedWallet,
+            address fulfillAddress,
+            bytes4 fulfillFunctionId,
+            bytes memory parameters
+        );
 }
