@@ -33,7 +33,6 @@ interface IProviderStore is IRequesterStore {
         uint256 amount
         );
 
-
     function createProvider(
         address admin,
         string calldata xpub,

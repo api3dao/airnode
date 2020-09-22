@@ -50,7 +50,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     {
         require(
             requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
-            "Caller is not the requester admin"
+            "Client not endorsed by client"
             );
         requestId = keccak256(abi.encodePacked(
             noRequests++,
@@ -101,7 +101,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         Template storage template = templates[templateId];
         require(
             requesterIndToClientAddressToEndorsementStatus[template.requesterInd][msg.sender],
-            "Caller is not the requester admin"
+            "Client not endorsed by client"
             );
         requestId = keccak256(abi.encodePacked(
             noRequests++,
@@ -159,7 +159,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     {
         require(
             requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
-            "Caller is not the requester admin"
+            "Client not endorsed by client"
             );
         requestId = keccak256(abi.encodePacked(
             noRequests++,
