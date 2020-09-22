@@ -21,9 +21,8 @@ contract ProviderStore is RequesterStore, IProviderStore {
         }
 
     mapping(bytes32 => Provider) internal providers;
-    mapping(bytes32 => WithdrawalRequest) private withdrawalRequests;
+    mapping(bytes32 => bool) private withdrawalRequestWithParametersHashExists;
     uint256 private noProviders = 0;
-    uint256 private noWithdrawalRequests = 0;
 
 
     /// @notice Allows the master wallet (m) of the provider to create a
@@ -109,22 +108,16 @@ contract ProviderStore is RequesterStore, IProviderStore {
           providers[providerId].minBalance
           )
     {
-        bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
-            noWithdrawalRequests++,
-            this,
-            msg.sender,
-            uint256(1)
+        bytes32 withdrawalParametersHash = keccak256(abi.encodePacked(
+            providerId,
+            requesterInd,
+            designatedWallet,
+            destination
             ));
-        withdrawalRequests[withdrawalRequestId] = WithdrawalRequest({
-            providerId: providerId,
-            requesterInd: requesterInd,
-            designatedWallet: designatedWallet,
-            destination: destination
-            });
+        withdrawalRequestWithParametersHashExists[withdrawalParametersHash] = true;
         emit WithdrawalRequested(
             providerId,
             requesterInd,
-            withdrawalRequestId,    
             designatedWallet,
             destination
             );
@@ -134,30 +127,36 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// request made by the requester
     /// @dev The oracle node sends the funds through this method to emit an
     /// event that indicates that the withdrawal request has been fulfilled
-    /// @param withdrawalRequestId Withdrawal request ID
-    function fulfillWithdrawal(bytes32 withdrawalRequestId)
+    /// @param providerId Provider ID
+    /// @param requesterInd Requester index from RequesterStore
+    /// @param destination Withdrawal destination
+    function fulfillWithdrawal(
+        bytes32 providerId,
+        uint256 requesterInd,
+        address destination
+        )
         external
         payable
         override
     {
-        address designatedWallet = withdrawalRequests[withdrawalRequestId].designatedWallet;
+        bytes32 withdrawalParametersHash = keccak256(abi.encodePacked(
+            providerId,
+            requesterInd,
+            msg.sender,
+            destination
+            ));
         require(
-            designatedWallet != address(0),
-            "No active withdrawal request with withdrawalRequestId"
+            withdrawalRequestWithParametersHashExists[withdrawalParametersHash],
+            "No active withdrawal request with the provided parameters"
             );
-        require(
-            msg.sender == designatedWallet,
-            "Only the wallet to be withdrawn from can call this"
-            );
-        address destination = withdrawalRequests[withdrawalRequestId].destination;
+        delete withdrawalRequestWithParametersHashExists[withdrawalParametersHash];
         emit WithdrawalFulfilled(
-            withdrawalRequests[withdrawalRequestId].providerId,
-            withdrawalRequests[withdrawalRequestId].requesterInd,
-            withdrawalRequestId,
+            providerId,
+            requesterInd,
+            msg.sender,
             destination,
             msg.value
             );
-        delete withdrawalRequests[withdrawalRequestId];
         (bool success, ) = destination.call{ value: msg.value }("");
         require(success, "Transfer failed");
     }
