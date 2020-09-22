@@ -14,7 +14,8 @@ contract ProviderStore is RequesterStore, IProviderStore {
         }
 
     mapping(bytes32 => Provider) internal providers;
-    mapping(bytes32 => bool) private withdrawalRequestWithParametersHashExists;
+    mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
+    uint256 private noWithdrawalRequests = 0;
 
 
     /// @notice Allows the master wallet (m) of the provider to create a
@@ -100,16 +101,21 @@ contract ProviderStore is RequesterStore, IProviderStore {
           providers[providerId].minBalance
           )
     {
-        bytes32 withdrawalParametersHash = keccak256(abi.encodePacked(
+        bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
+            this,
+            noWithdrawalRequests++
+            ));
+        bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             providerId,
             requesterInd,
             designatedWallet,
             destination
             ));
-        withdrawalRequestWithParametersHashExists[withdrawalParametersHash] = true;
+        withdrawalRequestIdToParameters[withdrawalRequestId] = withdrawalParameters;
         emit WithdrawalRequested(
             providerId,
             requesterInd,
+            withdrawalRequestId,
             designatedWallet,
             destination
             );
@@ -123,6 +129,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param requesterInd Requester index from RequesterStore
     /// @param destination Withdrawal destination
     function fulfillWithdrawal(
+        bytes32 withdrawalRequestId,
         bytes32 providerId,
         uint256 requesterInd,
         address destination
@@ -131,20 +138,21 @@ contract ProviderStore is RequesterStore, IProviderStore {
         payable
         override
     {
-        bytes32 withdrawalParametersHash = keccak256(abi.encodePacked(
+        bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             providerId,
             requesterInd,
             msg.sender,
             destination
             ));
         require(
-            withdrawalRequestWithParametersHashExists[withdrawalParametersHash],
+            withdrawalRequestIdToParameters[withdrawalRequestId] == withdrawalParameters,
             "No such withdrawal request"
             );
-        delete withdrawalRequestWithParametersHashExists[withdrawalParametersHash];
+        delete withdrawalRequestIdToParameters[withdrawalRequestId];
         emit WithdrawalFulfilled(
             providerId,
             requesterInd,
+            withdrawalRequestId,
             msg.sender,
             destination,
             msg.value
