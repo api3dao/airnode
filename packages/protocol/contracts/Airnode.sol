@@ -50,7 +50,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     {
         require(
             requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
-            "Client not endorsed by client"
+            "Client not endorsed by requester"
             );
         requestId = keccak256(abi.encodePacked(
             noRequests,
@@ -103,7 +103,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         Template storage template = templates[templateId];
         require(
             requesterIndToClientAddressToEndorsementStatus[template.requesterInd][msg.sender],
-            "Client not endorsed by client"
+            "Client not endorsed by requester"
             );
         requestId = keccak256(abi.encodePacked(
             noRequests,
@@ -163,7 +163,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     {
         require(
             requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
-            "Client not endorsed by client"
+            "Client not endorsed by requester"
             );
         requestId = keccak256(abi.encodePacked(
             noRequests,
