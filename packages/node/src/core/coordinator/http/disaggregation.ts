@@ -10,7 +10,7 @@ import {
 } from '../../../types';
 
 export function disaggregate(state: CoordinatorState): ProviderState[] {
-  // We only care about aggregated API calls for requests
+  // We only care about aggregated API calls for requests. There might be other types in the future
   const aggregatedApiCalls = state.aggregatedApiCalls.filter((ac) => ac.type === 'request');
 
   return state.providers.map((provider) => {
@@ -23,11 +23,7 @@ export function disaggregate(state: CoordinatorState): ProviderState[] {
       const updatedApiCalls: ClientRequest<ApiCall>[] = requests.apiCalls.map((apiCall) => {
         // Find the aggregated API call that matches the initial grouping and is required for this provider
         const aggregatedApiCall = aggregatedApiCalls.find((aggregatedCall) => {
-          return (
-            aggregatedCall.id === apiCall.id &&
-            isDuplicate(apiCall, aggregatedCall) &&
-            aggregatedCall.providers.includes(provider.index)
-          );
+          return isDuplicate(apiCall, aggregatedCall) && aggregatedCall.providers.includes(provider.index);
         });
 
         // There should always be an aggregated API call when working backwards/ungrouping, but if there is

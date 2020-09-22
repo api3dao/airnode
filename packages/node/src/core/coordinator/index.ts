@@ -1,4 +1,6 @@
+import flatMap from 'lodash/flatMap';
 import { config } from '../config';
+import * as apiCalls from '../requests/api-calls';
 import * as state from './state';
 import * as logger from '../logger';
 import { formatDateTime } from '../utils/date-utils';
@@ -27,7 +29,8 @@ export async function start() {
   // =================================================================
   // STEP 3: Group unique API calls
   // =================================================================
-  const aggregatedApiCalls = http.aggregate(state2);
+  const flatApiCalls = flatMap(state2.providers, (provider) => apiCalls.flatten(provider.walletDataByIndex));
+  const aggregatedApiCalls = http.aggregate(flatApiCalls);
   const state3 = state.update(state2, { aggregatedApiCalls });
   logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`);
 

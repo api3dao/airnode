@@ -1,26 +1,13 @@
-import flatMap from 'lodash/flatMap';
 import { config } from '../../config';
 import { updateArrayAt } from '../../utils/array-utils';
 import * as apiCalls from '../../requests/api-calls';
-import { AggregatedApiCall, CoordinatorState } from '../../../types';
+import { AggregatedApiCall, ApiCall, ClientRequest } from '../../../types';
 
-function flattenApiCalls(state: CoordinatorState) {
-  // Map all API call requests from all providers into a single array with their provider index
-  const allRequests = flatMap(state.providers, (provider) => {
-    return apiCalls.flatten(provider.walletDataByIndex);
-  });
-
-  return allRequests;
-}
-
-export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
-  const allRequests = flattenApiCalls(state);
-
-  const uniqueRequests = allRequests.reduce((acc: AggregatedApiCall[], request) => {
+export function aggregate(flatApiCalls: ClientRequest<ApiCall>[]): AggregatedApiCall[] {
+  const uniqueRequests = flatApiCalls.reduce((acc: AggregatedApiCall[], request) => {
+    // Search the current list of aggregated API calls for a duplicate
     const duplicateApiCallIndex = acc.findIndex((aggregatedCall) => {
-      // First compare the ID as it's much faster, if there is a matching request then compare the
-      // rest of the (relevant) attributes
-      return request.id === aggregatedCall.id && apiCalls.isDuplicate(request, aggregatedCall);
+      return apiCalls.isDuplicate(request, aggregatedCall);
     });
 
     // If a duplicate request is found, add the provider to the list of providers that reported it
@@ -33,6 +20,7 @@ export function aggregate(state: CoordinatorState): AggregatedApiCall[] {
 
     const trigger = config.triggers.requests.find((t) => t.endpointId === request.endpointId);
 
+    // If this is the first time we're seeing this API call, then create a new aggregated API call
     const uniqueApiCall: AggregatedApiCall = {
       id: request.id,
       endpointId: request.endpointId!,
