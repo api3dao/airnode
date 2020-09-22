@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
-
+pragma solidity 0.6.12;
 
 /// @title An abstract contract that describes the general interface of an
 /// authorizer contract

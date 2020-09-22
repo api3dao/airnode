@@ -10,6 +10,6 @@ task('accounts', 'Prints the list of accounts', async () => {
 
 module.exports = {
   solc: {
-    version: '0.6.8',
+    version: '0.6.12',
   },
 };
