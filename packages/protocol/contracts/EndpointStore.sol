@@ -11,7 +11,7 @@ import "./ProviderStore.sol";
 /// endpoints with authorization policies, which both the oracle node and the
 /// requester can check to verify authorization.
 contract EndpointStore is ProviderStore, IEndpointStore {
-    mapping(bytes32 => mapping(bytes32 => address[])) private providerEndpointAuthorizers;
+    mapping(bytes32 => mapping(bytes32 => address[])) private providerIdToEndpointIdToAuthorizers;
 
 
     /// @notice Updates the endpoint authorizers of a provider
@@ -27,7 +27,7 @@ contract EndpointStore is ProviderStore, IEndpointStore {
         override
         onlyProviderAdmin(providerId)
     {
-        providerEndpointAuthorizers[providerId][endpointId] = authorizers;
+        providerIdToEndpointIdToAuthorizers[providerId][endpointId] = authorizers;
         emit EndpointUpdated(
             providerId,
             endpointId,
@@ -48,7 +48,7 @@ contract EndpointStore is ProviderStore, IEndpointStore {
         override
         returns(address[] memory authorizers)
     {
-        authorizers = providerEndpointAuthorizers[providerId][endpointId];
+        authorizers = providerIdToEndpointIdToAuthorizers[providerId][endpointId];
     }
 
     /// @notice Uses the authorizer contracts of an endpoint of a provider to
@@ -92,7 +92,7 @@ contract EndpointStore is ProviderStore, IEndpointStore {
         override
         returns(bool status)
     {
-        address[] storage authorizers = providerEndpointAuthorizers[providerId][endpointId];
+        address[] storage authorizers = providerIdToEndpointIdToAuthorizers[providerId][endpointId];
         uint256 noAuthorizers = authorizers.length;
         // If no authorizers have been set, deny access by default
         if (noAuthorizers == 0)
