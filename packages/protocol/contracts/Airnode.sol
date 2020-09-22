@@ -48,6 +48,10 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
           )
         returns (bytes32 requestId)
     {
+        require(
+            requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
+            "Caller is not the requester admin"
+            );
         requestId = keccak256(abi.encodePacked(
             noRequests++,
             this,
@@ -94,12 +98,16 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
           )
         returns (bytes32 requestId)
     {
+        Template storage template = templates[templateId];
+        require(
+            requesterIndToClientAddressToEndorsementStatus[template.requesterInd][msg.sender],
+            "Caller is not the requester admin"
+            );
         requestId = keccak256(abi.encodePacked(
             noRequests++,
             this,
             msg.sender
             ));
-        Template storage template = templates[templateId];
         requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
             template.providerId,
             template.designatedWallet,
@@ -149,6 +157,10 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
           )
         returns (bytes32 requestId)
     {
+        require(
+            requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
+            "Caller is not the requester admin"
+            );
         requestId = keccak256(abi.encodePacked(
             noRequests++,
             this,
