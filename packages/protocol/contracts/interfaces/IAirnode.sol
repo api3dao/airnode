@@ -9,6 +9,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     event ClientRequestCreated(
         bytes32 indexed providerId,
         bytes32 requestId,
+        uint256 noRequests,
         address requester,
         bytes32 templateId,
         uint256 requesterInd,
@@ -21,6 +22,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     event ClientShortRequestCreated(
         bytes32 indexed providerId,
         bytes32 requestId,
+        uint256 noRequests,
         address requester,
         bytes32 templateId,
         bytes parameters
@@ -29,6 +31,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     event ClientFullRequestCreated(
         bytes32 indexed providerId,
         bytes32 requestId,
+        uint256 noRequests,
         address requester,
         bytes32 endpointId,
         uint256 requesterInd,

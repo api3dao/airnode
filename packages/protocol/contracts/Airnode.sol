@@ -53,9 +53,9 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             "Client not endorsed by client"
             );
         requestId = keccak256(abi.encodePacked(
-            noRequests++,
-            this,
-            msg.sender
+            noRequests,
+            templateId,
+            parameters
             ));
         bytes32 providerId = templates[templateId].providerId;
         requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
@@ -67,6 +67,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         emit ClientRequestCreated(
             providerId,
             requestId,
+            noRequests,
             msg.sender,
             templateId,
             requesterInd,
@@ -75,6 +76,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             fulfillFunctionId,
             parameters
         );
+        noRequests++;
     }
 
     /// @notice Called by the requester to make a short request. A short
@@ -104,9 +106,9 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             "Client not endorsed by client"
             );
         requestId = keccak256(abi.encodePacked(
-            noRequests++,
-            this,
-            msg.sender
+            noRequests,
+            templateId,
+            parameters
             ));
         requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
             template.providerId,
@@ -117,10 +119,12 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         emit ClientShortRequestCreated(
             templates[templateId].providerId,
             requestId,
+            noRequests,
             msg.sender,
             templateId,
             parameters
         );
+        noRequests++;
     }
 
     /// @notice Called by the requester to make a full request. A full request
@@ -162,9 +166,10 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             "Client not endorsed by client"
             );
         requestId = keccak256(abi.encodePacked(
-            noRequests++,
-            this,
-            msg.sender
+            noRequests,
+            providerId,
+            endpointId,
+            parameters
             ));
         requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
             providerId,
@@ -175,6 +180,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         emit ClientFullRequestCreated(
             providerId,
             requestId,
+            noRequests,
             msg.sender,
             endpointId,
             requesterInd,
@@ -183,6 +189,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             fulfillFunctionId,
             parameters
         );
+        noRequests++;
     }
 
     /// @notice Called by the oracle node to fulfill individual requests
