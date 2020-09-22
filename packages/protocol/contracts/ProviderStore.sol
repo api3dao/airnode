@@ -147,7 +147,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             ));
         require(
             withdrawalRequestWithParametersHashExists[withdrawalParametersHash],
-            "No active withdrawal request with the provided parameters"
+            "No such withdrawal request"
             );
         delete withdrawalRequestWithParametersHashExists[withdrawalParametersHash];
         emit WithdrawalFulfilled(
@@ -207,7 +207,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     {
         require(
             designatedWallet.balance >= minBalance,
-            "Designated wallet does not have enough funds"
+            "Designated wallet underfunded"
             );
         _;
     }

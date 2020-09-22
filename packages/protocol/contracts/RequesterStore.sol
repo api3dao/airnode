@@ -108,7 +108,7 @@ contract RequesterStore is IRequesterStore {
     {
         require(
             msg.sender == requesterIndToAdmin[requesterInd],
-            "Caller is not the requester admin"
+            "Caller is not requester admin"
             );
         _;
     }

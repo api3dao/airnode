@@ -36,7 +36,7 @@ contract AirnodeClient is IAirnodeClient {
     {
         require(
             msg.sender == address(airnode),
-            "Can only be called by the designated Airnode contract"
+            "Caller not the Airnode contract"
             );
         _;
     }
