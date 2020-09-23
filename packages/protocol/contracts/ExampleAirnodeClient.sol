@@ -18,12 +18,12 @@ contract ExampleAirnodeClient is AirnodeClient {
         AirnodeClient(airnodeAddress)
     {}
 
-    /// @notice Called to make a regular request to the Airnode contract
+    /// @notice Called to make a short request to the Airnode contract
     /// @param templateId Template ID from TemplateStore
     /// @param parameters Dynamic request parameters (i.e., parameters that are
     /// determined at runtime, unlike the static parameters stored in the
     /// template)
-    function request(
+    function triggerShortRequest(
         bytes32 templateId,
         bytes calldata parameters
         )
