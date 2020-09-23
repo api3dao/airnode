@@ -229,14 +229,16 @@ export interface PendingLog {
   message: string;
 }
 
-// There are many places where we need the context of the current state but
-// don't want to pass the entire state down to these functions - mostly for
-// logging. These types are introduced in order to reduce the amount of coupling
-// between modules throughout the app.
+// There are many places throughout the app where we need the context of the current
+// (provider) state, mostly for logging purposes. It doesn't really make sense to
+// pass the entire state down to these functions as it tightly couples them to the
+// rest of the app.
 //
-// Making this type a tuple, also forces the user to handle logs and errors first.
-// If it was an object ({ logs: [], error?: Error, data?: any }), then it's
-// very easy to forgot to handle logs and errors
+// In order to get around this, the below tuple types are introduced that can return
+// elements. The calling function is forced to decide how to handle the logs and
+// error if one exists as ESLint will complain about unused variables. These types
+// are purposefully tuples (over an object with 'logs' and 'error' properties) for
+// this reason.
 export type LogsData<T> = [PendingLog[], T];
 export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 
