@@ -38,6 +38,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         uint256 minBalance
         )
         external
+        payable
         override
         returns (bytes32 providerId)
     {
@@ -53,6 +54,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
             xpub,
             minBalance
             );
+        if (msg.value > 0)
+        {
+            (bool success, ) = admin.call{ value: msg.value }("");
+            require(success, "Transfer failed");
+        }
     }
 
     /// @notice Updates the provider

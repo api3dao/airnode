@@ -41,6 +41,7 @@ interface IProviderStore is IRequesterStore {
         uint256 minBalance
         )
         external
+        payable
         returns (bytes32 providerId);
 
     function updateProvider(
