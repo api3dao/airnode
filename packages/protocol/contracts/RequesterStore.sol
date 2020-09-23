@@ -11,7 +11,7 @@ import "./interfaces/IRequesterStore.sol";
 contract RequesterStore is IRequesterStore {
     mapping(uint256 => address) private requesterIndToAdmin;
     mapping(uint256 => mapping(address => bool)) internal requesterIndToClientAddressToEndorsementStatus;
-    uint256 private noRequesters = 0;
+    uint256 private noRequesters = 1;
 
 
     /// @notice Creates a requester with the given parameters, addressable by
