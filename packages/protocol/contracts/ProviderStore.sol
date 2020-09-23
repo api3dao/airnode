@@ -41,7 +41,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         override
         returns (bytes32 providerId)
     {
-        providerId = keccak256(abi.encodePacked(msg.sender));
+        providerId = keccak256(abi.encode(msg.sender));
         providers[providerId] = Provider({
             admin: admin,
             xpub: xpub,
