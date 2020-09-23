@@ -67,7 +67,7 @@ contract TemplateStore is ITemplateStore {
         override
         returns (bytes32 templateId)
     {
-        templateId = keccak256(abi.encodePacked(
+        templateId = keccak256(abi.encode(
             providerId,
             endpointId,
             requesterInd,
