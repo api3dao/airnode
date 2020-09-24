@@ -14,8 +14,9 @@ export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseR
     parameters: { from: 'ETH' },
     providerId: 'providerId',
     status: RequestStatus.Pending,
-    logMetadata: {
+    metadata: {
       blockNumber: 10716082,
+      providerIndex: 0,
       transactionHash: 'logTransactionHash',
     },
     ...params,

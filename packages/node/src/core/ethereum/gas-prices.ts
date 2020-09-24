@@ -4,7 +4,7 @@ import { ProviderState } from '../../types';
 import { goTimeout } from '../utils/promise-utils';
 import { GasPriceFeed } from './contracts';
 import * as utils from './utils';
-import * as logger from '../utils/logger';
+import * as logger from '../logger';
 
 // We don't want to hold everything up so limit each request to 5 seconds maximum
 const TIMEOUT = 5_000;

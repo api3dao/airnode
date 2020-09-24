@@ -1,5 +1,5 @@
 import flatMap from 'lodash/flatMap';
-import * as logger from '../../utils/logger';
+import * as logger from '../../logger';
 import * as ethereum from '../../ethereum';
 import {
   ApiCall,

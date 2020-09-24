@@ -1,6 +1,6 @@
 import { ProviderState } from '../../types';
 import * as ethereum from '../ethereum';
-import * as logger from '../utils/logger';
+import * as logger from '../logger';
 import * as nonces from '../requests/nonces';
 import * as transactions from '../ethereum/transactions';
 import * as state from './state';

@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
-import * as logger from '../utils/logger';
+import * as logger from '../logger';
 import { CoordinatorState, ProviderConfig, ProviderState } from '../../types';
 import { spawnNewProvider } from '../providers/worker';
 

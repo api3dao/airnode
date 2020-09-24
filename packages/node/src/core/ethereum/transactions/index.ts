@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as contracts from '../contracts';
-import * as logger from '../../utils/logger';
+import * as logger from '../../logger';
 import { submitApiCall } from './api-calls';
 import { submitWalletDesignation } from './wallet-designations';
 import { submitWithdrawal } from './withdrawals';

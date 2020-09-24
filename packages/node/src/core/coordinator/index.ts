@@ -1,9 +1,10 @@
+import flatMap from 'lodash/flatMap';
 import { config } from '../config';
+import * as apiCalls from '../requests/api-calls';
 import * as state from './state';
-import * as logger from '../utils/logger';
+import * as logger from '../logger';
 import { formatDateTime } from '../utils/date-utils';
-import * as apiCallAggregation from './api-call-aggregation';
-import * as apiCaller from './coordinated-api-caller';
+import * as calls from './calls';
 import { spawnProviderRequestProcessor } from '../providers/worker';
 
 export async function start() {
@@ -28,20 +29,21 @@ export async function start() {
   // =================================================================
   // STEP 3: Group unique API calls
   // =================================================================
-  const aggregatedApiCalls = apiCallAggregation.aggregate(state2);
+  const flatApiCalls = flatMap(state2.providers, (provider) => apiCalls.flatten(provider.walletDataByIndex));
+  const aggregatedApiCalls = calls.aggregate(flatApiCalls);
   const state3 = state.update(state2, { aggregatedApiCalls });
   logger.logJSON('INFO', `Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`);
 
   // =================================================================
   // STEP 4: Execute API calls and save the responses
   // =================================================================
-  const aggregatedCallsWithResponses = await apiCaller.callApis(state3);
+  const aggregatedCallsWithResponses = await calls.callApis(state3.aggregatedApiCalls);
   const state4 = state.update(state3, { aggregatedApiCalls: aggregatedCallsWithResponses });
 
   // =================================================================
   // STEP 5: Map API responses back to each provider's API requests
   // =================================================================
-  const providersWithAPIResponses = apiCallAggregation.disaggregate(state4);
+  const providersWithAPIResponses = calls.disaggregate(state4);
   const state5 = state.update(state4, { providers: providersWithAPIResponses });
 
   // =================================================================

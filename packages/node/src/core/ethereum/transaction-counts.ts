@@ -1,6 +1,6 @@
 import * as wallet from './wallet';
 import { go, retryOperation } from '../utils/promise-utils';
-import * as logger from '../utils/logger';
+import * as logger from '../logger';
 import { ProviderState } from '../../types';
 
 interface TransactionCountByWalletIndex {

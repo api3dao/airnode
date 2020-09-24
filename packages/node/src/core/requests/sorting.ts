@@ -6,7 +6,7 @@ function sortRequests<T>(requests: BaseRequest<T>[]): BaseRequest<T>[] {
   //
   //   1. Block number (ascending)
   //   2. Transaction hash (ascending)
-  return orderBy(requests, ['logMetadata.blockNumber', 'logMetadata.transactionHash']);
+  return orderBy(requests, ['metadata.blockNumber', 'metadata.transactionHash']);
 }
 
 export function sortRequestsByWalletIndex(walletDataByIndex: WalletDataByIndex) {

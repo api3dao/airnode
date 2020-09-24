@@ -1,5 +1,5 @@
-import * as requests from './requests';
-import * as logger from '../../utils/logger';
+import * as requests from '../requests';
+import * as logger from '../../logger';
 import { ProviderState, WalletDataByIndex } from '../../../types';
 
 export async function fetchWalletDataByIndex(state: ProviderState): Promise<WalletDataByIndex> {

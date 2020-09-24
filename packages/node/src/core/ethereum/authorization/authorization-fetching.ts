@@ -4,7 +4,7 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import uniqBy from 'lodash/uniqBy';
 import { Convenience } from '../contracts';
-import * as logger from '../../utils/logger';
+import * as logger from '../../logger';
 import { go, retryOperation } from '../../utils/promise-utils';
 import { ApiCall, AuthorizationByEndpointId, ClientRequest, LogsErrorData, RequestStatus } from '../../../types';
 
