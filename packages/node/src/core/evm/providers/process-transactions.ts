@@ -1,9 +1,11 @@
-import { ProviderState } from '../../types';
-import * as evm from '../evm';
-import * as logger from '../logger';
-import * as nonces from '../requests/nonces';
-import * as transactions from '../evm/transactions';
-import * as state from './state';
+import { getGasPrice } from '../gas-prices';
+import * as contracts from '../contracts';
+import * as logger from '../../logger';
+import * as nonces from '../../requests/nonces';
+import * as transactions from '../transactions';
+import * as state from '../../providers/state';
+import * as utils from '../utils';
+import { ProviderState } from '../../../types';
 
 export async function processTransactions(initialState: ProviderState) {
   // =================================================================
@@ -15,8 +17,14 @@ export async function processTransactions(initialState: ProviderState) {
   // =================================================================
   // STEP 2: Get the latest gas price
   // =================================================================
-  const gasPrice = await evm.getGasPrice(state1);
-  const gweiPrice = evm.weiToGwei(gasPrice);
+  const gasPriceOptions = {
+    address: contracts.GasPriceFeed.addresses[state1.config.chainId],
+    provider: state1.provider,
+  };
+  const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
+  logger.logPendingMessages(state1.config.name, gasPriceLogs);
+
+  const gweiPrice = utils.weiToGwei(gasPrice);
   logger.logProviderJSON(state1.config.name, 'INFO', `Gas price set to ${gweiPrice} Gwei`);
   const state2 = state.update(state1, { gasPrice });
 

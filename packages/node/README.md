@@ -57,6 +57,7 @@ core/
 ├── evm/                # EVM specific code
 │   ├── authorization/  # Authorizing clients and requests
 │   ├── contracts/      # Contract addresses and ABIs
+│   ├── provider/       # EVM specific implementations of provider functions
 │   ├── requests/       # Request/response specific code
 │   ├── templates       # Fetching and applying request templates
 │   ├── transactions/   # Executing transactions
