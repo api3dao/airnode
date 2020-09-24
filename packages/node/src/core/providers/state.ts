@@ -1,4 +1,4 @@
-import * as ethereum from '../ethereum';
+import * as evm from '../evm';
 import { ProviderConfig, ProviderState } from '../../types';
 
 export function create(config: ProviderConfig, index: number): ProviderState {
@@ -6,7 +6,7 @@ export function create(config: ProviderConfig, index: number): ProviderState {
     config,
     currentBlock: null,
     index,
-    provider: ethereum.newProvider(config.url, config.chainId),
+    provider: evm.newProvider(config.url, config.chainId),
     walletDataByIndex: {},
     // This is fetched and set as late as possible for freshness
     gasPrice: null,

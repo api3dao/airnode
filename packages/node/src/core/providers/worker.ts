@@ -1,5 +1,5 @@
 import { ProviderState } from '../../types';
-import * as ethereum from '../ethereum';
+import * as evm from '../evm';
 import * as workers from '../workers';
 
 export type CleanProviderState = Omit<ProviderState, 'provider'>;
@@ -15,7 +15,7 @@ export async function spawnNewProvider(index: number): Promise<ProviderState> {
 
   // The serverless function does not return an instance of an Ethereum
   // provider, so we create a new one before returning the state
-  const provider = ethereum.newProvider(initialState.config.url, initialState.config.chainId);
+  const provider = evm.newProvider(initialState.config.url, initialState.config.chainId);
 
   return { ...initialState, provider };
 }

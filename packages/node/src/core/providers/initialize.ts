@@ -1,10 +1,10 @@
 import { go } from '../utils/promise-utils';
 import { ProviderConfig, ProviderState } from '../../types';
-import * as authorization from '../ethereum/authorization';
+import * as authorization from '../evm/authorization';
 import * as logger from '../logger';
-import * as triggers from '../ethereum/triggers';
-import * as templates from '../ethereum/templates';
-import * as transactionCounts from '../ethereum/transaction-counts';
+import * as triggers from '../evm/triggers';
+import * as templates from '../evm/templates';
+import * as transactionCounts from '../evm/transaction-counts';
 import * as state from './state';
 
 type ParallelPromise = Promise<{ id: string; data: any }>;

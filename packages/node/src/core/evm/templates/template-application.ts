@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import * as ethereum from '../../ethereum';
+import * as evm from '../../evm';
 import {
   ApiCall,
   ApiCallParameters,
@@ -72,7 +72,7 @@ function mapApiCalls(
     }
 
     // Attempt to decode the template parameters
-    const templateParameters = ethereum.cbor.safeDecode(template.encodedParameters);
+    const templateParameters = evm.cbor.safeDecode(template.encodedParameters);
 
     // If the template contains invalid parameters, then we can't use execute the request
     if (templateParameters === null) {

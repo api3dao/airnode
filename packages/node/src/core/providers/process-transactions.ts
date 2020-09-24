@@ -1,8 +1,8 @@
 import { ProviderState } from '../../types';
-import * as ethereum from '../ethereum';
+import * as evm from '../evm';
 import * as logger from '../logger';
 import * as nonces from '../requests/nonces';
-import * as transactions from '../ethereum/transactions';
+import * as transactions from '../evm/transactions';
 import * as state from './state';
 
 export async function processTransactions(initialState: ProviderState) {
@@ -15,8 +15,8 @@ export async function processTransactions(initialState: ProviderState) {
   // =================================================================
   // STEP 2: Get the latest gas price
   // =================================================================
-  const gasPrice = await ethereum.getGasPrice(state1);
-  const gweiPrice = ethereum.weiToGwei(gasPrice);
+  const gasPrice = await evm.getGasPrice(state1);
+  const gweiPrice = evm.weiToGwei(gasPrice);
   logger.logProviderJSON(state1.config.name, 'INFO', `Gas price set to ${gweiPrice} Gwei`);
   const state2 = state.update(state1, { gasPrice });
 
