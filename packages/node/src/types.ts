@@ -44,13 +44,14 @@ export enum RequestType {
 
 export interface RequestMetadata {
   readonly blockNumber: number;
+  readonly providerIndex: number;
   readonly transactionHash: string;
 }
 
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
-  readonly logMetadata: RequestMetadata;
+  readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly status: RequestStatus;
 };
@@ -228,9 +229,17 @@ export interface PendingLog {
   message: string;
 }
 
-// Making this type a tuple, forces the user to handle logs and errors first.
-// If it was an object ({ logs: [], error?: Error, data?: any }), then it's
-// very easy to forgot to handle logs and errors
+// There are many places throughout the app where we need the context of the current
+// (provider) state, mostly for logging purposes. It doesn't really make sense to
+// pass the entire state down to these functions as it tightly couples them to the
+// rest of the app.
+//
+// In order to get around this, the below tuple types are introduced that can return
+// elements. The calling function is forced to decide how to handle the logs and
+// error if one exists as ESLint will complain about unused variables. These types
+// are purposefully tuples (over an object with 'logs' and 'error' properties) for
+// this reason.
+export type LogsData<T> = [PendingLog[], T];
 export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 
 // ===========================================

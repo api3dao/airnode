@@ -10,8 +10,9 @@ export function createWalletDesignation(
     requesterId: 'requesterId',
     walletIndex: '5',
     status: RequestStatus.Pending,
-    logMetadata: {
+    metadata: {
       blockNumber: 10716082,
+      providerIndex: 0,
       transactionHash: 'logTransactionHash',
     },
     ...params,

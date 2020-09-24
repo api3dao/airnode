@@ -19,20 +19,21 @@ describe('assign', () => {
   });
 
   it('sorts and assigns nonces requests API calls', () => {
+    const metadata = { providerIndex: 0 };
     const first = fixtures.requests.createApiCall({
       id: '0x1',
       nonce: undefined,
-      logMetadata: { blockNumber: 100, transactionHash: '0xa' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0xa' },
     });
     const second = fixtures.requests.createApiCall({
       id: '0x2',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xb' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xb' },
     });
     const third = fixtures.requests.createApiCall({
       id: '0x3',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xc' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xc' },
     });
     const walletData: WalletData = {
       address: '0xwallet1',
@@ -52,20 +53,21 @@ describe('assign', () => {
   });
 
   it('sorts and assigns nonces to wallet designations', () => {
+    const metadata = { providerIndex: 0 };
     const first = fixtures.requests.createWalletDesignation({
       id: '0x1',
       nonce: undefined,
-      logMetadata: { blockNumber: 100, transactionHash: '0xa' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0xa' },
     });
     const second = fixtures.requests.createWalletDesignation({
       id: '0x2',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xb' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xb' },
     });
     const third = fixtures.requests.createWalletDesignation({
       id: '0x3',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xc' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xc' },
     });
     const walletData: WalletData = {
       address: '0xwallet1',
@@ -85,20 +87,21 @@ describe('assign', () => {
   });
 
   it('sorts and assigns nonces requests withdrawals', () => {
+    const metadata = { providerIndex: 0 };
     const first = fixtures.requests.createWithdrawal({
       id: '0x1',
       nonce: undefined,
-      logMetadata: { blockNumber: 100, transactionHash: '0xa' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0xa' },
     });
     const second = fixtures.requests.createWithdrawal({
       id: '0x2',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xb' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xb' },
     });
     const third = fixtures.requests.createWithdrawal({
       id: '0x3',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xc' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xc' },
     });
     const walletData: WalletData = {
       address: '0xwallet1',
@@ -154,21 +157,22 @@ describe('assign', () => {
   });
 
   it('blocks nonce assignment if a request is blocked', () => {
+    const metadata = { providerIndex: 0 };
     const first = fixtures.requests.createApiCall({
       id: '0x1',
       nonce: undefined,
-      logMetadata: { blockNumber: 100, transactionHash: '0xa' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0xa' },
     });
     const second = fixtures.requests.createApiCall({
       id: '0x2',
       status: RequestStatus.Blocked,
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xb' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xb' },
     });
     const third = fixtures.requests.createApiCall({
       id: '0x3',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xc' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xc' },
     });
     const walletData: WalletData = {
       address: '0xwallet1',
@@ -188,21 +192,22 @@ describe('assign', () => {
   });
 
   it('skips blocked requests if more than 20 blocks have passed', () => {
+    const metadata = { providerIndex: 0 };
     const first = fixtures.requests.createApiCall({
       id: '0x1',
       nonce: undefined,
-      logMetadata: { blockNumber: 100, transactionHash: '0xa' },
+      metadata: { ...metadata, blockNumber: 100, transactionHash: '0xa' },
     });
     const second = fixtures.requests.createApiCall({
       id: '0x2',
       status: RequestStatus.Blocked,
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xb' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xb' },
     });
     const third = fixtures.requests.createApiCall({
       id: '0x3',
       nonce: undefined,
-      logMetadata: { blockNumber: 101, transactionHash: '0xc' },
+      metadata: { ...metadata, blockNumber: 101, transactionHash: '0xc' },
     });
     const walletData: WalletData = {
       address: '0xwallet1',

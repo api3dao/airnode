@@ -73,7 +73,7 @@ function assignWalletNonces(
       // If the request is blocked and roughly 2+ minutes have passed,
       // then ignore the request so as to not block subsequent
       // requests indefinitely.
-      const maxBlockNumber = request.logMetadata.blockNumber + 20;
+      const maxBlockNumber = request.metadata.blockNumber + 20;
       const assignmentBlocked = maxBlockNumber > currentBlock;
 
       return {

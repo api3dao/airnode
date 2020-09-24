@@ -45,6 +45,29 @@ This is a running list of how different errors are handled by the node and test 
 
 https://docs.google.com/spreadsheets/d/1DanVn7WyP96D5max2_5T5enJz7TcCsRceoqDfDfCcnA/edit?usp=sharing
 
+## Directory Structure
+
+```sh
+core/
+├── adapters/           # Modules allowing Airnode access to the outside world
+│   └── http/           # The HTTP adapter
+├── config/             # Global Airnode configuration
+├── coordinator/        # The "main" function that oversees execution and state
+│   └── calls/          # Aggregating, executing and disaggregating API calls
+├── evm/                # EVM specific code
+│   ├── authorization/  # Authorizing clients and requests
+│   ├── contracts/      # Contract addresses and ABIs
+│   ├── requests/       # Request/response specific code
+│   ├── templates       # Fetching and applying request templates
+│   ├── transactions/   # Executing transactions
+│   └── triggers/       # Trigger specific implementations
+├── providers/          # Provider workers and state
+├── requests/           # Generic modules applicable to different blockchains
+├── utils/              # General utility functions
+└── workers/            # Utility function that allow for "forking"
+
+```
+
 ## Security
 
 API3 and Airnode take security very seriously. If you find a security related incident please let the team know privately.
