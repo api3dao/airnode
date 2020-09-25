@@ -77,12 +77,14 @@ contract Convenience is IConvenience {
     /// Note that authorizers should not start or end with 0, and 0s should
     /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
     /// [] returns false (deny everyone), [0] returns true (accept everyone).
+    /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterInd Requester index from RequesterStore
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
     function checkAuthorizationStatus(
+        bytes32 requestId,
         bytes32 providerId,
         bytes32 endpointId,
         uint256 requesterInd,
@@ -124,7 +126,7 @@ contract Convenience is IConvenience {
                 // This means that we will not be able to return a true from
                 // this group of authorizers.
                 if (!authorizer.checkIfAuthorized(
-                    providerId, endpointId, requesterInd, clientAddress
+                    requestId, providerId, endpointId, requesterInd, clientAddress
                     )) {
                     authorizedByAll = false;
                 }
@@ -138,6 +140,7 @@ contract Convenience is IConvenience {
     }
 
     function checkAuthorizationStatuses(
+        bytes32[] calldata requestIds,
         bytes32[] calldata providerIds,
         bytes32[] calldata endpointIds,
         uint256[] calldata requesterInds,
@@ -149,15 +152,17 @@ contract Convenience is IConvenience {
         returns (bool[] memory statuses)
     {
         require(
-            providerIds.length == endpointIds.length
-                && providerIds.length == requesterInds.length
-                && providerIds.length == clientAddresses.length,
+            requestIds.length == providerIds.length
+                && requestIds.length == endpointIds.length
+                && requestIds.length == requesterInds.length
+                && requestIds.length == clientAddresses.length,
             "Parameter lengths must be equal"
         );
         statuses = new bool[](providerIds.length);
         for (uint256 ind = 0; ind < providerIds.length; ind++)
         {
             statuses[ind] = checkAuthorizationStatus(
+                requestIds[ind],
                 providerIds[ind],
                 endpointIds[ind],
                 requesterInds[ind],

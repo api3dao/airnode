@@ -248,6 +248,7 @@ describe('Airnode', function () {
     expect(template.designatedWallet).to.equal(expectedDesignatedWallet);
     // Check authorization status
     const authorizationStatus = await convenience.checkAuthorizationStatuses(
+      [parsedRequestLog.args.requestId],
       [providerId],
       [template.endpointId],
       [template.requesterInd],

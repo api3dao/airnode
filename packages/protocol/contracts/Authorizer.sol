@@ -14,12 +14,14 @@ abstract contract Authorizer {
 
     /// @notice Verifies the authorization status of a request according to
     /// this authorizer contract
+    /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterInd Requester index from RequesterStore
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
     function checkIfAuthorized(
+        bytes32 requestId,
         bytes32 providerId,
         bytes32 endpointId,
         uint256 requesterInd,
