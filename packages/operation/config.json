@@ -1,0 +1,8 @@
+{
+  "providers": [
+    {
+      "designationDeposit": "50000000000000000",
+      "minimumBalance": "25000000000000000"
+    }
+  ]
+}
