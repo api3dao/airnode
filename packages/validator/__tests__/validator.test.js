@@ -1,6 +1,6 @@
 'use strict';
 
-const validator = require('..');
+const validator = require('../lib/validator');
 
 const specs1 = `{
 "servers": [
