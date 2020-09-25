@@ -4,7 +4,7 @@ const { expect } = require('chai');
 describe('Airnode', function () {
   let roles;
   let airnode;
-  //let convenience;
+  let convenience;
   let airnodeClient;
   let providerKey;
   let providerId;
@@ -16,8 +16,8 @@ describe('Airnode', function () {
   beforeEach(async () => {
     const airnodeFactory = await ethers.getContractFactory('Airnode');
     airnode = await airnodeFactory.deploy();
-    //const convenienceFactory = await ethers.getContractFactory('Convenience');
-    //convenience = await convenienceFactory.deploy(airnode.address);
+    const convenienceFactory = await ethers.getContractFactory('Convenience');
+    convenience = await convenienceFactory.deploy(airnode.address);
     const airnodeClientFactory = await ethers.getContractFactory('ExampleAirnodeClient');
     airnodeClient = await airnodeClientFactory.deploy(airnode.address);
     const accountList = await ethers.getSigners();
@@ -247,13 +247,13 @@ describe('Airnode', function () {
     const expectedDesignatedWallet = await deriveWalletAddressFromPath(`m/0/${template.requesterInd.toString()}`);
     expect(template.designatedWallet).to.equal(expectedDesignatedWallet);
     // Check authorization status
-    const authorizationStatus = await airnode.checkAuthorizationStatus(
-      providerId,
-      template.endpointId,
-      template.requesterInd,
-      parsedRequestLog.args.requester
+    const authorizationStatus = await convenience.checkAuthorizationStatuses(
+      [providerId],
+      [template.endpointId],
+      [template.requesterInd],
+      [parsedRequestLog.args.requester]
     );
-    expect(authorizationStatus).to.equal(true);
+    expect(authorizationStatus[0]).to.equal(true);
 
     // Now the node can use template.endpointId to find in config.json which
     // endpoint it should call. Then, it decodes the static request parameters defined

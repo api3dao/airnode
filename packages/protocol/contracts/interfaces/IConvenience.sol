@@ -19,6 +19,16 @@ interface IConvenience {
             bytes[] memory parameters
         );
 
+    function checkAuthorizationStatus(
+        bytes32 providerId,
+        bytes32 endpointId,
+        uint256 requesterInd,
+        address clientAddress
+        )
+        external
+        view
+        returns(bool status);
+
     function checkAuthorizationStatuses(
         bytes32[] calldata providerIds,
         bytes32[] calldata endpointIds,

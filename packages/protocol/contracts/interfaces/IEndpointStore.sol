@@ -25,14 +25,4 @@ interface IEndpointStore is IProviderStore {
         external
         view
         returns(address[] memory authorizers);
-
-    function checkAuthorizationStatus(
-        bytes32 providerId,
-        bytes32 endpointId,
-        uint256 requesterInd,
-        address clientAddress
-        )
-        external
-        view
-        returns(bool status);
 }
