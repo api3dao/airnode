@@ -8,7 +8,6 @@ async function main() {
   const accounts = await ethers.getSigners();
   const admin = accounts[0];
   const adminAddress = await admin.getAddress();
-  console.log('ADMIN', adminAddress);
 
   const Airnode = await ethers.getContractFactory('Airnode');
   const airnode = await Airnode.deploy();
@@ -19,7 +18,9 @@ async function main() {
   await convenience.deployed();
 
   const providerPromises = config.providers.map(async (provider) => {
-    return await airnode.connect(adminAddress).createProvider(adminAddress, provider.designationDeposit, provider.minimumBalance);
+    return await airnode
+      .connect(adminAddress)
+      .createProvider(adminAddress, provider.designationDeposit, provider.minimumBalance);
   });
 
   const providers = await Promise.all(providerPromises);
@@ -33,7 +34,7 @@ async function main() {
 // and properly handle errors.
 main()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });
