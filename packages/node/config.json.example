@@ -6,10 +6,29 @@
     "platformKey": "key-to-access-chainapi",
     "platformUrl": "https://chainapi.com/api/todo",
     "providerId": "0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d",
-    "ethereumProviders": [
-      { "chainId": 3, "name": "infura-ropsten", "url": "https://ropsten.infura.io/v3/<your key>" },
-      { "chainId": 1, "name": "infura-mainnet", "url": "https://mainnet.infura.io/v3/<your key>" },
-      { "chainId": 1337, "name": "ganache-local", "url": "http://localhost:4111" }
+    "chains": [
+      {
+        "type": "evm",
+        "chainId": 1,
+        "providers": [
+          {
+            "blockHistoryLimit": 600,
+            "minConfirmations": 6,
+            "name": "infura-ropsten",
+            "url": "https://ropsten.infura.io/v3/<your key>"
+          },
+          {
+            "blockHistoryLimit": 600,
+            "minConfirmations": 6,
+            "name": "infura-mainnet",
+            "url": "https://mainnet.infura.io/v3/<your key>"
+          },
+          {
+            "name": "ganache-local",
+            "url": "http://localhost:4111"
+          }
+        ]
+      }
     ]
   },
   "triggers": {

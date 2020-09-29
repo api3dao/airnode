@@ -1,15 +1,17 @@
 import * as evm from '../evm';
-import { ProviderConfig, ProviderState } from '../../types';
+import { ProviderSettings, ProviderState } from '../../types';
 
-export function create(config: ProviderConfig, index: number): ProviderState {
+export function create<T>(settings: ProviderSettings<T>) {
+  if (settings.) {
+
+  }
+
   return {
-    config,
+    settings,
     currentBlock: null,
-    index,
-    provider: evm.newProvider(config.url, config.chainId),
-    walletDataByIndex: {},
-    // This is fetched and set as late as possible for freshness
     gasPrice: null,
+    provider: evm.newProvider(settings.provider.url, settings.chainId),
+    walletDataByIndex: {},
   };
 }
 

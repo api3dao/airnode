@@ -2,6 +2,14 @@ import { OIS } from '@airnode/ois';
 import { ethers } from 'ethers';
 
 // ===========================================
+// Options
+// ===========================================
+
+export interface CoordinatorOptions {
+  readonly chains?: ChainConfig[];
+}
+
+// ===========================================
 // State
 // ===========================================
 export interface ApiCallParameters {
@@ -123,22 +131,47 @@ export interface WalletData {
 }
 
 export interface WalletDataByIndex {
-  [index: string]: WalletData;
+  readonly [index: string]: WalletData;
 }
 
-export interface ProviderState {
-  readonly config: ProviderConfig;
+export type ProviderSettings<T extends {}> = T & {
+  readonly blockHistoryLimit: number;
+  readonly chainId: number;
+  readonly minConfirmations: number;
+  readonly name: string;
+  readonly url: string;
+}
+
+export type ProviderState<T extends {}> = T & {
   readonly currentBlock: number | null;
-  readonly index: number;
-  readonly gasPrice: ethers.BigNumber | null;
-  readonly provider: ethers.providers.JsonRpcProvider;
+  readonly type: ChainType;
   readonly walletDataByIndex: WalletDataByIndex;
 }
 
 export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
-  readonly providers: ProviderState[];
+  readonly providers: ProviderState<any>[];
 }
+
+// ===========================================
+// EVM
+// ===========================================
+export interface EVMContracts {
+  readonly Airnode: string;
+  readonly Convenience: string;
+  readonly GasPriceFeed: string;
+}
+
+export interface EVMSettings {
+  readonly contracts: EVMContracts;
+}
+
+export interface EVMProvider {
+  readonly gasPrice: ethers.BigNumber | null;
+  readonly provider: ethers.providers.JsonRpcProvider;
+  readonly settings: ProviderSettings<EVMSettings>;
+}
+
 
 // ===========================================
 // API calls
@@ -245,21 +278,36 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 // ===========================================
 // Config
 // ===========================================
-export interface ProviderConfig {
-  chainId: number;
-  name: string;
-  url: string;
+export type ChainType = 'evm'; // Add other blockchain types here;
+
+export interface ChainContract {
+  readonly address: string;
+  readonly name: string;
+}
+
+export interface ChainProvider {
+  readonly blockHistoryLimit?: number;
+  readonly minConfirmations?: number;
+  readonly name: string;
+  readonly url: string;
+}
+
+export interface ChainConfig {
+  readonly id: number;
+  readonly contracts?: ChainContract[];
+  readonly providers: ChainProvider[];
+  readonly type: ChainType;
 }
 
 export type NodeCloudProvider = 'aws' | 'local:aws';
 
 export interface NodeSettings {
-  cloudProvider: NodeCloudProvider;
-  nodeKey: string;
-  platformKey: string;
-  platformUrl: string;
-  providerId: string;
-  ethereumProviders: ProviderConfig[];
+  readonly chains: ChainConfig[];
+  readonly cloudProvider: NodeCloudProvider;
+  readonly nodeKey: string;
+  readonly platformKey: string;
+  readonly platformUrl: string;
+  readonly providerId: string;
 }
 
 export interface Config {

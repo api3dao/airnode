@@ -1,11 +1,12 @@
 import { go } from '../utils/promise-utils';
-import { ProviderConfig, ProviderState } from '../../types';
 import * as authorization from '../evm/authorization';
 import * as logger from '../logger';
 import * as triggers from '../evm/triggers';
 import * as templates from '../evm/templates';
 import * as transactionCounts from '../evm/transaction-counts';
+import * as settings from '../config/provider-settings';
 import * as state from './state';
+import { ChainConfig, ProviderSettings, ProviderState } from '../../types';
 
 type ParallelPromise = Promise<{ id: string; data: any }>;
 
@@ -21,11 +22,13 @@ async function fetchTransactionCounts(currentState: ProviderState) {
   return { id: 'transaction-counts', data: res };
 }
 
-export async function initializeState(config: ProviderConfig, index: number): Promise<ProviderState | null> {
+export async function initializeState(config: ChainConfig, index: number): Promise<ProviderState | null> {
   // =================================================================
   // STEP 1: Create a new ProviderState
   // =================================================================
-  const state1 = state.create(config, index);
+  const chainProvider = config.providers[index];
+  const providerSettings = settings.create(config, chainProvider);
+  const state1 = state.create(providerSettings);
 
   // =================================================================
   // STEP 2: Get the current block number
