@@ -42,6 +42,7 @@ export function create(chain: ChainConfig, provider: ChainProvider): ProviderSet
     chainId: chain.id,
     minConfirmations: provider.minConfirmations || 6,
     name: provider.name,
+    type: 'evm',
     url: provider.url,
   };
 }

@@ -57,6 +57,7 @@ core/
 ├── evm/                # EVM specific code
 │   ├── authorization/  # Authorizing clients and requests
 │   ├── contracts/      # Contract addresses and ABIs
+│   ├── providers/      # "Secondary" workers that execute a pipeline with a given provider state
 │   ├── requests/       # Request/response specific code
 │   ├── templates       # Fetching and applying request templates
 │   ├── transactions/   # Executing transactions

@@ -1,12 +1,12 @@
 import * as evm from '../evm';
 import * as workers from '../workers';
-import { ChainConfig, ChainProvider, EVMProvider, ProviderState } from '../../types';
+import { ChainConfig, ChainProvider, EVMProviderState, ProviderState } from '../../types';
 
-export type CleanProviderState = Omit<ProviderState<EVMProvider>, 'provider'>;
+export type CleanProviderState = Omit<ProviderState<EVMProviderState>, 'provider'>;
 
-export async function spawnNewProvider(chain: ChainConfig, provider: ChainProvider): Promise<ProviderState<EVMProvider>> {
+export async function spawnNewProvider(coordinatorId: string, chain: ChainConfig, provider: ChainProvider): Promise<ProviderState<EVMProviderState>> {
   // TODO: This will probably need to change for other cloud providers
-  const parameters = { chain, provider };
+  const parameters = { chain, coordinatorId, provider };
   const payload = workers.isLocalEnv() ? { parameters } : parameters;
   const options = { functionName: 'initializeProvider', payload };
 
@@ -20,7 +20,7 @@ export async function spawnNewProvider(chain: ChainConfig, provider: ChainProvid
   return { ...newState, provider: evmProvider };
 }
 
-export async function spawnProviderRequestProcessor(state: ProviderState<EVMProvider>): Promise<ProviderState<EVMProvider>> {
+export async function spawnProviderRequestProcessor(state: ProviderState<EVMProviderState>): Promise<ProviderState<EVMProviderState>> {
   // TODO: This will probably need to change for other cloud providers
   const parameters = { state };
   const payload = workers.isLocalEnv() ? { parameters } : parameters;

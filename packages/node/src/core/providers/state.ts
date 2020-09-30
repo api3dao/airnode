@@ -1,20 +1,25 @@
 import * as evm from '../evm';
-import { ProviderSettings, ProviderState } from '../../types';
+import { ChainConfig, EVMProviderState, EVMSettings, ProviderSettings, ProviderState } from '../../types';
 
-export function create<T>(settings: ProviderSettings<T>) {
-  if (settings.) {
-
-  }
+function createEVMState(coordinatorId: string, settings: ProviderSettings<EVMSettings>): ProviderState<EVMProviderState> {
+  const provider = evm.newProvider(settings.url, settings.chainId);
 
   return {
-    settings,
+    coordinatorId,
+    settings: { ...settings, type: 'evm' },
+    provider,
     currentBlock: null,
     gasPrice: null,
-    provider: evm.newProvider(settings.provider.url, settings.chainId),
     walletDataByIndex: {},
   };
 }
 
-export function update(state: ProviderState, newState: Partial<ProviderState>): ProviderState {
+export function create(coordinatorId: string, chain: ChainConfig, settings: ProviderSettings<any>) {
+  if (chain.type === 'evm') {
+    return createEVMState(coordinatorId, settings);
+  }
+}
+
+export function update<T>(state: ProviderState<T>, newState: Partial<ProviderState<T>>): ProviderState<T> {
   return { ...state, ...newState };
 }

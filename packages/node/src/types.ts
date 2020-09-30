@@ -137,19 +137,27 @@ export interface WalletDataByIndex {
 export type ProviderSettings<T extends {}> = T & {
   readonly blockHistoryLimit: number;
   readonly chainId: number;
+  readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
+  readonly type: ChainType;
   readonly url: string;
 }
 
 export type ProviderState<T extends {}> = T & {
+  readonly coordinatorId: string;
   readonly currentBlock: number | null;
-  readonly type: ChainType;
   readonly walletDataByIndex: WalletDataByIndex;
+}
+
+export interface CoordindatorSettings {
+  readonly logFormat: LogFormat;
 }
 
 export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
+  readonly id: string;
+  readonly settings: CoordindatorSettings;
   readonly providers: ProviderState<any>[];
 }
 
@@ -166,7 +174,7 @@ export interface EVMSettings {
   readonly contracts: EVMContracts;
 }
 
-export interface EVMProvider {
+export interface EVMProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly settings: ProviderSettings<EVMSettings>;
@@ -255,6 +263,15 @@ export interface Triggers {
 // Logging
 // ===========================================
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+
+export type LogFormat = 'json' | 'plain';
+
+export interface LogOptions {
+  coordinatorId?: string;
+  error?: Error | null;
+  format?: LogFormat;
+  providerName?: string;
+}
 
 export interface PendingLog {
   error?: Error;

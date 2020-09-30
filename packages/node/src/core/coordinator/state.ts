@@ -2,10 +2,11 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
 import * as logger from '../logger';
+import { randomString } from '../utils/string-utils';
 import { spawnNewProvider } from '../providers/worker';
 import { ChainConfig, CoordinatorState } from '../../types';
 
-export async function initializeProviders(chains: ChainConfig[]) {
+export async function initializeProviders(coordinatorId: string, chains: ChainConfig[]) {
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in config.json');
   }
@@ -14,9 +15,9 @@ export async function initializeProviders(chains: ChainConfig[]) {
   // to configure duplicate providers safely (if they want the added redundancy)
   const flatInitializations = flatMap(chains.map((chain) => {
     const chainInitializations = chain.providers.map(async (provider) => {
-      logger.logJSON('INFO', `Forking to initialize ${chain.type.toUpperCase()} provider:${provider.name} (chain:${chain.id})...`);
+      logger.info(`Forking to initialize ${chain.type.toUpperCase()} provider:${provider.name} (chain:${chain.id})...`, { coordinatorId });
 
-      const initialization = spawnNewProvider(chain, provider);
+      const initialization = spawnNewProvider(coordinatorId, chain, provider);
       // Each provider gets 20 seconds to initialize. If it fails to initialize
       // in this time, it is ignored.
       const [err, state] = await goTimeout(20_000, initialization);
@@ -35,9 +36,14 @@ export async function initializeProviders(chains: ChainConfig[]) {
 }
 
 export function create(): CoordinatorState {
+  const coordinatorId = randomString(8);
+
   return {
     aggregatedApiCalls: [],
+    id: coordinatorId,
     providers: [],
+    // TODO: allow the user to configure their preferred log format
+    settings: { logFormat: 'json' },
   };
 }
 
