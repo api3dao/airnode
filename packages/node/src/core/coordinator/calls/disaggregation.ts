@@ -13,7 +13,7 @@ import {
 function mapApiCalls(
   apiCalls: ClientRequest<ApiCall>[],
   aggregatedApiCalls: AggregatedApiCall[]
-): ClientRequest<ApiCall>[] {
+): LogsData<ClientRequest<ApiCall>[]> {
   return apiCalls.map((apiCall) => {
     // Find the aggregated API call that matches the initial grouping and is required for this provider
     const aggregatedApiCall = aggregatedApiCalls.find((aggregatedCall) => {

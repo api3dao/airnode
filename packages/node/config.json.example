@@ -14,15 +14,27 @@
           {
             "blockHistoryLimit": 600,
             "minConfirmations": 6,
-            "name": "infura-ropsten",
-            "url": "https://ropsten.infura.io/v3/<your key>"
-          },
+            "name": "infura-mainnet",
+            "url": "https://mainnet.infura.io/v3/<your key>"
+          }
+        ]
+      },
+      {
+        "type": "evm",
+        "chainId": 3,
+        "providers": [
           {
             "blockHistoryLimit": 600,
             "minConfirmations": 6,
-            "name": "infura-mainnet",
-            "url": "https://mainnet.infura.io/v3/<your key>"
-          },
+            "name": "infura-ropsten",
+            "url": "https://ropsten.infura.io/v3/<your key>"
+          }
+        ]
+      },
+      {
+        "type": "evm",
+        "chainId": 1337,
+        "providers": [
           {
             "name": "ganache-local",
             "url": "http://localhost:4111"
