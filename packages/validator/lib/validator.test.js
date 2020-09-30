@@ -638,12 +638,12 @@ function conditionNotMetMessage(paramPath, param) {
 
 describe('validator', () => {
   describe('api specs', () => {
-    test('valid configuration', () => {
+    test('valid specification', () => {
       expect(validator.isApiSpecsValid(specs1)).toMatchObject({ valid: true, messages: [] });
       expect(validator.isApiSpecsValid(specs2)).toMatchObject({ valid: true, messages: [] });
     });
 
-    test('invalid formatting', () => {
+    test('formatting of keys and values', () => {
       expect(validator.isApiSpecsValid(specs3)).toMatchObject({
         valid: true,
         messages: [formattingMessage('servers[0].url')],
@@ -662,7 +662,7 @@ describe('validator', () => {
       });
     });
 
-    test('multiple array items', () => {
+    test('maximal size of array test', () => {
       expect(validator.isApiSpecsValid(specs5)).toMatchObject({ valid: true, messages: [] });
       expect(validator.isApiSpecsValid(specs6)).toMatchObject({
         valid: false,
@@ -670,7 +670,7 @@ describe('validator', () => {
       });
     });
 
-    test('edge cases', () => {
+    test('JSON validity test', () => {
       expect(validator.isApiSpecsValid(specs7)).toMatchObject({ valid: true, messages: [] });
       expect(validator.isApiSpecsValid(specs8)).toMatchObject({
         valid: false,
@@ -728,7 +728,7 @@ describe('validator', () => {
       });
     });
 
-    test('conditional checks', () => {
+    test('conditions (if, then, require) test', () => {
       expect(validator.isApiSpecsValid(specs15)).toMatchObject({
         valid: false,
         messages: [
