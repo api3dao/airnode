@@ -2,616 +2,6 @@
 
 const validator = require('./validator');
 
-const specs1 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api"
-    }
-],
-"paths": {
-    "/myPath": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "query"
-          }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "query"
-      }
-    }
-},
-"security": {
-      "mySecurityScheme": []
-        }
-}`;
-
-const specs2 = `{
-"servers": [],
-"paths": {},
-"components": {
-    "securitySchemes": {}
-},
-"security": {}
-}`;
-
-const specs3 = `{
-"servers": [
-    {
-        "url":  "https:/myapi.com/api"
-    }
-],
-"paths": {
-    "/myPath": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "query"
-          }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "query"
-      }
-    }
-},
-"security": {
-      "mySecurityScheme": []
-        }
-}`;
-
-const specs4 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api "
-    }
-],
-"paths": {
-    "myPath": {
-      "get ": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "query "
-          }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme ": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "Query"
-      }
-    }
-},
-"security": {
-  "mySecurityScheme ": []
-    }
-}`;
-
-const specs5 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api"
-    }
-],
-"paths": {
-    "/myPath": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "path"
-          },
-          {
-            "name": "myParameter",
-            "in": "query"
-          },
-          {
-            "name": "myParameter",
-            "in": "header"
-          }
-        ]
-      }
-    },
-    "/myPath2": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "path"
-          },
-          {
-            "name": "myParameter",
-            "in": "query"
-          },
-          {
-            "name": "myParameter",
-            "in": "header"
-          }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "query"
-      },
-      "mySecurityScheme2": {
-        "type": "http",
-        "in": "header",
-        "scheme": "Basic"
-      }
-    }
-},
-"security": {
-  "mySecurityScheme": [],
-  "mySecurityScheme2": []
-    }
-}`;
-
-const specs6 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api"
-    },
-    {
-        "url":  "https://myapi.com/api"
-    }
-],
-"paths": {
-    "/myPath": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "path"
-          },
-          {
-            "name": "myParameter",
-            "in": "query"
-          },
-          {
-            "name": "myParameter",
-            "in": "header"
-          }
-        ]
-      }
-    },
-    "/myPath2": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "path"
-          },
-          {
-            "name": "myParameter",
-            "in": "query"
-          },
-          {
-            "name": "myParameter",
-            "in": "header"
-          }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "query"
-      },
-      "mySecurityScheme2": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "header"
-      }
-    }
-},
-"security": {
-      "mySecurityScheme": [],
-      "mySecurityScheme2": []
-    }
-}`;
-
-const specs7 = `{
-"servers": [],
-"paths": {},
-"components": {
-    "securitySchemes": {}
-},
-"security": {}
-}`;
-
-const specs8 = `{
-"servers": [],
-"paths": {},
-"components": {
-    "securitySchemes": {}
-},
-"security": {}`;
-
-const specs9 = `{
-"servers": [],
-"paths": {
-    "/myPath": {
-      "post": {
-        "parameters": []
-      }
-    }
-},
-"components": {
-    "securitySchemes": {
-        "mySecurityScheme": {
-            "type": "apiKey",
-            "name": "X-MY-API-KEY",
-            "in": "query"
-          }
-    }
-},
-"security": {
-    "mySecurityScheme": []
-    }
-}`;
-
-const specs10 = `{
-"servers": [],
-"paths": {
-    "/myPath": {}
-},
-"components": {
-    "securitySchemes": {
-        "mySecurityScheme": {
-            "type": "apiKey",
-            "name": "X-MY-API-KEY",
-            "in": "query"
-          }
-    }
-},
-"security": {
-  "mySecurityScheme": []
-}
-}`;
-
-const specs11 = `{
-"paths": {
-    "/myPath": {
-        "post": {}
-    }
-},
-"components": {
-    "securitySchemes": {
-        "mySecurityScheme": {
-          }
-    }
-}
-}`;
-
-const specs12 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api"
-    }
-],
-"paths": {
-    "/myPath": {
-      "get": {
-        "parameters": [
-          {}
-        ]
-      }
-    },
-    "/myPath2": {
-      "post": {
-        "parameters": [
-          {
-            "in": "query"
-          },
-          {
-            "name": "myParameter",
-            "in": "query"
-          },
-          {
-            "name": "myParameter"
-          }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {},
-      "mySecurityScheme2": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "header"
-      }
-    }
-},
-"security": {
-      "mySecurityScheme": [],
-      "mySecurityScheme2": []
-        }
-    }`;
-
-const specs13 = `{}`;
-
-const specs14 = `{
-"extra": {
-    "inside": "extra"
-},
-"servers": [
-    {
-        "url":  "https://myapi.com/api",
-        "extra": "field"
-    }
-],
-"paths": {
-    "/myPath": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParameter",
-            "in": "query",
-            "extra": "field"
-          }
-        ],
-        "others": [
-            {
-                "name": "myParameter",
-            "in": "query"
-            }
-        ]
-      }
-    }   
-},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {
-        "type": "apiKey",
-        "name": "X-MY-API-KEY",
-        "in": "query",
-        "extra": "field"
-      }
-    },
-    "extra": {}
-},
-"security": {
-  "mySecurityScheme": []
-    }
-}`;
-
-const specs15 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api"
-    }
-],
-"paths": {},
-"components": {
-    "securitySchemes": {
-      "mySecurityScheme": {
-        "type": "invalid",
-        "in": "query"
-      },
-      "mySecurityScheme2": {
-        "type": "apiKey",
-        "in": "query"
-      },
-      "mySecurityScheme3": {
-        "type": "apiKey",
-        "in": "query",
-        "scheme": "invalid"
-      },
-      "mySecurityScheme4": {
-        "type": "http",
-        "in": "query",
-        "scheme": "invalid"
-      }
-    }
-},
-"security": {
-  "mySecurityScheme": [],
-  "mySecurityScheme2": [],
-  "mySecurityScheme3": [],
-  "mySecurityScheme4": [],
-  "mySecurityScheme5": []
-}
-}`;
-
-const specs16 = `{
-"servers": [
-    {
-        "url":  "https://myapi.com/api"
-    }
-],
-"paths": {
-  "/myPath/{myParam}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParam",
-            "in": "query"
-          }
-        ]
-      }
-    },
-    "/{myParam}/{myParam2}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParam",
-            "in": "query"
-          },
-          {
-            "name": "myParam2",
-            "in": "query"
-          }
-        ]
-      }
-    },
-    "/{myParam}": {
-      "get": {
-        "parameters": []
-      }
-    },
-    "/{myParam}/myPath/{myParam2}/subPath": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParam",
-            "in": "query"
-          },
-          {
-            "name": "myParam3",
-            "in": "query"
-          }
-        ]
-      }
-    },
-    "/{myParam}/myPath/{myParam2}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParam3",
-            "in": "query"
-          }
-        ]
-      }
-    },
-    "/{myParam}/{myParam2}/{myParam3}": {
-      "get": {
-        "parameters": [
-          {
-            "name": "myParam3",
-            "in": "query"
-          },
-          {
-            "name": "myParam",
-            "in": "query"
-          },
-          {
-            "name": "myParam2",
-            "in": "query"
-          }
-        ]
-      }
-    }
-},
-"components": {
-    "securitySchemes": {}
-},
-"security": {}
-}`;
-
-/* ENDPOINTS SPECS */
-const specs17 = `[
-  {
-    "name": "test",
-    "operation": {
-      "path": "/myPath",
-      "method": "get"
-    }
-  },
-  {
-    "name": "two",
-    "operation": {
-      "path": "/myPath2",
-      "method": "post"
-    }
-  }
-]`;
-
-const specs18 = `[
-  {
-    "name": "test",
-    "operation": {
-      "method": "undefined"
-    },
-    "fixedOperationParameters": [],
-    "reservedParameters": [
-      {
-        "name": "path",
-        "fixed": "int256",
-        "default": "data.0.price"
-      },
-      {
-        "name": "_path"
-      }
-    ],
-    "parameters": [
-      {
-        "name": "_incorrect",
-        "default": "",
-        "description": "",
-        "required": "",
-        "example": "",
-        "summary": "",
-        "externalDocs": ""
-      },
-      {
-        "name": "correct",
-        "operationParameter": {
-          "name": "operation",
-          "in": "header"
-        }
-      }
-    ]
-  },
-  {
-    "extra": "extra",
-    "fixedOperationParameters": [
-      {
-        "operationParameter": {
-          "in": "none"
-        },
-        "value": "param value"
-      }
-    ]
-  }
-]`;
-
-/* OIS SPECS */
-const specs19 = `{
-"oisFormat": "1.10.0",
-"title": "myOisTitle",
-"version": "1.2.3",
-"apiSpecifications": ${specs1},
-"endpoints": ${specs17}
-}`;
-
-const specs20 = `{
-"oisFormat": "1..0",
-"title": "myOisTitle",
-"version": "1.0",
-"apiSpecifications": ${specs15},
-"endpoints": ${specs17}
-}`;
-
 function formattingMessage(paramPath, error = false) {
   return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };
 }
@@ -636,19 +26,265 @@ function conditionNotMetMessage(paramPath, param) {
   return { level: 'error', message: `Condition in ${paramPath} is not met with ${param}` };
 }
 
+const validAPISpecification = `{
+"servers": [
+    {
+        "url":  "https://myapi.com/api"
+    }
+],
+"paths": {
+  "/myPath": {
+    "get": {
+      "parameters": [
+        {
+          "name": "myParameter",
+          "in": "query"
+        }
+      ]
+    }
+  }   
+},
+"components": {
+    "securitySchemes": {
+      "mySecurityScheme": {
+        "type": "apiKey",
+        "name": "X-MY-API-KEY",
+        "in": "query"
+      }
+    }
+},
+"security": {
+      "mySecurityScheme": []
+        }
+}`;
+
+const invalidAPISpecification = `{
+"servers": [
+    {
+        "url":  "https:/myapi.com/api"
+    }
+],
+"paths": {
+  "/myPath/{myParam}": {
+    "get": {
+      "parameters": [
+        {
+          "name": "myParam0",
+          "in": "query"
+        }
+      ]
+    }
+  }
+},
+"components": {
+  "securitySchemes": {
+    "mySecurityScheme": {
+      "type": "invalid",
+      "in": "query"
+    }
+  }
+},
+"security": {
+  "mySecurityScheme": [],
+  "mySecurityScheme2": []
+}
+}`;
+
+const validEndpointSpecification = `[
+  {
+    "name": "test",
+    "operation": {
+      "path": "/myPath",
+      "method": "get"
+    }
+  },
+  {
+    "name": "two",
+    "operation": {
+      "path": "/myPath2",
+      "method": "post"
+    }
+  }
+]`;
+
+const invalidEndpointSpecification = `[
+  {
+    "name": "test",
+    "operation": {
+      "method": "undefined"
+    },
+    "parameters": [
+      {
+        "name": "correct",
+        "operationParameter": {
+          "name": "operation",
+          "in": "header"
+        }
+      }
+    ]
+  }
+]`;
+
 describe('validator', () => {
   describe('api specs', () => {
     test('valid specification', () => {
-      expect(validator.isApiSpecsValid(specs1)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isApiSpecsValid(specs2)).toMatchObject({ valid: true, messages: [] });
+      const validAPISpecification1 = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api"
+            }
+        ],
+        "paths": {
+            "/myPath": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "query"
+              }
+            }
+        },
+        "security": {
+              "mySecurityScheme": []
+            }
+      }`;
+      expect(validator.isApiSpecsValid(validAPISpecification1)).toMatchObject({ valid: true, messages: [] });
+
+      const validAPISpecification2 = `{
+        "servers": [],
+        "paths": {},
+        "components": {
+            "securitySchemes": {}
+        },
+        "security": {}
+      }`;
+      expect(validator.isApiSpecsValid(validAPISpecification2)).toMatchObject({ valid: true, messages: [] });
+
+      const validAPISpecification3 = `{
+        "servers": [],
+        "paths": {
+            "/myPath": {
+              "post": {
+                "parameters": []
+              }
+            }
+        },
+        "components": {
+            "securitySchemes": {
+                "mySecurityScheme": {
+                    "type": "apiKey",
+                    "name": "X-MY-API-KEY",
+                    "in": "query"
+                  }
+            }
+        },
+        "security": {
+            "mySecurityScheme": []
+          }
+      }`;
+      expect(validator.isApiSpecsValid(validAPISpecification3)).toMatchObject({ valid: true, messages: [] });
+
+      const validAPISpecification4 = `{
+        "servers": [],
+        "paths": {
+            "/myPath": {}
+        },
+        "components": {
+            "securitySchemes": {
+                "mySecurityScheme": {
+                    "type": "apiKey",
+                    "name": "X-MY-API-KEY",
+                    "in": "query"
+                  }
+            }
+        },
+        "security": {
+          "mySecurityScheme": []
+        }
+      }`;
+      expect(validator.isApiSpecsValid(validAPISpecification4)).toMatchObject({ valid: true, messages: [] });
     });
 
     test('formatting of keys and values', () => {
-      expect(validator.isApiSpecsValid(specs3)).toMatchObject({
+      const invalidUrlAPISpec = `{
+        "servers": [
+            {
+                "url":  "https:/myapi.com/api"
+            }
+        ],
+        "paths": {
+            "/myPath": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "query"
+              }
+            }
+        },
+        "security": {
+              "mySecurityScheme": []
+            }
+      }`;
+      expect(validator.isApiSpecsValid(invalidUrlAPISpec)).toMatchObject({
         valid: true,
         messages: [formattingMessage('servers[0].url')],
       });
-      expect(validator.isApiSpecsValid(specs4)).toMatchObject({
+
+      const invalidFormattingAPISpec = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api "
+            }
+        ],
+        "paths": {
+            "myPath": {
+              "get ": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "query "
+                  }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme ": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "Query"
+              }
+            }
+        },
+        "security": {
+          "mySecurityScheme ": []
+        }
+      }`;
+      expect(validator.isApiSpecsValid(invalidFormattingAPISpec)).toMatchObject({
         valid: true,
         messages: [
           formattingMessage('servers[0].url'),
@@ -663,25 +299,182 @@ describe('validator', () => {
     });
 
     test('maximal size of array test', () => {
-      expect(validator.isApiSpecsValid(specs5)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isApiSpecsValid(specs6)).toMatchObject({
+      const validArraySizesAPISpec = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api"
+            }
+        ],
+        "paths": {
+            "/myPath": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "path"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "header"
+                  }
+                ]
+              }
+            },
+            "/myPath2": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "path"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "header"
+                  }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "query"
+              },
+              "mySecurityScheme2": {
+                "type": "http",
+                "in": "header",
+                "scheme": "Basic"
+              }
+            }
+        },
+        "security": {
+          "mySecurityScheme": [],
+          "mySecurityScheme2": []
+        }
+      }`;
+      expect(validator.isApiSpecsValid(validArraySizesAPISpec)).toMatchObject({ valid: true, messages: [] });
+
+      const exceededArraySizeAPISpec = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api"
+            },
+            {
+                "url":  "https://myapi.com/api"
+            }
+        ],
+        "paths": {
+            "/myPath": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "path"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "header"
+                  }
+                ]
+              }
+            },
+            "/myPath2": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "path"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "header"
+                  }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "query"
+              },
+              "mySecurityScheme2": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "header"
+              }
+            }
+        },
+        "security": {
+              "mySecurityScheme": [],
+              "mySecurityScheme2": []
+          }
+      }`;
+      expect(validator.isApiSpecsValid(exceededArraySizeAPISpec)).toMatchObject({
         valid: false,
         messages: [sizeExceededMessage('servers', 1)],
       });
     });
 
     test('JSON validity test', () => {
-      expect(validator.isApiSpecsValid(specs7)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isApiSpecsValid(specs8)).toMatchObject({
+      const smallValidAPISpec = `{
+        "servers": [],
+        "paths": {},
+        "components": {
+            "securitySchemes": {}
+        },
+        "security": {}
+      }`;
+      expect(validator.isApiSpecsValid(smallValidAPISpec)).toMatchObject({ valid: true, messages: [] });
+
+      const invalidJSONAPISpec = `{
+        "servers": [],
+        "paths": {},
+        "components": {
+            "securitySchemes": {}
+        },
+        "security": {}`;
+      expect(validator.isApiSpecsValid(invalidJSONAPISpec)).toMatchObject({
         valid: false,
         messages: [{ level: 'error', message: 'SyntaxError: Unexpected end of JSON input' }],
       });
-      expect(validator.isApiSpecsValid(specs9)).toMatchObject({ valid: true, messages: [] });
-      expect(validator.isApiSpecsValid(specs10)).toMatchObject({ valid: true, messages: [] });
     });
 
     test('missing parameters', () => {
-      expect(validator.isApiSpecsValid(specs11)).toMatchObject({
+      const missingParametersAPISpec1 = `{
+        "paths": {
+            "/myPath": {
+                "post": {}
+            }
+        },
+        "components": {
+            "securitySchemes": {
+                "mySecurityScheme": {
+                  }
+            }
+        }
+      }`;
+      expect(validator.isApiSpecsValid(missingParametersAPISpec1)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('servers'),
@@ -692,7 +485,54 @@ describe('validator', () => {
           missingParamMessage('security'),
         ],
       });
-      expect(validator.isApiSpecsValid(specs12)).toMatchObject({
+
+      const missingParametersAPISpec2 = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api"
+            }
+        ],
+        "paths": {
+            "/myPath": {
+              "get": {
+                "parameters": [
+                  {}
+                ]
+              }
+            },
+            "/myPath2": {
+              "post": {
+                "parameters": [
+                  {
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParameter",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParameter"
+                  }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {},
+              "mySecurityScheme2": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "header"
+              }
+            }
+        },
+        "security": {
+              "mySecurityScheme": [],
+              "mySecurityScheme2": []
+          }
+      }`;
+      expect(validator.isApiSpecsValid(missingParametersAPISpec2)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('paths./myPath.get.parameters[0].name'),
@@ -703,7 +543,9 @@ describe('validator', () => {
           missingParamMessage('components.securitySchemes.mySecurityScheme.in')
         ],
       });
-      expect(validator.isApiSpecsValid(specs13)).toMatchObject({
+
+      const emptyJSON = `{}`;
+      expect(validator.isApiSpecsValid(emptyJSON)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('servers'),
@@ -715,7 +557,51 @@ describe('validator', () => {
     });
 
     test('extra fields', () => {
-      expect(validator.isApiSpecsValid(specs14)).toMatchObject({
+      const extraFieldsAPISpec = `{
+        "extra": {
+            "inside": "extra"
+        },
+        "servers": [
+            {
+                "url":  "https://myapi.com/api",
+                "extra": "field"
+            }
+        ],
+        "paths": {
+            "/myPath": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParameter",
+                    "in": "query",
+                    "extra": "field"
+                  }
+                ],
+                "others": [
+                    {
+                        "name": "myParameter",
+                    "in": "query"
+                    }
+                ]
+              }
+            }   
+        },
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {
+                "type": "apiKey",
+                "name": "X-MY-API-KEY",
+                "in": "query",
+                "extra": "field"
+              }
+            },
+            "extra": {}
+        },
+        "security": {
+          "mySecurityScheme": []
+            }
+      }`;
+      expect(validator.isApiSpecsValid(extraFieldsAPISpec)).toMatchObject({
         valid: true,
         messages: [
           extraFieldMessage('extra'),
@@ -729,7 +615,44 @@ describe('validator', () => {
     });
 
     test('conditions (if, then, require) test', () => {
-      expect(validator.isApiSpecsValid(specs15)).toMatchObject({
+      const invalidSecuritySchemesAPISpec = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api"
+            }
+        ],
+        "paths": {},
+        "components": {
+            "securitySchemes": {
+              "mySecurityScheme": {
+                "type": "invalid",
+                "in": "query"
+              },
+              "mySecurityScheme2": {
+                "type": "apiKey",
+                "in": "query"
+              },
+              "mySecurityScheme3": {
+                "type": "apiKey",
+                "in": "query",
+                "scheme": "invalid"
+              },
+              "mySecurityScheme4": {
+                "type": "http",
+                "in": "query",
+                "scheme": "invalid"
+              }
+            }
+        },
+        "security": {
+          "mySecurityScheme": [],
+          "mySecurityScheme2": [],
+          "mySecurityScheme3": [],
+          "mySecurityScheme4": [],
+          "mySecurityScheme5": []
+        }
+      }`;
+      expect(validator.isApiSpecsValid(invalidSecuritySchemesAPISpec)).toMatchObject({
         valid: false,
         messages: [
           formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
@@ -740,7 +663,92 @@ describe('validator', () => {
           extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme')
         ]
       });
-      expect(validator.isApiSpecsValid(specs16)).toMatchObject({
+
+      const invalidPathsAPISpec = `{
+        "servers": [
+            {
+                "url":  "https://myapi.com/api"
+            }
+        ],
+        "paths": {
+          "/myPath/{myParam}": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParam",
+                    "in": "query"
+                  }
+                ]
+              }
+            },
+            "/{myParam}/{myParam2}": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParam",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParam2",
+                    "in": "query"
+                  }
+                ]
+              }
+            },
+            "/{myParam}": {
+              "get": {
+                "parameters": []
+              }
+            },
+            "/{myParam}/myPath/{myParam2}/subPath": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParam",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParam3",
+                    "in": "query"
+                  }
+                ]
+              }
+            },
+            "/{myParam}/myPath/{myParam2}": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParam3",
+                    "in": "query"
+                  }
+                ]
+              }
+            },
+            "/{myParam}/{myParam2}/{myParam3}": {
+              "get": {
+                "parameters": [
+                  {
+                    "name": "myParam3",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParam",
+                    "in": "query"
+                  },
+                  {
+                    "name": "myParam2",
+                    "in": "query"
+                  }
+                ]
+              }
+            }
+        },
+        "components": {
+            "securitySchemes": {}
+        },
+        "security": {}
+      }`;
+      expect(validator.isApiSpecsValid(invalidPathsAPISpec)).toMatchObject({
         valid: false, messages: [
           conditionNotMetMessage('paths./{myParam}', 'myParam'),
           conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}/subPath', 'myParam2'),
@@ -752,12 +760,76 @@ describe('validator', () => {
   });
 
   test('endpoints specs', () => {
-    expect(validator.isEndpointsValid(specs17)).toMatchObject({
+    const validEndpointSpec = `[
+      {
+        "name": "test",
+        "operation": {
+          "path": "/myPath",
+          "method": "get"
+        }
+      },
+      {
+        "name": "two",
+        "operation": {
+          "path": "/myPath2",
+          "method": "post"
+        }
+      }
+    ]`;
+    expect(validator.isEndpointsValid(validEndpointSpec)).toMatchObject({
       valid: true,
       messages: []
     });
 
-    expect(validator.isEndpointsValid(specs18)).toMatchObject({
+    const invalidEndpointSpec = `[
+      {
+        "name": "test",
+        "operation": {
+          "method": "undefined"
+        },
+        "fixedOperationParameters": [],
+        "reservedParameters": [
+          {
+            "name": "path",
+            "fixed": "int256",
+            "default": "data.0.price"
+          },
+          {
+            "name": "_path"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "_incorrect",
+            "default": "",
+            "description": "",
+            "required": "",
+            "example": "",
+            "summary": "",
+            "externalDocs": ""
+          },
+          {
+            "name": "correct",
+            "operationParameter": {
+              "name": "operation",
+              "in": "header"
+            }
+          }
+        ]
+      },
+      {
+        "extra": "extra",
+        "fixedOperationParameters": [
+          {
+            "operationParameter": {
+              "in": "none"
+            },
+            "value": "param value"
+          }
+        ]
+      }
+    ]`;
+    expect(validator.isEndpointsValid(invalidEndpointSpec)).toMatchObject({
       valid: false,
       messages: [
         missingParamMessage('[0].operation.path'),
@@ -775,22 +847,36 @@ describe('validator', () => {
   });
 
   test('ois specs', () => {
-    expect(validator.isOisValid(specs19)).toMatchObject({
+    const validOISSpecification = `{
+      "oisFormat": "1.10.0",
+      "title": "myOisTitle",
+      "version": "1.2.3",
+      "apiSpecifications": ${validAPISpecification},
+      "endpoints": ${validEndpointSpecification}
+    }`;
+    expect(validator.isOisValid(validOISSpecification)).toMatchObject({
       valid: true,
       messages: []
     });
 
-    expect(validator.isOisValid(specs20)).toMatchObject({
+    const invalidOISSpecification = `{
+      "oisFormat": "1..0",
+      "title": "myOisTitle",
+      "version": "1.0",
+      "apiSpecifications": ${invalidAPISpecification},
+      "endpoints": ${invalidEndpointSpecification}
+    }`;
+    expect(validator.isOisValid(invalidOISSpecification)).toMatchObject({
       valid: false,
       messages: [
         formattingMessage('oisFormat'),
         formattingMessage('version'),
+        formattingMessage('apiSpecifications.servers[0].url'),
+        conditionNotMetMessage('apiSpecifications.paths./myPath/{myParam}', 'myParam'),
         formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
-        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2.name'),
-        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme3.name'),
-        formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme4.scheme', true),
-        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme5'),
-        extraFieldMessage('apiSpecifications.components.securitySchemes.mySecurityScheme3.scheme')
+        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2'),
+        missingParamMessage('endpoints[0].operation.path'),
+        formattingMessage('endpoints[0].operation.method')
       ]
     });
   });
