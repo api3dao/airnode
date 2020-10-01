@@ -42,10 +42,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
         external
         override
-        onlyIfDesignatedWalletIsFunded(
-          designatedWallet,
-          providers[templates[templateId].providerId].minBalance
-          )
         returns (bytes32 requestId)
     {
         require(
@@ -94,10 +90,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
         external
         override
-        onlyIfDesignatedWalletIsFunded(
-          templates[templateId].designatedWallet,
-          providers[templates[templateId].providerId].minBalance
-          )
         returns (bytes32 requestId)
     {
         Template storage template = templates[templateId];
@@ -155,10 +147,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
         external
         override
-        onlyIfDesignatedWalletIsFunded(
-          designatedWallet,
-          providers[providerId].minBalance
-          )
         returns (bytes32 requestId)
     {
         require(

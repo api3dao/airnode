@@ -10,7 +10,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
     struct Provider {
         address admin;
         string xpub;
-        uint256 minBalance;
         }
 
     mapping(bytes32 => Provider) internal providers;
@@ -24,18 +23,14 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// retrieve its details with a getProvider() call. If the xpub is does not
     /// match, it should call this method to update the provider record.
     /// Note that the provider private key can be used to update
-    /// admin/minBalance through this method. This is allowed on purpose, as
+    /// admin through this method. This is allowed on purpose, as
     /// the provide private key is more privileged than the provider admin.
     /// @param admin Provider admin
     /// @param xpub Master public key of the provider node
-    /// @param minBalance The minimum balance the provider expects a requester
-    /// to have in their designated wallet to attempt to fulfill requests from
-    /// their endorsed client contracts.
     /// @return providerId Provider ID
     function createProvider(
         address admin,
-        string calldata xpub,
-        uint256 minBalance
+        string calldata xpub
         )
         external
         payable
@@ -45,14 +40,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
         providerId = keccak256(abi.encode(msg.sender));
         providers[providerId] = Provider({
             admin: admin,
-            xpub: xpub,
-            minBalance: minBalance
+            xpub: xpub
             });
         emit ProviderCreated(
             providerId,
             admin,
-            xpub,
-            minBalance
+            xpub
             );
         if (msg.value > 0)
         {
@@ -64,24 +57,18 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @notice Updates the provider
     /// @param providerId Provider ID
     /// @param admin Provider admin
-    /// @param minBalance The minimum balance the provider expects a requester
-    /// to have in their designated wallet to attempt to fulfill requests from
-    /// their endorsed client contracts.
     function updateProvider(
         bytes32 providerId,
-        address admin,
-        uint256 minBalance
+        address admin
         )
         external
         override
         onlyProviderAdmin(providerId)
     {
         providers[providerId].admin = admin;
-        providers[providerId].minBalance = minBalance;
         emit ProviderUpdated(
             providerId,
-            admin,
-            minBalance
+            admin
             );
     }
 
@@ -102,10 +89,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
         external
         override
         onlyRequesterAdmin(requesterInd)
-        onlyIfDesignatedWalletIsFunded(
-          designatedWallet,
-          providers[providerId].minBalance
-          )
     {
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             this,
@@ -171,23 +154,17 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
-    /// @return minBalance The minimum balance the provider expects a requester
-    /// to have in their designated wallet to attempt to fulfill requests from
-    /// their endorsed client contracts. It should cover the gas cost of calling
-    /// fail() from Airnode.sol a few times.
     function getProvider(bytes32 providerId)
         external
         view
         override
         returns (
             address admin,
-            string memory xpub,
-            uint256 minBalance
+            string memory xpub
         )
     {
         admin = providers[providerId].admin;
         xpub = providers[providerId].xpub;
-        minBalance = providers[providerId].minBalance;
     }
 
     /// @dev Reverts if the caller is not the provider admin
@@ -196,24 +173,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     {
         require(
             msg.sender == providers[providerId].admin,
-            "Caller is not the provider admin"
-            );
-        _;
-    }
-
-    /// @dev Reverts if the designated wallet balance is lower than minBalance
-    /// of the provider it belongs to
-    /// @param designatedWallet Designated wallet
-    /// @param minBalance Minimum balance the designated wallet needs to
-    /// contain for the provider to process the request
-    modifier onlyIfDesignatedWalletIsFunded(
-        address designatedWallet,
-        uint256 minBalance
-        )
-    {
-        require(
-            designatedWallet.balance >= minBalance,
-            "Designated wallet underfunded"
+            "Caller is not provider admin"
             );
         _;
     }

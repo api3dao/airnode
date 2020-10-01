@@ -48,7 +48,7 @@ contract Convenience is IConvenience {
                 fulfillAddresses[ind],
                 fulfillFunctionIds[ind],
                 parameters[ind]
-            ) = airnode.getTemplate(templateIds[ind]);
+                ) = airnode.getTemplate(templateIds[ind]);
         }
     }
 
@@ -84,10 +84,11 @@ contract Convenience is IConvenience {
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
     function checkAuthorizationStatus(
-        bytes32 requestId,
         bytes32 providerId,
+        bytes32 requestId,
         bytes32 endpointId,
         uint256 requesterInd,
+        address designatedWallet,
         address clientAddress
         )
         public
@@ -111,7 +112,7 @@ contract Convenience is IConvenience {
             if (authorizerAddress == address(0)) {
                 // If we have reached a 0 without getting any unauthorized
                 // reports, we can return true
-                if  (authorizedByAll) {
+                if (authorizedByAll) {
                     return true;
                 }
                 // Otherwise, reset authorizedByAll and start checking the next
@@ -126,7 +127,7 @@ contract Convenience is IConvenience {
                 // This means that we will not be able to return a true from
                 // this group of authorizers.
                 if (!authorizer.checkIfAuthorized(
-                    requestId, providerId, endpointId, requesterInd, clientAddress
+                    requestId, providerId, endpointId, requesterInd, designatedWallet, clientAddress
                     )) {
                     authorizedByAll = false;
                 }
@@ -140,10 +141,11 @@ contract Convenience is IConvenience {
     }
 
     function checkAuthorizationStatuses(
+        bytes32 providerId,
         bytes32[] calldata requestIds,
-        bytes32[] calldata providerIds,
         bytes32[] calldata endpointIds,
         uint256[] calldata requesterInds,
+        address[] calldata designatedWallets,
         address[] calldata clientAddresses
         )
         external
@@ -152,20 +154,21 @@ contract Convenience is IConvenience {
         returns (bool[] memory statuses)
     {
         require(
-            requestIds.length == providerIds.length
-                && requestIds.length == endpointIds.length
+            requestIds.length == endpointIds.length
                 && requestIds.length == requesterInds.length
+                && requestIds.length == designatedWallets.length
                 && requestIds.length == clientAddresses.length,
             "Parameter lengths must be equal"
         );
-        statuses = new bool[](providerIds.length);
-        for (uint256 ind = 0; ind < providerIds.length; ind++)
+        statuses = new bool[](requestIds.length);
+        for (uint256 ind = 0; ind < requestIds.length; ind++)
         {
             statuses[ind] = checkAuthorizationStatus(
+                providerId,
                 requestIds[ind],
-                providerIds[ind],
                 endpointIds[ind],
                 requesterInds[ind],
+                designatedWallets[ind],
                 clientAddresses[ind]
                 );
         }

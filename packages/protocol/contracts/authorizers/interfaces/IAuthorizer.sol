@@ -8,6 +8,7 @@ interface IAuthorizer {
         bytes32 providerId,
         bytes32 endpointId,
         uint256 requesterInd,
+        address designatedWallet,
         address clientAddress
         )
         external

@@ -20,10 +20,11 @@ interface IConvenience {
         );
 
     function checkAuthorizationStatus(
-        bytes32 requestId,
         bytes32 providerId,
+        bytes32 requestId,
         bytes32 endpointId,
         uint256 requesterInd,
+        address designatedWallet,
         address clientAddress
         )
         external
@@ -31,10 +32,11 @@ interface IConvenience {
         returns(bool status);
 
     function checkAuthorizationStatuses(
-        bytes32[] calldata requestIds,
-        bytes32[] calldata providerIds,
+        bytes32 providerId,
+        bytes32[] calldata requestIds, 
         bytes32[] calldata endpointIds,
         uint256[] calldata requesterInds,
+        address[] calldata designatedWallets,
         address[] calldata clientAddresses
         )
         external
