@@ -22,9 +22,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @dev The oracle node should calculate their providerId off-chain and
     /// retrieve its details with a getProvider() call. If the xpub is does not
     /// match, it should call this method to update the provider record.
-    /// Note that the provider private key can be used to update
-    /// admin through this method. This is allowed on purpose, as
-    /// the provide private key is more privileged than the provider admin.
+    /// Note that the provider private key can be used to update admin through
+    /// this method. This is allowed on purpose, as the provider private key is
+    /// more privileged than the provider admin account.
     /// @param admin Provider admin
     /// @param xpub Master public key of the provider node
     /// @return providerId Provider ID
