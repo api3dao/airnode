@@ -1,3 +1,4 @@
+
 import { go } from '../../utils/promise-utils';
 import * as authorization from '../authorization';
 import * as logger from '../../logger';
@@ -79,11 +80,11 @@ export async function initializeState(coordinatorId: string, config: ChainConfig
   // // =================================================================
   // // STEP 5: Merge authorizations and transaction counts
   // // =================================================================
-  const [authLogs, _authErr, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
+  const [authLogs, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
     walletDataWithTransactionCounts,
     authorizationsByEndpoint
   );
-  logger.logPending(authLogs, { coordinatorId, providerName });
+  logger.logPendingMessages(state3.config.name, authLogs);
 
   const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
 

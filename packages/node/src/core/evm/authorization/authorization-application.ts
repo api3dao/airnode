@@ -6,7 +6,7 @@ import {
   ApiCall,
   AuthorizationByEndpointId,
   ClientRequest,
-  LogsErrorData,
+  LogsData,
   RequestErrorCode,
   RequestStatus,
   WalletDataByIndex,
@@ -15,11 +15,11 @@ import {
 function mapApiCalls(
   apiCalls: ClientRequest<ApiCall>[],
   authorizationsByEndpointId: AuthorizationByEndpointId
-): LogsErrorData<ClientRequest<ApiCall>[]> {
-  const logsWithApiCalls: LogsErrorData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
+): LogsData<ClientRequest<ApiCall>[]> {
+  const logsWithApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
     // Don't overwrite any existing error codes or statuses
     if (apiCall.errorCode || apiCall.status !== RequestStatus.Pending) {
-      return [[], null, apiCall];
+      return [[], apiCall];
     }
 
     // There should always be an endpointId at this point, but just in case, check again
@@ -32,7 +32,7 @@ function mapApiCalls(
         status: RequestStatus.Blocked,
         errorCode: RequestErrorCode.TemplateNotFound,
       };
-      return [[log], null, updatedApiCall];
+      return [[log], updatedApiCall];
     }
 
     const isRequestedAuthorized = get(authorizationsByEndpointId, [apiCall.endpointId, apiCall.requesterAddress]);
@@ -45,11 +45,11 @@ function mapApiCalls(
         status: RequestStatus.Blocked,
         errorCode: RequestErrorCode.AuthorizationNotFound,
       };
-      return [[log], null, updatedApiCall];
+      return [[log], updatedApiCall];
     }
 
     if (isRequestedAuthorized) {
-      return [[], null, apiCall];
+      return [[], apiCall];
     }
 
     const log = logger.pend(
@@ -62,19 +62,19 @@ function mapApiCalls(
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.UnauthorizedClient,
     };
-    return [[log], null, updatedApiCall];
+    return [[log], updatedApiCall];
   });
 
   const logs = flatMap(logsWithApiCalls, (a) => a[0]);
-  const updatedApiCalls = flatMap(logsWithApiCalls, (a) => a[2]);
+  const updatedApiCalls = flatMap(logsWithApiCalls, (a) => a[1]);
 
-  return [logs, null, updatedApiCalls];
+  return [logs, updatedApiCalls];
 }
 
 export function mergeAuthorizations(
   walletDataByIndex: WalletDataByIndex,
   authorizationsByEndpointId: AuthorizationByEndpointId
-): LogsErrorData<WalletDataByIndex> {
+): LogsData<WalletDataByIndex> {
   const walletIndices = Object.keys(walletDataByIndex);
 
   const updatedWalletDataWithLogs = walletIndices.reduce(
@@ -83,7 +83,7 @@ export function mergeAuthorizations(
       const { requests } = walletData;
 
       // Update the authorization status of each API call
-      const [mapApiCallLogs, _mapApiCallErr, apiCalls] = mapApiCalls(requests.apiCalls, authorizationsByEndpointId);
+      const [mapApiCallLogs, apiCalls] = mapApiCalls(requests.apiCalls, authorizationsByEndpointId);
 
       const updatedLogs = [...acc.logs, ...mapApiCallLogs];
 
@@ -98,5 +98,5 @@ export function mergeAuthorizations(
     { logs: [], walletDataByIndex: {} }
   );
 
-  return [updatedWalletDataWithLogs.logs, null, updatedWalletDataWithLogs.walletDataByIndex];
+  return [updatedWalletDataWithLogs.logs, updatedWalletDataWithLogs.walletDataByIndex];
 }

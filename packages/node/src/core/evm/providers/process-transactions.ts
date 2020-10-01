@@ -1,4 +1,5 @@
-import * as gas from '../gas-prices';
+
+import { getGasPrice } from '../gas-prices';
 import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
@@ -26,9 +27,15 @@ export async function processTransactions(initialState: ProviderState<EVMProvide
   // =================================================================
   // STEP 2: Get the latest gas price
   // =================================================================
-  const gasPrice = await gas.getGasPrice(state1);
+  const gasPriceOptions = {
+    address: contracts.GasPriceFeed.addresses[state1.config.chainId],
+    provider: state1.provider,
+  };
+  const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
+  logger.logPendingMessages(state1.config.name, gasPriceLogs);
+
   const gweiPrice = utils.weiToGwei(gasPrice);
-  logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
+  logger.logProviderJSON(state1.config.name, 'INFO', `Gas price set to ${gweiPrice} Gwei`);
   const state2 = state.update(state1, { gasPrice });
 
   // =================================================================
@@ -41,4 +48,4 @@ export async function processTransactions(initialState: ProviderState<EVMProvide
   });
 
   return receipts;
-}
+} 
