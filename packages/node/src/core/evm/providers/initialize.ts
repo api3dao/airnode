@@ -1,11 +1,11 @@
-import { go } from '../utils/promise-utils';
-import { ProviderConfig, ProviderState } from '../../types';
-import * as authorization from '../evm/authorization';
-import * as logger from '../logger';
-import * as triggers from '../evm/triggers';
-import * as templates from '../evm/templates';
-import * as transactionCounts from '../evm/transaction-counts';
-import * as state from './state';
+import { go } from '../../utils/promise-utils';
+import * as authorization from '../authorization';
+import * as logger from '../../logger';
+import * as triggers from '../triggers';
+import * as templates from '../templates';
+import * as transactionCounts from '../transaction-counts';
+import * as state from '../../providers/state';
+import { ProviderConfig, ProviderState } from '../../../types';
 
 type ParallelPromise = Promise<{ id: string; data: any }>;
 
@@ -74,7 +74,7 @@ export async function initializeState(config: ProviderConfig, index: number): Pr
   // // =================================================================
   // // STEP 5: Merge authorizations and transaction counts
   // // =================================================================
-  const [authLogs, _authErr, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
+  const [authLogs, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
     walletDataWithTransactionCounts,
     authorizationsByEndpoint
   );

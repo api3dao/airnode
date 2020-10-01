@@ -24,9 +24,8 @@ describe('mergeAuthorizations', () => {
       },
     };
     const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
-    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.InvalidRequestParameters);
@@ -53,9 +52,8 @@ describe('mergeAuthorizations', () => {
       },
     };
     const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
-    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
   });
@@ -74,9 +72,8 @@ describe('mergeAuthorizations', () => {
       },
     };
     const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
-    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([{ level: 'ERROR', message: 'No endpoint ID found for Request ID:apiCallId' }]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
@@ -94,9 +91,8 @@ describe('mergeAuthorizations', () => {
         transactionCount: 3,
       },
     };
-    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, {});
+    const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, {});
     expect(logs).toEqual([{ level: 'WARN', message: 'Authorization not found for Request ID:apiCallId' }]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.AuthorizationNotFound);
@@ -118,9 +114,8 @@ describe('mergeAuthorizations', () => {
       },
     };
     const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
-    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(undefined);
@@ -142,7 +137,7 @@ describe('mergeAuthorizations', () => {
       },
     };
     const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': false } };
-    const [logs, err, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
+    const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([
       {
         level: 'WARN',
@@ -150,7 +145,6 @@ describe('mergeAuthorizations', () => {
           'Client:0xrequesterAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:apiCallId',
       },
     ]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(1);
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Errored);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnauthorizedClient);
