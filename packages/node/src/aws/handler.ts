@@ -1,7 +1,8 @@
 import { config } from '../core/config';
 import * as coordinator from '../core/coordinator';
-import * as providers from '../core/providers';
 import * as http from '../core/adapters/http/execution';
+import * as logger from '../core/logger';
+import * as providers from '../core/providers';
 import { removeKey } from '../core/utils/object-utils';
 
 export async function start(event: any) {
@@ -17,7 +18,7 @@ export async function start(event: any) {
 }
 
 export async function initializeProvider(event: any) {
-  const index = Number(event.pathParameters.index);
+  const index = Number(event.parameters.index);
   const providerConfig = config.nodeSettings.ethereumProviders[index];
   const state = await providers.initializeState(providerConfig, index);
 
@@ -39,8 +40,19 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall } = event.queryStringParameters;
-  const response = await http.callApi(aggregatedApiCall);
+  const { aggregatedApiCall, state } = event.parameters;
+  const [logs, response] = await http.callApi(aggregatedApiCall);
+
+  const logOptions = {
+    format: state.settings.logFormat,
+    meta: {
+      coordinatorId: state.coordinatorId,
+      chainId: state.settings.chainId,
+      chainType: state.settings.chainType,
+      providerName: state.settings.name,
+    },
+  };
+  logger.logPending(logs, logOptions);
 
   return {
     statusCode: 200,
@@ -49,7 +61,7 @@ export async function callApi(event: any) {
 }
 
 export async function processProviderRequests(event: any) {
-  const { state } = event.queryStringParameters;
+  const { state } = event.parameters;
   const response = await providers.processTransactions(state);
 
   return {

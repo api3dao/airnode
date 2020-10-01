@@ -4,7 +4,6 @@ import { ethers } from 'ethers';
 // ===========================================
 // Options
 // ===========================================
-
 export interface CoordinatorOptions {
   readonly chains?: ChainConfig[];
 }
@@ -13,7 +12,7 @@ export interface CoordinatorOptions {
 // State
 // ===========================================
 export interface ApiCallParameters {
-  [key: string]: string;
+  readonly [key: string]: string;
 }
 
 export enum RequestErrorCode {
@@ -134,19 +133,20 @@ export interface WalletDataByIndex {
   readonly [index: string]: WalletData;
 }
 
-export type ProviderSettings<T extends {}> = T & {
+export interface ProviderSettings {
   readonly blockHistoryLimit: number;
   readonly chainId: number;
+  readonly chainType: ChainType;
   readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly type: ChainType;
   readonly url: string;
 }
 
 export type ProviderState<T extends {}> = T & {
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly settings: ProviderSettings;
   readonly walletDataByIndex: WalletDataByIndex;
 }
 
@@ -170,37 +170,28 @@ export interface EVMContracts {
   readonly GasPriceFeed: string;
 }
 
-export interface EVMSettings {
-  readonly contracts: EVMContracts;
-}
-
 export interface EVMProviderState {
+  readonly contracts: EVMContracts;
   readonly gasPrice: ethers.BigNumber | null;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly settings: ProviderSettings<EVMSettings>;
 }
-
 
 // ===========================================
 // API calls
 // ===========================================
 export interface AuthorizationByRequester {
-  [id: string]: boolean;
+  readonly [id: string]: boolean;
 }
 
 export interface AuthorizationByEndpointId {
-  [id: string]: AuthorizationByRequester;
+  readonly [id: string]: AuthorizationByRequester;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
 
 export interface ApiCallResponse {
-  value: string;
-}
-
-export interface ApiCallError {
-  errorCode: number;
-  message?: string;
+  readonly value?: string;
+  readonly errorCode?: RequestErrorCode;
 }
 
 export interface AggregatedApiCall {
@@ -211,52 +202,44 @@ export interface AggregatedApiCall {
   readonly parameters: ApiCallParameters;
   readonly providers: number[];
   readonly type: AggregatedApiCallType;
-  readonly error?: ApiCallError;
-  readonly response?: ApiCallResponse;
+  readonly errorCode?: RequestErrorCode;
+  readonly responseValue?: string;
 }
 
 // ===========================================
 // Events
 // ===========================================
 export interface LogWithMetadata {
-  blockNumber: number;
-  parsedLog: ethers.utils.LogDescription;
-  transactionHash: string;
+  readonly blockNumber: number;
+  readonly parsedLog: ethers.utils.LogDescription;
+  readonly transactionHash: string;
 }
 
 // ===========================================
 // Transactions
 // ===========================================
 export interface TransactionOptions {
-  gasPrice: number | ethers.BigNumber;
-  provider?: ethers.providers.JsonRpcProvider;
+  readonly gasPrice: number | ethers.BigNumber;
+  readonly provider?: ethers.providers.JsonRpcProvider;
 }
 
 export interface TransactionReceipt {
-  id: string;
-  transactionHash: string;
-  type: RequestType;
+  readonly id: string;
+  readonly transactionHash: string;
+  readonly type: RequestType;
 }
 
 // ===========================================
 // Triggers
 // ===========================================
 export interface RequestTrigger {
-  endpointId: string;
-  endpointName: string;
-  oisTitle: string;
-}
-
-export interface AggregatorTrigger {
-  address: string;
-  endpointName: string;
-  oisTitle: string;
+  readonly endpointId: string;
+  readonly endpointName: string;
+  readonly oisTitle: string;
 }
 
 export interface Triggers {
-  aggregator: AggregatorTrigger[];
-  flux: AggregatorTrigger[];
-  requests: RequestTrigger[];
+  readonly requests: RequestTrigger[];
 }
 
 // ===========================================
@@ -266,17 +249,24 @@ export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
 export type LogFormat = 'json' | 'plain';
 
+export interface LogMetadata {
+  readonly coordinatorId?: string;
+  readonly chainId?: number;
+  readonly chainType?: ChainType;
+  readonly providerName?: string;
+}
+
 export interface LogOptions {
-  coordinatorId?: string;
-  error?: Error | null;
-  format?: LogFormat;
-  providerName?: string;
+  readonly additional?: any;
+  readonly error?: Error | null;
+  readonly format: LogFormat;
+  readonly meta: LogMetadata;
 }
 
 export interface PendingLog {
-  error?: Error;
-  level: LogLevel;
-  message: string;
+  readonly error?: Error;
+  readonly level: LogLevel;
+  readonly message: string;
 }
 
 // There are many places throughout the app where we need the context of the current
@@ -328,8 +318,8 @@ export interface NodeSettings {
 }
 
 export interface Config {
-  id: string;
-  ois: OIS[];
-  nodeSettings: NodeSettings;
-  triggers: Triggers;
+  readonly id: string;
+  readonly ois: OIS[];
+  readonly nodeSettings: NodeSettings;
+  readonly triggers: Triggers;
 }

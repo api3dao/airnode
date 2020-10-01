@@ -5,16 +5,19 @@ import { removeKeys } from '../../utils/object-utils';
 import * as logger from '../../logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from './parameters';
 import { validateAggregatedApiCall } from './preprocessing';
-import { AggregatedApiCall, ApiCallError, ApiCallResponse, RequestErrorCode } from '../../../types';
+import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorCode } from '../../../types';
 
-const API_CALL_TIMEOUT = 29_000;
+// Each API call is allowed 20 seconds to complete, before it is retried until the
+// maximum timeout is reached.
+const TOTAL_TIMEOUT = 29_000;
+const API_CALL_TIMEOUT = 20_000;
 
-export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<ApiCallResponse | ApiCallError> {
+export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<LogsData<ApiCallResponse>> {
   const validatedCall = validateAggregatedApiCall(aggregatedApiCall);
 
   // An invalid API call should never reach this point, but just in case it does
-  if (validatedCall.error?.errorCode) {
-    return validatedCall.error;
+  if (validatedCall.errorCode) {
+    return [[], { errorCode: validatedCall.errorCode }];
   }
 
   const { endpointName, oisTitle } = validatedCall;
@@ -27,9 +30,8 @@ export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<Api
   // Check before making the API call in case the parameters are missing
   const responseParameters = getResponseParameters(endpoint, validatedCall.parameters || {});
   if (!responseParameters._type) {
-    const message = `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`;
-    logger.logJSON('ERROR', message);
-    return { errorCode: RequestErrorCode.InvalidResponseParameters, message };
+    const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
+    return [[log], { errorCode: RequestErrorCode.InvalidResponseParameters }];
   }
 
   // Don't submit the reserved parameters to the API
@@ -42,31 +44,25 @@ export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<Api
     securitySchemes,
   };
 
-  // The request is allowed 20 seconds to complete before it is retried
-  const adapterConfig: adapter.Config = { timeout: 20_000 };
+  const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
 
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
-  const retryableCall = retryOnTimeout(API_CALL_TIMEOUT, () =>
+  const retryableCall = retryOnTimeout(TOTAL_TIMEOUT, () =>
     adapter.buildAndExecuteRequest(options, adapterConfig)
   ) as Promise<any>;
 
   const [err, res] = await go(retryableCall);
   if (err) {
-    const message = `Failed to call Endpoint:${validatedCall.endpointName}. ${err}`;
-    logger.logJSON('ERROR', message);
-    return { errorCode: RequestErrorCode.ApiCallFailed, message };
+    const log = logger.pend('ERROR', `Failed to call Endpoint:${validatedCall.endpointName}`, err);
+    return [[log], { errorCode: RequestErrorCode.ApiCallFailed }];
   }
 
-  let encodedValue: string;
   try {
     const extracted = adapter.extractAndEncodeResponse(res.data, responseParameters as adapter.ResponseParameters);
-    encodedValue = extracted.encodedValue;
+    return [[], { value: extracted.encodedValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
-    const message = `Unable to find response value from ${data}. Path: ${responseParameters._path}`;
-    logger.logJSON('ERROR', message);
-    return { errorCode: RequestErrorCode.ResponseValueNotFound, message };
+    const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${responseParameters._path}`);
+    return [[log], { errorCode: RequestErrorCode.ResponseValueNotFound }];
   }
-
-  return { value: encodedValue };
 }

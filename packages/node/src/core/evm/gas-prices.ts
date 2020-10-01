@@ -1,37 +1,37 @@
 import { ethers } from 'ethers';
 import isEmpty from 'lodash/isEmpty';
-import { ProviderState } from '../../types';
 import { goTimeout } from '../utils/promise-utils';
 import { GasPriceFeed } from './contracts';
 import * as utils from './utils';
 import * as logger from '../logger';
+import { LogsData, ProviderState } from '../../types';
 
 // We don't want to hold everything up so limit each request to 5 seconds maximum
 const TIMEOUT = 5_000;
 const FALLBACK_WEI_PRICE = ethers.utils.parseUnits('40', 'gwei');
 const MAXIMUM_WEI_PRICE = ethers.utils.parseUnits('1000', 'gwei');
 
-type GasPriceResponse = ethers.BigNumber | null;
+type GasPriceResponse = LogsData<ethers.BigNumber | null>;
 
 async function getDataFeedGasPrice(providerState: ProviderState): Promise<GasPriceResponse> {
   const { config, provider } = providerState;
   const contract = new ethers.Contract(GasPriceFeed.addresses[config.chainId], GasPriceFeed.ABI, provider);
   const [err, weiPrice] = await goTimeout(TIMEOUT, contract.latestAnswer() as Promise<ethers.BigNumber>);
   if (err || !weiPrice) {
-    logger.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from gas price feed contract. ${err}`);
-    return null;
+    const log = logger.pend('ERROR', 'Failed to get gas price from gas price feed contract', err);
+    return [[log], null];
   }
-  return weiPrice;
+  return [[], weiPrice];
 }
 
 async function getEthNodeGasPrice(state: ProviderState): Promise<GasPriceResponse> {
   const { config, provider } = state;
   const [err, weiPrice] = await goTimeout(TIMEOUT, provider.getGasPrice());
   if (err || !weiPrice) {
-    logger.logProviderJSON(config.name, 'ERROR', `Failed to get gas price from Ethereum node. ${err}`);
-    return null;
+    const log = logger.pend('ERROR', 'Failed to get gas price from Ethereum node', err);
+    return [[log], null];
   }
-  return weiPrice;
+  return [[], weiPrice as ethers.BigNumber];
 }
 
 export async function getGasPrice(providerState: ProviderState): Promise<ethers.BigNumber> {

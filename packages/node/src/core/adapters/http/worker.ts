@@ -5,9 +5,8 @@ export type AnyApiCallResponse = Partial<ApiCallResponse & ApiCallError>;
 
 export async function spawnNewApiCall(aggregatedApiCall: AggregatedApiCall): Promise<AnyApiCallResponse> {
   // TODO: This will probably need to change for other cloud providers
-  // TODO: queryStringParameters is probably not right...
-  const payload = workers.isLocalEnv() ? { queryStringParameters: { aggregatedApiCall } } : aggregatedApiCall;
-
+  const parameters = { aggregatedApiCall };
+  const payload = workers.isLocalEnv() ? { parameters } : parameters;
   const options = { functionName: 'callApi', payload };
 
   // If this throws, it will be caught by the calling function
