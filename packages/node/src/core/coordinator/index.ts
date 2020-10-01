@@ -5,6 +5,7 @@ import * as state from './state';
 import * as logger from '../logger';
 import { formatDateTime } from '../utils/date-utils';
 import * as calls from './calls';
+import * as walletData from '../requests/wallet-data';
 import { spawnProviderRequestProcessor } from '../providers/worker';
 
 export async function start() {
@@ -25,6 +26,12 @@ export async function start() {
     logger.logJSON('INFO', `Initialized provider:${provider.config.name} (chain:${provider.config.chainId})`);
   });
   logger.logJSON('INFO', 'Forking to initialize providers complete');
+
+  const hasNoRequests = providers.every((provider) => walletData.hasNoRequests(provider.walletDataByIndex));
+  if (hasNoRequests) {
+    logger.logJSON('INFO', 'No actionable requests detected. Exiting...');
+    return state2;
+  }
 
   // =================================================================
   // STEP 3: Group unique API calls
