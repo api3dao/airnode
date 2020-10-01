@@ -16,7 +16,7 @@ contract ExampleAirnodeClient is AirnodeClient {
     constructor (address airnodeAddress)
         public
         AirnodeClient(airnodeAddress)
-    {}
+    {}  // solhint-disable-line
 
     /// @notice Called to make a short request to the Airnode contract
     /// @param templateId Template ID from TemplateStore

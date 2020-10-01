@@ -3,7 +3,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "./interfaces/IConvenience.sol";
-import "./interfaces/IAuthorizer.sol";
+import "./authorizers/interfaces/IAuthorizer.sol";
 import "./interfaces/IAirnode.sol";
 
 

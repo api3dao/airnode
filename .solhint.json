@@ -1,7 +1,6 @@
 {
   "extends": "solhint:recommended",
   "rules": {
-    "compiler-version": "off",
-    "not-rely-on-time": "off"
+    "compiler-version": "off"
   }
 }

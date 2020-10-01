@@ -232,7 +232,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             statusCode,
             data
             );
-        (callSuccess, callData) = fulfillAddress.call(
+        (callSuccess, callData) = fulfillAddress.call(  // solhint-disable-line
             abi.encodeWithSelector(fulfillFunctionId, requestId, statusCode, data)
             );
     }
@@ -279,7 +279,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             statusCode,
             data
             );
-        (callSuccess, callData) = fulfillAddress.call(
+        (callSuccess, callData) = fulfillAddress.call(  // solhint-disable-line
             abi.encodeWithSelector(fulfillFunctionId, requestId, statusCode, data)
             );
     }

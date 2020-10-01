@@ -56,7 +56,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             );
         if (msg.value > 0)
         {
-            (bool success, ) = admin.call{ value: msg.value }("");
+            (bool success, ) = admin.call{ value: msg.value }("");  // solhint-disable-line
             require(success, "Transfer failed");
         }
     }
@@ -163,7 +163,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             destination,
             msg.value
             );
-        (bool success, ) = destination.call{ value: msg.value }("");
+        (bool success, ) = destination.call{ value: msg.value }("");  // solhint-disable-line
         require(success, "Transfer failed");
     }
 

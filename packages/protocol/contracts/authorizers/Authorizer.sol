@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
+import "./interfaces/IAuthorizer.sol";
+
+
 /// @title An abstract contract that describes the general interface of an
 /// authorizer contract
 /// @notice This contract tells if a request is authorized. The requester may
 /// need to prepay to subscribe to the endpoint or go through KYC to get
 /// whitelisted. Each rule can be implemented as a separate authorizer
 /// contract.
-abstract contract Authorizer {
+abstract contract Authorizer is IAuthorizer {
     /// Authorizer types can be identified by their authorizerType, yet all
     /// types have the same verifyAuthorization() interface.
     uint public authorizerType;
@@ -30,5 +33,6 @@ abstract contract Authorizer {
         virtual
         external
         view
+        override
         returns (bool status);
 }
