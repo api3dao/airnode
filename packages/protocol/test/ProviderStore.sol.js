@@ -62,15 +62,15 @@ describe('requestWithdrawal', function () {
     it('requests withdrawal', async function () {
       let providerXpub, providerId;
       ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+      await createRequester(airnode, roles.requesterAdmin);
       await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
     });
   });
   context('If the caller is not the requester admin', async function () {
     it('reverts', async function () {
-      await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       let providerXpub, providerId;
       ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
       await expect(
         airnode
@@ -84,9 +84,9 @@ describe('requestWithdrawal', function () {
 describe('fulfillWithdrawal', function () {
   context('If the parameters are correct', async function () {
     it('fulfills withdrawal', async function () {
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       let providerMnemonic, providerXpub, providerId;
       ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
       const destination = roles.requesterAdmin._address;
       const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
@@ -123,9 +123,9 @@ describe('fulfillWithdrawal', function () {
     });
     context('If the withdrawal is already fulfilled', async function () {
       it('reverts', async function () {
-        const requesterInd = await createRequester(airnode, roles.requesterAdmin);
         let providerMnemonic, providerXpub, providerId;
         ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+        const requesterInd = await createRequester(airnode, roles.requesterAdmin);
         const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
         const destination = roles.requesterAdmin._address;
         const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
@@ -146,10 +146,9 @@ describe('fulfillWithdrawal', function () {
   });
   context('If the parameters are incorrect', async function () {
     it('reverts', async function () {
-      await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       let providerMnemonic, providerXpub, providerId;
       ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
       const destination = roles.requesterAdmin._address;
       const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
