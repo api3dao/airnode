@@ -33,7 +33,7 @@ async function createTemplate(
     designatedWallet,
     fulfillAddress,
     fulfillFunctionId,
-    parameters: ethers.utils.hexValue(parameters),
+    parameters: ethers.utils.hexlify(parameters),
   });
   return expectedTemplateId;
 }
