@@ -59,10 +59,10 @@ async function requestWithdrawal(airnode, requesterAdminRole, providerXpub, prov
     .connect(requesterAdminRole)
     .requestWithdrawal(providerId, requesterInd, designatedWallet, destination);
   const log = await verifyLog(airnode, tx, 'WithdrawalRequested(bytes32,uint256,bytes32,address,address)', {
-    providerId: providerId,
-    requesterInd: requesterInd,
-    designatedWallet: designatedWallet,
-    destination: destination,
+    providerId,
+    requesterInd,
+    designatedWallet,
+    destination,
   });
   return log.args.withdrawalRequestId;
 }
