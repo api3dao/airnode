@@ -2,13 +2,12 @@
 
 function getLastParamName(paramPath) {
   const lastDotIndex = paramPath.lastIndexOf('.');
-  let paramName = paramPath;
 
   if (lastDotIndex >= 0) {
-    paramName = paramPath.slice(lastDotIndex + 1);
+    return paramPath.slice(lastDotIndex + 1);
   }
 
-  return paramName;
+  return paramPath;
 }
 
 function replaceConditionalMatch(match, specs) {

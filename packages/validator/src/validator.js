@@ -11,8 +11,6 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
     return false;
   }
 
-  let validParamFound = false;
-
   if (Array.isArray(specs)) {
     for (let paramIndex = 0; paramIndex < specs.length; paramIndex++) {
       let nonRedundantParamsCopy = {};
@@ -26,8 +24,7 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
       let result = validateSpecs(specs[paramIndex], specsStruct, paramPath, specsRoot, nonRedundantParams[nonRedundantParams.length - 1], nonRedundantParamsRoot);
 
       if (!result.messages.length) {
-        validParamFound = true;
-        break;
+        return true;
       }
 
       nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
@@ -45,15 +42,14 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
       let result = validateSpecs(specs[paramKey], specsStruct, paramPath, specsRoot, nonRedundantParams[paramKey], nonRedundantParamsRoot);
 
       if (!result.messages.length) {
-        validParamFound = true;
-        break;
+        return true;
       }
 
       nonRedundantParams[paramKey] = nonRedundantParamsCopy;
     }
   }
 
-  return validParamFound;
+  return false;
 }
 
 function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantParams, nonRedundantParamsRoot, paramPathPrefix = '') {
