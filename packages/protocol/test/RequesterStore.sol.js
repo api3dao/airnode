@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-const { verifyLog } = require('./util');
+const { createRequester } = require('./helpers/requester');
 
 let airnode;
 let roles;
@@ -19,24 +19,15 @@ beforeEach(async () => {
 
 describe('createRequester', function () {
   it('creates a requester record', async function () {
-    const tx = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-    const log = await verifyLog(airnode, tx, 'RequesterCreated(uint256,address)', {
-      admin: roles.requesterAdmin._address,
-    });
-    const requesterAdmin = await airnode.getRequesterAdmin(log.args.requesterInd);
+    const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+    const requesterAdmin = await airnode.getRequesterAdmin(requesterInd);
     expect(requesterAdmin).to.equal(roles.requesterAdmin._address);
   });
   it('assigns requester indices incrementally', async function () {
-    const tx1 = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-    const log1 = await verifyLog(airnode, tx1, 'RequesterCreated(uint256,address)', {
-      admin: roles.requesterAdmin._address,
-    });
-    expect(log1.args.requesterInd).to.equal(ethers.BigNumber.from(1));
-    const tx2 = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-    const log2 = await verifyLog(airnode, tx2, 'RequesterCreated(uint256,address)', {
-      admin: roles.requesterAdmin._address,
-    });
-    expect(log2.args.requesterInd).to.equal(ethers.BigNumber.from(2));
+    const requesterInd1 = await createRequester(airnode, roles.requesterAdmin);
+    expect(requesterInd1).to.equal(ethers.BigNumber.from(1));
+    const requesterInd2 = await createRequester(airnode, roles.requesterAdmin);
+    expect(requesterInd2).to.equal(ethers.BigNumber.from(2));
   });
 });
 

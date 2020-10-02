@@ -1,67 +1,10 @@
 const { expect } = require('chai');
-const { verifyLog, deriveWalletFromPath, deriveWalletAddressFromPath } = require('./util');
+const { deriveWalletFromPath, deriveWalletAddressFromPath } = require('./util');
+const { createProvider, requestWithdrawal } = require('./helpers/provider');
+const { createRequester } = require('./helpers/requester');
 
 let airnode;
 let roles;
-let providerMnemonic;
-let providerXpub;
-
-async function createProvider() {
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(providerMnemonic);
-  // No need to call .derivePath() as we will use the master wallet
-  const masterWallet = new ethers.Wallet(masterHdNode.privateKey, waffle.provider);
-  // Fund the master wallet for it to be able to create the provider record
-  await roles.providerAdmin.sendTransaction({
-    to: masterWallet.address,
-    value: ethers.utils.parseEther('0.1'),
-  });
-  // Estimate the gas required to create the provider record
-  const gasEstimate = await airnode
-    .connect(masterWallet)
-    .estimateGas.createProvider(roles.providerAdmin._address, providerXpub, { value: 1 });
-  const gasLimit = ethers.BigNumber.from(200_000);
-  expect(gasLimit.gt(gasEstimate)).to.equal(true);
-  // Calculate the amount that will be sent back to the provider admin
-  const gasPrice = await waffle.provider.getGasPrice();
-  const txCost = gasLimit.mul(gasPrice);
-  const masterWalletBalance = await waffle.provider.getBalance(masterWallet.address);
-  const fundsToSend = masterWalletBalance.sub(txCost);
-  // Create the provider record with the provider master wallet
-  const expectedProviderId = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address])
-  );
-  const initialProviderAdminBalance = await waffle.provider.getBalance(roles.providerAdmin._address);
-  const expectedProviderAdminBalance = initialProviderAdminBalance.add(fundsToSend);
-  await expect(
-    airnode.connect(masterWallet).createProvider(roles.providerAdmin._address, providerXpub, {
-      value: fundsToSend,
-      gasLimit: gasLimit,
-      gasPrice: gasPrice,
-    })
-  )
-    .to.emit(airnode, 'ProviderCreated')
-    .withArgs(expectedProviderId, roles.providerAdmin._address, providerXpub);
-  expect(await waffle.provider.getBalance(roles.providerAdmin._address)).to.equal(expectedProviderAdminBalance);
-  return expectedProviderId;
-}
-
-async function requestWithdrawal() {
-  await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-  const requesterInd = ethers.BigNumber.from(1);
-  const providerId = await createProvider();
-  const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
-  const destination = roles.requesterAdmin._address;
-  const tx = await airnode
-    .connect(roles.requesterAdmin)
-    .requestWithdrawal(providerId, requesterInd, designatedWallet, destination);
-  const log = await verifyLog(airnode, tx, 'WithdrawalRequested(bytes32,uint256,bytes32,address,address)', {
-    providerId: providerId,
-    requesterInd: requesterInd,
-    designatedWallet: designatedWallet,
-    destination: destination,
-  });
-  return log.args.withdrawalRequestId;
-}
 
 beforeEach(async () => {
   const accounts = await ethers.getSigners();
@@ -74,17 +17,12 @@ beforeEach(async () => {
   };
   const airnodeFactory = await ethers.getContractFactory('Airnode', roles.deployer);
   airnode = await airnodeFactory.deploy();
-
-  // Create the provider private key
-  const providerWallet = ethers.Wallet.createRandom();
-  providerMnemonic = providerWallet.mnemonic.phrase;
-  const hdNode = ethers.utils.HDNode.fromMnemonic(providerMnemonic);
-  providerXpub = hdNode.neuter().extendedKey;
 });
 
 describe('createProvider', function () {
   it('creates a provider record', async function () {
-    const providerId = await createProvider();
+    let providerXpub, providerId;
+    ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     // Check the created provider record
     const retrievedProvider = await airnode.getProvider(providerId);
     expect(retrievedProvider.admin).to.equal(roles.providerAdmin._address);
@@ -95,7 +33,8 @@ describe('createProvider', function () {
 describe('updateProvider', function () {
   context('If the caller is the provider admin', async function () {
     it('updates the provider record', async function () {
-      const providerId = await createProvider();
+      let providerXpub, providerId;
+      ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       // Update the provider record
       await expect(airnode.connect(roles.providerAdmin).updateProvider(providerId, roles.updatedProviderAdmin._address))
         .to.emit(airnode, 'ProviderUpdated')
@@ -108,7 +47,8 @@ describe('updateProvider', function () {
   });
   context('If the caller is not the provider admin', async function () {
     it('reverts', async function () {
-      const providerId = await createProvider();
+      let providerId;
+      ({ providerId } = await createProvider(airnode, roles.providerAdmin));
       // Attempt to update the provider record
       await expect(
         airnode.connect(roles.randomPerson).updateProvider(providerId, roles.updatedProviderAdmin._address)
@@ -120,14 +60,17 @@ describe('updateProvider', function () {
 describe('requestWithdrawal', function () {
   context('If the caller is the requester admin', async function () {
     it('requests withdrawal', async function () {
-      await requestWithdrawal();
+      let providerXpub, providerId;
+      ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+      await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
     });
   });
   context('If the caller is not the requester admin', async function () {
     it('reverts', async function () {
       await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-      const requesterInd = ethers.BigNumber.from(1);
-      const providerId = await createProvider();
+      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+      let providerXpub, providerId;
+      ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
       await expect(
         airnode
@@ -141,12 +84,12 @@ describe('requestWithdrawal', function () {
 describe('fulfillWithdrawal', function () {
   context('If the parameters are correct', async function () {
     it('fulfills withdrawal', async function () {
-      await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-      const requesterInd = ethers.BigNumber.from(1);
-      const providerId = await createProvider();
+      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+      let providerMnemonic, providerXpub, providerId;
+      ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
       const destination = roles.requesterAdmin._address;
-      const withdrawalRequestId = await requestWithdrawal();
+      const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
       await roles.requesterAdmin.sendTransaction({
         to: designatedWallet.address,
         value: ethers.utils.parseEther('0.1'),
@@ -180,12 +123,12 @@ describe('fulfillWithdrawal', function () {
     });
     context('If the withdrawal is already fulfilled', async function () {
       it('reverts', async function () {
-        await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-        const requesterInd = ethers.BigNumber.from(1);
-        const providerId = await createProvider();
+        const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+        let providerMnemonic, providerXpub, providerId;
+        ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
         const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
         const destination = roles.requesterAdmin._address;
-        const withdrawalRequestId = await requestWithdrawal();
+        const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
         await roles.requesterAdmin.sendTransaction({
           to: designatedWallet.address,
           value: ethers.utils.parseEther('0.1'),
@@ -204,11 +147,12 @@ describe('fulfillWithdrawal', function () {
   context('If the parameters are incorrect', async function () {
     it('reverts', async function () {
       await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
-      const requesterInd = ethers.BigNumber.from(1);
-      const providerId = await createProvider();
+      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+      let providerMnemonic, providerXpub, providerId;
+      ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
       const destination = roles.requesterAdmin._address;
-      const withdrawalRequestId = await requestWithdrawal();
+      const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
       await roles.requesterAdmin.sendTransaction({
         to: designatedWallet.address,
         value: ethers.utils.parseEther('0.1'),
