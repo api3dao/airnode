@@ -25,28 +25,34 @@ function replaceConditionalMatch(match, specs) {
   return parsedSpecs;
 }
 
-function checkRedundancy(nonRedundant, specs, paramPath, messages) {
-  if (typeof specs === 'object') {
-    if (Array.isArray(specs)) {
-      for (let i = 0; i < specs.length; i++) {
-        if (nonRedundant[i]) {
-          checkRedundancy(nonRedundant[i], specs[i], `${paramPath}[${i}]`, messages);
-        }
-      }
-    } else {
-      for (let param of Object.keys(specs)) {
-        if (nonRedundant[param]) {
-          checkRedundancy(nonRedundant[param], specs[param], `${paramPath}${paramPath ? '.' : ''}${param}`, messages);
-        } else {
-          if (Object.keys(nonRedundant).includes('__noCheck')) {
-            continue;
-          }
+function warnExtraFields(nonRedundant, specs, paramPath) {
+  if (typeof specs !== 'object') {
+    return [];
+  }
 
-          messages.push({ level: 'warning', message: `Extra field: ${paramPath}${paramPath ? '.' : ''}${param}` });
-        }
+  if (Array.isArray(specs)) {
+    let messages = [];
+
+    for (let i = 0; i < specs.length; i++) {
+      if (nonRedundant[i]) {
+        messages.push(...warnExtraFields(nonRedundant[i], specs[i], `${paramPath}[${i}]`));
       }
     }
+
+    return messages;
   }
+
+  return Object.keys(specs).reduce((acc, key) => {
+    if (nonRedundant[key]) {
+      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], `${paramPath}${paramPath ? '.' : ''}${key}`)];
+    }
+
+    if (nonRedundant['__noCheck']) {
+      return acc;
+    }
+
+    return [...acc, { level: 'warning', message: `Extra field: ${paramPath}${paramPath ? '.' : ''}${key}` }];
+  }, []);
 }
 
 function insertNonRedundantParam(param, specsStruct, nonRedundantParams, specs) {
@@ -65,4 +71,4 @@ function insertNonRedundantParam(param, specsStruct, nonRedundantParams, specs) 
   }
 }
 
-module.exports = { getLastParamName, replaceConditionalMatch, checkRedundancy, insertNonRedundantParam };
+module.exports = { getLastParamName, replaceConditionalMatch, warnExtraFields, insertNonRedundantParam };

@@ -372,7 +372,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
   }
 
   if (specs === specsRoot) {
-    helper.checkRedundancy(nonRedundantParamsRoot, specs, paramPath, messages);
+    messages.push(...helper.warnExtraFields(nonRedundantParamsRoot, specs, paramPath));
   }
 
   return { valid, messages };
