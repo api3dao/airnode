@@ -6,6 +6,15 @@ import "./IAirnode.sol";
 
 
 interface IConvenience {
+    function getProviderAndBlockNumber(bytes32 providerId)
+        external
+        view
+        returns (
+            address admin,
+            string memory xpub,
+            uint256 blockNumber
+        );
+
     function getTemplates(bytes32[] calldata templateIds)
         external
         view

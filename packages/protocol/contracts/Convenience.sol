@@ -17,6 +17,26 @@ contract Convenience is IConvenience {
         airnode = IAirnode(_airnode);
     }
 
+    /// @notice A convenience function to retrieve provider parameters and the
+    /// block number with a single call
+    /// @param providerId Provider ID
+    /// @return admin Provider admin
+    /// @return xpub Master public key of the provider node
+    /// @return blockNumber Block number
+    function getProviderAndBlockNumber(bytes32 providerId)
+        external
+        view
+        override
+        returns (
+            address admin,
+            string memory xpub,
+            uint256 blockNumber
+        )
+    {
+        (admin, xpub) = airnode.getProvider(providerId);
+        blockNumber = block.number;
+    }
+
     function getTemplates(bytes32[] calldata templateIds)
         external
         view
