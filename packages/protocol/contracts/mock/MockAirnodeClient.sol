@@ -12,6 +12,12 @@ contract MockAirnodeClient is AirnodeClient {
         bytes32 data
         );
 
+    event RequestFulfilledWithBytes(
+        bytes32 requestId,
+        uint256 statusCode,
+        bytes data
+        );
+
     mapping(bytes32 => bool) private incomingFulfillments;
 
     /// @param airnodeAddress Airnode contract address
@@ -119,6 +125,28 @@ contract MockAirnodeClient is AirnodeClient {
         require(incomingFulfillments[requestId], "No such request made");
         delete incomingFulfillments[requestId];
         emit RequestFulfilled(
+            requestId,
+            statusCode,
+            data
+            );
+    }
+
+    /// @notice A method to be called back by the respective method at
+    /// Airnode.sol for testing
+    /// @param requestId Request ID
+    /// @param statusCode Status code returned by the provider
+    /// @param data Data returned by the provider
+    function fulfillBytes(
+        bytes32 requestId,
+        uint256 statusCode,
+        bytes calldata data
+        )
+        external
+        onlyAirnode()
+    {
+        require(incomingFulfillments[requestId], "No such request made");
+        delete incomingFulfillments[requestId];
+        emit RequestFulfilledWithBytes(
             requestId,
             statusCode,
             data

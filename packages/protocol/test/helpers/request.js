@@ -9,7 +9,7 @@ async function makeRequest(
   templateId,
   providerId,
   requestTimeRequesterInd,
-  requestTimeDesignatedWallet,
+  requestTimeDesignatedWalletAddress,
   requestTimeFulfillAddress,
   requestTimeFulfillFunctionId,
   requestTimeParameters
@@ -22,7 +22,7 @@ async function makeRequest(
     .makeRequest(
       templateId,
       requestTimeRequesterInd,
-      requestTimeDesignatedWallet,
+      requestTimeDesignatedWalletAddress,
       requestTimeFulfillAddress,
       requestTimeFulfillFunctionId,
       requestTimeParameters
@@ -36,7 +36,7 @@ async function makeRequest(
       requester: requestTimeFulfillAddress,
       templateId,
       requesterInd: requestTimeRequesterInd,
-      designatedWallet: requestTimeDesignatedWallet,
+      designatedWallet: requestTimeDesignatedWalletAddress,
       fulfillAddress: requestTimeFulfillAddress,
       fulfillFunctionId: requestTimeFulfillFunctionId,
       parameters: ethers.utils.hexlify(requestTimeParameters),
@@ -49,6 +49,7 @@ async function makeRequest(
     )
   );
   expect(expectedRequestId).to.equal(log.args.requestId);
+  return expectedRequestId;
 }
 
 async function makeShortRequest(
@@ -76,6 +77,7 @@ async function makeShortRequest(
     )
   );
   expect(expectedRequestId).to.equal(log.args.requestId);
+  return expectedRequestId;
 }
 
 async function makeFullRequest(
@@ -125,6 +127,7 @@ async function makeFullRequest(
     )
   );
   expect(expectedRequestId).to.equal(log.args.requestId);
+  return expectedRequestId;
 }
 
 module.exports = {

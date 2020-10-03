@@ -11,7 +11,7 @@ import "./TemplateStore.sol";
 /// request-response scheme. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
 contract Airnode is EndpointStore, TemplateStore, IAirnode {
-    mapping(bytes32 => bytes32) private requestIdToResponseParameters;
+    mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) private requestWithIdHasFailed;
     uint256 private noRequests = 0;
 
@@ -54,7 +54,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             parameters
             ));
         bytes32 providerId = templates[templateId].providerId;
-        requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
+        requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
             providerId,
             designatedWallet,
             fulfillAddress,
@@ -102,7 +102,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             templateId,
             parameters
             ));
-        requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
+        requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
             template.providerId,
             template.designatedWallet,
             template.fulfillAddress,
@@ -159,7 +159,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             endpointId,
             parameters
             ));
-        requestIdToResponseParameters[requestId] = keccak256(abi.encodePacked(
+        requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
             providerId,
             designatedWallet,
             fulfillAddress,
@@ -202,7 +202,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
         external
         override
-        onlyCorrectResponseParameters(
+        onlyCorrectFulfillmentParameters(
             requestId,
             providerId,
             fulfillAddress,
@@ -213,7 +213,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             bytes memory callData
         )
     {
-        delete requestIdToResponseParameters[requestId];
+        delete requestIdToFulfillmentParameters[requestId];
         emit ClientRequestFulfilled(
             providerId,
             requestId,
@@ -249,7 +249,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
         external
         override
-        onlyCorrectResponseParameters(
+        onlyCorrectFulfillmentParameters(
             requestId,
             providerId,
             fulfillAddress,
@@ -260,7 +260,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             bytes memory callData
         )
     {
-        delete requestIdToResponseParameters[requestId];
+        delete requestIdToFulfillmentParameters[requestId];
         emit ClientRequestFulfilledWithBytes(
             providerId,
             requestId,
@@ -288,14 +288,14 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
         external
         override
-        onlyCorrectResponseParameters(
+        onlyCorrectFulfillmentParameters(
             requestId,
             providerId,
             fulfillAddress,
             fulfillFunctionId
             )
     {
-        delete requestIdToResponseParameters[requestId];
+        delete requestIdToFulfillmentParameters[requestId];
         // Failure is recorded so that it can be checked externally with
         // checkIfRequestHasFailed()
         requestWithIdHasFailed[requestId] = true;
@@ -317,29 +317,29 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         status = requestWithIdHasFailed[requestId];
     }
 
-    /// @dev Reverts unless the incoming response parameters do not match the
-    /// ones provided in the request
+    /// @dev Reverts unless the incoming fulfillment parameters do not match
+    /// the ones provided in the request
     /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    modifier onlyCorrectResponseParameters(
+    modifier onlyCorrectFulfillmentParameters(
         bytes32 requestId,
         bytes32 providerId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )
     {
-        bytes32 incomingResponseParameters = keccak256(abi.encodePacked(
+        bytes32 incomingFulfillmentParameters = keccak256(abi.encodePacked(
             providerId,
             msg.sender,
             fulfillAddress,
             fulfillFunctionId
             ));
         require(
-            incomingResponseParameters == requestIdToResponseParameters[requestId],
-            "Response parameters do not match"
+            incomingFulfillmentParameters == requestIdToFulfillmentParameters[requestId],
+            "Incorrect fulfillment parameters"
             );
         _;
     }
