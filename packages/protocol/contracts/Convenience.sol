@@ -37,6 +37,20 @@ contract Convenience is IConvenience {
         blockNumber = block.number;
     }
 
+    /// @notice A convenience function to retrieve multiple templates with a
+    /// single call
+    /// @param templateIds Request template IDs
+    /// @return providerIds Provider IDs from ProviderStore
+    /// @return endpointIds Endpoint IDs from EndpointStore
+    /// @return requesterInds Requester indices from RequesterStore
+    /// @return designatedWallets Designated wallets that are requested to
+    /// fulfill the request
+    /// @return fulfillAddresses Addresses that will be called to fulfill
+    /// @return fulfillFunctionIds Signatures of the functions that will be
+    /// called to fulfill
+    /// @return parameters Array of static request parameters (i.e., parameters
+    /// that will not change between requests, unlike the dynamic parameters
+    /// determined at runtime)
     function getTemplates(bytes32[] calldata templateIds)
         external
         view
@@ -97,10 +111,11 @@ contract Convenience is IConvenience {
     /// Note that authorizers should not start or end with 0, and 0s should
     /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
     /// [] returns false (deny everyone), [0] returns true (accept everyone).
-    /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
+    /// @param requestId Request ID
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterInd Requester index from RequesterStore
+    /// @param designatedWallet Designated wallet
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
     function checkAuthorizationStatus(
@@ -160,6 +175,15 @@ contract Convenience is IConvenience {
         return authorizedByAll;
     }
 
+    /// @notice A convenience function to make multiple authorization status
+    /// checks with a single call
+    /// @param providerId Provider ID from ProviderStore
+    /// @param requestIds Request IDs
+    /// @param endpointIds Endpoint IDs from EndpointStore
+    /// @param requesterInds Requester indices from RequesterStore
+    /// @param designatedWallets Designated wallets
+    /// @param clientAddresses Client addresses
+    /// @return statuses Authorization statuses of the request
     function checkAuthorizationStatuses(
         bytes32 providerId,
         bytes32[] calldata requestIds,
