@@ -27,6 +27,7 @@ describe('User flow', function () {
     // Normally, Airnode would retrieve its key from a secret management service.
     // Here, we will generate it instead. Only the node will have access to
     // providerMnemonic, while providerXpub will be publicly announced.
+    let providerMnemonic, providerXpub;
     ({ providerMnemonic, providerXpub } = await generateProviderKey());
     // The provider's master wallet needs to be funded for it to create a provider
     // record first. This is only done once while deploying the node on a chain
@@ -63,11 +64,11 @@ describe('User flow', function () {
     // We got our response!
     const airnodeClientLogs = await waffle.provider.getLogs({
       address: airnodeClient.address,
-      fromBlock: 0
+      fromBlock: 0,
     });
     const parsedAirnodeClientLog = airnodeClient.interface.parseLog(airnodeClientLogs[0]);
     console.log(ethers.utils.parseBytes32String(parsedAirnodeClientLog.args.data));
-    
+
     // Now the requester wants the amount deposited at their reserved wallet back
     await airnode
       .connect(roles.requesterAdmin)
@@ -126,12 +127,11 @@ describe('User flow', function () {
     // The retrieved provider will be empty because it's not created yet
     expect(retrievedProvider.xpub).to.equal('');
     // The Airnode should create it in that case.
-    
+
     // Gas cost is 160,076
     const estimatedGasCost = await airnode
       .connect(masterWallet)
-      .estimateGas
-      .createProvider(roles.providerAdmin._address, providerXpub, { value: 1 });
+      .estimateGas.createProvider(roles.providerAdmin._address, providerXpub, { value: 1 });
     // Overestimate a bit
     const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
     const gasPrice = await waffle.provider.getGasPrice();
@@ -237,7 +237,10 @@ describe('User flow', function () {
     );
     expect(parsedRequestLog.args.templateId).to.equal(expectedTemplateId);
     // Verify that the designated wallet is correct
-    const expectedDesignatedWallet = await deriveWalletAddressFromPath(providerXpub, `m/0/${template.requesterInd.toString()}`);
+    const expectedDesignatedWallet = await deriveWalletAddressFromPath(
+      providerXpub,
+      `m/0/${template.requesterInd.toString()}`
+    );
     expect(template.designatedWallet).to.equal(expectedDesignatedWallet);
     // Check authorization status
     const authorizationStatus = await convenience.checkAuthorizationStatus(
@@ -267,7 +270,7 @@ describe('User flow', function () {
         // 500000 is a safe value and we can allow the requester to set this
         // with a _gasLimit reserved parameter (for example, if they want to run
         // a very gas-heavy aggregation method)
-        gasLimit: 500000
+        gasLimit: 500000,
       }
     );
   }
@@ -285,19 +288,22 @@ describe('User flow', function () {
     )[0];
 
     const designatedWallet = await deriveWalletFromPath(
-      providerMnemonic, `m/0/${parsedWithdrawalRequestLog.args.requesterInd.toString()}`
+      providerMnemonic,
+      `m/0/${parsedWithdrawalRequestLog.args.requesterInd.toString()}`
     );
     // Verify that the provided designatedWallet was correct
     expect(parsedWithdrawalRequestLog.args.designatedWallet).to.equal(designatedWallet.address);
 
     // Gas cost is 41,701
     const estimatedGasCost = await airnode
-        .connect(designatedWallet)
-        .estimateGas
-        .fulfillWithdrawal( parsedWithdrawalRequestLog.args.withdrawalRequestId,
-          parsedWithdrawalRequestLog.args.providerId,
-          parsedWithdrawalRequestLog.args.requesterInd,
-          parsedWithdrawalRequestLog.args.destination, {value: 1});
+      .connect(designatedWallet)
+      .estimateGas.fulfillWithdrawal(
+        parsedWithdrawalRequestLog.args.withdrawalRequestId,
+        parsedWithdrawalRequestLog.args.providerId,
+        parsedWithdrawalRequestLog.args.requesterInd,
+        parsedWithdrawalRequestLog.args.destination,
+        { value: 1 }
+      );
     // Overestimate a bit
     const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
     const gasPrice = await waffle.provider.getGasPrice();

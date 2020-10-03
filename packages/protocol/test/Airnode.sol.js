@@ -52,10 +52,7 @@ beforeEach(async () => {
   endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
   requesterInd = await createRequester(airnode, roles.requesterAdmin);
   designatedWalletAddress = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
-  designatedWallet = deriveWalletFromPath(
-    providerMnemonic,
-    `m/0/${requesterInd.toString()}`
-  );
+  designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
   await roles.requesterAdmin.sendTransaction({
     to: designatedWallet.address,
     value: ethers.utils.parseEther('0.1'),
@@ -98,10 +95,7 @@ beforeEach(async () => {
     providerXpub,
     `m/0/${requestTimeRequesterInd.toString()}`
   );
-  requestTimeDesignatedWallet = deriveWalletFromPath(
-    providerMnemonic,
-    `m/0/${requestTimeRequesterInd.toString()}`
-  );
+  requestTimeDesignatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requestTimeRequesterInd.toString()}`);
   await roles.requesterAdmin.sendTransaction({
     to: requestTimeDesignatedWallet.address,
     value: ethers.utils.parseEther('0.1'),
@@ -633,20 +627,26 @@ describe('fulfillBytes', function () {
           fulfillBytesFunctionId,
           requestTimeParameters
         );
-        const tx =
-          await airnode
-            .connect(requestTimeDesignatedWallet)
-            .fulfillBytes(requestId, providerId, statusCode, bytesData, requestTimeFulfillAddress, fulfillBytesFunctionId);
+        const tx = await airnode
+          .connect(requestTimeDesignatedWallet)
+          .fulfillBytes(
+            requestId,
+            providerId,
+            statusCode,
+            bytesData,
+            requestTimeFulfillAddress,
+            fulfillBytesFunctionId
+          );
         await verifyLog(airnode, tx, 'ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)', {
           providerId,
           requestId,
           statusCode,
-          data: ethers.utils.hexlify(bytesData)
+          data: ethers.utils.hexlify(bytesData),
         });
         await verifyLog(requestTimeAirnodeClient, tx, 'RequestFulfilledWithBytes(bytes32,uint256,bytes)', {
           requestId,
           statusCode,
-          data: ethers.utils.hexlify(bytesData)
+          data: ethers.utils.hexlify(bytesData),
         });
       });
     });
@@ -666,10 +666,18 @@ describe('fulfillBytes', function () {
           requestTimeParameters
         );
         const falseRequestId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(airnode
-          .connect(requestTimeDesignatedWallet)
-          .fulfillBytes(falseRequestId, providerId, statusCode, bytesData, requestTimeFulfillAddress, fulfillBytesFunctionId))
-          .to.be.revertedWith('Incorrect fulfillment parameters');
+        await expect(
+          airnode
+            .connect(requestTimeDesignatedWallet)
+            .fulfillBytes(
+              falseRequestId,
+              providerId,
+              statusCode,
+              bytesData,
+              requestTimeFulfillAddress,
+              fulfillBytesFunctionId
+            )
+        ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
     context('Provider ID is incorrect', async function () {
@@ -688,10 +696,18 @@ describe('fulfillBytes', function () {
           requestTimeParameters
         );
         const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(airnode
-          .connect(requestTimeDesignatedWallet)
-          .fulfillBytes(requestId, falseProviderId, statusCode, bytesData, requestTimeFulfillAddress, fulfillBytesFunctionId))
-          .to.be.revertedWith('Incorrect fulfillment parameters');
+        await expect(
+          airnode
+            .connect(requestTimeDesignatedWallet)
+            .fulfillBytes(
+              requestId,
+              falseProviderId,
+              statusCode,
+              bytesData,
+              requestTimeFulfillAddress,
+              fulfillBytesFunctionId
+            )
+        ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
     context('Fulfill address is incorrect', async function () {
@@ -710,10 +726,11 @@ describe('fulfillBytes', function () {
           requestTimeParameters
         );
         const falseFulfillAddress = '0x000000000000000000000000000000000000dead';
-        await expect(airnode
-          .connect(requestTimeDesignatedWallet)
-          .fulfillBytes(requestId, providerId, statusCode, bytesData, falseFulfillAddress, fulfillBytesFunctionId))
-          .to.be.revertedWith('Incorrect fulfillment parameters');
+        await expect(
+          airnode
+            .connect(requestTimeDesignatedWallet)
+            .fulfillBytes(requestId, providerId, statusCode, bytesData, falseFulfillAddress, fulfillBytesFunctionId)
+        ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
     context('Fulfill function ID is incorrect', async function () {
@@ -732,10 +749,18 @@ describe('fulfillBytes', function () {
           requestTimeParameters
         );
         const falseFulfillFunctionId = '0x0000dead';
-        await expect(airnode
-          .connect(requestTimeDesignatedWallet)
-          .fulfillBytes(requestId, providerId, statusCode, bytesData, requestTimeFulfillAddress, falseFulfillFunctionId))
-          .to.be.revertedWith('Incorrect fulfillment parameters');
+        await expect(
+          airnode
+            .connect(requestTimeDesignatedWallet)
+            .fulfillBytes(
+              requestId,
+              providerId,
+              statusCode,
+              bytesData,
+              requestTimeFulfillAddress,
+              falseFulfillFunctionId
+            )
+        ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
     context('Fulfilling wallet is incorrect', async function () {
@@ -753,10 +778,11 @@ describe('fulfillBytes', function () {
           fulfillBytesFunctionId,
           requestTimeParameters
         );
-        await expect(airnode
-          .connect(roles.randomPerson)
-          .fulfillBytes(requestId, providerId, statusCode, bytesData, requestTimeFulfillAddress, fulfillFunctionId))
-          .to.be.revertedWith('Incorrect fulfillment parameters');
+        await expect(
+          airnode
+            .connect(roles.randomPerson)
+            .fulfillBytes(requestId, providerId, statusCode, bytesData, requestTimeFulfillAddress, fulfillFunctionId)
+        ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
   });
@@ -773,20 +799,19 @@ describe('fulfillBytes', function () {
           requesterInd,
           requestTimeParameters
         );
-        const tx =
-          await airnode
-            .connect(designatedWallet)
-            .fulfillBytes(requestId, providerId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId);
+        const tx = await airnode
+          .connect(designatedWallet)
+          .fulfillBytes(requestId, providerId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId);
         await verifyLog(airnode, tx, 'ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)', {
           providerId,
           requestId,
           statusCode,
-          data: ethers.utils.hexlify(bytesData)
+          data: ethers.utils.hexlify(bytesData),
         });
         await verifyLog(airnodeClient, tx, 'RequestFulfilledWithBytes(bytes32,uint256,bytes)', {
           requestId,
           statusCode,
-          data: ethers.utils.hexlify(bytesData)
+          data: ethers.utils.hexlify(bytesData),
         });
       });
     });
@@ -906,20 +931,19 @@ describe('fulfillBytes', function () {
           fulfillBytesFunctionId,
           requestTimeParameters
         );
-        const tx =
-          await airnode
-            .connect(designatedWallet)
-            .fulfillBytes(requestId, providerId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId);
+        const tx = await airnode
+          .connect(designatedWallet)
+          .fulfillBytes(requestId, providerId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId);
         await verifyLog(airnode, tx, 'ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)', {
           providerId,
           requestId,
           statusCode,
-          data: ethers.utils.hexlify(bytesData)
+          data: ethers.utils.hexlify(bytesData),
         });
         await verifyLog(airnodeClient, tx, 'RequestFulfilledWithBytes(bytes32,uint256,bytes)', {
           requestId,
           statusCode,
-          data: ethers.utils.hexlify(bytesData)
+          data: ethers.utils.hexlify(bytesData),
         });
       });
     });
@@ -1174,9 +1198,7 @@ describe('fail', function () {
           requestTimeParameters
         );
         await expect(
-          airnode
-            .connect(roles.randomPerson)
-            .fail(requestId, providerId, requestTimeFulfillAddress, fulfillFunctionId)
+          airnode.connect(roles.randomPerson).fail(requestId, providerId, requestTimeFulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1194,11 +1216,7 @@ describe('fail', function () {
           requesterInd,
           requestTimeParameters
         );
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId)
-        )
+        await expect(airnode.connect(designatedWallet).fail(requestId, providerId, fulfillAddress, fulfillFunctionId))
           .to.emit(airnode, 'ClientRequestFailed')
           .withArgs(providerId, requestId);
       });
@@ -1217,9 +1235,7 @@ describe('fail', function () {
         );
         const falseRequestId = '0x000000000000000000000000000000000000000000000000000000000000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId)
+          airnode.connect(designatedWallet).fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1237,9 +1253,7 @@ describe('fail', function () {
         );
         const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId)
+          airnode.connect(designatedWallet).fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1257,9 +1271,7 @@ describe('fail', function () {
         );
         const falseFulfillAddress = '0x000000000000000000000000000000000000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, providerId, falseFulfillAddress, fulfillFunctionId)
+          airnode.connect(designatedWallet).fail(requestId, providerId, falseFulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1277,9 +1289,7 @@ describe('fail', function () {
         );
         const falseFulfillFunctionId = '0x0000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, falseFulfillFunctionId)
+          airnode.connect(designatedWallet).fail(requestId, providerId, fulfillAddress, falseFulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1296,9 +1306,7 @@ describe('fail', function () {
           requestTimeParameters
         );
         await expect(
-          airnode
-            .connect(roles.randomPerson)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId)
+          airnode.connect(roles.randomPerson).fail(requestId, providerId, fulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1319,11 +1327,7 @@ describe('fail', function () {
           fulfillFunctionId,
           requestTimeParameters
         );
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId)
-        )
+        await expect(airnode.connect(designatedWallet).fail(requestId, providerId, fulfillAddress, fulfillFunctionId))
           .to.emit(airnode, 'ClientRequestFailed')
           .withArgs(providerId, requestId);
       });
@@ -1345,9 +1349,7 @@ describe('fail', function () {
         );
         const falseRequestId = '0x000000000000000000000000000000000000000000000000000000000000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId)
+          airnode.connect(designatedWallet).fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1368,9 +1370,7 @@ describe('fail', function () {
         );
         const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId)
+          airnode.connect(designatedWallet).fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1391,9 +1391,7 @@ describe('fail', function () {
         );
         const falseFulfillAddress = '0x000000000000000000000000000000000000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, providerId, falseFulfillAddress, fulfillFunctionId)
+          airnode.connect(designatedWallet).fail(requestId, providerId, falseFulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1414,9 +1412,7 @@ describe('fail', function () {
         );
         const falseFulfillFunctionId = '0x0000dead';
         await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, falseFulfillFunctionId)
+          airnode.connect(designatedWallet).fail(requestId, providerId, fulfillAddress, falseFulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -1436,9 +1432,7 @@ describe('fail', function () {
           requestTimeParameters
         );
         await expect(
-          airnode
-            .connect(roles.randomPerson)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId)
+          airnode.connect(roles.randomPerson).fail(requestId, providerId, fulfillAddress, fulfillFunctionId)
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
