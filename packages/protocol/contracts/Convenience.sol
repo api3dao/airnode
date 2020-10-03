@@ -44,7 +44,7 @@ contract Convenience is IConvenience {
         returns (
             bytes32[] memory providerIds,
             bytes32[] memory endpointIds,
-            uint256[] memory requesterInd,
+            uint256[] memory requesterInds,
             address[] memory designatedWallets,
             address[] memory fulfillAddresses,
             bytes4[] memory fulfillFunctionIds,
@@ -53,7 +53,7 @@ contract Convenience is IConvenience {
     {
         providerIds = new bytes32[](templateIds.length);
         endpointIds = new bytes32[](templateIds.length);
-        requesterInd = new uint256[](templateIds.length);
+        requesterInds = new uint256[](templateIds.length);
         designatedWallets = new address[](templateIds.length);
         fulfillAddresses = new address[](templateIds.length);
         fulfillFunctionIds = new bytes4[](templateIds.length);
@@ -63,7 +63,7 @@ contract Convenience is IConvenience {
             (
                 providerIds[ind],
                 endpointIds[ind],
-                requesterInd[ind],
+                requesterInds[ind],
                 designatedWallets[ind],
                 fulfillAddresses[ind],
                 fulfillFunctionIds[ind],
