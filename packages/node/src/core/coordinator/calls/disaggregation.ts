@@ -1,3 +1,4 @@
+import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
 import { isDuplicate } from '../../requests/api-calls';
 import {
@@ -5,6 +6,7 @@ import {
   ApiCall,
   ClientRequest,
   CoordinatorState,
+  LogsData,
   ProviderState,
   RequestErrorCode,
   RequestStatus,
@@ -14,7 +16,7 @@ function mapApiCalls(
   apiCalls: ClientRequest<ApiCall>[],
   aggregatedApiCalls: AggregatedApiCall[]
 ): LogsData<ClientRequest<ApiCall>[]> {
-  return apiCalls.map((apiCall) => {
+  const logsWithApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
     // Find the aggregated API call that matches the initial grouping and is required for this provider
     const aggregatedApiCall = aggregatedApiCalls.find((aggregatedCall) => {
       return isDuplicate(apiCall, aggregatedCall) && aggregatedCall.providers.includes(apiCall.metadata.providerIndex);
@@ -23,20 +25,23 @@ function mapApiCalls(
     // There should always be an aggregated API call when working backwards/ungrouping, but if there is
     // not we need to catch and log an error
     if (!aggregatedApiCall) {
-      logger.logJSON('ERROR', `Unable to find matching aggregated API call for Request:${apiCall.id}`);
-      return { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.UnableToMatchAggregatedCall };
+      const log = logger.pend('ERROR', `Unable to find matching aggregated API call for Request:${apiCall.id}`);
+      return [[log], { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.UnableToMatchAggregatedCall }];
     }
 
     // Add the error to the ApiCall
-    if (aggregatedApiCall.error?.errorCode) {
-      return { ...apiCall, status: RequestStatus.Errored, errorCode: aggregatedApiCall.error.errorCode };
+    if (aggregatedApiCall.errorCode) {
+      return [[], { ...apiCall, status: RequestStatus.Errored, errorCode: aggregatedApiCall.errorCode }];
     }
 
-    return { ...apiCall, response: aggregatedApiCall.response };
+    return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue! }];
   });
+  const logs = flatMap(logsWithApiCalls, a => a[0]);
+  const apiCallWithResponses = flatMap(logsWithApiCalls, a => a[1]);
+  return [logs, apiCallWithResponses];
 }
 
-export function disaggregate(state: CoordinatorState): ProviderState[] {
+export function disaggregate<T>(state: CoordinatorState): ProviderState<T>[] {
   // We only care about aggregated API calls for requests. There might be other types in the future
   const aggregatedApiCalls = state.aggregatedApiCalls.filter((ac) => ac.type === 'request');
 

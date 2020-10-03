@@ -84,7 +84,7 @@ export interface ApiCall {
   readonly providerId: string;
   readonly requesterAddress: string;
   readonly templateId: string | null;
-  readonly response?: ApiCallResponse;
+  readonly responseValue?: string;
 }
 
 export interface ApiCallTemplate {
@@ -158,7 +158,7 @@ export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
   readonly id: string;
   readonly settings: CoordindatorSettings;
-  readonly providers: ProviderState<any>[];
+  readonly evmProviders: ProviderState<EVMProviderState>[];
 }
 
 // ===========================================

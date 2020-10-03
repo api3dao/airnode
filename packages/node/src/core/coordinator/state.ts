@@ -5,6 +5,21 @@ import { randomString } from '../utils/string-utils';
 import { spawnNewProvider } from '../providers/worker';
 import { ChainConfig, CoordinatorState } from '../../types';
 
+const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
+
+async function initializeEVMProvider(coordinatorId: string, chain: ChainConfig) {
+  return chain.providers.map(async (provider) => {
+    const initialization = spawnNewProvider(coordinatorId, chain, provider);
+    // Each provider gets 20 seconds to initialize. If it fails to initialize
+    // in this time, it is ignored.
+    const [err, state] = await goTimeout(PROVIDER_INITIALIZATION_TIMEOUT, initialization);
+    if (err || !state) {
+      return null;
+    }
+    return state;
+  });
+}
+
 export async function initializeProviders(coordinatorId: string, chains: ChainConfig[]) {
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in config.json');
@@ -13,18 +28,11 @@ export async function initializeProviders(coordinatorId: string, chains: ChainCo
   // Providers are identified by their index in the array. This allows users
   // to configure duplicate providers safely (if they want the added redundancy)
   const flatInitializations = flatMap(chains.map((chain) => {
-    const chainInitializations = chain.providers.map(async (provider) => {
-      const initialization = spawnNewProvider(coordinatorId, chain, provider);
-      // Each provider gets 20 seconds to initialize. If it fails to initialize
-      // in this time, it is ignored.
-      const [err, state] = await goTimeout(20_000, initialization);
-      if (err || !state) {
-        return null;
-      }
-      return state;
-    });
+    if (chain.type === 'evm') {
+      return initializeEVMProvider(coordinatorId, chain);
+    }
 
-    return chainInitializations;
+    throw new Error(`Unknown chain type: ${chain.type}`);
   }));
 
   const providerStates = await Promise.all(flatInitializations);
@@ -38,7 +46,7 @@ export function create(): CoordinatorState {
   return {
     aggregatedApiCalls: [],
     id: coordinatorId,
-    providers: [],
+    evmProviders: [],
     // TODO: allow the user to configure their preferred log format
     settings: { logFormat: 'plain' },
   };

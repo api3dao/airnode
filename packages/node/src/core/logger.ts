@@ -56,7 +56,7 @@ export function log(level: LogLevel, message: string, options: LogOptions) {
 
 export function plain(level: LogLevel, message: string, options: LogOptions) {
   const timestamp = formatDateTimeMs(new Date());
-  const paddedMsg = message.padEnd(250);
+  const paddedMsg = message.padEnd(80);
 
   // The following are "special" fields that get spacing, capitalization etc applied
   // Additional fields can be included, but they must have the full name as the keys

@@ -1,4 +1,3 @@
-
 import { go } from '../../utils/promise-utils';
 import * as authorization from '../authorization';
 import * as logger from '../../logger';

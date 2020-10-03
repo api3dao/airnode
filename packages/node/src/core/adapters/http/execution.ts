@@ -13,11 +13,11 @@ const TOTAL_TIMEOUT = 29_000;
 const API_CALL_TIMEOUT = 20_000;
 
 export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<LogsData<ApiCallResponse>> {
-  const validatedCall = validateAggregatedApiCall(aggregatedApiCall);
+  const [validationLogs, validatedCall] = validateAggregatedApiCall(aggregatedApiCall);
 
   // An invalid API call should never reach this point, but just in case it does
   if (validatedCall.errorCode) {
-    return [[], { errorCode: validatedCall.errorCode }];
+    return [[...validationLogs], { errorCode: validatedCall.errorCode }];
   }
 
   const { endpointName, oisTitle } = validatedCall;
@@ -31,7 +31,7 @@ export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<Log
   const responseParameters = getResponseParameters(endpoint, validatedCall.parameters || {});
   if (!responseParameters._type) {
     const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
-    return [[log], { errorCode: RequestErrorCode.InvalidResponseParameters }];
+    return [[...validationLogs, log], { errorCode: RequestErrorCode.InvalidResponseParameters }];
   }
 
   // Don't submit the reserved parameters to the API
@@ -54,15 +54,15 @@ export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<Log
   const [err, res] = await go(retryableCall);
   if (err) {
     const log = logger.pend('ERROR', `Failed to call Endpoint:${validatedCall.endpointName}`, err);
-    return [[log], { errorCode: RequestErrorCode.ApiCallFailed }];
+    return [[...validationLogs, log], { errorCode: RequestErrorCode.ApiCallFailed }];
   }
 
   try {
     const extracted = adapter.extractAndEncodeResponse(res.data, responseParameters as adapter.ResponseParameters);
-    return [[], { value: extracted.encodedValue }];
+    return [[...validationLogs], { value: extracted.encodedValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
     const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${responseParameters._path}`);
-    return [[log], { errorCode: RequestErrorCode.ResponseValueNotFound }];
+    return [[...validationLogs, log], { errorCode: RequestErrorCode.ResponseValueNotFound }];
   }
 }
