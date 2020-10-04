@@ -1,4 +1,3 @@
-import { config } from '../core/config';
 import * as coordinator from '../core/coordinator';
 import * as http from '../core/adapters/http/execution';
 import * as logger from '../core/logger';
@@ -18,14 +17,13 @@ export async function start(event: any) {
 }
 
 export async function initializeProvider(event: any) {
-  const index = Number(event.parameters.index);
-  const providerConfig = config.nodeSettings.ethereumProviders[index];
-  const state = await providers.initializeState(providerConfig, index);
+  const { chain, provider, settings } = event.parameters;
+  const state = await providers.initializeState(chain, provider, settings);
 
   if (!state) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: `Failed to initialize provider: ${providerConfig.name}` }),
+      body: JSON.stringify({ message: `Failed to initialize provider: ${provider.name}` }),
     };
   }
 

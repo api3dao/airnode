@@ -133,6 +133,11 @@ export interface WalletDataByIndex {
   readonly [index: string]: WalletData;
 }
 
+export interface InitialCoordinatorConfig {
+  coordinatorId: string;
+  logFormat: LogFormat;
+}
+
 export interface ProviderSettings {
   readonly blockHistoryLimit: number;
   readonly chainId: number;
@@ -158,7 +163,7 @@ export interface CoordinatorState {
   readonly aggregatedApiCalls: AggregatedApiCall[];
   readonly id: string;
   readonly settings: CoordindatorSettings;
-  readonly evmProviders: ProviderState<EVMProviderState>[];
+  readonly EVMProviders: ProviderState<EVMProviderState>[];
 }
 
 // ===========================================

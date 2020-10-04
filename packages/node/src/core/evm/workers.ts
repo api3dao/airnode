@@ -1,17 +1,15 @@
 import * as evm from '../evm';
 import * as workers from '../workers';
-import { ChainConfig, ChainProvider, EVMProviderState, ProviderState } from '../../types';
+import { ChainConfig, ChainProvider, EVMProviderState, InitialCoordinatorConfig, ProviderState } from '../../types';
 
-export type CleanProviderState = Omit<ProviderState<EVMProviderState>, 'provider'>;
-
-export async function spawnNewProvider(coordinatorId: string, chain: ChainConfig, provider: ChainProvider): Promise<ProviderState<EVMProviderState>> {
+export async function spawnNewProvider(chain: ChainConfig, provider: ChainProvider, coordinatorConfig: InitialCoordinatorConfig): Promise<ProviderState<EVMProviderState>> {
   // TODO: This will probably need to change for other cloud providers
-  const parameters = { chain, coordinatorId, provider };
+  const parameters = { chain, coordinatorConfig, provider };
   const payload = workers.isLocalEnv() ? { parameters } : parameters;
   const options = { functionName: 'initializeProvider', payload };
 
   // If this throws, it will be caught by the calling function
-  const newState = (await workers.spawn(options)) as CleanProviderState;
+  const newState = (await workers.spawn(options));
 
   // The serverless function does not return an instance of an Ethereum
   // provider, so we create a new one before returning the state

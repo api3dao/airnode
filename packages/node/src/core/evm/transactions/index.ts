@@ -6,7 +6,7 @@ import { submitApiCall } from './api-calls';
 import { submitWalletDesignation } from './wallet-designations';
 import { submitWithdrawal } from './withdrawals';
 import * as wallet from '../wallet';
-import { ProviderState, RequestType, TransactionOptions } from '../../../types';
+import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from '../../../types';
 
 export interface Receipt {
   id: string;
@@ -15,8 +15,17 @@ export interface Receipt {
   type: RequestType;
 }
 
-export async function submit(state: ProviderState) {
-  const { Airnode } = contracts;
+export async function submit(state: ProviderState<EVMProviderState>) {
+  const { chainId, chainType, name: providerName } = state.settings;
+  const { coordinatorId } = state;
+
+  const baseLogOptions = {
+    format: state.settings.logFormat,
+    meta: { coordinatorId, providerName, chainType, chainId },
+  };
+
+  const { Airnode } = state.contracts
+  const AirnodeABI = contracts.Airnode.ABI;
 
   const walletIndices = Object.keys(state.walletDataByIndex);
 
@@ -24,14 +33,14 @@ export async function submit(state: ProviderState) {
     const walletData = state.walletDataByIndex[index];
     const signingWallet = wallet.deriveSigningWalletFromIndex(state.provider, index);
     const signer = signingWallet.connect(state.provider);
-    const contract = new ethers.Contract(Airnode.addresses[state.config.chainId], Airnode.ABI, signer);
+    const contract = new ethers.Contract(Airnode, AirnodeABI, signer);
 
     const txOptions: TransactionOptions = { gasPrice: state.gasPrice!, provider: state.provider };
 
     // Submit transactions for API calls
     const submittedApiCalls = walletData.requests.apiCalls.map(async (apiCall) => {
       const [logs, err, data] = await submitApiCall(contract, apiCall, txOptions);
-      logger.logPendingMessages(state.config.name, logs);
+      logger.logPending(logs, baseLogOptions);
       if (err || !data) {
         return { id: apiCall.id, type: RequestType.ApiCall, error: err };
       }
@@ -41,7 +50,7 @@ export async function submit(state: ProviderState) {
     // Submit transactions for withdrawals
     const submittedWithdrawals = walletData.requests.withdrawals.map(async (withdrawal) => {
       const [logs, err, data] = await submitWithdrawal(contract, withdrawal, txOptions);
-      logger.logPendingMessages(state.config.name, logs);
+      logger.logPending(logs, baseLogOptions);
       if (err || !data) {
         return { id: withdrawal.id, type: RequestType.Withdrawal, error: err };
       }
@@ -51,7 +60,7 @@ export async function submit(state: ProviderState) {
     // Submit transactions for wallet designations
     const submittedWalletDesignations = walletData.requests.walletDesignations.map(async (walletDesignation) => {
       const [logs, err, data] = await submitWalletDesignation(contract, walletDesignation, txOptions);
-      logger.logPendingMessages(state.config.name, logs);
+      logger.logPending(logs, baseLogOptions);
       if (err || !data) {
         return { id: walletDesignation.id, type: RequestType.WalletDesignation, error: err };
       }

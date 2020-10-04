@@ -1,16 +1,16 @@
 import * as evm from '../evm';
-import { ChainConfig, ChainProvider, ProviderState } from '../../types';
+import { ChainConfig, ChainProvider, InitialCoordinatorConfig, ProviderState } from '../../types';
 
-export async function spawnNewProvider(coordinatorId: string, chain: ChainConfig, provider: ChainProvider) {
+export async function spawnNewProvider(chain: ChainConfig, provider: ChainProvider, coordinatorConfig: InitialCoordinatorConfig) {
   if (chain.type === 'evm') {
-    return evm.spawnNewProvider(coordinatorId, chain, provider);
+    return evm.spawnNewProvider(chain, provider, coordinatorConfig);
   }
 
   throw new Error(`Unknown chain type: ${chain.type}`);
 }
 
 export async function spawnProviderRequestProcessor(state: ProviderState<unknown>) {
-  if (state.type === 'evm') {
+  if (state.settings.chainType === 'evm') {
     return evm.spawnProviderRequestProcessor(state);
   }
 

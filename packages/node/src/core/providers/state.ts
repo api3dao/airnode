@@ -1,24 +1,28 @@
 import * as evm from '../evm';
 import { ChainConfig, EVMProviderState, ProviderSettings, ProviderState } from '../../types';
 
-function createEVMState(coordinatorId: string, chain: ChainConfig, settings: ProviderSettings): ProviderState<EVMProviderState> {
+interface Overrides {
+  coordinatorId: string;
+}
+
+function createEVMState(chain: ChainConfig, settings: ProviderSettings, overrides: Overrides): ProviderState<EVMProviderState> {
   const provider = evm.newProvider(settings.url, settings.chainId);
   const contracts = evm.contracts.create(chain);
 
   return {
-    coordinatorId,
     settings,
     provider,
     contracts,
     currentBlock: null,
     gasPrice: null,
     walletDataByIndex: {},
+    ...overrides,
   };
 }
 
-export function create(coordinatorId: string, chain: ChainConfig, settings: ProviderSettings) {
+export function create(chain: ChainConfig, settings: ProviderSettings, overrides: Overrides) {
   if (chain.type === 'evm') {
-    return createEVMState(coordinatorId, chain, settings);
+    return createEVMState(chain, settings, overrides);
   }
 }
 

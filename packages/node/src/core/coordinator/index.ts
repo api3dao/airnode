@@ -37,14 +37,15 @@ export async function start(options?: CoordinatorOptions) {
   // =================================================================
   // STEP 3: Get the initial state from each provider
   // =================================================================
-  const evmProviders = await state.initializeProviders(state1.id, config.nodeSettings.chains);
-  const state2 = state.update(state1, { evmProviders });
-  state2.evmProviders.forEach((provider) => {
-    logger.info(`Initialized EVM provider:${provider.config.name}`, baseLogOptions);
+  const initializeProviderSettings = { coordinatorId: state1.id, logFormat: state1.settings.logFormat };
+  const EVMProviders = await state.initializeProviders(config.nodeSettings.chains, initializeProviderSettings);
+  const state2 = state.update(state1, { EVMProviders });
+  state2.EVMProviders.forEach((provider) => {
+    logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
   });
   logger.info('Forking to initialize providers complete', baseLogOptions);
 
-  const hasNoRequests = state2.evmProviders.every((provider) => walletData.hasNoRequests(provider!.walletDataByIndex));
+  const hasNoRequests = state2.EVMProviders.every((provider) => walletData.hasNoRequests(provider!.walletDataByIndex));
   if (hasNoRequests) {
     logger.info('No actionable requests detected. Exiting...', baseLogOptions);
     return state2;

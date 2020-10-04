@@ -1,6 +1,5 @@
 import { goTimeout } from '../../utils/promise-utils';
 import * as apiCalls from './api-calls';
-import * as contracts from '../contracts';
 import * as blocking from './blocking';
 import * as eventLogs from './event-logs';
 import * as logger from '../../logger';
@@ -8,16 +7,24 @@ import * as requesterData from './requester-data';
 import * as validation from './validation';
 import * as walletDesignations from './wallet-designations';
 import * as withdrawals from './withdrawals';
-import { GroupedBaseRequests, GroupedRequests, ProviderState } from '../../../types';
+import { EVMProviderState, GroupedBaseRequests, GroupedRequests, ProviderState } from '../../../types';
 
 export { groupRequestsByWalletIndex } from './grouping';
 
-export async function fetchPendingRequests(state: ProviderState): Promise<GroupedRequests> {
+export async function fetchPendingRequests(state: ProviderState<EVMProviderState>): Promise<GroupedRequests> {
+  const { chainId, chainType, name: providerName } = state.settings;
+  const { coordinatorId } = state;
+
+  const baseLogOptions = {
+    format: state.settings.logFormat,
+    meta: { coordinatorId, providerName, chainType, chainId },
+  };
+
   // =================================================================
   // STEP 1: Fetch all requests and group them
   // =================================================================
   const fetchOptions = {
-    address: contracts.Airnode.addresses[state.config.chainId],
+    address: state.contracts.Airnode,
     currentBlock: state.currentBlock!,
     provider: state.provider,
   };
@@ -29,16 +36,16 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   // Cast the raw logs into the various typed request models
   const metadata = { providerIndex: state.index };
   const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls, metadata);
-  logger.logPendingMessages(state.config.name, baseApiLogs);
+  logger.logPending(baseApiLogs, baseLogOptions);
 
   const [baseDesigLogs, baseDesignations] = walletDesignations.mapBaseRequests(
     groupedLogs.walletDesignations,
     metadata
   );
-  logger.logPendingMessages(state.config.name, baseDesigLogs);
+  logger.logPending(baseDesigLogs, baseLogOptions);
 
   const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals, metadata);
-  logger.logPendingMessages(state.config.name, baseWithdrawLogs);
+  logger.logPending(baseWithdrawLogs, baseLogOptions);
 
   const baseRequests: GroupedBaseRequests = {
     apiCalls: baseApiCalls,
@@ -50,14 +57,14 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
   // STEP 2: Fetch and merge requester data
   // =================================================================
   const fetchReqDataOptions = {
-    address: contracts.Convenience.addresses[state.config.chainId],
+    address: state.contracts.Convenience,
     provider: state.provider,
   };
   // Fetch requester data (requesterId, wallet details etc) for each request type
   const fetchRequesterData = requesterData.fetch(fetchReqDataOptions, baseRequests);
   const [_fetchReqDataErr, fetchedReqDataWithLogs] = await goTimeout(5000, fetchRequesterData);
   if (fetchedReqDataWithLogs && fetchedReqDataWithLogs[0]) {
-    logger.logPendingMessages(state.config.name, fetchedReqDataWithLogs[0]);
+    logger.logPending(fetchedReqDataWithLogs[0], baseLogOptions);
   }
 
   // Merge requester data with requests
@@ -66,19 +73,19 @@ export async function fetchPendingRequests(state: ProviderState): Promise<Groupe
     baseRequests,
     reqDataByAddress
   );
-  logger.logPendingMessages(state.config.name, requestsWithDataLogs);
+  logger.logPending(requestsWithDataLogs, baseLogOptions);
 
   // =================================================================
   // STEP 3: Perform additional validations and checks
   // =================================================================
   // Check that each request is valid
   const [validationLogs, validatedRequests] = validation.validateRequests(requestsWithData);
-  logger.logPendingMessages(state.config.name, validationLogs);
+  logger.logPending(validationLogs, baseLogOptions);
 
   // Block any requests that cannot be processed
   // 1. API calls related to a wallet with a pending withdrawal cannot be processed
   const [blockedLogs, blockedRequests] = blocking.blockRequestsWithWithdrawals(validatedRequests);
-  logger.logPendingMessages(state.config.name, blockedLogs);
+  logger.logPending(blockedLogs, baseLogOptions);
 
   return blockedRequests;
 }

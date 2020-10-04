@@ -6,9 +6,10 @@ import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
 import * as providerSettings from '../../config/provider-settings';
 import * as state from '../../providers/state';
-import { ChainConfig, EVMProviderState, ProviderState } from '../../../types';
+import * as wallet from '../wallet';
+import { ChainConfig, ChainProvider, InitialCoordinatorConfig, EVMProviderState, PendingLog, ProviderState } from '../../../types';
 
-type ParallelPromise = Promise<{ id: string; data: any }>;
+type ParallelPromise = Promise<{ id: string; data: any, logs?: PendingLog[] }>;
 
 async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMProviderState>) {
   // This should not throw
@@ -17,41 +18,51 @@ async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMPr
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
+  const xpub = wallet.getExtendedPublicKey();
+  const indices = Object.keys(currentState.walletDataByIndex);
+  const addresses = indices.map((index) => wallet.deriveWalletAddressFromIndex(xpub, index));
+  const fetchOptions = { currentBlock: currentState.currentBlock!, provider: currentState.provider };
   // This should not throw
-  const res = await transactionCounts.getTransactionCountByIndex(currentState);
-  return { id: 'transaction-counts', data: res };
+  const [logs, res] = await transactionCounts.fetchByAddress(addresses, fetchOptions);
+  return { id: 'transaction-counts', data: res, logs };
 }
 
-export async function initializeState(coordinatorId: string, config: ChainConfig, index: number): Promise<ProviderState<EVMProviderState> | null> {
+export async function initializeState(chainConfig: ChainConfig, chainProvider: ChainProvider, coordinatorConfig: InitialCoordinatorConfig): Promise<ProviderState<EVMProviderState> | null> {
   // =================================================================
   // STEP 1: Create a new ProviderState
   // =================================================================
-  const chainProvider = config.providers[index];
   // Settings should typically be the same between runs, while state should be different
-  const settings = providerSettings.create(config, chainProvider);
-  const state1 = state.create(coordinatorId, config, settings)!;
-  const { name: providerName } = state1.settings;
+  const settings = providerSettings.create(chainConfig, chainProvider, coordinatorConfig);
+  const state1 = state.create(chainConfig, settings, { coordinatorId: coordinatorConfig.coordinatorId })!;
+  const { chainId, chainType, name: providerName } = state1.settings;
+  const { coordinatorId } = state1;
+
+  const baseLogOptions = {
+    format: state1.settings.logFormat,
+    meta: { coordinatorId, providerName, chainType, chainId },
+  };
 
   // =================================================================
   // STEP 2: Get the current block number
   // =================================================================
   const [blockErr, currentBlock] = await go(state1.provider.getBlockNumber());
   if (blockErr || !currentBlock) {
-    logger.error('Unable to get current block', { coordinatorId, providerName, error: blockErr });
+    logger.error('Unable to get current block', { ...baseLogOptions, error: blockErr });
     return null;
   }
-  logger.info(`Current block set to: ${currentBlock}`, { coordinatorId, providerName });
+  logger.info(`Current block set to: ${currentBlock}`, baseLogOptions);
   const state2 = state.update(state1, { currentBlock });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
   // =================================================================
-  const [dataErr, walletDataByIndex] = await go(triggers.fetchWalletDataByIndex(state2));
-  if (dataErr || !walletDataByIndex) {
-    logger.error('Unable to get pending requests and wallet data', { coordinatorId, providerName, error: dataErr });
+  const [dataErr, walletDataByIndexWithLogs] = await go(triggers.fetchWalletDataByIndex(state2));
+  if (dataErr || !walletDataByIndexWithLogs) {
+    logger.error('Unable to get pending requests and wallet data', { ...baseLogOptions, error: dataErr });
     return null;
   }
-  const state3 = state.update(state2, { walletDataByIndex });
+  logger.logPending(walletDataByIndexWithLogs[0], baseLogOptions);
+  const state3 = state.update(state2, { walletDataByIndex: walletDataByIndexWithLogs[1] });
 
   // =================================================================
   // STEP 4: Fetch templates, authorization and wallet data
@@ -64,16 +75,19 @@ export async function initializeState(coordinatorId: string, config: ChainConfig
 
   // // Each of these promises returns its result with an ID as the
   // // order in which they resolve in not guaranteed.
-  const { walletDataWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find(
+  const templatesAndTransactions = templatesAndTransactionResults.find(
     (result) => result.id === 'templates+authorizations'
-  )!.data;
-  const transactionCountsByWalletIndex = templatesAndTransactionResults.find(
+  )!;
+  const { walletDataWithTemplates, authorizationsByEndpoint } = templatesAndTransactions.data;
+
+  const transactionCountsByAddress = templatesAndTransactionResults.find(
     (result) => result.id === 'transaction-counts'
-  )!.data;
+  )!;
+  logger.logPending(transactionCountsByAddress.logs!, baseLogOptions);
 
   const walletDataWithTransactionCounts = templates.mergeTemplatesAndTransactionCounts(
     walletDataWithTemplates,
-    transactionCountsByWalletIndex
+    transactionCountsByAddress.data
   );
 
   // // =================================================================
@@ -83,7 +97,7 @@ export async function initializeState(coordinatorId: string, config: ChainConfig
     walletDataWithTransactionCounts,
     authorizationsByEndpoint
   );
-  logger.logPendingMessages(state3.config.name, authLogs);
+  logger.logPending(authLogs, baseLogOptions);
 
   const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
 

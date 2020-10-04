@@ -8,14 +8,12 @@ import * as utils from '../utils';
 import { ChainType, EVMProviderState, LogFormat, ProviderState } from '../../../types';
 
 export async function processTransactions(initialState: ProviderState<EVMProviderState>) {
+  const { chainId, chainType, name: providerName } = initialState.settings;
+  const { coordinatorId } = initialState;
+
   const baseLogOptions = {
-    format: 'plain' as LogFormat,
-    meta: {
-      chainId: initialState.settings.chainId,
-      chainType: 'evm' as ChainType,
-      coordinatorId: initialState.coordinatorId,
-      providerName: initialState.settings.name,
-    },
+    format: initialState.settings.logFormat,
+    meta: { coordinatorId, providerName, chainType, chainId },
   };
 
   // =================================================================
@@ -28,14 +26,14 @@ export async function processTransactions(initialState: ProviderState<EVMProvide
   // STEP 2: Get the latest gas price
   // =================================================================
   const gasPriceOptions = {
-    address: contracts.GasPriceFeed.addresses[state1.config.chainId],
+    address: state1.contracts.GasPriceFeed,
     provider: state1.provider,
   };
   const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
-  logger.logPendingMessages(state1.config.name, gasPriceLogs);
+  logger.logPending(gasPriceLogs, baseLogOptions);
 
   const gweiPrice = utils.weiToGwei(gasPrice);
-  logger.logProviderJSON(state1.config.name, 'INFO', `Gas price set to ${gweiPrice} Gwei`);
+  logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
   const state2 = state.update(state1, { gasPrice });
 
   // =================================================================
