@@ -32,13 +32,13 @@ export async function start(options?: CoordinatorOptions) {
     meta: { coordinatorId },
   };
 
+  const startedAt = new Date();
   logger.info(`Coordinator starting...`, baseLogOptions);
 
   // =================================================================
   // STEP 3: Get the initial state from each provider
   // =================================================================
-  const initializeProviderSettings = { coordinatorId: state1.id, logFormat: state1.settings.logFormat };
-  const EVMProviders = await state.initializeProviders(config.nodeSettings.chains, initializeProviderSettings);
+  const EVMProviders = await state.initializeProviders(state1, config.nodeSettings.chains);
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
@@ -54,29 +54,31 @@ export async function start(options?: CoordinatorOptions) {
   // =================================================================
   // STEP 4: Group unique API calls
   // =================================================================
-  const flatApiCalls = flatMap(state2.providers, (provider) => apiCalls.flatten(provider.walletDataByIndex));
-  const aggregatedApiCalls = calls.aggregate(flatApiCalls);
-  const state3 = state.update(state2, { aggregatedApiCalls });
-  logger.info(`Processing ${state3.aggregatedApiCalls.length} pending API call(s)...`, baseLogOptions);
+  const flatApiCalls = flatMap(state2.EVMProviders, (provider) => apiCalls.flatten(provider.walletDataByIndex));
+  const aggregatedApiCallsById = calls.aggregate(flatApiCalls);
+  const flatAggregatedCalls = flatMap(Object.keys(aggregatedApiCallsById), (id) => aggregatedApiCallsById[id]);
+  logger.info(`Processing ${flatAggregatedCalls.length} pending API call(s)...`, baseLogOptions);
+  const state3 = state.update(state2, { aggregatedApiCallsById });
 
   // =================================================================
   // STEP 5: Execute API calls and save the responses
   // =================================================================
-  const [callLogs, aggregatedCallsWithResponses] = await calls.callApis(state3.aggregatedApiCalls);
-  const state4 = state.update(state3, { aggregatedApiCalls: aggregatedCallsWithResponses });
+  const [callLogs, aggregatedCallsWithResponses] = await calls.callApis(state3.aggregatedApiCallsById, baseLogOptions);
+  const state4 = state.update(state3, { aggregatedApiCallsById: aggregatedCallsWithResponses });
   logger.logPending(callLogs, baseLogOptions);
 
   // =================================================================
   // STEP 6: Map API responses back to each provider's API requests
   // =================================================================
-  const providersWithAPIResponses = calls.disaggregate(state4);
-  const state5 = state.update(state4, { providers: providersWithAPIResponses });
+  const [disaggregationLogs, providersWithAPIResponses] = calls.disaggregate(state4);
+  logger.logPending(disaggregationLogs, baseLogOptions);
+  const state5 = state.update(state4, { EVMProviders: providersWithAPIResponses });
 
   // =================================================================
   // STEP 7: Initiate transactions for each provider
   // =================================================================
-  const providerTransactions = state5.providers.map(async (provider) => {
-    logger.info(`Forking to submit transactions for provider:${provider.config.name}...`, baseLogOptions);
+  const providerTransactions = state5.EVMProviders.map(async (provider) => {
+    logger.info(`Forking to submit transactions for provider:${provider.settings.name}...`, baseLogOptions);
     return await spawnProviderRequestProcessor(provider);
   });
   await Promise.all(providerTransactions);

@@ -4,6 +4,7 @@ import {
   ApiCall,
   BaseRequest,
   ClientRequest,
+  EVMProviderState,
   GroupedRequests,
   ProviderState,
   RequestStatus,
@@ -94,7 +95,7 @@ function assignWalletNonces(
   return withNonces.requests;
 }
 
-export function assign(state: ProviderState) {
+export function assign(state: ProviderState<EVMProviderState>) {
   // Ensure requests are sorted for we assign nonces
   const sortedWalletDataByIndex = sorting.sortRequestsByWalletIndex(state.walletDataByIndex);
 

@@ -1,5 +1,6 @@
 import difference from 'lodash/difference';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import { Airnode } from './airnode';
 import { Convenience } from './convenience';
 import { GasPriceFeed } from './gas-price-feed';
@@ -13,7 +14,7 @@ export const EVM_PROTECTED_CHAIN_IDS = [1];
 export const EVM_REQUIRED_CONTRACTS = ['Airnode', 'Convenience', 'GasPriceFeed'];
 
 export function create(chain: ChainConfig): EVMContracts {
-  const evmContracts  = { Airnode, Convenience, GasPriceFeed };
+  const evmContracts = { Airnode, Convenience, GasPriceFeed };
 
   const contracts = EVM_REQUIRED_CONTRACTS.reduce((acc, name) => {
     // If no options or contract overrides were specified, take the defaults for each known chain ID
@@ -37,7 +38,7 @@ export function create(chain: ChainConfig): EVMContracts {
   }, {}) as EVMContracts;
 
   const contractNames = Object.keys(contracts).sort();
-  if (contractNames !== EVM_REQUIRED_CONTRACTS.sort()) {
+  if (!isEqual(contractNames, EVM_REQUIRED_CONTRACTS.sort())) {
     const diff = difference(contractNames, EVM_REQUIRED_CONTRACTS);
     throw new Error(`The following EVM contracts were expected but not provided: ${diff.join(', ')}`);
   }
@@ -63,4 +64,3 @@ export function validate(config: ChainConfig): string[] {
 
   return missingAddresses;
 }
-

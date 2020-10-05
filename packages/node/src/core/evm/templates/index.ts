@@ -4,13 +4,13 @@ import * as authorization from '../authorization';
 import * as logger from '../../logger';
 import * as templates from './template-fetching';
 import * as wallet from '../wallet';
-import { ProviderState, WalletData, WalletDataByIndex } from '../../../types';
+import { EVMProviderState, ProviderState, WalletData, WalletDataByIndex } from '../../../types';
 
 interface TransactionCountByAddress {
   [index: string]: number;
 }
 
-export async function fetchTemplatesAndAuthorizations(state: ProviderState) {
+export async function fetchTemplatesAndAuthorizations(state: ProviderState<EVMProviderState>) {
   const { chainId, chainType, name: providerName } = state.settings;
   const { coordinatorId } = state;
 

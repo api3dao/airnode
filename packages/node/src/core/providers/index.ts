@@ -1,13 +1,17 @@
 import * as evmProvider from '../evm/providers';
-import { ChainConfig, ChainProvider, InitialCoordinatorConfig, ProviderState } from '../../types';
+import { EVMProviderState, ProviderState } from '../../types';
 
-export async function initializeState(chain: ChainConfig, provider: ChainProvider, coordinatorConfig: InitialCoordinatorConfig) {
-  if (chain.type === 'evm') {
-    return evmProvider.initializeState(chain, provider, coordinatorConfig);
+// "Pipeline" functions
+export async function initializeState(state: ProviderState<any>) {
+  if (state.settings.chainType === 'evm') {
+    return evmProvider.initializeState(state as ProviderState<EVMProviderState>);
   }
   return null;
 }
 
-export async function processTransactions(initialState: ProviderState) {
-  return evmProvider.processTransactions(initialState);
+export async function processTransactions(state: ProviderState<any>) {
+  if (state.settings.chainType === 'evm') {
+    return evmProvider.processTransactions(state as ProviderState<EVMProviderState>);
+  }
+  return null;
 }

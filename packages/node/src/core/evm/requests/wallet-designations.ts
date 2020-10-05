@@ -2,14 +2,7 @@ import * as events from './events';
 import * as logger from '../../logger';
 import { BaseRequest, LogsData, LogWithMetadata, RequestStatus, WalletDesignation } from '../../../types';
 
-interface InitialMetadata {
-  providerIndex: number;
-}
-
-export function initialize(
-  logWithMetadata: LogWithMetadata,
-  metadata: InitialMetadata
-): BaseRequest<WalletDesignation> {
+export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<WalletDesignation> {
   const { parsedLog } = logWithMetadata;
 
   const request: BaseRequest<WalletDesignation> = {
@@ -20,7 +13,6 @@ export function initialize(
     requesterId: parsedLog.args.requesterId,
     walletIndex: parsedLog.args.walletInd.toString(),
     metadata: {
-      ...metadata,
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
@@ -91,16 +83,13 @@ export function filterDuplicateRequests(
   return [uniqueRequests.logs, flatRequests];
 }
 
-export function mapBaseRequests(
-  logsWithMetadata: LogWithMetadata[],
-  metadata: InitialMetadata
-): LogsData<BaseRequest<WalletDesignation>[]> {
+export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsData<BaseRequest<WalletDesignation>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWalletDesignationRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWalletDesignationFulfillment(log.parsedLog));
 
   // Cast raw logs to typed WalletDesignation objects
-  const walletDesignationRequests = requestLogs.map((log) => initialize(log, metadata));
+  const walletDesignationRequests = requestLogs.map((log) => initialize(log));
 
   // Update the status of requests that have already been fulfilled
   const [fulfilledLogs, fulfilledRequests] = updateFulfilledRequests(walletDesignationRequests, fulfillmentLogs);

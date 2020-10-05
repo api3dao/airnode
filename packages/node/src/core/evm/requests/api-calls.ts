@@ -4,11 +4,7 @@ import * as events from './events';
 import * as logger from '../../logger';
 import { ApiCall, BaseRequest, LogsData, LogWithMetadata, RequestErrorCode, RequestStatus } from '../../../types';
 
-interface InitialMetadata {
-  providerIndex: number;
-}
-
-export function initialize(logWithMetadata: LogWithMetadata, metadata: InitialMetadata): BaseRequest<ApiCall> {
+export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
 
   const request: BaseRequest<ApiCall> = {
@@ -26,7 +22,6 @@ export function initialize(logWithMetadata: LogWithMetadata, metadata: InitialMe
     // Parameters are decoded separately
     parameters: {},
     metadata: {
-      ...metadata,
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
@@ -84,16 +79,13 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapBaseRequests(
-  logsWithMetadata: LogWithMetadata[],
-  metadata: InitialMetadata
-): LogsData<BaseRequest<ApiCall>[]> {
+export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsData<BaseRequest<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isApiCallFulfillment(log.parsedLog));
 
   // Cast raw logs to typed API request objects
-  const apiCallBaseRequests = requestLogs.map((log) => initialize(log, metadata));
+  const apiCallBaseRequests = requestLogs.map((log) => initialize(log));
 
   // Decode and apply parameters for each API call
   const parameterized = apiCallBaseRequests.map((request) => applyParameters(request));

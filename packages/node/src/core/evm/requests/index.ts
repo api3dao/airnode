@@ -34,17 +34,13 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   const groupedLogs = eventLogs.group(flatLogs);
 
   // Cast the raw logs into the various typed request models
-  const metadata = { providerIndex: state.index };
-  const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls, metadata);
+  const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls);
   logger.logPending(baseApiLogs, baseLogOptions);
 
-  const [baseDesigLogs, baseDesignations] = walletDesignations.mapBaseRequests(
-    groupedLogs.walletDesignations,
-    metadata
-  );
+  const [baseDesigLogs, baseDesignations] = walletDesignations.mapBaseRequests(groupedLogs.walletDesignations);
   logger.logPending(baseDesigLogs, baseLogOptions);
 
-  const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals, metadata);
+  const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals);
   logger.logPending(baseWithdrawLogs, baseLogOptions);
 
   const baseRequests: GroupedBaseRequests = {

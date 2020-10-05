@@ -17,19 +17,19 @@ export async function start(event: any) {
 }
 
 export async function initializeProvider(event: any) {
-  const { chain, provider, settings } = event.parameters;
-  const state = await providers.initializeState(chain, provider, settings);
+  const { state } = event.parameters;
+  const initializedState = await providers.initializeState(state);
 
-  if (!state) {
+  if (!initializedState) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: `Failed to initialize provider: ${provider.name}` }),
+      body: JSON.stringify({ message: `Failed to initialize provider: ${state.settings.name}` }),
     };
   }
 
-  // We can't return the instance of the provider. A new provider
+  // NOTE: We can't return the instance of the provider. A new provider
   // will be created in the calling function
-  const body = removeKey(state, 'provider');
+  const body = removeKey(initializedState, 'provider');
 
   return {
     statusCode: 200,
@@ -38,18 +38,8 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, state } = event.parameters;
+  const { aggregatedApiCall, logOptions } = event.parameters;
   const [logs, response] = await http.callApi(aggregatedApiCall);
-
-  const logOptions = {
-    format: state.settings.logFormat,
-    meta: {
-      coordinatorId: state.coordinatorId,
-      chainId: state.settings.chainId,
-      chainType: state.settings.chainType,
-      providerName: state.settings.name,
-    },
-  };
   logger.logPending(logs, logOptions);
 
   return {

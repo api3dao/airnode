@@ -24,7 +24,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 
-  const { Airnode } = state.contracts
+  const { Airnode } = state.contracts;
   const AirnodeABI = contracts.Airnode.ABI;
 
   const walletIndices = Object.keys(state.walletDataByIndex);

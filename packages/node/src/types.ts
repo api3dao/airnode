@@ -51,7 +51,6 @@ export enum RequestType {
 
 export interface RequestMetadata {
   readonly blockNumber: number;
-  readonly providerIndex: number;
   readonly transactionHash: string;
 }
 
@@ -133,11 +132,6 @@ export interface WalletDataByIndex {
   readonly [index: string]: WalletData;
 }
 
-export interface InitialCoordinatorConfig {
-  coordinatorId: string;
-  logFormat: LogFormat;
-}
-
 export interface ProviderSettings {
   readonly blockHistoryLimit: number;
   readonly chainId: number;
@@ -153,14 +147,18 @@ export type ProviderState<T extends {}> = T & {
   readonly currentBlock: number | null;
   readonly settings: ProviderSettings;
   readonly walletDataByIndex: WalletDataByIndex;
-}
+};
 
 export interface CoordindatorSettings {
   readonly logFormat: LogFormat;
 }
 
+export interface AggregatedApiCallsById {
+  readonly [requestId: string]: AggregatedApiCall[];
+}
+
 export interface CoordinatorState {
-  readonly aggregatedApiCalls: AggregatedApiCall[];
+  readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly id: string;
   readonly settings: CoordindatorSettings;
   readonly EVMProviders: ProviderState<EVMProviderState>[];
@@ -205,7 +203,6 @@ export interface AggregatedApiCall {
   readonly endpointName?: string;
   readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
-  readonly providers: number[];
   readonly type: AggregatedApiCallType;
   readonly errorCode?: RequestErrorCode;
   readonly responseValue?: string;

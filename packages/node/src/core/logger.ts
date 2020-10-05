@@ -60,19 +60,20 @@ export function plain(level: LogLevel, message: string, options: LogOptions) {
 
   // The following are "special" fields that get spacing, capitalization etc applied
   // Additional fields can be included, but they must have the full name as the keys
-  const chainType = options.meta?.chainType ? ` Chain: ${options.meta.chainType}` : '';
+  const chainType = options.meta?.chainType ? ` Chain: ${options.meta.chainType.toUpperCase()}` : '';
   const chainId = options.meta?.chainId ? ` Chain ID: ${options.meta.chainId}` : '';
   const coordId = options.meta?.coordinatorId ? ` Coordinator ID: ${options.meta.coordinatorId}` : '';
   const provider = options.meta?.providerName ? ` Provider:${options.meta.providerName}` : '';
+  const meta = [coordId, provider, chainType, chainId].filter((l) => !!l).join(',');
 
   const additional = Object.keys(options.additional || {}).reduce((acc, key) => {
     if (!options.additional || !options.additional[key]) {
       return acc;
     }
-    return `${acc} ${key}: ${options.additional[key]}`;
+    return `${acc}, ${key}: ${options.additional[key]}`;
   }, '');
 
-  console.log(`[${timestamp}] ${level} ${paddedMsg} ${chainType}${chainId}${coordId}${provider}${additional}`);
+  console.log(`[${timestamp}] ${level} ${paddedMsg} ${meta}${additional}`);
 }
 
 export function json(level: LogLevel, message: string, options: LogOptions) {
@@ -99,7 +100,7 @@ export function pend(level: LogLevel, message: string, error?: Error | null): Pe
   return { level, message };
 }
 
-export function logPending(pendingLogs: PendingLog[], options?: LogOptions) {
+export function logPending(pendingLogs: PendingLog[], options: LogOptions) {
   pendingLogs.forEach((pendingLog) => {
     log(pendingLog.level, pendingLog.message, { ...options, error: pendingLog.error });
   });

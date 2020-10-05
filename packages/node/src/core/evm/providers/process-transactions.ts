@@ -1,11 +1,10 @@
-
 import { getGasPrice } from '../gas-prices';
 import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
 import * as transactions from '../transactions';
 import * as utils from '../utils';
-import { ChainType, EVMProviderState, LogFormat, ProviderState } from '../../../types';
+import { EVMProviderState, ProviderState } from '../../../types';
 
 export async function processTransactions(initialState: ProviderState<EVMProviderState>) {
   const { chainId, chainType, name: providerName } = initialState.settings;
@@ -45,5 +44,7 @@ export async function processTransactions(initialState: ProviderState<EVMProvide
     logger.info(`Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`, baseLogOptions);
   });
 
-  return receipts;
-} 
+  // TODO: apply tx hashes to each request
+
+  return state2;
+}

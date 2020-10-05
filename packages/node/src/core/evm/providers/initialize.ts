@@ -1,15 +1,15 @@
 import { go } from '../../utils/promise-utils';
 import * as authorization from '../authorization';
 import * as logger from '../../logger';
+import { newProvider } from '../retry-provider';
+import * as state from '../../providers/state';
 import * as triggers from '../triggers';
 import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
-import * as providerSettings from '../../config/provider-settings';
-import * as state from '../../providers/state';
 import * as wallet from '../wallet';
-import { ChainConfig, ChainProvider, InitialCoordinatorConfig, EVMProviderState, PendingLog, ProviderState } from '../../../types';
+import { EVMProviderState, PendingLog, ProviderState } from '../../../types';
 
-type ParallelPromise = Promise<{ id: string; data: any, logs?: PendingLog[] }>;
+type ParallelPromise = Promise<{ id: string; data: any; logs?: PendingLog[] }>;
 
 async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMProviderState>) {
   // This should not throw
@@ -27,20 +27,21 @@ async function fetchTransactionCounts(currentState: ProviderState<EVMProviderSta
   return { id: 'transaction-counts', data: res, logs };
 }
 
-export async function initializeState(chainConfig: ChainConfig, chainProvider: ChainProvider, coordinatorConfig: InitialCoordinatorConfig): Promise<ProviderState<EVMProviderState> | null> {
-  // =================================================================
-  // STEP 1: Create a new ProviderState
-  // =================================================================
-  // Settings should typically be the same between runs, while state should be different
-  const settings = providerSettings.create(chainConfig, chainProvider, coordinatorConfig);
-  const state1 = state.create(chainConfig, settings, { coordinatorId: coordinatorConfig.coordinatorId })!;
-  const { chainId, chainType, name: providerName } = state1.settings;
-  const { coordinatorId } = state1;
-
+export async function initializeState(
+  initialState: ProviderState<EVMProviderState>
+): Promise<ProviderState<EVMProviderState> | null> {
+  const { coordinatorId } = initialState;
+  const { chainId, chainType, name: providerName } = initialState.settings;
   const baseLogOptions = {
-    format: state1.settings.logFormat,
+    format: initialState.settings.logFormat,
     meta: { coordinatorId, providerName, chainType, chainId },
   };
+
+  // =================================================================
+  // STEP 1: Initialize the new ProviderState
+  // =================================================================
+  const provider = newProvider(initialState.settings.url, initialState.settings.chainId);
+  const state1 = state.update(initialState, { provider });
 
   // =================================================================
   // STEP 2: Get the current block number
