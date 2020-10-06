@@ -4,14 +4,13 @@ import { goTimeout } from '../utils/promise-utils';
 import { randomString } from '../utils/string-utils';
 import * as providerStates from '../providers/state';
 import { spawnNewProvider } from '../providers/worker';
-import { ChainConfig, CoordinatorState, EVMProviderState, ProviderState } from '../../types';
+import { ChainConfig, CoordindatorSettings, CoordinatorState, EVMProviderState, ProviderState } from '../../types';
 
 const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
-function initializeEVMProvider(chain: ChainConfig, coordinatorState: CoordinatorState) {
+function initializeEVMProvider(coordinatorId: string, chain: ChainConfig, coordinatorSettings: CoordindatorSettings) {
   return chain.providers.map(async (provider) => {
-    const { id, settings } = coordinatorState;
-    const freshState = providerStates.createEVMState(id, chain, provider, settings);
+    const freshState = providerStates.createEVMState(coordinatorId, chain, provider, coordinatorSettings);
     const initialization = spawnNewProvider(freshState);
 
     // Each provider gets 20 seconds to initialize. If it fails to initialize
@@ -24,7 +23,11 @@ function initializeEVMProvider(chain: ChainConfig, coordinatorState: Coordinator
   });
 }
 
-export async function initializeProviders(coordinatorState: CoordinatorState, chains: ChainConfig[]) {
+export async function initializeProviders(
+  coordinatorId: string,
+  chains: ChainConfig[],
+  coordinatorSettings: CoordindatorSettings
+) {
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in config.json');
   }
@@ -35,7 +38,7 @@ export async function initializeProviders(coordinatorState: CoordinatorState, ch
   // to configure duplicate providers safely (if they want the added redundancy)
   const EVMInitializations = flatMap(
     EVMChains.map((chain) => {
-      return initializeEVMProvider(chain, coordinatorState);
+      return initializeEVMProvider(coordinatorId, chain, coordinatorSettings);
     })
   );
 

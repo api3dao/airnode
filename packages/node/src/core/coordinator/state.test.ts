@@ -15,16 +15,24 @@ jest.mock('ethers', () => {
   };
 });
 
-const ethereumProviders: ProviderConfig[] = [
-  { chainId: 3, name: 'infura-ropsten', url: 'https://ropsten.eth' },
-  { chainId: 1, name: 'infura-mainnet', url: 'https://mainnet.eth' },
+const chains: ChainConfig[] = [
+  {
+    id: 1,
+    type: 'evm',
+    providers: [{ name: 'infura-mainnet', url: 'https://mainnet.infura.io/v3/<key>' }],
+  },
+  {
+    id: 3,
+    type: 'evm',
+    providers: [{ name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<key>' }],
+  },
 ];
 
 jest.mock('../config', () => ({
   config: {
     nodeSettings: {
       cloudProvider: 'local:aws',
-      ethereumProviders: ethereumProviders,
+      chains,
     },
   },
   security: {
@@ -33,7 +41,8 @@ jest.mock('../config', () => ({
 }));
 
 import { ethers } from 'ethers';
-import { AggregatedApiCall, ProviderConfig } from '../../types';
+import * as fixtures from 'test/fixtures';
+import { AggregatedApiCallsById, ChainConfig, CoordindatorSettings } from 'src/types';
 import * as state from './state';
 
 describe('initializeProviders', () => {
@@ -48,21 +57,50 @@ describe('initializeProviders', () => {
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
 
-    const res = await state.initializeProviders(ethereumProviders);
+    const coordinatorId = '837daEf231';
+    const settings: CoordindatorSettings = { logFormat: 'plain' };
+
+    const res = await state.initializeProviders(coordinatorId, chains, settings);
     expect(res).toEqual([
       {
-        config: ethereumProviders[0],
+        contracts: {
+          Airnode: '<TODO>',
+          Convenience: '<TODO>',
+          GasPriceFeed: '<TODO>',
+        },
+        settings: {
+          blockHistoryLimit: 600,
+          chainId: 1,
+          chainType: 'evm',
+          logFormat: 'plain',
+          minConfirmations: 6,
+          name: 'infura-mainnet',
+          url: 'https://mainnet.infura.io/v3/<key>',
+        },
+        coordinatorId,
         currentBlock: 123456,
         gasPrice: null,
-        index: 0,
         provider,
         walletDataByIndex: {},
       },
       {
-        config: ethereumProviders[1],
+        contracts: {
+          Airnode: '<TODO>',
+          Convenience: '<TODO>',
+          GasPriceFeed: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
+        },
+        settings: {
+          blockHistoryLimit: 600,
+          chainId: 3,
+          chainType: 'evm',
+          logFormat: 'plain',
+          minConfirmations: 6,
+          name: 'infura-ropsten',
+          url: 'https://ropsten.infura.io/v3/<key>',
+        },
+        coordinatorId,
         currentBlock: 987654,
         gasPrice: null,
-        index: 1,
         provider,
         walletDataByIndex: {},
       },
@@ -71,10 +109,12 @@ describe('initializeProviders', () => {
 
   it('throws an error if no providers are configured', async () => {
     expect.assertions(1);
+    const coordinatorId = '837daEf231';
+    const settings: CoordindatorSettings = { logFormat: 'plain' };
     try {
-      await state.initializeProviders([]);
+      await state.initializeProviders(coordinatorId, [], settings);
     } catch (e) {
-      expect(e).toEqual(new Error('At least one provider must be defined in config.json'));
+      expect(e).toEqual(new Error('One or more chains must be defined in config.json'));
     }
   });
 });
@@ -82,37 +122,25 @@ describe('initializeProviders', () => {
 describe('create', () => {
   it('returns a new coordinator state object', () => {
     const res = state.create();
-    expect(res).toEqual({
-      aggregatedApiCalls: [],
-      providers: [],
-    });
+    expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'id', 'settings']);
+    expect(res.aggregatedApiCallsById).toEqual({});
+    expect(res.EVMProviders).toEqual([]);
+    expect(res.id.length).toEqual(16);
+    expect(res.settings).toEqual({ logFormat: 'plain' });
   });
 });
 
 describe('update', () => {
   it('updates and returns the new state', () => {
-    const aggregatedApiCalls: AggregatedApiCall[] = [
-      {
-        id: '0x123',
-        endpointId: '0xendpointId',
-        parameters: { from: 'ETH ' },
-        providers: [0, 1],
-        type: 'request',
-      },
-    ];
+    const aggregatedApiCallsById: AggregatedApiCallsById = {
+      apiCallId: [fixtures.createAggregatedApiCall()],
+    };
     const newState = state.create();
-    const res = state.update(newState, { aggregatedApiCalls });
-    expect(res).toEqual({
-      aggregatedApiCalls: [
-        {
-          id: '0x123',
-          endpointId: '0xendpointId',
-          parameters: { from: 'ETH ' },
-          providers: [0, 1],
-          type: 'request',
-        },
-      ],
-      providers: [],
-    });
+    const res = state.update(newState, { aggregatedApiCallsById });
+    expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'id', 'settings']);
+    expect(res.aggregatedApiCallsById).toEqual({ apiCallId: [fixtures.createAggregatedApiCall()] });
+    expect(res.EVMProviders).toEqual([]);
+    expect(res.id.length).toEqual(16);
+    expect(res.settings).toEqual({ logFormat: 'plain' });
   });
 });

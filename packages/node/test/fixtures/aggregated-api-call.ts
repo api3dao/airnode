@@ -7,7 +7,6 @@ export function createAggregatedApiCall(params?: Partial<AggregatedApiCall>): Ag
     id: 'apiCallId',
     oisTitle: 'oisTitle',
     parameters: { from: 'ETH' },
-    providers: [0, 1],
     type: 'request',
     ...params,
   };

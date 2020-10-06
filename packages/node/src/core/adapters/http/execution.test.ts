@@ -31,7 +31,8 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const res = await execution.callApi(aggregatedCall);
+    const [logs, res] = await execution.callApi(aggregatedCall);
+    expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x00000000000000000000000000000000000000000000000000000000000003e8' });
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -56,28 +57,32 @@ describe('callApi', () => {
 
   it('returns an error if the OIS is not found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ oisTitle: 'unknownOis' });
-    const res = await execution.callApi(aggregatedCall);
+    const [logs, res] = await execution.callApi(aggregatedCall);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Unknown OIS:unknownOis received for Request:apiCallId' }]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.UnknownOIS,
-      message: 'Unknown OIS:unknownOis received for Request:apiCallId',
     });
   });
 
   it('returns an error if the endpoint is not found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
-    const res = await execution.callApi(aggregatedCall);
+    const [logs, res] = await execution.callApi(aggregatedCall);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId' },
+    ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.UnknownEndpoint,
-      message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId',
     });
   });
 
   it('returns an error if no _type parameter is found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall();
-    const res = await execution.callApi(aggregatedCall);
+    const [logs, res] = await execution.callApi(aggregatedCall);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: "No '_type' parameter was found for Endpoint:endpointName, OIS:oisTitle" },
+    ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.InvalidResponseParameters,
-      message: "No '_type' parameter was found for Endpoint:endpointName, OIS:oisTitle",
     });
   });
 
@@ -87,23 +92,26 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const res = await execution.callApi(aggregatedCall);
+    const [logs, res] = await execution.callApi(aggregatedCall);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to call Endpoint:endpointName', error: new Error('Network is down') },
+    ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ApiCallFailed,
-      message: 'Failed to call Endpoint:endpointName. Error: Network is down',
     });
   });
 
   it('returns an error if the value cannot be found with the _path', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
-
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const res = await execution.callApi(aggregatedCall);
+    const [logs, res] = await execution.callApi(aggregatedCall);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
+    ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ResponseValueNotFound,
-      message: 'Unable to find response value from {"price":1000}. Path: unknown',
     });
   });
 });

@@ -19,12 +19,3 @@ export function validateAggregatedApiCall(aggregatedApiCall: AggregatedApiCall):
 
   return [[], aggregatedApiCall];
 }
-
-// export function validateAllAggregatedCalls(aggregatedApiCalls: AggregatedApiCall[]): LogsData<AggregatedApiCall[]> {
-//   const logsWithAggregatedCalls = aggregatedApiCalls.map((aggregatedApiCall) => {
-//     return validateAggregatedApiCall(aggregatedApiCall);
-//   });
-//   const logs = flatMap(logsWithAggregatedCalls, a => a[0]);
-//   const flatApiCalls = flatMap(logsWithAggregatedCalls, a => a[1]);
-//   return [logs, flatApiCalls];
-// }
