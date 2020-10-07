@@ -1,9 +1,9 @@
-import * as evm from '../evm';
+import * as evmWorkers from '../evm/workers';
 import { EVMProviderState, ProviderState } from '../../types';
 
 export async function spawnNewProvider(state: ProviderState<EVMProviderState>) {
   if (state.settings.chainType === 'evm') {
-    return evm.spawnNewProvider(state);
+    return evmWorkers.spawnNewProvider(state);
   }
 
   throw new Error(`Unknown chain type: ${state.settings.chainType}`);
@@ -11,7 +11,7 @@ export async function spawnNewProvider(state: ProviderState<EVMProviderState>) {
 
 export async function spawnProviderRequestProcessor(state: ProviderState<any>) {
   if (state.settings.chainType === 'evm') {
-    return evm.spawnProviderRequestProcessor(state as ProviderState<EVMProviderState>);
+    return evmWorkers.spawnProviderRequestProcessor(state as ProviderState<EVMProviderState>);
   }
 
   throw new Error(`Unknown chain type: ${state.settings.chainType}`);
