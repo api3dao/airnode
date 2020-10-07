@@ -38,7 +38,7 @@ export async function start(options?: CoordinatorOptions) {
   // =================================================================
   // STEP 3: Get the initial state from each provider
   // =================================================================
-  const EVMProviders = await state.initializeProviders(state1, config.nodeSettings.chains);
+  const EVMProviders = await state.initializeProviders(state1.id, config.nodeSettings.chains, state1.settings);
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
