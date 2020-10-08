@@ -1,6 +1,18 @@
 import * as contracts from './index';
 import { ChainConfig } from 'src/types';
 
+describe('EVM_PROTECTED_CHAIN_IDS', () => {
+  it('returns the list of protected EVM chain IDs', () => {
+    expect(contracts.EVM_PROTECTED_CHAIN_IDS).toEqual([1]);
+  });
+});
+
+describe('EVM_REQUIRED_CONTRACTS', () => {
+  it('returns the list of protected EVM chain IDs', () => {
+    expect(contracts.EVM_REQUIRED_CONTRACTS).toEqual(['Airnode', 'Convenience', 'GasPriceFeed']);
+  });
+});
+
 describe('build', () => {
   it('returns the default addresses if no contracts are provided', () => {
     const chain: ChainConfig = {
