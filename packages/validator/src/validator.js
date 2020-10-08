@@ -36,7 +36,7 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
       if (nonRedundantParams[paramKey]) {
         nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramKey]));
       } else {
-        helper.insertNonRedundantParam(paramKey, specsStruct, nonRedundantParams, specs[paramKey]);
+        nonRedundantParams[paramKey] = helper.getEmptyNonRedundantParam(paramKey, specsStruct, nonRedundantParams, specs[paramKey]);
       }
 
       let result = validateSpecs(specs[paramKey], specsStruct, paramPath, specsRoot, nonRedundantParams[paramKey], nonRedundantParamsRoot);
@@ -83,7 +83,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
                     if (nonRedundantParams[thisName]) {
                       nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thisName]));
                     } else {
-                      helper.insertNonRedundantParam(thisName, parsedSpecs, nonRedundantParams, specs[thisName]);
+                      nonRedundantParams[thisName] = helper.getEmptyNonRedundantParam(thisName, parsedSpecs, nonRedundantParams, specs[thisName]);
                     }
 
                     let result = validateSpecs(specs[thisName], parsedSpecs, `${paramPath}${paramPath ? '.' : ''}${thisName}`, specsRoot, nonRedundantParams[thisName], nonRedundantParamsRoot, paramPathPrefix);
@@ -109,7 +109,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
                   if (nonRedundantParams[thenParamName]) {
                     nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thenParamName]));
                   } else {
-                    helper.insertNonRedundantParam(thenParamName, condition['__then'][thenParamName], nonRedundantParams, specs[thenParamName]);
+                    nonRedundantParams[thenParamName] = helper.getEmptyNonRedundantParam(thenParamName, condition['__then'][thenParamName], nonRedundantParams, specs[thenParamName]);
                   }
 
                   if (!Object.keys(condition['__then'][thenParamName]).length) {
@@ -279,7 +279,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
 
       case '__objectItem':
         for (const item of Object.keys(specs)) {
-          helper.insertNonRedundantParam(item, specsStruct, nonRedundantParams, specs[item]);
+          nonRedundantParams[item] = helper.getEmptyNonRedundantParam(item, specsStruct, nonRedundantParams, specs[item]);
 
           let result = validateSpecs(specs[item], specsStruct[key], `${paramPath}${paramPath ? '.' : ''}${item}`, specsRoot, nonRedundantParams[item], nonRedundantParamsRoot, paramPathPrefix);
           messages.push(...result.messages);
@@ -295,7 +295,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
         for (const optionalItem of Object.keys(specsStruct[key])) {
           for (const item of Object.keys(specs)) {
             if (item === optionalItem) {
-              helper.insertNonRedundantParam(item, specsStruct[key], nonRedundantParams, specs[item]);
+              nonRedundantParams[item] = helper.getEmptyNonRedundantParam(item, specsStruct[key], nonRedundantParams, specs[item]);
 
               let result = validateSpecs(specs[item], specsStruct[key][item], `${paramPath}${paramPath ? '.' : ''}${item}`, specsRoot, nonRedundantParams[item], nonRedundantParamsRoot, paramPathPrefix);
               messages.push(...result.messages);
@@ -354,7 +354,7 @@ function validateSpecs(specs, specsStruct, paramPath, specsRoot, nonRedundantPar
           continue;
         }
 
-        helper.insertNonRedundantParam(key, specsStruct, nonRedundantParams, specs[key]);
+        nonRedundantParams[key] = helper.getEmptyNonRedundantParam(key, specsStruct, nonRedundantParams, specs[key]);
 
         if (!Object.keys(specsStruct[key]).length) {
           continue;

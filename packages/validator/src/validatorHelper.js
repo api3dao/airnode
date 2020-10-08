@@ -55,20 +55,17 @@ function warnExtraFields(nonRedundant, specs, paramPath) {
   }, []);
 }
 
-function insertNonRedundantParam(param, specsStruct, nonRedundantParams, specs) {
-  if (!nonRedundantParams[param]) {
-    if (typeof specsStruct === 'object' && typeof specsStruct[param] === 'object') {
-      if ('__arrayItem' in (specsStruct[param] || {}) ) {
-        nonRedundantParams[param] = [];
-      } else if (('__any' in (specsStruct[param] || {})) && Array.isArray(specs)) {
-        nonRedundantParams[param] = [];
-      } else {
-        nonRedundantParams[param] = {};
-      }
-    } else {
-      nonRedundantParams[param] = {};
-    }
+function getEmptyNonRedundantParam(param, specsStruct, nonRedundantParams, specs) {
+  if (nonRedundantParams[param]) {
+    return nonRedundantParams[param];
   }
+
+  if ('__arrayItem' in (specsStruct[param] || {}) ||
+    (('__any' in (specsStruct[param] || {})) && Array.isArray(specs))) {
+    return  [];
+  }
+
+  return {};
 }
 
-module.exports = { getLastParamName, replaceConditionalMatch, warnExtraFields, insertNonRedundantParam };
+module.exports = { getLastParamName, replaceConditionalMatch, warnExtraFields, getEmptyNonRedundantParam };
