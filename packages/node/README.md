@@ -62,7 +62,7 @@ core/
 │   ├── templates       # Fetching and applying request templates
 │   ├── transactions/   # Executing transactions
 │   └── triggers/       # Trigger specific implementations
-├── handlers/           # "Pipeline" type modules that are generally called as entry points
+├── handlers/           # "Pipeline" type modules that generally serve as entry points
 ├── providers/          # Provider workers and state
 ├── requests/           # Generic modules applicable to different blockchains
 ├── utils/              # General utility functions

@@ -22,14 +22,14 @@ async function execute(
 
   // If the worker crashes for whatever reason, mark the request as failed
   if (err || !res) {
-    const log = logger.pend('ERROR', `${baseLogMsg} errored after ${durationMs}`, err);
+    const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, err);
     return [[log], { ...aggregatedApiCall, errorCode: RequestErrorCode.ApiCallFailed }];
   }
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.
   if (res.errorCode) {
-    const log = logger.pend('ERROR', `${baseLogMsg} failed in ${durationMs}ms with error code:${res.errorCode}`);
+    const log = logger.pend('ERROR', `${baseLogMsg} errored after ${durationMs}ms with error code:${res.errorCode}`);
     return [[log], { ...aggregatedApiCall, errorCode: res.errorCode as RequestErrorCode }];
   }
 
