@@ -8,8 +8,8 @@ export function validate(options?: CoordinatorOptions) {
 
   const errorMsgs = options.chains.reduce((acc, chain) => {
     if (chain.type === 'evm') {
-      const messages = evm.contracts.validate(chain);
-      return [...acc, ...messages];
+      const contractMessages = evm.contracts.validate(chain);
+      return [...acc, ...contractMessages];
     }
 
     throw new Error(`Unknown chain type: ${chain.type}`);

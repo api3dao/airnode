@@ -15,7 +15,7 @@ export function createEVMState(
   coordinatorSettings: CoordindatorSettings
 ): ProviderState<EVMProviderState> {
   const provider = evm.newProvider(chainProvider.url, chain.id);
-  const contracts = evm.contracts.create(chain);
+  const contracts = evm.contracts.build(chain);
 
   const settings = {
     blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
