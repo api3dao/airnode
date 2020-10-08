@@ -27,7 +27,7 @@ async function fetchTransactionCounts(currentState: ProviderState<EVMProviderSta
   return { id: 'transaction-counts', data: res, logs };
 }
 
-export async function initializeState(
+export async function initializeProvider(
   initialState: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState> | null> {
   const { coordinatorId } = initialState;

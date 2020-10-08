@@ -1,11 +1,9 @@
-import * as coordinator from '../core/coordinator';
-import * as http from '../core/adapters/http/execution';
+import * as handlers from '../core/handlers';
 import * as logger from '../core/logger';
-import * as providers from '../core/providers';
 import { removeKey } from '../core/utils/object-utils';
 
 export async function start(event: any) {
-  await coordinator.start();
+  await handlers.startCoordinator();
 
   return {
     statusCode: 200,
@@ -18,8 +16,8 @@ export async function start(event: any) {
 
 export async function initializeProvider(event: any) {
   const { state } = event.parameters;
-  const initializedState = await providers.initializeState(state);
-
+  // TODO: Wrap this in a 'go' to catch and log any unexpected errors
+  const initializedState = await handlers.initializeProvider(state);
   if (!initializedState) {
     return {
       statusCode: 500,
@@ -30,30 +28,19 @@ export async function initializeProvider(event: any) {
   // NOTE: We can't return the instance of the provider. A new provider
   // will be created in the calling function
   const body = removeKey(initializedState, 'provider');
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(body),
-  };
+  return { statusCode: 200, body: JSON.stringify(body) };
 }
 
 export async function callApi(event: any) {
   const { aggregatedApiCall, logOptions } = event.parameters;
-  const [logs, response] = await http.callApi(aggregatedApiCall);
+  const [logs, response] = await handlers.callApi(aggregatedApiCall);
   logger.logPending(logs, logOptions);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(response),
-  };
+  return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function processProviderRequests(event: any) {
   const { state } = event.parameters;
-  const response = await providers.processTransactions(state);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(response),
-  };
+  const updatedState = await handlers.processTransactions(state);
+  const body = removeKey(updatedState, 'provider');
+  return { statusCode: 200, body: JSON.stringify(body) };
 }

@@ -57,11 +57,12 @@ core/
 ├── evm/                # EVM specific code
 │   ├── authorization/  # Authorizing clients and requests
 │   ├── contracts/      # Contract addresses and ABIs
-│   ├── providers/      # "Secondary" workers that execute a pipeline with a given provider state
+│   ├── handlers/       # EV specific "pipeline" implementations
 │   ├── requests/       # Request/response specific code
 │   ├── templates       # Fetching and applying request templates
 │   ├── transactions/   # Executing transactions
 │   └── triggers/       # Trigger specific implementations
+├── handlers/           # "Pipeline" type modules that are generally called as entry points
 ├── providers/          # Provider workers and state
 ├── requests/           # Generic modules applicable to different blockchains
 ├── utils/              # General utility functions
