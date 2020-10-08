@@ -5,7 +5,7 @@ import * as apiCalls from '../requests/api-calls';
 import * as calls from './calls';
 import * as state from './state';
 import * as logger from '../logger';
-import * as settings from '../config/provider-settings';
+import * as configValidation from '../config/validation';
 import { formatDateTime } from '../utils/date-utils';
 import * as walletData from '../requests/wallet-data';
 import { spawnProviderRequestProcessor } from '../providers/worker';
@@ -15,7 +15,7 @@ export async function start(options?: CoordinatorOptions) {
   // =================================================================
   // STEP 1: Validate the provided options
   // =================================================================
-  const optionsValidationMessages = settings.validate(options);
+  const optionsValidationMessages = configValidation.validate(options);
   if (!isEmpty(optionsValidationMessages)) {
     const logOptions = { format: 'plain' as LogFormat, meta: {} };
     optionsValidationMessages!.forEach((msg) => logger.error(msg, logOptions));
