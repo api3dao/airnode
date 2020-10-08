@@ -10,19 +10,28 @@ function getLastParamName(paramPath) {
   return paramPath;
 }
 
+/*
+Used in conditions
+if parameter key matches provided regular expression all keys '__match' in '__then' tree
+must be replaced with matched parameter key,
+except '__match' keys that might be in different condition included in the '__then' tree
+ */
 function replaceConditionalMatch(match, specs) {
-  let parsedSpecs = {};
+  const ignoredKeys = ['__conditions'];
+  const keys = Object.keys(specs);
+  const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
 
-  for (const key of Object.keys(specs)) {
-    if (key === '__conditions') {
-      continue;
+  return filteredKeys.reduce((acc, key) => {
+    const newKey = key.replace(/__match/g, match);
+
+    if (typeof specs[key] === 'string') {
+      const newValue = specs[key].replace(/__match/g, match);
+      return { ...acc, [newKey]: newValue };
     }
 
-    let newKey = key.replace(/__match/g, match);
-    parsedSpecs[newKey] = typeof specs[key] === 'string' ? specs[key].replace(/__match/g, match) : replaceConditionalMatch(match, specs[key]);
-  }
-
-  return parsedSpecs;
+    const newValue = replaceConditionalMatch(match, specs[key]);
+    return { ...acc, [newKey]: newValue };
+  }, {});
 }
 
 function warnExtraFields(nonRedundant, specs, paramPath) {
