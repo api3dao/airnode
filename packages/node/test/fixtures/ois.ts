@@ -65,14 +65,6 @@ export const ois: OIS = {
       ],
       reservedParameters: [
         {
-          name: '_type',
-          fixed: 'int256',
-        },
-        {
-          name: '_path',
-          fixed: 'result',
-        },
-        {
           name: '_times',
           default: '100000',
         },
