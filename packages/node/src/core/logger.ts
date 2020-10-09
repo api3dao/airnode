@@ -105,10 +105,3 @@ export function logPending(pendingLogs: PendingLog[], options: LogOptions) {
     log(pendingLog.level, pendingLog.message, { ...options, error: pendingLog.error });
   });
 }
-//
-// export function logProviderError(name: string, message: string, err: Error | null) {
-//   logProviderJSON(name, 'ERROR', message);
-//   if (err && err.stack) {
-//     logProviderJSON(name, 'ERROR', err.stack);
-//   }
-// }
