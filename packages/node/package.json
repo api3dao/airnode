@@ -8,7 +8,7 @@
     "build": "npm run clean && npm run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "dev:aws": "serverless offline --config serverless.aws.yml",
+    "dev:aws": "serverless offline --config serverless.local.yml",
     "prepublishOnly": "npm run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
