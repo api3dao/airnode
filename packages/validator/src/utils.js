@@ -1,5 +1,7 @@
 'use strict';
 
+const logger = require('./logger');
+
 function getLastParamName(paramPath) {
   const lastDotIndex = paramPath.lastIndexOf('.');
 
@@ -60,7 +62,7 @@ function warnExtraFields(nonRedundant, specs, paramPath) {
       return acc;
     }
 
-    return [...acc, { level: 'warning', message: `Extra field: ${paramPath}${paramPath ? '.' : ''}${key}` }];
+    return [...acc, logger.warn(`Extra field: ${paramPath}${paramPath ? '.' : ''}${key}`)];
   }, []);
 }
 

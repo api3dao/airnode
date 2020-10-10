@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const utils = require('./utils');
+const logger = require('./logger');
 const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
 const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
 const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
@@ -135,10 +136,11 @@ function validateSpecs(
                         delete nonRedundantParams[thisName];
                       }
 
-                      messages.push({
-                        level: 'error',
-                        message: `Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}`,
-                      });
+                      messages.push(
+                        logger.error(
+                          `Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}`
+                        )
+                      );
                       valid = false;
                     }
                   }
@@ -205,15 +207,16 @@ function validateSpecs(
                       nonRedundantParamsRoot
                     )
                   ) {
-                    messages.push({ level: 'error', message: `Required conditions not met in ${paramPath}` });
+                    messages.push(logger.error(`Required conditions not met in ${paramPath}`));
                     valid = false;
                   }
                 } else {
                   valid = false;
-                  messages.push({
-                    level: 'error',
-                    message: `Missing parameter ${paramPath}${paramPath && thenParamName ? '.' : ''}${thenParamName}`,
-                  });
+                  messages.push(
+                    logger.error(
+                      `Missing parameter ${paramPath}${paramPath && thenParamName ? '.' : ''}${thenParamName}`
+                    )
+                  );
                 }
               }
             }
@@ -260,12 +263,14 @@ function validateSpecs(
 
                 if (!workingDir[paramName]) {
                   valid = false;
-                  messages.push({
-                    level: 'error',
-                    message: `Missing parameter ${paramPathPrefix ? `${paramPathPrefix}.` : ''}${currentDir}${
-                      currentDir && requiredPath ? '.' : ''
-                    }${requiredPath}`,
-                  });
+                  messages.push(
+                    logger.error(
+                      `Missing parameter ${paramPathPrefix ? `${paramPathPrefix}.` : ''}${currentDir}${
+                        currentDir && requiredPath ? '.' : ''
+                      }${requiredPath}`
+                    )
+                  );
+
                   break;
                 }
 
@@ -284,14 +289,13 @@ function validateSpecs(
                   if (!workingDir[index]) {
                     valid = false;
                     messages.push(
-                      {
-                        level: 'error',
-                        message: `Array out of bounds, attempted to access element on index ${index} in ${
+                      logger.error(
+                        `Array out of bounds, attempted to access element on index ${index} in ${
                           paramPathPrefix ? `${paramPathPrefix}.` : ''
-                        }${currentDir}`,
-                      },
-                      paramPathPrefix
+                        }${currentDir}`
+                      )
                     );
+
                     break;
                   }
 
@@ -319,7 +323,11 @@ function validateSpecs(
             }
           }
 
-          messages.push({ level, message: `${paramPath} is not formatted correctly` });
+          if (level === 'error') {
+            messages.push(logger.error(`${paramPath} is not formatted correctly`));
+          } else {
+            messages.push(logger.warn(`${paramPath} is not formatted correctly`));
+          }
         }
 
         break;
@@ -327,10 +335,9 @@ function validateSpecs(
       case '__keyRegexp':
         for (const item of Object.keys(specs)) {
           if (!item.match(new RegExp(specsStruct[key]))) {
-            messages.push({
-              level: 'error',
-              message: `Key ${item} in ${paramPath}${paramPath ? '.' : ''}${item} is formatted incorrectly`,
-            });
+            messages.push(
+              logger.error(`Key ${item} in ${paramPath}${paramPath ? '.' : ''}${item} is formatted incorrectly`)
+            );
           }
         }
 
@@ -338,7 +345,7 @@ function validateSpecs(
 
       case '__maxSize':
         if (specsStruct[key] < specs.length) {
-          messages.push({ level: 'error', message: `${paramPath} must contain ${specsStruct[key]} or less items` });
+          messages.push(logger.error(`${paramPath} must contain ${specsStruct[key]} or less items`));
           valid = false;
         }
 
@@ -434,7 +441,7 @@ function validateSpecs(
         if (
           !findAnyValidParam(specs, specsRoot, specsStruct[key], paramPath, nonRedundantParams, nonRedundantParamsRoot)
         ) {
-          messages.push({ level: 'error', message: `Required conditions not met in ${paramPath}` });
+          messages.push(logger.error(`Required conditions not met in ${paramPath}`));
           valid = false;
         }
 
@@ -468,10 +475,7 @@ function validateSpecs(
 
       default:
         if (!specs[key]) {
-          messages.push({
-            level: 'error',
-            message: `Missing parameter ${paramPath}${paramPath && key ? '.' : ''}${key}`,
-          });
+          messages.push(logger.error(`Missing parameter ${paramPath}${paramPath && key ? '.' : ''}${key}`));
           valid = false;
 
           continue;
