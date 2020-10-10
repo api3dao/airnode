@@ -7,7 +7,7 @@ const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
 const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
 const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
 
-function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundantParams, nonRedundantParamsRoot) {
+function findAnyValidParam(specs, specsStruct, paramPath, nonRedundantParams, roots) {
   if (!specs) {
     return false;
   }
@@ -26,9 +26,8 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
         specs[paramIndex],
         specsStruct,
         paramPath,
-        specsRoot,
         nonRedundantParams[nonRedundantParams.length - 1],
-        nonRedundantParamsRoot
+        roots
       );
 
       if (!result.messages.length) {
@@ -52,14 +51,7 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
         );
       }
 
-      let result = validateSpecs(
-        specs[paramKey],
-        specsStruct,
-        paramPath,
-        specsRoot,
-        nonRedundantParams[paramKey],
-        nonRedundantParamsRoot
-      );
+      let result = validateSpecs(specs[paramKey], specsStruct, paramPath, nonRedundantParams[paramKey], roots);
 
       if (!result.messages.length) {
         return true;
@@ -72,19 +64,12 @@ function findAnyValidParam(specs, specsRoot, specsStruct, paramPath, nonRedundan
   return false;
 }
 
-function validateSpecs(
-  specs,
-  specsStruct,
-  paramPath,
-  specsRoot,
-  nonRedundantParams,
-  nonRedundantParamsRoot,
-  paramPathPrefix = ''
-) {
+function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots, paramPathPrefix = '') {
   let messages = [];
   let valid = true;
   let tmpNonRedundant = [];
   let tmpResult = {};
+  let tmpRoots = {};
 
   for (const key of Object.keys(specsStruct)) {
     switch (key) {
@@ -123,9 +108,8 @@ function validateSpecs(
                       specs[thisName],
                       parsedSpecs,
                       `${paramPath}${paramPath ? '.' : ''}${thisName}`,
-                      specsRoot,
                       nonRedundantParams[thisName],
-                      nonRedundantParamsRoot,
+                      roots,
                       paramPathPrefix
                     );
 
@@ -170,9 +154,8 @@ function validateSpecs(
                     specs[thenParamName],
                     condition['__then'][thenParamName],
                     `${paramPath}${paramPath ? '.' : ''}${thenParamName}`,
-                    specsRoot,
                     nonRedundantParams[thenParamName],
-                    nonRedundantParamsRoot,
+                    roots,
                     paramPathPrefix
                   );
                   messages.push(...result.messages);
@@ -197,16 +180,7 @@ function validateSpecs(
                     valid = false;
                   }
                 } else if (thenParamName === '__any') {
-                  if (
-                    !findAnyValidParam(
-                      specs,
-                      specsRoot,
-                      condition['__then']['__any'],
-                      paramPath,
-                      nonRedundantParams,
-                      nonRedundantParamsRoot
-                    )
-                  ) {
+                  if (!findAnyValidParam(specs, condition['__then']['__any'], paramPath, nonRedundantParams, roots)) {
                     messages.push(logger.error(`Required conditions not met in ${paramPath}`));
                     valid = false;
                   }
@@ -232,9 +206,9 @@ function validateSpecs(
 
               if (requiredParam[0] === '/') {
                 requiredParam = requiredParam.slice(1);
-                workingDir = specsRoot;
+                workingDir = roots.specs;
                 currentDir = '';
-                nonRedundantWD = nonRedundantParamsRoot;
+                nonRedundantWD = roots.nonRedundantParams;
               }
 
               requiredPath = requiredParam;
@@ -362,9 +336,8 @@ function validateSpecs(
             specs[i],
             specsStruct[key],
             `${paramPath}[${i}]`,
-            specsRoot,
             nonRedundantParams[i],
-            nonRedundantParamsRoot,
+            roots,
             paramPathPrefix
           );
           messages.push(...result.messages);
@@ -389,9 +362,8 @@ function validateSpecs(
             specs[item],
             specsStruct[key],
             `${paramPath}${paramPath ? '.' : ''}${item}`,
-            specsRoot,
             nonRedundantParams[item],
-            nonRedundantParamsRoot,
+            roots,
             paramPathPrefix
           );
           messages.push(...result.messages);
@@ -418,9 +390,8 @@ function validateSpecs(
                 specs[item],
                 specsStruct[key][item],
                 `${paramPath}${paramPath ? '.' : ''}${item}`,
-                specsRoot,
                 nonRedundantParams[item],
-                nonRedundantParamsRoot,
+                roots,
                 paramPathPrefix
               );
               messages.push(...result.messages);
@@ -438,9 +409,7 @@ function validateSpecs(
         break;
 
       case '__any':
-        if (
-          !findAnyValidParam(specs, specsRoot, specsStruct[key], paramPath, nonRedundantParams, nonRedundantParamsRoot)
-        ) {
+        if (!findAnyValidParam(specs, specsStruct[key], paramPath, nonRedundantParams, roots)) {
           messages.push(logger.error(`Required conditions not met in ${paramPath}`));
           valid = false;
         }
@@ -449,7 +418,9 @@ function validateSpecs(
 
       case '__apiSpecs':
         tmpNonRedundant = {};
-        tmpResult = validateSpecs(specs, apiSpecs, paramPath, specs, tmpNonRedundant, tmpNonRedundant, paramPath);
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+
+        tmpResult = validateSpecs(specs, apiSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         if (!tmpResult.valid) {
@@ -462,7 +433,9 @@ function validateSpecs(
 
       case '__endpointsSpecs':
         tmpNonRedundant = [];
-        tmpResult = validateSpecs(specs, endpointsSpecs, paramPath, specs, tmpNonRedundant, tmpNonRedundant, paramPath);
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+
+        tmpResult = validateSpecs(specs, endpointsSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         if (!tmpResult.valid) {
@@ -491,9 +464,8 @@ function validateSpecs(
           specs[key],
           specsStruct[key],
           `${paramPath}${paramPath ? '.' : ''}${key}`,
-          specsRoot,
           nonRedundantParams[key],
-          nonRedundantParamsRoot,
+          roots,
           paramPathPrefix
         );
         messages.push(...tmpResult.messages);
@@ -506,8 +478,8 @@ function validateSpecs(
     }
   }
 
-  if (specs === specsRoot) {
-    messages.push(...utils.warnExtraFields(nonRedundantParamsRoot, specs, paramPath));
+  if (specs === roots.specs) {
+    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, paramPath));
   }
 
   return { valid, messages };
@@ -523,7 +495,9 @@ function isApiSpecsValid(specs) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return validateSpecs(parsedSpecs, apiSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
+  let roots = { specs: parsedSpecs, nonRedundantParams: nonRedundant };
+
+  return validateSpecs(parsedSpecs, apiSpecs, '', nonRedundant, roots);
 }
 
 function isEndpointsValid(specs) {
@@ -536,7 +510,9 @@ function isEndpointsValid(specs) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return validateSpecs(parsedSpecs, endpointsSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
+  const roots = { specs: parsedSpecs, nonRedundantParams: nonRedundant };
+
+  return validateSpecs(parsedSpecs, endpointsSpecs, '', nonRedundant, roots);
 }
 
 function isOisValid(specs) {
@@ -549,7 +525,9 @@ function isOisValid(specs) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return validateSpecs(parsedSpecs, oisSpecs, '', parsedSpecs, nonRedundant, nonRedundant);
+  const roots = { specs: parsedSpecs, nonRedundantParams: nonRedundant };
+
+  return validateSpecs(parsedSpecs, oisSpecs, '', nonRedundant, roots);
 }
 
 module.exports = { isApiSpecsValid, isEndpointsValid, isOisValid };
