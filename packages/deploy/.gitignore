@@ -10,6 +10,8 @@ coverage/
 config.json
 security.json
 
+sensitive.auto.tfvars
+terraform/state
 # Local .terraform directories
 **/.terraform/*
 
