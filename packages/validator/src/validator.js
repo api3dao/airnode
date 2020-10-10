@@ -81,10 +81,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
 
             if (paramName === '__this') {
               for (const thisName of Object.keys(specs)) {
-                if (!thisName) {
-                  continue;
-                }
-
                 let matches = thisName.match(new RegExp(paramValue, 'g'));
 
                 if (matches) {
