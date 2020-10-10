@@ -3,34 +3,32 @@ import isEmpty from 'lodash/isEmpty';
 import { config } from '../config';
 import * as apiCalls from '../requests/api-calls';
 import * as calls from '../coordinator/calls';
-import * as state from '../coordinator/state';
 import * as logger from '../logger';
-import * as configValidation from '../config/validation';
-import { formatDateTime } from '../utils/date-utils';
+import * as providers from '../providers';
+import * as state from '../coordinator/state';
+import * as validation from '../config/validation';
 import * as walletData from '../requests/wallet-data';
+import { formatDateTime } from '../utils/date-utils';
 import { spawnProviderRequestProcessor } from '../providers/worker';
-import { CoordinatorOptions, LogFormat } from '../../types';
+import { NodeSettings } from '../../types';
 
-export async function startCoordinator(options?: CoordinatorOptions) {
+export async function startCoordinator(settings: NodeSettings) {
   // =================================================================
   // STEP 1: Validate the provided options
   // =================================================================
-  const optionsValidationMessages = configValidation.validate(options);
-  if (!isEmpty(optionsValidationMessages)) {
-    const logOptions = { format: 'plain' as LogFormat, meta: {} };
-    optionsValidationMessages!.forEach((msg) => logger.error(msg, logOptions));
+  const settingsMessages = validation.validate(settings);
+  if (!isEmpty(settingsMessages)) {
+    const logOptions = { format: settings.logFormat, meta: {} };
+    settingsMessages!.forEach((msg) => logger.error(msg, logOptions));
     return null;
   }
 
   // =================================================================
   // STEP 2: Creat a blank coordinator state
   // =================================================================
-  const state1 = state.create();
+  const state1 = state.create(settings);
   const { id: coordinatorId } = state1;
-  const baseLogOptions = {
-    format: 'plain' as LogFormat, // TODO: get this from user config
-    meta: { coordinatorId },
-  };
+  const baseLogOptions = { format: settings.logFormat, meta: { coordinatorId } };
 
   const startedAt = new Date();
   logger.info(`Coordinator starting...`, baseLogOptions);
@@ -38,7 +36,7 @@ export async function startCoordinator(options?: CoordinatorOptions) {
   // =================================================================
   // STEP 3: Get the initial state from each provider
   // =================================================================
-  const EVMProviders = await state.initializeProviders(state1.id, config.nodeSettings.chains, state1.settings);
+  const EVMProviders = await providers.initialize(state1.id, config.nodeSettings.chains, state1.settings);
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);

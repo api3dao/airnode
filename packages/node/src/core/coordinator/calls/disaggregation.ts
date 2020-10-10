@@ -28,6 +28,16 @@ function mapApiCalls(
   const logsWithApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
     const aggregatedApiCalls = aggregatedApiCallsById[apiCall.id];
 
+    if (!aggregatedApiCalls) {
+      const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
+      const updatedCall = {
+        ...apiCall,
+        status: RequestStatus.Blocked,
+        errorCode: RequestErrorCode.UnableToMatchAggregatedCall,
+      };
+      return [[log], updatedCall];
+    }
+
     // NOTE: If different providers returned requests with the same ID, but different parameters
     // then there will be multiple aggregated API calls link given request ID. We need to find
     // the aggregated API call that matches the initial grouping
@@ -39,10 +49,12 @@ function mapApiCalls(
     // not we need to catch and log an error
     if (!aggregatedApiCall) {
       const log = logger.pend('ERROR', `Unable to find matching aggregated API call for Request:${apiCall.id}`);
-      return [
-        [log],
-        { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.UnableToMatchAggregatedCall },
-      ];
+      const updatedCall = {
+        ...apiCall,
+        status: RequestStatus.Blocked,
+        errorCode: RequestErrorCode.UnableToMatchAggregatedCall,
+      };
+      return [[log], updatedCall];
     }
 
     // Add the error to the ApiCall

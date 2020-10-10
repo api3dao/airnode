@@ -1,16 +1,14 @@
+import { config } from '../core/config';
 import * as handlers from '../core/handlers';
 import * as logger from '../core/logger';
 import { removeKey } from '../core/utils/object-utils';
 
-export async function start(event: any) {
-  await handlers.startCoordinator();
+export async function start(_event: any) {
+  await handlers.startCoordinator(config.nodeSettings);
 
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
+    body: JSON.stringify({ message: 'Coordinator completed' }),
   };
 }
 

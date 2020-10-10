@@ -15,7 +15,7 @@ jest.mock('ethers', () => {
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import { ChainConfig, ChainProvider, CoordindatorSettings } from 'src/types';
+import { ChainConfig, ChainProvider } from 'src/types';
 import * as state from './state';
 
 describe('create', () => {
@@ -24,9 +24,9 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = { id: 1337, type: 'evm', providers: [chainProvider] };
-    const coordinatorSettings: CoordindatorSettings = { logFormat: 'plain' };
+    const settings = fixtures.createNodeSettings();
 
-    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, coordinatorSettings);
+    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
     expect(res).toEqual({
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
@@ -60,9 +60,9 @@ describe('create', () => {
       url: 'http://localhost:4111',
     };
     const chainConfig: ChainConfig = { id: 1337, type: 'evm', providers: [chainProvider] };
-    const coordinatorSettings: CoordindatorSettings = { logFormat: 'plain' };
+    const settings = fixtures.createNodeSettings();
 
-    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, coordinatorSettings);
+    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
     expect(res).toEqual({
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
@@ -99,9 +99,9 @@ describe('create', () => {
         { name: 'GasPriceFeed', address: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1' },
       ],
     };
-    const coordinatorSettings: CoordindatorSettings = { logFormat: 'plain' };
+    const settings = fixtures.createNodeSettings();
 
-    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, coordinatorSettings);
+    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
     expect(res).toEqual({
       contracts: {
         Airnode: '0xB71dE2DA6240c45846ED58315a01dd6D843fD3b5',

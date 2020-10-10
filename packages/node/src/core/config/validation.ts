@@ -1,12 +1,8 @@
 import * as evm from '../evm';
-import { CoordinatorOptions } from '../../types';
+import { NodeSettings } from '../../types';
 
-export function validate(options?: CoordinatorOptions) {
-  if (!options || !options.chains) {
-    return [];
-  }
-
-  const errorMsgs = options.chains.reduce((acc, chain) => {
+export function validate(settings: NodeSettings) {
+  const errorMsgs = settings.chains.reduce((acc, chain) => {
     if (chain.type === 'evm') {
       const contractMessages = evm.contracts.validate(chain);
       return [...acc, ...contractMessages];

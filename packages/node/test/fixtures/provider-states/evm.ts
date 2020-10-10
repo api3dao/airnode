@@ -1,5 +1,6 @@
-import { ChainConfig, ChainProvider, CoordindatorSettings } from '../../../src/types';
+import { ChainConfig, ChainProvider } from '../../../src/types';
 import { createEVMState } from '../../../src/core/providers/state';
+import * as nodeSettings from '../node-settings';
 
 export function createEVMProviderState() {
   const coordinatorId = '837daEf231';
@@ -12,7 +13,7 @@ export function createEVMProviderState() {
     providers: [chainProvider],
   };
 
-  const coordinatorSettings: CoordindatorSettings = { logFormat: 'plain' };
+  const settings = nodeSettings.createNodeSettings({ chains: [chainConfig] });
 
-  return createEVMState(coordinatorId, chainConfig, chainProvider, coordinatorSettings);
+  return createEVMState(coordinatorId, chainConfig, chainProvider, settings);
 }

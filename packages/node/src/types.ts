@@ -2,13 +2,6 @@ import { OIS } from '@airnode/ois';
 import { ethers } from 'ethers';
 
 // ===========================================
-// Options
-// ===========================================
-export interface CoordinatorOptions {
-  readonly chains?: ChainConfig[];
-}
-
-// ===========================================
 // State
 // ===========================================
 export interface ApiCallParameters {
@@ -149,10 +142,6 @@ export type ProviderState<T extends {}> = T & {
   readonly walletDataByIndex: WalletDataByIndex;
 };
 
-export interface CoordindatorSettings {
-  readonly logFormat: LogFormat;
-}
-
 export interface AggregatedApiCallsById {
   readonly [requestId: string]: AggregatedApiCall[];
 }
@@ -160,7 +149,7 @@ export interface AggregatedApiCallsById {
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly id: string;
-  readonly settings: CoordindatorSettings;
+  readonly settings: NodeSettings;
   readonly EVMProviders: ProviderState<EVMProviderState>[];
 }
 
@@ -313,6 +302,7 @@ export type NodeCloudProvider = 'aws' | 'local:aws';
 export interface NodeSettings {
   readonly chains: ChainConfig[];
   readonly cloudProvider: NodeCloudProvider;
+  readonly logFormat: LogFormat;
   readonly nodeKey: string;
   readonly platformKey: string;
   readonly platformUrl: string;

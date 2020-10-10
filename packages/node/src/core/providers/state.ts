@@ -3,8 +3,9 @@ import {
   ChainConfig,
   ChainProvider,
   ChainType,
-  CoordindatorSettings,
   EVMProviderState,
+  NodeSettings,
+  ProviderSettings,
   ProviderState,
 } from '../../types';
 
@@ -12,26 +13,26 @@ export function createEVMState(
   coordinatorId: string,
   chain: ChainConfig,
   chainProvider: ChainProvider,
-  coordinatorSettings: CoordindatorSettings
+  settings: NodeSettings
 ): ProviderState<EVMProviderState> {
   const provider = evm.newProvider(chainProvider.url, chain.id);
   const contracts = evm.contracts.build(chain);
 
-  const settings = {
+  const providerSettings: ProviderSettings = {
     blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
-    logFormat: coordinatorSettings.logFormat,
+    logFormat: settings.logFormat,
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
     url: chainProvider.url,
   };
 
   return {
-    settings,
     coordinatorId,
     provider,
     contracts,
+    settings: providerSettings,
     currentBlock: null,
     gasPrice: null,
     walletDataByIndex: {},
