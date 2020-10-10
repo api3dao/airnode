@@ -69,9 +69,8 @@ function getEmptyNonRedundantParam(param, specsStruct, nonRedundantParams, specs
     return nonRedundantParams[param];
   }
 
-  if ('__arrayItem' in (specsStruct[param] || {}) ||
-    (('__any' in (specsStruct[param] || {})) && Array.isArray(specs))) {
-    return  [];
+  if ('__arrayItem' in (specsStruct[param] || {}) || ('__any' in (specsStruct[param] || {}) && Array.isArray(specs))) {
+    return [];
   }
 
   return {};
