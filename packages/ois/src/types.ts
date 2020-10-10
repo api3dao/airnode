@@ -117,5 +117,5 @@ export interface ApiCredentials {
 export interface SecuritySpecification {
   id: string;
   apiCredentials: ApiCredentials;
-  masterKeyMnemonic: string;
+  masterKeyMnemonic?: string;
 }
