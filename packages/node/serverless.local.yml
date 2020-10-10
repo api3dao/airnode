@@ -7,7 +7,6 @@ custom:
 
 plugins:
   - serverless-plugin-typescript
-  - serverless-dotenv-plugin
   - serverless-offline # MUST BE LAST
 
 provider:

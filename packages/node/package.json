@@ -28,7 +28,6 @@
     "@types/bluebird": "^3.5.32",
     "@types/lodash": "^4.14.157",
     "serverless": "^2.0.0",
-    "serverless-dotenv-plugin": "^3.0.0",
     "serverless-offline": "^6.7.0",
     "serverless-plugin-typescript": "^1.1.9"
   }
