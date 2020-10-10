@@ -285,7 +285,7 @@ describe('validator', () => {
         }
       }`;
       expect(validator.isApiSpecsValid(invalidFormattingAPISpec)).toMatchObject({
-        valid: true,
+        valid: false,
         messages: [
           formattingMessage('servers[0].url'),
           keyFormattingMessage('myPath', 'paths.myPath'),
@@ -293,7 +293,7 @@ describe('validator', () => {
           formattingMessage('paths.myPath.get .parameters[0].in'),
           keyFormattingMessage('mySecurityScheme ', 'components.securitySchemes.mySecurityScheme '),
           formattingMessage('components.securitySchemes.mySecurityScheme .in'),
-          keyFormattingMessage('mySecurityScheme ', 'security.mySecurityScheme ')
+          keyFormattingMessage('mySecurityScheme ', 'security.mySecurityScheme '),
         ],
       });
     });
@@ -540,7 +540,7 @@ describe('validator', () => {
           missingParamMessage('paths./myPath2.post.parameters[0].name'),
           missingParamMessage('paths./myPath2.post.parameters[2].in'),
           missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.in')
+          missingParamMessage('components.securitySchemes.mySecurityScheme.in'),
         ],
       });
 
@@ -660,8 +660,8 @@ describe('validator', () => {
           missingParamMessage('components.securitySchemes.mySecurityScheme3.name'),
           formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true),
           missingParamMessage('components.securitySchemes.mySecurityScheme5'),
-          extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme')
-        ]
+          extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme'),
+        ],
       });
 
       const invalidPathsAPISpec = `{
@@ -749,12 +749,13 @@ describe('validator', () => {
         "security": {}
       }`;
       expect(validator.isApiSpecsValid(invalidPathsAPISpec)).toMatchObject({
-        valid: false, messages: [
+        valid: false,
+        messages: [
           conditionNotMetMessage('paths./{myParam}', 'myParam'),
           conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}/subPath', 'myParam2'),
           conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam'),
-          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam2')
-        ]
+          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam2'),
+        ],
       });
     });
   });
@@ -778,7 +779,7 @@ describe('validator', () => {
     ]`;
     expect(validator.isEndpointsValid(validEndpointSpec)).toMatchObject({
       valid: true,
-      messages: []
+      messages: [],
     });
 
     const invalidEndpointSpec = `[
@@ -841,8 +842,8 @@ describe('validator', () => {
         missingParamMessage('[1].operation'),
         missingParamMessage('[1].fixedOperationParameters[0].operationParameter.name'),
         formattingMessage('[1].fixedOperationParameters[0].operationParameter.in'),
-        extraFieldMessage('[1].extra')
-      ]
+        extraFieldMessage('[1].extra'),
+      ],
     });
   });
 
@@ -856,7 +857,7 @@ describe('validator', () => {
     }`;
     expect(validator.isOisValid(validOISSpecification)).toMatchObject({
       valid: true,
-      messages: []
+      messages: [],
     });
 
     const invalidOISSpecification = `{
@@ -876,8 +877,8 @@ describe('validator', () => {
         formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
         missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2'),
         missingParamMessage('endpoints[0].operation.path'),
-        formattingMessage('endpoints[0].operation.method')
-      ]
+        formattingMessage('endpoints[0].operation.method'),
+      ],
     });
   });
 });

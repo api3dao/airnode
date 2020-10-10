@@ -66,7 +66,6 @@ function findAnyValidParam(specs, specsStruct, paramPath, nonRedundantParams, ro
 
 function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots, paramPathPrefix = '') {
   let messages = [];
-  let valid = true;
   let tmpNonRedundant = [];
   let tmpResult = {};
   let tmpRoots = {};
@@ -113,7 +112,7 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
                       paramPathPrefix
                     );
 
-                    if (!result.valid) {
+                    if (result.messages.some((msg) => msg.level === 'error')) {
                       if (Object.keys(nonRedundantParamsCopy).length) {
                         nonRedundantParams[thisName] = nonRedundantParamsCopy;
                       } else {
@@ -125,7 +124,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
                           `Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}`
                         )
                       );
-                      valid = false;
                     }
                   }
                 }
@@ -160,7 +158,7 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
                   );
                   messages.push(...result.messages);
 
-                  if (!result.valid) {
+                  if (result.messages.some((msg) => msg.level === 'error')) {
                     let keepRedundantParams = true;
 
                     for (let message of result.messages) {
@@ -176,16 +174,12 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
                         delete nonRedundantParams[thenParamName];
                       }
                     }
-
-                    valid = false;
                   }
                 } else if (thenParamName === '__any') {
                   if (!findAnyValidParam(specs, condition['__then']['__any'], paramPath, nonRedundantParams, roots)) {
                     messages.push(logger.error(`Required conditions not met in ${paramPath}`));
-                    valid = false;
                   }
                 } else {
-                  valid = false;
                   messages.push(
                     logger.error(
                       `Missing parameter ${paramPath}${paramPath && thenParamName ? '.' : ''}${thenParamName}`
@@ -236,7 +230,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
                 }
 
                 if (!workingDir[paramName]) {
-                  valid = false;
                   messages.push(
                     logger.error(
                       `Missing parameter ${paramPathPrefix ? `${paramPathPrefix}.` : ''}${currentDir}${
@@ -261,7 +254,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
 
                 if (index) {
                   if (!workingDir[index]) {
-                    valid = false;
                     messages.push(
                       logger.error(
                         `Array out of bounds, attempted to access element on index ${index} in ${
@@ -291,10 +283,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
 
           if (specsStruct['__level']) {
             level = specsStruct['__level'];
-
-            if (level === 'error') {
-              valid = false;
-            }
           }
 
           if (level === 'error') {
@@ -320,7 +308,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
       case '__maxSize':
         if (specsStruct[key] < specs.length) {
           messages.push(logger.error(`${paramPath} must contain ${specsStruct[key]} or less items`));
-          valid = false;
         }
 
         break;
@@ -341,10 +328,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
             paramPathPrefix
           );
           messages.push(...result.messages);
-
-          if (!result.valid) {
-            valid = false;
-          }
         }
 
         break;
@@ -367,10 +350,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
             paramPathPrefix
           );
           messages.push(...result.messages);
-
-          if (!result.valid) {
-            valid = false;
-          }
         }
 
         break;
@@ -395,10 +374,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
                 paramPathPrefix
               );
               messages.push(...result.messages);
-
-              if (!result.valid) {
-                valid = false;
-              }
             }
           }
         }
@@ -411,7 +386,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
       case '__any':
         if (!findAnyValidParam(specs, specsStruct[key], paramPath, nonRedundantParams, roots)) {
           messages.push(logger.error(`Required conditions not met in ${paramPath}`));
-          valid = false;
         }
 
         break;
@@ -422,10 +396,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
 
         tmpResult = validateSpecs(specs, apiSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
-
-        if (!tmpResult.valid) {
-          valid = false;
-        }
 
         nonRedundantParams['__noCheck'] = {};
 
@@ -438,10 +408,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
         tmpResult = validateSpecs(specs, endpointsSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
-        if (!tmpResult.valid) {
-          valid = false;
-        }
-
         nonRedundantParams['__noCheck'] = {};
 
         break;
@@ -449,7 +415,6 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
       default:
         if (!specs[key]) {
           messages.push(logger.error(`Missing parameter ${paramPath}${paramPath && key ? '.' : ''}${key}`));
-          valid = false;
 
           continue;
         }
@@ -470,16 +435,15 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
         );
         messages.push(...tmpResult.messages);
 
-        if (!tmpResult.valid) {
-          valid = false;
-        }
-
         break;
     }
   }
 
+  let valid = true;
+
   if (specs === roots.specs) {
     messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, paramPath));
+    valid = !messages.some((msg) => msg.level === 'error');
   }
 
   return { valid, messages };
