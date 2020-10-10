@@ -2,9 +2,16 @@
   "name": "@airnode/deploy",
   "version": "0.1.0",
   "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "generate-mnemonic": "node .build/generate-mnemonic.js",
     "terraform:init": "cd terraform && terraform init",
     "terraform:plan": "cd terraform && terraform plan",
     "terraform:apply": "cd terraform && terraform apply",
     "terraform:destroy": "cd terraform && terraform destroy"
+  },
+  "dependencies": {
+    "ethers": "^5.0.17"
   }
 }
