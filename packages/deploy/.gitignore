@@ -9,6 +9,7 @@ coverage/
 # Config files
 config.json
 security.json
+secrets.json
 
 sensitive.auto.tfvars
 terraform/state

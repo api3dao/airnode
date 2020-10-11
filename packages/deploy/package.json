@@ -6,12 +6,13 @@
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
     "index": "node .build/index.js",
-    "terraform:init": "cd terraform && terraform init",
-    "terraform:plan": "cd terraform && terraform plan",
-    "terraform:apply": "cd terraform && terraform apply",
-    "terraform:destroy": "cd terraform && terraform destroy"
+    "sls:deploy:aws": "sls deploy --config serverless.aws.yml",
+    "sls:invoke:aws": "sls invoke --function start --config serverless.aws.yml",
+    "sls:remove:aws": "sls remove --config serverless.aws.yml",
+    "sls:test:aws": "sls invoke --function test --config serverless.aws.yml"
   },
   "dependencies": {
-    "ethers": "^5.0.17"
+    "ethers": "^5.0.17",
+    "serverless-plugin-typescript": "^1.1.9"
   }
 }

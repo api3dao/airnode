@@ -108,6 +108,15 @@ async function main() {
       console.log('Created the private key at the cloud provider');
     }
   }
+
+  const secrets = {};
+  secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/masterKeyMnemonic/${providerId}~true\}`;
+  for (const oisTitle in security.apiCredentials) {
+    for (const securityScheme of security.apiCredentials[oisTitle]) {
+      secrets[`${oisTitle}${securityScheme.securitySchemeName}`] = securityScheme.value;
+    }
+  }
+  fs.writeFileSync('secrets.json', JSON.stringify(secrets, null, 4));
 }
 
 main();

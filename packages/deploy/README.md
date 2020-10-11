@@ -4,7 +4,12 @@
 
 ## Instructions
 
-Download the [Terraform v0.13.4](https://www.terraform.io/downloads.html) binary and move it to your `PATH`
+- Download the [Terraform v0.13.* binary](https://www.terraform.io/downloads.html) and move it to your `PATH`
+- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `terraform/sensitive.auto.tfvars`
+- Install Serverless Framework globally
+```sh
+npm install -g serverless
+```
 
 ## Private key handling
 

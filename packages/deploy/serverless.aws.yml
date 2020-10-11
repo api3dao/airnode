@@ -1,0 +1,28 @@
+service:
+  name: airnode
+
+plugins:
+  - serverless-plugin-typescript
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 256
+
+  environment: ${file(secrets.json)}
+
+functions:
+  test:
+    handler: ./src/test.test
+  
+  start:
+    handler: ../node/src/aws/handler.start
+    timeout: 60
+
+  initializeProvider:
+    handler: ../node/src/aws/handler.initializeProvider
+    timeout: 20
+
+  callApi:
+    handler: ../node/src/aws/handler.callApi
+    timeout: 30
