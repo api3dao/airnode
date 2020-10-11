@@ -113,7 +113,7 @@ async function main() {
   secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/masterKeyMnemonic/${providerId}~true\}`;
   for (const oisTitle in security.apiCredentials) {
     for (const securityScheme of security.apiCredentials[oisTitle]) {
-      secrets[`${oisTitle}${securityScheme.securitySchemeName}`] = securityScheme.value;
+      secrets[`${oisTitle}_${securityScheme.securitySchemeName}`] = securityScheme.value;
     }
   }
   fs.writeFileSync('secrets.json', JSON.stringify(secrets, null, 4));
