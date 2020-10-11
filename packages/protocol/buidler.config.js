@@ -1,6 +1,11 @@
 usePlugin("@nomiclabs/buidler-waffle");
 usePlugin('buidler-deploy');
-const credentials = require("./credentials.json");
+
+const fs = require('fs')
+let credentials = require("./credentials.example.json");
+if (fs.existsSync("./credentials.json")) {
+  credentials = require("./credentials.json");
+}
 
 module.exports = {
   networks: {
