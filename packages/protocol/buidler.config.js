@@ -1,15 +1,33 @@
-usePlugin('@nomiclabs/buidler-waffle');
-
-task('accounts', 'Prints the list of accounts', async () => {
-  const accounts = await ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(await account.getAddress());
-  }
-});
+usePlugin("@nomiclabs/buidler-waffle");
+usePlugin('buidler-deploy');
+const credentials = require("./credentials.json");
 
 module.exports = {
+  networks: {
+    buidlerevm: {
+    },
+    mainnet: {
+      url: credentials.mainnet.providerUrl || "",
+      accounts: {mnemonic: credentials.mainnet.mnemonic || ""}
+    },
+    rinkeby: {
+      url: credentials.rinkeby.providerUrl || "",
+      accounts: {mnemonic: credentials.rinkeby.mnemonic || ""}
+    },
+    ropsten: {
+      url: credentials.ropsten.providerUrl || "",
+      accounts: {mnemonic: credentials.ropsten.mnemonic || ""}
+    },
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0,
+      1: 0,
+      3: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
+      4: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
+    },
+  },
   solc: {
-    version: '0.6.8',
+    version: "0.6.12",
   },
 };
