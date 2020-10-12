@@ -1,18 +1,44 @@
-import * as ethereum from '../ethereum';
-import { ProviderConfig, ProviderState } from '../../types';
+import * as evm from '../evm';
+import {
+  ChainConfig,
+  ChainProvider,
+  ChainType,
+  EVMProviderState,
+  NodeSettings,
+  ProviderSettings,
+  ProviderState,
+} from '../../types';
 
-export function create(config: ProviderConfig, index: number): ProviderState {
+export function createEVMState(
+  coordinatorId: string,
+  chain: ChainConfig,
+  chainProvider: ChainProvider,
+  settings: NodeSettings
+): ProviderState<EVMProviderState> {
+  const provider = evm.newProvider(chainProvider.url, chain.id);
+  const contracts = evm.contracts.build(chain);
+
+  const providerSettings: ProviderSettings = {
+    blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
+    chainId: chain.id,
+    chainType: 'evm' as ChainType,
+    logFormat: settings.logFormat,
+    minConfirmations: chainProvider.minConfirmations || 6,
+    name: chainProvider.name,
+    url: chainProvider.url,
+  };
+
   return {
-    config,
+    coordinatorId,
+    provider,
+    contracts,
+    settings: providerSettings,
     currentBlock: null,
-    index,
-    provider: ethereum.newProvider(config.url, config.chainId),
-    walletDataByIndex: {},
-    // This is fetched and set as late as possible for freshness
     gasPrice: null,
+    walletDataByIndex: {},
   };
 }
 
-export function update(state: ProviderState, newState: Partial<ProviderState>): ProviderState {
+export function update<T>(state: ProviderState<T>, newState: Partial<ProviderState<T>>): ProviderState<T> {
   return { ...state, ...newState };
 }

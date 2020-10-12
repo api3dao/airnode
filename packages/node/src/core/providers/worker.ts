@@ -1,34 +1,18 @@
-import { ProviderState } from '../../types';
-import * as ethereum from '../ethereum';
-import * as workers from '../workers';
+import * as evmWorkers from '../evm/workers';
+import { EVMProviderState, ProviderState } from '../../types';
 
-export type CleanProviderState = Omit<ProviderState, 'provider'>;
+export async function spawnNewProvider(state: ProviderState<EVMProviderState>) {
+  if (state.settings.chainType === 'evm') {
+    return evmWorkers.spawnNewProvider(state);
+  }
 
-export async function spawnNewProvider(index: number): Promise<ProviderState> {
-  // TODO: This will probably need to change for other cloud providers
-  const payload = workers.isLocalEnv() ? { pathParameters: { index } } : { index };
-
-  const options = { functionName: 'initializeProvider', payload };
-
-  // If this throws, it will be caught by the calling function
-  const initialState = (await workers.spawn(options)) as CleanProviderState;
-
-  // The serverless function does not return an instance of an Ethereum
-  // provider, so we create a new one before returning the state
-  const provider = ethereum.newProvider(initialState.config.url, initialState.config.chainId);
-
-  return { ...initialState, provider };
+  throw new Error(`Unknown chain type: ${state.settings.chainType}`);
 }
 
-export async function spawnProviderRequestProcessor(state: ProviderState): Promise<boolean> {
-  // TODO: This will probably need to change for other cloud providers
-  // TODO: queryStringParameters is probably not right...
-  const payload = workers.isLocalEnv() ? { queryStringParameters: { state } } : state;
+export async function spawnProviderRequestProcessor(state: ProviderState<any>) {
+  if (state.settings.chainType === 'evm') {
+    return evmWorkers.spawnProviderRequestProcessor(state as ProviderState<EVMProviderState>);
+  }
 
-  const options = { functionName: 'processProviderRequests', payload };
-
-  // If this throws, it will be caught by the calling function
-  const response = (await workers.spawn(options)) as boolean;
-
-  return response;
+  throw new Error(`Unknown chain type: ${state.settings.chainType}`);
 }

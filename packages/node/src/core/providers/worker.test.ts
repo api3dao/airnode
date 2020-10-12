@@ -18,61 +18,42 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 }));
 
 import { ethers } from 'ethers';
+import * as fixtures from 'test/fixtures';
 
 describe('spawnNewProvider', () => {
   beforeEach(() => jest.resetModules());
 
-  const stateResponse = {
-    config: { chainId: 1337, name: 'ganache', url: 'https://...' },
-    currentBlock: 1000,
-    index: 0,
-    gasPrice: null,
-    requests: {
-      apiCalls: [],
-      walletDesignations: [],
-      withdrawals: [],
-    },
-  };
-
   it('handles local AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-
     const config = { nodeSettings: { cloudProvider: 'local:aws' } };
     jest.mock('../config', () => ({ config }));
-
-    spawnLocalAwsMock.mockResolvedValueOnce(stateResponse);
-
+    const state = fixtures.createEVMProviderState();
+    spawnLocalAwsMock.mockResolvedValueOnce(state);
     const { spawnNewProvider } = require('./worker');
-
-    const res = await spawnNewProvider(0);
-    expect(res).toEqual({ ...stateResponse, provider });
-
+    const res = await spawnNewProvider(state);
+    expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
       functionName: 'initializeProvider',
       payload: {
-        pathParameters: { index: 0 },
+        parameters: { state },
       },
     });
   });
 
   it('handles remote AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-
     const config = { nodeSettings: { cloudProvider: 'aws' } };
     jest.mock('../config/index', () => ({ config }));
-
-    spawnAwsMock.mockResolvedValueOnce(stateResponse);
-
+    const state = fixtures.createEVMProviderState();
+    spawnAwsMock.mockResolvedValueOnce(state);
     const { spawnNewProvider } = require('./worker');
-
-    const res = await spawnNewProvider(0);
-    expect(res).toEqual({ ...stateResponse, provider });
-
+    const res = await spawnNewProvider(state);
+    expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
       functionName: 'initializeProvider',
-      payload: { index: 0 },
+      payload: { state },
     });
   });
 });

@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 // State
 // ===========================================
 export interface ApiCallParameters {
-  [key: string]: string;
+  readonly [key: string]: string;
 }
 
 export enum RequestErrorCode {
@@ -50,7 +50,7 @@ export interface RequestMetadata {
 export type BaseRequest<T extends {}> = T & {
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
-  readonly logMetadata: RequestMetadata;
+  readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly status: RequestStatus;
 };
@@ -76,7 +76,7 @@ export interface ApiCall {
   readonly providerId: string;
   readonly requesterAddress: string;
   readonly templateId: string | null;
-  readonly response?: ApiCallResponse;
+  readonly responseValue?: string;
 }
 
 export interface ApiCallTemplate {
@@ -122,27 +122,68 @@ export interface WalletData {
 }
 
 export interface WalletDataByIndex {
-  [index: string]: WalletData;
+  readonly [index: string]: WalletData;
 }
 
-export interface ProviderState {
-  readonly config: ProviderConfig;
+export interface ProviderSettings {
+  readonly blockHistoryLimit: number;
+  readonly chainId: number;
+  readonly chainType: ChainType;
+  readonly logFormat: LogFormat;
+  readonly minConfirmations: number;
+  readonly name: string;
+  readonly url: string;
+}
+
+export type ProviderState<T extends {}> = T & {
+  readonly coordinatorId: string;
   readonly currentBlock: number | null;
-  readonly index: number;
+  readonly settings: ProviderSettings;
+  readonly walletDataByIndex: WalletDataByIndex;
+};
+
+export interface AggregatedApiCallsById {
+  readonly [requestId: string]: AggregatedApiCall[];
+}
+
+export interface CoordinatorState {
+  readonly aggregatedApiCallsById: AggregatedApiCallsById;
+  readonly id: string;
+  readonly settings: NodeSettings;
+  readonly EVMProviders: ProviderState<EVMProviderState>[];
+}
+
+// ===========================================
+// EVM
+// ===========================================
+export interface EVMContracts {
+  readonly Airnode: string;
+  readonly Convenience: string;
+  readonly GasPriceFeed: string;
+}
+
+export interface EVMProviderState {
+  readonly contracts: EVMContracts;
   readonly gasPrice: ethers.BigNumber | null;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly walletDataByIndex: WalletDataByIndex;
+}
+
+// ===========================================
+// API calls
+// ===========================================
+export interface AuthorizationByRequester {
+  readonly [id: string]: boolean;
+}
+
+export interface AuthorizationByEndpointId {
+  readonly [id: string]: AuthorizationByRequester;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
 
 export interface ApiCallResponse {
-  value: string;
-}
-
-export interface ApiCallError {
-  errorCode: number;
-  message?: string;
+  readonly value?: string;
+  readonly errorCode?: RequestErrorCode;
 }
 
 export interface AggregatedApiCall {
@@ -151,59 +192,45 @@ export interface AggregatedApiCall {
   readonly endpointName?: string;
   readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
-  readonly providers: number[];
   readonly type: AggregatedApiCallType;
-  readonly error?: ApiCallError;
-  readonly response?: ApiCallResponse;
-}
-
-export interface CoordinatorState {
-  readonly aggregatedApiCalls: AggregatedApiCall[];
-  readonly providers: ProviderState[];
+  readonly errorCode?: RequestErrorCode;
+  readonly responseValue?: string;
 }
 
 // ===========================================
 // Events
 // ===========================================
 export interface LogWithMetadata {
-  blockNumber: number;
-  parsedLog: ethers.utils.LogDescription;
-  transactionHash: string;
+  readonly blockNumber: number;
+  readonly parsedLog: ethers.utils.LogDescription;
+  readonly transactionHash: string;
 }
 
 // ===========================================
 // Transactions
 // ===========================================
 export interface TransactionOptions {
-  gasPrice: number | ethers.BigNumber;
-  provider?: ethers.providers.JsonRpcProvider;
+  readonly gasPrice: number | ethers.BigNumber;
+  readonly provider?: ethers.providers.JsonRpcProvider;
 }
 
 export interface TransactionReceipt {
-  id: string;
-  transactionHash: string;
-  type: RequestType;
+  readonly id: string;
+  readonly transactionHash: string;
+  readonly type: RequestType;
 }
 
 // ===========================================
 // Triggers
 // ===========================================
 export interface RequestTrigger {
-  endpointId: string;
-  endpointName: string;
-  oisTitle: string;
-}
-
-export interface AggregatorTrigger {
-  address: string;
-  endpointName: string;
-  oisTitle: string;
+  readonly endpointId: string;
+  readonly endpointName: string;
+  readonly oisTitle: string;
 }
 
 export interface Triggers {
-  aggregator: AggregatorTrigger[];
-  flux: AggregatorTrigger[];
-  requests: RequestTrigger[];
+  readonly requests: RequestTrigger[];
 }
 
 // ===========================================
@@ -211,40 +238,80 @@ export interface Triggers {
 // ===========================================
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
-export interface PendingLog {
-  error?: Error;
-  level: LogLevel;
-  message: string;
+export type LogFormat = 'json' | 'plain';
+
+export interface LogMetadata {
+  readonly coordinatorId?: string;
+  readonly chainId?: number;
+  readonly chainType?: ChainType;
+  readonly providerName?: string;
 }
 
-// Making this type a tuple, forces the user to handle logs and errors first.
-// If it was an object ({ logs: [], error?: Error, data?: any }), then it's
-// very easy to forgot to handle logs and errors
+export interface LogOptions {
+  readonly additional?: any;
+  readonly error?: Error | null;
+  readonly format: LogFormat;
+  readonly meta: LogMetadata;
+}
+
+export interface PendingLog {
+  readonly error?: Error;
+  readonly level: LogLevel;
+  readonly message: string;
+}
+
+// There are many places throughout the app where we need the context of the current
+// (provider) state, mostly for logging purposes. It doesn't really make sense to
+// pass the entire state down to these functions as it tightly couples them to the
+// rest of the app.
+//
+// In order to get around this, the below tuple types are introduced that can return
+// elements. The calling function is forced to decide how to handle the logs and
+// error if one exists as ESLint will complain about unused variables. These types
+// are purposefully tuples (over an object with 'logs' and 'error' properties) for
+// this reason.
+export type LogsData<T> = [PendingLog[], T];
 export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 
 // ===========================================
 // Config
 // ===========================================
-export interface ProviderConfig {
-  chainId: number;
-  name: string;
-  url: string;
+export type ChainType = 'evm'; // Add other blockchain types here;
+
+export interface ChainContract {
+  readonly address: string;
+  readonly name: string;
+}
+
+export interface ChainProvider {
+  readonly blockHistoryLimit?: number;
+  readonly minConfirmations?: number;
+  readonly name: string;
+  readonly url: string;
+}
+
+export interface ChainConfig {
+  readonly id: number;
+  readonly contracts?: ChainContract[];
+  readonly providers: ChainProvider[];
+  readonly type: ChainType;
 }
 
 export type NodeCloudProvider = 'aws' | 'local:aws';
 
 export interface NodeSettings {
-  cloudProvider: NodeCloudProvider;
-  nodeKey: string;
-  platformKey: string;
-  platformUrl: string;
-  providerId: string;
-  ethereumProviders: ProviderConfig[];
+  readonly chains: ChainConfig[];
+  readonly cloudProvider: NodeCloudProvider;
+  readonly logFormat: LogFormat;
+  readonly nodeKey: string;
+  readonly platformKey: string;
+  readonly platformUrl: string;
+  readonly providerId: string;
 }
 
 export interface Config {
-  id: string;
-  ois: OIS[];
-  nodeSettings: NodeSettings;
-  triggers: Triggers;
+  readonly id: string;
+  readonly ois: OIS[];
+  readonly nodeSettings: NodeSettings;
+  readonly triggers: Triggers;
 }
