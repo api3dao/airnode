@@ -44,13 +44,13 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         providerId: 'templateProviderId-0',
+        requesterIndex: 'requesterIndex-0',
         templateId: 'templateId-0',
       },
     };
@@ -59,11 +59,13 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(logs).toEqual([]);
     expect(err).toEqual(null);
     const resApiCall = res[1].requests.apiCalls[0];
+    expect(resApiCall.designatedWallet).toEqual('designatedWallet-0');
     expect(resApiCall.endpointId).toEqual('templateEndpointId-0');
     expect(resApiCall.fulfillAddress).toEqual('templateFulfillAddress-0');
     expect(resApiCall.fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
-    expect(resApiCall.errorAddress).toEqual('templateErrorAddress-0');
-    expect(resApiCall.errorFunctionId).toEqual('templateErrorFunctionId-0');
+    expect(resApiCall.requesterIndex).toEqual('requesterIndex-0');
+    expect(resApiCall.errorAddress).toEqual(null);
+    expect(resApiCall.errorFunctionId).toEqual(null);
   });
 
   it('merges template and API call parameters', () => {
@@ -87,13 +89,13 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         providerId: 'templateProviderId-0',
+        requesterIndex: 'requesterIndex-0',
         templateId: 'templateId-0',
       },
     };
@@ -132,13 +134,13 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         providerId: 'templateProviderId-0',
+        requesterIndex: 'requesterIndex-0',
         templateId: 'templateId-0',
       },
     };
@@ -190,13 +192,13 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: 'invalid-parameters',
         providerId: 'templateProviderId-0',
+        requesterIndex: 'requesterIndex-0',
         templateId: 'templateId-0',
       },
     };

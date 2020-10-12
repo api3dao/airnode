@@ -30,11 +30,11 @@ function mergeRequestAndTemplate(
   return {
     ...request,
     // NOTE: template attributes can be overwritten by the request attributes
+    designatedWallet: request.designatedWallet || template.designatedWallet,
     endpointId: request.endpointId || template.endpointId,
     fulfillAddress: request.fulfillAddress || template.fulfillAddress,
     fulfillFunctionId: request.fulfillFunctionId || template.fulfillFunctionId,
-    errorAddress: request.errorAddress || template.errorAddress,
-    errorFunctionId: request.errorFunctionId || template.errorFunctionId,
+    requesterIndex: request.requesterIndex || template.requesterIndex,
     // NOTE: the spread operator is case sensitive, meaning that you can
     // have 2 (or more) parameters with the same value, but different cases.
     // All parameters would then get included. i.e.
