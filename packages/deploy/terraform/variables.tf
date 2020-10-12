@@ -5,10 +5,12 @@ variable "region" {
 
 variable "providerId" {
   type    = string
+  default = ""
 }
 
 variable "mnemonic" {
   type    = string
+  default = ""
 }
 
 // ~~~~~ Variables set at sensitive.auto.tfvars ~~~~~

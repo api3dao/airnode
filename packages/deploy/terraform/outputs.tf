@@ -1,3 +1,3 @@
-output "providerId" {
-  value = aws_ssm_parameter.masterKeyMnemonic.name
+output "mnemonic" {
+  value = aws_ssm_parameter.masterKeyMnemonic.value
 }
