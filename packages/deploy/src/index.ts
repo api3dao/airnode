@@ -18,22 +18,10 @@ async function main() {
   const security = JSON.parse(rawSecurity);
   let mnemonic = security.masterKeyMnemonic;
 
-  if (config.id !== security.id) {
-    throw new Error('config.json and security.json IDs do not match');
-  }
-
   if (providerId) {
     console.log('Found provider ID in config.json');
     if (mnemonic) {
       console.log('Found mnemonic in security.json');
-      // Verify that the provider ID and the mnemonic are consistent
-      const masterWallet = ethers.Wallet.fromMnemonic(mnemonic, 'm');
-      const expectedProviderId = ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address])
-      );
-      if (providerId !== expectedProviderId) {
-        throw new Error('Provider ID in config.json and mnemonic in security.json are not consistent');
-      }
       // Check if SSM has the private key created
       console.log('Checking the cloud provider for the private key...');
       await exec(
