@@ -40,7 +40,7 @@ describe('Airnode', () => {
 
   it('exposes the contract topics', () => {
     // Make sure all topics are covered
-    expect.assertions(12);
+    expect.assertions(10);
 
     expect(Object.keys(Airnode.topics).sort()).toEqual([
       'ApiCallFulfilledBytesSuccessful',
@@ -50,8 +50,6 @@ describe('Airnode', () => {
       'ApiCallFullRequest',
       'ApiCallRequest',
       'ApiCallShortRequest',
-      'WalletDesignationFulfilled',
-      'WalletDesignationRequest',
       'WithdrawalFulfilled',
       'WithdrawalRequested',
     ]);
@@ -75,14 +73,6 @@ describe('Airnode', () => {
     );
     expect(Airnode.topics.ApiCallFulfilledSuccessful).toEqual(
       '0x3c2f447d340db42db304efeef49513562c20438b6e893f65e015096896b5d167'
-    );
-
-    // Wallet Designations
-    expect(Airnode.topics.WalletDesignationFulfilled).toEqual(
-      '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6'
-    );
-    expect(Airnode.topics.WalletDesignationRequest).toEqual(
-      '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3'
     );
 
     // Withdrawals

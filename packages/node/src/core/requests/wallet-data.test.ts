@@ -9,7 +9,6 @@ describe('hasNoRequests', () => {
         address: '0x1',
         requests: {
           apiCalls: [],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 8,
@@ -18,7 +17,6 @@ describe('hasNoRequests', () => {
         address: '0x2',
         requests: {
           apiCalls: [],
-          walletDesignations: [],
           withdrawals: [fixtures.requests.createWithdrawal()],
         },
         transactionCount: 2,
@@ -33,22 +31,6 @@ describe('hasNoRequests', () => {
         address: '0x1',
         requests: {
           apiCalls: [fixtures.requests.createApiCall()],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 8,
-      },
-    };
-    expect(walletData.hasNoRequests(walletDataByIndex)).toEqual(false);
-  });
-
-  it('returns false if wallet designations are present', () => {
-    const walletDataByIndex: WalletDataByIndex = {
-      0: {
-        address: '0x1',
-        requests: {
-          apiCalls: [],
-          walletDesignations: [fixtures.requests.createWalletDesignation()],
           withdrawals: [],
         },
         transactionCount: 8,
@@ -63,7 +45,6 @@ describe('hasNoRequests', () => {
         address: '0x1',
         requests: {
           apiCalls: [],
-          walletDesignations: [],
           withdrawals: [fixtures.requests.createWithdrawal()],
         },
         transactionCount: 8,
@@ -78,7 +59,6 @@ describe('hasNoRequests', () => {
         address: '0x1',
         requests: {
           apiCalls: [],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 8,

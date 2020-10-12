@@ -37,7 +37,6 @@ describe('flatten (API calls)', () => {
         address: '0xaddress1',
         requests: {
           apiCalls: [call1],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 5,
@@ -46,7 +45,6 @@ describe('flatten (API calls)', () => {
         address: '0xaddress2',
         requests: {
           apiCalls: [call2],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 5,

@@ -19,20 +19,6 @@ describe('API call topics', () => {
   });
 });
 
-describe('Wallet designation topics', () => {
-  it('returns WALLET_DESIGNATION_REQUEST_TOPICS', () => {
-    expect(events.WALLET_DESIGNATION_REQUEST_TOPICS).toEqual([
-      '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3',
-    ]);
-  });
-
-  it('returns WALLET_DESIGNATION_FULFILLED_TOPICS', () => {
-    expect(events.WALLET_DESIGNATION_FULFILLED_TOPICS).toEqual([
-      '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6',
-    ]);
-  });
-});
-
 describe('Withdrawal topics', () => {
   it('returns WITHDRAWAL_REQUEST_TOPICS', () => {
     expect(events.WITHDRAWAL_REQUEST_TOPICS).toEqual([
@@ -68,30 +54,6 @@ describe('isApiCallFulfillment', () => {
   it('returns false if the topic is not an API call topic', () => {
     const log: any = { topic: '0x0efe0898971ca4a4ada014b6e46a0c04976f25a5b6f420bd9d368a2c67578f0b' };
     expect(events.isApiCallFulfillment(log)).toEqual(false);
-  });
-});
-
-describe('isWalletDesignationRequest', () => {
-  it('returns true if the topic is a wallet designation request topic', () => {
-    const log: any = { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' };
-    expect(events.isWalletDesignationRequest(log)).toEqual(true);
-  });
-
-  it('returns false if the topic is not a wallet designation request topic', () => {
-    const log: any = { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' };
-    expect(events.isWalletDesignationRequest(log)).toEqual(false);
-  });
-});
-
-describe('isWalletDesignationFulfillment', () => {
-  it('returns true if the topic is a wallet designation fulfillment topic', () => {
-    const log: any = { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' };
-    expect(events.isWalletDesignationFulfillment(log)).toEqual(true);
-  });
-
-  it('returns false if the topic is not a wallet designation fulfillment topic', () => {
-    const log: any = { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' };
-    expect(events.isWalletDesignationFulfillment(log)).toEqual(false);
   });
 });
 

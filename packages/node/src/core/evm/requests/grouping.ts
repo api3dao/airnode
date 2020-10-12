@@ -1,5 +1,4 @@
 import groupBy from 'lodash/groupBy';
-import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import * as wallet from '../wallet';
 import { GroupedRequests, WalletDataByIndex } from '../../../types';
@@ -7,17 +6,10 @@ import { GroupedRequests, WalletDataByIndex } from '../../../types';
 export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDataByIndex {
   const xpub = wallet.getExtendedPublicKey();
 
-  const { apiCalls, walletDesignations, withdrawals } = requests;
-
-  // Wallet designations are special in that they are only processed by the "admin" wallet at index 0
-  const adminWalletIndex = isEmpty(walletDesignations) ? [] : ['0'];
+  const { apiCalls, withdrawals } = requests;
 
   // Filter out duplicates to reduce Ethereum node calls
-  const uniqueWalletIndices = uniq([
-    ...apiCalls.map((a) => a.walletIndex),
-    ...withdrawals.map((a) => a.walletIndex),
-    ...adminWalletIndex,
-  ]);
+  const uniqueWalletIndices = uniq([...apiCalls.map((a) => a.walletIndex), ...withdrawals.map((a) => a.walletIndex)]);
 
   const apiCallsByWalletIndex = groupBy(apiCalls, 'walletIndex');
   const withdrawalsByWalletIndex = groupBy(withdrawals, 'walletIndex');
@@ -28,8 +20,6 @@ export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDat
       requests: {
         apiCalls: apiCallsByWalletIndex[index] || [],
         withdrawals: withdrawalsByWalletIndex[index] || [],
-        // Only the admin wallet can process wallet designations
-        walletDesignations: wallet.isAdminWalletIndex(index) ? walletDesignations : [],
       },
       // Transcation count gets fetched and set for each wallet at a later point
       transactionCount: 0,

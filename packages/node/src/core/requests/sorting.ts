@@ -17,7 +17,6 @@ export function sortRequestsByWalletIndex(walletDataByIndex: WalletDataByIndex) 
 
     const sortedRequests: GroupedRequests = {
       apiCalls: sortRequests(walletData.requests.apiCalls),
-      walletDesignations: sortRequests(walletData.requests.walletDesignations),
       withdrawals: sortRequests(walletData.requests.withdrawals),
     };
 

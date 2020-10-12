@@ -17,7 +17,6 @@ describe('mergeAuthorizations', () => {
         address: '0x1',
         requests: {
           apiCalls: apiCalls,
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -45,7 +44,6 @@ describe('mergeAuthorizations', () => {
         address: '0x1',
         requests: {
           apiCalls: apiCalls,
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -65,7 +63,6 @@ describe('mergeAuthorizations', () => {
         address: '0x1',
         requests: {
           apiCalls: apiCalls,
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -85,7 +82,6 @@ describe('mergeAuthorizations', () => {
         address: '0x1',
         requests: {
           apiCalls: [fixtures.requests.createApiCall()],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -107,7 +103,6 @@ describe('mergeAuthorizations', () => {
         address: '0x1',
         requests: {
           apiCalls: apiCalls,
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -130,7 +125,6 @@ describe('mergeAuthorizations', () => {
         address: '0x1',
         requests: {
           apiCalls: apiCalls,
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,

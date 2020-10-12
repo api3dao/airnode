@@ -9,7 +9,6 @@ describe('validation', () => {
         fixtures.requests.createApiCall({ status: RequestStatus.Blocked, errorCode: 9999 }),
         fixtures.requests.createApiCall({ status: RequestStatus.Errored, errorCode: 9999 }),
       ],
-      walletDesignations: [],
       withdrawals: [fixtures.requests.createWithdrawal({ status: RequestStatus.Errored, errorCode: 9999 })],
     };
 
@@ -30,7 +29,6 @@ describe('validation', () => {
 
       const requests: GroupedRequests = {
         apiCalls: [reserved, unreserved],
-        walletDesignations: [],
         withdrawals: [],
       };
 
@@ -52,7 +50,6 @@ describe('validation', () => {
 
       const requests: GroupedRequests = {
         apiCalls: [sufficientBalance, matchingBalance, insufficientBalance],
-        walletDesignations: [],
         withdrawals: [],
       };
 
@@ -83,7 +80,6 @@ describe('validation', () => {
 
       const requests: GroupedRequests = {
         apiCalls: [],
-        walletDesignations: [],
         withdrawals: [sufficientBalance, matchingBalance, insufficientBalance],
       };
 

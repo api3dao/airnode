@@ -10,7 +10,6 @@ describe('mergeApiCallsWithTemplates', () => {
         address: '0x1',
         requests: {
           apiCalls: [apiCall],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -37,7 +36,6 @@ describe('mergeApiCallsWithTemplates', () => {
         address: '0x1',
         requests: {
           apiCalls: [apiCall],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -81,7 +79,6 @@ describe('mergeApiCallsWithTemplates', () => {
         address: '0x1',
         requests: {
           apiCalls: [apiCall],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -127,7 +124,6 @@ describe('mergeApiCallsWithTemplates', () => {
         address: '0x1',
         requests: {
           apiCalls: [apiCall],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -165,7 +161,6 @@ describe('mergeApiCallsWithTemplates', () => {
         address: '0x1',
         requests: {
           apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,
@@ -187,7 +182,6 @@ describe('mergeApiCallsWithTemplates', () => {
         address: '0x1',
         requests: {
           apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
-          walletDesignations: [],
           withdrawals: [],
         },
         transactionCount: 3,

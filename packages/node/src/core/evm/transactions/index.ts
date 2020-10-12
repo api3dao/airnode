@@ -3,7 +3,6 @@ import flatMap from 'lodash/flatMap';
 import * as contracts from '../contracts';
 import * as logger from '../../logger';
 import { submitApiCall } from './api-calls';
-import { submitWalletDesignation } from './wallet-designations';
 import { submitWithdrawal } from './withdrawals';
 import * as wallet from '../wallet';
 import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from '../../../types';
@@ -57,17 +56,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
       return { id: withdrawal.id, type: RequestType.Withdrawal, data };
     });
 
-    // Submit transactions for wallet designations
-    const submittedWalletDesignations = walletData.requests.walletDesignations.map(async (walletDesignation) => {
-      const [logs, err, data] = await submitWalletDesignation(contract, walletDesignation, txOptions);
-      logger.logPending(logs, baseLogOptions);
-      if (err || !data) {
-        return { id: walletDesignation.id, type: RequestType.WalletDesignation, error: err };
-      }
-      return { id: walletDesignation.id, type: RequestType.WalletDesignation, data };
-    });
-
-    return [...submittedApiCalls, ...submittedWithdrawals, ...submittedWalletDesignations];
+    return [...submittedApiCalls, ...submittedWithdrawals];
   });
 
   const responses = await Promise.all(promises);

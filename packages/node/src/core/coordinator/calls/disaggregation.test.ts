@@ -18,7 +18,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x1',
       requests: {
         apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 2,
@@ -27,7 +26,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x2',
       requests: {
         apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 5,
@@ -36,7 +34,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x3',
       requests: {
         apiCalls: [fixtures.requests.createApiCall()],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 8,
@@ -80,7 +77,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x1',
       requests: {
         apiCalls: [fixtures.requests.createApiCall({ id: 'ethCall', parameters: { from: 'ETH' } })],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 2,
@@ -89,7 +85,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x2',
       requests: {
         apiCalls: [fixtures.requests.createApiCall({ id: 'btcCall', parameters: { from: 'BTC' } })],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 5,
@@ -130,7 +125,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x1',
       requests: {
         apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xunknown' })],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 2,
@@ -139,7 +133,6 @@ describe('disaggregate - ClientRequests', () => {
       address: '0x2',
       requests: {
         apiCalls: [fixtures.requests.createApiCall({ endpointId: '0xendpointId' })],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 5,

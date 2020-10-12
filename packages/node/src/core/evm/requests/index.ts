@@ -5,7 +5,6 @@ import * as eventLogs from './event-logs';
 import * as logger from '../../logger';
 import * as requesterData from './requester-data';
 import * as validation from './validation';
-import * as walletDesignations from './wallet-designations';
 import * as withdrawals from './withdrawals';
 import { EVMProviderState, GroupedBaseRequests, GroupedRequests, ProviderState } from '../../../types';
 
@@ -38,15 +37,11 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   const [baseApiLogs, baseApiCalls] = apiCalls.mapBaseRequests(groupedLogs.apiCalls);
   logger.logPending(baseApiLogs, baseLogOptions);
 
-  const [baseDesigLogs, baseDesignations] = walletDesignations.mapBaseRequests(groupedLogs.walletDesignations);
-  logger.logPending(baseDesigLogs, baseLogOptions);
-
   const [baseWithdrawLogs, baseWithdrawals] = withdrawals.mapBaseRequests(groupedLogs.withdrawals);
   logger.logPending(baseWithdrawLogs, baseLogOptions);
 
   const baseRequests: GroupedBaseRequests = {
     apiCalls: baseApiCalls,
-    walletDesignations: baseDesignations,
     withdrawals: baseWithdrawals,
   };
 

@@ -13,7 +13,6 @@ interface FetchOptions {
 
 interface GroupedLogs {
   apiCalls: LogWithMetadata[];
-  walletDesignations: LogWithMetadata[];
   withdrawals: LogWithMetadata[];
 }
 
@@ -44,7 +43,6 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
 export function group(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
-    walletDesignations: [],
     withdrawals: [],
   };
 
@@ -53,10 +51,6 @@ export function group(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
 
     if (events.isApiCallRequest(parsedLog) || events.isApiCallFulfillment(parsedLog)) {
       return { ...acc, apiCalls: [...acc.apiCalls, log] };
-    }
-
-    if (events.isWalletDesignationRequest(parsedLog) || events.isWalletDesignationFulfillment(parsedLog)) {
-      return { ...acc, walletDesignations: [...acc.walletDesignations, log] };
     }
 
     if (events.isWithdrawalRequest(parsedLog) || events.isWithdrawalFulfillment(parsedLog)) {

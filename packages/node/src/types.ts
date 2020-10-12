@@ -38,7 +38,6 @@ export enum RequestStatus {
 
 export enum RequestType {
   ApiCall,
-  WalletDesignation,
   Withdrawal,
 }
 
@@ -90,13 +89,6 @@ export interface ApiCallTemplate {
   readonly templateId: string;
 }
 
-export interface WalletDesignation {
-  readonly depositAmount: string;
-  readonly providerId: string;
-  readonly requesterId: string;
-  readonly walletIndex: string;
-}
-
 export interface Withdrawal {
   readonly destinationAddress: string;
   readonly providerId: string;
@@ -105,13 +97,11 @@ export interface Withdrawal {
 
 export interface GroupedBaseRequests {
   readonly apiCalls: BaseRequest<ApiCall>[];
-  readonly walletDesignations: BaseRequest<WalletDesignation>[];
   readonly withdrawals: BaseRequest<Withdrawal>[];
 }
 
 export interface GroupedRequests {
   readonly apiCalls: ClientRequest<ApiCall>[];
-  readonly walletDesignations: BaseRequest<WalletDesignation>[];
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
