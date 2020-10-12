@@ -42,16 +42,15 @@ jest.mock('../../config', () => ({
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import { ProviderState, RequestType, WalletData } from 'src/types';
+import { EVMProviderState, ProviderState, RequestType, WalletData } from 'src/types';
 import * as providerState from '../../providers/state';
 import * as transactions from './index';
 
 describe('submit', () => {
-  let initialState: ProviderState;
+  let initialState: ProviderState<EVMProviderState>;
 
   beforeEach(() => {
-    const config = { chainId: 1337, url: 'https://some.provider', name: 'test-provider' };
-    initialState = providerState.create(config, 0);
+    initialState = fixtures.createEVMProviderState();
   });
 
   it('submits transactions for multiple wallets and returns the transactions', async () => {
@@ -71,8 +70,8 @@ describe('submit', () => {
       address: '0xwallet1',
       requests: {
         apiCalls: [
-          fixtures.requests.createApiCall({ id: '0x1', nonce: 5, response: { value: '0xresponse' } }),
-          fixtures.requests.createApiCall({ id: '0x2', nonce: 6, response: { value: '0xresponse' } }),
+          fixtures.requests.createApiCall({ id: '0x1', nonce: 5, responseValue: '0xresponse' }),
+          fixtures.requests.createApiCall({ id: '0x2', nonce: 6, responseValue: '0xresponse' }),
         ],
         walletDesignations: [],
         withdrawals: [],
@@ -125,7 +124,7 @@ describe('submit', () => {
   });
 
   it('returns error responses for API calls', async () => {
-    const apiCall = fixtures.requests.createApiCall({ id: '0x1', nonce: 5, response: { value: '0xresponse' } });
+    const apiCall = fixtures.requests.createApiCall({ id: '0x1', nonce: 5, responseValue: '0xresponse' });
     const wallet1Data: WalletData = {
       address: '0xwallet1',
       requests: {

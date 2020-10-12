@@ -2,11 +2,7 @@ import * as events from './events';
 import * as logger from '../../logger';
 import { BaseRequest, LogsData, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
 
-interface InitialMetadata {
-  providerIndex: number;
-}
-
-export function initialize(logWithMetadata: LogWithMetadata, metadata: InitialMetadata): BaseRequest<Withdrawal> {
+export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
   const request: BaseRequest<Withdrawal> = {
@@ -16,7 +12,6 @@ export function initialize(logWithMetadata: LogWithMetadata, metadata: InitialMe
     requesterId: parsedLog.args.requesterId,
     destinationAddress: parsedLog.args.destination,
     metadata: {
-      ...metadata,
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
@@ -52,16 +47,13 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapBaseRequests(
-  logsWithMetadata: LogWithMetadata[],
-  metadata: InitialMetadata
-): LogsData<BaseRequest<Withdrawal>[]> {
+export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsData<BaseRequest<Withdrawal>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));
 
   // Cast raw logs to typed WithdrawalRequest objects
-  const withdrawalRequests = requestLogs.map((log) => initialize(log, metadata));
+  const withdrawalRequests = requestLogs.map((log) => initialize(log));
 
   // Update the status of requests that have already been fulfilled
   const [fulfilledLogs, fulfilledWithdrawals] = updateFulfilledRequests(withdrawalRequests, fulfillmentLogs);

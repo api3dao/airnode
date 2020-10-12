@@ -1,13 +1,20 @@
 import { getGasPrice } from '../gas-prices';
-import * as contracts from '../contracts';
 import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
-import * as transactions from '../transactions';
 import * as state from '../../providers/state';
+import * as transactions from '../transactions';
 import * as utils from '../utils';
-import { ProviderState } from '../../../types';
+import { EVMProviderState, ProviderState } from '../../../types';
 
-export async function processTransactions(initialState: ProviderState) {
+export async function processTransactions(initialState: ProviderState<EVMProviderState>) {
+  const { chainId, chainType, name: providerName } = initialState.settings;
+  const { coordinatorId } = initialState;
+
+  const baseLogOptions = {
+    format: initialState.settings.logFormat,
+    meta: { coordinatorId, providerName, chainType, chainId },
+  };
+
   // =================================================================
   // STEP 1: Assign nonces to processable requests
   // =================================================================
@@ -18,14 +25,14 @@ export async function processTransactions(initialState: ProviderState) {
   // STEP 2: Get the latest gas price
   // =================================================================
   const gasPriceOptions = {
-    address: contracts.GasPriceFeed.addresses[state1.config.chainId],
+    address: state1.contracts.GasPriceFeed,
     provider: state1.provider,
   };
   const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
-  logger.logPendingMessages(state1.config.name, gasPriceLogs);
+  logger.logPending(gasPriceLogs, baseLogOptions);
 
   const gweiPrice = utils.weiToGwei(gasPrice);
-  logger.logProviderJSON(state1.config.name, 'INFO', `Gas price set to ${gweiPrice} Gwei`);
+  logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
   const state2 = state.update(state1, { gasPrice });
 
   // =================================================================
@@ -34,12 +41,10 @@ export async function processTransactions(initialState: ProviderState) {
   const receipts = await transactions.submit(state2);
   const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
   successfulReceipts.forEach((receipt) => {
-    logger.logProviderJSON(
-      state2.config.name,
-      'INFO',
-      `Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`
-    );
+    logger.info(`Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`, baseLogOptions);
   });
 
-  return receipts;
+  // TODO: apply tx hashes to each request
+
+  return state2;
 }

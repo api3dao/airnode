@@ -34,7 +34,7 @@ const fulfilledLog: any = {
 
 describe('mapBaseRequests (WalletDesignation)', () => {
   it('returns WalletDesignation base requests', () => {
-    const [logs, res] = walletDesignations.mapBaseRequests([requestLog], { providerIndex: 0 });
+    const [logs, res] = walletDesignations.mapBaseRequests([requestLog]);
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
@@ -42,7 +42,6 @@ describe('mapBaseRequests (WalletDesignation)', () => {
         id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
         metadata: {
           blockNumber: 10716082,
-          providerIndex: 0,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
         providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',
@@ -54,7 +53,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
   });
 
   it('updates the status of fulfilled WalletDesignation requests', () => {
-    const [logs, res] = walletDesignations.mapBaseRequests([requestLog, fulfilledLog], { providerIndex: 0 });
+    const [logs, res] = walletDesignations.mapBaseRequests([requestLog, fulfilledLog]);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -67,7 +66,6 @@ describe('mapBaseRequests (WalletDesignation)', () => {
         id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
         metadata: {
           blockNumber: 10716082,
-          providerIndex: 0,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
         providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',
@@ -79,7 +77,7 @@ describe('mapBaseRequests (WalletDesignation)', () => {
   });
 
   it('filers out duplicate WalletDesignation requests', () => {
-    const [logs, res] = walletDesignations.mapBaseRequests([requestLog, requestLog, requestLog], { providerIndex: 1 });
+    const [logs, res] = walletDesignations.mapBaseRequests([requestLog, requestLog, requestLog]);
     expect(logs).toEqual([
       {
         level: 'INFO',
@@ -96,7 +94,6 @@ describe('mapBaseRequests (WalletDesignation)', () => {
         id: '0x99eb9c116d2b390b8ee727c9045e4358bd98d71fc7cf20027c3453b8d94d1518',
         metadata: {
           blockNumber: 10716082,
-          providerIndex: 1,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
         providerId: '0x2f800fb1026b0f3fc324ae5d559075d96608f978f80d9419a55a93a84a3500a1',

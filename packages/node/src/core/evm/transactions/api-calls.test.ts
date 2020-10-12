@@ -69,7 +69,7 @@ describe('submitApiCall', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
       contract.fulfill.mockResolvedValueOnce({ hash: '0xtransactionId' });
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
@@ -101,7 +101,7 @@ describe('submitApiCall', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
       contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
@@ -139,7 +139,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: false });
       (contract.callStatic.error as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
       contract.error.mockResolvedValueOnce({ hash: '0xtransactionId' });
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
@@ -180,7 +180,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
       (contract.callStatic.error as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
       contract.error.mockResolvedValueOnce({ hash: '0xtransactionId' });
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
@@ -225,7 +225,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
       (contract.callStatic.error as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
       contract.fail.mockResolvedValueOnce({ hash: '0xtransactionId' });
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
@@ -267,7 +267,7 @@ describe('submitApiCall', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce(null);
       contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
@@ -294,7 +294,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
       (contract.callStatic.error as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
       contract.fail.mockRejectedValueOnce(new Error('Server still says no'));
-      const apiCall = fixtures.requests.createApiCall({ response: { value: '0xresponse' }, nonce: 5 });
+      const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
         { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },

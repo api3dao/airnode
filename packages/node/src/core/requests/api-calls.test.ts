@@ -14,7 +14,6 @@ describe('isDuplicate (API calls)', () => {
       id: '0x123',
       endpointId: '0x987',
       parameters: { from: 'ETH', to: 'USDC' },
-      providers: [0, 1, 2],
       type: 'request',
     };
     const aggregatedCall: AggregatedApiCall = { ...baseAggregatedCall };

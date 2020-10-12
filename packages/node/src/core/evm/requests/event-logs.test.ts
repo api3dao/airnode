@@ -65,6 +65,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -97,6 +98,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -128,6 +130,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
     };
