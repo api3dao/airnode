@@ -2,8 +2,10 @@
   "name": "@airnode/protocol",
   "scripts": {
     "build": "buidler compile",
-    "deploy:rinkeby": "buidler deploy --network rinkeby",
-    "deploy:ropsten": "buidler deploy --network ropsten",
+    "deploy:rinkeby": "buidler deploy --network rinkeby --tags deploy",
+    "deploy:ropsten": "buidler deploy --network ropsten --tags deploy",
+    "populate:rinkeby": "buidler deploy --network rinkeby --tags populate",
+    "populate:ropsten": "buidler deploy --network ropsten --tags populate",
     "test": "buidler test"
   },
   "devDependencies": {
