@@ -4,6 +4,7 @@ export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseR
   return {
     id: 'apiCallId',
     requesterAddress: 'requesterAddress',
+    designatedWallet: 'designatedWallet',
     endpointId: 'endpointId',
     templateId: null,
     fulfillAddress: 'fulfillAddress',
@@ -13,6 +14,7 @@ export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseR
     encodedParameters: 'encodedParameters',
     parameters: { from: 'ETH' },
     providerId: 'providerId',
+    requesterIndex: 'requesterIndex',
     status: RequestStatus.Pending,
     metadata: {
       blockNumber: 10716082,

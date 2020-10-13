@@ -59,13 +59,14 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(logs).toEqual([]);
     expect(err).toEqual(null);
     const resApiCall = res[1].requests.apiCalls[0];
-    expect(resApiCall.designatedWallet).toEqual('designatedWallet-0');
     expect(resApiCall.endpointId).toEqual('templateEndpointId-0');
     expect(resApiCall.fulfillAddress).toEqual('templateFulfillAddress-0');
     expect(resApiCall.fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
-    expect(resApiCall.requesterIndex).toEqual('requesterIndex-0');
     expect(resApiCall.errorAddress).toEqual(null);
     expect(resApiCall.errorFunctionId).toEqual(null);
+    // These fields are not overwritten
+    expect(resApiCall.designatedWallet).toEqual('designatedWallet');
+    expect(resApiCall.requesterIndex).toEqual('requesterIndex');
   });
 
   it('merges template and API call parameters', () => {
