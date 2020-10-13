@@ -9,7 +9,7 @@
     "bootstrap": "npm install && lerna bootstrap",
     "build": "lerna run build --stream",
     "build:adapter": "(cd packages/adapter && npm run build)",
-    "build:deploy": "(cd packages/deploy && npm run build)",
+    "build:deployer": "(cd packages/deployer && npm run build)",
     "build:protocol": "(cd packages/protocol && npm run build)",
     "build:node": "(cd packages/node && npm run build)",
     "build:ois": "(cd packages/ois && npm run build)",

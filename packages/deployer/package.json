@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/deploy",
+  "name": "@airnode/deployer",
   "version": "0.1.0",
   "scripts": {
     "build": "npm run clean && npm run compile",
