@@ -4,15 +4,14 @@ import * as child from 'child_process';
 import * as ethers from 'ethers';
 const exec = util.promisify(child.exec);
 
-// TODO: Pass as arguments to the script
-const CONFIG_PATH = './config.json';
-const SECURITY_PATH = './security.json';
+const CONFIG_PATH: string = process.argv[2] || 'config.json';
+const SECURITY_PATH: string = process.argv[3] || 'security.json';
 
 async function main() {
   // 1- Operate on the mnemonic/providerId read from the configuration files
   const rawSecurity = fs.readFileSync(SECURITY_PATH, 'utf8');
   const security = JSON.parse(rawSecurity);
-  let mnemonic = security.masterKeyMnemonic;
+  let mnemonic: string = security.masterKeyMnemonic;
 
   const rawConfig = fs.readFileSync(CONFIG_PATH, 'utf8');
   const config = JSON.parse(rawConfig);
