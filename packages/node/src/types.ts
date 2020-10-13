@@ -46,23 +46,20 @@ export interface RequestMetadata {
   readonly transactionHash: string;
 }
 
-export type BaseRequest<T extends {}> = T & {
+export type ClientRequest<T extends {}> = T & {
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly status: RequestStatus;
+
+  // TODO: protocol-overhaul remove these
+  readonly requesterId?: string;
+  readonly walletIndex?: string;
+  readonly walletAddress?: string;
+  readonly walletBalance?: string;
+  readonly walletMinimumBalance?: string;
 };
-
-export interface RequesterData {
-  readonly requesterId: string;
-  readonly walletIndex: string;
-  readonly walletAddress: string;
-  readonly walletBalance: string;
-  readonly walletMinimumBalance: string;
-}
-
-export type ClientRequest<T> = BaseRequest<T> & RequesterData;
 
 export interface ApiCall {
   readonly designatedWallet: string;
@@ -95,11 +92,6 @@ export interface Withdrawal {
   readonly destinationAddress: string;
   readonly providerId: string;
   readonly requesterId: string;
-}
-
-export interface GroupedBaseRequests {
-  readonly apiCalls: BaseRequest<ApiCall>[];
-  readonly withdrawals: BaseRequest<Withdrawal>[];
 }
 
 export interface GroupedRequests {

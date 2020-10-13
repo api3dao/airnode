@@ -1,11 +1,11 @@
 import * as events from './events';
 import * as logger from '../../logger';
-import { BaseRequest, LogsData, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
+import { ClientRequest, LogsData, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
 
-export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdrawal> {
+export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
-  const request: BaseRequest<Withdrawal> = {
+  const request: ClientRequest<Withdrawal> = {
     id: parsedLog.args.withdrawalRequestId,
     status: RequestStatus.Pending,
     providerId: parsedLog.args.providerId,
@@ -21,9 +21,9 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdr
 }
 
 export function updateFulfilledRequests(
-  withdrawals: BaseRequest<Withdrawal>[],
+  withdrawals: ClientRequest<Withdrawal>[],
   fulfillmentLogs: LogWithMetadata[]
-): LogsData<BaseRequest<Withdrawal>[]> {
+): LogsData<ClientRequest<Withdrawal>[]> {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
 
   const { logs, requests } = withdrawals.reduce(
@@ -47,7 +47,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsData<BaseRequest<Withdrawal>[]> {
+export function mapRequests(logsWithMetadata: LogWithMetadata[]): LogsData<ClientRequest<Withdrawal>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));

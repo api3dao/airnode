@@ -2,7 +2,6 @@ import { removeKey } from '../utils/object-utils';
 import * as sorting from '../requests/sorting';
 import {
   ApiCall,
-  BaseRequest,
   ClientRequest,
   EVMProviderState,
   GroupedRequests,
@@ -14,7 +13,7 @@ import {
 
 type AnyRequest = ApiCall | Withdrawal;
 
-function flattenRequests(groupedRequests: GroupedRequests): BaseRequest<any>[] {
+function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<any>[] {
   // Store the type as well temporarily so that requests can be ungrouped again
   const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, type: RequestType.ApiCall }));
 
@@ -29,7 +28,7 @@ function flattenRequests(groupedRequests: GroupedRequests): BaseRequest<any>[] {
   return [...apiCalls, ...withdrawals];
 }
 
-function groupRequests(flatRequests: BaseRequest<any>[]): GroupedRequests {
+function groupRequests(flatRequests: ClientRequest<any>[]): GroupedRequests {
   const apiCalls = flatRequests
     .filter((request) => request.type === RequestType.ApiCall)
     .map((request) => removeKey(request, 'type')) as ClientRequest<ApiCall>[];
@@ -42,10 +41,10 @@ function groupRequests(flatRequests: BaseRequest<any>[]): GroupedRequests {
 }
 
 function assignWalletNonces(
-  flatRequests: BaseRequest<AnyRequest>[],
+  flatRequests: ClientRequest<AnyRequest>[],
   transactionCount: number,
   currentBlock: number
-): BaseRequest<any>[] {
+): ClientRequest<any>[] {
   const initialState = {
     assignmentBlocked: false,
     nextNonce: transactionCount,
