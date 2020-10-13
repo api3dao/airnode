@@ -37,13 +37,13 @@ async function fetchTemplateGroup(
     // are called with
     const template: ApiCallTemplate = {
       templateId,
+      designatedWallet: rawTemplates.designatedWallets[index],
+      encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
-      providerId: rawTemplates.providerIds[index],
       fulfillAddress: rawTemplates.fulfillAddresses[index],
       fulfillFunctionId: rawTemplates.fulfillFunctionIds[index],
-      errorAddress: rawTemplates.errorAddresses[index],
-      errorFunctionId: rawTemplates.errorFunctionIds[index],
-      encodedParameters: rawTemplates.parameters[index],
+      providerId: rawTemplates.providerIds[index],
+      requesterIndex: rawTemplates.requesterInds[index],
     };
     return { ...acc, [templateId]: template };
   }, {});

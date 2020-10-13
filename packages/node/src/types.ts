@@ -65,6 +65,7 @@ export interface RequesterData {
 export type ClientRequest<T> = BaseRequest<T> & RequesterData;
 
 export interface ApiCall {
+  readonly designatedWallet: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
   readonly errorAddress: string | null;
@@ -74,18 +75,19 @@ export interface ApiCall {
   readonly parameters: ApiCallParameters;
   readonly providerId: string;
   readonly requesterAddress: string;
-  readonly templateId: string | null;
+  readonly requesterIndex: string;
   readonly responseValue?: string;
+  readonly templateId: string | null;
 }
 
 export interface ApiCallTemplate {
+  readonly designatedWallet: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
-  readonly errorAddress: string;
-  readonly errorFunctionId: string;
   readonly fulfillAddress: string;
   readonly fulfillFunctionId: string;
   readonly providerId: string;
+  readonly requesterIndex: string;
   readonly templateId: string;
 }
 

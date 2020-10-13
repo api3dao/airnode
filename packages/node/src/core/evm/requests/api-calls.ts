@@ -19,6 +19,8 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCal
     errorAddress: parsedLog.args.errorAddress,
     errorFunctionId: parsedLog.args.errorFunctionId,
     encodedParameters: parsedLog.args.parameters,
+    requesterIndex: '<TODO>',
+    designatedWallet: '<TODO>',
     // Parameters are decoded separately
     parameters: {},
     metadata: {
