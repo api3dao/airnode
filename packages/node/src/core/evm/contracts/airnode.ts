@@ -2,22 +2,24 @@ import { ethers } from 'ethers';
 import compiledContract from './json/airnode.json';
 import { Contract } from './types';
 
-const ApiCallRequestTopic = ethers.utils.id(
+const ClientRequestCreated = ethers.utils.id(
   'ClientRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
-const ApiCallShortRequestTopic = ethers.utils.id(
+const ClientShortRequestCreated = ethers.utils.id(
   'ClientShortRequestCreated(bytes32,bytes32,uint256,address,bytes32,bytes)'
 );
-const ApiCallFullRequestTopic = ethers.utils.id(
+const ClientFullRequestCreated = ethers.utils.id(
   'ClientFullRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
 
-const ApiCallFulfilledTopic = ethers.utils.id('ClientRequestFulfilled(bytes32,bytes32,uint256,bytes32)');
-const ApiCallFulfilledBytesTopic = ethers.utils.id('ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)');
-const ApiCallFulfilledFailedTopic = ethers.utils.id('ClientRequestFailed(bytes32,bytes32)');
+const ClientRequestFulfilled = ethers.utils.id('ClientRequestFulfilled(bytes32,bytes32,uint256,bytes32)');
+const ClientRequestFulfilledWithBytes = ethers.utils.id(
+  'ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)'
+);
+const ClientRequestFailed = ethers.utils.id('ClientRequestFailed(bytes32,bytes32)');
 
-const WithdrawalRequestedTopic = ethers.utils.id('WithdrawalRequested(bytes32,bytes32,bytes32,address)');
-const WithdrawalFulfilledTopic = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32,bytes32,address,uint256)');
+const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,bytes32,bytes32,address)');
+const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32,bytes32,address,uint256)');
 
 export const Airnode: Contract = {
   addresses: {
@@ -28,16 +30,16 @@ export const Airnode: Contract = {
   ABI: compiledContract.abi,
   topics: {
     // API calls
-    ApiCallRequest: ApiCallRequestTopic,
-    ApiCallShortRequest: ApiCallShortRequestTopic,
-    ApiCallFullRequest: ApiCallFullRequestTopic,
+    ClientRequestCreated,
+    ClientShortRequestCreated,
+    ClientFullRequestCreated,
 
-    ApiCallFulfilled: ApiCallFulfilledTopic,
-    ApiCallFulfilledBytes: ApiCallFulfilledBytesTopic,
-    ApiCallFailed: ApiCallFulfilledFailedTopic,
+    ClientRequestFulfilled,
+    ClientRequestFulfilledWithBytes,
+    ClientRequestFailed,
 
     // Withdrawals
-    WithdrawalRequested: WithdrawalRequestedTopic,
-    WithdrawalFulfilled: WithdrawalFulfilledTopic,
+    WithdrawalRequested,
+    WithdrawalFulfilled,
   },
 };

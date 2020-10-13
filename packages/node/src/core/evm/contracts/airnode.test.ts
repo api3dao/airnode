@@ -37,30 +37,35 @@ describe('Airnode', () => {
     expect.assertions(9);
 
     expect(Object.keys(Airnode.topics).sort()).toEqual([
-      'ApiCallFailed',
-      'ApiCallFulfilled',
-      'ApiCallFulfilledBytes',
-      'ApiCallFullRequest',
-      'ApiCallRequest',
-      'ApiCallShortRequest',
+      'ClientFullRequestCreated',
+      'ClientRequestCreated',
+      'ClientRequestFailed',
+      'ClientRequestFulfilled',
+      'ClientRequestFulfilledWithBytes',
+      'ClientShortRequestCreated',
       'WithdrawalFulfilled',
       'WithdrawalRequested',
     ]);
 
     // API calls
-    expect(Airnode.topics.ApiCallRequest).toEqual('0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b');
-    expect(Airnode.topics.ApiCallShortRequest).toEqual(
+    expect(Airnode.topics.ClientRequestCreated).toEqual(
+      '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b'
+    );
+    expect(Airnode.topics.ClientShortRequestCreated).toEqual(
       '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6'
     );
-    expect(Airnode.topics.ApiCallFullRequest).toEqual(
+    expect(Airnode.topics.ClientFullRequestCreated).toEqual(
       '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44'
     );
-    expect(Airnode.topics.ApiCallFulfilledBytes).toEqual(
+
+    expect(Airnode.topics.ClientRequestFulfilled).toEqual(
+      '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5'
+    );
+    expect(Airnode.topics.ClientRequestFulfilledWithBytes).toEqual(
       '0x0ebeb9b9b5c4baf915e7541c7e0919dd1a58eb06ee596035a50d08d20b9219de'
     );
-    expect(Airnode.topics.ApiCallFailed).toEqual('0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad');
-    expect(Airnode.topics.ApiCallFulfilled).toEqual(
-      '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5'
+    expect(Airnode.topics.ClientRequestFailed).toEqual(
+      '0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad'
     );
 
     // Withdrawals

@@ -2,15 +2,15 @@ import { ethers } from 'ethers';
 import * as contracts from '../contracts';
 
 export const API_CALL_REQUEST_TOPICS = [
-  contracts.Airnode.topics.ApiCallRequest,
-  contracts.Airnode.topics.ApiCallShortRequest,
-  contracts.Airnode.topics.ApiCallFullRequest,
+  contracts.Airnode.topics.ClientRequestCreated,
+  contracts.Airnode.topics.ClientShortRequestCreated,
+  contracts.Airnode.topics.ClientFullRequestCreated,
 ];
 
 export const API_CALL_FULFILLED_TOPICS = [
-  contracts.Airnode.topics.ApiCallFulfilled,
-  contracts.Airnode.topics.ApiCallFulfilledBytes,
-  contracts.Airnode.topics.ApiCallFailed,
+  contracts.Airnode.topics.ClientRequestFulfilled,
+  contracts.Airnode.topics.ClientRequestFulfilledWithBytes,
+  contracts.Airnode.topics.ClientRequestFailed,
 ];
 
 export const WITHDRAWAL_REQUEST_TOPICS = [contracts.Airnode.topics.WithdrawalRequested];
