@@ -37,7 +37,6 @@ describe('assign', () => {
       address: '0xwallet1',
       requests: {
         apiCalls: shuffle([third, second, first]),
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 3,
@@ -48,39 +47,6 @@ describe('assign', () => {
     expect(assignedReqs[0]).toEqual({ ...first, nonce: 3 });
     expect(assignedReqs[1]).toEqual({ ...second, nonce: 4 });
     expect(assignedReqs[2]).toEqual({ ...third, nonce: 5 });
-  });
-
-  it('sorts and assigns nonces to wallet designations', () => {
-    const first = fixtures.requests.createWalletDesignation({
-      id: '0x1',
-      nonce: undefined,
-      metadata: { blockNumber: 100, transactionHash: '0xa' },
-    });
-    const second = fixtures.requests.createWalletDesignation({
-      id: '0x2',
-      nonce: undefined,
-      metadata: { blockNumber: 101, transactionHash: '0xb' },
-    });
-    const third = fixtures.requests.createWalletDesignation({
-      id: '0x3',
-      nonce: undefined,
-      metadata: { blockNumber: 101, transactionHash: '0xc' },
-    });
-    const walletData: WalletData = {
-      address: '0xwallet1',
-      requests: {
-        apiCalls: [],
-        walletDesignations: shuffle([second, third, first]),
-        withdrawals: [],
-      },
-      transactionCount: 7,
-    };
-    const state = providerState.update(initialState, { walletDataByIndex: { 0: walletData } });
-    const res = nonces.assign(state);
-    const assignedReqs = res[0].requests.walletDesignations;
-    expect(assignedReqs[0]).toEqual({ ...first, nonce: 7 });
-    expect(assignedReqs[1]).toEqual({ ...second, nonce: 8 });
-    expect(assignedReqs[2]).toEqual({ ...third, nonce: 9 });
   });
 
   it('sorts and assigns nonces requests withdrawals', () => {
@@ -103,7 +69,6 @@ describe('assign', () => {
       address: '0xwallet1',
       requests: {
         apiCalls: [],
-        walletDesignations: [],
         withdrawals: shuffle([first, third, second]),
       },
       transactionCount: 11,
@@ -120,8 +85,7 @@ describe('assign', () => {
     const adminWalletData: WalletData = {
       address: '0xadmin',
       requests: {
-        apiCalls: [],
-        walletDesignations: [fixtures.requests.createWalletDesignation({ id: '0x1', nonce: undefined })],
+        apiCalls: [fixtures.requests.createApiCall({ id: '0x1', nonce: undefined })],
         withdrawals: [],
       },
       transactionCount: 11,
@@ -130,7 +94,6 @@ describe('assign', () => {
       address: '0xwallet1',
       requests: {
         apiCalls: [fixtures.requests.createApiCall({ id: '0x2', nonce: undefined })],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 11,
@@ -139,7 +102,6 @@ describe('assign', () => {
       address: '0xwallet2',
       requests: {
         apiCalls: [fixtures.requests.createApiCall({ id: '0x3', nonce: undefined })],
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 7,
@@ -147,7 +109,7 @@ describe('assign', () => {
     const walletDataByIndex = { 0: adminWalletData, 3: wallet1Data, 7: wallet2Data };
     const state = providerState.update(initialState, { walletDataByIndex });
     const res = nonces.assign(state);
-    expect(res[0].requests.walletDesignations[0].nonce).toEqual(11);
+    expect(res[0].requests.apiCalls[0].nonce).toEqual(11);
     expect(res[3].requests.apiCalls[0].nonce).toEqual(11);
     expect(res[7].requests.apiCalls[0].nonce).toEqual(7);
   });
@@ -173,7 +135,6 @@ describe('assign', () => {
       address: '0xwallet1',
       requests: {
         apiCalls: shuffle([third, second, first]),
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 3,
@@ -207,7 +168,6 @@ describe('assign', () => {
       address: '0xwallet1',
       requests: {
         apiCalls: shuffle([third, second, first]),
-        walletDesignations: [],
         withdrawals: [],
       },
       transactionCount: 3,

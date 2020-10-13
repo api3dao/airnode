@@ -177,46 +177,6 @@ describe('EVM event logs - group', () => {
           transactionHash: '0x2',
         },
       ],
-      walletDesignations: [],
-      withdrawals: [],
-    });
-  });
-
-  it('groups wallet designation requests and fulfillments', () => {
-    const logsWithMetadata: any = [
-      {
-        blockNumber: 10716082,
-        parsedLog: { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' },
-        transactionHash: '0x1',
-      },
-      {
-        blockNumber: 10716083,
-        parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
-        transactionHash: '0x2',
-      },
-      // Unknown event
-      {
-        blockNumber: 10716082,
-        parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
-        transactionHash: '0x3',
-      },
-    ];
-
-    const res = eventLogs.group(logsWithMetadata);
-    expect(res).toEqual({
-      apiCalls: [],
-      walletDesignations: [
-        {
-          blockNumber: 10716082,
-          parsedLog: { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' },
-          transactionHash: '0x1',
-        },
-        {
-          blockNumber: 10716083,
-          parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
-          transactionHash: '0x2',
-        },
-      ],
       withdrawals: [],
     });
   });
@@ -244,7 +204,6 @@ describe('EVM event logs - group', () => {
     const res = eventLogs.group(logsWithMetadata);
     expect(res).toEqual({
       apiCalls: [],
-      walletDesignations: [],
       withdrawals: [
         {
           blockNumber: 10716082,

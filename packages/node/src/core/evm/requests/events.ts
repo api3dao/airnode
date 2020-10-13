@@ -14,10 +14,6 @@ export const API_CALL_FULFILLED_TOPICS = [
   contracts.Airnode.topics.ApiCallFulfilledFailed,
 ];
 
-export const WALLET_DESIGNATION_REQUEST_TOPICS = [contracts.Airnode.topics.WalletDesignationRequest];
-
-export const WALLET_DESIGNATION_FULFILLED_TOPICS = [contracts.Airnode.topics.WalletDesignationFulfilled];
-
 export const WITHDRAWAL_REQUEST_TOPICS = [contracts.Airnode.topics.WithdrawalRequested];
 
 export const WITHDRAWAL_FULFILLED_TOPICS = [contracts.Airnode.topics.WithdrawalFulfilled];
@@ -28,14 +24,6 @@ export function isApiCallRequest(log: ethers.utils.LogDescription) {
 
 export function isApiCallFulfillment(log: ethers.utils.LogDescription) {
   return API_CALL_FULFILLED_TOPICS.includes(log.topic);
-}
-
-export function isWalletDesignationRequest(log: ethers.utils.LogDescription) {
-  return WALLET_DESIGNATION_REQUEST_TOPICS.includes(log.topic);
-}
-
-export function isWalletDesignationFulfillment(log: ethers.utils.LogDescription) {
-  return WALLET_DESIGNATION_FULFILLED_TOPICS.includes(log.topic);
 }
 
 export function isWithdrawalRequest(log: ethers.utils.LogDescription) {

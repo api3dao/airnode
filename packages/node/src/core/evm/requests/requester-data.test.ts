@@ -49,7 +49,7 @@ describe('requester data - fetch', () => {
     const apiCalls = Array.from(Array(19).keys()).map((n) =>
       fixtures.requests.createBaseApiCall({ id: `0x${n}`, requesterAddress: `${n}` })
     );
-    const groupedBaseRequests: GroupedBaseRequests = { apiCalls, walletDesignations: [], withdrawals: [] };
+    const groupedBaseRequests: GroupedBaseRequests = { apiCalls, withdrawals: [] };
 
     const fetchOptions = { address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0', provider };
     const [logs, err, res] = await requesterDetails.fetch(fetchOptions, groupedBaseRequests);
@@ -90,7 +90,7 @@ describe('requester data - fetch', () => {
     const apiCalls = Array.from(Array(19).keys()).map((n) =>
       fixtures.requests.createBaseApiCall({ id: `0x${n}`, requesterAddress: `${n}` })
     );
-    const groupedBaseRequests: GroupedBaseRequests = { apiCalls, walletDesignations: [], withdrawals: [] };
+    const groupedBaseRequests: GroupedBaseRequests = { apiCalls, withdrawals: [] };
 
     const fetchOptions = { address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0', provider };
     const [logs, err, res] = await requesterDetails.fetch(fetchOptions, groupedBaseRequests);
@@ -123,7 +123,6 @@ describe('requester data - fetch', () => {
 
     const groupedBaseRequests: GroupedBaseRequests = {
       apiCalls: [fixtures.requests.createBaseApiCall()],
-      walletDesignations: [],
       withdrawals: [],
     };
 
@@ -149,7 +148,6 @@ describe('requester data - apply', () => {
     const apiCall = fixtures.requests.createBaseApiCall({ id: '0x1', requesterAddress: '0xalice' });
     const requests = {
       apiCalls: [apiCall],
-      walletDesignations: [],
       withdrawals: [],
     };
     const dataByAddress = {
@@ -164,7 +162,7 @@ describe('requester data - apply', () => {
     const [logs, err, res] = requesterDetails.apply(requests, dataByAddress);
     expect(logs).toEqual([]);
     expect(err).toEqual(null);
-    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletDesignations', 'withdrawals']);
+    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'withdrawals']);
     expect(res.apiCalls.length).toEqual(1);
     expect(res.apiCalls[0]).toEqual({
       ...apiCall,
@@ -180,7 +178,6 @@ describe('requester data - apply', () => {
     const withdrawal = fixtures.requests.createBaseWithdrawal({ id: '0x1', destinationAddress: '0xalice' });
     const requests = {
       apiCalls: [],
-      walletDesignations: [],
       withdrawals: [withdrawal],
     };
     const dataByAddress = {
@@ -195,7 +192,7 @@ describe('requester data - apply', () => {
     const [logs, err, res] = requesterDetails.apply(requests, dataByAddress);
     expect(logs).toEqual([]);
     expect(err).toEqual(null);
-    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'walletDesignations', 'withdrawals']);
+    expect(Object.keys(res).sort()).toEqual(['apiCalls', 'withdrawals']);
     expect(res.withdrawals.length).toEqual(1);
     expect(res.withdrawals[0]).toEqual({
       ...withdrawal,
@@ -212,7 +209,6 @@ describe('requester data - apply', () => {
     const withdrawal = fixtures.requests.createBaseWithdrawal({ destinationAddress: '0xbob' });
     const requests = {
       apiCalls: [apiCall],
-      walletDesignations: [],
       withdrawals: [withdrawal],
     };
     const dataByAddress = {
