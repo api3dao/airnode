@@ -4,19 +4,16 @@ import * as child from 'child_process';
 import * as ethers from 'ethers';
 const exec = util.promisify(child.exec);
 
+import { parseFiles } from './config';
+
 const CONFIG_PATH: string = process.argv[2] || 'config.json';
 const SECURITY_PATH: string = process.argv[3] || 'security.json';
 
 async function main() {
-  // 1- Operate on the mnemonic/providerId read from the configuration files
-  const rawSecurity = fs.readFileSync(SECURITY_PATH, 'utf8');
-  const security = JSON.parse(rawSecurity);
-  let mnemonic: string = security.masterKeyMnemonic;
+  const { apiCredentials, chains, mnemonic: readMnemonic, providerId: readProviderId } = parseFiles(CONFIG_PATH, SECURITY_PATH);
 
-  const rawConfig = fs.readFileSync(CONFIG_PATH, 'utf8');
-  const config = JSON.parse(rawConfig);
-
-  let providerId;
+  let mnemonic = readMnemonic;
+  let providerId = readProviderId;
   if (mnemonic) {
     console.log('Found the mnemonic in security.json');
     console.log('Deriving the providerId from the mnemonic');
@@ -26,7 +23,6 @@ async function main() {
     providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
   } else {
     console.log('Did not find the mnemonic in security.json');
-    providerId = config.nodeSettings.providerId;
     if (!providerId) {
       console.log('Did not find the providerId in config.json');
       console.log('Creating a new mnemonic-providerId pair');
@@ -83,7 +79,7 @@ async function main() {
   // 3 - Check if the provider record is created on-chain, warn the user if not
   // mainnet, ropsten, rinkeby, kovan, göerli
   const validChainIds = [1, 3, 4, 5, 42];
-  for (const chain of config.nodeSettings.chains) {
+  for (const chain of chains) {
     if (validChainIds.includes(chain.id)) {
       const provider = ethers.getDefaultProvider(chain.id);
       const abi = [
@@ -134,8 +130,8 @@ async function main() {
   // 4 - Write the secrets to a temporary file for Serverless to read
   const secrets = {};
   secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${providerId}/masterKeyMnemonic~true\}`;
-  for (const oisTitle in security.apiCredentials) {
-    for (const securityScheme of security.apiCredentials[oisTitle]) {
+  for (const oisTitle in apiCredentials) {
+    for (const securityScheme of apiCredentials[oisTitle]) {
       secrets[`${oisTitle}_${securityScheme.securitySchemeName}`] = securityScheme.value;
     }
   }
