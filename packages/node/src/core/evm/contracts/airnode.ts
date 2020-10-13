@@ -3,11 +3,13 @@ import compiledContract from './json/airnode.json';
 import { Contract } from './types';
 
 const ApiCallRequestTopic = ethers.utils.id(
-  'RequestMade(bytes32,bytes32,address,bytes32,address,address,bytes4,bytes4,bytes)'
+  'ClientRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
-const ApiCallShortRequestTopic = ethers.utils.id('ShortRequestMade(bytes32,bytes32,address,bytes32,bytes)');
+const ApiCallShortRequestTopic = ethers.utils.id(
+  'ClientShortRequestCreated(bytes32,bytes32,uint256,address,bytes32,bytes)'
+);
 const ApiCallFullRequestTopic = ethers.utils.id(
-  'FullRequestMade(bytes32,bytes32,address,bytes32,address,address,bytes4,bytes4,bytes)'
+  'ClientFullRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
 
 const ApiCallFulfilledSuccessfulTopic = ethers.utils.id('FulfillmentSuccessful(bytes32,bytes32,bytes32)');
