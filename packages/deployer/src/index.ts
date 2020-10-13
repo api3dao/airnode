@@ -1,6 +1,7 @@
 import { parseFiles, processMnemonicAndProviderId, generateServerlessConfig } from './config';
 import { verifyMnemonicOnSSM } from './infrastructure';
 import { checkProviderRecords } from './evm';
+import { deploy } from './serverless';
 
 const CONFIG_PATH: string = process.argv[2] || 'config.json';
 const SECURITY_PATH: string = process.argv[3] || 'security.json';
@@ -29,6 +30,9 @@ async function main() {
 
   // Generate a temporary configuration file for Serverless
   generateServerlessConfig(providerId, apiCredentials);
+
+  // Deploy the serverless functions
+  await deploy();
 }
 
 main();
