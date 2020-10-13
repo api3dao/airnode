@@ -8,10 +8,9 @@ export const API_CALL_REQUEST_TOPICS = [
 ];
 
 export const API_CALL_FULFILLED_TOPICS = [
-  contracts.Airnode.topics.ApiCallFulfilledSuccessful,
-  contracts.Airnode.topics.ApiCallFulfilledBytesSuccessful,
-  contracts.Airnode.topics.ApiCallFulfilledErrored,
-  contracts.Airnode.topics.ApiCallFulfilledFailed,
+  contracts.Airnode.topics.ApiCallFulfilled,
+  contracts.Airnode.topics.ApiCallFulfilledBytes,
+  contracts.Airnode.topics.ApiCallFailed,
 ];
 
 export const WITHDRAWAL_REQUEST_TOPICS = [contracts.Airnode.topics.WithdrawalRequested];

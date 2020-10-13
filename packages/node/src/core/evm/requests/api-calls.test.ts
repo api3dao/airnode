@@ -165,7 +165,7 @@ describe('mapBaseRequests (ApiCall)', () => {
         errorFunctionId: '0xba12a5e4',
         parameters: '0x636b6579a169736f6d657468696e676576616c7565',
       },
-      topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00',
+      topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
     },
     blockNumber: 10716082,
     transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',

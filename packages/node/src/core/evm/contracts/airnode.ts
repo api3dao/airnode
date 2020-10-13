@@ -12,10 +12,9 @@ const ApiCallFullRequestTopic = ethers.utils.id(
   'ClientFullRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
 
-const ApiCallFulfilledSuccessfulTopic = ethers.utils.id('FulfillmentSuccessful(bytes32,bytes32,bytes32)');
-const ApiCallFulfilledBytesSuccessfulTopic = ethers.utils.id('FulfillmentBytesSuccessful(bytes32,bytes32,bytes)');
-const ApiCallFulfilledErroredTopic = ethers.utils.id('FulfillmentErrored(bytes32,bytes32,uint256)');
-const ApiCallFulfilledFailedTopic = ethers.utils.id('FulfillmentFailed(bytes32,bytes32)');
+const ApiCallFulfilledTopic = ethers.utils.id('ClientRequestFulfilled(bytes32,bytes32,uint256,bytes32)');
+const ApiCallFulfilledBytesTopic = ethers.utils.id('ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)');
+const ApiCallFulfilledFailedTopic = ethers.utils.id('ClientRequestFailed(bytes32,bytes32)');
 
 const WithdrawalRequestedTopic = ethers.utils.id('WithdrawalRequested(bytes32,bytes32,bytes32,address)');
 const WithdrawalFulfilledTopic = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32,bytes32,address,uint256)');
@@ -33,10 +32,9 @@ export const Airnode: Contract = {
     ApiCallShortRequest: ApiCallShortRequestTopic,
     ApiCallFullRequest: ApiCallFullRequestTopic,
 
-    ApiCallFulfilledSuccessful: ApiCallFulfilledSuccessfulTopic,
-    ApiCallFulfilledBytesSuccessful: ApiCallFulfilledBytesSuccessfulTopic,
-    ApiCallFulfilledErrored: ApiCallFulfilledErroredTopic,
-    ApiCallFulfilledFailed: ApiCallFulfilledFailedTopic,
+    ApiCallFulfilled: ApiCallFulfilledTopic,
+    ApiCallFulfilledBytes: ApiCallFulfilledBytesTopic,
+    ApiCallFailed: ApiCallFulfilledFailedTopic,
 
     // Withdrawals
     WithdrawalRequested: WithdrawalRequestedTopic,
