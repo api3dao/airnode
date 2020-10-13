@@ -32,10 +32,10 @@ describe('build', () => {
       id: 3,
       type: 'evm',
       providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-      contracts: [
-        { name: 'Airnode', address: '0x12345' },
-        { name: 'GasPriceFeed', address: '0x98765' },
-      ],
+      contracts: {
+        Airnode: '0x12345',
+        GasPriceFeed: '0x98765',
+      },
     };
     expect(contracts.build(chain)).toEqual({
       Airnode: '0x12345',
@@ -50,7 +50,7 @@ describe('build', () => {
       id: 1,
       type: 'evm',
       providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-      contracts: [{ name: 'Airnode', address: '0x12345' }],
+      contracts: { Airnode: '0x12345' },
     };
     try {
       contracts.build(chain);
@@ -75,7 +75,7 @@ describe('validate', () => {
       id: 1337,
       type: 'evm',
       providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-      contracts: [{ name: 'Airnode', address: '0x12345' }],
+      contracts: { Airnode: '0x12345' },
     };
     expect(contracts.validate(chain)).toEqual([]);
   });
@@ -85,7 +85,7 @@ describe('validate', () => {
       id: 1,
       type: 'evm',
       providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-      contracts: [{ name: 'Airnode', address: '0x12345' }],
+      contracts: { Airnode: '0x12345' },
     };
     expect(contracts.validate(chain)).toEqual(['Contracts cannot be specified for protected chain ID: 1']);
   });
@@ -95,14 +95,14 @@ describe('validate', () => {
       id: 1337,
       type: 'evm',
       providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-      contracts: [
-        { name: 'Airnode', address: 'invalidaddress' },
-        { name: 'Convenience', address: 'invalidaddress' },
-      ],
+      contracts: {
+        Airnode: 'invalidaddress',
+        Convenience: 'invalidaddress',
+      },
     };
     expect(contracts.validate(chain)).toEqual([
-      'A valid EVM contract address is required for Airnode (chain ID: 1337)',
-      'A valid EVM contract address is required for Convenience (chain ID: 1337)',
+      'A valid EVM contract address is required for Airnode. Provided: invalidaddress (chain ID: 1337)',
+      'A valid EVM contract address is required for Convenience. Provided: invalidaddress (chain ID: 1337)',
     ]);
   });
 });

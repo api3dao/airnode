@@ -94,10 +94,10 @@ describe('create', () => {
       id: 1337,
       type: 'evm',
       providers: [chainProvider],
-      contracts: [
-        { name: 'Airnode', address: '0xB71dE2DA6240c45846ED58315a01dd6D843fD3b5' },
-        { name: 'GasPriceFeed', address: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1' },
-      ],
+      contracts: {
+        Airnode: '0xB71dE2DA6240c45846ED58315a01dd6D843fD3b5',
+        GasPriceFeed: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1',
+      },
     };
     const settings = fixtures.createNodeSettings();
 
