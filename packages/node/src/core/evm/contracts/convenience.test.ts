@@ -16,9 +16,9 @@ describe('Convenience', () => {
 
     expect(functions).toEqual([
       'airnode',
+      'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
-      'getDataWithClientAddress',
-      'getDataWithClientAddresses',
+      'getProviderAndBlockNumber',
       'getTemplates',
     ]);
   });
