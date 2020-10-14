@@ -1,4 +1,4 @@
-export {start, initializeProvider, callApi, processProviderRequests} from '@airnode/node';
+export {start, initializeProvider, callApi, processProviderRequests} from '@airnode/node/src';
 
 export async function test() {
   return {
