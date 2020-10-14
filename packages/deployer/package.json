@@ -6,6 +6,7 @@
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
     "deploy": "node .build/index.js deploy -c config.json -s security.json",
+    "remove-airnode": "node .build/index.js remove-airnode -c config.json -s security.json",
     "remove-mnemonic": "node .build/index.js remove-mnemonic -c config.json -s security.json",
     "sls:invoke:aws": "sls invoke --function start --config serverless.aws.yml",
     "sls:remove:aws": "sls remove --config serverless.aws.yml",

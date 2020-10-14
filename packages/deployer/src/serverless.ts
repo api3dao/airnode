@@ -6,3 +6,7 @@ export async function deployServerless(providerIdShort) {
   await exec(`sls deploy --config serverless.aws.yml --providerIdShort ${providerIdShort}`);
   await exec(`rm -f secrets.json`);
 }
+
+export async function removeServerless(providerIdShort) {
+  await exec(`sls remove --config serverless.aws.yml --providerIdShort ${providerIdShort}`);
+}

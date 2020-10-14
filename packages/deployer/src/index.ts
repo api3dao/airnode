@@ -2,7 +2,7 @@ import yargs from 'yargs';
 import { parseFiles, processMnemonicAndProviderId, generateServerlessConfig } from './config';
 import { verifyMnemonicOnSSM, removeMnemonicFromSSM } from './infrastructure';
 import { checkProviderRecords } from './evm';
-import { deployServerless } from './serverless';
+import { deployServerless, removeServerless } from './serverless';
 import { shortenProviderId } from './util';
 
 yargs
@@ -26,6 +26,17 @@ yargs
     },
     (args) => {
       removeMnemonic(args);
+    }
+  )
+  .command(
+    'remove-airnode',
+    'Removes Airnode deployment',
+    {
+      configPath: { type: 'string', demandOption: true, alias: 'c' },
+      securityPath: { type: 'string', demandOption: true, alias: 's' },
+    },
+    (args) => {
+      removeAirnode(args);
     }
   )
   .help().argv;
@@ -71,4 +82,9 @@ async function deploy(args) {
 async function removeMnemonic(args) {
   const {providerIdShort} = getAvailableParameters(args.configPath, args.securityPath);
   await removeMnemonicFromSSM(providerIdShort);
+}
+
+async function removeAirnode(args) {
+  const {providerIdShort} = getAvailableParameters(args.configPath, args.securityPath);
+  await removeServerless(providerIdShort);
 }
