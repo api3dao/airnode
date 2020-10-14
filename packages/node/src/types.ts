@@ -54,11 +54,11 @@ export type ClientRequest<T extends {}> = T & {
   readonly status: RequestStatus;
 
   // TODO: protocol-overhaul remove these
-  readonly requesterId?: string;
-  readonly walletIndex?: string;
-  readonly walletAddress?: string;
-  readonly walletBalance?: string;
-  readonly walletMinimumBalance?: string;
+  readonly requesterId: string;
+  readonly walletIndex: string;
+  readonly walletAddress: string;
+  readonly walletBalance: string;
+  readonly walletMinimumBalance: string;
 };
 
 export interface ApiCall {

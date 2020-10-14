@@ -9,12 +9,17 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<With
     id: parsedLog.args.withdrawalRequestId,
     status: RequestStatus.Pending,
     providerId: parsedLog.args.providerId,
-    requesterId: parsedLog.args.requesterId,
     destinationAddress: parsedLog.args.destination,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
+    // TODO: protocol-overhaul remove these
+    requesterId: 'requesterId',
+    walletIndex: '1',
+    walletAddress: 'walletAddress',
+    walletBalance: '100000',
+    walletMinimumBalance: '50000',
   };
 
   return request;
