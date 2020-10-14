@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { deriveProviderId, generateMnemonic, shortenProviderId } from './util';
-
+import ora from 'ora';
+import { deriveProviderId, generateMnemonic, shortenProviderId, waitForEnter } from './util';
 
 export async function readConfig(configPath, securityPath) {
   // Parse the configuration files
@@ -18,7 +18,7 @@ export async function readConfig(configPath, securityPath) {
   // Shorten the providerId to be used as an alias to identify deployments
   const providerIdShort = shortenProviderId(providerId);
 
-  return {mnemonic, providerId, providerIdShort, chains, apiCredentials};
+  return { mnemonic, providerId, providerIdShort, chains, apiCredentials };
 }
 
 function parseFiles(configPath, securityPath) {
@@ -34,29 +34,29 @@ function parseFiles(configPath, securityPath) {
 
 async function processMnemonicAndProviderId(mnemonic, providerId) {
   if (mnemonic) {
-    console.log('Found the mnemonic in security.json');
+    ora().succeed('Found the mnemonic in security.json');
     if (!providerId) {
-      console.log('Did not find the providerId in config.json');
+      ora().info('Did not find the providerId in config.json');
       providerId = deriveProviderId(mnemonic);
-      console.log('Derived the providerId from the mnemonic');
+      ora().succeed('Derived the providerId from the mnemonic');
     } else {
       // The mnemonic from security.json and the providerId from config.json should be
       // consistent if the two files have been validated.
-      console.log('Found the providerId in config.json');
+      ora().succeed('Found the providerId in config.json');
     }
   } else {
-    console.log('Did not find the mnemonic in security.json');
+    ora().info('Did not find the mnemonic in security.json');
     if (!providerId) {
-      console.log('Did not find the providerId in config.json');
+      ora().info('Did not find the providerId in config.json');
       mnemonic = generateMnemonic();
       providerId = deriveProviderId(mnemonic);
-      console.log('Generated a new mnemonic-providerId pair');
-      console.log('Write down the mnemonic below on a piece of paper and keep at a safe place');
+      ora().succeed('Generated a new mnemonic-providerId pair');
+      ora().warn('Write down the mnemonic below on a piece of paper and keep at a safe place\n');
       console.log(mnemonic);
-      // TODO: Wait for keypress
+      await waitForEnter();
     } else {
-      console.log('Found the providerId in config.json');
-      console.log('Will look for the mnemonic at AWS SSM');
+      ora().succeed('Found the providerId in config.json');
+      ora().info('Will look for the mnemonic at AWS SSM');
     }
   }
   return { mnemonic, providerId };

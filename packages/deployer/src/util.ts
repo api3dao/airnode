@@ -1,3 +1,4 @@
+import * as readline from 'readline';
 import * as ethers from 'ethers';
 
 export function deriveProviderId(mnemonic) {
@@ -21,4 +22,17 @@ export function shortenProviderId(providerId) {
     throw new Error('providerId is not a valid hex string');
   }
   return providerId.substring(2, 9);
+}
+
+export async function waitForEnter() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) =>
+    rl.question('\nHit enter to continue\n', (ans) => {
+      rl.close();
+      resolve(ans);
+    })
+  );
 }

@@ -41,7 +41,10 @@ yargs
   .help().argv;
 
 async function deploy(args) {
-  const {mnemonic, providerId, providerIdShort, chains, apiCredentials} = await readConfig(args.configPath, args.securityPath);
+  const { mnemonic, providerId, providerIdShort, chains, apiCredentials } = await readConfig(
+    args.configPath,
+    args.securityPath
+  );
   // The mnemonic may still be undefined here. If so, it will be attempted to be read from AWS SSM.
 
   // Check if the mnemonic is stored at AWS SSM, store it there if not
@@ -60,11 +63,11 @@ async function deploy(args) {
 }
 
 async function removeMnemonic(args) {
-  const {providerIdShort} = await readConfig(args.configPath, args.securityPath);
+  const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
   await removeMnemonicFromSSM(providerIdShort);
 }
 
 async function removeAirnode(args) {
-  const {providerIdShort} = await readConfig(args.configPath, args.securityPath);
+  const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
   await removeServerless(providerIdShort);
 }
