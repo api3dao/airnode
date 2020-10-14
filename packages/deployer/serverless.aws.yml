@@ -1,5 +1,5 @@
 service:
-  name: airnode
+  name: airnode-${opt:providerIdShort}
 
 plugins:
   - serverless-plugin-typescript

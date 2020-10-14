@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { deriveProviderId, generateMnemonic } from './evm';
+import { deriveProviderId, generateMnemonic } from './util';
 
 export function parseFiles(configPath, securityPath) {
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -41,9 +41,9 @@ export function processMnemonicAndProviderId(mnemonic, providerId) {
   return { mnemonic, providerId };
 }
 
-export function generateServerlessConfig(providerId, apiCredentials) {
+export function generateServerlessConfig(providerIdShort, apiCredentials) {
   const secrets = {};
-  secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${providerId}/masterKeyMnemonic~true\}`;
+  secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${providerIdShort}/masterKeyMnemonic~true\}`;
   for (const oisTitle in apiCredentials) {
     for (const securityScheme of apiCredentials[oisTitle]) {
       secrets[`${oisTitle}_${securityScheme.securitySchemeName}`] = securityScheme.value;

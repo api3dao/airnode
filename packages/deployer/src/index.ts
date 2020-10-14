@@ -3,6 +3,7 @@ import { parseFiles, processMnemonicAndProviderId, generateServerlessConfig } fr
 import { verifyMnemonicOnSSM } from './infrastructure';
 import { checkProviderRecords } from './evm';
 import { deployServerless } from './serverless';
+import { shortenProviderId } from './util';
 
 yargs
   .command(
@@ -31,9 +32,12 @@ async function deploy(args) {
   const { mnemonic, providerId } = processMnemonicAndProviderId(parsedMnemonic, parsedProviderId);
   // We are guaranteed to have the providerId, but the mnemonic may still be undefined
 
+  // Shorten the providerId to be used as an alias for identifying deployments
+  const providerIdShort = shortenProviderId(providerId);
+
   // Verify that the mnemonic is stored at SSM
   // The mnemonic will be read from SSM if it is not provided
-  const masterWalletAddress = await verifyMnemonicOnSSM(mnemonic, providerId);
+  const masterWalletAddress = await verifyMnemonicOnSSM(mnemonic, providerIdShort);
   // At this point, we are guaranteed to have both the providerId and the mnemonic, and the
   // correct mnemonic is stored at SSM
 
@@ -41,8 +45,8 @@ async function deploy(args) {
   await checkProviderRecords(providerId, chains, masterWalletAddress);
 
   // Generate a temporary configuration file for Serverless
-  generateServerlessConfig(providerId, apiCredentials);
+  generateServerlessConfig(providerIdShort, apiCredentials);
 
   // Deploy the serverless functions
-  await deployServerless();
+  await deployServerless(providerIdShort);
 }
