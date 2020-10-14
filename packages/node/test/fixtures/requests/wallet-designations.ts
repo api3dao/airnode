@@ -12,7 +12,6 @@ export function createWalletDesignation(
     status: RequestStatus.Pending,
     metadata: {
       blockNumber: 10716082,
-      providerIndex: 0,
       transactionHash: 'logTransactionHash',
     },
     ...params,

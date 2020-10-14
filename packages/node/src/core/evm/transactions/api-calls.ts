@@ -137,7 +137,7 @@ async function testFulfill(
 
   const attemptedTx = airnode.callStatic.fulfill(
     request.id,
-    request.response!.value,
+    request.responseValue!,
     request.fulfillAddress,
     request.fulfillFunctionId,
     {
@@ -162,7 +162,7 @@ async function submitFulfill(
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
 
-  const tx = airnode.fulfill(request.id, request.response!.value, request.fulfillAddress, request.fulfillFunctionId, {
+  const tx = airnode.fulfill(request.id, request.responseValue!, request.fulfillAddress, request.fulfillFunctionId, {
     gasLimit: GAS_LIMIT,
     gasPrice: options.gasPrice,
     nonce: request.nonce!,

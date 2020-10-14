@@ -1,11 +1,12 @@
 import { ethers } from 'ethers';
-import { config, FROM_BLOCK_LIMIT } from '../../config';
+import { config } from '../../config';
 import * as contracts from '../contracts';
 import * as events from './events';
 import { LogWithMetadata } from '../../../types';
 
 interface FetchOptions {
   address: string;
+  blockHistoryLimit: number;
   currentBlock: number;
   provider: ethers.providers.JsonRpcProvider;
 }
@@ -18,7 +19,7 @@ interface GroupedLogs {
 
 export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   const filter: ethers.providers.Filter = {
-    fromBlock: options.currentBlock - FROM_BLOCK_LIMIT,
+    fromBlock: options.currentBlock - options.blockHistoryLimit,
     toBlock: options.currentBlock,
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid

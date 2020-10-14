@@ -22,7 +22,7 @@ describe('initialize ApiCall BaseRequest', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
-    expect(apiCalls.initialize(logWithMetadata, { providerIndex: 1 })).toEqual({
+    expect(apiCalls.initialize(logWithMetadata)).toEqual({
       endpointId: null,
       errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       errorFunctionId: '0xba12a5e4',
@@ -32,7 +32,6 @@ describe('initialize ApiCall BaseRequest', () => {
       id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
       metadata: {
         blockNumber: 10716082,
-        providerIndex: 1,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
       parameters: {},
@@ -64,7 +63,7 @@ describe('applyParameters', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
-    const initialRequest = apiCalls.initialize(logWithMetadata, { providerIndex: 0 });
+    const initialRequest = apiCalls.initialize(logWithMetadata);
     expect(initialRequest.parameters).toEqual({});
 
     const [logs, withParameters] = apiCalls.applyParameters(initialRequest);
@@ -91,7 +90,7 @@ describe('applyParameters', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
-    const initialRequest = apiCalls.initialize(logWithMetadata, { providerIndex: 0 });
+    const initialRequest = apiCalls.initialize(logWithMetadata);
     expect(initialRequest.parameters).toEqual({});
 
     const [logs, withParameters] = apiCalls.applyParameters(initialRequest);
@@ -120,7 +119,7 @@ describe('applyParameters', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
 
-    const initialRequest = apiCalls.initialize(logWithMetadata, { providerIndex: 0 });
+    const initialRequest = apiCalls.initialize(logWithMetadata);
     expect(initialRequest.parameters).toEqual({});
 
     const [logs, withParameters] = apiCalls.applyParameters(initialRequest);
@@ -171,7 +170,7 @@ describe('mapBaseRequests (ApiCall)', () => {
   };
 
   it('returns API call base requests', () => {
-    const [logs, res] = apiCalls.mapBaseRequests([requestLog], { providerIndex: 1 });
+    const [logs, res] = apiCalls.mapBaseRequests([requestLog]);
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
@@ -183,7 +182,6 @@ describe('mapBaseRequests (ApiCall)', () => {
         encodedParameters: '0x636b6579a169736f6d657468696e676576616c7565',
         metadata: {
           blockNumber: 10716082,
-          providerIndex: 1,
           transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
         },
         parameters: {

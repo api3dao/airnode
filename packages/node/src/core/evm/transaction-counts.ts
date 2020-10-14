@@ -1,40 +1,51 @@
-import * as wallet from './wallet';
+import { ethers } from 'ethers';
+import uniq from 'lodash/uniq';
+import flatMap from 'lodash/flatMap';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
-import { ProviderState } from '../../types';
+import { LogsData } from '../../types';
 
-interface TransactionCountByWalletIndex {
+interface TransactionCountByAddress {
   [index: string]: number;
 }
 
-async function getWalletTransactionCount(
-  state: ProviderState,
-  index: string
-): Promise<TransactionCountByWalletIndex | null> {
-  const xpub = wallet.getExtendedPublicKey();
-  const address = wallet.deriveWalletAddressFromIndex(xpub, index);
+interface FetchOptions {
+  currentBlock: number;
+  provider: ethers.providers.JsonRpcProvider;
+}
 
-  const providerCall = () => state.provider.getTransactionCount(address, state.currentBlock!) as Promise<number>;
+async function getWalletTransactionCount(
+  address: string,
+  options: FetchOptions
+): Promise<LogsData<TransactionCountByAddress | null>> {
+  const providerCall = () => options.provider.getTransactionCount(address, options.currentBlock) as Promise<number>;
   const retryableCall = retryOperation(2, providerCall, { timeouts: [4000, 4000] }) as Promise<number>;
 
   const [err, count] = await go(retryableCall);
   if (err || count === null) {
-    const message = `Unable to fetch transcation count for wallet:${address}, index:${index}`;
-    logger.logProviderError(state.config.name, message, err);
-    return null;
+    const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
+    return [[log], null];
   }
-  return { [index]: count };
+  return [[], { [address]: count }];
 }
 
-export async function getTransactionCountByIndex(state: ProviderState): Promise<TransactionCountByWalletIndex> {
-  // Filter out duplicates to reduce Ethereum node calls
-  const walletIndices = Object.keys(state.walletDataByIndex).sort();
+export async function fetchByAddress(
+  addresses: string[],
+  options: FetchOptions
+): Promise<LogsData<TransactionCountByAddress>> {
+  // Ensure that there are no duplicated addresses
+  const uniqueAddresses = uniq(addresses);
 
   // Fetch all transaction counts in parallel
-  const promises = walletIndices.map((index) => getWalletTransactionCount(state, index));
-  const results = await Promise.all(promises);
-  const successfulResults = results.filter((r) => !!r) as TransactionCountByWalletIndex[];
+  const promises = uniqueAddresses.map((address) => getWalletTransactionCount(address, options));
+  const logsWithCounts = await Promise.all(promises);
+  const logs = flatMap(logsWithCounts, (c) => c[0]);
+  const countsByIndex = logsWithCounts.map((c) => c[1]);
+
+  const successfulResults = countsByIndex.filter((r) => !!r) as TransactionCountByAddress[];
 
   // Merge all successful results into a single object
-  return Object.assign({}, ...successfulResults);
+  const combinedResults = Object.assign({}, ...successfulResults);
+
+  return [logs, combinedResults];
 }

@@ -1,59 +1,44 @@
 import { config } from '../core/config';
-import * as coordinator from '../core/coordinator';
-import * as providers from '../core/providers';
-import * as http from '../core/adapters/http/execution';
+import * as handlers from '../core/handlers';
+import * as logger from '../core/logger';
 import { removeKey } from '../core/utils/object-utils';
 
-export async function start(event: any) {
-  await coordinator.start();
+export async function start(_event: any) {
+  await handlers.startCoordinator(config.nodeSettings);
 
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
+    body: JSON.stringify({ message: 'Coordinator completed' }),
   };
 }
 
 export async function initializeProvider(event: any) {
-  const index = Number(event.pathParameters.index);
-  const providerConfig = config.nodeSettings.ethereumProviders[index];
-  const state = await providers.initializeState(providerConfig, index);
-
-  if (!state) {
+  const { state } = event.parameters;
+  // TODO: Wrap this in a 'go' to catch and log any unexpected errors
+  const initializedState = await handlers.initializeProvider(state);
+  if (!initializedState) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: `Failed to initialize provider: ${providerConfig.name}` }),
+      body: JSON.stringify({ message: `Failed to initialize provider: ${state.settings.name}` }),
     };
   }
 
-  // We can't return the instance of the provider. A new provider
+  // NOTE: We can't return the instance of the provider. A new provider
   // will be created in the calling function
-  const body = removeKey(state, 'provider');
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(body),
-  };
+  const body = removeKey(initializedState, 'provider');
+  return { statusCode: 200, body: JSON.stringify(body) };
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall } = event.queryStringParameters;
-  const response = await http.callApi(aggregatedApiCall);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(response),
-  };
+  const { aggregatedApiCall, logOptions } = event.parameters;
+  const [logs, response] = await handlers.callApi(aggregatedApiCall);
+  logger.logPending(logs, logOptions);
+  return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function processProviderRequests(event: any) {
-  const { state } = event.queryStringParameters;
-  const response = await providers.processTransactions(state);
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(response),
-  };
+  const { state } = event.parameters;
+  const updatedState = await handlers.processTransactions(state);
+  const body = removeKey(updatedState, 'provider');
+  return { statusCode: 200, body: JSON.stringify(body) };
 }
