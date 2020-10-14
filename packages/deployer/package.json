@@ -5,13 +5,14 @@
     "build": "npm run clean && npm run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "deploy": "node .build/index.js",
+    "deploy": "node .build/index.js deploy -c config.json -s security.json",
     "sls:invoke:aws": "sls invoke --function start --config serverless.aws.yml",
     "sls:remove:aws": "sls remove --config serverless.aws.yml",
     "sls:test:aws": "sls invoke --function test --config serverless.aws.yml"
   },
   "dependencies": {
     "ethers": "^5.0.17",
-    "serverless-plugin-typescript": "^1.1.9"
+    "serverless-plugin-typescript": "^1.1.9",
+    "yargs": "^16.0.3"
   }
 }

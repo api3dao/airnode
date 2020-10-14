@@ -1,16 +1,20 @@
+import yargs from 'yargs';
 import { parseFiles, processMnemonicAndProviderId, generateServerlessConfig } from './config';
 import { verifyMnemonicOnSSM } from './infrastructure';
 import { checkProviderRecords } from './evm';
 import { deploy } from './serverless';
 
-const CONFIG_PATH: string = process.argv[2] || 'config.json';
-const SECURITY_PATH: string = process.argv[3] || 'security.json';
+const args = yargs
+  .command('deploy', 'deploy Airnode', {
+    'configPath': { type: 'string', demandOption: true, alias: 'c' },
+    'securityPath': { type: 'string', demandOption: true, alias: 's' }
+  }).help().argv;
 
 async function main() {
   // Parse the configuration files
   const { apiCredentials, chains, mnemonic: parsedMnemonic, providerId: parsedProviderId } = parseFiles(
-    CONFIG_PATH,
-    SECURITY_PATH
+    args.configPath,
+    args.securityPath
   );
   // Both mnemonic and providerId may be undefined here
 
