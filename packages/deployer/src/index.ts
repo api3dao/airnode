@@ -2,15 +2,23 @@ import yargs from 'yargs';
 import { parseFiles, processMnemonicAndProviderId, generateServerlessConfig } from './config';
 import { verifyMnemonicOnSSM } from './infrastructure';
 import { checkProviderRecords } from './evm';
-import { deploy } from './serverless';
+import { deployServerless } from './serverless';
 
-const args = yargs
-  .command('deploy', 'deploy Airnode', {
-    'configPath': { type: 'string', demandOption: true, alias: 'c' },
-    'securityPath': { type: 'string', demandOption: true, alias: 's' }
-  }).help().argv;
+yargs
+  .command(
+    'deploy',
+    'Deploy Airnode',
+    {
+      configPath: { type: 'string', demandOption: true, alias: 'c' },
+      securityPath: { type: 'string', demandOption: true, alias: 's' },
+    },
+    (args) => {
+      deploy(args);
+    }
+  )
+  .help().argv;
 
-async function main() {
+async function deploy(args) {
   // Parse the configuration files
   const { apiCredentials, chains, mnemonic: parsedMnemonic, providerId: parsedProviderId } = parseFiles(
     args.configPath,
@@ -36,7 +44,5 @@ async function main() {
   generateServerlessConfig(providerId, apiCredentials);
 
   // Deploy the serverless functions
-  await deploy();
+  await deployServerless();
 }
-
-main();
