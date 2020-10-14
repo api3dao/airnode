@@ -3,7 +3,7 @@ import * as child from 'child_process';
 const exec = util.promisify(child.exec);
 import { deriveMasterWalletAddress } from './util';
 
-export async function verifyMnemonicOnSSM(mnemonic, providerIdShort) {
+export async function verifyMnemonicAtSSM(mnemonic, providerIdShort) {
   // Delete the old state files for a standard process
   await exec(`rm -f ./terraform/state/${providerIdShort}*`);
 

@@ -13,7 +13,7 @@ provider:
 
 functions:
   test:
-    handler: ./src/test.test
+    handler: ./src/handlers.test
   
   start:
     handler: ../node/src/aws/handler.start
