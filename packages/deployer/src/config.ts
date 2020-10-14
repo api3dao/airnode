@@ -30,12 +30,12 @@ export function processMnemonicAndProviderId(mnemonic, providerId) {
       console.log('Did not find the providerId in config.json');
       mnemonic = generateMnemonic();
       providerId = deriveProviderId(mnemonic);
-      console.log('Created a new mnemonic-providerId pair');
+      console.log('Generated a new mnemonic-providerId pair');
       console.log('Write down the mnemonic below on a piece of paper and keep it somewhere safe');
       console.log(mnemonic);
     } else {
       console.log('Found the providerId in config.json');
-      console.log('Will look for the mnemonic at the cloud provider');
+      console.log('Will look for the mnemonic at AWS SSM');
     }
   }
   return { mnemonic, providerId };
