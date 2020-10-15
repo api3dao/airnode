@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
  *
  * 1 - Ethereum Mainnet
  * 3 - Ethereum Ropsten
- * 3 - Ethereum Rinkeby
+ * 4 - Ethereum Rinkeby
  * 1337 - Local Ganache (develpment)
  */
 export type ChainID = 1 | 3 | 4 | 1337;

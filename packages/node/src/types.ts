@@ -62,19 +62,22 @@ export type ClientRequest<T extends {}> = T & {
 };
 
 export interface ApiCall {
-  readonly designatedWallet: string;
+  readonly designatedWallet: string | null;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
-  readonly errorAddress: string | null;
-  readonly errorFunctionId: string | null;
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
   readonly providerId: string;
   readonly requesterAddress: string;
-  readonly requesterIndex: string;
+  readonly requesterIndex: string | null;
   readonly responseValue?: string;
   readonly templateId: string | null;
+  readonly walletTxCount: string;
+
+  // TODO: protocol-overhaul remove these
+  readonly errorAddress: string | null;
+  readonly errorFunctionId: string | null;
 }
 
 export interface ApiCallTemplate {
