@@ -1,58 +1,9 @@
-import * as yargs from 'yargs';
 import { readConfig, generateServerlessConfig } from './config';
 import { verifyMnemonicAtSSM, removeMnemonicFromSSM } from './infrastructure';
 import { checkProviderRecords } from './evm/evm';
 import { deployServerless, removeServerless } from './serverless';
-import { version } from '../node_modules/@airnode/node/package.json';
 
-console.log(
-  '  ___  _                      _      \n' + 
-  ' / _ \\(_)                    | |     \n' + 
-  '/ /_\\ \\_ _ __ _ __   ___   __| | ___ \n' + 
-  '|  _  | | \'__| \'_ \\ / _ \\ / _` |/ _ \\\n' + 
-  '| | | | | |  | | | | (_) | (_| |  __/\n' + 
-  '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|'
-);
-console.log(`\n          Airnode v${version}`);
-console.log(`       Deployer CLI v${process.env.npm_package_version}\n`);
-
-yargs
-  .command(
-    'deploy',
-    'Deploys Airnode',
-    {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
-    },
-    (args) => {
-      deploy(args);
-    }
-  )
-  .command(
-    'remove-mnemonic',
-    'Removes mnemonic from AWS SSM',
-    {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
-    },
-    (args) => {
-      removeMnemonic(args);
-    }
-  )
-  .command(
-    'remove-airnode',
-    'Removes Airnode deployment',
-    {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
-    },
-    (args) => {
-      removeAirnode(args);
-    }
-  )
-  .help().argv;
-
-async function deploy(args) {
+export async function deploy(args) {
   const { mnemonic, providerId, providerIdShort, chains, apiCredentials } = await readConfig(
     args.configPath,
     args.securityPath
@@ -74,12 +25,12 @@ async function deploy(args) {
   await deployServerless(providerIdShort);
 }
 
-async function removeMnemonic(args) {
+export async function removeMnemonic(args) {
   const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
   await removeMnemonicFromSSM(providerIdShort);
 }
 
-async function removeAirnode(args) {
+export async function removeAirnode(args) {
   const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
   await removeServerless(providerIdShort);
 }
