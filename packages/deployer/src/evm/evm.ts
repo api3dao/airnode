@@ -11,8 +11,6 @@ const validChains = {
 };
 
 export async function checkProviderRecords(providerId, chains, masterWalletAddress) {
-  // Prevent ethers from complaining about not using provider API keys
-  ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.OFF);
   let spinner;
   for (const chain of chains) {
     if (chain.id in validChains) {
