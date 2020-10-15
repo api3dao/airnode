@@ -10,7 +10,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 indexed providerId,
         bytes32 requestId,
         uint256 noRequests,
-        address requester,
+        address clientAddress,
         bytes32 templateId,
         uint256 requesterInd,
         address designatedWallet,
@@ -23,7 +23,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 indexed providerId,
         bytes32 requestId,
         uint256 noRequests,
-        address requester,
+        address clientAddress,
         bytes32 templateId,
         bytes parameters
         );
@@ -32,7 +32,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         bytes32 indexed providerId,
         bytes32 requestId,
         uint256 noRequests,
-        address requester,
+        address clientAddress,
         bytes32 endpointId,
         uint256 requesterInd,
         address designatedWallet,
