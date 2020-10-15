@@ -16,13 +16,17 @@ functions:
     handler: ./src/handlers.test
   
   start:
-    handler: ../node/src/aws/handler.start
+    handler: ./src/handlers.start
     timeout: 60
 
   initializeProvider:
-    handler: ../node/src/aws/handler.initializeProvider
+    handler: ./src/handlers.initializeProvider
     timeout: 20
 
   callApi:
-    handler: ../node/src/aws/handler.callApi
+    handler: ./src/handlers.callApi
     timeout: 30
+
+  processProviderRequests:
+    handler: ./src/handlers.processProviderRequests
+    timeout: 10
