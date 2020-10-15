@@ -2,7 +2,7 @@ import * as fixtures from 'test/fixtures';
 import * as apiCalls from './api-calls';
 import { RequestErrorCode, RequestStatus } from 'src/types';
 
-describe('initialize ApiCall BaseRequest', () => {
+describe('initialize ApiCall ClientRequest', () => {
   it('initializes a new ApiCall request', () => {
     const logWithMetadata: any = {
       parsedLog: {
@@ -41,6 +41,12 @@ describe('initialize ApiCall BaseRequest', () => {
       requesterIndex: '<TODO>',
       status: RequestStatus.Pending,
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
+      // TODO: protocol-overhaul remove these
+      requesterId: 'requesterId',
+      walletIndex: '1',
+      walletAddress: 'walletAddress',
+      walletBalance: '100000',
+      walletMinimumBalance: '50000',
     });
   });
 });
@@ -144,14 +150,14 @@ describe('updateFulfilledRequests (ApiCall)', () => {
   pending('updates requests to be fulfilled if they have a matching log');
 
   it('returns the request if it is not fulfilled', () => {
-    const apiCall = fixtures.requests.createBaseApiCall();
+    const apiCall = fixtures.requests.createApiCall();
     const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], []);
     expect(logs).toEqual([]);
     expect(requests).toEqual([apiCall]);
   });
 });
 
-describe('mapBaseRequests (ApiCall)', () => {
+describe('mapRequests (ApiCall)', () => {
   const requestLog: any = {
     parsedLog: {
       args: {
@@ -171,8 +177,8 @@ describe('mapBaseRequests (ApiCall)', () => {
     transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
   };
 
-  it('returns API call base requests', () => {
-    const [logs, res] = apiCalls.mapBaseRequests([requestLog]);
+  it('returns API call requests', () => {
+    const [logs, res] = apiCalls.mapRequests([requestLog]);
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
@@ -196,6 +202,12 @@ describe('mapBaseRequests (ApiCall)', () => {
         requesterIndex: '<TODO>',
         templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
         status: RequestStatus.Pending,
+        // TODO: protocol-overhaul remove these
+        requesterId: 'requesterId',
+        walletIndex: '1',
+        walletAddress: 'walletAddress',
+        walletBalance: '100000',
+        walletMinimumBalance: '50000',
       },
     ]);
   });

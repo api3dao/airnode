@@ -1,6 +1,6 @@
-import { ApiCall, BaseRequest, ClientRequest, RequestStatus } from '../../../src/types';
+import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
 
-export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseRequest<ApiCall> {
+export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
   return {
     id: 'apiCallId',
     requesterAddress: 'requesterAddress',
@@ -20,13 +20,7 @@ export function createBaseApiCall(params?: Partial<BaseRequest<ApiCall>>): BaseR
       blockNumber: 10716082,
       transactionHash: 'logTransactionHash',
     },
-    ...params,
-  };
-}
-
-export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
-  return {
-    ...createBaseApiCall(params),
+    // TODO: protocol-overhaul remove these
     requesterId: 'requesterId',
     walletIndex: '1',
     walletAddress: 'walletAddress',

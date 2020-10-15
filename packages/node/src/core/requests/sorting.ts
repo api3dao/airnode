@@ -1,7 +1,7 @@
 import orderBy from 'lodash/orderBy';
-import { BaseRequest, GroupedRequests, WalletDataByIndex } from '../../types';
+import { ClientRequest, GroupedRequests, WalletDataByIndex } from '../../types';
 
-function sortRequests<T>(requests: BaseRequest<T>[]): BaseRequest<T>[] {
+function sortRequests<T>(requests: ClientRequest<T>[]): ClientRequest<T>[] {
   // In order to keep consistency between runs, requests are sorted by the following criteria:
   //
   //   1. Block number (ascending)

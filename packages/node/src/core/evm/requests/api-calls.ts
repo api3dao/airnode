@@ -2,12 +2,12 @@ import flatMap from 'lodash/flatMap';
 import * as cbor from '../cbor';
 import * as events from './events';
 import * as logger from '../../logger';
-import { ApiCall, BaseRequest, LogsData, LogWithMetadata, RequestErrorCode, RequestStatus } from '../../../types';
+import { ApiCall, ClientRequest, LogsData, LogWithMetadata, RequestErrorCode, RequestStatus } from '../../../types';
 
-export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCall> {
+export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
 
-  const request: BaseRequest<ApiCall> = {
+  const request: ClientRequest<ApiCall> = {
     id: parsedLog.args.requestId,
     status: RequestStatus.Pending,
     requesterAddress: parsedLog.args.requester,
@@ -27,12 +27,18 @@ export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<ApiCal
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
+    // TODO: protocol-overhaul remove these
+    requesterId: 'requesterId',
+    walletIndex: '1',
+    walletAddress: 'walletAddress',
+    walletBalance: '100000',
+    walletMinimumBalance: '50000',
   };
 
   return request;
 }
 
-export function applyParameters(request: BaseRequest<ApiCall>): LogsData<BaseRequest<ApiCall>> {
+export function applyParameters(request: ClientRequest<ApiCall>): LogsData<ClientRequest<ApiCall>> {
   if (!request.encodedParameters) {
     return [[], request];
   }
@@ -56,9 +62,9 @@ export function applyParameters(request: BaseRequest<ApiCall>): LogsData<BaseReq
 }
 
 export function updateFulfilledRequests(
-  apiCalls: BaseRequest<ApiCall>[],
+  apiCalls: ClientRequest<ApiCall>[],
   fulfilledRequestIds: string[]
-): LogsData<BaseRequest<ApiCall>[]> {
+): LogsData<ClientRequest<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
@@ -81,16 +87,16 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsData<BaseRequest<ApiCall>[]> {
+export function mapRequests(logsWithMetadata: LogWithMetadata[]): LogsData<ClientRequest<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isApiCallFulfillment(log.parsedLog));
 
   // Cast raw logs to typed API request objects
-  const apiCallBaseRequests = requestLogs.map((log) => initialize(log));
+  const apiCallRequests = requestLogs.map((log) => initialize(log));
 
   // Decode and apply parameters for each API call
-  const parameterized = apiCallBaseRequests.map((request) => applyParameters(request));
+  const parameterized = apiCallRequests.map((request) => applyParameters(request));
   const parameterLogs = flatMap(parameterized, (p) => p[0]);
   const parameterizedRequests = flatMap(parameterized, (p) => p[1]);
 

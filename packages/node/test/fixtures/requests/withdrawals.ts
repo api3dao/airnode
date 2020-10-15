@@ -1,6 +1,6 @@
-import { BaseRequest, ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
+import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
 
-export function createBaseWithdrawal(params?: Partial<BaseRequest<Withdrawal>>): BaseRequest<Withdrawal> {
+export function createWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
   return {
     id: 'withdrawalId',
     requesterId: 'requesterId',
@@ -11,13 +11,7 @@ export function createBaseWithdrawal(params?: Partial<BaseRequest<Withdrawal>>):
       blockNumber: 10716082,
       transactionHash: 'logTransactionHash',
     },
-    ...params,
-  };
-}
-
-export function createWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
-  return {
-    ...createBaseWithdrawal(),
+    // TODO: protocol-overhaul remove these
     walletIndex: '12',
     walletAddress: 'walletAddress',
     walletBalance: '100000',
