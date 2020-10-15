@@ -4,7 +4,7 @@ import { deriveProviderId, generateMnemonic, shortenProviderId, waitForEnter } f
 
 export async function readConfig(configPath, securityPath) {
   // Parse the configuration files
-  const { apiCredentials, chains, mnemonic: parsedMnemonic, providerId: parsedProviderId } = parseFiles(
+  const { apiCredentials, chains, configId, mnemonic: parsedMnemonic, providerId: parsedProviderId } = parseFiles(
     configPath,
     securityPath
   );
@@ -18,7 +18,7 @@ export async function readConfig(configPath, securityPath) {
   // Shorten the providerId to be used as an alias to identify deployments
   const providerIdShort = shortenProviderId(providerId);
 
-  return { mnemonic, providerId, providerIdShort, chains, apiCredentials };
+  return { apiCredentials, chains, configId, mnemonic, providerId, providerIdShort };
 }
 
 function parseFiles(configPath, securityPath) {
@@ -27,6 +27,7 @@ function parseFiles(configPath, securityPath) {
   return {
     apiCredentials: security.apiCredentials,
     chains: config.nodeSettings.chains,
+    configId: config.id,
     mnemonic: security.masterKeyMnemonic,
     providerId: config.nodeSettings.providerId,
   };

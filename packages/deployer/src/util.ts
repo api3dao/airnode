@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as readline from 'readline';
 import * as ethers from 'ethers';
 
@@ -10,6 +11,11 @@ export function deriveProviderId(mnemonic) {
 export function deriveMasterWalletAddress(mnemonic) {
   const masterWallet = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return masterWallet.address;
+}
+
+export function deriveXpub(mnemonic) {
+  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
+  return hdNode.neuter().extendedKey;
 }
 
 export function generateMnemonic() {
@@ -35,4 +41,8 @@ export async function waitForEnter() {
       resolve(ans);
     })
   );
+}
+
+export function writeJSONFile(fileName, object) {
+  fs.writeFileSync(fileName, JSON.stringify(object, null, 4));
 }

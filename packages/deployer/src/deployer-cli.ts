@@ -2,15 +2,14 @@ import * as yargs from 'yargs';
 import { deploy, removeMnemonic, removeAirnode } from './commands';
 import { version } from '../node_modules/@airnode/node/package.json';
 
-
 function drawHeader() {
   console.log(
-    '  ___  _                      _      \n' + 
-    ' / _ \\(_)                    | |     \n' + 
-    '/ /_\\ \\_ _ __ _ __   ___   __| | ___ \n' + 
-    '|  _  | | \'__| \'_ \\ / _ \\ / _` |/ _ \\\n' + 
-    '| | | | | |  | | | | (_) | (_| |  __/\n' + 
-    '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|'
+    '  ___  _                      _      \n' +
+      ' / _ \\(_)                    | |     \n' +
+      '/ /_\\ \\_ _ __ _ __   ___   __| | ___ \n' +
+      "|  _  | | '__| '_ \\ / _ \\ / _` |/ _ \\\n" +
+      '| | | | | |  | | | | (_) | (_| |  __/\n' +
+      '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|'
   );
   console.log(`\n          Airnode v${version}`);
   console.log(`        Deployer CLI v${process.env.npm_package_version}\n`);

@@ -1,10 +1,12 @@
+import ora from 'ora';
 import { readConfig, generateServerlessConfig } from './config';
 import { verifyMnemonicAtSSM, removeMnemonicFromSSM } from './infrastructure';
 import { checkProviderRecords } from './evm/evm';
 import { deployServerless, removeServerless } from './serverless';
+import { writeJSONFile, deriveXpub } from './util';
 
 export async function deploy(args) {
-  const { mnemonic, providerId, providerIdShort, chains, apiCredentials } = await readConfig(
+  const { apiCredentials, chains, configId, mnemonic, providerId, providerIdShort } = await readConfig(
     args.configPath,
     args.securityPath
   );
@@ -23,6 +25,16 @@ export async function deploy(args) {
 
   // Deploy the serverless functions and remove the temporary configuration file
   await deployServerless(providerIdShort);
+
+  writeJSONFile(`${providerIdShort}.receipt.json`, {
+    chainIds: chains.map((chain) => chain.id),
+    configId,
+    masterWalletAddress,
+    providerId,
+    providerIdShort,
+    xpub: deriveXpub(mnemonic),
+  });
+  ora().info(`Outputted ${providerIdShort}.receipt.json. This file does not contain any sensitive information.`);
 }
 
 export async function removeMnemonic(args) {
