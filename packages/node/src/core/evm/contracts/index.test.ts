@@ -39,7 +39,7 @@ describe('build', () => {
     };
     expect(contracts.build(chain)).toEqual({
       Airnode: '0x12345',
-      Convenience: '<TODO>',
+      Convenience: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
       GasPriceFeed: '0x98765',
     });
   });
