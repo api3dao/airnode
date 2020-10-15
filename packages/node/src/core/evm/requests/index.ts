@@ -17,9 +17,6 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 
-  // =================================================================
-  // STEP 1: Fetch all requests and group them
-  // =================================================================
   const fetchOptions = {
     address: state.contracts.Airnode,
     blockHistoryLimit: state.settings.blockHistoryLimit,
@@ -43,9 +40,6 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     withdrawals: withdrawalRequests,
   };
 
-  // =================================================================
-  // STEP 3: Perform additional validations and checks
-  // =================================================================
   // Check that each request is valid
   const [validationLogs, validatedRequests] = validation.validateRequests(groupedRequests);
   logger.logPending(validationLogs, baseLogOptions);

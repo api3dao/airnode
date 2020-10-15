@@ -23,6 +23,7 @@ describe('initialize ApiCall ClientRequest', () => {
     };
 
     expect(apiCalls.initialize(logWithMetadata)).toEqual({
+      designatedWallet: '<TODO>',
       endpointId: null,
       errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       errorFunctionId: '0xba12a5e4',
@@ -37,11 +38,10 @@ describe('initialize ApiCall ClientRequest', () => {
       parameters: {},
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
       requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+      requesterIndex: '<TODO>',
       status: RequestStatus.Pending,
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
       // TODO: protocol-overhaul remove these
-      requesterIndex: '<TODO>',
-      designatedWallet: '<TODO>',
       requesterId: 'requesterId',
       walletIndex: '1',
       walletAddress: 'walletAddress',
@@ -182,6 +182,7 @@ describe('mapRequests (ApiCall)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
+        designatedWallet: '<TODO>',
         endpointId: null,
         errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         errorFunctionId: '0xba12a5e4',
@@ -198,11 +199,10 @@ describe('mapRequests (ApiCall)', () => {
         providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
         id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
         requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+        requesterIndex: '<TODO>',
         templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
         status: RequestStatus.Pending,
         // TODO: protocol-overhaul remove these
-        requesterIndex: '<TODO>',
-        designatedWallet: '<TODO>',
         requesterId: 'requesterId',
         walletIndex: '1',
         walletAddress: 'walletAddress',

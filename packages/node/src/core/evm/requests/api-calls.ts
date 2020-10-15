@@ -19,6 +19,8 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     errorAddress: parsedLog.args.errorAddress,
     errorFunctionId: parsedLog.args.errorFunctionId,
     encodedParameters: parsedLog.args.parameters,
+    requesterIndex: '<TODO>',
+    designatedWallet: '<TODO>',
     // Parameters are decoded separately
     parameters: {},
     metadata: {
@@ -26,8 +28,6 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
       transactionHash: logWithMetadata.transactionHash,
     },
     // TODO: protocol-overhaul remove these
-    requesterIndex: '<TODO>',
-    designatedWallet: '<TODO>',
     requesterId: 'requesterId',
     walletIndex: '1',
     walletAddress: 'walletAddress',
