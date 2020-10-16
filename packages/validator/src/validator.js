@@ -341,17 +341,10 @@ function validateRegexp(specs, specsStruct, paramPath, isKeyRegexp = false) {
   }
 
   if (typeof specs !== 'string' || !specs.match(new RegExp(specsStruct['__regexp']))) {
-    let level = 'warning';
+    const level = specsStruct['__level'] || 'warning';
+    const message = `${paramPath} is not formatted correctly`;
 
-    if (specsStruct['__level']) {
-      level = specsStruct['__level'];
-    }
-
-    if (level === 'error') {
-      messages.push(logger.error(`${paramPath} is not formatted correctly`));
-    } else {
-      messages.push(logger.warn(`${paramPath} is not formatted correctly`));
-    }
+    messages.push(level === 'error' ? logger.error(message) : logger.warn(message));
   }
 
   return messages;
