@@ -24,8 +24,11 @@ async function fetchAuthorizationStatuses(
   apiCalls: ClientRequest<ApiCall>[]
 ): Promise<LogsErrorData<AuthorizationStatus[]>> {
   // Ordering must remain the same when mapping these two arrays
+  const requestIds = apiCalls.map((a) => a.id);
   const endpointIds = apiCalls.map((a) => a.endpointId);
-  const requesters = apiCalls.map((a) => a.requesterAddress);
+  const requesterIndices = apiCalls.map((a) => a.requesterIndex);
+  const designatedWallets = apiCalls.map((a) => a.designatedWallet);
+  const requesterAddresses = apiCalls.map((a) => a.requesterAddress);
 
   const contractCall = () => convenience.checkAuthorizationStatuses(endpointIds, requesters);
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
