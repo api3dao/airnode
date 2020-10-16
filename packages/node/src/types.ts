@@ -69,11 +69,11 @@ export interface ApiCall {
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
   readonly providerId: string;
+  readonly requestCount: string;
   readonly requesterAddress: string;
   readonly requesterIndex: string | null;
   readonly responseValue?: string;
   readonly templateId: string | null;
-  readonly walletTxCount: string;
 
   // TODO: protocol-overhaul remove these
   readonly errorAddress: string | null;

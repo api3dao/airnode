@@ -21,11 +21,11 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     // Parameters are decoded separately
     parameters: {},
     providerId: parsedLog.args.providerId,
+    requestCount: parsedLog.args.noRequests.toString(),
     requesterAddress: parsedLog.args.requester,
     requesterIndex: parsedLog.args.requesterInd || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,
-    walletTxCount: parsedLog.args.noRequests.toString(),
 
     // TODO: protocol-overhaul remove these
     errorAddress: parsedLog.args.errorAddress,

@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import * as apiCalls from './api-calls';
 import { RequestErrorCode, RequestStatus } from 'src/types';
@@ -16,6 +17,7 @@ describe('initialize ApiCall ClientRequest', () => {
           errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           errorFunctionId: '0xba12a5e4',
           parameters: '0x636b6579a169736f6d657468696e676576616c7565',
+          noRequests: ethers.BigNumber.from('12'),
         },
       },
       blockNumber: 10716082,
@@ -23,7 +25,7 @@ describe('initialize ApiCall ClientRequest', () => {
     };
 
     expect(apiCalls.initialize(logWithMetadata)).toEqual({
-      designatedWallet: '<TODO>',
+      designatedWallet: null,
       endpointId: null,
       errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       errorFunctionId: '0xba12a5e4',
@@ -37,8 +39,9 @@ describe('initialize ApiCall ClientRequest', () => {
       },
       parameters: {},
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
+      requestCount: '12',
       requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-      requesterIndex: '<TODO>',
+      requesterIndex: null,
       status: RequestStatus.Pending,
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
       // TODO: protocol-overhaul remove these
@@ -65,6 +68,7 @@ describe('applyParameters', () => {
           errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           errorFunctionId: '0xba12a5e4',
           parameters: '',
+          noRequests: ethers.BigNumber.from('12'),
         },
       },
       blockNumber: 10716082,
@@ -92,6 +96,7 @@ describe('applyParameters', () => {
           errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           errorFunctionId: '0xba12a5e4',
           parameters: '0x636b6579a169736f6d657468696e676576616c7565',
+          noRequests: ethers.BigNumber.from('12'),
         },
       },
       blockNumber: 10716082,
@@ -121,6 +126,7 @@ describe('applyParameters', () => {
           fulfillFunctionId: '0x042f2b65',
           errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           errorFunctionId: '0xba12a5e4',
+          noRequests: ethers.BigNumber.from('12'),
         },
       },
       blockNumber: 10716082,
@@ -170,6 +176,7 @@ describe('mapRequests (ApiCall)', () => {
         errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         errorFunctionId: '0xba12a5e4',
         parameters: '0x636b6579a169736f6d657468696e676576616c7565',
+        noRequests: ethers.BigNumber.from('12'),
       },
       topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
     },
@@ -182,7 +189,7 @@ describe('mapRequests (ApiCall)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        designatedWallet: '<TODO>',
+        designatedWallet: null,
         endpointId: null,
         errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         errorFunctionId: '0xba12a5e4',
@@ -198,8 +205,9 @@ describe('mapRequests (ApiCall)', () => {
         },
         providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
         id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
+        requestCount: '12',
         requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-        requesterIndex: '<TODO>',
+        requesterIndex: null,
         templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
         status: RequestStatus.Pending,
         // TODO: protocol-overhaul remove these
