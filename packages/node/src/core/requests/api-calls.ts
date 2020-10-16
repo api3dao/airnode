@@ -15,3 +15,10 @@ export function flatten(walletDataByIndex: WalletDataByIndex): ClientRequest<Api
     return walletDataByIndex[index].requests.apiCalls;
   });
 }
+
+export function getStatusCode(apiCall: ClientRequest<ApiCall>): number {
+  // IMPORTANT: A status code of "0" indicates that there were no errors.
+  // Returning anything other than "0" will result in error handlers
+  // being triggered in the relevant contracts when submitting transactions.
+  return apiCall.errorCode || 0;
+}
