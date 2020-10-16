@@ -20,6 +20,7 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
       blockNumber: 10716082,
       transactionHash: 'logTransactionHash',
     },
+    requestCount: '12',
     // TODO: protocol-overhaul remove these
     requesterId: 'requesterId',
     walletIndex: '1',
