@@ -532,48 +532,45 @@ function validateSpecs(specs, specsStruct, paramPath, nonRedundantParams, roots,
 }
 
 function isApiSpecsValid(specs) {
-  let parsedSpecs;
   let nonRedundant = {};
 
   try {
-    parsedSpecs = JSON.parse(specs);
+    const parsedSpecs = JSON.parse(specs);
+    return validateSpecs(parsedSpecs, apiSpecs, '', nonRedundant, {
+      specs: parsedSpecs,
+      nonRedundantParams: nonRedundant,
+    });
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
-
-  let roots = { specs: parsedSpecs, nonRedundantParams: nonRedundant };
-
-  return validateSpecs(parsedSpecs, apiSpecs, '', nonRedundant, roots);
 }
 
 function isEndpointsValid(specs) {
-  let parsedSpecs;
   let nonRedundant = [];
 
   try {
-    parsedSpecs = JSON.parse(specs);
+    const parsedSpecs = JSON.parse(specs);
+    return validateSpecs(parsedSpecs, endpointsSpecs, '', nonRedundant, {
+      specs: parsedSpecs,
+      nonRedundantParams: nonRedundant,
+    });
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
-
-  const roots = { specs: parsedSpecs, nonRedundantParams: nonRedundant };
-
-  return validateSpecs(parsedSpecs, endpointsSpecs, '', nonRedundant, roots);
 }
 
 function isOisValid(specs) {
-  let parsedSpecs;
   let nonRedundant = {};
 
   try {
-    parsedSpecs = JSON.parse(specs);
+    const parsedSpecs = JSON.parse(specs);
+    return validateSpecs(parsedSpecs, oisSpecs, '', nonRedundant, {
+      specs: parsedSpecs,
+      nonRedundantParams: nonRedundant,
+    });
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
-
-  const roots = { specs: parsedSpecs, nonRedundantParams: nonRedundant };
-
-  return validateSpecs(parsedSpecs, oisSpecs, '', nonRedundant, roots);
 }
 
 module.exports = { isApiSpecsValid, isEndpointsValid, isOisValid };
