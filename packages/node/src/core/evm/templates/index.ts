@@ -24,9 +24,10 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState<EVMPr
   const fetchOptions = {
     address: state.contracts.Convenience,
     provider: state.provider,
+    providerId: state.settings.providerId,
   };
   // Fetch templates. This should not throw
-  const [fetchTemplLogs, _fetchTemplErr, templatesById] = await templates.fetch(flatApiCalls, fetchOptions);
+  const [fetchTemplLogs, templatesById] = await templates.fetch(flatApiCalls, fetchOptions);
   logger.logPending(fetchTemplLogs, baseLogOptions);
 
   const [appliedTemplLogs, _appliedTemplErr, walletDataWithTemplates] = application.mergeApiCallsWithTemplates(
@@ -39,10 +40,7 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState<EVMPr
   const flatApiCallsWithTemplates = apiCalls.flatten(walletDataWithTemplates);
 
   // Fetch authorizations. This should not throw
-  const [authLogs, _authErr, authorizationsByEndpoint] = await authorization.fetch(
-    flatApiCallsWithTemplates,
-    fetchOptions
-  );
+  const [authLogs, authorizationsByEndpoint] = await authorization.fetch(flatApiCallsWithTemplates, fetchOptions);
   logger.logPending(authLogs, baseLogOptions);
 
   return { authorizationsByEndpoint, walletDataWithTemplates };

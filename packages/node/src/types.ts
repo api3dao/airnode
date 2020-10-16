@@ -119,6 +119,7 @@ export interface ProviderSettings {
   readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
+  readonly providerId: string;
   readonly url: string;
 }
 
