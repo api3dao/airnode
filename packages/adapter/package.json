@@ -19,9 +19,7 @@
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
     "ethers": "^5.0.13",
-    "lodash": "^4.17.20"
-  },
-  "devDependencies": {
+    "lodash": "^4.17.20",
     "@types/lodash": "^4.14.161"
   }
 }

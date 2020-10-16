@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",
+    "@types/yargs": "^15.0.9",
     "ethers": "^5.0.17",
     "ora": "^5.1.0",
     "serverless-plugin-typescript": "^1.1.9",
