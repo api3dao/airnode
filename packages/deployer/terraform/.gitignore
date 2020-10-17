@@ -1,4 +1,3 @@
-sensitive.auto.tfvars
 /state
 # Local .terraform directories
 **/.terraform/*

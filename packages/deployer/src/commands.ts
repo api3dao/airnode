@@ -13,7 +13,7 @@ export async function deploy(args) {
   // The mnemonic may still be undefined here. If so, it will be attempted to be read from AWS SSM.
 
   // Check if the mnemonic is stored at AWS SSM, store it there if not
-  const masterWalletAddress = await verifyMnemonicAtSSM(mnemonic, providerIdShort);
+  const masterWalletAddress = await verifyMnemonicAtSSM(mnemonic, providerIdShort, args.awsAccessKeyId, args.awsSecretKey);
   // At this point, we are guaranteed to have both the providerId and the mnemonic defined,
   // and the correct mnemonic is stored at AWS SSM
 
@@ -39,7 +39,7 @@ export async function deploy(args) {
 
 export async function removeMnemonic(args) {
   const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
-  await removeMnemonicFromSSM(providerIdShort);
+  await removeMnemonicFromSSM(providerIdShort, args.awsAccessKeyId, args.awsSecretKey);
 }
 
 export async function removeAirnode(args) {

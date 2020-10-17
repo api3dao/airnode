@@ -13,6 +13,12 @@ variable "mnemonic" {
   default = ""
 }
 
-// ~~~~~ Variables set at sensitive.auto.tfvars ~~~~~
-variable "aws_access_key_id" {}
-variable "aws_secret_key" {}
+variable "aws_access_key_id" {
+  type    = string
+  default = ""
+}
+
+variable "aws_secret_key" {
+  type    = string
+  default = ""
+}

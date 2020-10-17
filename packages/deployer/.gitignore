@@ -10,4 +10,3 @@ coverage/
 config.json
 security.json
 secrets.json
-*.receipt.json
