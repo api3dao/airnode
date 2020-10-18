@@ -14,23 +14,18 @@ RUN cp packages/node/security.json.example packages/node/security.json
 # Need git to install dependencies
 RUN apk update
 RUN apk add git
-# Replace ssh with https to not have to deal with keys
-RUN sed -i -- 's=git+ssh://git@=git+https://=g' packages/protocol/package-lock.json
-RUN npm ci --prefix=packages/protocol
-RUN npm run bootstrap
-
-RUN npm run build
-
+RUN yarn bootstrap
+RUN yarn global add serverless
 RUN cd /usr/local/bin \
     && wget "https://releases.hashicorp.com/terraform/0.13.4/terraform_0.13.4_linux_amd64.zip"  -O terraform.zip \
     && unzip terraform.zip \
     && rm terraform.zip
 
-RUN npm install -g serverless
+RUN yarn build
 
-CMD serverless config credentials --provider aws --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_KEY} \
-    && cd packages/deployer \
+# Download Terraform at runtime
+CMD sls config credentials --provider aws --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_KEY} \
+    && cd /airnode/packages/deployer \
     && npm run deploy \
-    && cd .. \
-    && cd .. \
+    && cd /airnode \
     && cp packages/deployer/*.receipt.json out

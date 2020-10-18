@@ -1,5 +1,6 @@
 {
   "name": "@airnode/protocol",
+  "version": "0.1.0",
   "scripts": {
     "build": "buidler compile",
     "deploy:rinkeby": "buidler deploy --network rinkeby --tags deploy",
@@ -12,9 +13,9 @@
     "@nomiclabs/buidler": "^1.4.6",
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@nomiclabs/buidler-waffle": "^2.1.0",
+    "buidler-deploy": "^0.6.0-beta.16",
     "ethereum-waffle": "^3.1.0",
-    "ethers": "^5.0.13",
-    "buidler-deploy": "^0.6.0-beta.16"
+    "ethers": "^5.0.13"
   },
   "devDependencies": {
     "chai": "^4.2.0"
