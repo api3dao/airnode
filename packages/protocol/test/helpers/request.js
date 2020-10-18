@@ -33,7 +33,7 @@ async function makeRequest(
     'ClientRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)',
     {
       providerId,
-      requester: requestTimeFulfillAddress,
+      clientAddress: requestTimeFulfillAddress,
       templateId,
       requesterInd: requestTimeRequesterInd,
       designatedWallet: requestTimeDesignatedWalletAddress,
@@ -66,7 +66,7 @@ async function makeShortRequest(
   const tx = await airnodeClient.connect(clientUserRole).makeShortRequest(templateId, requestTimeParameters);
   const log = await verifyLog(airnode, tx, 'ClientShortRequestCreated(bytes32,bytes32,uint256,address,bytes32,bytes)', {
     providerId,
-    requester: airnodeClient.address,
+    clientAddress: airnodeClient.address,
     templateId,
     parameters: ethers.utils.hexlify(requestTimeParameters),
   });
@@ -111,7 +111,7 @@ async function makeFullRequest(
     'ClientFullRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)',
     {
       providerId,
-      requester: fulfillAddress,
+      clientAddress: fulfillAddress,
       endpointId,
       requesterInd,
       designatedWallet,

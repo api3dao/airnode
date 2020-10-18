@@ -249,7 +249,7 @@ describe('User flow', function () {
       template.endpointId,
       template.requesterInd,
       template.designatedWallet,
-      parsedRequestLog.args.requester
+      parsedRequestLog.args.clientAddress
     );
     expect(authorizationStatus).to.equal(true);
     // Now the node can use template.endpointId to find in config.json which
