@@ -18,26 +18,21 @@ type StaticResponse = { callSuccess: boolean } | null;
 type SubmitResponse = ethers.Transaction | null;
 
 // NOTE:
-// This module definitely appears convoluted, but unfortunately there are quite a few different
-// paths that are possible before a transaction is submitted. Before initiating a transaction,
-// we check that it won't revert. If it will revert, then we fall through to the next function
-// These are the main code paths:
+// This module attempts to fulfill a given API call requests through a series of checks
+// made to the EVM provider. The general process looks like this:
 //
-// A: The call to the API was successful
-//   - Test the fulfill function (follow through if successful)
-//   - Test the error function (follow through if successful)
-//   - Fail
+//   1. Test if fulfillment call would revert
+//     a. If it would revert, go to the next step
+//     b. If it would succeed, follow through and return
+//   2. Fail the API call
 //
-// B: The call to the API was unsuccessful
-//   - Test the error function (follow through if successful)
-//   - Fail
+// Testing if fulfillment would revert is done by executing a static call to the contract.
+// Fulfillments respond with a `callSuccess` boolean property that indicates whether
+// or not the call would succeed.
 //
-// Testing fulfill/error responds with `callSuccess` which indicates whether or not
-// the transaction would revert.
-//
-// We also need to handle when the Ethereum provider. If we fail to get a response,
-// then a log entry is created (although not posted to console) and the error is caught
-// and returned. The code then proceeds to the next step in the list of paths. If the
+// We also need to handle when the Ethereum provider fails or returns a bad response. If we
+// fail to get a response, then a log entry is created and the error is caught
+// and returned. The code then proceeds to the next step in the list of paths above. If the
 // provider is not responding at all then all of the error logs are collected and returned.
 
 // =================================================================
