@@ -26,6 +26,7 @@ export enum RequestErrorCode {
   UnknownEndpoint = 16,
   UnknownOIS = 17,
   FulfillTransactionFailed = 18,
+  InvalidTemplateId = 19,
 }
 
 export enum RequestStatus {
