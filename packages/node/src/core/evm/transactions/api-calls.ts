@@ -43,9 +43,12 @@ async function testFulfill(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
-  const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
-
   const statusCode = ethers.BigNumber.from(requests.getStatusCode(request));
+
+  const noticeLog = logger.pend(
+    'DEBUG',
+    `Attempting to fulfill API call with status code:${statusCode.toString()} for Request:${request.id}...`
+  );
 
   const attemptedTx = airnode.callStatic.fulfill(
     request.id,
@@ -74,9 +77,12 @@ async function submitFulfill(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
-  const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
-
   const statusCode = ethers.BigNumber.from(requests.getStatusCode(request));
+
+  const noticeLog = logger.pend(
+    'INFO',
+    `Submitting API call fulfillment with status code:${statusCode.toString()} for Request:${request.id}...`
+  );
 
   const tx = airnode.fulfill(
     request.id,

@@ -64,8 +64,8 @@ describe('submitApiCall', () => {
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'INFO', message: 'Submitting API call fulfillment for Request:apiCallId...' },
+        { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
+        { level: 'INFO', message: `Submitting API call fulfillment with status code:0 for Request:${apiCall.id}...` },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xtransactionId' });
@@ -99,8 +99,8 @@ describe('submitApiCall', () => {
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'INFO', message: 'Submitting API call fulfillment for Request:apiCallId...' },
+        { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
+        { level: 'INFO', message: `Submitting API call fulfillment with status code:0 for Request:${apiCall.id}...` },
         {
           error: new Error('Server did not respond'),
           level: 'ERROR',
@@ -139,8 +139,8 @@ describe('submitApiCall', () => {
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'INFO', message: 'Submitting API call fail for Request:apiCallId...' },
+        { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
+        { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xfailtransaction' });
@@ -165,8 +165,11 @@ describe('submitApiCall', () => {
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'ERROR', message: "Fulfill attempt for Request:apiCallId responded with unexpected value: 'null'" },
+        { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
+        {
+          level: 'ERROR',
+          message: `Fulfill attempt for Request:${apiCall.id} responded with unexpected value: 'null'`,
+        },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
@@ -191,17 +194,17 @@ describe('submitApiCall', () => {
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
+        { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         {
           error: new Error('Server did not respond'),
           level: 'ERROR',
-          message: 'Error attempting API call fulfillment for Request:apiCallId',
+          message: `Error attempting API call fulfillment for Request:${apiCall.id}`,
         },
-        { level: 'INFO', message: 'Submitting API call fail for Request:apiCallId...' },
+        { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
         {
           error: new Error('Server still says no'),
           level: 'ERROR',
-          message: 'Error submitting API call fail transaction for Request:apiCallId',
+          message: `Error submitting API call fail transaction for Request:${apiCall.id}`,
         },
       ]);
       expect(err).toEqual(new Error('Server still says no'));
@@ -234,8 +237,14 @@ describe('submitApiCall', () => {
       });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'INFO', message: 'Submitting API call fulfillment for Request:apiCallId...' },
+        {
+          level: 'DEBUG',
+          message: `Attempting to fulfill API call with status code:${RequestErrorCode.ApiCallFailed} for Request:${apiCall.id}...`,
+        },
+        {
+          level: 'INFO',
+          message: `Submitting API call fulfillment with status code:${RequestErrorCode.ApiCallFailed} for Request:${apiCall.id}...`,
+        },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xtransactionId' });
@@ -273,8 +282,11 @@ describe('submitApiCall', () => {
       });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'INFO', message: 'Submitting API call fail for Request:apiCallId...' },
+        {
+          level: 'DEBUG',
+          message: `Attempting to fulfill API call with status code:${RequestErrorCode.ApiCallFailed} for Request:${apiCall.id}...`,
+        },
+        { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xtransactionId' });
@@ -304,12 +316,18 @@ describe('submitApiCall', () => {
       });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'INFO', message: 'Submitting API call fulfillment for Request:apiCallId...' },
+        {
+          level: 'DEBUG',
+          message: `Attempting to fulfill API call with status code:${RequestErrorCode.ApiCallFailed} for Request:${apiCall.id}...`,
+        },
+        {
+          level: 'INFO',
+          message: `Submitting API call fulfillment with status code:${RequestErrorCode.ApiCallFailed} for Request:${apiCall.id}...`,
+        },
         {
           error: new Error('Server did not respond'),
           level: 'ERROR',
-          message: 'Error submitting API call fulfillment transaction for Request:apiCallId',
+          message: `Error submitting API call fulfillment transaction for Request:${apiCall.id}`,
         },
       ]);
       expect(err).toEqual(new Error('Server did not respond'));
@@ -347,8 +365,14 @@ describe('submitApiCall', () => {
       });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
       expect(logs).toEqual([
-        { level: 'DEBUG', message: 'Attempting to fulfill API call for Request:apiCallId...' },
-        { level: 'ERROR', message: "Fulfill attempt for Request:apiCallId responded with unexpected value: 'null'" },
+        {
+          level: 'DEBUG',
+          message: `Attempting to fulfill API call with status code:${RequestErrorCode.ApiCallFailed} for Request:${apiCall.id}...`,
+        },
+        {
+          level: 'ERROR',
+          message: `Fulfill attempt for Request:${apiCall.id} responded with unexpected value: 'null'`,
+        },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
