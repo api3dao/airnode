@@ -56,7 +56,7 @@ async function testFulfill(
     request.id,
     request.providerId,
     statusCode,
-    request.responseValue!,
+    request.responseValue || ethers.constants.HashZero,
     request.fulfillAddress,
     request.fulfillFunctionId,
     {
@@ -68,7 +68,7 @@ async function testFulfill(
 
   const [err, res] = await go(attemptedTx);
   if (err) {
-    const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}. ${err}`);
+    const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
   }
   return [[noticeLog], null, res];
@@ -87,7 +87,7 @@ async function submitFulfill(
     request.id,
     request.providerId,
     statusCode,
-    request.responseValue!,
+    request.responseValue || ethers.constants.HashZero,
     request.fulfillAddress,
     request.fulfillFunctionId,
     {
@@ -101,7 +101,8 @@ async function submitFulfill(
   if (err) {
     const errorLog = logger.pend(
       'ERROR',
-      `Error submitting API call fulfillment transaction for Request:${request.id}. ${err}`
+      `Error submitting API call fulfillment transaction for Request:${request.id}`,
+      err
     );
     return [[noticeLog, errorLog], err, null];
   }
@@ -159,10 +160,7 @@ async function submitFail(
 
   const [err, res] = await go(tx);
   if (err) {
-    const errorLog = logger.pend(
-      'ERROR',
-      `Error submitting API call fail transaction for Request:${request.id}. ${err}`
-    );
+    const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
   }
   return [[noticeLog], null, res as ethers.Transaction];
@@ -181,7 +179,13 @@ export async function submitApiCall(
     return [[], null, null];
   }
 
-  // Should not throw
-  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
-  return [submitLogs, submitErr, submitData];
+  if ([RequestStatus.Pending, RequestStatus.Errored].includes(request.status)) {
+    // Should not throw
+    const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
+    return [submitLogs, submitErr, submitData];
+  }
+
+  const log = logger.pend('INFO', `API call for Request:${request.id} not actioned as it has status:${request.status}`);
+
+  return [[log], null, null];
 }

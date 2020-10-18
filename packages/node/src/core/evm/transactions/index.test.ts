@@ -1,11 +1,9 @@
 const connectMock = jest.fn();
-const errorMock = jest.fn();
 const estimateWithdrawalGasMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const getBalanceMock = jest.fn();
-const staticErrorMock = jest.fn();
 const staticFulfillMock = jest.fn();
 jest.mock('ethers', () => ({
   ethers: {
@@ -17,10 +15,8 @@ jest.mock('ethers', () => ({
     },
     Contract: jest.fn().mockImplementation(() => ({
       callStatic: {
-        error: staticErrorMock,
         fulfill: staticFulfillMock,
       },
-      error: errorMock,
       estimateGas: { fulfillWithdrawal: estimateWithdrawalGasMock },
       fail: failMock,
       fulfill: fulfillMock,
