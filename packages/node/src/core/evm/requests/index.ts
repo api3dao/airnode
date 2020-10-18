@@ -2,7 +2,6 @@ import * as apiCalls from './api-calls';
 import * as blocking from './blocking';
 import * as eventLogs from './event-logs';
 import * as logger from '../../logger';
-import * as validation from './validation';
 import * as withdrawals from './withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../../types';
 
@@ -40,13 +39,9 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     withdrawals: withdrawalRequests,
   };
 
-  // Check that each request is valid
-  const [validationLogs, validatedRequests] = validation.validateRequests(groupedRequests);
-  logger.logPending(validationLogs, baseLogOptions);
-
   // Block any requests that cannot be processed
   // 1. API calls related to a wallet with a pending withdrawal cannot be processed
-  const [blockedLogs, blockedRequests] = blocking.blockRequestsWithWithdrawals(validatedRequests);
+  const [blockedLogs, blockedRequests] = blocking.blockRequestsWithWithdrawals(groupedRequests);
   logger.logPending(blockedLogs, baseLogOptions);
 
   return blockedRequests;
