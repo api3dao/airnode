@@ -33,7 +33,9 @@ export async function removeMnemonicFromSSM(providerIdShort, awsAccessKeyId, aws
   await importMnemonicToState(providerIdShort, awsAccessKeyId, awsSecretKey);
 
   const spinner = ora('Removing the mnemonic from AWS SSM').start();
-  await exec(`cd terraform && terraform destroy -auto-approve -state ./state/${providerIdShort} -var="aws_access_key_id=${awsAccessKeyId}" -var="aws_secret_key=${awsSecretKey}"`);
+  await exec(
+    `cd terraform && terraform destroy -auto-approve -state ./state/${providerIdShort} -var="aws_access_key_id=${awsAccessKeyId}" -var="aws_secret_key=${awsSecretKey}"`
+  );
   spinner.succeed('Removed the mnemonic from AWS SSM');
 
   // Delete the state files
@@ -78,7 +80,9 @@ async function addMnemonicToSSM(mnemonic, providerIdShort, awsAccessKeyId, awsSe
 async function fetchMnemonicFromSSM(providerIdShort, awsAccessKeyId, awsSecretKey) {
   const spinner = ora('Fetching the mnemonic from AWS SSM').start();
   // Refresh the Terraform output to get the mnemonic
-  await exec(`cd terraform && terraform refresh -state ./state/${providerIdShort} -var="aws_access_key_id=${awsAccessKeyId}" -var="aws_secret_key=${awsSecretKey}"`);
+  await exec(
+    `cd terraform && terraform refresh -state ./state/${providerIdShort} -var="aws_access_key_id=${awsAccessKeyId}" -var="aws_secret_key=${awsSecretKey}"`
+  );
   // Check if the stored mnemonic match the one in security.json
   const rawOutput = await exec(`cd terraform && terraform output -state ./state/${providerIdShort} -json`);
   const output = JSON.parse(rawOutput.stdout);

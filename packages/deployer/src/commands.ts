@@ -13,7 +13,12 @@ export async function deploy(args) {
   // The mnemonic may still be undefined here. If so, it will be attempted to be read from AWS SSM.
 
   // Check if the mnemonic is stored at AWS SSM, store it there if not
-  const masterWalletAddress = await verifyMnemonicAtSSM(mnemonic, providerIdShort, args.awsAccessKeyId, args.awsSecretKey);
+  const masterWalletAddress = await verifyMnemonicAtSSM(
+    mnemonic,
+    providerIdShort,
+    args.awsAccessKeyId,
+    args.awsSecretKey
+  );
   // At this point, we are guaranteed to have both the providerId and the mnemonic defined,
   // and the correct mnemonic is stored at AWS SSM
 

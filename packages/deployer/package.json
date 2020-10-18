@@ -1,5 +1,6 @@
 {
   "name": "@airnode/deployer",
+  "license": "MIT",
   "version": "0.1.0",
   "scripts": {
     "build": "yarn run clean && yarn run compile",
@@ -13,14 +14,17 @@
     "remove-mnemonic": "node .build/deployer-cli.js remove-mnemonic -c config.json -s security.json --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
     "remove-mnemonic:local": "./inject-env.sh && yarn run remove-mnemonic",
     "terraform:init": "cd terraform && terraform init",
-    "sls:invoke:aws": "sls invoke --function start --config serverless.aws.yml",
-    "sls:test:aws": "sls invoke --function test --config serverless.aws.yml"
+    "sls:config": "sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
+    "sls:config:local": "./inject-env.sh && sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
+    "sls:deploy": "sls deploy --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT",
+    "sls:remove": "sls remove --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT"
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",
     "@types/yargs": "^15.0.9",
     "ethers": "^5.0.17",
     "ora": "^5.1.0",
+    "serverless": "^2.8.0",
     "serverless-plugin-typescript": "^1.1.9",
     "yargs": "^16.0.3"
   }

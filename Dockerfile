@@ -15,7 +15,6 @@ RUN cp packages/node/security.json.example packages/node/security.json
 RUN apk update
 RUN apk add git
 RUN yarn bootstrap
-RUN yarn global add serverless
 RUN cd /usr/local/bin \
     && wget "https://releases.hashicorp.com/terraform/0.13.4/terraform_0.13.4_linux_amd64.zip"  -O terraform.zip \
     && unzip terraform.zip \
@@ -23,9 +22,9 @@ RUN cd /usr/local/bin \
 
 RUN yarn build
 
-# Download Terraform at runtime
-CMD sls config credentials --provider aws --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_KEY} \
-    && cd /airnode/packages/deployer \
+CMD cd /airnode/packages/deployer \
+    && npm run sls:config \
+    && npm run terraform:init \
     && npm run deploy \
     && cd /airnode \
     && cp packages/deployer/*.receipt.json out

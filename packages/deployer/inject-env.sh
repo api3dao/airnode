@@ -1,3 +1,3 @@
 #!/bin/bash
 
-export $(egrep -v '^#' ../../.env | xargs)
+export $(egrep -v '^#' .env | xargs)

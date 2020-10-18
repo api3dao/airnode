@@ -16,7 +16,7 @@
     "clean": "lerna run clean --stream",
     "dev:aws": "(cd packages/node && serverless offline --config serverless.local.yml)",
     "docker:build": "docker build . -t airnode-test",
-    "docker:run": "docker run -it --rm --name airnode-test --env-file .env -v $(pwd):/airnode/out airnode-test:latest",
+    "docker:run": "(cd packages/deployer && docker run -it --rm --name airnode-test --env-file .env -v $(pwd):/airnode/out airnode-test:latest)",
     "invoke:aws": "(cd packages/node && serverless invoke local --function start --config serverless.local.yml)",
     "lint": "yarn run lint:eslint && yarn run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",

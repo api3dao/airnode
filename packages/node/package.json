@@ -1,6 +1,7 @@
 {
   "name": "@airnode/node",
   "version": "0.1.0",
+  "license": "MIT",
   "main": ".build/src/index",
   "types": ".build/src/types",
   "files": [
