@@ -156,7 +156,13 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledTimes(1);
-      expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
+      expect(contract.fail).toHaveBeenCalledWith(
+        apiCall.id,
+        apiCall.providerId,
+        apiCall.fulfillAddress,
+        apiCall.fulfillFunctionId,
+        txOpts
+      );
     });
 
     it('does nothing if the the fulfill test returns nothing', async () => {
@@ -221,7 +227,13 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledTimes(1);
-      expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
+      expect(contract.fail).toHaveBeenCalledWith(
+        apiCall.id,
+        apiCall.providerId,
+        apiCall.fulfillAddress,
+        apiCall.fulfillFunctionId,
+        txOpts
+      );
     });
   });
 
@@ -302,7 +314,13 @@ describe('submitApiCall', () => {
       );
       expect(contract.fulfill).not.toHaveBeenCalled();
       expect(contract.fail).toHaveBeenCalledTimes(1);
-      expect(contract.fail).toHaveBeenCalledWith(apiCall.id, txOpts);
+      expect(contract.fail).toHaveBeenCalledWith(
+        apiCall.id,
+        apiCall.providerId,
+        apiCall.fulfillAddress,
+        apiCall.fulfillFunctionId,
+        txOpts
+      );
     });
 
     it('returns an error if the error transaction fails', async () => {

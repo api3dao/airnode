@@ -157,7 +157,11 @@ async function submitFail(
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
-  const tx = airnode.fail(request.id, { gasLimit: GAS_LIMIT, gasPrice: options.gasPrice, nonce: request.nonce! });
+  const tx = airnode.fail(request.id, request.providerId, request.fulfillAddress, request.fulfillFunctionId, {
+    gasLimit: GAS_LIMIT,
+    gasPrice: options.gasPrice,
+    nonce: request.nonce!,
+  });
 
   const [err, res] = await go(tx);
   if (err) {
