@@ -25,6 +25,7 @@ export function createEVMState(
     logFormat: settings.logFormat,
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
+    providerId: settings.providerId,
     url: chainProvider.url,
   };
 

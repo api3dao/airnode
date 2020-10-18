@@ -8,26 +8,28 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<ApiCall> = {
+    designatedWallet: parsedLog.args.designatedWallet || null,
+    encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
-    status: RequestStatus.Pending,
-    requesterAddress: parsedLog.args.requester,
-    providerId: parsedLog.args.providerId,
     endpointId: parsedLog.args.endpointId || null,
-    templateId: parsedLog.args.templateId || null,
     fulfillAddress: parsedLog.args.fulfillAddress,
     fulfillFunctionId: parsedLog.args.fulfillFunctionId,
-    errorAddress: parsedLog.args.errorAddress,
-    errorFunctionId: parsedLog.args.errorFunctionId,
-    encodedParameters: parsedLog.args.parameters,
-    requesterIndex: '<TODO>',
-    designatedWallet: '<TODO>',
-    // Parameters are decoded separately
-    parameters: {},
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
+    // Parameters are decoded separately
+    parameters: {},
+    providerId: parsedLog.args.providerId,
+    requestCount: parsedLog.args.noRequests.toString(),
+    requesterAddress: parsedLog.args.requester,
+    requesterIndex: parsedLog.args.requesterInd || null,
+    status: RequestStatus.Pending,
+    templateId: parsedLog.args.templateId || null,
+
     // TODO: protocol-overhaul remove these
+    errorAddress: parsedLog.args.errorAddress,
+    errorFunctionId: parsedLog.args.errorFunctionId,
     requesterId: 'requesterId',
     walletIndex: '1',
     walletAddress: 'walletAddress',

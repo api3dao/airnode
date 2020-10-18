@@ -13,7 +13,7 @@ jest.mock('ethers', () => {
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import * as fetching from './template-fetching';
+import * as templates from './template-fetching';
 
 describe('fetch (templates)', () => {
   let fetchOptions: any;
@@ -56,9 +56,8 @@ describe('fetch (templates)', () => {
       });
     });
 
-    const [logs, err, res] = await fetching.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['templateId-0']['endpointId']).toEqual('endpointId-0');
     expect(res['templateId-18']['endpointId']).toEqual('endpointId-18');
@@ -84,9 +83,8 @@ describe('fetch (templates)', () => {
 
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
 
-    const [logs, err, res] = await fetching.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(res).toEqual({
       'templateId-0': {
         designatedWallet: 'designatedWallet-0',
@@ -118,9 +116,8 @@ describe('fetch (templates)', () => {
       fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
     ];
 
-    const [logs, err, res] = await fetching.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(res).toEqual({
       'templateId-0': {
         designatedWallet: 'designatedWallet-0',
@@ -140,9 +137,8 @@ describe('fetch (templates)', () => {
 
   it('ignores API calls without a template ID', async () => {
     const apiCalls = [fixtures.requests.createApiCall({ templateId: null })];
-    const [logs, err, res] = await fetching.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(res).toEqual({});
     expect(getTemplatesMock).not.toHaveBeenCalled();
   });
@@ -162,9 +158,8 @@ describe('fetch (templates)', () => {
 
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
 
-    const [logs, err, res] = await fetching.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(err).toEqual(null);
     expect(res).toEqual({
       'templateId-0': {
         designatedWallet: 'designatedWallet-0',
@@ -197,11 +192,10 @@ describe('fetch (templates)', () => {
 
     const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
 
-    const [logs, err, res] = await fetching.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
     ]);
-    expect(err).toEqual(null);
     expect(res).toEqual({});
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
   });
