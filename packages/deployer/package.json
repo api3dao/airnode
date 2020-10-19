@@ -6,18 +6,18 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "deploy": "node .build/deployer-cli.js deploy -c config.json -s security.json --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
+    "deploy": "node .build/deployer-cli.js deploy -c config.json -s security.json",
     "deploy:local": "./inject-env.sh && yarn run deploy",
     "help": "node .build/deployer-cli.js --help",
-    "remove-airnode": "node .build/deployer-cli.js remove-airnode -c config.json -s security.json --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
+    "remove-airnode": "node .build/deployer-cli.js remove-airnode -c config.json -s security.json",
     "remove-airnode:local": "./inject-env.sh && yarn run remove-airnode",
-    "remove-mnemonic": "node .build/deployer-cli.js remove-mnemonic -c config.json -s security.json --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
+    "remove-mnemonic": "node .build/deployer-cli.js remove-mnemonic -c config.json -s security.json",
     "remove-mnemonic:local": "./inject-env.sh && yarn run remove-mnemonic",
     "terraform:init": "cd terraform && terraform init",
     "sls:config": "sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
     "sls:config:local": "./inject-env.sh && sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
-    "sls:deploy": "sls deploy --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT",
-    "sls:remove": "sls remove --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT"
+    "sls:deploy": "sls deploy --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --awsRegion $AWS_REGION",
+    "sls:remove": "sls remove --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --awsRegion $AWS_REGION"
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",

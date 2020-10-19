@@ -6,6 +6,7 @@ plugins:
 
 provider:
   name: aws
+  region: ${opt:awsRegion}
   runtime: nodejs12.x
   memorySize: 256
 

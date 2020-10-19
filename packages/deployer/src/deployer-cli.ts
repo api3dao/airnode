@@ -24,8 +24,6 @@ yargs
     {
       configPath: { type: 'string', demandOption: true, alias: 'c' },
       securityPath: { type: 'string', demandOption: true, alias: 's' },
-      awsAccessKeyId: { type: 'string', demandOption: true, alias: 'key' },
-      awsSecretKey: { type: 'string', demandOption: true, alias: 'secret' },
     },
     (args) => {
       deploy(args);
@@ -37,8 +35,6 @@ yargs
     {
       configPath: { type: 'string', demandOption: true, alias: 'c' },
       securityPath: { type: 'string', demandOption: true, alias: 's' },
-      awsAccessKeyId: { type: 'string', demandOption: true, alias: 'key' },
-      awsSecretKey: { type: 'string', demandOption: true, alias: 'secret' },
     },
     (args) => {
       removeMnemonic(args);
@@ -50,8 +46,6 @@ yargs
     {
       configPath: { type: 'string', demandOption: true, alias: 'c' },
       securityPath: { type: 'string', demandOption: true, alias: 's' },
-      awsAccessKeyId: { type: 'string', demandOption: true, alias: 'key' },
-      awsSecretKey: { type: 'string', demandOption: true, alias: 'secret' },
     },
     (args) => {
       removeAirnode(args);

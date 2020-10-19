@@ -1,16 +1,6 @@
-variable "region" {
+variable "aws_region" {
   type    = string
-  default = "us-east-1"
-}
-
-variable "providerId" {
-  type    = string
-  default = ""
-}
-
-variable "mnemonic" {
-  type    = string
-  default = ""
+  default = "<UPDATE_AWS_REGION>"
 }
 
 variable "aws_access_key_id" {
@@ -19,6 +9,16 @@ variable "aws_access_key_id" {
 }
 
 variable "aws_secret_key" {
+  type    = string
+  default = ""
+}
+
+variable "providerId" {
+  type    = string
+  default = ""
+}
+
+variable "mnemonic" {
   type    = string
   default = ""
 }
