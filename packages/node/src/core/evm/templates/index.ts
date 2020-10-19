@@ -3,6 +3,7 @@ import * as application from './template-application';
 import * as authorization from '../authorization';
 import * as logger from '../../logger';
 import * as templates from './template-fetching';
+import * as verification from './template-verification';
 import * as wallet from '../wallet';
 import { EVMProviderState, ProviderState, WalletData, WalletDataByIndex } from '../../../types';
 
@@ -29,6 +30,9 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState<EVMPr
   // Fetch templates. This should not throw
   const [fetchTemplLogs, templatesById] = await templates.fetch(flatApiCalls, fetchOptions);
   logger.logPending(fetchTemplLogs, baseLogOptions);
+
+  const [verifyLogs, verifiedApiCalls] = verification.verify(flatApiCalls, templatesById);
+  logger.logPending(verifyLogs, baseLogOptions);
 
   const [appliedTemplLogs, _appliedTemplErr, walletDataWithTemplates] = application.mergeApiCallsWithTemplates(
     state.walletDataByIndex,

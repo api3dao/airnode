@@ -7,7 +7,6 @@ import {
   ApiCallTemplate,
   ClientRequest,
   LogsErrorData,
-  PendingLog,
   RequestErrorCode,
   RequestStatus,
   WalletDataByIndex,
@@ -15,11 +14,6 @@ import {
 
 interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
-}
-
-interface LogsWithWalletData {
-  logs: PendingLog[];
-  walletDataByIndex: WalletDataByIndex;
 }
 
 function mergeRequestAndTemplate(
@@ -97,12 +91,10 @@ function mapApiCalls(
 }
 
 export function mergeApiCallsWithTemplates(
-  walletDataByIndex: WalletDataByIndex,
+  apiCalls: ClientRequest<ApiCall>[],
   templatesById: ApiCallTemplatesById
 ): LogsErrorData<WalletDataByIndex> {
-  const walletIndices = Object.keys(walletDataByIndex);
-
-  const updatedWalletDataWithLogs: LogsWithWalletData = walletIndices.reduce(
+  const updatedWalletDataWithLogs: LogsWithWalletData = apiCalls.map(
     (acc, index) => {
       const walletData = walletDataByIndex[index];
       const { requests } = walletData;
