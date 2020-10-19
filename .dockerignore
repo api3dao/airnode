@@ -6,5 +6,5 @@
 .dockerignore
 Dockerfile
 
-*.env
-*.log
+**/*.env
+**/*.log

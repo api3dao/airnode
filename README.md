@@ -18,5 +18,5 @@ It houses the following two main packages:
 
 To install dependencies, run this at the repository root:
 ```
-npm run bootstrap
+yarn bootstrap
 ```

@@ -28,11 +28,11 @@ RUN yarn bootstrap
 RUN yarn build
 
 CMD cd /airnode/packages/deployer \
-    && npm run sls:config \
+    && yarn sls:config \
     # See https://github.com/api3dao/airnode/issues/110
     && sed -i -- "s=<UPDATE_AWS_REGION>=$AWS_REGION=g" /airnode/packages/deployer/terraform/variables.tf.workaround \
     && cp /airnode/packages/deployer/terraform/variables.tf.workaround /airnode/packages/deployer/terraform/variables.tf \
-    && npm run terraform:init \
-    && npm run $ACTION \
+    && yarn terraform:init \
+    && yarn $ACTION \
     && cd /airnode \
     && cp packages/deployer/*.receipt.json out
