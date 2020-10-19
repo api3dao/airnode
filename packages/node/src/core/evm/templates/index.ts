@@ -27,6 +27,7 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState<EVMPr
     provider: state.provider,
     providerId: state.settings.providerId,
   };
+
   // Fetch templates. This should not throw
   const [fetchTemplLogs, templatesById] = await templates.fetch(flatApiCalls, fetchOptions);
   logger.logPending(fetchTemplLogs, baseLogOptions);
@@ -34,20 +35,14 @@ export async function fetchTemplatesAndAuthorizations(state: ProviderState<EVMPr
   const [verifyLogs, verifiedApiCalls] = verification.verify(flatApiCalls, templatesById);
   logger.logPending(verifyLogs, baseLogOptions);
 
-  const [appliedTemplLogs, _appliedTemplErr, walletDataWithTemplates] = application.mergeApiCallsWithTemplates(
-    state.walletDataByIndex,
-    templatesById
-  );
-  logger.logPending(appliedTemplLogs, baseLogOptions);
-
-  // We need to flatten again as the API calls previously didn't have templates applied
-  const flatApiCallsWithTemplates = apiCalls.flatten(walletDataWithTemplates);
+  const [appliedLogs, templatedApiCalls] = application.mergeApiCallsWithTemplates(verifiedApiCalls, templatesById);
+  logger.logPending(appliedLogs, baseLogOptions);
 
   // Fetch authorizations. This should not throw
-  const [authLogs, authorizationsByEndpoint] = await authorization.fetch(flatApiCallsWithTemplates, fetchOptions);
+  const [authLogs, authorizationsByEndpoint] = await authorization.fetch(templatedApiCalls, fetchOptions);
   logger.logPending(authLogs, baseLogOptions);
 
-  return { authorizationsByEndpoint, walletDataWithTemplates };
+  return { authorizationsByEndpoint, templatedApiCalls };
 }
 
 export function mergeTemplatesAndTransactionCounts(

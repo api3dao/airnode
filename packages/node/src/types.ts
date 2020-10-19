@@ -87,9 +87,9 @@ export interface ApiCallTemplate {
   readonly endpointId: string;
   readonly fulfillAddress: string;
   readonly fulfillFunctionId: string;
+  readonly id: string;
   readonly providerId: string;
   readonly requesterIndex: string;
-  readonly templateId: string;
 }
 
 export interface Withdrawal {

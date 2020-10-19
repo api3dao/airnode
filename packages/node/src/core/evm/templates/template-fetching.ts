@@ -36,12 +36,12 @@ async function fetchTemplateGroup(
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
-      templateId,
       designatedWallet: rawTemplates.designatedWallets[index],
       encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
       fulfillAddress: rawTemplates.fulfillAddresses[index],
       fulfillFunctionId: rawTemplates.fulfillFunctionIds[index],
+      id: templateId,
       providerId: rawTemplates.providerIds[index],
       requesterIndex: rawTemplates.requesterInds[index],
     };

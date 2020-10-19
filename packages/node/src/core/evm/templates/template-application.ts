@@ -6,17 +6,16 @@ import {
   ApiCallParameters,
   ApiCallTemplate,
   ClientRequest,
-  LogsErrorData,
+  LogsData,
   RequestErrorCode,
   RequestStatus,
-  WalletDataByIndex,
 } from '../../../types';
 
 interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
 }
 
-function mergeRequestAndTemplate(
+function applyTemplate(
   request: ClientRequest<ApiCall>,
   template: ApiCallTemplate,
   templateParameters: ApiCallParameters
@@ -40,80 +39,67 @@ function mergeRequestAndTemplate(
   };
 }
 
-function mapApiCalls(
-  apiCalls: ClientRequest<ApiCall>[],
+function updateApiCallWithTemplate(
+  apiCall: ClientRequest<ApiCall>,
   templatesById: ApiCallTemplatesById
-): LogsErrorData<ClientRequest<ApiCall>[]> {
-  const logsWithApiCalls: LogsErrorData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
-    const { id, templateId } = apiCall;
+): LogsData<ClientRequest<ApiCall>> {
+  const { id, status, templateId } = apiCall;
 
-    // If the request does not have a template to apply, skip it
-    if (!templateId) {
-      return [[], null, apiCall];
-    }
+  // If the request does not have a template to apply, skip it
+  if (!templateId) {
+    const log = logger.pend('DEBUG', `Request:${id} is not linked to a template`);
+    return [[log], apiCall];
+  }
 
-    const template = templatesById[templateId];
-    // If no template is found, then we aren't able to build the full request.
-    // Block the request for now and it will be retried on the next run
-    if (!template) {
-      const log = logger.pend('ERROR', `Unable to fetch template ID:${templateId} for Request ID:${id}`);
-      const updatedApiCall = {
-        ...apiCall,
-        status: RequestStatus.Blocked,
-        errorCode: RequestErrorCode.TemplateNotFound,
-      };
-      return [[log], null, updatedApiCall];
-    }
+  if (apiCall.status !== RequestStatus.Pending) {
+    const log = logger.pend('DEBUG', `Skipping template application for Request:${id} as it has status code:${status}`);
+    return [[log], apiCall];
+  }
 
-    // Attempt to decode the template parameters
-    const templateParameters = evm.cbor.safeDecode(template.encodedParameters);
+  const template = templatesById[templateId];
+  // If no template is found, then we aren't able to build the full request.
+  // Block the request for now and it will be retried on the next run
+  if (!template) {
+    const log = logger.pend('ERROR', `Unable to fetch template ID:${templateId} for Request ID:${id}`);
+    const updatedApiCall = {
+      ...apiCall,
+      status: RequestStatus.Blocked,
+      errorCode: RequestErrorCode.TemplateNotFound,
+    };
+    return [[log], updatedApiCall];
+  }
 
-    // If the template contains invalid parameters, then we can't use execute the request
-    if (templateParameters === null) {
-      const log = logger.pend('ERROR', `Template ID:${id} contains invalid parameters: ${template.encodedParameters}`);
-      const updatedApiCall = {
-        ...apiCall,
-        status: RequestStatus.Errored,
-        errorCode: RequestErrorCode.InvalidTemplateParameters,
-      };
-      return [[log], null, updatedApiCall];
-    }
+  // Attempt to decode the template parameters
+  const templateParameters = evm.cbor.safeDecode(template.encodedParameters);
 
-    const updatedApiCall = mergeRequestAndTemplate(apiCall, template, templateParameters);
+  // If the template contains invalid parameters, then we can't use execute the request
+  if (templateParameters === null) {
+    const log = logger.pend(
+      'ERROR',
+      `Template ID:${template.id} contains invalid parameters: ${template.encodedParameters}`
+    );
+    const updatedApiCall = {
+      ...apiCall,
+      status: RequestStatus.Errored,
+      errorCode: RequestErrorCode.InvalidTemplateParameters,
+    };
+    return [[log], updatedApiCall];
+  }
 
-    return [[], null, updatedApiCall];
-  });
-
-  const logs = flatMap(logsWithApiCalls, (a) => a[0]);
-  const updatedApiCalls = flatMap(logsWithApiCalls, (a) => a[2]);
-
-  return [logs, null, updatedApiCalls];
+  const updatedApiCall = applyTemplate(apiCall, template, templateParameters);
+  const log = logger.pend('DEBUG', `Template ID:${id} applied to Request:${apiCall.id}`);
+  return [[log], updatedApiCall];
 }
 
 export function mergeApiCallsWithTemplates(
   apiCalls: ClientRequest<ApiCall>[],
   templatesById: ApiCallTemplatesById
-): LogsErrorData<WalletDataByIndex> {
-  const updatedWalletDataWithLogs: LogsWithWalletData = apiCalls.map(
-    (acc, index) => {
-      const walletData = walletDataByIndex[index];
-      const { requests } = walletData;
+): LogsData<ClientRequest<ApiCall>[]> {
+  const logsWithApiCalls = apiCalls.map((apiCall) => {
+    return updateApiCallWithTemplate(apiCall, templatesById);
+  });
 
-      // Update each API call if it is linked to a template
-      const [mapApiCallLogs, _mapApiCallErr, apiCalls] = mapApiCalls(requests.apiCalls, templatesById);
-
-      const updatedLogs = [...acc.logs, ...mapApiCallLogs];
-
-      const updatedWalletData = { ...walletData, requests: { ...requests, apiCalls } };
-      const updatedWalletDataByIndex = {
-        ...acc.walletDataByIndex,
-        [index]: updatedWalletData,
-      };
-
-      return { logs: updatedLogs, walletDataByIndex: updatedWalletDataByIndex };
-    },
-    { logs: [], walletDataByIndex: {} }
-  );
-
-  return [updatedWalletDataWithLogs.logs, null, updatedWalletDataWithLogs.walletDataByIndex];
+  const logs = flatMap(logsWithApiCalls, (a) => a[0]);
+  const templatedApiCalls = flatMap(logsWithApiCalls, (a) => a[1]);
+  return [logs, templatedApiCalls];
 }

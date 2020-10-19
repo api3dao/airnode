@@ -88,13 +88,13 @@ describe('fetch (templates)', () => {
     expect(res).toEqual({
       'templateId-0': {
         designatedWallet: 'designatedWallet-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         endpointId: 'endpointId-0',
         providerId: 'providerId-0',
         fulfillAddress: 'fulfillAddresses-0',
         fulfillFunctionId: 'fulfillFunctionId-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        id: 'templateId-0',
         requesterIndex: 'requesterIndex-0',
-        templateId: 'templateId-0',
       },
     });
   });
@@ -125,9 +125,9 @@ describe('fetch (templates)', () => {
         endpointId: 'endpointId-0',
         fulfillAddress: 'fulfillAddresses-0',
         fulfillFunctionId: 'fulfillFunctionId-0',
+        id: 'templateId-0',
         providerId: 'providerId-0',
         requesterIndex: 'requesterIndex-0',
-        templateId: 'templateId-0',
       },
     });
 
@@ -167,9 +167,9 @@ describe('fetch (templates)', () => {
         endpointId: 'endpointId-0',
         fulfillAddress: 'fulfillAddresses-0',
         fulfillFunctionId: 'fulfillFunctionId-0',
+        id: 'templateId-0',
         providerId: 'providerId-0',
         requesterIndex: 'requesterIndex-0',
-        templateId: 'templateId-0',
       },
     });
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
