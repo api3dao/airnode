@@ -1,9 +1,11 @@
 FROM node:12.19.0-alpine3.12
 
 ENV NODE_ENV production
+ENV ACTION deploy
+
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_KEY ""
-ENV AWS_REGION us-east-1
+ENV AWS_REGION ""
 
 RUN mkdir /airnode
 WORKDIR /airnode
@@ -30,6 +32,6 @@ CMD cd /airnode/packages/deployer \
     # See https://github.com/api3dao/airnode/issues/110
     && sed -i -- "s=<UPDATE_AWS_REGION>=$AWS_REGION=g" /airnode/packages/deployer/terraform/variables.tf \
     && npm run terraform:init \
-    && npm run deploy \
+    && npm run $ACTION \
     && cd /airnode \
     && cp packages/deployer/*.receipt.json out
