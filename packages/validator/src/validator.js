@@ -41,29 +41,29 @@ function findAnyValidParam(specs, specsStruct, paramPath, nonRedundantParams, ro
     }
 
     return false;
-  } else {
-    for (const paramKey of Object.keys(specs)) {
-      let nonRedundantParamsCopy = {};
+  }
 
-      if (nonRedundantParams[paramKey]) {
-        nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramKey]));
-      } else {
-        nonRedundantParams[paramKey] = utils.getEmptyNonRedundantParam(
-          paramKey,
-          specsStruct,
-          nonRedundantParams,
-          specs[paramKey]
-        );
-      }
+  for (const paramKey of Object.keys(specs)) {
+    let nonRedundantParamsCopy = {};
 
-      let result = validateSpecs(specs[paramKey], specsStruct, paramPath, nonRedundantParams[paramKey], roots);
-
-      if (!result.messages.length) {
-        return true;
-      }
-
-      nonRedundantParams[paramKey] = nonRedundantParamsCopy;
+    if (nonRedundantParams[paramKey]) {
+      nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[paramKey]));
+    } else {
+      nonRedundantParams[paramKey] = utils.getEmptyNonRedundantParam(
+        paramKey,
+        specsStruct,
+        nonRedundantParams,
+        specs[paramKey]
+      );
     }
+
+    let result = validateSpecs(specs[paramKey], specsStruct, paramPath, nonRedundantParams[paramKey], roots);
+
+    if (!result.messages.length) {
+      return true;
+    }
+
+    nonRedundantParams[paramKey] = nonRedundantParamsCopy;
   }
 
   return false;
@@ -150,63 +150,69 @@ function validateConditionRegexInValue(specs, condition, nonRedundantParams, par
    parameter with key "__any", which means every parameter in specs must be checked and if at least one parameter matches "then section" the condition is fulfilled,
    otherwise the required parameter is missing in specs and condition is not fulfilled
   */
-  if (specs[thenParamName]) {
-    let nonRedundantParamsCopy = {};
-
-    // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
-    if (nonRedundantParams[thenParamName]) {
-      nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thenParamName]));
-    } else {
-      nonRedundantParams[thenParamName] = utils.getEmptyNonRedundantParam(
-        thenParamName,
-        condition['__then'][thenParamName],
-        nonRedundantParams,
-        specs[thenParamName]
-      );
-    }
-
-    if (!Object.keys(condition['__then'][thenParamName]).length) {
-      return [];
-    }
-
-    let result = validateSpecs(
-      specs[thenParamName],
-      condition['__then'][thenParamName],
-      `${paramPath}${paramPath ? '.' : ''}${thenParamName}`,
-      nonRedundantParams[thenParamName],
-      roots
-    );
-
-    if (!result.messages.some((msg) => msg.level === 'error')) {
-      return [];
-    }
-
-    messages.push(...result.messages);
-    let keepRedundantParams = true;
-
-    // if a parameter from "then section" is missing in specs, this part of specs will be considered as extra params if nothing else requires them
-    for (let message of result.messages) {
-      if (message.message.startsWith('Missing parameter ')) {
-        keepRedundantParams = false;
-      }
-    }
-
-    if (!keepRedundantParams) {
-      // returning nonRedundantParams to original state, since it wasn't used in "then section" of condition
-      if (Object.keys(nonRedundantParamsCopy).length) {
-        nonRedundantParams[thenParamName] = nonRedundantParamsCopy;
-      } else {
-        delete nonRedundantParams[thenParamName];
-      }
-    }
-  } else if (thenParamName === '__any') {
+  if (thenParamName === '__any') {
     if (!findAnyValidParam(specs, condition['__then']['__any'], paramPath, nonRedundantParams, roots)) {
       messages.push(logger.error(`Required conditions not met in ${paramPath}`));
     }
-  } else {
+
+    return messages;
+  }
+
+  if (!specs[thenParamName]) {
     messages.push(
       logger.error(`Missing parameter ${paramPath}${paramPath && thenParamName ? '.' : ''}${thenParamName}`)
     );
+
+    return messages;
+  }
+
+  let nonRedundantParamsCopy = {};
+
+  // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
+  if (nonRedundantParams[thenParamName]) {
+    nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thenParamName]));
+  } else {
+    nonRedundantParams[thenParamName] = utils.getEmptyNonRedundantParam(
+      thenParamName,
+      condition['__then'][thenParamName],
+      nonRedundantParams,
+      specs[thenParamName]
+    );
+  }
+
+  if (!Object.keys(condition['__then'][thenParamName]).length) {
+    return [];
+  }
+
+  let result = validateSpecs(
+    specs[thenParamName],
+    condition['__then'][thenParamName],
+    `${paramPath}${paramPath ? '.' : ''}${thenParamName}`,
+    nonRedundantParams[thenParamName],
+    roots
+  );
+
+  if (!result.messages.some((msg) => msg.level === 'error')) {
+    return [];
+  }
+
+  messages.push(...result.messages);
+  let keepRedundantParams = true;
+
+  // if a parameter from "then section" is missing in specs, this part of specs will be considered as extra params if nothing else requires them
+  for (let message of result.messages) {
+    if (message.message.startsWith('Missing parameter ')) {
+      keepRedundantParams = false;
+    }
+  }
+
+  if (!keepRedundantParams) {
+    // returning nonRedundantParams to original state, since it wasn't used in "then section" of condition
+    if (Object.keys(nonRedundantParamsCopy).length) {
+      nonRedundantParams[thenParamName] = nonRedundantParamsCopy;
+    } else {
+      delete nonRedundantParams[thenParamName];
+    }
   }
 
   return messages;
