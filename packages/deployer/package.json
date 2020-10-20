@@ -20,7 +20,7 @@
     "sls:deploy:local": "test -f .env && export $(egrep -v '^#' .env | xargs) && yarn sls:deploy",
     "sls:remove": "sls remove --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --awsRegion $AWS_REGION",
     "sls:remove:local": "test -f .env && export $(egrep -v '^#' .env | xargs) && yarn sls:remove",
-    "sls:invoke:local": "test -f .env && export $(egrep -v '^#' .env | xargs) && yarn sls:invoke"
+    "sls:invoke:local": "test -f .env && export $(egrep -v '^#' .env | xargs) && sls invoke --function test --config serverless.aws.yml --providerIdShort 9e5a89d --awsRegion $AWS_REGION"
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",
