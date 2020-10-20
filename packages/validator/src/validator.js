@@ -39,6 +39,8 @@ function findAnyValidParam(specs, specsStruct, paramPath, nonRedundantParams, ro
 
       nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
     }
+
+    return false;
   } else {
     for (const paramKey of Object.keys(specs)) {
       let nonRedundantParamsCopy = {};
