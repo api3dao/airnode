@@ -33,12 +33,13 @@ export function verify(
       return [[], apiCall];
     }
 
-    // If the request is already errored or ignored, then we don't want to make further updates
-    // to either the status or error code
-    if (apiCall.status === RequestStatus.Errored || apiCall.status === RequestStatus.Ignored) {
+    // If the request is already errored, blocked or ignored, then we don't want to make further
+    // updates to either the status or error code
+    const ignoredStatuses = [RequestStatus.Blocked, RequestStatus.Errored, RequestStatus.Ignored];
+    if (ignoredStatuses.includes(apiCall.status)) {
       const log = logger.pend(
         'DEBUG',
-        `Template verification for Request:${apiCall.id} skipped as it has status:${apiCall.status}`
+        `Template verification for Request:${apiCall.id} skipped as it has status code:${apiCall.status}`
       );
       return [[log], apiCall];
     }
@@ -47,8 +48,16 @@ export function verify(
     // If a template was expected, but not found, something else has gone wrong.
     // This should not happen
     if (!template) {
-      const log = logger.pend('ERROR', `Could not find template for Request:${apiCall.id} for template verification`);
-      return [[log], apiCall];
+      const log = logger.pend(
+        'ERROR',
+        `Ignoring Request:${apiCall.id} as the template could not be found for verification`
+      );
+      const updatedApiCall = {
+        ...apiCall,
+        status: RequestStatus.Ignored,
+        errorCode: RequestErrorCode.TemplateNotFound,
+      };
+      return [[log], updatedApiCall];
     }
 
     const expectedTemplateId = getExpectedTemplateId(template);
@@ -66,7 +75,7 @@ export function verify(
       return [[log], updatedApiCall];
     }
 
-    const log = logger.pend('DEBUG', `Request ID:${apiCall.id} is linked to a valid template`);
+    const log = logger.pend('DEBUG', `Request ID:${apiCall.id} is linked to a valid template ID:${template.id}`);
     return [[log], apiCall];
   });
 

@@ -87,7 +87,7 @@ function updateApiCallWithTemplate(
   }
 
   const updatedApiCall = applyTemplate(apiCall, template, templateParameters);
-  const log = logger.pend('DEBUG', `Template ID:${id} applied to Request:${apiCall.id}`);
+  const log = logger.pend('DEBUG', `Template ID:${template.id} applied to Request:${apiCall.id}`);
   return [[log], updatedApiCall];
 }
 
