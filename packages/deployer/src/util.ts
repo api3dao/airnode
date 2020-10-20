@@ -44,5 +44,5 @@ export async function waitForEnter() {
 }
 
 export function writeJSONFile(fileName, object) {
-  fs.writeFileSync(fileName, JSON.stringify(object, null, 4));
+  fs.writeFileSync(fileName, JSON.stringify(object, null, 4), { mode: 0o666 });
 }
