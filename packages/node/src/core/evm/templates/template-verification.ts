@@ -7,7 +7,7 @@ interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
 }
 
-function getExpectedTemplateId(template: ApiCallTemplate): string {
+export function getExpectedTemplateId(template: ApiCallTemplate): string {
   return ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
       ['bytes32', 'bytes32', 'uint256', 'address', 'address', 'bytes4', 'bytes'],
@@ -70,7 +70,7 @@ export function verify(
       const updatedApiCall = {
         ...apiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.InvalidTemplateId,
+        errorCode: RequestErrorCode.InvalidTemplate,
       };
       return [[log], updatedApiCall];
     }
