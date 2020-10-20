@@ -127,7 +127,7 @@ const invalidEndpointSpecification = `[
 
 describe('validator', () => {
   describe('api specs', () => {
-    test('valid specification', () => {
+    it('valid specification', () => {
       const validAPISpecification1 = `{
         "servers": [
             {
@@ -216,7 +216,7 @@ describe('validator', () => {
       expect(validator.isApiSpecsValid(validAPISpecification4)).toMatchObject({ valid: true, messages: [] });
     });
 
-    test('formatting of keys and values', () => {
+    it('formatting of keys and values', () => {
       const invalidUrlAPISpec = `{
         "servers": [
             {
@@ -298,7 +298,7 @@ describe('validator', () => {
       });
     });
 
-    test('maximal size of array test', () => {
+    it('maximal size of array test', () => {
       const validArraySizesAPISpec = `{
         "servers": [
             {
@@ -436,7 +436,7 @@ describe('validator', () => {
       });
     });
 
-    test('JSON validity test', () => {
+    it('JSON validity test', () => {
       const smallValidAPISpec = `{
         "servers": [],
         "paths": {},
@@ -460,7 +460,7 @@ describe('validator', () => {
       });
     });
 
-    test('missing parameters', () => {
+    it('missing parameters', () => {
       const missingParametersAPISpec1 = `{
         "paths": {
             "/myPath": {
@@ -556,7 +556,7 @@ describe('validator', () => {
       });
     });
 
-    test('extra fields', () => {
+    it('extra fields', () => {
       const extraFieldsAPISpec = `{
         "extra": {
             "inside": "extra"
@@ -614,7 +614,7 @@ describe('validator', () => {
       });
     });
 
-    test('conditions (if, then, require) test', () => {
+    it('conditions (if, then, require) test', () => {
       const invalidSecuritySchemesAPISpec = `{
         "servers": [
             {
@@ -760,7 +760,7 @@ describe('validator', () => {
     });
   });
 
-  test('endpoints specs', () => {
+  it('endpoints specs', () => {
     const validEndpointSpec = `[
       {
         "name": "test",
@@ -847,7 +847,7 @@ describe('validator', () => {
     });
   });
 
-  test('ois specs', () => {
+  it('ois specs', () => {
     const validOISSpecification = `{
       "oisFormat": "1.10.0",
       "title": "myOisTitle",
