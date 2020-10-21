@@ -39,8 +39,7 @@ export function verify(
 
     // If the request is already errored, blocked or ignored, then we don't want to make further
     // updates to either the status or error code
-    const ignoredStatuses = [RequestStatus.Blocked, RequestStatus.Errored, RequestStatus.Ignored];
-    if (ignoredStatuses.includes(apiCall.status)) {
+    if (apiCall.status !== RequestStatus.Pending) {
       const log = logger.pend(
         'DEBUG',
         `Template verification for Request:${apiCall.id} skipped as it has status code:${apiCall.status}`

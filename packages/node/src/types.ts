@@ -27,6 +27,7 @@ export enum RequestErrorCode {
   UnknownOIS = 17,
   FulfillTransactionFailed = 18,
   InvalidTemplate = 19,
+  InvalidDesignatedWallet = 20,
 }
 
 export enum RequestStatus {
