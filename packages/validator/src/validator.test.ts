@@ -1,6 +1,4 @@
-'use strict';
-
-const validator = require('./validator');
+import * as validator from './validator';
 
 function formattingMessage(paramPath, error = false) {
   return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };

@@ -1,8 +1,6 @@
-'use strict';
+import * as logger from './logger';
 
-const logger = require('./logger');
-
-function getLastParamName(paramPath) {
+export function getLastParamName(paramPath: string): string {
   const lastDotIndex = paramPath.lastIndexOf('.');
 
   if (lastDotIndex >= 0) {
@@ -18,7 +16,7 @@ if parameter key matches provided regular expression all keys '__match' in '__th
 must be replaced with matched parameter key,
 except '__match' keys that might be in different condition included in the '__then' tree
  */
-function replaceConditionalMatch(match, specs) {
+export function replaceConditionalMatch(match: string, specs: any): any {
   const ignoredKeys = ['__conditions'];
   const keys = Object.keys(specs);
   const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
@@ -36,13 +34,13 @@ function replaceConditionalMatch(match, specs) {
   }, {});
 }
 
-function warnExtraFields(nonRedundant, specs, paramPath) {
+export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string): logger.Log[] {
   if (typeof specs !== 'object') {
     return [];
   }
 
   if (Array.isArray(specs)) {
-    let messages = [];
+    const messages: { level: 'warning' | 'error'; message: string }[] = [];
 
     for (let i = 0; i < specs.length; i++) {
       if (nonRedundant[i]) {
@@ -66,7 +64,7 @@ function warnExtraFields(nonRedundant, specs, paramPath) {
   }, []);
 }
 
-function getEmptyNonRedundantParam(param, specsStruct, nonRedundantParams, specs) {
+export function getEmptyNonRedundantParam(param: string, specsStruct: any, nonRedundantParams: any, specs: any): any {
   if (nonRedundantParams[param]) {
     return nonRedundantParams[param];
   }
@@ -77,5 +75,3 @@ function getEmptyNonRedundantParam(param, specsStruct, nonRedundantParams, specs
 
   return {};
 }
-
-module.exports = { getLastParamName, replaceConditionalMatch, warnExtraFields, getEmptyNonRedundantParam };
