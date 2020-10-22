@@ -30,11 +30,11 @@ export enum RequestErrorCode {
 }
 
 export enum RequestStatus {
-  Pending,
-  Fulfilled,
-  Ignored,
-  Blocked,
-  Errored,
+  Pending = 'Pending',
+  Fulfilled = 'Fulfilled',
+  Ignored = 'Ignored',
+  Blocked = 'Blocked',
+  Errored = 'Errored',
 }
 
 export enum RequestType {
