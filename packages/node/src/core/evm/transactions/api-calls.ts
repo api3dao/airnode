@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
-import * as requests from '../../requests/api-calls';
+import * as requests from '../../requests';
 import {
   ApiCall,
   ClientRequest,
@@ -43,7 +43,7 @@ async function testFulfill(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
-  const statusCode = ethers.BigNumber.from(requests.getStatusCode(request));
+  const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
 
   const noticeLog = logger.pend(
     'DEBUG',
@@ -77,7 +77,7 @@ async function submitFulfill(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
-  const statusCode = ethers.BigNumber.from(requests.getStatusCode(request));
+  const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
 
   const noticeLog = logger.pend(
     'INFO',

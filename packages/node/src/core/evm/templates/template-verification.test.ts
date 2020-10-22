@@ -1,4 +1,5 @@
 import * as fixtures from 'test/fixtures';
+import * as requests from '../../requests';
 import * as verification from './template-verification';
 import { RequestErrorCode, RequestStatus } from 'src/types';
 
@@ -26,40 +27,20 @@ describe('verify', () => {
     expect(res).toEqual([apiCall]);
   });
 
-  it('returns API calls that are errored', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: TEMPLATE_ID, status: RequestStatus.Errored });
-    const [logs, res] = verification.verify([apiCall], {});
-    expect(logs).toEqual([
-      {
-        level: 'DEBUG',
-        message: `Template verification for Request:${apiCall.id} skipped as it has status code:${RequestStatus.Errored}`,
-      },
-    ]);
-    expect(res).toEqual([apiCall]);
-  });
-
-  it('returns API calls that are blocked', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: TEMPLATE_ID, status: RequestStatus.Blocked });
-    const [logs, res] = verification.verify([apiCall], {});
-    expect(logs).toEqual([
-      {
-        level: 'DEBUG',
-        message: `Template verification for Request:${apiCall.id} skipped as it has status code:${RequestStatus.Blocked}`,
-      },
-    ]);
-    expect(res).toEqual([apiCall]);
-  });
-
-  it('returns API calls that are ignored', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: TEMPLATE_ID, status: RequestStatus.Ignored });
-    const [logs, res] = verification.verify([apiCall], {});
-    expect(logs).toEqual([
-      {
-        level: 'DEBUG',
-        message: `Template verification for Request:${apiCall.id} skipped as it has status code:${RequestStatus.Ignored}`,
-      },
-    ]);
-    expect(res).toEqual([apiCall]);
+  requests.getStatusNames().forEach((status) => {
+    if (status !== 'Pending') {
+      it(`returns API calls that have status: ${status}`, () => {
+        const apiCall = fixtures.requests.createApiCall({ templateId: TEMPLATE_ID, status: RequestStatus[status] });
+        const [logs, res] = verification.verify([apiCall], {});
+        expect(logs).toEqual([
+          {
+            level: 'DEBUG',
+            message: `Template verification for Request:${apiCall.id} skipped as it has status:${status}`,
+          },
+        ]);
+        expect(res).toEqual([apiCall]);
+      });
+    }
   });
 
   it('ignores API calls where the template cannot be found', () => {
