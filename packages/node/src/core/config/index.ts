@@ -1,8 +1,8 @@
 import { OIS, SecuritySpecification } from '@airnode/ois';
 import { Config } from '../../types';
 import { randomString } from '../utils/string-utils';
-import rawConfig from '../../../config.json';
-import rawSecurity from '../../../security.json';
+import rawConfig from '../../config.json';
+import rawSecurity from '../../security.json';
 
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.

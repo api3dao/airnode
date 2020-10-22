@@ -11,8 +11,8 @@ RUN mkdir /airnode
 WORKDIR /airnode
 
 COPY . .
-RUN cp packages/node/config.json.example packages/node/config.json \
-    && cp packages/node/security.json.example packages/node/security.json
+RUN cp packages/node/config.json.example packages/node/src/config.json \
+    && cp packages/node/security.json.example packages/node/src/security.json
 RUN cp packages/deployer/config.json.example packages/deployer/config.json \
     && cp packages/deployer/security.json.example packages/deployer/security.json
 

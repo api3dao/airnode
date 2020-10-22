@@ -3,14 +3,17 @@ service:
 
 plugins:
   - serverless-plugin-typescript
+  - serverless-plugin-optimize
 
 provider:
   name: aws
   region: ${opt:awsRegion}
   runtime: nodejs12.x
   memorySize: 256
-
   environment: ${file(secrets.json)}
+
+package: 
+  individually: true
 
 functions:
   test:
