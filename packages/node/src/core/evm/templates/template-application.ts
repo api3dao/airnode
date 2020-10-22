@@ -72,7 +72,7 @@ function updateApiCallWithTemplate(
   // Attempt to decode the template parameters
   const templateParameters = evm.cbor.safeDecode(template.encodedParameters);
 
-  // If the template contains invalid parameters, then we can't use execute the request
+  // If the template contains invalid parameters, then we can't use it to execute the request
   if (templateParameters === null) {
     const log = logger.pend(
       'ERROR',
