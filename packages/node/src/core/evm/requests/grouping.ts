@@ -1,7 +1,8 @@
+import flatMap from 'lodash/flatMap';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
 import * as wallet from '../wallet';
-import { GroupedRequests, WalletDataByIndex } from '../../../types';
+import { ClientRequest, GroupedRequests, WalletDataByIndex, Withdrawal } from '../../../types';
 
 export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDataByIndex {
   const xpub = wallet.getExtendedPublicKey();
@@ -29,4 +30,13 @@ export function groupRequestsByWalletIndex(requests: GroupedRequests): WalletDat
   }, {});
 
   return walletDataByIndex;
+}
+
+// TODO: temporary workaround until wallet data by index is dropped
+export function flattenWithdrawals(walletDataByIndex: WalletDataByIndex): ClientRequest<Withdrawal>[] {
+  const walletIndices = Object.keys(walletDataByIndex);
+
+  return flatMap(walletIndices, (index) => {
+    return walletDataByIndex[index].requests.withdrawals;
+  });
 }

@@ -26,14 +26,15 @@ export enum RequestErrorCode {
   UnknownEndpoint = 16,
   UnknownOIS = 17,
   FulfillTransactionFailed = 18,
+  InvalidTemplate = 19,
 }
 
 export enum RequestStatus {
-  Pending,
-  Fulfilled,
-  Ignored,
-  Blocked,
-  Errored,
+  Pending = 'Pending',
+  Fulfilled = 'Fulfilled',
+  Ignored = 'Ignored',
+  Blocked = 'Blocked',
+  Errored = 'Errored',
 }
 
 export enum RequestType {
@@ -86,9 +87,9 @@ export interface ApiCallTemplate {
   readonly endpointId: string;
   readonly fulfillAddress: string;
   readonly fulfillFunctionId: string;
+  readonly id: string;
   readonly providerId: string;
   readonly requesterIndex: string;
-  readonly templateId: string;
 }
 
 export interface Withdrawal {

@@ -1,5 +1,6 @@
 import { go } from '../../utils/promise-utils';
 import * as authorization from '../authorization';
+import * as grouping from '../requests/grouping';
 import * as logger from '../../logger';
 import { newProvider } from '../retry-provider';
 import * as state from '../../providers/state';
@@ -79,15 +80,21 @@ export async function initializeProvider(
   const templatesAndTransactions = templatesAndTransactionResults.find(
     (result) => result.id === 'templates+authorizations'
   )!;
-  const { walletDataWithTemplates, authorizationsByEndpoint } = templatesAndTransactions.data;
+  const { authorizationsByEndpoint, templatedApiCalls } = templatesAndTransactions.data;
 
   const transactionCountsByAddress = templatesAndTransactionResults.find(
     (result) => result.id === 'transaction-counts'
   )!;
   logger.logPending(transactionCountsByAddress.logs!, baseLogOptions);
 
+  // TODO: temporary workaround until wallet data by index is dropped
+  const flatWithdrawals = grouping.flattenWithdrawals(state3.walletDataByIndex);
+  const regroupedRequests = grouping.groupRequestsByWalletIndex({
+    apiCalls: templatedApiCalls,
+    withdrawals: flatWithdrawals,
+  });
   const walletDataWithTransactionCounts = templates.mergeTemplatesAndTransactionCounts(
-    walletDataWithTemplates,
+    regroupedRequests,
     transactionCountsByAddress.data
   );
 
@@ -100,7 +107,7 @@ export async function initializeProvider(
   );
   logger.logPending(authLogs, baseLogOptions);
 
-  const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
+  const state4 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
 
-  return state5;
+  return state4;
 }

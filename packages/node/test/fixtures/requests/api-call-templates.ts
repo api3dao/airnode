@@ -7,9 +7,9 @@ export function createApiCallTemplate(params?: Partial<ApiCallTemplate>): ApiCal
     endpointId: 'endpointId',
     fulfillAddress: 'templateFulfillFunctionId',
     fulfillFunctionId: 'templateFulfillFunctionId',
+    id: 'templateId',
     providerId: 'providerId',
     requesterIndex: 'requesterIndex',
-    templateId: 'templateId',
     ...params,
   };
 }
