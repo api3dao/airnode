@@ -57,10 +57,10 @@ core/
 ├── evm/                # EVM specific code
 │   ├── authorization/  # Authorizing clients and requests
 │   ├── contracts/      # Contract addresses and ABIs
+│   ├── fulfillments/   # Fulfilling EVM requests
 │   ├── handlers/       # EVM specific "pipeline" implementations
 │   ├── requests/       # Request/response specific code
 │   ├── templates       # Fetching and applying request templates
-│   ├── transactions/   # Executing transactions
 │   ├── triggers/       # Trigger specific implementations
 │   └── verification/   # Request verification
 ├── handlers/           # "Pipeline" type modules that generally serve as entry points

@@ -38,7 +38,7 @@ import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { EVMProviderState, ProviderState, RequestType, WalletData } from 'src/types';
 import * as providerState from '../../providers/state';
-import * as transactions from './index';
+import * as fulfillments from './index';
 
 describe('submit', () => {
   let initialState: ProviderState<EVMProviderState>;
@@ -80,7 +80,7 @@ describe('submit', () => {
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from('500'));
     contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xwithdrawal_tx1' });
 
-    const res = await transactions.submit(state);
+    const res = await fulfillments.submit(state);
     expect(res.length).toEqual(3);
 
     const apiCallReceipts = res.filter((r) => r.type === RequestType.ApiCall);
@@ -114,7 +114,7 @@ describe('submit', () => {
     (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
     contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
 
-    const res = await transactions.submit(state);
+    const res = await fulfillments.submit(state);
     expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, error: new Error('Server did not respond') }]);
   });
 
@@ -138,7 +138,7 @@ describe('submit', () => {
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from('500'));
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server did not respond'));
 
-    const res = await transactions.submit(state);
+    const res = await fulfillments.submit(state);
     expect(res).toEqual([
       { id: withdrawal.id, type: RequestType.Withdrawal, error: new Error('Server did not respond') },
     ]);
