@@ -3,12 +3,12 @@ import * as requests from '../../requests';
 import * as verification from './api-call-verification';
 import { RequestErrorCode, RequestStatus } from 'src/types';
 
-describe('verifyRequestId', () => {
+describe('verifyApiCallIds', () => {
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
         const apiCall = fixtures.requests.createApiCall({ status: RequestStatus[status] });
-        const [logs, res] = verification.verifyRequestId([apiCall]);
+        const [logs, res] = verification.verifyApiCallIds([apiCall]);
         expect(logs).toEqual([
           {
             level: 'DEBUG',
@@ -30,7 +30,7 @@ describe('verifyRequestId', () => {
       templateId: '0x101c36202b92b358adda664515ea920f76b1edcf5f1285ab0c845f54638b45aa',
       type: 'short',
     });
-    const [logs, res] = verification.verifyRequestId([apiCall]);
+    const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Request ID:${apiCall.id} has a valid ID` }]);
     expect(res[0]).toEqual(apiCall);
   });
@@ -43,7 +43,7 @@ describe('verifyRequestId', () => {
       templateId: '0x101c36202b92b358adda664515ea920f76b1edcf5f1285ab0c845f54638b45aa',
       type: 'regular',
     });
-    const [logs, res] = verification.verifyRequestId([apiCall]);
+    const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Request ID:${apiCall.id} has a valid ID` }]);
     expect(res[0]).toEqual(apiCall);
   });
@@ -58,7 +58,7 @@ describe('verifyRequestId', () => {
       templateId: null,
       type: 'full',
     });
-    const [logs, res] = verification.verifyRequestId([apiCall]);
+    const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Request ID:${apiCall.id} has a valid ID` }]);
     expect(res[0]).toEqual(apiCall);
   });
@@ -74,7 +74,7 @@ describe('verifyRequestId', () => {
       type: 'short',
     });
     const expectedId = '0xf3a0b019f604865080f94155ef50099c601da17e092300b751b262294e2bf9b4';
-    const [logs, res] = verification.verifyRequestId([apiCall]);
+    const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.InvalidRequestID });
   });
@@ -88,7 +88,7 @@ describe('verifyRequestId', () => {
       type: 'regular',
     });
     const expectedId = '0xf3a0b019f604865080f94155ef50099c601da17e092300b751b262294e2bf9b4';
-    const [logs, res] = verification.verifyRequestId([apiCall]);
+    const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.InvalidRequestID });
   });
@@ -104,7 +104,7 @@ describe('verifyRequestId', () => {
       type: 'full',
     });
     const expectedId = '0x681dd91d865d759081d5c68461f0ec4f89729ce9fd0fc0219e7029de9566c6d8';
-    const [logs, res] = verification.verifyRequestId([apiCall]);
+    const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.InvalidRequestID });
   });

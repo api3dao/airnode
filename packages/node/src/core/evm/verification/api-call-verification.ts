@@ -34,7 +34,7 @@ function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
   }
 }
 
-export function getExpectedRequestId(apiCall: ClientRequest<ApiCall>): string {
+function getExpectedRequestId(apiCall: ClientRequest<ApiCall>): string {
   const validatedFields = getValidatedFields(apiCall);
 
   const types = validatedFields.map((v) => v.type);
@@ -43,7 +43,7 @@ export function getExpectedRequestId(apiCall: ClientRequest<ApiCall>): string {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(types, values));
 }
 
-export function verifyRequestId(apiCalls: ClientRequest<ApiCall>[]): LogsData<ClientRequest<ApiCall>[]> {
+export function verifyApiCallIds(apiCalls: ClientRequest<ApiCall>[]): LogsData<ClientRequest<ApiCall>[]> {
   const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) {
       const log = logger.pend(
