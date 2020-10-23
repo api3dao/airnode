@@ -50,13 +50,19 @@ describe('submitWithdrawal', () => {
     expect(err).toEqual(null);
     expect(data).toEqual({ hash: '0xsuccessful' });
     expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
-    expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(withdrawal.id, {
-      gasPrice,
-      gasLimit: ethers.BigNumber.from('500'),
-      nonce: 5,
-      // 2_500_000 - (500 * 1000)
-      value: ethers.BigNumber.from('2000000'),
-    });
+    expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
+      withdrawal.id,
+      withdrawal.providerId,
+      withdrawal.requesterIndex,
+      withdrawal.destinationAddress,
+      {
+        gasPrice,
+        gasLimit: ethers.BigNumber.from('500'),
+        nonce: 5,
+        // 2_500_000 - (500 * 1000)
+        value: ethers.BigNumber.from('2000000'),
+      }
+    );
   });
 
   it('does nothing if the request is already fulfilled', async () => {
@@ -64,7 +70,12 @@ describe('submitWithdrawal', () => {
     const gasPrice = ethers.BigNumber.from('1000');
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Fulfilled });
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, { gasPrice });
-    expect(logs).toEqual([]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Withdrawal wallet index:${withdrawal.walletIndex} for Request:${withdrawal.id} not actioned as it has status:${withdrawal.status}`,
+      },
+    ]);
     expect(err).toEqual(null);
     expect(data).toEqual(null);
     expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
@@ -163,12 +174,18 @@ describe('submitWithdrawal', () => {
     expect(err).toEqual(new Error('Could not submit withdrawal'));
     expect(data).toEqual(null);
     expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
-    expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(withdrawal.id, {
-      gasPrice,
-      gasLimit: ethers.BigNumber.from('500'),
-      nonce: 5,
-      // 2_500_000 - (500 * 1000)
-      value: ethers.BigNumber.from('2000000'),
-    });
+    expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
+      withdrawal.id,
+      withdrawal.providerId,
+      withdrawal.requesterIndex,
+      withdrawal.destinationAddress,
+      {
+        gasPrice,
+        gasLimit: ethers.BigNumber.from('500'),
+        nonce: 5,
+        // 2_500_000 - (500 * 1000)
+        value: ethers.BigNumber.from('2000000'),
+      }
+    );
   });
 });
