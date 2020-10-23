@@ -1,11 +1,17 @@
-/*
-checks if at least one child in specs conforms specsStruct
- */
 import * as utils from '../utils/utils';
 import { validateSpecs } from '../validator';
 import { Roots } from '../types';
 
-export function findAnyValidParam(
+/**
+ * Checks if at least one param exists in provided specification conforming the validator specification structure
+ * @param specs - specification that is being validated
+ * @param specsStruct - validator specification structure, must be on the same level as specs
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @param nonRedundantParams - object containing all required and optional parameters that are being used
+ * @param roots - roots of specs and specsStruct
+ * @returns true if at least one child of specs satisfies specsStruct, otherwise returns false
+ */
+export function isAnyParamValid(
   specs: any,
   specsStruct: any,
   paramPath: string,

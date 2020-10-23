@@ -1,7 +1,14 @@
-// checks if key or value (depends on isKeyRegexp) matches regular expression in specsStruct
 import * as logger from '../utils/logger';
 import { Log } from '../types';
 
+/**
+ * Checks if key or value matches regular expression in specsStruct
+ * @param specs - specification that is being validated
+ * @param specsStruct - validator specification structure containing the regular expression
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @param isKeyRegexp - determines if key or value should be checked
+ * @returns incorrect formatting message if the parameter key or value did not match regular expression
+ */
 export function validateRegexp(specs: any, specsStruct: any, paramPath: string, isKeyRegexp = false): Log[] {
   const messages: Log[] = [];
 

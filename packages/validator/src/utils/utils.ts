@@ -1,5 +1,11 @@
 import * as logger from './logger';
+import { Log } from '../types';
 
+/**
+ * Retrieves name of the last parameter in provided path
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @returns last parameter in paramPath
+ */
 export function getLastParamName(paramPath: string): string {
   const lastDotIndex = paramPath.lastIndexOf('.');
 
@@ -10,11 +16,11 @@ export function getLastParamName(paramPath: string): string {
   return paramPath;
 }
 
-/*
-Used in conditions
-if parameter key matches provided regular expression all keys '__match' in '__then' tree
-must be replaced with matched parameter key,
-except '__match' keys that might be in different condition included in the '__then' tree
+/**
+ * Replaces all "__match" instances in provided object and all it's children, except children of "__conditions"
+ * @param match - string that "__match" instances will be replaced with
+ * @param specs - object in which "__match" instances will be replaced in
+ * @returns specs object with replaced "__match" instances
  */
 export function replaceConditionalMatch(match: string, specs: any): any {
   const ignoredKeys = ['__conditions'];
@@ -34,7 +40,14 @@ export function replaceConditionalMatch(match: string, specs: any): any {
   }, {});
 }
 
-export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string): logger.Log[] {
+/**
+ * Checks if any extra fields are present
+ * @param nonRedundant - object containing all required and optional parameters that are being used
+ * @param specs - specification that is being validated
+ * @param paramPath - in case an extra parameter is present, paramPath will be added in front of extra parameter in message
+ * @returns validator messages of all extra parameters
+ */
+export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string): Log[] {
   if (typeof specs !== 'object') {
     return [];
   }
@@ -64,6 +77,14 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }, []);
 }
 
+/**
+ * Detects empty type that should be inserted into nonRedundantParams
+ * @param param - name of the parameter of which the type should be determined
+ * @param specsStruct - validator specification structure, must be on the same level as specs
+ * @param nonRedundantParams - object containing required and optional parameters that are used
+ * @param specs - specification that is being validated
+ * @returns empty value of the same type as parameter, if parameter exists in nonRedundantParams returns value of parameter
+ */
 export function getEmptyNonRedundantParam(param: string, specsStruct: any, nonRedundantParams: any, specs: any): any {
   if (nonRedundantParams[param]) {
     return nonRedundantParams[param];

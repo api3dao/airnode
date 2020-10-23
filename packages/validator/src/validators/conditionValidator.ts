@@ -1,12 +1,17 @@
 import { validateSpecs } from '../validator';
-import { findAnyValidParam } from './anyValidator';
+import { isAnyParamValid } from './anyValidator';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Roots, Log } from '../types';
 
-/*
-validates if condition that might have matches inside the parameter key
-used for example in api specs paths, in which parameters are present inside curly braces directly in the name of path
+/**
+ * Validates "if" condition in which regular expression is matched against the key in specification
+ * @param specs - specification containing objects with keys that will be matched with regular expression
+ * @param condition - object containing the regular expression and validator structure, which will be validated in case the regular expression is matched
+ * @param nonRedundantParams - object containing all required and optional parameters that are being used
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @param roots - roots of specs and specsStruct
+ * @returns errors and warnings that occurred in validation of provided specification
  */
 function validateConditionRegexInKey(
   specs: any,
@@ -71,8 +76,14 @@ function validateConditionRegexInKey(
   return messages;
 }
 
-/*
-in case value of specs[paramName] matches provided regex, checks if structure in "then section" is present in specs
+/**
+ * Validates "if" condition in which regular expression is matched against the value in specification
+ * @param specs - specification containing objects with keys that will be matched with regular expression
+ * @param condition - object containing the regular expression and validator structure, which will be validated in case the regular expression is matched
+ * @param nonRedundantParams - object containing all required and optional parameters that are being used
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @param roots - roots of specs and specsStruct
+ * @returns errors and warnings that occurred in validation of provided specification
  */
 function validateConditionRegexInValue(
   specs: any,
@@ -98,7 +109,7 @@ function validateConditionRegexInValue(
    otherwise the required parameter is missing in specs and condition is not fulfilled
   */
   if (thenParamName === '__any') {
-    if (!findAnyValidParam(specs, condition['__then']['__any'], paramPath, nonRedundantParams, roots)) {
+    if (!isAnyParamValid(specs, condition['__then']['__any'], paramPath, nonRedundantParams, roots)) {
       messages.push(logger.error(`Required conditions not met in ${paramPath}`));
     }
 
@@ -165,6 +176,16 @@ function validateConditionRegexInValue(
   return messages;
 }
 
+/**
+ * Validates "require" condition in which a certain structure is required to be present in specification
+ * @param specs - specification that is being validated
+ * @param condition - object containing the structure that needs to be present in specification
+ * @param nonRedundantParams - object containing all required and optional parameters that are being used
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @param roots - roots of specs and specsStruct
+ * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
+ * @returns errors and warnings that occurred in validation of provided specification
+ */
 function validateConditionRequires(
   specs: any,
   condition: any,
@@ -262,6 +283,16 @@ function validateConditionRequires(
   return messages;
 }
 
+/**
+ * Validates "if" and "require" conditions in validator specification structure against provided specification
+ * @param specs - specification that is being validated
+ * @param condition - validator specification structure of conditions that the specification will be checked against
+ * @param nonRedundantParams - object containing all required and optional parameters that are being used
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location
+ * @param roots - roots of specs and specsStruct
+ * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
+ * @returns errors and warnings that occurred in validation of provided specification
+ */
 export function validateCondition(
   specs: any,
   condition: any,

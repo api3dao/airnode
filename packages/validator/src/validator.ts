@@ -4,13 +4,23 @@ import * as logger from './utils/logger';
 import { validateCondition } from './validators/conditionValidator';
 import { validateRegexp } from './validators/regexpValidator';
 import { validateOptional } from './validators/optionalValidator';
-import { findAnyValidParam } from './validators/anyValidator';
+import { isAnyParamValid } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
 
 const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
 const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
 const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
 
+/**
+ * Recursion validating provided specification against validator specification structure
+ * @param specs - specification that is being validated
+ * @param specsStruct - validator specification structure
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string in root)
+ * @param nonRedundantParams - object containing all required and optional parameters that are being used
+ * @param roots - roots of specs and specsStruct
+ * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
+ * @returns errors and warnings that occurred in validation of provided specification
+ */
 export function validateSpecs(
   specs: any,
   specsStruct: any,
@@ -107,7 +117,7 @@ export function validateSpecs(
         break;
 
       case '__any':
-        if (!findAnyValidParam(specs, specsStruct[key], paramPath, nonRedundantParams, roots)) {
+        if (!isAnyParamValid(specs, specsStruct[key], paramPath, nonRedundantParams, roots)) {
           messages.push(logger.error(`Required conditions not met in ${paramPath}`));
         }
 
@@ -173,6 +183,11 @@ export function validateSpecs(
   return { valid, messages };
 }
 
+/**
+ * Validates api specification
+ * @param specs - api specification to validate
+ * @returns array of error and warning messages
+ */
 export function isApiSpecsValid(specs: string): Result {
   const nonRedundant = {};
 
@@ -187,6 +202,11 @@ export function isApiSpecsValid(specs: string): Result {
   }
 }
 
+/**
+ * Validates endpoints array from oracle integration specification
+ * @param specs - endpoints array to validate
+ * @returns array of error and warning messages
+ */
 export function isEndpointsValid(specs: string): Result {
   const nonRedundant = [];
 
@@ -201,6 +221,11 @@ export function isEndpointsValid(specs: string): Result {
   }
 }
 
+/**
+ * Validates oracle integration specification
+ * @param specs - oracle integration specification to validate
+ * @returns array of error and warning messages
+ */
 export function isOisValid(specs: string): Result {
   const nonRedundant = {};
 
