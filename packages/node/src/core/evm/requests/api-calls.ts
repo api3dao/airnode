@@ -22,8 +22,9 @@ function getApiCallType(topic: string): ApiCallType {
       return 'short';
     case topics.ClientFullRequestCreated:
       return 'full';
+    // This should never be reached
     default:
-      throw new Error(`Unknown topic:${topic} during API call mapping`);
+      throw new Error(`Unknown topic:${topic} during API call initialization`);
   }
 }
 
