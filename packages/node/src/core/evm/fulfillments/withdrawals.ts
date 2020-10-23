@@ -38,12 +38,16 @@ export async function submitWithdrawal(
     );
     return [[estimateErrorLog], estimateErr, null];
   }
+
+  // Overestimate the gas limit just in case
+  const paddedGasLimit = estimatedGasLimit.add(ethers.BigNumber.from(20_000));
+
   const estimateLog = logger.pend(
     'DEBUG',
-    `Withdrawal gas limit estimated at ${estimatedGasLimit.toString()} for Request:${request.id}`
+    `Withdrawal gas limit estimated at ${paddedGasLimit.toString()} for Request:${request.id}`
   );
 
-  const txCost = estimatedGasLimit.mul(options.gasPrice);
+  const txCost = paddedGasLimit.mul(options.gasPrice);
   // We set aside some ETH to pay for the gas of the following transaction,
   // send all the rest along with the transaction. The contract will direct
   // these funds to the destination given at the request.
@@ -59,6 +63,7 @@ export async function submitWithdrawal(
   }
 
   const fundsToSend = currentBalance.sub(txCost);
+  // TODO: log error and return if negative
 
   const noticeLog = logger.pend(
     'INFO',
@@ -71,7 +76,7 @@ export async function submitWithdrawal(
     request.requesterIndex,
     request.destinationAddress,
     {
-      gasLimit: estimatedGasLimit,
+      gasLimit: paddedGasLimit,
       gasPrice: options.gasPrice!,
       nonce: request.nonce!,
       value: fundsToSend,
