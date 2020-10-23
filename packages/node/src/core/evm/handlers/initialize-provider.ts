@@ -127,5 +127,5 @@ export async function initializeProvider(
 
   const state6 = state.update(state5, { walletDataByIndex: walletDataWithAuthorizations });
 
-  return state4;
+  return state6;
 }
