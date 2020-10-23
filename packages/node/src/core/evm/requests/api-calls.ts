@@ -1,8 +1,31 @@
 import flatMap from 'lodash/flatMap';
 import * as cbor from '../cbor';
+import * as contracts from '../contracts';
 import * as events from './events';
 import * as logger from '../../logger';
-import { ApiCall, ClientRequest, LogsData, LogWithMetadata, RequestErrorCode, RequestStatus } from '../../../types';
+import {
+  ApiCall,
+  ApiCallType,
+  ClientRequest,
+  LogsData,
+  LogWithMetadata,
+  RequestErrorCode,
+  RequestStatus,
+} from '../../../types';
+
+function getApiCallType(topic: string): ApiCallType {
+  const { topics } = contracts.Airnode;
+  switch (topic) {
+    case topics.ClientRequestCreated:
+      return 'regular';
+    case topics.ClientShortRequestCreated:
+      return 'short';
+    case topics.ClientFullRequestCreated:
+      return 'full';
+    default:
+      throw new Error(`Unknown topic:${topic} during API call mapping`);
+  }
+}
 
 export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
@@ -26,6 +49,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     requesterIndex: parsedLog.args.requesterInd || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,
+    type: getApiCallType(parsedLog.topic),
 
     // TODO: protocol-overhaul remove these
     errorAddress: parsedLog.args.errorAddress,

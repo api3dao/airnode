@@ -15,11 +15,11 @@ type AnyRequest = ApiCall | Withdrawal;
 
 function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<any>[] {
   // Store the type as well temporarily so that requests can be ungrouped again
-  const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, type: RequestType.ApiCall }));
+  const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, __type: RequestType.ApiCall }));
 
   const withdrawals = groupedRequests.withdrawals.map((withdrawal) => ({
     ...withdrawal,
-    type: RequestType.Withdrawal,
+    __type: RequestType.Withdrawal,
   }));
 
   // Requests are processed with the following priority:
@@ -30,12 +30,12 @@ function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<any>[]
 
 function groupRequests(flatRequests: ClientRequest<any>[]): GroupedRequests {
   const apiCalls = flatRequests
-    .filter((request) => request.type === RequestType.ApiCall)
-    .map((request) => removeKey(request, 'type')) as ClientRequest<ApiCall>[];
+    .filter((request) => request.__type === RequestType.ApiCall)
+    .map((request) => removeKey(request, '__type')) as ClientRequest<ApiCall>[];
 
   const withdrawals = flatRequests
-    .filter((request) => request.type === RequestType.Withdrawal)
-    .map((request) => removeKey(request, 'type')) as ClientRequest<Withdrawal>[];
+    .filter((request) => request.__type === RequestType.Withdrawal)
+    .map((request) => removeKey(request, '__type')) as ClientRequest<Withdrawal>[];
 
   return { apiCalls, withdrawals };
 }

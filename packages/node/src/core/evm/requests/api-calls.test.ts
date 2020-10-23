@@ -19,6 +19,7 @@ describe('initialize ApiCall ClientRequest', () => {
           parameters: '0x636b6579a169736f6d657468696e676576616c7565',
           noRequests: ethers.BigNumber.from('12'),
         },
+        topic: '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
       },
       blockNumber: 10716082,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
@@ -27,8 +28,6 @@ describe('initialize ApiCall ClientRequest', () => {
     expect(apiCalls.initialize(logWithMetadata)).toEqual({
       designatedWallet: null,
       endpointId: null,
-      errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-      errorFunctionId: '0xba12a5e4',
       fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       fulfillFunctionId: '0x042f2b65',
       encodedParameters: '0x636b6579a169736f6d657468696e676576616c7565',
@@ -44,13 +43,52 @@ describe('initialize ApiCall ClientRequest', () => {
       requesterIndex: null,
       status: RequestStatus.Pending,
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
+      type: 'short',
       // TODO: protocol-overhaul remove these
+      errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+      errorFunctionId: '0xba12a5e4',
       requesterId: 'requesterId',
       walletIndex: '1',
       walletAddress: 'walletAddress',
       walletBalance: '100000',
       walletMinimumBalance: '50000',
     });
+  });
+
+  it('sets the API call type', () => {
+    const base: any = {
+      parsedLog: {
+        args: {
+          providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
+          requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
+          requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+          templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
+          fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+          fulfillFunctionId: '0x042f2b65',
+          parameters: '0x636b6579a169736f6d657468696e676576616c7565',
+          noRequests: ethers.BigNumber.from('12'),
+        },
+        topic: '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
+      },
+      blockNumber: 10716082,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+    };
+    const short = {
+      ...base,
+      parsedLog: { ...base.parsedLog, topic: '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6' },
+    };
+    const regular = {
+      ...base,
+      parsedLog: { ...short.parsedLog, topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+    };
+    const full = {
+      ...base,
+      parsedLog: { ...short.parsedLog, topic: '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44' },
+    };
+
+    expect(apiCalls.initialize(short).type).toEqual('short');
+    expect(apiCalls.initialize(regular).type).toEqual('regular');
+    expect(apiCalls.initialize(full).type).toEqual('full');
   });
 });
 
@@ -70,6 +108,7 @@ describe('applyParameters', () => {
           parameters: '',
           noRequests: ethers.BigNumber.from('12'),
         },
+        topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
       },
       blockNumber: 10716082,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
@@ -98,6 +137,7 @@ describe('applyParameters', () => {
           parameters: '0x636b6579a169736f6d657468696e676576616c7565',
           noRequests: ethers.BigNumber.from('12'),
         },
+        topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
       },
       blockNumber: 10716082,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
@@ -128,6 +168,7 @@ describe('applyParameters', () => {
           errorFunctionId: '0xba12a5e4',
           noRequests: ethers.BigNumber.from('12'),
         },
+        topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
       },
       blockNumber: 10716082,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
@@ -208,8 +249,9 @@ describe('mapRequests (ApiCall)', () => {
         requestCount: '12',
         requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         requesterIndex: null,
-        templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
         status: RequestStatus.Pending,
+        templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
+        type: 'regular',
         // TODO: protocol-overhaul remove these
         requesterId: 'requesterId',
         walletIndex: '1',

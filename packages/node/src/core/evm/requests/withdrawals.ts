@@ -6,6 +6,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<With
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<Withdrawal> = {
+    designatedWallet: parsedLog.args.designatedWallet,
     id: parsedLog.args.withdrawalRequestId,
     status: RequestStatus.Pending,
     providerId: parsedLog.args.providerId,
@@ -14,6 +15,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<With
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
+    requesterIndex: parsedLog.args.requesterInd,
     // TODO: protocol-overhaul remove these
     requesterId: 'requesterId',
     walletIndex: '1',

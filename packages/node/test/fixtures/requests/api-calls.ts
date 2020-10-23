@@ -6,7 +6,6 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
     requesterAddress: 'requesterAddress',
     designatedWallet: 'designatedWallet',
     endpointId: 'endpointId',
-    templateId: null,
     fulfillAddress: 'fulfillAddress',
     fulfillFunctionId: 'fulfillFunctionId',
     errorAddress: 'errorAddress',
@@ -21,6 +20,8 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
       transactionHash: 'logTransactionHash',
     },
     requestCount: '12',
+    templateId: null,
+    type: 'regular',
     // TODO: protocol-overhaul remove these
     requesterId: 'requesterId',
     walletIndex: '1',
