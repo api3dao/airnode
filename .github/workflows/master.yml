@@ -40,8 +40,8 @@ jobs:
 
     - name: Prepare config
       run: |
-        cp packages/node/config.json.example packages/node/config.json
-        cp packages/node/security.json.example packages/node/security.json
+        cp packages/node/config.json.example packages/node/src/config.json
+        cp packages/node/security.json.example packages/node/src/security.json
 
     - name: Build node
       run: npm run build:node
