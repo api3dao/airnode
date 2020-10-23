@@ -1,12 +1,5 @@
 import flatMap from 'lodash/flatMap';
-import isEqual from 'lodash/isEqual';
-import pick from 'lodash/pick';
-import { AggregatedApiCall, ApiCall, ClientRequest, WalletDataByIndex } from '../../types';
-
-export function isDuplicate(apiCall: ClientRequest<ApiCall>, aggregatedApiCall: AggregatedApiCall): boolean {
-  const fields = ['id', 'endpointId', 'parameters'];
-  return isEqual(pick(apiCall, fields), pick(aggregatedApiCall, fields));
-}
+import { ApiCall, ClientRequest, WalletDataByIndex } from '../../types';
 
 export function flatten(walletDataByIndex: WalletDataByIndex): ClientRequest<ApiCall>[] {
   const walletIndices = Object.keys(walletDataByIndex);
