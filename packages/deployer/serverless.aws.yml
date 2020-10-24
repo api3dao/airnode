@@ -19,6 +19,7 @@ provider:
 package: 
   individually: true
   
+functions:
   start:
     handler: ./src/handlers.start
     timeout: 60
