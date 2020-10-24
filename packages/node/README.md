@@ -61,7 +61,8 @@ core/
 │   ├── requests/       # Request/response specific code
 │   ├── templates       # Fetching and applying request templates
 │   ├── transactions/   # Executing transactions
-│   └── triggers/       # Trigger specific implementations
+│   ├── triggers/       # Trigger specific implementations
+│   └── verification/   # Request verification
 ├── handlers/           # "Pipeline" type modules that generally serve as entry points
 ├── providers/          # Provider workers and state
 ├── requests/           # Generic modules applicable to different blockchains

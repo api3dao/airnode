@@ -1,12 +1,13 @@
 import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
 
 export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
+  // These fields have invalid values on purpose to allow for easier reading. When necessary,
+  // they can be overridden with valid values
   return {
     id: 'apiCallId',
     requesterAddress: 'requesterAddress',
     designatedWallet: 'designatedWallet',
     endpointId: 'endpointId',
-    templateId: null,
     fulfillAddress: 'fulfillAddress',
     fulfillFunctionId: 'fulfillFunctionId',
     errorAddress: 'errorAddress',
@@ -21,6 +22,8 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
       transactionHash: 'logTransactionHash',
     },
     requestCount: '12',
+    templateId: null,
+    type: 'regular',
     // TODO: protocol-overhaul remove these
     requesterId: 'requesterId',
     walletIndex: '1',

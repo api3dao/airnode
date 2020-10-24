@@ -27,6 +27,8 @@ export enum RequestErrorCode {
   UnknownOIS = 17,
   FulfillTransactionFailed = 18,
   InvalidTemplate = 19,
+  InvalidDesignatedWallet = 20,
+  InvalidRequestID = 21,
 }
 
 export enum RequestStatus {
@@ -48,10 +50,12 @@ export interface RequestMetadata {
 }
 
 export type ClientRequest<T extends {}> = T & {
+  readonly designatedWallet: string | null;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
+  readonly requesterIndex: string | null;
   readonly status: RequestStatus;
 
   // TODO: protocol-overhaul remove these
@@ -62,8 +66,9 @@ export type ClientRequest<T extends {}> = T & {
   readonly walletMinimumBalance: string;
 };
 
+export type ApiCallType = 'short' | 'regular' | 'full';
+
 export interface ApiCall {
-  readonly designatedWallet: string | null;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
   readonly fulfillAddress: string | null;
@@ -72,9 +77,9 @@ export interface ApiCall {
   readonly providerId: string;
   readonly requestCount: string;
   readonly requesterAddress: string;
-  readonly requesterIndex: string | null;
   readonly responseValue?: string;
   readonly templateId: string | null;
+  readonly type: ApiCallType;
 
   // TODO: protocol-overhaul remove these
   readonly errorAddress: string | null;

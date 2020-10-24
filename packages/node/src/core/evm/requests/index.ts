@@ -2,6 +2,7 @@ import * as apiCalls from './api-calls';
 import * as blocking from './blocking';
 import * as eventLogs from './event-logs';
 import * as logger from '../../logger';
+import * as verification from '../verification';
 import * as withdrawals from './withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../../types';
 
@@ -31,11 +32,14 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   const [apiLogs, apiCallRequests] = apiCalls.mapRequests(groupedLogs.apiCalls);
   logger.logPending(apiLogs, baseLogOptions);
 
+  const [verifyLogs, verifiedApiCalls] = verification.verifyApiCallIds(apiCallRequests);
+  logger.logPending(verifyLogs, baseLogOptions);
+
   const [withdrawLogs, withdrawalRequests] = withdrawals.mapRequests(groupedLogs.withdrawals);
   logger.logPending(withdrawLogs, baseLogOptions);
 
   const groupedRequests: GroupedRequests = {
-    apiCalls: apiCallRequests,
+    apiCalls: verifiedApiCalls,
     withdrawals: withdrawalRequests,
   };
 

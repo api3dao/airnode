@@ -1,4 +1,5 @@
 import { go } from '../../utils/promise-utils';
+import * as apiCalls from '../../requests/api-calls';
 import * as authorization from '../authorization';
 import * as grouping from '../requests/grouping';
 import * as logger from '../../logger';
@@ -7,6 +8,7 @@ import * as state from '../../providers/state';
 import * as triggers from '../triggers';
 import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
+import * as verification from '../verification';
 import * as wallet from '../wallet';
 import { EVMProviderState, PendingLog, ProviderState } from '../../../types';
 
@@ -97,17 +99,33 @@ export async function initializeProvider(
     regroupedRequests,
     transactionCountsByAddress.data
   );
+  const state4 = state.update(state3, { walletDataByIndex: walletDataWithTransactionCounts });
 
-  // // =================================================================
-  // // STEP 5: Merge authorizations and transaction counts
-  // // =================================================================
+  // =================================================================
+  // STEP 5: Validate API calls now that all template fields are present
+  // =================================================================
+  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+    apiCalls.flatten(state4.walletDataByIndex)
+  );
+  logger.logPending(verifyLogs, baseLogOptions);
+
+  // TODO: temporary workaround until wallet data by index is dropped
+  const regroupedRequests2 = grouping.groupRequestsByWalletIndex({
+    apiCalls: verifiedApiCalls,
+    withdrawals: flatWithdrawals,
+  });
+  const state5 = state.update(state4, { walletDataByIndex: regroupedRequests2 });
+
+  // =================================================================
+  // STEP 6: Merge authorizations and transaction counts
+  // =================================================================
   const [authLogs, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
     walletDataWithTransactionCounts,
     authorizationsByEndpoint
   );
   logger.logPending(authLogs, baseLogOptions);
 
-  const state4 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
+  const state6 = state.update(state5, { walletDataByIndex: walletDataWithAuthorizations });
 
-  return state4;
+  return state6;
 }
