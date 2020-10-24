@@ -29,15 +29,14 @@ export function log(level: LogLevel, message: string, options: LogOptions) {
     return;
   }
 
-  // Set as lowercase. i.e. `export LOG_LEVEL=info`
-  const LOG_LEVEL = process.env.LOG_LEVEL;
+  // Set as lowercase. i.e. `export LOG_LEVEL=debug`
+  // Defaults to 'info' so the user needs to opt in to debug logs
+  const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 
-  if (LOG_LEVEL) {
-    const systemLevel = logLevels[LOG_LEVEL.toUpperCase()];
-    const messageLevel = logLevels[level];
-    if (systemLevel > messageLevel) {
-      return;
-    }
+  const systemLevel = logLevels[LOG_LEVEL.toUpperCase()];
+  const messageLevel = logLevels[level];
+  if (systemLevel > messageLevel) {
+    return;
   }
 
   if (options.format === 'plain') {
