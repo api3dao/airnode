@@ -63,7 +63,17 @@ export async function submitWithdrawal(
   }
 
   const fundsToSend = currentBalance.sub(txCost);
-  // TODO: log error and return if negative
+
+  // We can't submit a withdrawal with a negative amount
+  if (fundsToSend.lt(0)) {
+    const negativeLog = logger.pend(
+      'ERROR',
+      `Unable to submit withdrawal for Request:${
+        request.id
+      } as the amount is negative. Amount: ${ethers.utils.formatEther(fundsToSend)} ETH`
+    );
+    return [[estimateLog, negativeLog], null, null];
+  }
 
   const noticeLog = logger.pend(
     'INFO',

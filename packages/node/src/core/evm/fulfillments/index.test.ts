@@ -67,7 +67,7 @@ describe('submit', () => {
       },
       transactionCount: 3,
     };
-    const gasPrice = ethers.BigNumber.from('1000');
+    const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
     const walletDataByIndex = { 0: adminWalletData, 9: wallet2Data };
     const state = providerState.update(initialState, { gasPrice, provider, walletDataByIndex });
@@ -76,8 +76,8 @@ describe('submit', () => {
     (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
     contract.fulfill.mockResolvedValueOnce({ hash: '0xapicall_tx1' });
     contract.fulfill.mockResolvedValueOnce({ hash: '0xapicall_tx2' });
-    (provider.getBalance as jest.Mock).mockResolvedValue(ethers.BigNumber.from('2500000'));
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from('500'));
+    (provider.getBalance as jest.Mock).mockResolvedValue(ethers.BigNumber.from(250_000_000));
+    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from(50_000));
     contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xwithdrawal_tx1' });
 
     const res = await fulfillments.submit(state);
@@ -105,7 +105,7 @@ describe('submit', () => {
       },
       transactionCount: 5,
     };
-    const gasPrice = ethers.BigNumber.from('1000');
+    const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
     const walletDataByIndex = { 8: wallet1Data };
     const state = providerState.update(initialState, { gasPrice, provider, walletDataByIndex });
@@ -128,14 +128,14 @@ describe('submit', () => {
       },
       transactionCount: 3,
     };
-    const gasPrice = ethers.BigNumber.from('1000');
+    const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
     const walletDataByIndex = { 9: wallet1Data };
     const state = providerState.update(initialState, { gasPrice, provider, walletDataByIndex });
 
     const contract = new ethers.Contract('address', ['ABI']);
-    (provider.getBalance as jest.Mock).mockResolvedValue(ethers.BigNumber.from('2500000'));
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from('500'));
+    (provider.getBalance as jest.Mock).mockResolvedValue(ethers.BigNumber.from(250_000_000));
+    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from(50_000));
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await fulfillments.submit(state);
