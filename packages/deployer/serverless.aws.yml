@@ -11,6 +11,10 @@ provider:
   runtime: nodejs12.x
   memorySize: 256
   environment: ${file(secrets.json)}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action: 'lambda:InvokeFunction'
+      Resource: '*'
 
 package: 
   individually: true
