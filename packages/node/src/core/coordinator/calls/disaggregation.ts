@@ -1,7 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import flatten from 'lodash/flatten';
 import * as logger from '../../logger';
-import { isDuplicate } from '../../requests/api-calls';
 import {
   AggregatedApiCallsById,
   ApiCall,
@@ -26,29 +25,10 @@ function mapApiCalls(
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<ClientRequest<ApiCall>[]> {
   const logsWithApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
-    const aggregatedApiCalls = aggregatedApiCallsById[apiCall.id];
+    const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
 
-    if (!aggregatedApiCalls) {
-      const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
-      const updatedCall = {
-        ...apiCall,
-        status: RequestStatus.Blocked,
-        errorCode: RequestErrorCode.UnableToMatchAggregatedCall,
-      };
-      return [[log], updatedCall];
-    }
-
-    // NOTE: If different providers returned requests with the same ID, but different parameters
-    // then there will be multiple aggregated API calls link given request ID. We need to find
-    // the aggregated API call that matches the initial grouping
-    const aggregatedApiCall = aggregatedApiCalls.find((aggregatedCall) => {
-      return isDuplicate(apiCall, aggregatedCall);
-    });
-
-    // There should always be an aggregated API call when working backwards/ungrouping, but if there is
-    // not we need to catch and log an error
     if (!aggregatedApiCall) {
-      const log = logger.pend('ERROR', `Unable to find matching aggregated API call for Request:${apiCall.id}`);
+      const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
       const updatedCall = {
         ...apiCall,
         status: RequestStatus.Blocked,

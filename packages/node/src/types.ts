@@ -137,7 +137,7 @@ export type ProviderState<T extends {}> = T & {
 };
 
 export interface AggregatedApiCallsById {
-  readonly [requestId: string]: AggregatedApiCall[];
+  readonly [requestId: string]: AggregatedApiCall;
 }
 
 export interface CoordinatorState {
