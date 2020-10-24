@@ -52,8 +52,9 @@ describe('spawnNewProvider', () => {
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
-      functionName: 'initializeProvider',
-      payload: { state },
+      payload: {
+        parameters: { state },
+      },
     });
   });
 });

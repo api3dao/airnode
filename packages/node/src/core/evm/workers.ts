@@ -6,8 +6,7 @@ export async function spawnNewProvider(
   state: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState>> {
   // TODO: This will probably need to change for other cloud providers
-  const parameters = { state };
-  const payload = workers.isLocalEnv() ? { parameters } : parameters;
+  const payload = { parameters: { state } };
   // TODO: Build the function name from parameters
   const options = { functionName: 'airnode-9e5a89d-dev-initializeProvider', payload };
 
@@ -25,8 +24,7 @@ export async function spawnProviderRequestProcessor(
   state: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState>> {
   // TODO: This will probably need to change for other cloud providers
-  const parameters = { state };
-  const payload = workers.isLocalEnv() ? { parameters } : parameters;
+  const payload = { state };
   // TODO: Build the function name from parameters
   const options = { functionName: 'airnode-9e5a89d-dev-processProviderRequests', payload };
 

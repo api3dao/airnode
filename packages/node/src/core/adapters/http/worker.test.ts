@@ -48,8 +48,10 @@ describe('spawnNewApiCall', () => {
     expect(spawnAwsMock1).toHaveBeenCalledWith({
       functionName: 'callApi',
       payload: {
-        aggregatedApiCall,
-        logOptions,
+        parameters: {
+          aggregatedApiCall,
+          logOptions,
+        },
       },
     });
   });

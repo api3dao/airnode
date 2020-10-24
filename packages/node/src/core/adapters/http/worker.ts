@@ -6,8 +6,7 @@ export async function spawnNewApiCall(
   logOptions: LogOptions
 ): Promise<ApiCallResponse> {
   // TODO: This will probably need to change for other cloud providers
-  const parameters = { aggregatedApiCall, logOptions };
-  const payload = workers.isLocalEnv() ? { parameters } : parameters;
+  const payload = { parameters: { aggregatedApiCall, logOptions } };
   // TODO: Build the function name from parameters
   const options = { functionName: 'airnode-9e5a89d-dev-callApi', payload };
 
