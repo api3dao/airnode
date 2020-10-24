@@ -8,10 +8,11 @@ export async function spawnNewProvider(
   // TODO: This will probably need to change for other cloud providers
   const parameters = { state };
   const payload = workers.isLocalEnv() ? { parameters } : parameters;
-  const options = { functionName: 'initializeProvider', payload };
+  // TODO: Build the function name from parameters
+  const options = { functionName: 'airnode-9e5a89d-dev-initializeProvider', payload };
 
   // If this throws, it will be caught by the calling function
-  const updatedState = await workers.spawn(options);
+  const updatedState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
 
   // The serverless function does not return an instance of an Ethereum
   // provider, so we create a new one before returning the state
@@ -26,7 +27,8 @@ export async function spawnProviderRequestProcessor(
   // TODO: This will probably need to change for other cloud providers
   const parameters = { state };
   const payload = workers.isLocalEnv() ? { parameters } : parameters;
-  const options = { functionName: 'processProviderRequests', payload };
+  // TODO: Build the function name from parameters
+  const options = { functionName: 'airnode-9e5a89d-dev-processProviderRequests', payload };
 
   // If this throws, it will be caught by the calling function
   const updatedState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
