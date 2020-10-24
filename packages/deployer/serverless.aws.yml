@@ -14,10 +14,6 @@ provider:
 
 package: 
   individually: true
-
-functions:
-  test:
-    handler: ./src/handlers.test
   
   start:
     handler: ./src/handlers.start
