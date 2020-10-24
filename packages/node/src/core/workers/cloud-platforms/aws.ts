@@ -5,7 +5,7 @@ import { WorkerParameters } from '../utils';
 export function spawn(params: WorkerParameters) {
   // lambda.invoke is synchronous so we need to wrap this in a promise
   return new Promise((resolve, reject) => {
-    // TODO: configure lambda environment
+    // Uses the current region by default
     const lambda = new AWS.Lambda();
 
     const options = {
@@ -13,12 +13,11 @@ export function spawn(params: WorkerParameters) {
       Payload: JSON.stringify(params.payload),
     };
 
-    // TODO: this will probably break until we get to actually test on AWS
     lambda.invoke(options, (err, data) => {
       if (err) {
         reject(err);
       }
-      resolve(data);
+      resolve(JSON.parse(JSON.parse(data.Payload!.toString()).body));
     });
   });
 }
