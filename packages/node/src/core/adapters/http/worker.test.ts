@@ -26,7 +26,7 @@ describe('spawnNewApiCall', () => {
     expect(res).toEqual({ value: '0x123' });
     expect(spawnLocalAwsMock1).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock1).toHaveBeenCalledWith({
-      functionName: 'callApi',
+      functionName: 'airnode-9e5a89d-dev-callApi',
       payload: {
         parameters: {
           aggregatedApiCall,
@@ -46,7 +46,7 @@ describe('spawnNewApiCall', () => {
     expect(res).toEqual({ value: '0x123' });
     expect(spawnAwsMock1).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock1).toHaveBeenCalledWith({
-      functionName: 'callApi',
+      functionName: 'airnode-9e5a89d-dev-callApi',
       payload: {
         parameters: {
           aggregatedApiCall,

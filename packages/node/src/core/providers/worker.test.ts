@@ -34,7 +34,7 @@ describe('spawnNewProvider', () => {
     expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
-      functionName: 'initializeProvider',
+      functionName: 'airnode-9e5a89d-dev-initializeProvider',
       payload: {
         parameters: { state },
       },
@@ -52,6 +52,7 @@ describe('spawnNewProvider', () => {
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
+      functionName: 'airnode-9e5a89d-dev-initializeProvider',
       payload: {
         parameters: { state },
       },

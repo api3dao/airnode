@@ -24,7 +24,7 @@ export function spawn(params: WorkerParameters) {
 
 export function spawnLocal(params: WorkerParameters) {
   return new Promise((resolve, reject) => {
-    const fn = awsHandlers[params.functionName];
+    const fn = awsHandlers[params.functionName.split('-')[3]];
 
     if (!fn) {
       reject(new Error(`Cannot find AWS function: '${params.functionName}'`));

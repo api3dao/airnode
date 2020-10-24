@@ -18,7 +18,7 @@ describe('spawn', () => {
     const lambda = new AWS.Lambda();
 
     const invoke = lambda.invoke as jest.Mock;
-    invoke.mockImplementationOnce((params, callback) => callback(null, { value: 7777 }));
+    invoke.mockImplementationOnce((params, callback) => callback(null, { Payload: '{"body":"{\\"value\\": 7777}"}' }));
 
     const parameters = {
       functionName: 'some-function',
@@ -73,7 +73,7 @@ describe('spawnLocal', () => {
     customFnMock.mockImplementationOnce(() => Promise.resolve(response));
 
     const parameters = {
-      functionName: 'myCustomFn',
+      functionName: 'airnode-providerShortId-stage-myCustomFn',
       payload: { from: 'ETH', to: 'USD' },
     };
     const res = await aws.spawnLocal(parameters);
@@ -85,7 +85,7 @@ describe('spawnLocal', () => {
     customFnMock.mockImplementationOnce(() => Promise.reject(response));
 
     const parameters = {
-      functionName: 'myCustomFn',
+      functionName: 'airnode-providerShortId-stage-myCustomFn',
       payload: {
         pathParameters: { from: 'ETH', to: 'USD' },
       },
