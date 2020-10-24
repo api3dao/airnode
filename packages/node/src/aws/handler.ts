@@ -13,7 +13,7 @@ export async function start(_event: any) {
 }
 
 export async function initializeProvider(event: any) {
-  const { state } = event.parameters;
+  const { state } = event;
   // TODO: Wrap this in a 'go' to catch and log any unexpected errors
   const initializedState = await handlers.initializeProvider(state);
   if (!initializedState) {
@@ -30,14 +30,14 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions } = event.parameters;
+  const { aggregatedApiCall, logOptions } = event;
   const [logs, response] = await handlers.callApi(aggregatedApiCall);
   logger.logPending(logs, logOptions);
   return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function processProviderRequests(event: any) {
-  const { state } = event.parameters;
+  const { state } = event;
   const updatedState = await handlers.processTransactions(state);
   const body = removeKey(updatedState, 'provider');
   return { statusCode: 200, body: JSON.stringify(body) };
