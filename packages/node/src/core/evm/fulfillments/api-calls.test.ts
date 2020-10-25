@@ -28,7 +28,12 @@ describe('submitApiCall', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       const apiCall = fixtures.requests.createApiCall({ status: RequestStatus.Fulfilled });
       const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice });
-      expect(logs).toEqual([]);
+      expect(logs).toEqual([
+        {
+          level: 'DEBUG',
+          message: `API call for Request:${apiCall.id} not actioned as it has status:${apiCall.status}`,
+        },
+      ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
       expect(contract.callStatic.fulfill).not.toHaveBeenCalled();

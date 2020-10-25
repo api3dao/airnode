@@ -179,18 +179,16 @@ export async function submitApiCall(
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
-  // No need to log anything if the request is already fulfilled
-  if (request.status === RequestStatus.Fulfilled) {
-    return [[], null, null];
+  if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {
+    const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
+    const log = logger.pend(
+      logStatus,
+      `API call for Request:${request.id} not actioned as it has status:${request.status}`
+    );
+    return [[log], null, null];
   }
 
-  if ([RequestStatus.Pending, RequestStatus.Errored].includes(request.status)) {
-    // Should not throw
-    const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
-    return [submitLogs, submitErr, submitData];
-  }
-
-  const log = logger.pend('INFO', `API call for Request:${request.id} not actioned as it has status:${request.status}`);
-
-  return [[log], null, null];
+  // Should not throw
+  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
+  return [submitLogs, submitErr, submitData];
 }
