@@ -44,7 +44,7 @@ describe('submitWithdrawal', () => {
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
         level: 'INFO',
-        message: `Submitting withdrawal wallet index:${withdrawal.walletIndex} for Request:${withdrawal.id}...`,
+        message: `Submitting withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id}...`,
       },
     ]);
     expect(err).toEqual(null);
@@ -73,7 +73,7 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       {
         level: 'DEBUG',
-        message: `Withdrawal wallet index:${withdrawal.walletIndex} for Request:${withdrawal.id} not actioned as it has status:${withdrawal.status}`,
+        message: `Withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id} not actioned as it has status:${withdrawal.status}`,
       },
     ]);
     expect(err).toEqual(null);
@@ -95,7 +95,7 @@ describe('submitWithdrawal', () => {
     expect(blockedRes[0]).toEqual([
       {
         level: 'INFO',
-        message: `Withdrawal wallet index:${blocked.walletIndex} for Request:${blocked.id} not actioned as it has status:${blocked.status}`,
+        message: `Withdrawal wallet index:${blocked.requesterIndex} for Request:${blocked.id} not actioned as it has status:${blocked.status}`,
       },
     ]);
     expect(blockedRes[1]).toEqual(null);
@@ -103,7 +103,7 @@ describe('submitWithdrawal', () => {
     expect(erroredRes[0]).toEqual([
       {
         level: 'INFO',
-        message: `Withdrawal wallet index:${errored.walletIndex} for Request:${errored.id} not actioned as it has status:${errored.status}`,
+        message: `Withdrawal wallet index:${errored.requesterIndex} for Request:${errored.id} not actioned as it has status:${errored.status}`,
       },
     ]);
     expect(erroredRes[1]).toEqual(null);
@@ -122,7 +122,7 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
-        level: 'ERROR',
+        level: 'INFO',
         message: `Unable to submit withdrawal for Request:${withdrawal.id} as the amount is negative. Amount: -0.00000000002 ETH`,
       },
     ]);
@@ -134,16 +134,14 @@ describe('submitWithdrawal', () => {
   it('returns an error if the current balance cannot be fetched', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
-    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     (provider.getBalance as jest.Mock).mockRejectedValueOnce(new Error('Could not fetch balance'));
+    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
-      { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
         level: 'ERROR',
-        message: `Failed to fetch wallet index:${withdrawal.walletIndex} balance for Request:${withdrawal.id}. Error: Could not fetch balance`,
+        message: `Failed to fetch wallet index:${withdrawal.requesterIndex} balance for Request:${withdrawal.id}. Error: Could not fetch balance`,
       },
     ]);
     expect(err).toEqual(new Error('Could not fetch balance'));
@@ -184,11 +182,11 @@ describe('submitWithdrawal', () => {
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
         level: 'INFO',
-        message: `Submitting withdrawal wallet index:${withdrawal.walletIndex} for Request:${withdrawal.id}...`,
+        message: `Submitting withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id}...`,
       },
       {
         level: 'ERROR',
-        message: `Error submitting wallet index:${withdrawal.walletIndex} withdrawal for Request:${withdrawal.id}. Error: Could not submit withdrawal`,
+        message: `Error submitting wallet index:${withdrawal.requesterIndex} withdrawal for Request:${withdrawal.id}. Error: Could not submit withdrawal`,
       },
     ]);
     expect(err).toEqual(new Error('Could not submit withdrawal'));

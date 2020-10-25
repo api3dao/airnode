@@ -15,9 +15,20 @@ export async function submitWithdrawal(
     const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
     const log = logger.pend(
       logStatus,
-      `Withdrawal wallet index:${request.walletIndex} for Request:${request.id} not actioned as it has status:${request.status}`
+      `Withdrawal wallet index:${request.requesterIndex} for Request:${request.id} not actioned as it has status:${request.status}`
     );
     return [[log], null, null];
+  }
+
+  const xpub = wallet.getExtendedPublicKey();
+  const requesterAddress = wallet.deriveWalletAddressFromIndex(xpub, request.requesterIndex!);
+  const [balanceErr, currentBalance] = await go(options.provider!.getBalance(requesterAddress));
+  if (balanceErr || !currentBalance) {
+    const errLog = logger.pend(
+      'ERROR',
+      `Failed to fetch wallet index:${request.requesterIndex} balance for Request:${request.id}. ${balanceErr}`
+    );
+    return [[errLog], balanceErr, null];
   }
 
   const estimateTx = airnode.estimateGas.fulfillWithdrawal(
@@ -26,6 +37,8 @@ export async function submitWithdrawal(
     request.requesterIndex,
     request.destinationAddress,
     // We need to send some funds for the gas price calculation to be correct
+    // We also can't send the current balance as that would cause the withdrawal
+    // to revert. The transaction cost would need to be subtracted first
     { value: 1 }
   );
 
@@ -47,37 +60,24 @@ export async function submitWithdrawal(
     `Withdrawal gas limit estimated at ${paddedGasLimit.toString()} for Request:${request.id}`
   );
 
-  const txCost = paddedGasLimit.mul(options.gasPrice);
   // We set aside some ETH to pay for the gas of the following transaction,
   // send all the rest along with the transaction. The contract will direct
   // these funds to the destination given at the request.
-  const xpub = wallet.getExtendedPublicKey();
-  const requesterAddress = wallet.deriveWalletAddressFromIndex(xpub, request.walletIndex!);
-  const [balanceErr, currentBalance] = await go(options.provider!.getBalance(requesterAddress));
-  if (balanceErr || !currentBalance) {
-    const balanceErrorLog = logger.pend(
-      'ERROR',
-      `Failed to fetch wallet index:${request.walletIndex} balance for Request:${request.id}. ${balanceErr}`
-    );
-    return [[estimateLog, balanceErrorLog], balanceErr, null];
-  }
-
+  const txCost = paddedGasLimit.mul(options.gasPrice);
   const fundsToSend = currentBalance.sub(txCost);
 
   // We can't submit a withdrawal with a negative amount
   if (fundsToSend.lt(0)) {
-    const negativeLog = logger.pend(
-      'ERROR',
-      `Unable to submit withdrawal for Request:${
-        request.id
-      } as the amount is negative. Amount: ${ethers.utils.formatEther(fundsToSend)} ETH`
-    );
+    const message = `Unable to submit withdrawal for Request:${
+      request.id
+    } as the amount is negative. Amount: ${ethers.utils.formatEther(fundsToSend)} ETH`;
+    const negativeLog = logger.pend('INFO', message);
     return [[estimateLog, negativeLog], null, null];
   }
 
   const noticeLog = logger.pend(
     'INFO',
-    `Submitting withdrawal wallet index:${request.walletIndex} for Request:${request.id}...`
+    `Submitting withdrawal wallet index:${request.requesterIndex} for Request:${request.id}...`
   );
 
   const withdrawalTx = airnode.fulfillWithdrawal(
@@ -98,7 +98,7 @@ export async function submitWithdrawal(
   if (withdrawalErr || !withdrawalRes) {
     const withdrawalErrLog = logger.pend(
       'ERROR',
-      `Error submitting wallet index:${request.walletIndex} withdrawal for Request:${request.id}. ${withdrawalErr}`
+      `Error submitting wallet index:${request.requesterIndex} withdrawal for Request:${request.id}. ${withdrawalErr}`
     );
     const logs = [estimateLog, noticeLog, withdrawalErrLog];
     return [logs, withdrawalErr, null];
