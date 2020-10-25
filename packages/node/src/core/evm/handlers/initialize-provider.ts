@@ -4,6 +4,7 @@ import * as authorization from '../authorization';
 import * as grouping from '../requests/grouping';
 import * as logger from '../../logger';
 import { newProvider } from '../retry-provider';
+import * as providers from '../providers';
 import * as state from '../../providers/state';
 import * as triggers from '../triggers';
 import * as templates from '../templates';
@@ -41,21 +42,36 @@ export async function initializeProvider(
   };
 
   // =================================================================
-  // STEP 1: Initialize the new ProviderState
+  // STEP 1: Create a new ProviderState
   // =================================================================
   const provider = newProvider(initialState.settings.url, initialState.settings.chainId);
   const state1 = state.update(initialState, { provider });
 
   // =================================================================
-  // STEP 2: Get the current block number
+  // STEP 2: Get the admin address and current block number
   // =================================================================
-  const [blockErr, currentBlock] = await go(state1.provider.getBlockNumber());
-  if (blockErr || !currentBlock) {
-    logger.error('Unable to get current block', { ...baseLogOptions, error: blockErr });
+  const providerId = wallet.computeProviderId();
+  logger.debug(`Computed provider ID: ${providerId}`, baseLogOptions);
+
+  const providerFetchOptions = {
+    address: state1.contracts.Convenience,
+    provider: state1.provider,
+    providerId,
+  };
+  const [providerBlockLogs, providerBlockData] = await providers.getProviderAndBlockNumber(providerFetchOptions);
+  logger.logPending(providerBlockLogs, baseLogOptions);
+
+  if (!providerBlockData) {
     return null;
   }
-  logger.info(`Current block set to: ${currentBlock}`, baseLogOptions);
-  const state2 = state.update(state1, { currentBlock });
+  const state2 = state.update(state1, { currentBlock: providerBlockData.blockNumber });
+
+  // =================================================================
+  // STEP 3: Create provider if it does not exist
+  // =================================================================
+  if (providerBlockData.xpub === '') {
+    
+  }
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers

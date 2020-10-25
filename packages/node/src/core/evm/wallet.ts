@@ -20,6 +20,11 @@ function getPathFromIndex(index: number | string) {
   return `m/0/0/${index}`;
 }
 
+export function computeProviderId() {
+  const xpub = getExtendedPublicKey();
+  return deriveWalletAddressFromIndex(xpub, '0');
+}
+
 export function deriveWalletAddressFromIndex(xpub: string, index: number | string) {
   const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
   const wallet = hdNode.derivePath(getPathFromIndex(index));
