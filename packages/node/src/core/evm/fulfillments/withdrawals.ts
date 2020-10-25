@@ -37,7 +37,9 @@ export async function submitWithdrawal(
     request.requesterIndex,
     request.destinationAddress,
     // We need to send some funds for the gas price calculation to be correct
-    { value: currentBalance }
+    // We also can't send the current balance as that would cause the withdrawal
+    // to revert. The transaction cost would need to be subtracted first
+    { value: 1 }
   );
 
   // The node calculates how much gas the next transaction will cost (53,654)
