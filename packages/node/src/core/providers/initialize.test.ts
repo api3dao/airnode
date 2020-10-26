@@ -1,16 +1,12 @@
-const getBlockNumberMock = jest.fn();
-const getLogsMock = jest.fn();
+const getProviderAndBlockNumberMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
     ethers: {
       ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getBlockNumber: getBlockNumberMock,
-          getLogs: getLogsMock,
-        })),
-      },
+      Contract: jest.fn().mockImplementation(() => ({
+        getProviderAndBlockNumber: getProviderAndBlockNumberMock,
+      })),
     },
   };
 });
@@ -47,13 +43,19 @@ import * as providers from './initialize';
 
 describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
+    const contract = new ethers.Contract('address', ['ABI']);
+    contract.getProviderAndBlockNumber.mockResolvedValueOnce({
+      admin: '0xadmin1',
+      blockNumber: ethers.BigNumber.from(123456),
+      xpub: '0xxpub1',
+    });
+    contract.getProviderAndBlockNumber.mockResolvedValueOnce({
+      admin: '0xadmin2',
+      blockNumber: ethers.BigNumber.from(987654),
+      xpub: '0xxpub2',
+    });
 
-    const getBlockNumber = provider.getBlockNumber as jest.Mock;
-    getBlockNumber.mockResolvedValueOnce(123456);
-    getBlockNumber.mockResolvedValueOnce(987654);
-
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
 
@@ -81,7 +83,7 @@ describe('initializeProviders', () => {
         coordinatorId,
         currentBlock: 123456,
         gasPrice: null,
-        provider,
+        provider: expect.anything(),
         walletDataByIndex: {},
       },
       {
@@ -103,7 +105,7 @@ describe('initializeProviders', () => {
         coordinatorId,
         currentBlock: 987654,
         gasPrice: null,
-        provider,
+        provider: expect.anything(),
         walletDataByIndex: {},
       },
     ]);

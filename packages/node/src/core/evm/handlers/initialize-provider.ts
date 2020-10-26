@@ -48,30 +48,27 @@ export async function initializeProvider(
   const state1 = state.update(initialState, { provider });
 
   // =================================================================
-  // STEP 2: Get the admin address and current block number
+  // STEP 2: Get current block number and find or create the provider
   // =================================================================
-  const providerId = wallet.computeProviderId();
-  logger.debug(`Computed provider ID: ${providerId}`, baseLogOptions);
-
   const providerFetchOptions = {
-    address: state1.contracts.Convenience,
+    airnodeAddress: state1.contracts.Airnode,
+    convenienceAddress: state1.contracts.Convenience,
     provider: state1.provider,
-    providerId,
   };
-  const [providerBlockLogs, providerBlockData] = await providers.getProviderAndBlockNumber(providerFetchOptions);
-  logger.logPending(providerBlockLogs, baseLogOptions);
+  const [providerLogs, providerBlockData] = await providers.findOrCreateProviderWithBlock(providerFetchOptions);
+  logger.logPending(providerLogs, baseLogOptions);
 
   if (!providerBlockData) {
     return null;
   }
-  const state2 = state.update(state1, { currentBlock: providerBlockData.blockNumber });
 
-  // =================================================================
-  // STEP 3: Create provider if it does not exist
-  // =================================================================
+  // xpub being an empty string indicates that the provider does not currently exist so
+  // we can't proceed until the transaction to create it has been confirmed
   if (providerBlockData.xpub === '') {
-    
+    return null;
   }
+
+  const state2 = state.update(state1, { currentBlock: providerBlockData.blockNumber });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
