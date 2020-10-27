@@ -35,7 +35,7 @@ function mapApiCalls(
       return [[log], updatedApiCall];
     }
 
-    const isRequestedAuthorized = get(authorizationsByEndpointId, [apiCall.endpointId, apiCall.requesterAddress]);
+    const isRequestedAuthorized = get(authorizationsByEndpointId, [apiCall.endpointId, apiCall.clientAddress]);
 
     // If we couldn't fetch the authorization status, block the request until the next run
     if (isNil(isRequestedAuthorized)) {
@@ -54,7 +54,7 @@ function mapApiCalls(
 
     const log = logger.pend(
       'WARN',
-      `Client:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
+      `Client:${apiCall.clientAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
     );
     // If the request is unauthorized, update the status of the request
     const updatedApiCall = {

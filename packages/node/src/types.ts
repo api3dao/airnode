@@ -69,6 +69,7 @@ export type ClientRequest<T extends {}> = T & {
 export type ApiCallType = 'short' | 'regular' | 'full';
 
 export interface ApiCall {
+  readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
   readonly fulfillAddress: string | null;
@@ -76,7 +77,6 @@ export interface ApiCall {
   readonly parameters: ApiCallParameters;
   readonly providerId: string;
   readonly requestCount: string;
-  readonly requesterAddress: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
   readonly type: ApiCallType;
