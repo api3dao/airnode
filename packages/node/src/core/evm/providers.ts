@@ -25,12 +25,11 @@ interface CreateOptions extends BaseFetchOptions {
 interface ProviderWithBlockNumber {
   adminAddress: string;
   blockNumber: number;
+  providerExists: boolean;
   xpub: string;
 }
 
-export async function getProviderAndBlockNumber(
-  fetchOptions: FindOptions
-): Promise<LogsData<ProviderWithBlockNumber | null>> {
+export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData<ProviderWithBlockNumber | null>> {
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
   const contractCall = () => convenience.getProviderAndBlockNumber(fetchOptions.providerId);
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
@@ -48,14 +47,21 @@ export async function getProviderAndBlockNumber(
     // Converting this BigNumber to a JS number should not throw as the current block number
     // should always be a valid number
     blockNumber: res.blockNumber.toNumber(),
+    providerExists: !!res.xpub && res.xpub !== '',
     xpub: res.xpub,
   };
 
-  const addressLog = logger.pend('INFO', `Admin address: ${res.admin}`);
-  const xpubLog = logger.pend('INFO', `Admin extended public key: ${res.xpub}`);
   const blockLog = logger.pend('INFO', `Current block: ${res.blockNumber}`);
 
-  const logs = [fetchLog, addressLog, xpubLog, blockLog];
+  if (!data.providerExists) {
+    const providerLog = logger.pend('INFO', 'EVM provider not found');
+    const logs = [fetchLog, blockLog, providerLog];
+    return [logs, data];
+  }
+
+  const addressLog = logger.pend('INFO', `Admin address: ${res.admin}`);
+  const xpubLog = logger.pend('INFO', `Admin extended public key: ${res.xpub}`);
+  const logs = [fetchLog, blockLog, addressLog, xpubLog];
   return [logs, data];
 }
 
@@ -83,7 +89,7 @@ export async function findOrCreateProviderWithBlock(
   const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic: ${providerId}`);
 
   const fetchOptions = { ...options, providerId };
-  const [providerBlockLogs, providerBlockData] = await getProviderAndBlockNumber(fetchOptions);
+  const [providerBlockLogs, providerBlockData] = await findWithBlock(fetchOptions);
   if (!providerBlockData) {
     const logs = [idLog, ...providerBlockLogs];
     return [logs, null];
@@ -91,7 +97,7 @@ export async function findOrCreateProviderWithBlock(
 
   // If the extended public key was returned as an empty string, it means that the provider does
   // not exist onchain yet
-  if (providerBlockData.xpub === '') {
+  if (!providerBlockData.providerExists) {
     const createOptions = {
       ...options,
       adminAddress: providerBlockData.adminAddress,
@@ -102,6 +108,6 @@ export async function findOrCreateProviderWithBlock(
     return [logs, providerBlockData];
   }
 
-  const existsLog = logger.pend('DEBUG', `Skipping creation as provider ID:${providerId} was found`);
+  const existsLog = logger.pend('DEBUG', `Skipping provider creation as the EVM provider exists`);
   return [[idLog, ...providerBlockLogs, existsLog], providerBlockData];
 }
