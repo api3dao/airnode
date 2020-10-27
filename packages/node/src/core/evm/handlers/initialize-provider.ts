@@ -58,13 +58,8 @@ export async function initializeProvider(
   const [providerLogs, providerBlockData] = await providers.findOrCreateProviderWithBlock(providerFetchOptions);
   logger.logPending(providerLogs, baseLogOptions);
 
-  if (!providerBlockData) {
-    return null;
-  }
-
-  // xpub being an empty string indicates that the provider does not currently exist so
-  // we can't proceed until the transaction to create it has been confirmed
-  if (providerBlockData.xpub === '') {
+  // We can't proceed until the provider has been created onchain
+  if (!providerBlockData || !providerBlockData.providerExists) {
     return null;
   }
 
