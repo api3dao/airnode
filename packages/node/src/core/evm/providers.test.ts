@@ -10,6 +10,12 @@ jest.mock('ethers', () => ({
   },
 }));
 
+jest.mock('../config', () => ({
+  security: {
+    masterKeyMnemonic: 'bracket simple lock network census onion spy real spread pig hawk lonely',
+  },
+}));
+
 import { ethers } from 'ethers';
 import * as providers from './providers';
 
