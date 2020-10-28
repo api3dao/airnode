@@ -31,7 +31,7 @@ describe('create', () => {
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
         Convenience: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
-        GasPriceFeed: '<TODO>',
+        GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
         blockHistoryLimit: 600,
@@ -68,7 +68,7 @@ describe('create', () => {
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
         Convenience: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
-        GasPriceFeed: '<TODO>',
+        GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
         blockHistoryLimit: 150,

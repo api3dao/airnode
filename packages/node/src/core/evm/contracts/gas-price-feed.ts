@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { Contract } from './types';
 
 export const GasPriceFeed: Contract = {
@@ -5,7 +6,7 @@ export const GasPriceFeed: Contract = {
     1: '<TODO>',
     3: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
     4: '<TODO>',
-    1337: '<TODO>',
+    1337: ethers.constants.AddressZero,
   },
   ABI: ['function latestAnswer() view returns (int256)'],
   topics: {},
