@@ -29,8 +29,8 @@ describe('create', () => {
     const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-        Convenience: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
         GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
@@ -66,8 +66,8 @@ describe('create', () => {
     const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-        Convenience: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
         GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
@@ -107,7 +107,7 @@ describe('create', () => {
     expect(res).toEqual({
       contracts: {
         Airnode: '0xB71dE2DA6240c45846ED58315a01dd6D843fD3b5',
-        Convenience: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
         GasPriceFeed: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1',
       },
       settings: {
