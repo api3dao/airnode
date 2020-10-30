@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as contracts from '../contracts';
+import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
@@ -26,10 +27,12 @@ export async function submit(state: ProviderState<EVMProviderState>) {
   const { Airnode } = state.contracts;
   const AirnodeABI = contracts.Airnode.ABI;
 
-  const walletIndices = Object.keys(state.walletDataByIndex);
+  const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
 
-  const promises = flatMap(walletIndices, (index) => {
-    const walletData = state.walletDataByIndex[index];
+  const requesterIndices = Object.keys(requestsByRequesterIndex);
+
+  const promises = flatMap(requesterIndices, (index) => {
+    const requests = requestsByRequesterIndex[index];
     const signingWallet = wallet.deriveSigningWalletFromIndex(state.provider, index);
     const signer = signingWallet.connect(state.provider);
     const contract = new ethers.Contract(Airnode, AirnodeABI, signer);
@@ -37,7 +40,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     const txOptions: TransactionOptions = { gasPrice: state.gasPrice!, provider: state.provider };
 
     // Submit transactions for API calls
-    const submittedApiCalls = walletData.requests.apiCalls.map(async (apiCall) => {
+    const submittedApiCalls = requests.apiCalls.map(async (apiCall) => {
       const [logs, err, data] = await submitApiCall(contract, apiCall, txOptions);
       logger.logPending(logs, baseLogOptions);
       if (err || !data) {
@@ -47,7 +50,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     });
 
     // Submit transactions for withdrawals
-    const submittedWithdrawals = walletData.requests.withdrawals.map(async (withdrawal) => {
+    const submittedWithdrawals = requests.withdrawals.map(async (withdrawal) => {
       const [logs, err, data] = await submitWithdrawal(contract, withdrawal, txOptions);
       logger.logPending(logs, baseLogOptions);
       if (err || !data) {

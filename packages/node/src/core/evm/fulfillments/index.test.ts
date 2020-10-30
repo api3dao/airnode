@@ -36,7 +36,7 @@ jest.mock('../../config', () => ({
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import { EVMProviderState, ProviderState, RequestType, WalletData } from 'src/types';
+import { EVMProviderState, GroupedRequests, ProviderState, RequestType } from 'src/types';
 import * as providerState from '../../providers/state';
 import * as fulfillments from './index';
 
@@ -48,29 +48,16 @@ describe('submit', () => {
   });
 
   it('submits transactions for multiple wallets and returns the transactions', async () => {
-    const adminWalletData: WalletData = {
-      address: '0xadminwallet',
-      requests: {
-        apiCalls: [
-          fixtures.requests.createApiCall({ id: '0x1', nonce: 10, walletIndex: '6' }),
-          fixtures.requests.createApiCall({ id: '0x2', nonce: 11, walletIndex: '7' }),
-        ],
-        withdrawals: [],
-      },
-      transactionCount: 10,
-    };
-    const wallet2Data: WalletData = {
-      address: '0xwallet2',
-      requests: {
-        apiCalls: [],
-        withdrawals: [fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3 })],
-      },
-      transactionCount: 3,
+    const requests: GroupedRequests = {
+      apiCalls: [
+        fixtures.requests.createApiCall({ id: '0x1', nonce: 10, requesterIndex: '6' }),
+        fixtures.requests.createApiCall({ id: '0x2', nonce: 11, requesterIndex: '7' }),
+      ],
+      withdrawals: [fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3, requesterIndex: '8' })],
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
-    const walletDataByIndex = { 0: adminWalletData, 9: wallet2Data };
-    const state = providerState.update(initialState, { gasPrice, provider, walletDataByIndex });
+    const state = providerState.update(initialState, { gasPrice, provider, requests });
 
     const contract = new ethers.Contract('address', ['ABI']);
     (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
@@ -97,18 +84,13 @@ describe('submit', () => {
 
   it('returns error responses for API calls', async () => {
     const apiCall = fixtures.requests.createApiCall({ id: '0x1', nonce: 5, responseValue: '0xresponse' });
-    const wallet1Data: WalletData = {
-      address: '0xwallet1',
-      requests: {
-        apiCalls: [apiCall],
-        withdrawals: [],
-      },
-      transactionCount: 5,
+    const requests: GroupedRequests = {
+      apiCalls: [apiCall],
+      withdrawals: [],
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
-    const walletDataByIndex = { 8: wallet1Data };
-    const state = providerState.update(initialState, { gasPrice, provider, walletDataByIndex });
+    const state = providerState.update(initialState, { gasPrice, provider, requests });
 
     const contract = new ethers.Contract('address', ['ABI']);
     (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
@@ -120,18 +102,13 @@ describe('submit', () => {
 
   it('returns error responses for withdrawals', async () => {
     const withdrawal = fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3 });
-    const wallet1Data: WalletData = {
-      address: '0xwallet2',
-      requests: {
-        apiCalls: [],
-        withdrawals: [withdrawal],
-      },
-      transactionCount: 3,
+    const requests: GroupedRequests = {
+      apiCalls: [],
+      withdrawals: [withdrawal],
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
-    const walletDataByIndex = { 9: wallet1Data };
-    const state = providerState.update(initialState, { gasPrice, provider, walletDataByIndex });
+    const state = providerState.update(initialState, { gasPrice, provider, requests });
 
     const contract = new ethers.Contract('address', ['ABI']);
     (provider.getBalance as jest.Mock).mockResolvedValue(ethers.BigNumber.from(250_000_000));

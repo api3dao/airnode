@@ -1,6 +1,32 @@
 import * as fixtures from 'test/fixtures';
 import * as request from './request';
-import { RequestErrorCode } from 'src/types';
+import { GroupedRequests, RequestErrorCode } from 'src/types';
+
+describe('hasNoRequests', () => {
+  it('returns false if API calls are present', () => {
+    const requests: GroupedRequests = {
+      apiCalls: [fixtures.requests.createApiCall()],
+      withdrawals: [],
+    };
+    expect(request.hasNoRequests(requests)).toEqual(false);
+  });
+
+  it('returns false if withdrawals are present', () => {
+    const requests: GroupedRequests = {
+      apiCalls: [],
+      withdrawals: [fixtures.requests.createWithdrawal()],
+    };
+    expect(request.hasNoRequests(requests)).toEqual(false);
+  });
+
+  it('returns true if there are no requests present', () => {
+    const requests: GroupedRequests = {
+      apiCalls: [],
+      withdrawals: [],
+    };
+    expect(request.hasNoRequests(requests)).toEqual(true);
+  });
+});
 
 describe('getStatusNames', () => {
   it('returns a list of all status names', () => {

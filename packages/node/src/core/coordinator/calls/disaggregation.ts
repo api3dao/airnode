@@ -12,7 +12,6 @@ import {
   ProviderState,
   RequestErrorCode,
   RequestStatus,
-  WalletDataByIndex,
 } from '../../../types';
 
 interface WalletDataWithLogs {
