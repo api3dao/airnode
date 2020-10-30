@@ -119,6 +119,7 @@ export interface WalletDataByIndex {
 }
 
 export interface ProviderSettings {
+  readonly adminAddress: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
@@ -285,8 +286,9 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
-  readonly id: number;
+  readonly adminAddress: string;
   readonly contracts?: ChainContract[];
+  readonly id: number;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

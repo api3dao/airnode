@@ -6,6 +6,7 @@ import * as wallet from './wallet';
 import { LogsData } from '../../types';
 
 interface BaseFetchOptions {
+  adminAddress: string;
   airnodeAddress: string;
   convenienceAddress: string;
   provider: ethers.providers.JsonRpcProvider;
@@ -51,16 +52,16 @@ export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData
     xpub: res.xpub,
   };
 
-  const blockLog = logger.pend('INFO', `Current block: ${res.blockNumber}`);
+  const blockLog = logger.pend('INFO', `Current block:${res.blockNumber}`);
 
   if (!data.providerExists) {
-    const providerLog = logger.pend('INFO', 'EVM provider not found');
+    const providerLog = logger.pend('INFO', 'Provider not found');
     const logs = [fetchLog, blockLog, providerLog];
     return [logs, data];
   }
 
-  const addressLog = logger.pend('INFO', `Admin address: ${res.admin}`);
-  const xpubLog = logger.pend('INFO', `Admin extended public key: ${res.xpub}`);
+  const addressLog = logger.pend('INFO', `Admin address:${res.admin}`);
+  const xpubLog = logger.pend('INFO', `Provider extended public key:${res.xpub}`);
   const logs = [fetchLog, blockLog, addressLog, xpubLog];
   return [logs, data];
 }
@@ -78,7 +79,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
     return [[createLog, errLog], null];
   }
 
-  const txLog = logger.pend('INFO', `Create provider transaction submitted: ${tx.hash}`);
+  const txLog = logger.pend('INFO', `Create provider transaction submitted:${tx.hash}`);
   return [[createLog, txLog], tx];
 }
 
@@ -86,7 +87,7 @@ export async function findOrCreateProviderWithBlock(
   options: BaseFetchOptions
 ): Promise<LogsData<ProviderWithBlockNumber | null>> {
   const providerId = wallet.computeProviderId(options.provider);
-  const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic: ${providerId}`);
+  const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic:${providerId}`);
 
   const fetchOptions = { ...options, providerId };
   const [providerBlockLogs, providerBlockData] = await findWithBlock(fetchOptions);
@@ -100,14 +101,14 @@ export async function findOrCreateProviderWithBlock(
   if (!providerBlockData.providerExists) {
     const createOptions = {
       ...options,
-      adminAddress: providerBlockData.adminAddress,
-      xpub: providerBlockData.xpub,
+      adminAddress: options.adminAddress,
+      xpub: wallet.getExtendedPublicKey(),
     };
-    const [createLogs, _providerId] = await create(createOptions);
+    const [createLogs, _createTx] = await create(createOptions);
     const logs = [idLog, ...providerBlockLogs, ...createLogs];
     return [logs, providerBlockData];
   }
 
-  const existsLog = logger.pend('DEBUG', `Skipping provider creation as the EVM provider exists`);
+  const existsLog = logger.pend('DEBUG', `Skipping provider creation as the provider exists`);
   return [[idLog, ...providerBlockLogs, existsLog], providerBlockData];
 }

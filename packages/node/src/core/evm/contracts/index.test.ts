@@ -14,13 +14,15 @@ describe('EVM_REQUIRED_CONTRACTS', () => {
 });
 
 describe('build', () => {
+  const baseChain: ChainConfig = {
+    adminAddress: '0xadminAddress',
+    id: 1,
+    type: 'evm',
+    providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
+  };
+
   it('returns the default addresses if no contracts are provided', () => {
-    const chain: ChainConfig = {
-      id: 1,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-    };
-    expect(contracts.build(chain)).toEqual({
+    expect(contracts.build(baseChain)).toEqual({
       Airnode: '<TODO>',
       Convenience: '<TODO>',
       GasPriceFeed: '<TODO>',
@@ -28,10 +30,9 @@ describe('build', () => {
   });
 
   it('allows overridding contracts for unprotected chain IDs', () => {
-    const chain: ChainConfig = {
+    const chain = {
+      ...baseChain,
       id: 3,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
       contracts: [
         { name: 'Airnode', address: '0x12345' },
         { name: 'GasPriceFeed', address: '0x98765' },
@@ -46,10 +47,8 @@ describe('build', () => {
 
   it('throws an error when trying to override contracts for protected chain IDs', () => {
     expect.assertions(1);
-    const chain: ChainConfig = {
-      id: 1,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
+    const chain = {
+      ...baseChain,
       contracts: [{ name: 'Airnode', address: '0x12345' }],
     };
     try {
@@ -61,40 +60,38 @@ describe('build', () => {
 });
 
 describe('validate', () => {
+  const baseChain: ChainConfig = {
+    adminAddress: '0xadminAddress',
+    id: 1,
+    type: 'evm',
+    providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
+  };
+
   it('returns no messages if no contracts are provided', () => {
-    const chain: ChainConfig = {
-      id: 1,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-    };
-    expect(contracts.validate(chain)).toEqual([]);
+    expect(contracts.validate(baseChain)).toEqual([]);
   });
 
   it('returns no messages if valid contracts are provided', () => {
-    const chain: ChainConfig = {
+    const chain = {
+      ...baseChain,
       id: 1337,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
       contracts: [{ name: 'Airnode', address: '0x12345' }],
     };
     expect(contracts.validate(chain)).toEqual([]);
   });
 
   it('does not allow overridding contracts for protected chain IDs', () => {
-    const chain: ChainConfig = {
-      id: 1,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
+    const chain = {
+      ...baseChain,
       contracts: [{ name: 'Airnode', address: '0x12345' }],
     };
     expect(contracts.validate(chain)).toEqual(['Contracts cannot be specified for protected chain ID: 1']);
   });
 
   it('checks contract addresses start with 0x', () => {
-    const chain: ChainConfig = {
+    const chain = {
+      ...baseChain,
       id: 1337,
-      type: 'evm',
-      providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
       contracts: [
         { name: 'Airnode', address: 'invalidaddress' },
         { name: 'Convenience', address: 'invalidaddress' },
