@@ -22,8 +22,7 @@ function getPathFromIndex(index: number | string) {
 
 export function computeProviderId(provider: ethers.providers.JsonRpcProvider) {
   const masterHdNode = ethers.utils.HDNode.fromMnemonic(security.masterKeyMnemonic);
-  const designatorHdNode = masterHdNode.derivePath('m');
-  const masterWallet = new ethers.Wallet(designatorHdNode.privateKey, provider);
+  const masterWallet = new ethers.Wallet(masterHdNode.privateKey, provider);
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
 }
 

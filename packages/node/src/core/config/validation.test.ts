@@ -6,6 +6,7 @@ describe('validate', () => {
   it('validates EVM configurations', () => {
     const chains: ChainConfig[] = [
       {
+        adminAddress: '0xadminAddress',
         id: 1337,
         type: 'evm',
         providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
@@ -22,6 +23,7 @@ describe('validate', () => {
     expect.assertions(1);
     const chains: any = [
       {
+        adminAddress: '0xadminAddress',
         id: 1337,
         type: 'unknown',
         providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],

@@ -10,6 +10,7 @@ export function createNodeSettings(settings?: Partial<NodeSettings>): NodeSettin
     providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
     chains: [
       {
+        adminAddress: '0xadminaddress',
         id: 1337,
         type: 'evm',
         providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
