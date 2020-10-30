@@ -26,7 +26,7 @@ describe('getGasPrice', () => {
     address: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
   };
 
-  it('only checks the node price if the contract address is AddressZero', async () => {
+  it('checks only the node price if the contract address is AddressZero', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const contract = new ethers.Contract('address', ['ABI']);
     const getGasPrice = provider.getGasPrice as jest.Mock;
