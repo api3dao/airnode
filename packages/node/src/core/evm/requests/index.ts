@@ -6,8 +6,6 @@ import * as verification from '../verification';
 import * as withdrawals from './withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../../types';
 
-export { groupRequestsByWalletIndex } from './grouping';
-
 export async function fetchPendingRequests(state: ProviderState<EVMProviderState>): Promise<GroupedRequests> {
   const { chainId, chainType, name: providerName } = state.settings;
   const { coordinatorId } = state;

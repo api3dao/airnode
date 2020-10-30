@@ -108,16 +108,6 @@ export interface GroupedRequests {
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
-export interface WalletData {
-  readonly address: string;
-  readonly requests: GroupedRequests;
-  readonly transactionCount: number;
-}
-
-export interface WalletDataByIndex {
-  readonly [index: string]: WalletData;
-}
-
 export interface ProviderSettings {
   readonly blockHistoryLimit: number;
   readonly chainId: number;
@@ -132,8 +122,9 @@ export interface ProviderSettings {
 export type ProviderState<T extends {}> = T & {
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
-  readonly walletDataByIndex: WalletDataByIndex;
+  readonly transactionCountsByRequesterIndex: { [requesterIndex: string]: number };
 };
 
 export interface AggregatedApiCallsById {

@@ -1,5 +1,5 @@
 import orderBy from 'lodash/orderBy';
-import { ClientRequest, GroupedRequests, WalletDataByIndex } from '../../types';
+import { ClientRequest, GroupedRequests } from '../../types';
 
 function sortRequests<T>(requests: ClientRequest<T>[]): ClientRequest<T>[] {
   // In order to keep consistency between runs, requests are sorted by the following criteria:
@@ -9,21 +9,9 @@ function sortRequests<T>(requests: ClientRequest<T>[]): ClientRequest<T>[] {
   return orderBy(requests, ['metadata.blockNumber', 'metadata.transactionHash']);
 }
 
-export function sortRequestsByWalletIndex(walletDataByIndex: WalletDataByIndex) {
-  const walletIndices = Object.keys(walletDataByIndex);
-
-  const sortedRequests = walletIndices.reduce((acc, index) => {
-    const walletData = walletDataByIndex[index];
-
-    const sortedRequests: GroupedRequests = {
-      apiCalls: sortRequests(walletData.requests.apiCalls),
-      withdrawals: sortRequests(walletData.requests.withdrawals),
-    };
-
-    const updatedWalletData = { ...walletData, requests: sortedRequests };
-
-    return { ...acc, [index]: updatedWalletData };
-  }, {});
-
-  return sortedRequests;
+export function sortGroupedRequests(requests: GroupedRequests): GroupedRequests {
+  return {
+    apiCalls: sortRequests(requests.apiCalls),
+    withdrawals: sortRequests(requests.withdrawals),
+  };
 }
