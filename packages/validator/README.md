@@ -20,6 +20,9 @@ Where array `messages` contains message objects:
 ```
 If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages. Similarly functions `isApiSpecsValid` and `isEndpointsValid` check only the API and endpoint specifications contained in the OIS.
 
+Validator can be run as a npm script, by providing specifications file that will be validated and template (validator specification structure) file: `npm run validate --specs="[specsFile]" --template="[templateFile]"`
+
+In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`
 
 ## Validator structure
 
