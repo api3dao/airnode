@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty';
 import { ClientRequest, GroupedRequests, RequestStatus } from '../../types';
 
 export function hasNoRequests(requests: GroupedRequests): boolean {

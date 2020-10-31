@@ -70,6 +70,8 @@ export async function initializeProvider(
     logger.error('Unable to get pending requests', { ...baseLogOptions, error: dataErr });
     return null;
   }
+  const { apiCalls, withdrawals } = groupedRequests;
+  logger.info(`Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s)`, baseLogOptions);
   const state3 = state.update(state2, { requests: groupedRequests });
 
   // =================================================================

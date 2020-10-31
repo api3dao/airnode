@@ -1,5 +1,5 @@
 import flatMap from 'lodash/flatMap';
-import flatten from 'lodash/flatten';
+import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import {
   AggregatedApiCallsById,
@@ -7,6 +7,7 @@ import {
   ClientRequest,
   CoordinatorState,
   EVMProviderState,
+  GroupedRequests,
   LogsData,
   PendingLog,
   ProviderState,
@@ -14,9 +15,9 @@ import {
   RequestStatus,
 } from '../../../types';
 
-interface WalletDataWithLogs {
-  walletDataByIndex: WalletDataByIndex;
+export interface RequestsWithLogs {
   logs: PendingLog[];
+  requests: GroupedRequests;
 }
 
 function mapApiCalls(
@@ -50,34 +51,42 @@ function mapApiCalls(
   return [logs, apiCallWithResponses];
 }
 
-function mapProviderState(
+function mapEVMProviderState(
   state: ProviderState<EVMProviderState>,
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<ProviderState<EVMProviderState>> {
-  const initialState: WalletDataWithLogs = { logs: [], walletDataByIndex: {} };
+  const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
+  const requesterIndices = Object.keys(requestsByRequesterIndex);
 
-  const walletIndices = Object.keys(state.walletDataByIndex);
-  const { logs, walletDataByIndex } = walletIndices.reduce((acc, index) => {
-    const walletData = state.walletDataByIndex[index];
-    const { requests } = walletData;
+  const initialState: RequestsWithLogs = {
+    logs: [],
+    requests: { apiCalls: [], withdrawals: [] },
+  };
 
-    const [apiLogs, updatedApiCalls] = mapApiCalls(requests.apiCalls, aggregatedApiCallsById);
-    const updatedRequests = { ...requests, apiCalls: updatedApiCalls };
-    const updatedWalletData = { ...walletData, requests: updatedRequests };
+  const { logs, requests } = requesterIndices.reduce((acc, requesterIndex) => {
+    const { apiCalls, withdrawals } = requestsByRequesterIndex[requesterIndex];
+
+    const [apiLogs, updatedApiCalls] = mapApiCalls(apiCalls, aggregatedApiCallsById);
+
+    const updatedRequests = {
+      ...acc.requests,
+      apiCalls: [...acc.requests.apiCalls, ...updatedApiCalls],
+      withdrawals: [...acc.requests.withdrawals, ...withdrawals],
+    };
 
     return {
       ...acc,
-      logs: [...acc.logs, apiLogs],
-      walletDataByIndex: { ...acc.walletDataByIndex, [index]: updatedWalletData },
+      logs: [...acc.logs, ...apiLogs],
+      requests: updatedRequests,
     };
   }, initialState);
 
-  return [flatten(logs), { ...state, walletDataByIndex }];
+  return [logs, { ...state, requests }];
 }
 
 export function disaggregate(state: CoordinatorState): LogsData<ProviderState<EVMProviderState>[]> {
   const logsWithProviderStates = state.EVMProviders.map((provider) => {
-    return mapProviderState(provider, state.aggregatedApiCallsById);
+    return mapEVMProviderState(provider, state.aggregatedApiCallsById);
   });
 
   const logs = flatMap(logsWithProviderStates, (ps) => ps[0]);

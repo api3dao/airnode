@@ -24,10 +24,8 @@ describe('sortGroupedRequests', () => {
 
     const res = sorting.sortGroupedRequests(requests);
     expect(res).toEqual({
-      42: {
-        apiCalls: [first, second, third, fourth],
-        withdrawals: [],
-      },
+      apiCalls: [first, second, third, fourth],
+      withdrawals: [],
     });
   });
 
@@ -52,10 +50,8 @@ describe('sortGroupedRequests', () => {
 
     const res = sorting.sortGroupedRequests(requests);
     expect(res).toEqual({
-      42: {
-        apiCalls: [],
-        withdrawals: [first, second, third, fourth],
-      },
+      apiCalls: [],
+      withdrawals: [first, second, third, fourth],
     });
   });
 });

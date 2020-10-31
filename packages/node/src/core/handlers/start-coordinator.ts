@@ -1,13 +1,12 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import { config } from '../config';
-import * as apiCalls from '../requests/api-calls';
 import * as calls from '../coordinator/calls';
 import * as logger from '../logger';
 import * as providers from '../providers';
+import * as request from '../requests/request';
 import * as state from '../coordinator/state';
 import * as validation from '../config/validation';
-import * as walletData from '../requests/wallet-data';
 import { formatDateTime } from '../utils/date-utils';
 import { spawnProviderRequestProcessor } from '../providers/worker';
 import { NodeSettings } from '../../types';
@@ -43,7 +42,7 @@ export async function startCoordinator(settings: NodeSettings) {
   });
   logger.info('Forking to initialize providers complete', baseLogOptions);
 
-  const hasNoRequests = state2.EVMProviders.every((provider) => walletData.hasNoRequests(provider!.walletDataByIndex));
+  const hasNoRequests = state2.EVMProviders.every((provider) => request.hasNoRequests(provider!.requests));
   if (hasNoRequests) {
     logger.info('No actionable requests detected. Exiting...', baseLogOptions);
     return state2;
@@ -52,7 +51,7 @@ export async function startCoordinator(settings: NodeSettings) {
   // =================================================================
   // STEP 4: Group unique API calls
   // =================================================================
-  const flatApiCalls = flatMap(state2.EVMProviders, (provider) => apiCalls.flatten(provider.walletDataByIndex));
+  const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(flatApiCalls);
   const flatAggregatedCalls = flatMap(Object.keys(aggregatedApiCallsById), (id) => aggregatedApiCallsById[id]);
   logger.info(`Processing ${flatAggregatedCalls.length} pending API call(s)...`, baseLogOptions);
