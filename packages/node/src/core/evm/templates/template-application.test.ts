@@ -30,7 +30,7 @@ describe('mergeApiCallsWithTemplates', () => {
         fulfillFunctionId: 'templateFulfillFunctionId-0',
         id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        requesterIndex: 'requesterIndex-0',
+        requesterIndex: '5',
       },
     };
 
@@ -43,7 +43,7 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(res[0].errorFunctionId).toEqual(null);
     // These fields are not overwritten
     expect(res[0].designatedWallet).toEqual('designatedWallet');
-    expect(res[0].requesterIndex).toEqual('requesterIndex');
+    expect(res[0].requesterIndex).toEqual('3');
   });
 
   it('merges template and API call parameters', () => {
@@ -64,7 +64,7 @@ describe('mergeApiCallsWithTemplates', () => {
         encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        requesterIndex: 'requesterIndex-0',
+        requesterIndex: '5',
       },
     };
 
@@ -97,7 +97,7 @@ describe('mergeApiCallsWithTemplates', () => {
         encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        requesterIndex: 'requesterIndex-0',
+        requesterIndex: '5',
       },
     };
 
@@ -133,7 +133,7 @@ describe('mergeApiCallsWithTemplates', () => {
         encodedParameters: 'invalid-parameters',
         id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        requesterIndex: 'requesterIndex-0',
+        requesterIndex: '5',
       },
     };
 

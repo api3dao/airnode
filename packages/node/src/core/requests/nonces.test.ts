@@ -91,9 +91,9 @@ describe('assign', () => {
     const transactionCountsByRequesterIndex = { 7: 11, 8: 11, 9: 7 };
     const state = providerState.update(initialState, { requests, transactionCountsByRequesterIndex });
     const res = nonces.assign(state);
-    expect(res[0].apiCalls[0].nonce).toEqual(11);
-    expect(res[3].apiCalls[0].nonce).toEqual(11);
-    expect(res[7].apiCalls[0].nonce).toEqual(7);
+    expect(res.apiCalls.find((a) => a.id === '0x1')!.nonce).toEqual(11);
+    expect(res.apiCalls.find((a) => a.id === '0x2')!.nonce).toEqual(11);
+    expect(res.apiCalls.find((a) => a.id === '0x3')!.nonce).toEqual(7);
   });
 
   it('blocks nonce assignment if a request is blocked', () => {
