@@ -1,10 +1,14 @@
 const getProviderAndBlockNumberMock = jest.fn();
 const createProviderMock = jest.fn();
+const estimateCreateProviderMock = jest.fn();
 jest.mock('ethers', () => ({
   ethers: {
     ...jest.requireActual('ethers'),
     Contract: jest.fn().mockImplementation(() => ({
       createProvider: createProviderMock,
+      estimateGas: {
+        createProvider: estimateCreateProviderMock,
+      },
       getProviderAndBlockNumber: getProviderAndBlockNumberMock,
     })),
   },
@@ -138,57 +142,127 @@ describe('create', () => {
   };
 
   it('creates the provider and returns the transaction', async () => {
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
+    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
     const [logs, res] = await providers.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      { level: 'INFO', message: 'Estimated gas limit: 70000' },
+      { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+      { level: 'INFO', message: 'Master wallet balance: 0.00000000025 ETH' },
+      { level: 'INFO', message: 'Submitting create provider transaction...' },
       { level: 'INFO', message: 'Create provider transaction submitted:0xsuccessful' },
+      {
+        level: 'INFO',
+        message: 'Airnode will not process requests until the create provider transaction has been confirmed',
+      },
     ]);
     expect(res).toEqual({ hash: '0xsuccessful' });
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH'
+      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      {
+        // 250_000_000 - ((50_000 + 20_000) * 1000)
+        value: ethers.BigNumber.from(180_000_000),
+        gasPrice: ethers.BigNumber.from(1000),
+        gasLimit: ethers.BigNumber.from(70_000),
+      }
     );
   });
 
-  it('returns an error if a null is returned', async () => {
-    createProviderMock.mockResolvedValueOnce(null);
+  it('returns null if the gas limit estimate fails', async () => {
+    estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
     const [logs, res] = await providers.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'ERROR', message: 'Unable to create provider' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'ERROR',
+        message: 'Unable to estimate transaction cost',
+        error: new Error('Unable to estimate gas limit'),
+      },
     ]);
     expect(res).toEqual(null);
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+    expect(createProviderMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null if the gas price cannot be fetched', async () => {
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
+    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    const [logs, res] = await providers.create(options);
+    expect(logs).toEqual([
+      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      { level: 'INFO', message: 'Estimated gas limit: 70000' },
+      { level: 'ERROR', message: 'Unable to fetch gas price', error: new Error('Failed to fetch gas price') },
+    ]);
+    expect(res).toEqual(null);
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+    expect(createProviderMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null if the master wallet balance cannot be fetched', async () => {
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
+    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    const [logs, res] = await providers.create(options);
+    expect(logs).toEqual([
+      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      { level: 'INFO', message: 'Estimated gas limit: 70000' },
+      { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+      { level: 'ERROR', message: 'Unable to fetch master wallet balance', error: new Error('Failed to fetch balance') },
+    ]);
+    expect(res).toEqual(null);
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+    expect(createProviderMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null if the create provider transaction fails to submit', async () => {
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
+    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
+    const [logs, res] = await providers.create(options);
+    expect(logs).toEqual([
+      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      { level: 'INFO', message: 'Estimated gas limit: 70000' },
+      { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+      { level: 'INFO', message: 'Master wallet balance: 0.00000000025 ETH' },
+      { level: 'INFO', message: 'Submitting create provider transaction...' },
+      {
+        level: 'ERROR',
+        message: 'Unable to submit create provider transaction',
+        error: new Error('Failed to submit tx'),
+      },
+    ]);
+    expect(res).toEqual(null);
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH'
+      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      {
+        // 250_000_000 - ((50_000 + 20_000) * 1000)
+        value: ethers.BigNumber.from(180_000_000),
+        gasPrice: ethers.BigNumber.from(1000),
+        gasLimit: ethers.BigNumber.from(70_000),
+      }
     );
-  });
-
-  it('retries once on failure', async () => {
-    createProviderMock.mockRejectedValueOnce(new Error('Server says no'));
-    createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await providers.create(options);
-    expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Create provider transaction submitted:0xsuccessful' },
-    ]);
-    expect(res).toEqual({ hash: '0xsuccessful' });
-    expect(createProviderMock).toHaveBeenCalledTimes(2);
-  });
-
-  it('returns null if the retries are exhausted', async () => {
-    createProviderMock.mockRejectedValueOnce(new Error('Server says no'));
-    createProviderMock.mockRejectedValueOnce(new Error('Server says no'));
-    const [logs, res] = await providers.create(options);
-    expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'ERROR', message: 'Unable to create provider', error: new Error('Server says no') },
-    ]);
-    expect(res).toEqual(null);
-    expect(createProviderMock).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -231,6 +305,11 @@ describe('findOrCreateProviderWithBlock', () => {
       blockNumber: ethers.BigNumber.from('12'),
       xpub: '',
     });
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
+    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
     const [logs, res] = await providers.findOrCreateProviderWithBlock(options);
     expect(logs).toEqual([
@@ -243,7 +322,16 @@ describe('findOrCreateProviderWithBlock', () => {
       { level: 'INFO', message: 'Current block:12' },
       { level: 'INFO', message: 'Provider not found' },
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      { level: 'INFO', message: 'Estimated gas limit: 70000' },
+      { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+      { level: 'INFO', message: 'Master wallet balance: 0.00000000025 ETH' },
+      { level: 'INFO', message: 'Submitting create provider transaction...' },
       { level: 'INFO', message: 'Create provider transaction submitted:0xsuccessful' },
+      {
+        level: 'INFO',
+        message: 'Airnode will not process requests until the create provider transaction has been confirmed',
+      },
     ]);
     expect(res).toEqual({
       adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -255,10 +343,17 @@ describe('findOrCreateProviderWithBlock', () => {
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
       '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'
     );
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH'
+      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      {
+        // 250_000_000 - ((50_000 + 20_000) * 1000)
+        value: ethers.BigNumber.from(180_000_000),
+        gasPrice: ethers.BigNumber.from(1000),
+        gasLimit: ethers.BigNumber.from(70_000),
+      }
     );
   });
 

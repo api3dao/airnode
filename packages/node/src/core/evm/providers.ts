@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { Airnode, Convenience } from './contracts';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
+import * as utils from './utils';
 import * as wallet from './wallet';
 import { LogsData } from '../../types';
 
@@ -67,20 +68,62 @@ export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData
 }
 
 export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | null>> {
-  const airnode = new ethers.Contract(options.airnodeAddress, Airnode.ABI, options.provider);
-  const contractCall = () => airnode.createProvider(options.adminAddress, options.xpub);
-  const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
+  const log1 = logger.pend('INFO', `Creating provider with address:${options.adminAddress}...`);
 
-  const createLog = logger.pend('INFO', `Creating provider with address:${options.adminAddress}...`);
+  const masterWallet = wallet.getMasterWallet(options.provider);
+  const airnode = new ethers.Contract(options.airnodeAddress, Airnode.ABI, masterWallet);
 
-  const [err, tx] = await go(retryableContractCall);
-  if (err || !tx) {
-    const errLog = logger.pend('ERROR', 'Unable to create provider', err);
-    return [[createLog, errLog], null];
+  const log2 = logger.pend('INFO', 'Estimating transaction cost for creating provider...');
+
+  // Gas cost is 160,076
+  const [estimateErr, estimatedGasCost] = await go(
+    airnode.estimateGas.createProvider(options.adminAddress, options.xpub, { value: 1 })
+  );
+  if (estimateErr || !estimatedGasCost) {
+    const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
+    return [[log1, log2, errLog], null];
+  }
+  // Overestimate a bit
+  const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
+  const log3 = logger.pend('INFO', `Estimated gas limit: ${gasLimit.toString()}`);
+
+  const [gasPriceErr, gasPrice] = await go(options.provider.getGasPrice());
+  if (gasPriceErr || !gasPrice) {
+    const errLog = logger.pend('ERROR', 'Unable to fetch gas price', gasPriceErr);
+    return [[log1, log2, log3, errLog], null];
   }
 
-  const txLog = logger.pend('INFO', `Create provider transaction submitted:${tx.hash}`);
-  return [[createLog, txLog], tx];
+  const log4 = logger.pend('INFO', `Gas price set to ${utils.weiToGwei(gasPrice)} Gwei`);
+
+  const txCost = gasLimit.mul(gasPrice);
+  const [balanceErr, masterWalletBalance] = await go(options.provider.getBalance(masterWallet.address));
+  if (balanceErr || !masterWalletBalance) {
+    const errLog = logger.pend('ERROR', 'Unable to fetch master wallet balance', balanceErr);
+    return [[log1, log2, log3, log4, errLog], null];
+  }
+
+  const log5 = logger.pend('INFO', `Master wallet balance: ${ethers.utils.formatEther(masterWalletBalance)} ETH`);
+
+  const fundsToSend = masterWalletBalance.sub(txCost);
+
+  const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
+
+  const createProviderTx = airnode.createProvider(options.adminAddress, options.xpub, {
+    value: fundsToSend,
+    gasLimit,
+    gasPrice,
+  });
+  const [txErr, tx] = (await go(createProviderTx)) as any;
+  if (txErr || !tx) {
+    const errLog = logger.pend('ERROR', 'Unable to submit create provider transaction', txErr);
+    return [[log1, log2, log3, log4, log5, log6, errLog], null];
+  }
+  const log7 = logger.pend('INFO', `Create provider transaction submitted:${tx.hash}`);
+  const log8 = logger.pend(
+    'INFO',
+    'Airnode will not process requests until the create provider transaction has been confirmed'
+  );
+  return [[log1, log2, log3, log4, log5, log6, log7, log8], tx];
 }
 
 export async function findOrCreateProviderWithBlock(
