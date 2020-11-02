@@ -25,7 +25,7 @@ import * as providers from './providers';
 
 describe('findWithBlock', () => {
   const options = {
-    adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     provider: new ethers.providers.JsonRpcProvider(),
@@ -51,7 +51,7 @@ describe('findWithBlock', () => {
       },
     ]);
     expect(res).toEqual({
-      adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: 12,
       providerExists: true,
       xpub:
@@ -74,7 +74,7 @@ describe('findWithBlock', () => {
       { level: 'INFO', message: 'Provider not found' },
     ]);
     expect(res).toEqual({
-      adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: 12,
       providerExists: false,
       xpub: '',
@@ -103,7 +103,7 @@ describe('findWithBlock', () => {
       },
     ]);
     expect(res).toEqual({
-      adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: 12,
       providerExists: true,
       xpub:
@@ -133,7 +133,7 @@ describe('findWithBlock', () => {
 
 describe('create', () => {
   const options = {
-    adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     provider: new ethers.providers.JsonRpcProvider(),
@@ -268,13 +268,13 @@ describe('create', () => {
 
 describe('findOrCreateProviderWithBlock', () => {
   const options = {
-    adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     provider: new ethers.providers.JsonRpcProvider(),
   };
 
-  it('returns nothing if it fails to get the provider and block data', async () => {
+  it('returns null if it fails to get the provider and block data', async () => {
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     const [logs, res] = await providers.findOrCreateProviderWithBlock(options);
@@ -297,6 +297,36 @@ describe('findOrCreateProviderWithBlock', () => {
       ['0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'],
       ['0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'],
     ]);
+  });
+
+  it('returns null if attemping creating the provider without adminAddressForCreatingProviderRecord', async () => {
+    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      blockNumber: ethers.BigNumber.from('12'),
+      xpub: '',
+    });
+    const [logs, res] = await providers.findOrCreateProviderWithBlock({
+      ...options,
+      adminAddressForCreatingProviderRecord: undefined,
+    });
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message:
+          'Computed provider ID from mnemonic:0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+      },
+      { level: 'INFO', message: 'Fetching current block and provider admin details...' },
+      { level: 'INFO', message: 'Current block:12' },
+      { level: 'INFO', message: 'Provider not found' },
+      { level: 'ERROR', message: 'Unable to find adminAddressForCreatingProviderRecord address' },
+    ]);
+    expect(res).toEqual(null);
+    expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
+    expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
+      '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'
+    );
+    expect(estimateCreateProviderMock).not.toHaveBeenCalled();
+    expect(createProviderMock).not.toHaveBeenCalled();
   });
 
   it('creates a provider if xpub if empty and returns the transaction', async () => {
@@ -334,7 +364,7 @@ describe('findOrCreateProviderWithBlock', () => {
       },
     ]);
     expect(res).toEqual({
-      adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: 12,
       providerExists: false,
       xpub: '',
@@ -382,7 +412,7 @@ describe('findOrCreateProviderWithBlock', () => {
       { level: 'DEBUG', message: 'Skipping provider creation as the provider exists' },
     ]);
     expect(res).toEqual({
-      adminAddress: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: 12,
       providerExists: true,
       xpub:

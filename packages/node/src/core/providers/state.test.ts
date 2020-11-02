@@ -24,7 +24,7 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
-      adminAddress: '0xadminAddress',
+      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
       id: 1337,
       type: 'evm',
       providers: [chainProvider],
@@ -39,7 +39,7 @@ describe('create', () => {
         GasPriceFeed: '<TODO>',
       },
       settings: {
-        adminAddress: '0xadminAddress',
+        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
         blockHistoryLimit: 600,
         chainId: 1337,
         chainType: 'evm',
@@ -67,7 +67,7 @@ describe('create', () => {
       url: 'http://localhost:4111',
     };
     const chainConfig: ChainConfig = {
-      adminAddress: '0xadminAddress',
+      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
       id: 1337,
       type: 'evm',
       providers: [chainProvider],
@@ -82,7 +82,7 @@ describe('create', () => {
         GasPriceFeed: '<TODO>',
       },
       settings: {
-        adminAddress: '0xadminAddress',
+        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
         blockHistoryLimit: 150,
         chainId: 1337,
         chainType: 'evm',
@@ -105,7 +105,7 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
-      adminAddress: '0xadminAddress',
+      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
       id: 1337,
       type: 'evm',
       providers: [chainProvider],
@@ -124,7 +124,7 @@ describe('create', () => {
         GasPriceFeed: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1',
       },
       settings: {
-        adminAddress: '0xadminAddress',
+        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
         blockHistoryLimit: 600,
         chainId: 1337,
         chainType: 'evm',
