@@ -15,7 +15,7 @@ describe('EVM_REQUIRED_CONTRACTS', () => {
 
 describe('build', () => {
   const baseChain: ChainConfig = {
-    adminAddress: '0xadminAddress',
+    adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
     id: 1,
     type: 'evm',
     providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
@@ -61,7 +61,7 @@ describe('build', () => {
 
 describe('validate', () => {
   const baseChain: ChainConfig = {
-    adminAddress: '0xadminAddress',
+    adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
     id: 1,
     type: 'evm',
     providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
