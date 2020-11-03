@@ -1,18 +1,17 @@
 import isEmpty from 'lodash/isEmpty';
 import { Airnode } from './airnode';
 import { Convenience } from './convenience';
-import { GasPriceFeed } from './gas-price-feed';
 import { ChainConfig, EVMContracts } from '../../../types';
 
-export { Airnode, Convenience, GasPriceFeed };
+export { Airnode, Convenience };
 
 // NOTE: The user cannot specify options for EVM mainnet. These contracts are hardcoded to prevent
 // potential exploits
 export const EVM_PROTECTED_CHAIN_IDS = [1];
-export const EVM_REQUIRED_CONTRACTS = ['Airnode', 'Convenience', 'GasPriceFeed'];
+export const EVM_REQUIRED_CONTRACTS = ['Airnode', 'Convenience'];
 
 export function build(chain: ChainConfig): EVMContracts {
-  const evmContracts = { Airnode, Convenience, GasPriceFeed };
+  const evmContracts = { Airnode, Convenience };
 
   const contracts = EVM_REQUIRED_CONTRACTS.reduce((acc, name) => {
     // If no options or contract overrides were specified, take the defaults for each known chain ID

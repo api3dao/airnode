@@ -6,7 +6,9 @@ import * as state from '../../providers/state';
 import * as utils from '../utils';
 import { EVMProviderState, ProviderState } from '../../../types';
 
-export async function processTransactions(initialState: ProviderState<EVMProviderState>) {
+export async function processTransactions(
+  initialState: ProviderState<EVMProviderState>
+): Promise<ProviderState<EVMProviderState> | null> {
   const { chainId, chainType, name: providerName } = initialState.settings;
   const { coordinatorId } = initialState;
 
@@ -25,11 +27,14 @@ export async function processTransactions(initialState: ProviderState<EVMProvide
   // STEP 2: Get the latest gas price
   // =================================================================
   const gasPriceOptions = {
-    address: state1.contracts.GasPriceFeed,
     provider: state1.provider,
   };
   const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
   logger.logPending(gasPriceLogs, baseLogOptions);
+
+  if (!gasPrice) {
+    return null;
+  }
 
   const gweiPrice = utils.weiToGwei(gasPrice);
   logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);

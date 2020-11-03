@@ -36,7 +36,6 @@ describe('create', () => {
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
-        GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
@@ -83,7 +82,6 @@ describe('create', () => {
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
-        GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
@@ -119,7 +117,6 @@ describe('create', () => {
       providers: [chainProvider],
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-        GasPriceFeed: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1',
       },
     };
     const settings = fixtures.createNodeSettings();
@@ -129,7 +126,6 @@ describe('create', () => {
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
-        GasPriceFeed: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1',
       },
       settings: {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
