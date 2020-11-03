@@ -90,23 +90,24 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
   const log3 = logger.pend('INFO', `Estimated gas limit: ${gasLimit.toString()}`);
 
+  // Fetch the current gas price
   const [gasPriceErr, gasPrice] = await go(options.provider.getGasPrice());
   if (gasPriceErr || !gasPrice) {
     const errLog = logger.pend('ERROR', 'Unable to fetch gas price', gasPriceErr);
     return [[log1, log2, log3, errLog], null];
   }
-
   const log4 = logger.pend('INFO', `Gas price set to ${utils.weiToGwei(gasPrice)} Gwei`);
 
-  const txCost = gasLimit.mul(gasPrice);
+  // Get the balance for the master wallet
   const [balanceErr, masterWalletBalance] = await go(options.provider.getBalance(masterWallet.address));
   if (balanceErr || !masterWalletBalance) {
     const errLog = logger.pend('ERROR', 'Unable to fetch master wallet balance', balanceErr);
     return [[log1, log2, log3, log4, errLog], null];
   }
-
   const log5 = logger.pend('INFO', `Master wallet balance: ${ethers.utils.formatEther(masterWalletBalance)} ETH`);
 
+  // Send the entire balance less than transaction cost
+  const txCost = gasLimit.mul(gasPrice);
   const fundsToSend = masterWalletBalance.sub(txCost);
 
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
