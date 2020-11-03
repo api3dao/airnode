@@ -109,6 +109,7 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings {
+  readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
@@ -276,8 +277,9 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
-  readonly id: number;
+  readonly adminAddressForCreatingProviderRecord?: string;
   readonly contracts?: ChainContract[];
+  readonly id: number;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

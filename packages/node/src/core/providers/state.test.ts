@@ -23,7 +23,12 @@ describe('create', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
-    const chainConfig: ChainConfig = { id: 1337, type: 'evm', providers: [chainProvider] };
+    const chainConfig: ChainConfig = {
+      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+      id: 1337,
+      type: 'evm',
+      providers: [chainProvider],
+    };
     const settings = fixtures.createNodeSettings();
 
     const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
@@ -34,6 +39,7 @@ describe('create', () => {
         GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
+        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
         blockHistoryLimit: 600,
         chainId: 1337,
         chainType: 'evm',
@@ -64,7 +70,12 @@ describe('create', () => {
       name: 'ganache-test',
       url: 'http://localhost:4111',
     };
-    const chainConfig: ChainConfig = { id: 1337, type: 'evm', providers: [chainProvider] };
+    const chainConfig: ChainConfig = {
+      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+      id: 1337,
+      type: 'evm',
+      providers: [chainProvider],
+    };
     const settings = fixtures.createNodeSettings();
 
     const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
@@ -75,6 +86,7 @@ describe('create', () => {
         GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
+        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
         blockHistoryLimit: 150,
         chainId: 1337,
         chainType: 'evm',
@@ -101,11 +113,12 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
+      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
       id: 1337,
       type: 'evm',
       providers: [chainProvider],
       contracts: [
-        { name: 'Airnode', address: '0xB71dE2DA6240c45846ED58315a01dd6D843fD3b5' },
+        { name: 'Airnode', address: '0xe60b966B798f9a0C41724f111225A5586ff30656' },
         { name: 'GasPriceFeed', address: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1' },
       ],
     };
@@ -114,11 +127,12 @@ describe('create', () => {
     const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0xB71dE2DA6240c45846ED58315a01dd6D843fD3b5',
+        Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
         GasPriceFeed: '0x5e94fc41d4add01a34616f781dcf1e29e8dc41c1',
       },
       settings: {
+        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
         blockHistoryLimit: 600,
         chainId: 1337,
         chainType: 'evm',

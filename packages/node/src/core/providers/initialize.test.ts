@@ -13,11 +13,13 @@ jest.mock('ethers', () => {
 
 const chains: ChainConfig[] = [
   {
+    adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     id: 1,
     type: 'evm',
     providers: [{ name: 'infura-mainnet', url: 'https://mainnet.infura.io/v3/<key>' }],
   },
   {
+    adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     id: 3,
     type: 'evm',
     providers: [{ name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<key>' }],
@@ -45,12 +47,12 @@ describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getProviderAndBlockNumber.mockResolvedValueOnce({
-      admin: '0xadmin1',
+      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: ethers.BigNumber.from(123456),
       xpub: '0xxpub1',
     });
     contract.getProviderAndBlockNumber.mockResolvedValueOnce({
-      admin: '0xadmin2',
+      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: ethers.BigNumber.from(987654),
       xpub: '0xxpub2',
     });
@@ -71,6 +73,7 @@ describe('initializeProviders', () => {
           GasPriceFeed: '<TODO>',
         },
         settings: {
+          adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
           blockHistoryLimit: 600,
           chainId: 1,
           chainType: 'evm',
@@ -97,6 +100,7 @@ describe('initializeProviders', () => {
           GasPriceFeed: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
         },
         settings: {
+          adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
           blockHistoryLimit: 600,
           chainId: 3,
           chainType: 'evm',
