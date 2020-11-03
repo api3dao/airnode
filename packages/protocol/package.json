@@ -4,7 +4,8 @@
     "build": "buidler compile",
     "deploy:rinkeby": "buidler deploy --network rinkeby",
     "deploy:ropsten": "buidler deploy --network ropsten",
-    "test": "buidler test"
+    "test": "buidler test",
+    "test:coverage": "buidler coverage"
   },
   "devDependencies": {
     "@nomiclabs/buidler": "^1.4.6",
@@ -14,6 +15,7 @@
     "chai": "^4.2.0",
     "ethereum-waffle": "^3.1.0",
     "ethers": "^5.0.13",
-    "ganache-core": "^2.11.3"
+    "ganache-core": "^2.11.3",
+    "solidity-coverage": "^0.7.11"
   }
 }

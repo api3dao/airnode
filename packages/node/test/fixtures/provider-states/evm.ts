@@ -8,6 +8,7 @@ export function createEVMProviderState() {
   const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
 
   const chainConfig: ChainConfig = {
+    adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     id: 1337,
     type: 'evm',
     providers: [chainProvider],

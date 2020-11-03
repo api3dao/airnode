@@ -97,7 +97,10 @@ describe('fulfillWithdrawal', function () {
       // Estimate the gas required to fulfill the withdrawal request
       const gasEstimate = await airnode
         .connect(designatedWallet)
-        .estimateGas.fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, { value: 1 });
+        .estimateGas.fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+          value: 1,
+          gasLimit: 500000,
+        });
       const gasLimit = ethers.BigNumber.from(80_000);
       expect(gasLimit.gt(gasEstimate)).to.equal(true);
       // Calculate the amount that will be sent back to the requester admin
@@ -135,11 +138,17 @@ describe('fulfillWithdrawal', function () {
         });
         await airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, { value: 1 });
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+            value: 1,
+            gasLimit: 500000,
+          });
         await expect(
           airnode
             .connect(designatedWallet)
-            .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, { value: 1 })
+            .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+              value: 1,
+              gasLimit: 500000,
+            })
         ).to.be.revertedWith('No such withdrawal request');
       });
     });
@@ -159,27 +168,39 @@ describe('fulfillWithdrawal', function () {
       await expect(
         airnode
           .connect(roles.randomPerson)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, { value: 1 })
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, { value: 1, gasLimit: 500000 })
       ).to.be.revertedWith('No such withdrawal request');
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(ethers.constants.HashZero, providerId, requesterInd, destination, { value: 1 })
+          .fulfillWithdrawal(ethers.constants.HashZero, providerId, requesterInd, destination, {
+            value: 1,
+            gasLimit: 500000,
+          })
       ).to.be.revertedWith('No such withdrawal request');
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, ethers.constants.HashZero, requesterInd, destination, { value: 1 })
+          .fulfillWithdrawal(withdrawalRequestId, ethers.constants.HashZero, requesterInd, destination, {
+            value: 1,
+            gasLimit: 500000,
+          })
       ).to.be.revertedWith('No such withdrawal request');
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, ethers.constants.Zero, destination, { value: 1 })
+          .fulfillWithdrawal(withdrawalRequestId, providerId, ethers.constants.Zero, destination, {
+            value: 1,
+            gasLimit: 500000,
+          })
       ).to.be.revertedWith('No such withdrawal request');
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, ethers.constants.AddressZero, { value: 1 })
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, ethers.constants.AddressZero, {
+            value: 1,
+            gasLimit: 500000,
+          })
       ).to.be.revertedWith('No such withdrawal request');
     });
   });
