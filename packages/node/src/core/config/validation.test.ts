@@ -9,12 +9,12 @@ describe('validate', () => {
         id: 1337,
         type: 'evm',
         providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
-        contracts: [{ name: 'Airnode', address: 'invalidaddress' }],
+        contracts: { Airnode: 'invalidaddress' },
       },
     ];
     const settings = fixtures.createNodeSettings({ chains });
     expect(validation.validate(settings)).toEqual([
-      'A valid EVM contract address is required for Airnode (chain ID: 1337)',
+      'A valid EVM contract address is required for Airnode. Provided: invalidaddress (chain ID: 1337)',
     ]);
   });
 

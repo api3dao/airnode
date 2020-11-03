@@ -273,8 +273,7 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContract {
-  readonly address: string;
-  readonly name: string;
+  readonly [name: string]: string;
 }
 
 export interface ChainProvider {
@@ -286,7 +285,7 @@ export interface ChainProvider {
 
 export interface ChainConfig {
   readonly id: number;
-  readonly contracts?: ChainContract[];
+  readonly contracts?: ChainContract;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }
