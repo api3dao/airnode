@@ -1,5 +1,5 @@
 import * as contracts from './index';
-import { ChainConfig } from 'src/types';
+import { ChainConfig, ChainType } from 'src/types';
 
 describe('EVM_PROTECTED_CHAIN_IDS', () => {
   it('returns the list of protected EVM chain IDs', () => {
@@ -17,7 +17,7 @@ describe('build', () => {
   const baseChain: ChainConfig = {
     adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
     id: 1,
-    type: 'evm',
+    type: 'evm' as ChainType,
     providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
   };
 
@@ -29,14 +29,14 @@ describe('build', () => {
     });
   });
 
-  it('allows overridding contracts for unprotected chain IDs', () => {
+  it('allows overriding contracts for unprotected chain IDs', () => {
     const chain = {
       ...baseChain,
       id: 3,
-      contracts: [
-        { name: 'Airnode', address: '0x12345' },
-        { name: 'GasPriceFeed', address: '0x98765' },
-      ],
+      contracts: {
+        Airnode: '0x12345',
+        GasPriceFeed: '0x98765',
+      },
     };
     expect(contracts.build(chain)).toEqual({
       Airnode: '0x12345',
@@ -49,7 +49,7 @@ describe('build', () => {
     expect.assertions(1);
     const chain = {
       ...baseChain,
-      contracts: [{ name: 'Airnode', address: '0x12345' }],
+      contracts: { Airnode: '0x12345' },
     };
     try {
       contracts.build(chain);
@@ -75,7 +75,7 @@ describe('validate', () => {
     const chain = {
       ...baseChain,
       id: 1337,
-      contracts: [{ name: 'Airnode', address: '0x12345' }],
+      contracts: { Airnode: '0x12345' },
     };
     expect(contracts.validate(chain)).toEqual([]);
   });
@@ -83,7 +83,7 @@ describe('validate', () => {
   it('does not allow overridding contracts for protected chain IDs', () => {
     const chain = {
       ...baseChain,
-      contracts: [{ name: 'Airnode', address: '0x12345' }],
+      contracts: { Airnode: '0x12345' },
     };
     expect(contracts.validate(chain)).toEqual(['Contracts cannot be specified for protected chain ID: 1']);
   });
@@ -92,14 +92,14 @@ describe('validate', () => {
     const chain = {
       ...baseChain,
       id: 1337,
-      contracts: [
-        { name: 'Airnode', address: 'invalidaddress' },
-        { name: 'Convenience', address: 'invalidaddress' },
-      ],
+      contracts: {
+        Airnode: 'invalidaddress',
+        Convenience: 'invalidaddress',
+      },
     };
     expect(contracts.validate(chain)).toEqual([
-      'A valid EVM contract address is required for Airnode (chain ID: 1337)',
-      'A valid EVM contract address is required for Convenience (chain ID: 1337)',
+      'A valid EVM contract address is required for Airnode. Provided: invalidaddress (chain ID: 1337)',
+      'A valid EVM contract address is required for Convenience. Provided: invalidaddress (chain ID: 1337)',
     ]);
   });
 });
