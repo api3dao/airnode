@@ -1,0 +1,26 @@
+{
+  "name": "validator",
+  "version": "0.0.0",
+  "description": "Verifies that provided specs.json or security.json files are valid Airnode compatible configurations",
+  "author": "Drgy <drgonjak@gmail.com>",
+  "homepage": "https://github.com/api3dao/airnode#readme",
+  "license": "MIT",
+  "main": "src/validator.js",
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/api3dao/airnode.git"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "bugs": {
+    "url": "https://github.com/api3dao/airnode/issues"
+  }
+}
