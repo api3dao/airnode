@@ -8,7 +8,7 @@ import { EVMProviderState, ProviderState } from '../../../types';
 
 export async function processTransactions(
   initialState: ProviderState<EVMProviderState>
-): Promise<ProviderState<EVMProviderState> | null> {
+): Promise<ProviderState<EVMProviderState>> {
   const { chainId, chainType, name: providerName } = initialState.settings;
   const { coordinatorId } = initialState;
 
@@ -33,7 +33,7 @@ export async function processTransactions(
   logger.logPending(gasPriceLogs, baseLogOptions);
 
   if (!gasPrice) {
-    return null;
+    return state1;
   }
 
   const gweiPrice = utils.weiToGwei(gasPrice);
