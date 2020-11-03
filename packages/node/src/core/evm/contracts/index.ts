@@ -17,22 +17,22 @@ export function build(chain: ChainConfig): EVMContracts {
   const contracts = EVM_REQUIRED_CONTRACTS.reduce((acc, name) => {
     // If no options or contract overrides were specified, take the defaults for each known chain ID
     if (!chain.contracts) {
-      const address = evmContracts[name].addresses[chain.id];
-      return { ...acc, [name]: address };
+      const defaultAddress = evmContracts[name].addresses[chain.id];
+      return { ...acc, [name]: defaultAddress };
     }
 
-    const contractOverride = chain.contracts.find((c) => c.name === name);
+    const overrideAddress = chain.contracts[name];
     // If no contract override was found, take the default
-    if (!contractOverride) {
-      const address = evmContracts[name].addresses[chain.id];
-      return { ...acc, [name]: address };
+    if (!overrideAddress) {
+      const defaultAddress = evmContracts[name].addresses[chain.id];
+      return { ...acc, [name]: defaultAddress };
     }
 
     if (EVM_PROTECTED_CHAIN_IDS.includes(chain.id)) {
       throw new Error(`EVM Contract:${name} cannot be overridden for protected chain ID: ${chain.id}`);
     }
 
-    return { ...acc, [name]: contractOverride.address };
+    return { ...acc, [name]: overrideAddress };
   }, {}) as EVMContracts;
 
   return contracts;
@@ -47,9 +47,13 @@ export function validate(chain: ChainConfig): string[] {
     return [`Contracts cannot be specified for protected chain ID: ${chain.id}`];
   }
 
-  const missingAddresses = chain.contracts.reduce((acc, contract) => {
-    if (!contract.address || !contract.address.startsWith('0x')) {
-      return [...acc, `A valid EVM contract address is required for ${contract.name} (chain ID: ${chain.id})`];
+  const missingAddresses = Object.keys(chain.contracts).reduce((acc, name) => {
+    const overrideAddress = chain.contracts![name];
+    if (!overrideAddress || !overrideAddress.startsWith('0x')) {
+      return [
+        ...acc,
+        `A valid EVM contract address is required for ${name}. Provided: ${overrideAddress} (chain ID: ${chain.id})`,
+      ];
     }
     return acc;
   }, []);
