@@ -70,7 +70,6 @@ describe('initializeProviders', () => {
         contracts: {
           Airnode: '<TODO>',
           Convenience: '<TODO>',
-          GasPriceFeed: '<TODO>',
         },
         settings: {
           adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -97,7 +96,6 @@ describe('initializeProviders', () => {
         contracts: {
           Airnode: '0x32D228B5d44Fd18FefBfd68BfE5A5F3f75C873AE',
           Convenience: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
-          GasPriceFeed: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
         },
         settings: {
           adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',

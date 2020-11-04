@@ -9,7 +9,7 @@ describe('EVM_PROTECTED_CHAIN_IDS', () => {
 
 describe('EVM_REQUIRED_CONTRACTS', () => {
   it('returns the list of protected EVM chain IDs', () => {
-    expect(contracts.EVM_REQUIRED_CONTRACTS).toEqual(['Airnode', 'Convenience', 'GasPriceFeed']);
+    expect(contracts.EVM_REQUIRED_CONTRACTS).toEqual(['Airnode', 'Convenience']);
   });
 });
 
@@ -25,7 +25,6 @@ describe('build', () => {
     expect(contracts.build(baseChain)).toEqual({
       Airnode: '<TODO>',
       Convenience: '<TODO>',
-      GasPriceFeed: '<TODO>',
     });
   });
 
@@ -33,15 +32,11 @@ describe('build', () => {
     const chain = {
       ...baseChain,
       id: 3,
-      contracts: {
-        Airnode: '0x12345',
-        GasPriceFeed: '0x98765',
-      },
+      contracts: { Airnode: '0x12345' },
     };
     expect(contracts.build(chain)).toEqual({
       Airnode: '0x12345',
       Convenience: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
-      GasPriceFeed: '0x98765',
     });
   });
 

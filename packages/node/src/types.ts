@@ -145,7 +145,6 @@ export interface CoordinatorState {
 export interface EVMContracts {
   readonly Airnode: string;
   readonly Convenience: string;
-  readonly GasPriceFeed: string;
 }
 
 export interface EVMProviderState {
