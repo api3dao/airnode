@@ -33,8 +33,7 @@ yargs
     'remove-mnemonic',
     'Removes mnemonic deployment',
     {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
+      providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
     },
     (args) => {
       removeMnemonic(args);
@@ -44,8 +43,8 @@ yargs
     'remove-airnode',
     'Removes Airnode deployment',
     {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
+      providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
+      awsRegion: { type: 'string', demandOption: true, alias: 'r' },
     },
     (args) => {
       removeAirnode(args);

@@ -1,7 +1,7 @@
 FROM node:12.19.0-alpine3.12
 
 ENV NODE_ENV production
-ENV ACTION deploy
+ENV COMMAND deploy
 
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_KEY ""
@@ -33,6 +33,7 @@ CMD cd /airnode/packages/deployer \
     && sed -i -- "s=<UPDATE_AWS_REGION>=$AWS_REGION=g" /airnode/packages/deployer/terraform/variables.tf.workaround \
     && cp /airnode/packages/deployer/terraform/variables.tf.workaround /airnode/packages/deployer/terraform/variables.tf \
     && yarn terraform:init \
-    && yarn $ACTION \
+    && yarn $COMMAND \
+    # Skip these if COMMAND is not deploy
     && cd /airnode \
     && cp packages/deployer/*.receipt.json out

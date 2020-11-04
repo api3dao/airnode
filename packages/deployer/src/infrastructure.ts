@@ -33,9 +33,14 @@ export async function removeMnemonicFromSSM(providerIdShort) {
   await importMnemonicToState(providerIdShort);
 
   const spinner = ora('Removing the mnemonic from AWS SSM').start();
-  await exec(
-    `cd terraform && terraform destroy -auto-approve -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
-  );
+  try {
+    await exec(
+      `cd terraform && terraform destroy -auto-approve -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
+    );
+  } catch (e) {
+    spinner.succeed('Failed to remove the mnemonic from AWS SSM');
+    throw e;
+  }
   spinner.succeed('Removed the mnemonic from AWS SSM');
 
   // Delete the state files
@@ -51,9 +56,7 @@ async function importMnemonicToState(providerIdShort) {
     );
     spinner.succeed('Found the mnemonic at AWS SSM');
   } catch (e) {
-    if (e.stderr.includes('Cannot import non-existent remote object')) {
-      spinner.fail('The mnemonic does not exist at AWS SSM');
-    }
+    spinner.fail('Failed to find the mnemonic at AWS SSM');
     throw e;
   }
 }

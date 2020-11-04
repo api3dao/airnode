@@ -10,8 +10,13 @@ export async function deployServerless(providerIdShort) {
   spinner.succeed('Deployed the serverless functions');
 }
 
-export async function removeServerless(providerIdShort) {
+export async function removeServerless(providerIdShort, awsRegion) {
   const spinner = ora('Removing the serverless functions').start();
-  await exec(`PROVIDER_ID_SHORT=${providerIdShort} AWS_REGION=$AWS_REGION yarn sls:remove`);
-  spinner.succeed('Removed the serverless functions');
+  try {
+    await exec(`PROVIDER_ID_SHORT=${providerIdShort} AWS_REGION=${awsRegion} yarn sls:remove`);
+    spinner.succeed('Removed the serverless functions');
+  } catch (e) {
+    spinner.fail('Failed removing the serverless functions.');
+    throw e;
+  }
 }

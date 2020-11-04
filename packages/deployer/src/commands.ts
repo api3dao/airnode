@@ -38,11 +38,9 @@ export async function deploy(args) {
 }
 
 export async function removeMnemonic(args) {
-  const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
-  await removeMnemonicFromSSM(providerIdShort);
+  await removeMnemonicFromSSM(args.providerIdShort);
 }
 
 export async function removeAirnode(args) {
-  const { providerIdShort } = await readConfig(args.configPath, args.securityPath);
-  await removeServerless(providerIdShort);
+  await removeServerless(args.providerIdShort, args.awsRegion);
 }
