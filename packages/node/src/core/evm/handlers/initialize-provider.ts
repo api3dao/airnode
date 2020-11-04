@@ -4,7 +4,7 @@ import * as logger from '../../logger';
 import * as providers from '../providers';
 import * as requests from '../requests';
 import * as state from '../../providers/state';
-import * as templates from '../templates';
+import * as templateAuthorizations from './fetch-templates-authorizations';
 import * as transactionCounts from '../transaction-counts';
 import * as verification from '../verification';
 import * as wallet from '../wallet';
@@ -15,7 +15,7 @@ type ParallelPromise = Promise<{ id: string; data: any; logs?: PendingLog[] }>;
 
 async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMProviderState>) {
   // This should not throw
-  const res = await templates.fetchTemplatesAndAuthorizations(currentState);
+  const res = await templateAuthorizations.fetchTemplatesAndAuthorizations(currentState);
   return { id: 'templates+authorizations', data: res };
 }
 
