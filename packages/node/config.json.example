@@ -9,6 +9,7 @@
     "providerId": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
     "chains": [
       {
+        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
         "id": 3,
         "contracts": {
@@ -25,6 +26,7 @@
         ]
       },
       {
+        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
         "id": 4,
         "contracts": {
@@ -35,8 +37,19 @@
           {
             "blockHistoryLimit": 600,
             "minConfirmations": 6,
-            "name": "infura-rinkeby",
-            "url": "https://rinkeby.infura.io/v3/<KEY>"
+            "name": "infura-ropsten",
+            "url": "https://ropsten.infura.io/v3/<your key>"
+          }
+        ]
+      },
+      {
+        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
+        "type": "evm",
+        "chainId": 1337,
+        "providers": [
+          {
+            "name": "ganache-local",
+            "url": "http://localhost:4111"
           }
         ]
       }

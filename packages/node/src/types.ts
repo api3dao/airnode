@@ -26,19 +26,21 @@ export enum RequestErrorCode {
   UnknownEndpoint = 16,
   UnknownOIS = 17,
   FulfillTransactionFailed = 18,
+  InvalidTemplate = 19,
+  InvalidDesignatedWallet = 20,
+  InvalidRequestID = 21,
 }
 
 export enum RequestStatus {
-  Pending,
-  Fulfilled,
-  Ignored,
-  Blocked,
-  Errored,
+  Pending = 'Pending',
+  Fulfilled = 'Fulfilled',
+  Ignored = 'Ignored',
+  Blocked = 'Blocked',
+  Errored = 'Errored',
 }
 
 export enum RequestType {
   ApiCall,
-  WalletDesignation,
   Withdrawal,
 }
 
@@ -47,54 +49,52 @@ export interface RequestMetadata {
   readonly transactionHash: string;
 }
 
-export type BaseRequest<T extends {}> = T & {
+export type ClientRequest<T extends {}> = T & {
+  readonly designatedWallet: string | null;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
+  readonly requesterIndex: string | null;
   readonly status: RequestStatus;
-};
 
-export interface RequesterData {
+  // TODO: protocol-overhaul remove these
   readonly requesterId: string;
   readonly walletIndex: string;
   readonly walletAddress: string;
   readonly walletBalance: string;
   readonly walletMinimumBalance: string;
-}
+};
 
-export type ClientRequest<T> = BaseRequest<T> & RequesterData;
+export type ApiCallType = 'short' | 'regular' | 'full';
 
 export interface ApiCall {
+  readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
-  readonly errorAddress: string | null;
-  readonly errorFunctionId: string | null;
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
   readonly providerId: string;
-  readonly requesterAddress: string;
-  readonly templateId: string | null;
+  readonly requestCount: string;
   readonly responseValue?: string;
+  readonly templateId: string | null;
+  readonly type: ApiCallType;
+
+  // TODO: protocol-overhaul remove these
+  readonly errorAddress: string | null;
+  readonly errorFunctionId: string | null;
 }
 
 export interface ApiCallTemplate {
+  readonly designatedWallet: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
-  readonly errorAddress: string;
-  readonly errorFunctionId: string;
   readonly fulfillAddress: string;
   readonly fulfillFunctionId: string;
+  readonly id: string;
   readonly providerId: string;
-  readonly templateId: string;
-}
-
-export interface WalletDesignation {
-  readonly depositAmount: string;
-  readonly providerId: string;
-  readonly requesterId: string;
-  readonly walletIndex: string;
+  readonly requesterIndex: string;
 }
 
 export interface Withdrawal {
@@ -103,47 +103,33 @@ export interface Withdrawal {
   readonly requesterId: string;
 }
 
-export interface GroupedBaseRequests {
-  readonly apiCalls: BaseRequest<ApiCall>[];
-  readonly walletDesignations: BaseRequest<WalletDesignation>[];
-  readonly withdrawals: BaseRequest<Withdrawal>[];
-}
-
 export interface GroupedRequests {
   readonly apiCalls: ClientRequest<ApiCall>[];
-  readonly walletDesignations: BaseRequest<WalletDesignation>[];
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
-export interface WalletData {
-  readonly address: string;
-  readonly requests: GroupedRequests;
-  readonly transactionCount: number;
-}
-
-export interface WalletDataByIndex {
-  readonly [index: string]: WalletData;
-}
-
 export interface ProviderSettings {
+  readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
   readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
+  readonly providerId: string;
   readonly url: string;
 }
 
 export type ProviderState<T extends {}> = T & {
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
-  readonly walletDataByIndex: WalletDataByIndex;
+  readonly transactionCountsByRequesterIndex: { [requesterIndex: string]: number };
 };
 
 export interface AggregatedApiCallsById {
-  readonly [requestId: string]: AggregatedApiCall[];
+  readonly [requestId: string]: AggregatedApiCall;
 }
 
 export interface CoordinatorState {
@@ -159,7 +145,6 @@ export interface CoordinatorState {
 export interface EVMContracts {
   readonly Airnode: string;
   readonly Convenience: string;
-  readonly GasPriceFeed: string;
 }
 
 export interface EVMProviderState {
@@ -171,12 +156,8 @@ export interface EVMProviderState {
 // ===========================================
 // API calls
 // ===========================================
-export interface AuthorizationByRequester {
-  readonly [id: string]: boolean;
-}
-
-export interface AuthorizationByEndpointId {
-  readonly [id: string]: AuthorizationByRequester;
+export interface AuthorizationByRequestId {
+  readonly [requestId: string]: boolean;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
@@ -278,7 +259,7 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 // ===========================================
 export type ChainType = 'evm'; // Add other blockchain types here;
 
-export interface ChainContract {
+export interface ChainContracts {
   readonly [name: string]: string;
 }
 
@@ -290,8 +271,9 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
+  readonly adminAddressForCreatingProviderRecord?: string;
+  readonly contracts?: ChainContracts;
   readonly id: number;
-  readonly contracts?: ChainContract;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

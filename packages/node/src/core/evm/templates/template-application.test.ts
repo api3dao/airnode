@@ -1,25 +1,13 @@
 import * as fixtures from 'test/fixtures';
-import { ApiCallTemplate, RequestErrorCode, RequestStatus, WalletDataByIndex } from '../../../types';
+import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../../types';
 import * as application from './template-application';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
     const apiCall = fixtures.requests.createApiCall({ templateId: null });
-    const walletDataByIndex: WalletDataByIndex = {
-      1: {
-        address: '0x1',
-        requests: {
-          apiCalls: [apiCall],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 3,
-      },
-    };
-    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, {});
-    expect(logs).toEqual([]);
-    expect(err).toEqual(null);
-    expect(res[1].requests.apiCalls).toEqual([apiCall]);
+    const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], {});
+    expect(logs).toEqual([{ level: 'DEBUG', message: `Request:${apiCall.id} is not linked to a template` }]);
+    expect(res).toEqual([apiCall]);
   });
 
   it('merges the template into the API call', () => {
@@ -32,40 +20,30 @@ describe('mergeApiCallsWithTemplates', () => {
       errorFunctionId: null,
       parameters: {},
     });
-    const walletDataByIndex: WalletDataByIndex = {
-      1: {
-        address: '0x1',
-        requests: {
-          apiCalls: [apiCall],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 3,
-      },
-    };
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        templateId: 'templateId-0',
+        requesterIndex: '5',
       },
     };
 
-    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
-    expect(logs).toEqual([]);
-    expect(err).toEqual(null);
-    const resApiCall = res[1].requests.apiCalls[0];
-    expect(resApiCall.endpointId).toEqual('templateEndpointId-0');
-    expect(resApiCall.fulfillAddress).toEqual('templateFulfillAddress-0');
-    expect(resApiCall.fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
-    expect(resApiCall.errorAddress).toEqual('templateErrorAddress-0');
-    expect(resApiCall.errorFunctionId).toEqual('templateErrorFunctionId-0');
+    const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], templatesById);
+    expect(logs).toEqual([{ level: 'DEBUG', message: `Template ID:templateId-0 applied to Request:${apiCall.id}` }]);
+    expect(res[0].endpointId).toEqual('templateEndpointId-0');
+    expect(res[0].fulfillAddress).toEqual('templateFulfillAddress-0');
+    expect(res[0].fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
+    expect(res[0].errorAddress).toEqual(null);
+    expect(res[0].errorFunctionId).toEqual(null);
+    // These fields are not overwritten
+    expect(res[0].designatedWallet).toEqual('designatedWallet');
+    expect(res[0].requesterIndex).toEqual('3');
   });
 
   it('merges template and API call parameters', () => {
@@ -76,36 +54,23 @@ describe('mergeApiCallsWithTemplates', () => {
         amount: '1',
       },
     });
-    const walletDataByIndex: WalletDataByIndex = {
-      1: {
-        address: '0x1',
-        requests: {
-          apiCalls: [apiCall],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 3,
-      },
-    };
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
+        id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        templateId: 'templateId-0',
+        requesterIndex: '5',
       },
     };
 
-    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
-    expect(logs).toEqual([]);
-    expect(err).toEqual(null);
-    const resApiCall = res[1].requests.apiCalls[0];
-    expect(resApiCall.parameters).toEqual({
+    const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], templatesById);
+    expect(logs).toEqual([{ level: 'DEBUG', message: `Template ID:templateId-0 applied to Request:${apiCall.id}` }]);
+    expect(res[0].parameters).toEqual({
       from: 'ETH',
       amount: '1',
       template: 'value',
@@ -122,98 +87,61 @@ describe('mergeApiCallsWithTemplates', () => {
       errorFunctionId: 'requestErrorFunctionId',
       parameters: { template: 'this will overwrite the template' },
     });
-    const walletDataByIndex: WalletDataByIndex = {
-      1: {
-        address: '0x1',
-        requests: {
-          apiCalls: [apiCall],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 3,
-      },
-    };
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
+        id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        templateId: 'templateId-0',
+        requesterIndex: '5',
       },
     };
 
-    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
-    expect(logs).toEqual([]);
-    expect(err).toEqual(null);
-    const resApiCall = res[1].requests.apiCalls[0];
-    expect(resApiCall.endpointId).toEqual('requestEndpointId');
-    expect(resApiCall.fulfillAddress).toEqual('requestFulfillAddress');
-    expect(resApiCall.fulfillFunctionId).toEqual('requestFulfillFunctionId');
-    expect(resApiCall.errorAddress).toEqual('requestErrorAddress');
-    expect(resApiCall.errorFunctionId).toEqual('requestErrorFunctionId');
-    expect(resApiCall.parameters).toEqual({ template: 'this will overwrite the template' });
+    const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], templatesById);
+    expect(logs).toEqual([{ level: 'DEBUG', message: `Template ID:templateId-0 applied to Request:${apiCall.id}` }]);
+    expect(res[0].endpointId).toEqual('requestEndpointId');
+    expect(res[0].fulfillAddress).toEqual('requestFulfillAddress');
+    expect(res[0].fulfillFunctionId).toEqual('requestFulfillFunctionId');
+    expect(res[0].errorAddress).toEqual('requestErrorAddress');
+    expect(res[0].errorFunctionId).toEqual('requestErrorFunctionId');
+    expect(res[0].parameters).toEqual({ template: 'this will overwrite the template' });
   });
 
   it('blocks API calls where the template cannot be found', () => {
-    const walletDataByIndex: WalletDataByIndex = {
-      1: {
-        address: '0x1',
-        requests: {
-          apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 3,
-      },
-    };
-    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, {});
+    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], {});
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to fetch template ID:templateId-0 for Request ID:apiCallId' },
     ]);
-    expect(err).toEqual(null);
-    const resApiCall = res[1].requests.apiCalls[0];
-    expect(resApiCall.status).toEqual(RequestStatus.Blocked);
-    expect(resApiCall.errorCode).toEqual(RequestErrorCode.TemplateNotFound);
+    expect(res[0].status).toEqual(RequestStatus.Blocked);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
   });
 
   it('invalidates API calls with invalid template parameters', () => {
-    const walletDataByIndex: WalletDataByIndex = {
-      1: {
-        address: '0x1',
-        requests: {
-          apiCalls: [fixtures.requests.createApiCall({ templateId: 'templateId-0' })],
-          walletDesignations: [],
-          withdrawals: [],
-        },
-        transactionCount: 3,
-      },
-    };
+    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        designatedWallet: 'designatedWallet-0',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        errorAddress: 'templateErrorAddress-0',
-        errorFunctionId: 'templateErrorFunctionId-0',
         encodedParameters: 'invalid-parameters',
+        id: 'templateId-0',
         providerId: 'templateProviderId-0',
-        templateId: 'templateId-0',
+        requesterIndex: '5',
       },
     };
 
-    const [logs, err, res] = application.mergeApiCallsWithTemplates(walletDataByIndex, templatesById);
+    const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], templatesById);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Template ID:apiCallId contains invalid parameters: invalid-parameters' },
+      { level: 'ERROR', message: 'Template ID:templateId-0 contains invalid parameters: invalid-parameters' },
     ]);
-    expect(err).toEqual(null);
-    const resApiCall = res[1].requests.apiCalls[0];
-    expect(resApiCall.status).toEqual(RequestStatus.Errored);
-    expect(resApiCall.errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
+    expect(res[0].status).toEqual(RequestStatus.Errored);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
   });
 });

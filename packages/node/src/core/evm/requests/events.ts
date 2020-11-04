@@ -2,21 +2,16 @@ import { ethers } from 'ethers';
 import * as contracts from '../contracts';
 
 export const API_CALL_REQUEST_TOPICS = [
-  contracts.Airnode.topics.ApiCallRequest,
-  contracts.Airnode.topics.ApiCallShortRequest,
-  contracts.Airnode.topics.ApiCallFullRequest,
+  contracts.Airnode.topics.ClientRequestCreated,
+  contracts.Airnode.topics.ClientShortRequestCreated,
+  contracts.Airnode.topics.ClientFullRequestCreated,
 ];
 
 export const API_CALL_FULFILLED_TOPICS = [
-  contracts.Airnode.topics.ApiCallFulfilledSuccessful,
-  contracts.Airnode.topics.ApiCallFulfilledBytesSuccessful,
-  contracts.Airnode.topics.ApiCallFulfilledErrored,
-  contracts.Airnode.topics.ApiCallFulfilledFailed,
+  contracts.Airnode.topics.ClientRequestFulfilled,
+  contracts.Airnode.topics.ClientRequestFulfilledWithBytes,
+  contracts.Airnode.topics.ClientRequestFailed,
 ];
-
-export const WALLET_DESIGNATION_REQUEST_TOPICS = [contracts.Airnode.topics.WalletDesignationRequest];
-
-export const WALLET_DESIGNATION_FULFILLED_TOPICS = [contracts.Airnode.topics.WalletDesignationFulfilled];
 
 export const WITHDRAWAL_REQUEST_TOPICS = [contracts.Airnode.topics.WithdrawalRequested];
 
@@ -28,14 +23,6 @@ export function isApiCallRequest(log: ethers.utils.LogDescription) {
 
 export function isApiCallFulfillment(log: ethers.utils.LogDescription) {
   return API_CALL_FULFILLED_TOPICS.includes(log.topic);
-}
-
-export function isWalletDesignationRequest(log: ethers.utils.LogDescription) {
-  return WALLET_DESIGNATION_REQUEST_TOPICS.includes(log.topic);
-}
-
-export function isWalletDesignationFulfillment(log: ethers.utils.LogDescription) {
-  return WALLET_DESIGNATION_FULFILLED_TOPICS.includes(log.topic);
 }
 
 export function isWithdrawalRequest(log: ethers.utils.LogDescription) {

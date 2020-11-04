@@ -19,12 +19,14 @@ export function createEVMState(
   const contracts = evm.contracts.build(chain);
 
   const providerSettings: ProviderSettings = {
+    adminAddressForCreatingProviderRecord: chain.adminAddressForCreatingProviderRecord,
     blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
     logFormat: settings.logFormat,
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
+    providerId: settings.providerId,
     url: chainProvider.url,
   };
 
@@ -35,7 +37,11 @@ export function createEVMState(
     settings: providerSettings,
     currentBlock: null,
     gasPrice: null,
-    walletDataByIndex: {},
+    requests: {
+      apiCalls: [],
+      withdrawals: [],
+    },
+    transactionCountsByRequesterIndex: {},
   };
 }
 

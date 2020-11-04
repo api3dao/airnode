@@ -1,0 +1,15 @@
+{
+  "oisFormat": {
+    "__regexp": "^[0-9]+.[0-9]+.[0-9]+$"
+  },
+  "title": {},
+  "version": {
+    "__regexp": "^[0-9]+.[0-9]+.[0-9]+$"
+  },
+  "apiSpecifications": {
+    "__apiSpecs": {}
+  },
+  "endpoints": {
+    "__endpointsSpecs": {}
+  }
+}

@@ -1,5 +1,6 @@
 usePlugin("@nomiclabs/buidler-waffle");
 usePlugin('buidler-deploy');
+usePlugin('solidity-coverage');
 
 const fs = require('fs')
 let credentials = require("./credentials.example.json");
@@ -22,7 +23,7 @@ module.exports = {
     ropsten: {
       url: credentials.ropsten.providerUrl || "",
       accounts: {mnemonic: credentials.ropsten.mnemonic || ""}
-    },
+    }
   },
   namedAccounts: {
     deployer: {
@@ -33,6 +34,6 @@ module.exports = {
     },
   },
   solc: {
-    version: "0.6.8",
+    version: "0.6.12",
   },
 };

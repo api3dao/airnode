@@ -29,15 +29,14 @@ export function log(level: LogLevel, message: string, options: LogOptions) {
     return;
   }
 
-  // Set as lowercase. i.e. `export LOG_LEVEL=info`
-  const LOG_LEVEL = process.env.LOG_LEVEL;
+  // Set as lowercase. i.e. `export LOG_LEVEL=debug`
+  // Defaults to 'info' so the user needs to opt in to debug logs
+  const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 
-  if (LOG_LEVEL) {
-    const systemLevel = logLevels[LOG_LEVEL.toUpperCase()];
-    const messageLevel = logLevels[level];
-    if (systemLevel > messageLevel) {
-      return;
-    }
+  const systemLevel = logLevels[LOG_LEVEL.toUpperCase()];
+  const messageLevel = logLevels[level];
+  if (systemLevel > messageLevel) {
+    return;
   }
 
   if (options.format === 'plain') {
@@ -60,9 +59,9 @@ export function plain(level: LogLevel, message: string, options: LogOptions) {
 
   // The following are "special" fields that get spacing, capitalization etc applied
   // Additional fields can be included, but they must have the full name as the keys
-  const chainType = options.meta?.chainType ? ` Chain: ${options.meta.chainType.toUpperCase()}` : '';
-  const chainId = options.meta?.chainId ? ` Chain ID: ${options.meta.chainId}` : '';
-  const coordId = options.meta?.coordinatorId ? ` Coordinator ID: ${options.meta.coordinatorId}` : '';
+  const chainType = options.meta?.chainType ? ` Chain:${options.meta.chainType.toUpperCase()}` : '';
+  const chainId = options.meta?.chainId ? ` Chain-ID:${options.meta.chainId}` : '';
+  const coordId = options.meta?.coordinatorId ? ` Coordinator-ID:${options.meta.coordinatorId}` : '';
   const provider = options.meta?.providerName ? ` Provider:${options.meta.providerName}` : '';
   const meta = [coordId, provider, chainType, chainId].filter((l) => !!l).join(',');
 
