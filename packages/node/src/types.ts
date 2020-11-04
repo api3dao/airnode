@@ -108,16 +108,6 @@ export interface GroupedRequests {
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
-export interface WalletData {
-  readonly address: string;
-  readonly requests: GroupedRequests;
-  readonly transactionCount: number;
-}
-
-export interface WalletDataByIndex {
-  readonly [index: string]: WalletData;
-}
-
 export interface ProviderSettings {
   readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
@@ -133,8 +123,9 @@ export interface ProviderSettings {
 export type ProviderState<T extends {}> = T & {
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
-  readonly walletDataByIndex: WalletDataByIndex;
+  readonly transactionCountsByRequesterIndex: { [requesterIndex: string]: number };
 };
 
 export interface AggregatedApiCallsById {
@@ -166,12 +157,8 @@ export interface EVMProviderState {
 // ===========================================
 // API calls
 // ===========================================
-export interface AuthorizationByRequester {
-  readonly [id: string]: boolean;
-}
-
-export interface AuthorizationByEndpointId {
-  readonly [id: string]: AuthorizationByRequester;
+export interface AuthorizationByRequestId {
+  readonly [requestId: string]: boolean;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';

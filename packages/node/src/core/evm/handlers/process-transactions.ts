@@ -18,8 +18,8 @@ export async function processTransactions(initialState: ProviderState<EVMProvide
   // =================================================================
   // STEP 1: Assign nonces to processable requests
   // =================================================================
-  const walletDataByIndexWithNonces = nonces.assign(initialState);
-  const state1 = state.update(initialState, { walletDataByIndex: walletDataByIndexWithNonces });
+  const requestsWithNonces = nonces.assign(initialState);
+  const state1 = state.update(initialState, { requests: requestsWithNonces });
 
   // =================================================================
   // STEP 2: Get the latest gas price

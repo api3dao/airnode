@@ -1,5 +1,4 @@
 import flatMap from 'lodash/flatMap';
-import flatten from 'lodash/flatten';
 import * as logger from '../../logger';
 import {
   AggregatedApiCallsById,
@@ -7,78 +6,62 @@ import {
   ClientRequest,
   CoordinatorState,
   EVMProviderState,
+  GroupedRequests,
   LogsData,
   PendingLog,
   ProviderState,
   RequestErrorCode,
   RequestStatus,
-  WalletDataByIndex,
 } from '../../../types';
 
-interface WalletDataWithLogs {
-  walletDataByIndex: WalletDataByIndex;
+export interface RequestsWithLogs {
   logs: PendingLog[];
+  requests: GroupedRequests;
 }
 
-function mapApiCalls(
-  apiCalls: ClientRequest<ApiCall>[],
+function updateApiCallResponse(
+  apiCall: ClientRequest<ApiCall>,
   aggregatedApiCallsById: AggregatedApiCallsById
-): LogsData<ClientRequest<ApiCall>[]> {
-  const logsWithApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
-    const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
+): LogsData<ClientRequest<ApiCall>> {
+  const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
 
-    if (!aggregatedApiCall) {
-      const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
-      const updatedCall = {
-        ...apiCall,
-        status: RequestStatus.Blocked,
-        errorCode: RequestErrorCode.UnableToMatchAggregatedCall,
-      };
-      return [[log], updatedCall];
-    }
+  // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
+  if (!aggregatedApiCall) {
+    const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
+    const updatedCall = {
+      ...apiCall,
+      status: RequestStatus.Blocked,
+      errorCode: RequestErrorCode.UnableToMatchAggregatedCall,
+    };
+    return [[log], updatedCall];
+  }
 
-    // Add the error to the ApiCall
-    if (aggregatedApiCall.errorCode) {
-      return [[], { ...apiCall, status: RequestStatus.Errored, errorCode: aggregatedApiCall.errorCode }];
-    }
+  // Add the error to the ApiCall
+  if (aggregatedApiCall.errorCode) {
+    return [[], { ...apiCall, status: RequestStatus.Errored, errorCode: aggregatedApiCall.errorCode }];
+  }
 
-    return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue! }];
-  });
-
-  const logs = flatMap(logsWithApiCalls, (a) => a[0]);
-  const apiCallWithResponses = flatMap(logsWithApiCalls, (a) => a[1]);
-
-  return [logs, apiCallWithResponses];
+  return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue! }];
 }
 
-function mapProviderState(
+function mapEVMProviderState(
   state: ProviderState<EVMProviderState>,
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<ProviderState<EVMProviderState>> {
-  const initialState: WalletDataWithLogs = { logs: [], walletDataByIndex: {} };
+  const logsWithApiCalls = state.requests.apiCalls.map((apiCall) => {
+    return updateApiCallResponse(apiCall, aggregatedApiCallsById);
+  });
 
-  const walletIndices = Object.keys(state.walletDataByIndex);
-  const { logs, walletDataByIndex } = walletIndices.reduce((acc, index) => {
-    const walletData = state.walletDataByIndex[index];
-    const { requests } = walletData;
+  const logs = flatMap(logsWithApiCalls, (a) => a[0]);
+  const apiCalls = flatMap(logsWithApiCalls, (a) => a[1]);
+  const requests = { ...state.requests, apiCalls };
 
-    const [apiLogs, updatedApiCalls] = mapApiCalls(requests.apiCalls, aggregatedApiCallsById);
-    const updatedRequests = { ...requests, apiCalls: updatedApiCalls };
-    const updatedWalletData = { ...walletData, requests: updatedRequests };
-
-    return {
-      ...acc,
-      logs: [...acc.logs, apiLogs],
-      walletDataByIndex: { ...acc.walletDataByIndex, [index]: updatedWalletData },
-    };
-  }, initialState);
-
-  return [flatten(logs), { ...state, walletDataByIndex }];
+  return [logs, { ...state, requests }];
 }
 
 export function disaggregate(state: CoordinatorState): LogsData<ProviderState<EVMProviderState>[]> {
   const logsWithProviderStates = state.EVMProviders.map((provider) => {
-    return mapProviderState(provider, state.aggregatedApiCallsById);
+    return mapEVMProviderState(provider, state.aggregatedApiCallsById);
   });
 
   const logs = flatMap(logsWithProviderStates, (ps) => ps[0]);

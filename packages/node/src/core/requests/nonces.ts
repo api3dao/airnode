@@ -1,5 +1,6 @@
 import { removeKey } from '../utils/object-utils';
-import * as sorting from '../requests/sorting';
+import * as grouping from './grouping';
+import * as sorting from './sorting';
 import {
   ApiCall,
   ClientRequest,
@@ -13,7 +14,7 @@ import {
 
 type AnyRequest = ApiCall | Withdrawal;
 
-function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<any>[] {
+function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<ApiCall | Withdrawal>[] {
   // Store the type as well temporarily so that requests can be ungrouped again
   const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, __type: RequestType.ApiCall }));
 
@@ -83,29 +84,35 @@ function assignWalletNonces(
   return withNonces.requests;
 }
 
-export function assign(state: ProviderState<EVMProviderState>) {
-  // Ensure requests are sorted for we assign nonces
-  const sortedWalletDataByIndex = sorting.sortRequestsByWalletIndex(state.walletDataByIndex);
+export function assign(state: ProviderState<EVMProviderState>): GroupedRequests {
+  const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
 
-  const walletIndices = Object.keys(sortedWalletDataByIndex);
-  const walletDataByIndexWithNonces = walletIndices.reduce((acc, index) => {
-    const walletData = sortedWalletDataByIndex[index];
+  const requesterIndices = Object.keys(requestsByRequesterIndex);
 
-    // Flatten all requests into a single array so that nonces can be assigned across types
-    const flatRequests = flattenRequests(walletData.requests);
+  return requesterIndices.reduce(
+    (acc, requesterIndex) => {
+      const requests = requestsByRequesterIndex[requesterIndex];
 
-    // Assign nonces to each request
-    const flattenRequestsWithNonces = assignWalletNonces(
-      flatRequests,
-      walletData.transactionCount,
-      state.currentBlock!
-    );
+      // Ensure requests are sorted for we assign nonces
+      const sortedRequests = sorting.sortGroupedRequests(requests);
 
-    // Re-group requests so they can be added back to the state
-    const groupedRequestsWithNonces = groupRequests(flattenRequestsWithNonces);
-    const updatedWalletData = { ...walletData, requests: groupedRequestsWithNonces };
-    return { ...acc, [index]: updatedWalletData };
-  }, {});
+      // Flatten all requests into a single array so that nonces can be assigned across types
+      const flatRequests = flattenRequests(sortedRequests);
 
-  return walletDataByIndexWithNonces;
+      const transactionCount = state.transactionCountsByRequesterIndex[requesterIndex];
+
+      // Assign nonces to each request
+      const flattenRequestsWithNonces = assignWalletNonces(flatRequests, transactionCount, state.currentBlock!);
+
+      // Re-group requests so they can be added back to the state
+      const { apiCalls, withdrawals } = groupRequests(flattenRequestsWithNonces);
+
+      return {
+        ...acc,
+        apiCalls: [...acc.apiCalls, ...apiCalls],
+        withdrawals: [...acc.withdrawals, ...withdrawals],
+      };
+    },
+    { apiCalls: [], withdrawals: [] }
+  );
 }

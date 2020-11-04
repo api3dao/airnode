@@ -37,7 +37,11 @@ export function createEVMState(
     settings: providerSettings,
     currentBlock: null,
     gasPrice: null,
-    walletDataByIndex: {},
+    requests: {
+      apiCalls: [],
+      withdrawals: [],
+    },
+    transactionCountsByRequesterIndex: {},
   };
 }
 

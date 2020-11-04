@@ -87,7 +87,11 @@ describe('initializeProviders', () => {
         currentBlock: 123456,
         gasPrice: null,
         provider: expect.anything(),
-        walletDataByIndex: {},
+        requests: {
+          apiCalls: [],
+          withdrawals: [],
+        },
+        transactionCountsByRequesterIndex: {},
       },
       {
         contracts: {
@@ -110,7 +114,11 @@ describe('initializeProviders', () => {
         currentBlock: 987654,
         gasPrice: null,
         provider: expect.anything(),
-        walletDataByIndex: {},
+        requests: {
+          apiCalls: [],
+          withdrawals: [],
+        },
+        transactionCountsByRequesterIndex: {},
       },
     ]);
   });

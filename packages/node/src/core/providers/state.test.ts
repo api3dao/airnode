@@ -53,7 +53,11 @@ describe('create', () => {
       currentBlock: null,
       gasPrice: null,
       provider,
-      walletDataByIndex: {},
+      requests: {
+        apiCalls: [],
+        withdrawals: [],
+      },
+      transactionCountsByRequesterIndex: {},
     });
   });
 
@@ -96,7 +100,11 @@ describe('create', () => {
       currentBlock: null,
       gasPrice: null,
       provider,
-      walletDataByIndex: {},
+      requests: {
+        apiCalls: [],
+        withdrawals: [],
+      },
+      transactionCountsByRequesterIndex: {},
     });
   });
 
@@ -138,7 +146,11 @@ describe('create', () => {
       currentBlock: null,
       gasPrice: null,
       provider,
-      walletDataByIndex: {},
+      requests: {
+        apiCalls: [],
+        withdrawals: [],
+      },
+      transactionCountsByRequesterIndex: {},
     });
   });
 });
