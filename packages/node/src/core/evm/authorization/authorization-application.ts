@@ -1,10 +1,9 @@
-import get from 'lodash/get';
 import flatMap from 'lodash/flatMap';
 import isNil from 'lodash/isNil';
 import * as logger from '../../logger';
 import {
   ApiCall,
-  AuthorizationByEndpointId,
+  AuthorizationByRequestId,
   ClientRequest,
   LogsData,
   RequestErrorCode,
@@ -13,7 +12,7 @@ import {
 
 function applyAuthorization(
   apiCall: ClientRequest<ApiCall>,
-  authorizationsByEndpointId: AuthorizationByEndpointId
+  authorizationByRequestId: AuthorizationByRequestId
 ): LogsData<ClientRequest<ApiCall>> {
   // Don't overwrite any existing error codes or statuses
   if (apiCall.errorCode || apiCall.status !== RequestStatus.Pending) {
@@ -33,10 +32,10 @@ function applyAuthorization(
     return [[log], updatedApiCall];
   }
 
-  const isRequestedAuthorized = get(authorizationsByEndpointId, [apiCall.endpointId, apiCall.clientAddress]);
+  const authorized = authorizationByRequestId[apiCall.id];
 
   // If we couldn't fetch the authorization status, block the request until the next run
-  if (isNil(isRequestedAuthorized)) {
+  if (isNil(authorized)) {
     const log = logger.pend('WARN', `Authorization not found for Request ID:${apiCall.id}`);
     const updatedApiCall = {
       ...apiCall,
@@ -46,7 +45,7 @@ function applyAuthorization(
     return [[log], updatedApiCall];
   }
 
-  if (isRequestedAuthorized) {
+  if (authorized) {
     return [[], apiCall];
   }
 
@@ -65,10 +64,10 @@ function applyAuthorization(
 
 export function mergeAuthorizations(
   apiCalls: ClientRequest<ApiCall>[],
-  authorizationsByEndpointId: AuthorizationByEndpointId
+  authorizationByRequestId: AuthorizationByRequestId
 ): LogsData<ClientRequest<ApiCall>[]> {
   const logsWithApiCalls = apiCalls.map((apiCall) => {
-    return applyAuthorization(apiCall, authorizationsByEndpointId);
+    return applyAuthorization(apiCall, authorizationByRequestId);
   });
 
   const logs = flatMap(logsWithApiCalls, (a) => a[0]);

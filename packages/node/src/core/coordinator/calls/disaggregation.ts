@@ -1,5 +1,4 @@
 import flatMap from 'lodash/flatMap';
-import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import {
   AggregatedApiCallsById,
