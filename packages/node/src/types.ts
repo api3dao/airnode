@@ -156,12 +156,8 @@ export interface EVMProviderState {
 // ===========================================
 // API calls
 // ===========================================
-export interface AuthorizationByRequester {
-  readonly [id: string]: boolean;
-}
-
-export interface AuthorizationByEndpointId {
-  readonly [id: string]: AuthorizationByRequester;
+export interface AuthorizationByRequestId {
+  readonly [requestId: string]: boolean;
 }
 
 export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';

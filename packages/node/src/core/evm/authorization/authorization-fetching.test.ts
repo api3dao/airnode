@@ -49,8 +49,8 @@ describe('fetch (authorizations)', () => {
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(19);
-    expect(res['endpointId-0']).toEqual({ 'clientAddress-0': true });
-    expect(res['endpointId-18']).toEqual({ 'clientAddress-18': true });
+    expect(res['0']).toEqual(true);
+    expect(res['18']).toEqual(true);
 
     expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(2);
 
@@ -73,67 +73,33 @@ describe('fetch (authorizations)', () => {
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([call1Args, call2Args]);
   });
 
-  it('groups by endpoint ID', async () => {
+  it('returns authorization statuses by request ID', async () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
 
     const apiCalls = [
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-0' }),
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-1' }),
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-2' }),
+      fixtures.requests.createApiCall({ id: '0xapiCallId-0' }),
+      fixtures.requests.createApiCall({ id: '0xapiCallId-1' }),
+      fixtures.requests.createApiCall({ id: '0xapiCallId-2' }),
     ];
 
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(Object.keys(res).length).toEqual(1);
-    expect(res['endpointId-0']).toEqual({
-      'requester-0': true,
-      'requester-1': false,
-      'requester-2': true,
-    });
-  });
-
-  it('removes duplicate endpointId and requester pairs', async () => {
-    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
-
-    const apiCalls = [
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-0' }),
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-0' }),
-    ];
-
-    const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
-    expect(logs).toEqual([]);
-    expect(Object.keys(res).length).toEqual(1);
     expect(res).toEqual({
-      'endpointId-0': {
-        'requester-0': true,
-      },
+      '0xapiCallId-0': true,
+      '0xapiCallId-1': false,
+      '0xapiCallId-2': true,
     });
-
-    expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(1);
-    const callArgs = [
-      '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
-      [apiCalls[0].id],
-      [apiCalls[0].endpointId],
-      [apiCalls[0].requesterIndex],
-      [apiCalls[0].designatedWallet],
-      [apiCalls[0].clientAddress],
-    ];
-    expect(checkAuthorizationStatusesMock.mock.calls).toEqual([callArgs]);
   });
 
   it('retries once on failure', async () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const apiCalls = [fixtures.requests.createApiCall()];
+    const apiCalls = [fixtures.requests.createApiCall({ id: '0xapiCallId' })];
 
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
-    expect(res).toEqual({
-      endpointId: {
-        clientAddress: true,
-      },
-    });
+    expect(res).toEqual({ '0xapiCallId': true });
   });
 
   it('retries a maximum of two times', async () => {
