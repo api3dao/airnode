@@ -36,7 +36,7 @@ describe('create', () => {
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
-        GasPriceFeed: '<TODO>',
+        GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
@@ -79,7 +79,7 @@ describe('create', () => {
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
-        GasPriceFeed: '<TODO>',
+        GasPriceFeed: '0x0000000000000000000000000000000000000000',
       },
       settings: {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',

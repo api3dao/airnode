@@ -19,6 +19,14 @@ const TIMEOUT = 5_000;
 const FALLBACK_WEI_PRICE = ethers.utils.parseUnits('40', 'gwei');
 const MAXIMUM_WEI_PRICE = ethers.utils.parseUnits('1000', 'gwei');
 
+function getSources(options: FetchOptions): Promise<LogsData<GasPriceResponse>>[] {
+  // The GasPriceFeed contract is not available in certain networks
+  if (options.address === ethers.constants.AddressZero) {
+    return [getEthNodeGasPrice(options)];
+  }
+  return [getEthNodeGasPrice(options), getDataFeedGasPrice(options)];
+}
+
 async function getDataFeedGasPrice(fetchOptions: FetchOptions): Promise<LogsData<GasPriceResponse>> {
   const { address, provider } = fetchOptions;
   const contract = new ethers.Contract(address, GasPriceFeed.ABI, provider);
@@ -40,8 +48,8 @@ async function getEthNodeGasPrice(fetchOptions: FetchOptions): Promise<LogsData<
   return [[], weiPrice];
 }
 
-export async function getGasPrice(fetchOptions: FetchOptions): Promise<LogsData<ethers.BigNumber>> {
-  const gasPriceRequests = [getEthNodeGasPrice(fetchOptions), getDataFeedGasPrice(fetchOptions)];
+export async function getGasPrice(options: FetchOptions): Promise<LogsData<ethers.BigNumber>> {
+  const gasPriceRequests = getSources(options);
 
   const requests = await Promise.all(gasPriceRequests);
   const fetchLogs = flatMap(requests, (r) => r[0]);

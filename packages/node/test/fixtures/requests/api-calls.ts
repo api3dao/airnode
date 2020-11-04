@@ -5,7 +5,7 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
   // they can be overridden with valid values
   return {
     id: 'apiCallId',
-    requesterAddress: 'requesterAddress',
+    clientAddress: 'clientAddress',
     designatedWallet: 'designatedWallet',
     endpointId: 'endpointId',
     fulfillAddress: 'fulfillAddress',

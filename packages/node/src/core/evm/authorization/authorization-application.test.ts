@@ -7,7 +7,7 @@ describe('mergeAuthorizations', () => {
     const apiCalls = [
       fixtures.requests.createApiCall({
         endpointId: '0xendpointId',
-        requesterAddress: '0xrequesterAddress',
+        clientAddress: '0xclientAddress',
         status: RequestStatus.Errored,
         errorCode: RequestErrorCode.InvalidRequestParameters,
       }),
@@ -22,7 +22,7 @@ describe('mergeAuthorizations', () => {
         transactionCount: 3,
       },
     };
-    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const authorizationsByEndpoint = { '0xendpointId': { '0xclientAddress': true } };
     const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(1);
@@ -34,7 +34,7 @@ describe('mergeAuthorizations', () => {
     const apiCalls = [
       fixtures.requests.createApiCall({
         endpointId: '0xendpointId',
-        requesterAddress: '0xrequesterAddress',
+        clientAddress: '0xclientAddress',
         status: RequestStatus.Blocked,
         errorCode: RequestErrorCode.TemplateNotFound,
       }),
@@ -49,7 +49,7 @@ describe('mergeAuthorizations', () => {
         transactionCount: 3,
       },
     };
-    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const authorizationsByEndpoint = { '0xendpointId': { '0xclientAddress': true } };
     const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(1);
@@ -68,7 +68,7 @@ describe('mergeAuthorizations', () => {
         transactionCount: 3,
       },
     };
-    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const authorizationsByEndpoint = { '0xendpointId': { '0xclientAddress': true } };
     const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([{ level: 'ERROR', message: 'No endpoint ID found for Request ID:apiCallId' }]);
     expect(Object.keys(res).length).toEqual(1);
@@ -96,7 +96,7 @@ describe('mergeAuthorizations', () => {
 
   it('returns the validated request if it is authorized', () => {
     const apiCalls = [
-      fixtures.requests.createApiCall({ endpointId: '0xendpointId', requesterAddress: '0xrequesterAddress' }),
+      fixtures.requests.createApiCall({ endpointId: '0xendpointId', clientAddress: '0xclientAddress' }),
     ];
     const walletDataByIndex: WalletDataByIndex = {
       1: {
@@ -108,7 +108,7 @@ describe('mergeAuthorizations', () => {
         transactionCount: 3,
       },
     };
-    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': true } };
+    const authorizationsByEndpoint = { '0xendpointId': { '0xclientAddress': true } };
     const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(1);
@@ -118,7 +118,7 @@ describe('mergeAuthorizations', () => {
 
   it('invalidates the request if it is not authorized', () => {
     const apiCalls = [
-      fixtures.requests.createApiCall({ endpointId: '0xendpointId', requesterAddress: '0xrequesterAddress' }),
+      fixtures.requests.createApiCall({ endpointId: '0xendpointId', clientAddress: '0xclientAddress' }),
     ];
     const walletDataByIndex: WalletDataByIndex = {
       1: {
@@ -130,13 +130,12 @@ describe('mergeAuthorizations', () => {
         transactionCount: 3,
       },
     };
-    const authorizationsByEndpoint = { '0xendpointId': { '0xrequesterAddress': false } };
+    const authorizationsByEndpoint = { '0xendpointId': { '0xclientAddress': false } };
     const [logs, res] = authorization.mergeAuthorizations(walletDataByIndex, authorizationsByEndpoint);
     expect(logs).toEqual([
       {
         level: 'WARN',
-        message:
-          'Client:0xrequesterAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:apiCallId',
+        message: 'Client:0xclientAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:apiCallId',
       },
     ]);
     expect(Object.keys(res).length).toEqual(1);

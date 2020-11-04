@@ -10,7 +10,7 @@ describe('initialize ApiCall ClientRequest', () => {
         args: {
           providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
           requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
           fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           fulfillFunctionId: '0x042f2b65',
@@ -26,6 +26,7 @@ describe('initialize ApiCall ClientRequest', () => {
     };
 
     expect(apiCalls.initialize(logWithMetadata)).toEqual({
+      clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       designatedWallet: null,
       endpointId: null,
       fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
@@ -39,7 +40,6 @@ describe('initialize ApiCall ClientRequest', () => {
       parameters: {},
       providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
       requestCount: '12',
-      requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
       requesterIndex: null,
       status: RequestStatus.Pending,
       templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
@@ -99,7 +99,7 @@ describe('applyParameters', () => {
         args: {
           providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
           requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
           fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           fulfillFunctionId: '0x042f2b65',
@@ -128,7 +128,7 @@ describe('applyParameters', () => {
         args: {
           providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
           requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
           fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           fulfillFunctionId: '0x042f2b65',
@@ -160,7 +160,7 @@ describe('applyParameters', () => {
           requestId,
           parameters,
           providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
           fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
           fulfillFunctionId: '0x042f2b65',
@@ -210,7 +210,7 @@ describe('mapRequests (ApiCall)', () => {
       args: {
         providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
         requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-        requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+        clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
         fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         fulfillFunctionId: '0x042f2b65',
@@ -230,6 +230,7 @@ describe('mapRequests (ApiCall)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
+        clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         designatedWallet: null,
         endpointId: null,
         errorAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
@@ -247,7 +248,6 @@ describe('mapRequests (ApiCall)', () => {
         providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
         id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
         requestCount: '12',
-        requesterAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
         requesterIndex: null,
         status: RequestStatus.Pending,
         templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',

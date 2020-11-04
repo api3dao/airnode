@@ -42,15 +42,15 @@ describe('fetch (authorizations)', () => {
       return fixtures.requests.createApiCall({
         id: `${n}`,
         endpointId: `endpointId-${n}`,
-        requesterAddress: `requesterAddress-${n}`,
+        clientAddress: `clientAddress-${n}`,
       });
     });
 
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(19);
-    expect(res['endpointId-0']).toEqual({ 'requesterAddress-0': true });
-    expect(res['endpointId-18']).toEqual({ 'requesterAddress-18': true });
+    expect(res['endpointId-0']).toEqual({ 'clientAddress-0': true });
+    expect(res['endpointId-18']).toEqual({ 'clientAddress-18': true });
 
     expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(2);
 
@@ -60,7 +60,7 @@ describe('fetch (authorizations)', () => {
       apiCalls.slice(0, 10).map((a) => a.endpointId),
       apiCalls.slice(0, 10).map((a) => a.requesterIndex),
       apiCalls.slice(0, 10).map((a) => a.designatedWallet),
-      apiCalls.slice(0, 10).map((a) => a.requesterAddress),
+      apiCalls.slice(0, 10).map((a) => a.clientAddress),
     ];
     const call2Args = [
       '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
@@ -68,7 +68,7 @@ describe('fetch (authorizations)', () => {
       apiCalls.slice(10, 19).map((a) => a.endpointId),
       apiCalls.slice(10, 19).map((a) => a.requesterIndex),
       apiCalls.slice(10, 19).map((a) => a.designatedWallet),
-      apiCalls.slice(10, 19).map((a) => a.requesterAddress),
+      apiCalls.slice(10, 19).map((a) => a.clientAddress),
     ];
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([call1Args, call2Args]);
   });
@@ -77,9 +77,9 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
 
     const apiCalls = [
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-1' }),
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-2' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-0' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-1' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-2' }),
     ];
 
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
@@ -96,8 +96,8 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
     const apiCalls = [
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
-      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', requesterAddress: 'requester-0' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-0' }),
+      fixtures.requests.createApiCall({ endpointId: 'endpointId-0', clientAddress: 'requester-0' }),
     ];
 
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
@@ -116,7 +116,7 @@ describe('fetch (authorizations)', () => {
       [apiCalls[0].endpointId],
       [apiCalls[0].requesterIndex],
       [apiCalls[0].designatedWallet],
-      [apiCalls[0].requesterAddress],
+      [apiCalls[0].clientAddress],
     ];
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([callArgs]);
   });
@@ -131,7 +131,7 @@ describe('fetch (authorizations)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual({
       endpointId: {
-        requesterAddress: true,
+        clientAddress: true,
       },
     });
   });

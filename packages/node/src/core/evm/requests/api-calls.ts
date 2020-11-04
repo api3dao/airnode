@@ -32,6 +32,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<ApiCall> = {
+    clientAddress: parsedLog.args.clientAddress,
     designatedWallet: parsedLog.args.designatedWallet || null,
     encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
@@ -46,7 +47,6 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     parameters: {},
     providerId: parsedLog.args.providerId,
     requestCount: parsedLog.args.noRequests.toString(),
-    requesterAddress: parsedLog.args.requester,
     requesterIndex: parsedLog.args.requesterInd || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,

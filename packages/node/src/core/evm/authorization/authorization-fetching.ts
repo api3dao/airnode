@@ -17,7 +17,7 @@ interface FetchOptions {
 interface AuthorizationStatus {
   authorized: boolean;
   endpointId: string;
-  requesterAddress: string;
+  clientAddress: string;
 }
 
 async function fetchAuthorizationStatuses(
@@ -30,7 +30,7 @@ async function fetchAuthorizationStatuses(
   const endpointIds = apiCalls.map((a) => a.endpointId);
   const requesterIndices = apiCalls.map((a) => a.requesterIndex);
   const designatedWallets = apiCalls.map((a) => a.designatedWallet);
-  const requesterAddresses = apiCalls.map((a) => a.requesterAddress);
+  const clientAddresses = apiCalls.map((a) => a.clientAddress);
 
   const contractCall = () =>
     convenience.checkAuthorizationStatuses(
@@ -39,7 +39,7 @@ async function fetchAuthorizationStatuses(
       endpointIds,
       requesterIndices,
       designatedWallets,
-      requesterAddresses
+      clientAddresses
     );
   const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
 
@@ -53,7 +53,7 @@ async function fetchAuthorizationStatuses(
   const authorizations = apiCalls.reduce((acc, apiCall, index) => {
     const status: AuthorizationStatus = {
       endpointId: apiCall.endpointId!,
-      requesterAddress: apiCall.requesterAddress,
+      clientAddress: apiCall.clientAddress,
       authorized: data[index],
     };
     return [...acc, status];
@@ -76,7 +76,7 @@ export async function fetch(
   }
 
   // Remove duplicate API calls with the same endpoint ID and requester address
-  const uniquePairs = uniqBy(pendingApiCalls, (a) => `${a.endpointId}-${a.requesterAddress}`);
+  const uniquePairs = uniqBy(pendingApiCalls, (a) => `${a.endpointId}-${a.clientAddress}`);
 
   // Request groups of 10 at a time
   const groupedPairs = chunk(uniquePairs, 10);
@@ -94,7 +94,7 @@ export async function fetch(
   // Store each "authorization" against the endpointId so it can be easily looked up
   const authorizationsByEndpoint = authorizationStatuses.reduce((acc, authorization) => {
     const currentEndpointRequesters = acc[authorization.endpointId] || {};
-    const requesterAuthorization = { [authorization.requesterAddress]: authorization.authorized };
+    const requesterAuthorization = { [authorization.clientAddress]: authorization.authorized };
     const updatedEnpointRequesters = { ...currentEndpointRequesters, ...requesterAuthorization };
 
     return { ...acc, [authorization.endpointId]: updatedEnpointRequesters };
