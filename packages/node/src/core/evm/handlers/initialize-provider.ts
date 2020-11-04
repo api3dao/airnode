@@ -4,6 +4,7 @@ import * as authorization from '../authorization';
 import * as grouping from '../requests/grouping';
 import * as logger from '../../logger';
 import { newProvider } from '../retry-provider';
+import * as providers from '../providers';
 import * as state from '../../providers/state';
 import * as triggers from '../triggers';
 import * as templates from '../templates';
@@ -41,21 +42,29 @@ export async function initializeProvider(
   };
 
   // =================================================================
-  // STEP 1: Initialize the new ProviderState
+  // STEP 1: Create a new ProviderState
   // =================================================================
   const provider = newProvider(initialState.settings.url, initialState.settings.chainId);
   const state1 = state.update(initialState, { provider });
 
   // =================================================================
-  // STEP 2: Get the current block number
+  // STEP 2: Get current block number and find or create the provider
   // =================================================================
-  const [blockErr, currentBlock] = await go(state1.provider.getBlockNumber());
-  if (blockErr || !currentBlock) {
-    logger.error('Unable to get current block', { ...baseLogOptions, error: blockErr });
+  const providerFetchOptions = {
+    adminAddressForCreatingProviderRecord: state1.settings.adminAddressForCreatingProviderRecord,
+    airnodeAddress: state1.contracts.Airnode,
+    convenienceAddress: state1.contracts.Convenience,
+    provider: state1.provider,
+  };
+  const [providerLogs, providerBlockData] = await providers.findOrCreateProviderWithBlock(providerFetchOptions);
+  logger.logPending(providerLogs, baseLogOptions);
+
+  // We can't proceed until the provider has been created onchain
+  if (!providerBlockData || !providerBlockData.providerExists) {
     return null;
   }
-  logger.info(`Current block set to: ${currentBlock}`, baseLogOptions);
-  const state2 = state.update(state1, { currentBlock });
+
+  const state2 = state.update(state1, { currentBlock: providerBlockData.blockNumber });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers

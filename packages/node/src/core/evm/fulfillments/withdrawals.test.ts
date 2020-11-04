@@ -123,7 +123,7 @@ describe('submitWithdrawal', () => {
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
         level: 'INFO',
-        message: `Unable to submit withdrawal for Request:${withdrawal.id} as the amount is negative. Amount: -0.00000000002 ETH`,
+        message: `Unable to submit negative withdrawal amount for Request:withdrawalId. Amount: -0.00000000002 ETH`,
       },
     ]);
     expect(err).toEqual(null);
@@ -141,7 +141,8 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Failed to fetch wallet index:${withdrawal.requesterIndex} balance for Request:${withdrawal.id}. Error: Could not fetch balance`,
+        message: `Failed to fetch wallet index:${withdrawal.requesterIndex} balance for Request:${withdrawal.id}`,
+        error: new Error('Could not fetch balance'),
       },
     ]);
     expect(err).toEqual(new Error('Could not fetch balance'));
@@ -160,7 +161,8 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Error estimating withdrawal gas limit for Request:${withdrawal.id}. Error: Server did not respond`,
+        message: `Error estimating withdrawal gas limit for Request:${withdrawal.id}`,
+        error: new Error('Server did not respond'),
       },
     ]);
     expect(err).toEqual(new Error('Server did not respond'));
@@ -186,7 +188,8 @@ describe('submitWithdrawal', () => {
       },
       {
         level: 'ERROR',
-        message: `Error submitting wallet index:${withdrawal.requesterIndex} withdrawal for Request:${withdrawal.id}. Error: Could not submit withdrawal`,
+        message: `Error submitting wallet index:${withdrawal.requesterIndex} withdrawal for Request:${withdrawal.id}`,
+        error: new Error('Could not submit withdrawal'),
       },
     ]);
     expect(err).toEqual(new Error('Could not submit withdrawal'));

@@ -119,6 +119,7 @@ export interface WalletDataByIndex {
 }
 
 export interface ProviderSettings {
+  readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
@@ -272,7 +273,7 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 // ===========================================
 export type ChainType = 'evm'; // Add other blockchain types here;
 
-export interface ChainContract {
+export interface ChainContracts {
   readonly [name: string]: string;
 }
 
@@ -284,8 +285,9 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
+  readonly adminAddressForCreatingProviderRecord?: string;
+  readonly contracts?: ChainContracts;
   readonly id: number;
-  readonly contracts?: ChainContract;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

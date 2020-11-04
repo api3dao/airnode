@@ -26,7 +26,8 @@ export async function submitWithdrawal(
   if (balanceErr || !currentBalance) {
     const errLog = logger.pend(
       'ERROR',
-      `Failed to fetch wallet index:${request.requesterIndex} balance for Request:${request.id}. ${balanceErr}`
+      `Failed to fetch wallet index:${request.requesterIndex} balance for Request:${request.id}`,
+      balanceErr
     );
     return [[errLog], balanceErr, null];
   }
@@ -47,7 +48,8 @@ export async function submitWithdrawal(
   if (estimateErr || !estimatedGasLimit) {
     const estimateErrorLog = logger.pend(
       'ERROR',
-      `Error estimating withdrawal gas limit for Request:${request.id}. ${estimateErr}`
+      `Error estimating withdrawal gas limit for Request:${request.id}`,
+      estimateErr
     );
     return [[estimateErrorLog], estimateErr, null];
   }
@@ -68,9 +70,8 @@ export async function submitWithdrawal(
 
   // We can't submit a withdrawal with a negative amount
   if (fundsToSend.lt(0)) {
-    const message = `Unable to submit withdrawal for Request:${
-      request.id
-    } as the amount is negative. Amount: ${ethers.utils.formatEther(fundsToSend)} ETH`;
+    const amt = ethers.utils.formatEther(fundsToSend);
+    const message = `Unable to submit negative withdrawal amount for Request:${request.id}. Amount: ${amt} ETH`;
     const negativeLog = logger.pend('INFO', message);
     return [[estimateLog, negativeLog], null, null];
   }
@@ -98,7 +99,8 @@ export async function submitWithdrawal(
   if (withdrawalErr || !withdrawalRes) {
     const withdrawalErrLog = logger.pend(
       'ERROR',
-      `Error submitting wallet index:${request.requesterIndex} withdrawal for Request:${request.id}. ${withdrawalErr}`
+      `Error submitting wallet index:${request.requesterIndex} withdrawal for Request:${request.id}`,
+      withdrawalErr
     );
     const logs = [estimateLog, noticeLog, withdrawalErrLog];
     return [logs, withdrawalErr, null];

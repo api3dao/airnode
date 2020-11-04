@@ -16,6 +16,14 @@ describe('getExtendedPublicKey', () => {
   });
 });
 
+describe('computeProviderId', () => {
+  it('returns the providerId from the mnemonic', () => {
+    const provider = new ethers.providers.JsonRpcProvider();
+    const res = wallet.computeProviderId(provider);
+    expect(res).toEqual('0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb');
+  });
+});
+
 describe('deriveWalletFromIndex', () => {
   it('returns the wallet address for the given index', () => {
     const xpub = wallet.getExtendedPublicKey();
