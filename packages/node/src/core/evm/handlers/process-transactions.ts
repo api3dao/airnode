@@ -33,6 +33,7 @@ export async function processTransactions(
   logger.logPending(gasPriceLogs, baseLogOptions);
 
   if (!gasPrice) {
+    logger.error('Cannot submit transactions with gas price. Returning...', baseLogOptions);
     return state1;
   }
 

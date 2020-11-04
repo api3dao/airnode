@@ -18,7 +18,6 @@ jest.mock('ethers', () => {
 });
 
 import { ethers } from 'ethers';
-import * as utils from './utils';
 import * as gasPrices from './gas-prices';
 
 describe('getGasPrice', () => {
@@ -28,21 +27,32 @@ describe('getGasPrice', () => {
 
   it('returns the gas price from the provider', async () => {
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
+    getGasPrice.mockResolvedValueOnce(ethers.BigNumber.from('48000000000'));
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
     expect(logs).toEqual([]);
     expect(gasPrice).toEqual(ethers.BigNumber.from('48000000000'));
     expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(1);
   });
 
-  it('returns null if the gas price cannot be fetched', async () => {
+  it('retries once on failure', async () => {
     const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    getGasPrice.mockResolvedValueOnce(ethers.BigNumber.from('53000000000'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    expect(logs).toEqual([]);
+    expect(gasPrice).toEqual(ethers.BigNumber.from('53000000000'));
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a maximum of two times then returns null', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
     getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
     const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to get gas price from provider', error: new Error('Server is down') },
     ]);
     expect(gasPrice).toEqual(null);
-    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(1);
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
   });
 });
