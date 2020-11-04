@@ -22,7 +22,7 @@ describe('callApis', () => {
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
     const aggregatedApiCallsById = {
-      apiCallId: [fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.UnauthorizedClient })],
+      apiCallId: fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.UnauthorizedClient }),
     };
     const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions);
     expect(logs).toEqual([
@@ -38,7 +38,7 @@ describe('callApis', () => {
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ parameters });
-    const aggregatedApiCallsById = { 'request-123': [aggregatedApiCall] };
+    const aggregatedApiCallsById = { 'request-123': aggregatedApiCall };
     const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('INFO');
@@ -68,7 +68,7 @@ describe('callApis', () => {
     });
     const parameters = { from: 'ETH', _type: 'int256', _path: 'unknown' };
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ parameters });
-    const aggregatedApiCallsById = { apiCallId: [aggregatedApiCall] };
+    const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
     const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
@@ -94,7 +94,7 @@ describe('callApis', () => {
     spy.mockRejectedValueOnce(new Error('API call failed'));
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ parameters });
-    const aggregatedApiCallsById = { apiCallId: [aggregatedApiCall] };
+    const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
     const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
@@ -118,7 +118,7 @@ describe('callApis', () => {
     const spy = jest.spyOn(workers, 'spawn');
     spy.mockRejectedValueOnce(new Error('Worker crashed'));
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
-    const aggregatedApiCallsById = { apiCallId: [aggregatedApiCall] };
+    const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
     const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');

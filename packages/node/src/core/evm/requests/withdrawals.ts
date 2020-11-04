@@ -1,29 +1,36 @@
 import * as events from './events';
 import * as logger from '../../logger';
-import { BaseRequest, LogsData, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
+import { ClientRequest, LogsData, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
 
-export function initialize(logWithMetadata: LogWithMetadata): BaseRequest<Withdrawal> {
+export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
-  const request: BaseRequest<Withdrawal> = {
+  const request: ClientRequest<Withdrawal> = {
+    designatedWallet: parsedLog.args.designatedWallet,
     id: parsedLog.args.withdrawalRequestId,
     status: RequestStatus.Pending,
     providerId: parsedLog.args.providerId,
-    requesterId: parsedLog.args.requesterId,
     destinationAddress: parsedLog.args.destination,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       transactionHash: logWithMetadata.transactionHash,
     },
+    requesterIndex: parsedLog.args.requesterInd,
+    // TODO: protocol-overhaul remove these
+    requesterId: 'requesterId',
+    walletIndex: '1',
+    walletAddress: 'walletAddress',
+    walletBalance: '100000',
+    walletMinimumBalance: '50000',
   };
 
   return request;
 }
 
 export function updateFulfilledRequests(
-  withdrawals: BaseRequest<Withdrawal>[],
+  withdrawals: ClientRequest<Withdrawal>[],
   fulfillmentLogs: LogWithMetadata[]
-): LogsData<BaseRequest<Withdrawal>[]> {
+): LogsData<ClientRequest<Withdrawal>[]> {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
 
   const { logs, requests } = withdrawals.reduce(
@@ -47,7 +54,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapBaseRequests(logsWithMetadata: LogWithMetadata[]): LogsData<BaseRequest<Withdrawal>[]> {
+export function mapRequests(logsWithMetadata: LogWithMetadata[]): LogsData<ClientRequest<Withdrawal>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));

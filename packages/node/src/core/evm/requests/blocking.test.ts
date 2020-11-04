@@ -8,7 +8,6 @@ describe('blockRequestsWithWithdrawals', () => {
     const withdrawal = fixtures.requests.createWithdrawal({ walletIndex: '123' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
-      walletDesignations: [],
       withdrawals: [withdrawal],
     };
     const [logs, res] = blocking.blockRequestsWithWithdrawals(requests);
@@ -27,7 +26,6 @@ describe('blockRequestsWithWithdrawals', () => {
     const withdrawal = fixtures.requests.createWithdrawal({ walletIndex: '456' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
-      walletDesignations: [],
       withdrawals: [withdrawal],
     };
     const [logs, res] = blocking.blockRequestsWithWithdrawals(requests);
