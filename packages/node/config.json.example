@@ -9,6 +9,7 @@
     "providerId": "0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d",
     "chains": [
       {
+        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
         "chainId": 1,
         "providers": [
@@ -21,6 +22,7 @@
         ]
       },
       {
+        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
         "chainId": 3,
         "providers": [
@@ -33,6 +35,7 @@
         ]
       },
       {
+        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
         "chainId": 1337,
         "providers": [

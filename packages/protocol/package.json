@@ -2,15 +2,20 @@
   "name": "@airnode/protocol",
   "scripts": {
     "build": "buidler compile",
-    "test": "buidler test"
+    "deploy:rinkeby": "buidler deploy --network rinkeby",
+    "deploy:ropsten": "buidler deploy --network ropsten",
+    "test": "buidler test",
+    "test:coverage": "buidler coverage"
   },
   "devDependencies": {
     "@nomiclabs/buidler": "^1.4.6",
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@nomiclabs/buidler-waffle": "^2.1.0",
+    "buidler-deploy": "^0.6.0-beta.16",
     "chai": "^4.2.0",
     "ethereum-waffle": "^3.1.0",
     "ethers": "^5.0.13",
-    "ganache-core": "^2.11.3"
+    "ganache-core": "^2.11.3",
+    "solidity-coverage": "^0.7.11"
   }
 }

@@ -18,62 +18,41 @@ jest.mock('ethers', () => {
 });
 
 import { ethers } from 'ethers';
-import * as utils from './utils';
 import * as gasPrices from './gas-prices';
 
 describe('getGasPrice', () => {
-  const baseFetchOptions = {
-    address: '0x3071f278C740B3E3F76301Cf7CAFcdAEB0682565',
+  const baseOptions = {
+    provider: new ethers.providers.JsonRpcProvider(),
   };
-  it('takes the gas price feed price if it is highest', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('53000000000'));
-    const getGasPrice = provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
-    const [logs, gasPrice] = await gasPrices.getGasPrice({ ...baseFetchOptions, provider });
+
+  it('returns the gas price from the provider', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockResolvedValueOnce(ethers.BigNumber.from('48000000000'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
     expect(logs).toEqual([]);
-    expect(utils.weiToGwei(gasPrice)).toEqual('53.0');
+    expect(gasPrice).toEqual(ethers.BigNumber.from('48000000000'));
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(1);
   });
 
-  it('takes the node price if it is highest', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('53000000000'));
-    const getGasPrice = provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('55000000000'));
-    const [logs, gasPrice] = await gasPrices.getGasPrice({ ...baseFetchOptions, provider });
+  it('retries once on failure', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    getGasPrice.mockResolvedValueOnce(ethers.BigNumber.from('53000000000'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
     expect(logs).toEqual([]);
-    expect(utils.weiToGwei(gasPrice)).toEqual('55.0');
+    expect(gasPrice).toEqual(ethers.BigNumber.from('53000000000'));
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
   });
 
-  it('returns the fallback price if no usable responses are received from any sources', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
-    const getGasPrice = provider.getGasPrice as jest.Mock;
-    getGasPrice.mockRejectedValueOnce(new Error('Node says no'));
-    const [logs, gasPrice] = await gasPrices.getGasPrice({ ...baseFetchOptions, provider });
+  it('retries a maximum of two times then returns null', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to get gas price from Ethereum node', error: new Error('Node says no') },
-      {
-        level: 'ERROR',
-        message: 'Failed to get gas price from gas price feed contract',
-        error: new Error('Contract says no'),
-      },
-      { level: 'ERROR', message: 'Failed to get gas prices from any sources. Falling back to default price 40.0 Gwei' },
+      { level: 'ERROR', message: 'Failed to get gas price from provider', error: new Error('Server is down') },
     ]);
-    expect(utils.weiToGwei(gasPrice)).toEqual('40.0');
-  });
-
-  it('limits the maximum gas price that can be returned', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('43000000000000'));
-    const getGasPrice = provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
-    const [logs, gasPrice] = await gasPrices.getGasPrice({ ...baseFetchOptions, provider });
-    expect(logs).toEqual([]);
-    expect(utils.weiToGwei(gasPrice)).toEqual('1000.0');
+    expect(gasPrice).toEqual(null);
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
   });
 });

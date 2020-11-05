@@ -18,16 +18,14 @@ describe('aggregate (API calls)', () => {
     ];
     const res = aggregation.aggregate(apiCalls);
     expect(res).toEqual({
-      apiCallId: [
-        {
-          endpointId: 'endpointId',
-          endpointName: 'endpointName',
-          id: 'apiCallId',
-          oisTitle: 'oisTitle',
-          parameters: { from: 'ETH' },
-          type: 'request',
-        },
-      ],
+      apiCallId: {
+        endpointId: 'endpointId',
+        endpointName: 'endpointName',
+        id: 'apiCallId',
+        oisTitle: 'oisTitle',
+        parameters: { from: 'ETH' },
+        type: 'request',
+      },
     });
   });
 
@@ -38,44 +36,14 @@ describe('aggregate (API calls)', () => {
     ];
     const res = aggregation.aggregate(apiCalls);
     expect(res).toEqual({
-      apiCallId: [
-        {
-          endpointId: 'endpointId',
-          endpointName: 'endpointName',
-          id: 'apiCallId',
-          oisTitle: 'oisTitle',
-          parameters: { from: 'ETH' },
-          type: 'request',
-        },
-      ],
-    });
-  });
-
-  it('does not group API calls if they have different parameters', () => {
-    const apiCalls = [
-      fixtures.requests.createApiCall({ parameters: { to: 'ETH' } }),
-      fixtures.requests.createApiCall({ parameters: { to: 'USDC' } }),
-    ];
-    const res = aggregation.aggregate(apiCalls);
-    expect(res).toEqual({
-      apiCallId: [
-        {
-          endpointId: 'endpointId',
-          endpointName: 'endpointName',
-          id: 'apiCallId',
-          oisTitle: 'oisTitle',
-          parameters: { to: 'ETH' },
-          type: 'request',
-        },
-        {
-          endpointId: 'endpointId',
-          endpointName: 'endpointName',
-          id: 'apiCallId',
-          oisTitle: 'oisTitle',
-          parameters: { to: 'USDC' },
-          type: 'request',
-        },
-      ],
+      apiCallId: {
+        endpointId: 'endpointId',
+        endpointName: 'endpointName',
+        id: 'apiCallId',
+        oisTitle: 'oisTitle',
+        parameters: { from: 'ETH' },
+        type: 'request',
+      },
     });
   });
 });

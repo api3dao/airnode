@@ -38,12 +38,12 @@ describe('EVM event logs - fetch', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
-      topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00',
+      topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
       transactionHash: '0x1',
     };
     const fulfilledApiCallEvent = {
       blockNumber: 10716083,
-      topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3',
+      topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5',
       transactionHash: '0x2',
     };
     const unknownEvent = {
@@ -74,12 +74,12 @@ describe('EVM event logs - fetch', () => {
     expect(res).toEqual([
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' },
+        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' },
+        parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
       },
       {
@@ -147,12 +147,12 @@ describe('EVM event logs - group', () => {
     const logsWithMetadata: any = [
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' },
+        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' },
+        parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -168,52 +168,12 @@ describe('EVM event logs - group', () => {
       apiCalls: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' },
+          parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
           transactionHash: '0x1',
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' },
-          transactionHash: '0x2',
-        },
-      ],
-      walletDesignations: [],
-      withdrawals: [],
-    });
-  });
-
-  it('groups wallet designation requests and fulfillments', () => {
-    const logsWithMetadata: any = [
-      {
-        blockNumber: 10716082,
-        parsedLog: { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' },
-        transactionHash: '0x1',
-      },
-      {
-        blockNumber: 10716083,
-        parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
-        transactionHash: '0x2',
-      },
-      // Unknown event
-      {
-        blockNumber: 10716082,
-        parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
-        transactionHash: '0x3',
-      },
-    ];
-
-    const res = eventLogs.group(logsWithMetadata);
-    expect(res).toEqual({
-      apiCalls: [],
-      walletDesignations: [
-        {
-          blockNumber: 10716082,
-          parsedLog: { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' },
-          transactionHash: '0x1',
-        },
-        {
-          blockNumber: 10716083,
-          parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
+          parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
           transactionHash: '0x2',
         },
       ],
@@ -244,7 +204,6 @@ describe('EVM event logs - group', () => {
     const res = eventLogs.group(logsWithMetadata);
     expect(res).toEqual({
       apiCalls: [],
-      walletDesignations: [],
       withdrawals: [
         {
           blockNumber: 10716082,
