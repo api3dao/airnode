@@ -2,93 +2,98 @@ import * as util from 'util';
 import * as child from 'child_process';
 const exec = util.promisify(child.exec);
 import ora from 'ora';
-import { deriveMasterWalletAddress } from './util';
 
-export async function verifyMnemonicAtSSM(mnemonic, providerIdShort) {
-  // Delete the old state files for a standard process
-  await exec(`rm -f ./terraform/state/${providerIdShort}*`);
-
-  if (mnemonic) {
-    await addMnemonicToSSM(mnemonic, providerIdShort);
-  } else {
-    await importMnemonicToState(providerIdShort);
+export async function checkIfProviderIdShortExistsAtSSM(providerIdShort) {
+  await deleteStateFiles(providerIdShort);
+  const spinner = ora(`Checking if ${providerIdShort} exists as providerIdShort at AWS SSM`).start();
+  try {
+    await exec(
+      `cd terraform && terraform import -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${providerIdShort}/masterKeyMnemonic`
+    );
+    spinner.info(`${providerIdShort} exists as providerIdShort at AWS SSM`);
+    await deleteStateFiles(providerIdShort);
+    return true;
+  } catch (e) {
+    await deleteStateFiles(providerIdShort);
+    if (e.stderr.includes('Cannot import non-existent remote object')) {
+      spinner.info(`${providerIdShort} does not exist as providerIdShort at AWS SSM`);
+      return false;
+    }
+    spinner.fail(`Failed to check if ${providerIdShort} exists as providerIdShort at AWS SSM`);
+    throw e;
   }
-  // At this point we know that there is a mnemonic stored at AWS SSM for this providerIdShort
-
-  const fetchedMnemonic = await fetchMnemonicFromSSM(providerIdShort);
-  if (mnemonic && mnemonic !== fetchedMnemonic) {
-    throw new Error('The mnemonic stored at AWS SSM does not match the one provided in security.json');
-  }
-
-  // Delete the state files because they contain the mnemonic
-  await exec(`rm -f ./terraform/state/${providerIdShort}*`);
-
-  return deriveMasterWalletAddress(mnemonic);
 }
 
 export async function removeMnemonicFromSSM(providerIdShort) {
-  // Delete the old state files for a standard process
-  await exec(`rm -f ./terraform/state/${providerIdShort}*`);
-
+  await deleteStateFiles(providerIdShort);
   await importMnemonicToState(providerIdShort);
-
   const spinner = ora('Removing the mnemonic from AWS SSM').start();
   try {
     await exec(
       `cd terraform && terraform destroy -auto-approve -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
     );
+    spinner.succeed('Removed the mnemonic from AWS SSM');
   } catch (e) {
-    spinner.succeed('Failed to remove the mnemonic from AWS SSM');
+    spinner.fail('Failed to remove the mnemonic from AWS SSM');
     throw e;
   }
-  spinner.succeed('Removed the mnemonic from AWS SSM');
-
-  // Delete the state files
-  await exec(`rm -f ./terraform/state/${providerIdShort}*`);
+  await deleteStateFiles(providerIdShort);
 }
 
-async function importMnemonicToState(providerIdShort) {
-  let spinner;
+export async function addMnemonicToSSM(mnemonic, providerIdShort) {
+  await deleteStateFiles(providerIdShort);
+  const spinner = ora(`Storing the mnemonic at AWS SMM`).start();
   try {
-    spinner = ora('Checking for the mnemonic at AWS SSM').start();
-    await exec(
-      `cd terraform && terraform import -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${providerIdShort}/masterKeyMnemonic`
-    );
-    spinner.succeed('Found the mnemonic at AWS SSM');
-  } catch (e) {
-    spinner.fail('Failed to find the mnemonic at AWS SSM');
-    throw e;
-  }
-}
-
-async function addMnemonicToSSM(mnemonic, providerIdShort) {
-  let spinner;
-  try {
-    spinner = ora(`Attempting to store the mnemonic at AWS SMM`).start();
     await exec(
       `cd terraform && terraform apply -auto-approve -state ./state/${providerIdShort} -var="providerId=${providerIdShort}" -var="mnemonic=${mnemonic}" -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
     );
     spinner.succeed('Stored the mnemonic at AWS SSM');
+    await deleteStateFiles(providerIdShort);
   } catch (e) {
-    if (!e.stderr.includes('ParameterAlreadyExists')) {
-      throw e;
-    }
-    await exec(
-      `cd terraform && terraform import -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${providerIdShort}/masterKeyMnemonic`
-    );
-    spinner.succeed('The mnemonic exists at AWS SSM');
+    await deleteStateFiles(providerIdShort);
+    spinner.fail('Failed to store the mnemonic at AWS SSM');
+    throw e;
   }
 }
 
-async function fetchMnemonicFromSSM(providerIdShort) {
+export async function fetchMnemonicFromSSM(providerIdShort) {
+  await deleteStateFiles(providerIdShort);
   const spinner = ora('Fetching the mnemonic from AWS SSM').start();
-  // Refresh the Terraform output to get the mnemonic
-  await exec(
-    `cd terraform && terraform refresh -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
-  );
-  // Check if the stored mnemonic match the one in security.json
-  const rawOutput = await exec(`cd terraform && terraform output -state ./state/${providerIdShort} -json`);
-  const output = JSON.parse(rawOutput.stdout);
-  spinner.succeed('Fetched the mnemonic from AWS SSM');
-  return output.mnemonic.value;
+  try {
+    // Need to Import -> Refresh -> Output
+    await exec(
+      `cd terraform && terraform import -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${providerIdShort}/masterKeyMnemonic`
+    );
+    await exec(
+      `cd terraform && terraform refresh -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
+    );
+    const rawOutput = await exec(`cd terraform && terraform output -state ./state/${providerIdShort} -json`);
+    const output = JSON.parse(rawOutput.stdout);
+    spinner.succeed('Fetched the mnemonic from AWS SSM');
+    await deleteStateFiles(providerIdShort);
+    return output.mnemonic.value;
+  } catch (e) {
+    await deleteStateFiles(providerIdShort);
+    spinner.fail('Failed to fetch the mnemonic from AWS SSM');
+    throw e;
+  }
+}
+
+async function importMnemonicToState(providerIdShort) {
+  // We don't delete the state files for this function, as the whole point
+  // is to import the mnemonic to the state files.
+  const spinner = ora('Importing the mnemonic from AWS SSM').start();
+  try {
+    await exec(
+      `cd terraform && terraform import -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${providerIdShort}/masterKeyMnemonic`
+    );
+    spinner.succeed('Imported the mnemonic from AWS SSM');
+  } catch (e) {
+    spinner.fail('Failed to import the mnemonic from AWS SSM');
+    throw e;
+  }
+}
+
+function deleteStateFiles(providerIdShort) {
+  exec(`rm -f ./terraform/state/${providerIdShort}*`);
 }

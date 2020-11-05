@@ -5,7 +5,9 @@ ENV COMMAND deploy
 
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_KEY ""
-ENV AWS_REGION ""
+ENV PROVIDER_ID_SHORT ""
+ENV REGION ""
+ENV STAGE ""
 
 RUN mkdir /airnode
 WORKDIR /airnode
@@ -30,10 +32,9 @@ RUN yarn build
 CMD cd /airnode/packages/deployer \
     && yarn sls:config \
     # See https://github.com/api3dao/airnode/issues/110
-    && sed -i -- "s=<UPDATE_AWS_REGION>=$AWS_REGION=g" /airnode/packages/deployer/terraform/variables.tf.workaround \
+    && sed -i -- "s=<UPDATE_REGION>=$REGION=g" /airnode/packages/deployer/terraform/variables.tf.workaround \
     && cp /airnode/packages/deployer/terraform/variables.tf.workaround /airnode/packages/deployer/terraform/variables.tf \
     && yarn terraform:init \
-    && yarn $COMMAND \
-    # Skip these if COMMAND is not deploy
+    && yarn command:$COMMAND \
     && cd /airnode \
-    && cp packages/deployer/*.receipt.json out
+    && cp packages/deployer/*.receipt.json out | true

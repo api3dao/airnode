@@ -2,9 +2,9 @@
   "id": "e08f5610-5772-4986-92fb-c8aef5aee6a0",
   "nodeSettings": {
     "providerIdShort": "9e5a89d",
-    "stage": "dev",
     "nodeVersion": "0.1.0",
     "cloudProvider": "aws",
+    "stage": "dev",
     "region": "us-east-1",
     "logFormat": "plain",
     "chains": [

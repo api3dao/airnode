@@ -1,6 +1,6 @@
-variable "aws_region" {
+variable "region" {
   type    = string
-  default = "<UPDATE_AWS_REGION>"
+  default = "<UPDATE_REGION>"
 }
 
 variable "aws_access_key_id" {

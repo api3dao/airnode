@@ -1,5 +1,5 @@
 import * as yargs from 'yargs';
-import { deploy, removeMnemonic, removeAirnode } from './commands';
+import { deployFirstTime, redeploy, removeMnemonic, removeAirnode } from './commands';
 import { version } from '../node_modules/@airnode/node/package.json';
 
 function drawHeader() {
@@ -19,14 +19,35 @@ drawHeader();
 
 yargs
   .command(
-    'deploy',
-    'Deploys Airnode and mnemonic',
+    'deploy-first-time',
+    'Creates a mnemonic and deploys it with Airnode',
     {
       configPath: { type: 'string', demandOption: true, alias: 'c' },
       securityPath: { type: 'string', demandOption: true, alias: 's' },
     },
-    (args) => {
-      deploy(args);
+    async (args) => {
+      try {
+        await deployFirstTime(args, version);
+      } catch (e) {
+        console.error(e);
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
+    'redeploy',
+    'Redeploys Airnode with an already deployed mnemonic',
+    {
+      configPath: { type: 'string', demandOption: true, alias: 'c' },
+      securityPath: { type: 'string', demandOption: true, alias: 's' },
+    },
+    async (args) => {
+      try {
+        await redeploy(args, version);
+      } catch (e) {
+        console.error(e);
+        process.exitCode = 1;
+      }
     }
   )
   .command(
@@ -35,8 +56,13 @@ yargs
     {
       providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
     },
-    (args) => {
-      removeMnemonic(args);
+    async (args) => {
+      try {
+        await removeMnemonic(args);
+      } catch (e) {
+        console.error(e);
+        process.exitCode = 1;
+      }
     }
   )
   .command(
@@ -44,10 +70,16 @@ yargs
     'Removes Airnode deployment',
     {
       providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
-      awsRegion: { type: 'string', demandOption: true, alias: 'r' },
+      region: { type: 'string', demandOption: true, alias: 'r' },
+      stage: { type: 'string', demandOption: true, alias: 's' },
     },
-    (args) => {
-      removeAirnode(args);
+    async (args) => {
+      try {
+        await removeAirnode(args);
+      } catch (e) {
+        console.error(e);
+        process.exitCode = 1;
+      }
     }
   )
   .help().argv;

@@ -2,52 +2,55 @@ import * as ethers from 'ethers';
 import ora from 'ora';
 import { abi } from './Airnode.json';
 
-const validChains = {
+const chainIdsToNames = {
   1: 'mainnet',
   3: 'ropsten',
   4: 'rinkeby',
   5: 'kovan',
   42: 'göerli',
+  100: 'xdai',
 };
 
 export async function checkProviderRecords(providerId, chains, masterWalletAddress) {
   let spinner;
   for (const chain of chains) {
-    if (chain.id in validChains) {
-      try {
-        spinner = ora(`Checking provider record on network: ${validChains[chain.id]}`).start();
-        const provider = ethers.getDefaultProvider(chain.id);
-        const airnode = new ethers.Contract(chain.contracts.Airnode, abi, provider);
-        const providerRecord = await airnode.getProvider(providerId);
-        if (providerRecord.xpub === '') {
-          spinner.warn(`Provider record not found on network: ${validChains[chain.id]}`);
-          await checkMasterWalletBalance(provider, masterWalletAddress, chain);
-        } else {
-          spinner.succeed(`Provider record found on network: ${validChains[chain.id]}`);
-        }
-      } catch {
-        // The provider for the network probably was not available
-        ora().info(`Skipped network: ${validChains[chain.id]} for provider record check`);
+    const chainName = chainIdsToNames[chain.id] || `${chain.id}`;
+    spinner = ora(`Checking provider record on chain: ${chainName}`).start();
+    try {
+      // Use the first provider of the chain in config.json
+      const provider = new ethers.providers.JsonRpcProvider(chain.providers[0].url);
+      const airnode = new ethers.Contract(chain.contracts.Airnode, abi, provider);
+      const providerRecord = await airnode.getProvider(providerId);
+      if (providerRecord.xpub === '') {
+        spinner.warn(`Provider record not found on chain: ${chainName}`);
+        await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
+      } else {
+        spinner.succeed(`Provider record found on chain: ${chainName}`);
       }
-    } else {
-      ora().info(`Skipped unknown network with chain ID: ${chain.id} for provider record check`);
+    } catch {
+      // The provider for the network probably was not available
+      spinner.info(`Skipped checking provider record on chain: ${chainName}`);
     }
   }
 }
 
-async function checkMasterWalletBalance(provider, masterWalletAddress, chain) {
-  const balance = await provider.getBalance(masterWalletAddress);
-  // Overestimate the required ETH
-  const txCost = (await provider.getGasPrice()).mul(500_000);
-  if (txCost.gt(balance)) {
-    const spinner = ora(`Checking balance on network: ${validChains[chain.id]}`).start();
+async function checkMasterWalletBalance(provider, masterWalletAddress, chainName) {
+  const spinner = ora(`Checking master wallet balance on chain: ${chainName}`).start();
+  try {
+    const balance = await provider.getBalance(masterWalletAddress);
+    // Overestimate the required ETH
+    const txCost = (await provider.getGasPrice()).mul(500_000);
     spinner.info(
-      `Balance of ${masterWalletAddress} is ${ethers.utils.formatEther(balance)} ETH on network: ${
-        validChains[chain.id]
-      }`
+      `Balance of ${masterWalletAddress} is ${ethers.utils.formatEther(balance)} ETH on chain: ${chainName}`
     );
-    ora().warn(
-      `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to create your provider record`
-    );
+    if (txCost.gt(balance)) {
+      ora().warn(
+        `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to create your provider record`
+      );
+    } else {
+      ora().succeed('Master wallet balance is enough to create your provider record');
+    }
+  } catch {
+    spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);
   }
 }
