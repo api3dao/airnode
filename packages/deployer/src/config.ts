@@ -27,6 +27,30 @@ export function parseFiles(configPath, securityPath) {
   };
 }
 
+export function checkConfigParameters(configParams, nodeVersion, command) {
+  if (command === 'deploy-first-time') {
+    if (configParams.providerIdShort) {
+      ora().fail('Found providerIdShort under nodeSettings in config.json');
+      throw new Error('config.json must not include providerIdShort when using the command "deploy-first-time"');
+    }
+  } else if (command === 'redeploy') {
+    if (!configParams.providerIdShort) {
+      ora().fail('Could not find providerIdShort under nodeSettings in config.json');
+      throw new Error('config.json must include providerIdShort while using the command "redeploy"');
+    }
+  }
+  if (configParams.cloudProvider !== 'aws') {
+    ora().fail('cloudProvider under nodeSettings in config.json is not aws');
+    throw new Error('Attempted to use an unsupported cloud provider');
+  }
+  if (nodeVersion !== configParams.nodeVersion) {
+    ora().fail(
+      `nodeVersion under nodeSettings in config.json is ${configParams.nodeVersion} while the actual node version is ${nodeVersion}`
+    );
+    throw new Error('Attempted to deploy node configuration with the wrong node version');
+  }
+}
+
 export function generateServerlessSecretsFile(providerIdShort, apiCredentials) {
   const secrets = {};
   // The mnemonic will be fetched from AWS SSM
@@ -37,4 +61,8 @@ export function generateServerlessSecretsFile(providerIdShort, apiCredentials) {
     }
   }
   fs.writeFileSync('secrets.json', JSON.stringify(secrets, null, 4));
+}
+
+export function removeServerlessSecretsFile() {
+  fs.unlinkSync('secrets.json');
 }

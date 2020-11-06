@@ -27,7 +27,7 @@ yargs
     },
     async (args) => {
       try {
-        await deployFirstTime(args, nodeVersion);
+        await deployFirstTime(args.configPath, args.securityPath, nodeVersion);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -43,7 +43,7 @@ yargs
     },
     async (args) => {
       try {
-        await redeploy(args, nodeVersion);
+        await redeploy(args.configPath, args.securityPath, nodeVersion);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -58,7 +58,7 @@ yargs
     },
     async (args) => {
       try {
-        await removeMnemonic(args);
+        await removeMnemonic(args.providerIdShort);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -75,7 +75,7 @@ yargs
     },
     async (args) => {
       try {
-        await removeAirnode(args);
+        await removeAirnode(args.providerIdShort, args.region, args.stage);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;

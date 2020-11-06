@@ -19,16 +19,19 @@ export async function checkProviderRecords(providerId, chains, masterWalletAddre
     try {
       // Use the first provider of the chain in config.json
       const provider = new ethers.providers.JsonRpcProvider(chain.providers[0].url);
+      // chain.contracts.Airnode is a required field
       const airnode = new ethers.Contract(chain.contracts.Airnode, abi, provider);
       const providerRecord = await airnode.getProvider(providerId);
       if (providerRecord.xpub === '') {
         spinner.warn(`Provider record not found on chain: ${chainName}`);
         await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
       } else {
+        // Assuming xpub is valid
         spinner.succeed(`Provider record found on chain: ${chainName}`);
       }
     } catch {
       // The provider for the network probably was not available
+      // We can also cycle through chain.providers.* here
       spinner.info(`Skipped checking provider record on chain: ${chainName}`);
     }
   }
