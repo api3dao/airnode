@@ -1,7 +1,8 @@
 import * as adapter from '@airnode/adapter';
-// import { security } from '../config';
+import { SecurityScheme } from '@airnode/ois';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
+import { getConfigSecret } from '../config';
 import * as logger from '../logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { validateAggregatedApiCall } from '../adapters/http/preprocessing';
@@ -25,8 +26,6 @@ export async function callApi(
 
   const { endpointName, oisTitle } = validatedCall;
 
-  // const securitySchemes = security.apiCredentials[validatedCall.oisTitle!] || [];
-
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
 
@@ -40,11 +39,18 @@ export async function callApi(
   // Don't submit the reserved parameters to the API
   const parameters = removeKeys(validatedCall.parameters || {}, RESERVED_PARAMETERS);
 
+  const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
+  const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
+    const securityScheme = ois.apiSpecifications.components.securitySchemes[securitySchemeName];
+    const value = getConfigSecret(oisTitle!, securitySchemeName);
+    return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
+  });
+
   const options: adapter.Options = {
     endpointName: validatedCall.endpointName!,
     parameters,
     ois,
-    securitySchemes: [],
+    securitySchemes,
   };
 
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
