@@ -1,5 +1,5 @@
 import * as adapter from '@airnode/adapter';
-import { SecurityScheme } from '@airnode/ois';
+import { OIS, SecurityScheme } from '@airnode/ois';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import { getConfigSecret } from '../config';
@@ -13,6 +13,26 @@ import { AggregatedApiCall, ApiCallResponse, Config, LogsData, RequestErrorCode 
 const TOTAL_TIMEOUT = 29_000;
 const API_CALL_TIMEOUT = 20_000;
 
+function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.Options {
+  // Don't submit the reserved parameters to the API
+  const parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
+
+  // Fetch secrets and build a list of security schemes
+  const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
+  const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
+    const securityScheme = ois.apiSpecifications.components.securitySchemes[securitySchemeName];
+    const value = getConfigSecret(ois.title, securitySchemeName);
+    return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
+  });
+
+  return {
+    endpointName: aggregatedApiCall.endpointName!,
+    parameters,
+    ois,
+    securitySchemes,
+  };
+}
+
 export async function callApi(
   config: Config,
   aggregatedApiCall: AggregatedApiCall
@@ -24,35 +44,18 @@ export async function callApi(
     return [[...validationLogs], { errorCode: validatedCall.errorCode }];
   }
 
-  const { endpointName, oisTitle } = validatedCall;
-
+  const { endpointName, oisTitle } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
 
   // Check before making the API call in case the parameters are missing
-  const responseParameters = getResponseParameters(endpoint, validatedCall.parameters || {});
+  const responseParameters = getResponseParameters(endpoint, aggregatedApiCall.parameters || {});
   if (!responseParameters._type) {
     const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
-    return [[...validationLogs, log], { errorCode: RequestErrorCode.InvalidResponseParameters }];
+    return [[log], { errorCode: RequestErrorCode.InvalidResponseParameters }];
   }
 
-  // Don't submit the reserved parameters to the API
-  const parameters = removeKeys(validatedCall.parameters || {}, RESERVED_PARAMETERS);
-
-  const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
-  const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
-    const securityScheme = ois.apiSpecifications.components.securitySchemes[securitySchemeName];
-    const value = getConfigSecret(oisTitle!, securitySchemeName);
-    return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
-  });
-
-  const options: adapter.Options = {
-    endpointName: validatedCall.endpointName!,
-    parameters,
-    ois,
-    securitySchemes,
-  };
-
+  const options = buildOptions(ois, validatedCall);
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
 
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
