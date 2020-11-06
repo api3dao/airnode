@@ -1,5 +1,5 @@
 import ora from 'ora';
-import { parseFiles, generateServerlessSecrets } from './config';
+import { parseFiles, generateServerlessSecretsFile } from './config';
 import {
   removeMnemonicFromSSM,
   checkIfProviderIdShortExistsAtSSM,
@@ -60,7 +60,7 @@ export async function deployFirstTime(args, nodeVersion) {
   const masterWalletAddress = deriveMasterWalletAddress(mnemonic);
   await checkProviderRecords(providerId, chains, masterWalletAddress);
 
-  generateServerlessSecrets(providerIdShort, apiCredentials);
+  generateServerlessSecretsFile(providerIdShort, apiCredentials);
   await deployServerless(providerIdShort, region, stage);
 
   writeJSONFile(`${providerIdShort}.receipt.json`, {
@@ -112,7 +112,7 @@ export async function redeploy(args, nodeVersion) {
   const providerId = deriveProviderId(mnemonic);
   await checkProviderRecords(providerId, chains, masterWalletAddress);
 
-  generateServerlessSecrets(providerIdShort, apiCredentials);
+  generateServerlessSecretsFile(providerIdShort, apiCredentials);
   await deployServerless(providerIdShort, region, stage);
 
   writeJSONFile(`${providerIdShort}.receipt.json`, {

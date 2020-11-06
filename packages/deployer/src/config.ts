@@ -27,7 +27,7 @@ export function parseFiles(configPath, securityPath) {
   };
 }
 
-export function generateServerlessSecrets(providerIdShort, apiCredentials) {
+export function generateServerlessSecretsFile(providerIdShort, apiCredentials) {
   const secrets = {};
   // The mnemonic will be fetched from AWS SSM
   secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${providerIdShort}/masterKeyMnemonic~true\}`;
