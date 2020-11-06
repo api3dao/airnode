@@ -1,8 +1,10 @@
-import { config } from '../../config';
 import * as logger from '../../logger';
-import { AggregatedApiCall, LogsData, RequestErrorCode } from '../../../types';
+import { AggregatedApiCall, Config, LogsData, RequestErrorCode } from '../../../types';
 
-export function validateAggregatedApiCall(aggregatedApiCall: AggregatedApiCall): LogsData<AggregatedApiCall> {
+export function validateAggregatedApiCall(
+  config: Config,
+  aggregatedApiCall: AggregatedApiCall
+): LogsData<AggregatedApiCall> {
   const { endpointName, id, oisTitle } = aggregatedApiCall;
 
   const ois = config.ois.find((o) => o.title === oisTitle);

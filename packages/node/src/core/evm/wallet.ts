@@ -1,8 +1,9 @@
 import { ethers } from 'ethers';
-import { security } from '../config';
+import * as config from '../config';
 
 export function getExtendedPublicKey() {
-  const hdNode = ethers.utils.HDNode.fromMnemonic(security.masterKeyMnemonic);
+  const mnemonic = config.getMasterKeyMnemonic();
+  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return hdNode.neuter().extendedKey;
 }
 
@@ -21,7 +22,8 @@ function getPathFromIndex(index: number | string) {
 }
 
 export function getMasterWallet(provider: ethers.providers.JsonRpcProvider) {
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(security.masterKeyMnemonic);
+  const mnemonic = config.getMasterKeyMnemonic();
+  const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return new ethers.Wallet(masterHdNode.privateKey, provider);
 }
 
@@ -37,7 +39,8 @@ export function deriveWalletAddressFromIndex(xpub: string, index: number | strin
 }
 
 export function deriveSigningWalletFromIndex(provider: ethers.providers.JsonRpcProvider, index: number | string) {
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(security.masterKeyMnemonic);
+  const mnemonic = config.getMasterKeyMnemonic();
+  const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   const signerHdNode = masterHdNode.derivePath(getPathFromIndex(index));
   return new ethers.Wallet(signerHdNode.privateKey, provider);
 }

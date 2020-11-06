@@ -4,7 +4,7 @@ import {
   ChainProvider,
   ChainType,
   EVMProviderState,
-  NodeSettings,
+  Config,
   ProviderSettings,
   ProviderState,
 } from '../../types';
@@ -13,7 +13,7 @@ export function createEVMState(
   coordinatorId: string,
   chain: ChainConfig,
   chainProvider: ChainProvider,
-  settings: NodeSettings
+  config: Config
 ): ProviderState<EVMProviderState> {
   const provider = evm.newProvider(chainProvider.url, chain.id);
   const contracts = evm.contracts.build(chain);
@@ -23,10 +23,11 @@ export function createEVMState(
     blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
-    logFormat: settings.logFormat,
+    logFormat: config.nodeSettings.logFormat,
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
-    providerId: settings.providerId,
+    // TODO: derive from mnemonic
+    providerId: config.nodeSettings.providerId,
     url: chainProvider.url,
   };
 
@@ -34,6 +35,7 @@ export function createEVMState(
     coordinatorId,
     provider,
     contracts,
+    config,
     settings: providerSettings,
     currentBlock: null,
     gasPrice: null,

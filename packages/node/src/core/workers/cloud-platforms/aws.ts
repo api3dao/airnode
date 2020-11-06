@@ -10,10 +10,9 @@ export function spawn(params: WorkerParameters) {
 
     const options = {
       FunctionName: params.functionName,
-      Payload: JSON.stringify(params.payload),
+      Payload: JSON.stringify({ ...params.payload, config: params.config }),
     };
 
-    // TODO: this will probably break until we get to actually test on AWS
     lambda.invoke(options, (err, data) => {
       if (err) {
         reject(err);
@@ -31,7 +30,15 @@ export function spawnLocal(params: WorkerParameters) {
       reject(new Error(`Cannot find AWS function: '${params.functionName}'`));
     }
 
-    const request = fn(params.payload) as Promise<any>;
+    // Simulate the AWS event object
+    const event = {
+      parameters: {
+        ...params.payload,
+        config: params.config,
+      },
+    };
+
+    const request = fn(event) as Promise<any>;
 
     request
       .then((res: any) => {

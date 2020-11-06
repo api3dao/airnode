@@ -1,19 +1,22 @@
 import * as adapter from '@airnode/adapter';
-import { config, security } from '../config';
+// import { security } from '../config';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import * as logger from '../logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { validateAggregatedApiCall } from '../adapters/http/preprocessing';
-import { AggregatedApiCall, ApiCallResponse, LogsData, RequestErrorCode } from '../../types';
+import { AggregatedApiCall, ApiCallResponse, Config, LogsData, RequestErrorCode } from '../../types';
 
 // Each API call is allowed 20 seconds to complete, before it is retried until the
 // maximum timeout is reached.
 const TOTAL_TIMEOUT = 29_000;
 const API_CALL_TIMEOUT = 20_000;
 
-export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<LogsData<ApiCallResponse>> {
-  const [validationLogs, validatedCall] = validateAggregatedApiCall(aggregatedApiCall);
+export async function callApi(
+  config: Config,
+  aggregatedApiCall: AggregatedApiCall
+): Promise<LogsData<ApiCallResponse>> {
+  const [validationLogs, validatedCall] = validateAggregatedApiCall(config, aggregatedApiCall);
 
   // An invalid API call should never reach this point, but just in case it does
   if (validatedCall.errorCode) {
@@ -22,7 +25,7 @@ export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<Log
 
   const { endpointName, oisTitle } = validatedCall;
 
-  const securitySchemes = security.apiCredentials[validatedCall.oisTitle!] || [];
+  // const securitySchemes = security.apiCredentials[validatedCall.oisTitle!] || [];
 
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
@@ -41,7 +44,7 @@ export async function callApi(aggregatedApiCall: AggregatedApiCall): Promise<Log
     endpointName: validatedCall.endpointName!,
     parameters,
     ois,
-    securitySchemes,
+    securitySchemes: [],
   };
 
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };

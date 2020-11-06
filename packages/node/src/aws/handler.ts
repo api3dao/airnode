@@ -1,10 +1,10 @@
-import { config } from '../core/config';
+import * as config from '../core/config';
 import * as handlers from '../core/handlers';
 import * as logger from '../core/logger';
 import { removeKey } from '../core/utils/object-utils';
 
-export async function start(_event: any) {
-  await handlers.startCoordinator(config.nodeSettings);
+export async function start(event: any) {
+  await handlers.startCoordinator(config.parseConfig(event.parameters.config));
 
   return {
     statusCode: 200,
@@ -13,9 +13,11 @@ export async function start(_event: any) {
 }
 
 export async function initializeProvider(event: any) {
-  const { state } = event.parameters;
+  const { config, state } = event.parameters;
+  // State and config are sent separately
+  const stateWithConfig = { ...state, config };
   // TODO: Wrap this in a 'go' to catch and log any unexpected errors
-  const initializedState = await handlers.initializeProvider(state);
+  const initializedState = await handlers.initializeProvider(stateWithConfig);
   if (!initializedState) {
     return {
       statusCode: 500,
@@ -30,15 +32,17 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions } = event.parameters;
-  const [logs, response] = await handlers.callApi(aggregatedApiCall);
+  const { aggregatedApiCall, config, logOptions } = event.parameters;
+  const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
   logger.logPending(logs, logOptions);
   return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function processProviderRequests(event: any) {
-  const { state } = event.parameters;
-  const updatedState = await handlers.processTransactions(state);
+  const { config, state } = event.parameters;
+  // State and config are sent separately
+  const stateWithConfig = { ...state, config };
+  const updatedState = await handlers.processTransactions(stateWithConfig);
   const body = removeKey(updatedState, 'provider');
   return { statusCode: 200, body: JSON.stringify(body) };
 }

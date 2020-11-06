@@ -100,7 +100,7 @@ export interface ApiCallTemplate {
 export interface Withdrawal {
   readonly destinationAddress: string;
   readonly providerId: string;
-  readonly requesterId: string;
+  readonly requesterIndex: string;
 }
 
 export interface GroupedRequests {
@@ -121,6 +121,7 @@ export interface ProviderSettings {
 }
 
 export type ProviderState<T extends {}> = T & {
+  readonly config: Config;
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
   readonly requests: GroupedRequests;
@@ -134,8 +135,8 @@ export interface AggregatedApiCallsById {
 
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
+  readonly config: Config;
   readonly id: string;
-  readonly settings: NodeSettings;
   readonly EVMProviders: ProviderState<EVMProviderState>[];
 }
 

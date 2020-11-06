@@ -5,10 +5,9 @@ import { EVMProviderState, ProviderState } from '../../types';
 export async function spawnNewProvider(
   state: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState>> {
-  // TODO: This will probably need to change for other cloud providers
-  const parameters = { state };
-  const payload = workers.isLocalEnv() ? { parameters } : parameters;
-  const options = { functionName: 'initializeProvider', payload };
+  // Config is sent through as a separate parameter, so we don't want to duplicate it
+  const payload = { state: { ...state, config: {} } };
+  const options = { config: state.config, functionName: 'initializeProvider', payload };
 
   // If this throws, it will be caught by the calling function
   const updatedState = await workers.spawn(options);
@@ -23,10 +22,9 @@ export async function spawnNewProvider(
 export async function spawnProviderRequestProcessor(
   state: ProviderState<EVMProviderState>
 ): Promise<ProviderState<EVMProviderState>> {
-  // TODO: This will probably need to change for other cloud providers
-  const parameters = { state };
-  const payload = workers.isLocalEnv() ? { parameters } : parameters;
-  const options = { functionName: 'processProviderRequests', payload };
+  // Config is sent through as a separate parameter, so we don't want to duplicate it
+  const payload = { state: { ...state, config: {} } };
+  const options = { config: state.config, functionName: 'processProviderRequests', payload };
 
   // If this throws, it will be caught by the calling function
   const updatedState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;

@@ -1,12 +1,12 @@
 import { randomString } from '../utils/string-utils';
-import { CoordinatorState, NodeSettings } from '../../types';
+import { Config, CoordinatorState } from '../../types';
 
-export function create(settings: NodeSettings): CoordinatorState {
+export function create(config: Config): CoordinatorState {
   const id = randomString(8);
 
   return {
-    settings,
     id,
+    config,
     aggregatedApiCallsById: {},
     EVMProviders: [],
   };

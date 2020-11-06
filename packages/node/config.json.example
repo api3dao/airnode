@@ -11,7 +11,7 @@
       {
         "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
-        "chainId": 1,
+        "id": 1,
         "providers": [
           {
             "blockHistoryLimit": 600,
@@ -24,7 +24,7 @@
       {
         "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
-        "chainId": 3,
+        "id": 3,
         "providers": [
           {
             "blockHistoryLimit": 600,
@@ -37,7 +37,7 @@
       {
         "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
-        "chainId": 1337,
+        "id": 1337,
         "providers": [
           {
             "name": "ganache-local",
