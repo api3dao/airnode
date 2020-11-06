@@ -1,6 +1,6 @@
 import * as yargs from 'yargs';
 import { deployFirstTime, redeploy, removeMnemonic, removeAirnode } from './commands';
-import { version } from '../node_modules/@airnode/node/package.json';
+import { version as nodeVersion } from '../node_modules/@airnode/node/package.json';
 
 function drawHeader() {
   console.log(
@@ -11,7 +11,7 @@ function drawHeader() {
       '| | | | | |  | | | | (_) | (_| |  __/\n' +
       '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|'
   );
-  console.log(`\n          Airnode v${version}`);
+  console.log(`\n          Airnode v${nodeVersion}`);
   console.log(`        Deployer CLI v${process.env.npm_package_version}\n`);
 }
 
@@ -27,7 +27,7 @@ yargs
     },
     async (args) => {
       try {
-        await deployFirstTime(args, version);
+        await deployFirstTime(args, nodeVersion);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -43,7 +43,7 @@ yargs
     },
     async (args) => {
       try {
-        await redeploy(args, version);
+        await redeploy(args, nodeVersion);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
