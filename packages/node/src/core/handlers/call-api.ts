@@ -21,7 +21,7 @@ function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.O
   const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
   const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
     const securityScheme = ois.apiSpecifications.components.securitySchemes[securitySchemeName];
-    const value = getConfigSecret(ois.title, securitySchemeName);
+    const value = getConfigSecret(ois.title, securitySchemeName) || '';
     return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
   });
 
