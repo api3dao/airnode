@@ -32,7 +32,6 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
   ora().warn('Write down the 12 word-mnemonic below on a piece of paper and keep it in a safe place\n');
   console.log(mnemonic);
   await waitForEnter();
-
   await ssm.addMnemonic(mnemonic, providerIdShort);
 
   const masterWalletAddress = deriveMasterWalletAddress(mnemonic);
@@ -68,9 +67,9 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
     );
   }
   const mnemonic = await ssm.fetchMnemonic(configParams.providerIdShort);
+  const providerId = deriveProviderId(mnemonic);
 
   const masterWalletAddress = deriveMasterWalletAddress(mnemonic);
-  const providerId = deriveProviderId(mnemonic);
   await checkProviderRecords(providerId, configParams.chains, masterWalletAddress);
 
   generateServerlessSecretsFile(configParams.providerIdShort, configParams.apiCredentials);
