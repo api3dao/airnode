@@ -25,10 +25,10 @@ export async function removeAirnode(providerIdShort, region, stage) {
   }
 }
 
-function deployServerless(providerIdShort, region, stage) {
-  exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn sls:deploy`);
+async function deployServerless(providerIdShort, region, stage) {
+  await exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn sls:deploy`);
 }
 
-function removeServerless(providerIdShort, region, stage) {
-  exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn sls:remove`);
+async function removeServerless(providerIdShort, region, stage) {
+  await exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn sls:remove`);
 }
