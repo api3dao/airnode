@@ -2,8 +2,10 @@ import * as util from 'util';
 import * as child from 'child_process';
 const exec = util.promisify(child.exec);
 
-export function deleteStateFiles(providerIdShort) {
-  exec(`rm -f ./terraform/state/${providerIdShort}*`);
+export async function applyTerraformWorkaround(region) {
+  // See https://github.com/api3dao/airnode/issues/110
+  await exec('cp ./terraform/variables.tf.workaround ./terraform/variables.tf');
+  await exec(`sed -i -- "s=<UPDATE_REGION>=${region}=g" ./terraform/variables.tf`);
 }
 
 export async function deleteStateFiles(providerIdShort) {

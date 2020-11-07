@@ -6,6 +6,7 @@ import {
   checkConfigParameters,
 } from './config';
 import * as ssm from './infrastructure/ssm';
+import { applyTerraformWorkaround } from './infrastructure/terraform';
 import { checkProviderRecords } from './evm/evm';
 import { deployAirnode, removeAirnode } from './infrastructure/serverless';
 import {
@@ -21,6 +22,7 @@ import {
 export async function deployFirstTime(configPath, securityPath, nodeVersion) {
   const configParams = await parseFiles(configPath, securityPath);
   checkConfigParameters(configParams, nodeVersion, 'deploy-first-time');
+  await applyTerraformWorkaround(configParams.region);
 
   const mnemonic = generateMnemonic();
   const providerId = deriveProviderId(mnemonic);
@@ -60,6 +62,7 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
 export async function redeploy(configPath, securityPath, nodeVersion) {
   const configParams = await parseFiles(configPath, securityPath);
   checkConfigParameters(configParams, nodeVersion, 'redeploy');
+  await applyTerraformWorkaround(configParams.region);
 
   if (!(await ssm.checkIfProviderIdShortExists(configParams.providerIdShort))) {
     throw new Error(

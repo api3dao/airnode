@@ -1,8 +1,8 @@
 FROM node:12.19.0-alpine3.12
 
 ENV NODE_ENV production
-ENV COMMAND deploy
 
+ENV COMMAND ""
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_KEY ""
 ENV PROVIDER_ID_SHORT ""
@@ -31,9 +31,6 @@ RUN yarn build
 
 CMD cd /airnode/packages/deployer \
     && yarn sls:config \
-    # See https://github.com/api3dao/airnode/issues/110
-    && sed -i -- "s=<UPDATE_REGION>=$REGION=g" /airnode/packages/deployer/terraform/variables.tf.workaround \
-    && cp /airnode/packages/deployer/terraform/variables.tf.workaround /airnode/packages/deployer/terraform/variables.tf \
     && yarn terraform:init \
     && yarn command:$COMMAND \
     && cd /airnode \
