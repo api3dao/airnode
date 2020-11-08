@@ -4,8 +4,8 @@ import * as blocking from './blocking';
 
 describe('blockRequestsWithWithdrawals', () => {
   it('blocks API calls with pending withdrawals from the same wallet index', () => {
-    const apiCall = fixtures.requests.createApiCall({ walletIndex: '123' });
-    const withdrawal = fixtures.requests.createWithdrawal({ walletIndex: '123' });
+    const apiCall = fixtures.requests.createApiCall({ requesterIndex: '123' });
+    const withdrawal = fixtures.requests.createWithdrawal({ requesterIndex: '123' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],
@@ -22,8 +22,8 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
-    const apiCall = fixtures.requests.createApiCall({ walletIndex: '123' });
-    const withdrawal = fixtures.requests.createWithdrawal({ walletIndex: '456' });
+    const apiCall = fixtures.requests.createApiCall({ requesterIndex: '123' });
+    const withdrawal = fixtures.requests.createWithdrawal({ requesterIndex: '456' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],

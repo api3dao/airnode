@@ -32,9 +32,10 @@ describe('spawnNewProvider', () => {
     expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
+      config,
       functionName: 'initializeProvider',
       payload: {
-        parameters: { state },
+        state: { ...state, config: {} },
       },
     });
   });
@@ -49,8 +50,9 @@ describe('spawnNewProvider', () => {
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
+      config,
       functionName: 'initializeProvider',
-      payload: { state },
+      payload: { state: { ...state, config: {} } },
     });
   });
 });

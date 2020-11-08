@@ -2,7 +2,7 @@ import { NodeSettings } from '../../../src/types';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {
-    cloudProvider: 'aws',
+    cloudProvider: 'local:aws',
     logFormat: 'plain',
     nodeKey: 'node-key',
     platformKey: 'key-to-access-chainapi',

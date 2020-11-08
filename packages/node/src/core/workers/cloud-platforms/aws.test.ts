@@ -19,8 +19,9 @@ describe('spawn', () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(null, { value: 7777 }));
+    const config = fixtures.buildConfig();
     const parameters = {
-      config: fixtures.buildConfig(),
+      config,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
     };
@@ -30,7 +31,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledWith(
       {
         FunctionName: 'some-function',
-        Payload: '{"from":"ETH","to":"USD"}',
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
       },
       expect.any(Function)
     );
@@ -41,8 +42,9 @@ describe('spawn', () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
+    const config = fixtures.buildConfig();
     const parameters = {
-      config: fixtures.buildConfig(),
+      config,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
     };
@@ -55,7 +57,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledWith(
       {
         FunctionName: 'some-function',
-        Payload: '{"from":"ETH","to":"USD"}',
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
       },
       expect.any(Function)
     );
@@ -79,11 +81,13 @@ describe('spawnLocal', () => {
     expect.assertions(3);
     const response = new Error('Server says no');
     customFnMock.mockImplementationOnce(() => Promise.reject(response));
+    const config = fixtures.buildConfig();
     const parameters = {
-      config: fixtures.buildConfig(),
+      config,
       functionName: 'myCustomFn',
       payload: {
-        pathParameters: { from: 'ETH', to: 'USD' },
+        from: 'ETH',
+        to: 'USD',
       },
     };
     try {
@@ -93,9 +97,10 @@ describe('spawnLocal', () => {
     }
     expect(customFnMock).toHaveBeenCalledTimes(1);
     expect(customFnMock).toHaveBeenCalledWith({
-      pathParameters: {
+      parameters: {
         from: 'ETH',
         to: 'USD',
+        config,
       },
     });
   });
@@ -106,7 +111,8 @@ describe('spawnLocal', () => {
       config: fixtures.buildConfig(),
       functionName: 'unknownFn',
       payload: {
-        pathParameters: { from: 'ETH', to: 'USD' },
+        from: 'ETH',
+        to: 'USD',
       },
     };
     try {

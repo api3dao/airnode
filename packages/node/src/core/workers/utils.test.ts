@@ -6,6 +6,6 @@ describe('isLocalEnv', () => {
   });
 
   it('returns false for remote cloud providers', () => {
-    expect(utils.isLocalEnv('aws')).toEqual(true);
+    expect(utils.isLocalEnv('aws')).toEqual(false);
   });
 });

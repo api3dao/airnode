@@ -4,23 +4,41 @@ import { callApi } from './call-api';
 import { RequestErrorCode } from 'src/types';
 
 describe('callApi', () => {
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...OLD_ENV };
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
   it('calls the adapter with the given parameters', async () => {
+    process.env.oisTitle_myapiApiScheme = 'supersecret';
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
-
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
-
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
       {
         endpointName: 'convertToUsd',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
-        securitySchemes: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }],
+        securitySchemes: [
+          {
+            in: 'query',
+            name: 'access_key',
+            securitySchemeName: 'myapiApiScheme',
+            type: 'apiKey',
+            value: 'supersecret',
+          },
+        ],
       },
       { timeout: 20000 }
     );
