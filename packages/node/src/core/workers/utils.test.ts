@@ -1,17 +1,11 @@
-describe('isLocalEnv', () => {
-  beforeEach(() => jest.resetModules());
+import * as utils from './utils';
 
+describe('isLocalEnv', () => {
   it('returns true for local providers', () => {
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../config', () => ({ config }));
-    const { isLocalEnv } = require('./utils');
-    expect(isLocalEnv()).toEqual(true);
+    expect(utils.isLocalEnv('local:aws')).toEqual(true);
   });
 
-  it('returns false for cloud providers', () => {
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../config', () => ({ config }));
-    const { isLocalEnv } = require('./utils');
-    expect(isLocalEnv()).toEqual(false);
+  it('returns false for remote cloud providers', () => {
+    expect(utils.isLocalEnv('aws')).toEqual(true);
   });
 });

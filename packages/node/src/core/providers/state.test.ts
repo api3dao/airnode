@@ -29,9 +29,8 @@ describe('create', () => {
       type: 'evm',
       providers: [chainProvider],
     };
-    const settings = fixtures.createNodeSettings();
-
-    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
+    const config = fixtures.buildConfig();
+    const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -75,9 +74,8 @@ describe('create', () => {
       type: 'evm',
       providers: [chainProvider],
     };
-    const settings = fixtures.createNodeSettings();
-
-    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
+    const config = fixtures.buildConfig();
+    const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -119,9 +117,8 @@ describe('create', () => {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       },
     };
-    const settings = fixtures.createNodeSettings();
-
-    const res = state.createEVMState(coordinatorId, chainConfig, chainProvider, settings);
+    const config = fixtures.buildConfig();
+    const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
         Airnode: '0xe60b966B798f9a0C41724f111225A5586ff30656',
@@ -153,7 +150,7 @@ describe('create', () => {
 
 describe('update', () => {
   it('updates the state', () => {
-    const newState = fixtures.createEVMProviderState();
+    const newState = fixtures.buildEVMProviderState();
     const res = state.update(newState, { currentBlock: 123 });
     expect(res.currentBlock).toEqual(123);
   });

@@ -18,12 +18,6 @@ jest.mock('ethers', () => ({
   },
 }));
 
-jest.mock('../../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { RequestStatus } from 'src/types';

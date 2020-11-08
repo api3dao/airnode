@@ -9,7 +9,7 @@ const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
 function initializeEVMProvider(coordinatorId: string, chain: ChainConfig, config: Config) {
   return chain.providers.map(async (provider) => {
-    const freshState = providerStates.createEVMState(coordinatorId, chain, provider, config);
+    const freshState = providerStates.buildEVMState(coordinatorId, chain, provider, config);
     const initialization = spawnNewProvider(freshState);
 
     // Each provider gets 20 seconds to initialize. If it fails to initialize

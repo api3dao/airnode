@@ -10,6 +10,14 @@ describe('getExtendedPublicKey', () => {
   });
 });
 
+describe('getMasterWallet', () => {
+  it('returns the master wallet for the mnemonic', () => {
+    const provider = new ethers.providers.JsonRpcProvider();
+    const masterWallet = wallet.getMasterWallet(provider);
+    expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
+  });
+});
+
 describe('computeProviderId', () => {
   it('returns the providerId from the mnemonic', () => {
     const provider = new ethers.providers.JsonRpcProvider();
@@ -18,7 +26,7 @@ describe('computeProviderId', () => {
   });
 });
 
-describe('deriveWalletFromIndex', () => {
+describe('deriveWalletAddressFromIndex', () => {
   it('returns the wallet address for the given index', () => {
     const xpub = wallet.getExtendedPublicKey();
     const adminWallet = wallet.deriveWalletAddressFromIndex(xpub, '0');

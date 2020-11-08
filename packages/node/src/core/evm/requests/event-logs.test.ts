@@ -20,15 +20,6 @@ jest.mock('ethers', () => {
   };
 });
 
-jest.mock('../../config', () => ({
-  config: {
-    nodeSettings: {
-      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-    },
-  },
-  FROM_BLOCK_LIMIT: 100,
-}));
-
 import { ethers } from 'ethers';
 import { removeKeys } from '../../utils/object-utils';
 import * as eventLogs from './event-logs';
@@ -68,6 +59,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
 
     const res = await eventLogs.fetch(fetchOptions);
@@ -101,6 +93,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     try {
       await eventLogs.fetch(fetchOptions);
@@ -133,6 +126,7 @@ describe('EVM event logs - fetch', () => {
       blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     try {
       await eventLogs.fetch(fetchOptions);

@@ -9,7 +9,7 @@ import {
   ProviderState,
 } from '../../types';
 
-export function createEVMState(
+export function buildEVMState(
   coordinatorId: string,
   chain: ChainConfig,
   chainProvider: ChainProvider,

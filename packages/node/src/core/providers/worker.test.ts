@@ -19,18 +19,16 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
+import * as worker from './worker';
 
 describe('spawnNewProvider', () => {
-  beforeEach(() => jest.resetModules());
-
   it('handles local AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../config', () => ({ config }));
-    const state = fixtures.createEVMProviderState();
+    const nodeSettings = fixtures.buildNodeSettings({ cloudProvider: 'local:aws' });
+    const config = fixtures.buildConfig({ nodeSettings });
+    const state = fixtures.buildEVMProviderState({ config });
     spawnLocalAwsMock.mockResolvedValueOnce(state);
-    const { spawnNewProvider } = require('./worker');
-    const res = await spawnNewProvider(state);
+    const res = await worker.spawnNewProvider(state);
     expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
@@ -43,12 +41,11 @@ describe('spawnNewProvider', () => {
 
   it('handles remote AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../config/index', () => ({ config }));
-    const state = fixtures.createEVMProviderState();
+    const nodeSettings = fixtures.buildNodeSettings({ cloudProvider: 'aws' });
+    const config = fixtures.buildConfig({ nodeSettings });
+    const state = fixtures.buildEVMProviderState({ config });
     spawnAwsMock.mockResolvedValueOnce(state);
-    const { spawnNewProvider } = require('./worker');
-    const res = await spawnNewProvider(state);
+    const res = await worker.spawnNewProvider(state);
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({

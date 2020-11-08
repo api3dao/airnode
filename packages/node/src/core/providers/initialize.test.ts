@@ -26,18 +26,6 @@ const chains: ChainConfig[] = [
   },
 ];
 
-jest.mock('../config', () => ({
-  config: {
-    nodeSettings: {
-      cloudProvider: 'local:aws',
-      chains,
-    },
-  },
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { ChainConfig } from 'src/types';
@@ -62,9 +50,8 @@ describe('initializeProviders', () => {
     getLogs.mockResolvedValueOnce([]);
 
     const coordinatorId = '837daEf231';
-    const settings = fixtures.createNodeSettings();
-
-    const res = await providers.initialize(coordinatorId, chains, settings);
+    const config = fixtures.buildConfig();
+    const res = await providers.initialize(coordinatorId, chains, config);
     expect(res).toEqual([
       {
         contracts: {
@@ -124,9 +111,9 @@ describe('initializeProviders', () => {
   it('throws an error if no providers are configured', async () => {
     expect.assertions(1);
     const coordinatorId = '837daEf231';
-    const settings = fixtures.createNodeSettings();
+    const config = fixtures.buildConfig();
     try {
-      await providers.initialize(coordinatorId, [], settings);
+      await providers.initialize(coordinatorId, [], config);
     } catch (e) {
       expect(e).toEqual(new Error('One or more chains must be defined in config.json'));
     }

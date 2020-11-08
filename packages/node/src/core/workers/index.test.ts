@@ -5,34 +5,37 @@ jest.mock('./cloud-platforms/aws', () => ({
   spawnLocal: spawnLocalAwsMock,
 }));
 
+import * as fixtures from 'test/fixtures';
+import * as workers from './index';
+
 describe('spawn', () => {
-  beforeEach(() => jest.resetModules());
-
   it('spawns for aws', async () => {
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../config', () => ({ config }));
-
     spawnAwsMock.mockResolvedValueOnce({ value: 777 });
-
-    const { spawn } = require('./index');
-    const res = await spawn({ from: 'ETH' });
+    const settings = fixtures.buildNodeSettings({ cloudProvider: 'aws' });
+    const config = fixtures.buildConfig({ nodeSettings: settings });
+    const parameters: workers.WorkerParameters = {
+      config,
+      functionName: 'customFn',
+      payload: { from: 'ETH' },
+    };
+    const res = await workers.spawn(parameters);
     expect(res).toEqual({ value: 777 });
-
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
-    expect(spawnAwsMock).toHaveBeenCalledWith({ from: 'ETH' });
+    expect(spawnAwsMock).toHaveBeenCalledWith(parameters);
   });
 
   it('spawns for local:aws', async () => {
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../config', () => ({ config }));
-
     spawnLocalAwsMock.mockResolvedValueOnce({ value: 1000 });
-
-    const { spawn } = require('./index');
-    const res = await spawn({ from: 'ETH' });
+    const settings = fixtures.buildNodeSettings({ cloudProvider: 'local:aws' });
+    const config = fixtures.buildConfig({ nodeSettings: settings });
+    const parameters: workers.WorkerParameters = {
+      config,
+      functionName: 'customFn',
+      payload: { from: 'BTC' },
+    };
+    const res = await workers.spawn(parameters);
     expect(res).toEqual({ value: 1000 });
-
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
-    expect(spawnLocalAwsMock).toHaveBeenCalledWith({ from: 'ETH' });
+    expect(spawnLocalAwsMock).toHaveBeenCalledWith(parameters);
   });
 });

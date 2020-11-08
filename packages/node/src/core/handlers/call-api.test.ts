@@ -1,14 +1,3 @@
-jest.mock('../config', () => ({
-  config: {
-    ois: [fixtures.ois],
-  },
-  security: {
-    apiCredentials: {
-      oisTitle: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }],
-    },
-  },
-}));
-
 import * as adapter from '@airnode/adapter';
 import * as fixtures from 'test/fixtures';
 import { callApi } from './call-api';
@@ -21,7 +10,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const [logs, res] = await callApi(aggregatedCall);
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
 
@@ -29,7 +18,7 @@ describe('callApi', () => {
     expect(spy).toHaveBeenCalledWith(
       {
         endpointName: 'convertToUsd',
-        ois: fixtures.ois,
+        ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
         securitySchemes: [{ securitySchemeName: 'scheme-1', value: 'supersecret' }],
       },
@@ -39,7 +28,7 @@ describe('callApi', () => {
 
   it('returns an error if the OIS is not found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ oisTitle: 'unknownOis' });
-    const [logs, res] = await callApi(aggregatedCall);
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([{ level: 'ERROR', message: 'Unknown OIS:unknownOis received for Request:apiCallId' }]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.UnknownOIS,
@@ -48,7 +37,7 @@ describe('callApi', () => {
 
   it('returns an error if the endpoint is not found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
-    const [logs, res] = await callApi(aggregatedCall);
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId' },
     ]);
@@ -59,7 +48,7 @@ describe('callApi', () => {
 
   it('returns an error if no _type parameter is found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall();
-    const [logs, res] = await callApi(aggregatedCall);
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       { level: 'ERROR', message: "No '_type' parameter was found for Endpoint:convertToUsd, OIS:oisTitle" },
     ]);
@@ -74,7 +63,7 @@ describe('callApi', () => {
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const [logs, res] = await callApi(aggregatedCall);
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUsd', error: new Error('Network is down') },
     ]);
@@ -88,7 +77,7 @@ describe('callApi', () => {
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
-    const [logs, res] = await callApi(aggregatedCall);
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
     ]);

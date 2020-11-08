@@ -14,12 +14,6 @@ jest.mock('ethers', () => ({
   },
 }));
 
-jest.mock('../config', () => ({
-  security: {
-    masterKeyMnemonic: 'bracket simple lock network census onion spy real spread pig hawk lonely',
-  },
-}));
-
 import { ethers } from 'ethers';
 import * as providers from './providers';
 
@@ -37,7 +31,7 @@ describe('findWithBlock', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
-        'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const [logs, res] = await providers.findWithBlock(options);
     expect(logs).toEqual([
@@ -47,7 +41,7 @@ describe('findWithBlock', () => {
       {
         level: 'INFO',
         message:
-          'Provider extended public key:xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+          'Provider extended public key:xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
     ]);
     expect(res).toEqual({
@@ -55,7 +49,7 @@ describe('findWithBlock', () => {
       blockNumber: 12,
       providerExists: true,
       xpub:
-        'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith('0xproviderId');
@@ -89,7 +83,7 @@ describe('findWithBlock', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
-        'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const [logs, res] = await providers.findWithBlock(options);
     expect(logs).toEqual([
@@ -99,7 +93,7 @@ describe('findWithBlock', () => {
       {
         level: 'INFO',
         message:
-          'Provider extended public key:xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+          'Provider extended public key:xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
     ]);
     expect(res).toEqual({
@@ -107,7 +101,7 @@ describe('findWithBlock', () => {
       blockNumber: 12,
       providerExists: true,
       xpub:
-        'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(2);
     expect(getProviderAndBlockNumberMock.mock.calls).toEqual([['0xproviderId'], ['0xproviderId']]);
@@ -138,7 +132,7 @@ describe('create', () => {
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     provider: new ethers.providers.JsonRpcProvider(),
     xpub:
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
   };
 
   it('creates the provider and returns the transaction', async () => {
@@ -167,7 +161,7 @@ describe('create', () => {
     expect(createProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       {
         // 250_000_000 - ((50_000 + 20_000) * 1000)
         value: ethers.BigNumber.from(180_000_000),
@@ -255,7 +249,7 @@ describe('create', () => {
     expect(createProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       {
         // 250_000_000 - ((50_000 + 20_000) * 1000)
         value: ethers.BigNumber.from(180_000_000),
@@ -282,7 +276,7 @@ describe('findOrCreateProviderWithBlock', () => {
       {
         level: 'DEBUG',
         message:
-          'Computed provider ID from mnemonic:0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+          'Computed provider ID from mnemonic:0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       },
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       {
@@ -294,8 +288,8 @@ describe('findOrCreateProviderWithBlock', () => {
     expect(res).toEqual(null);
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(2);
     expect(getProviderAndBlockNumberMock.mock.calls).toEqual([
-      ['0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'],
-      ['0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'],
+      ['0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+      ['0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
     ]);
   });
 
@@ -313,7 +307,7 @@ describe('findOrCreateProviderWithBlock', () => {
       {
         level: 'DEBUG',
         message:
-          'Computed provider ID from mnemonic:0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+          'Computed provider ID from mnemonic:0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       },
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -323,7 +317,7 @@ describe('findOrCreateProviderWithBlock', () => {
     expect(res).toEqual(null);
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
-      '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'
+      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
     );
     expect(estimateCreateProviderMock).not.toHaveBeenCalled();
     expect(createProviderMock).not.toHaveBeenCalled();
@@ -346,7 +340,7 @@ describe('findOrCreateProviderWithBlock', () => {
       {
         level: 'DEBUG',
         message:
-          'Computed provider ID from mnemonic:0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+          'Computed provider ID from mnemonic:0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       },
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -371,13 +365,13 @@ describe('findOrCreateProviderWithBlock', () => {
     });
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
-      '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'
+      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
     );
     expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledTimes(1);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       {
         // 250_000_000 - ((50_000 + 20_000) * 1000)
         value: ethers.BigNumber.from(180_000_000),
@@ -392,14 +386,14 @@ describe('findOrCreateProviderWithBlock', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
-        'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const [logs, res] = await providers.findOrCreateProviderWithBlock(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
         message:
-          'Computed provider ID from mnemonic:0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+          'Computed provider ID from mnemonic:0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       },
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -407,7 +401,7 @@ describe('findOrCreateProviderWithBlock', () => {
       {
         level: 'INFO',
         message:
-          'Provider extended public key:xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+          'Provider extended public key:xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
       { level: 'DEBUG', message: 'Skipping provider creation as the provider exists' },
     ]);
@@ -416,11 +410,11 @@ describe('findOrCreateProviderWithBlock', () => {
       blockNumber: 12,
       providerExists: true,
       xpub:
-        'xpub661MyMwAqRbcF9ehXsbUTRmxvQFAJ35VCUqyGHPiJ1L1mtHm8pkDeUPsmLPVLLfY61nkFcHiBNeAYm9V3MLfveemc8SWwH2jqQzG6qdgqoH',
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
-      '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'
+      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
     );
     expect(createProviderMock).not.toHaveBeenCalled();
   });
