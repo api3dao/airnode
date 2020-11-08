@@ -8,7 +8,6 @@
     "build": "npm run clean && npm run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "dev:aws": "serverless offline --config serverless.aws.yml",
     "invoke:aws": "(cd __dev__ && ts-node invoke.ts)",
     "prepublishOnly": "npm run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
@@ -27,10 +26,6 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.32",
-    "@types/lodash": "^4.14.157",
-    "serverless": "^2.0.0",
-    "serverless-dotenv-plugin": "^3.0.0",
-    "serverless-offline": "^6.7.0",
-    "serverless-plugin-typescript": "^1.1.9"
+    "@types/lodash": "^4.14.157"
   }
 }
