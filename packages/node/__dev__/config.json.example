@@ -42,7 +42,7 @@
         },
         "servers": [
           {
-            "url": "http://localhost:4000"
+            "url": "https://api.coinlayer.com"
           }
         ],
         "paths": {
