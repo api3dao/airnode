@@ -1,6 +1,9 @@
 /state
 # Local .terraform directories
 **/.terraform/*
+# This is a generated file that should not be pushed to the repo
+# See https://github.com/api3dao/airnode/issues/110
+variables.tf
 
 # .tfstate files
 *.tfstate
