@@ -54,6 +54,8 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
     masterWalletAddress,
     providerId,
     providerIdShort,
+    region: configParams.region,
+    stage: configParams.stage,
     xpub: deriveXpub(mnemonic),
   });
   ora().info(`Outputted ${providerIdShort}.receipt.json. This file does not contain any sensitive information.`);
@@ -90,6 +92,8 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
     masterWalletAddress,
     providerId,
     providerIdShort: configParams.providerIdShort,
+    region: configParams.region,
+    stage: configParams.stage,
     xpub: deriveXpub(mnemonic),
   });
   ora().info(
