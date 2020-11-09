@@ -2,17 +2,9 @@ FROM node:12.19.0-alpine3.12
 
 ENV NODE_ENV production
 
-ENV COMMAND ""
-ENV AWS_ACCESS_KEY_ID ""
-ENV AWS_SECRET_KEY ""
-ENV PROVIDER_ID_SHORT ""
-ENV REGION ""
-ENV STAGE ""
-
-RUN mkdir /airnode
 WORKDIR /airnode
+COPY . /airnode
 
-COPY . .
 RUN cp packages/node/config.json.example packages/node/src/config.json \
     && cp packages/node/security.json.example packages/node/src/security.json
 RUN cp packages/deployer/config.json.example packages/deployer/config.json \
