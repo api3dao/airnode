@@ -97,7 +97,19 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
   );
 }
 
-export async function removeMnemonic(providerIdShort) {
+export async function deployMnemonic(mnemonic, region) {
+  await applyTerraformWorkaround(region);
+  const providerId = deriveProviderId(mnemonic);
+  const providerIdShort = shortenProviderId(providerId);
+  if (await ssm.checkIfProviderIdShortExists(providerIdShort)) {
+    throw new Error('A mnemonic with matching providerIdShort is already deployed.');
+  }
+  await ssm.addMnemonic(mnemonic, providerIdShort);
+  console.log(`Deployed mnemonic at ${region} under label ${providerIdShort}`);
+}
+
+export async function removeMnemonic(providerIdShort, region) {
+  await applyTerraformWorkaround(region);
   if (!(await ssm.checkIfProviderIdShortExists(providerIdShort))) {
     throw new Error('No mnemonic with this providerIdShort exists at AWS SSM');
   }

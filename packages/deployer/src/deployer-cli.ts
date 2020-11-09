@@ -1,5 +1,5 @@
 import * as yargs from 'yargs';
-import { deployFirstTime, redeploy, removeMnemonic, removeAirnode } from './commands';
+import { deployFirstTime, redeploy, deployMnemonic, removeMnemonic, removeAirnode } from './commands';
 import { version as nodeVersion } from '../node_modules/@airnode/node/package.json';
 
 function drawHeader() {
@@ -51,14 +51,31 @@ yargs
     }
   )
   .command(
+    'deploy-mnemonic',
+    'Deploys a mnemonic',
+    {
+      mnemonic: { type: 'string', demandOption: true, alias: 'm' },
+      region: { type: 'string', demandOption: true, alias: 'r' },
+    },
+    async (args) => {
+      try {
+        await deployMnemonic(args.mnemonic, args.region);
+      } catch (e) {
+        console.error(e);
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
     'remove-mnemonic',
     'Removes mnemonic deployment',
     {
       providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
+      region: { type: 'string', demandOption: true, alias: 'r' },
     },
     async (args) => {
       try {
-        await removeMnemonic(args.providerIdShort);
+        await removeMnemonic(args.providerIdShort, args.region);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
