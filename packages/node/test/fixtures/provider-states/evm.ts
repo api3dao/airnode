@@ -3,7 +3,7 @@ import { buildEVMState } from '../../../src/core/providers/state';
 import { buildConfig, buildNodeSettings } from '../config';
 
 export function buildEVMProviderState(
-  stateOverrides?: Partial<ProviderState<EVMProviderState>>
+  overrides?: Partial<ProviderState<EVMProviderState>>
 ): ProviderState<EVMProviderState> {
   const coordinatorId = '837daEf231';
   const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
@@ -18,6 +18,6 @@ export function buildEVMProviderState(
   const state = buildEVMState(coordinatorId, chainConfig, chainProvider, config);
   return {
     ...state,
-    ...stateOverrides,
+    ...overrides,
   };
 }

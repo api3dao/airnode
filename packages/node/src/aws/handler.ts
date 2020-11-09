@@ -3,9 +3,8 @@ import * as handlers from '../core/handlers';
 import * as logger from '../core/logger';
 import * as state from '../core/providers/state';
 import { go } from '../core/utils/promise-utils';
-import { removeKey } from '../core/utils/object-utils';
 
-export async function start(event: any) {
+export async function startCoordinator(event: any) {
   await handlers.startCoordinator(config.parseConfig(event.parameters.config));
 
   return {
@@ -30,10 +29,8 @@ export async function initializeProvider(event: any) {
     };
   }
 
-  // NOTE: We can't return the instance of the provider. A new provider
-  // will be created in the calling function
-  const stateWithoutProvider = removeKey(initializedState, 'provider');
-  return { statusCode: 200, body: JSON.stringify(stateWithoutProvider) };
+  const scrubbedState = state.scrub(initializedState);
+  return { statusCode: 200, body: JSON.stringify(scrubbedState) };
 }
 
 export async function callApi(event: any) {
@@ -59,8 +56,6 @@ export async function processProviderRequests(event: any) {
     };
   }
 
-  // NOTE: We can't return the instance of the provider. A new provider
-  // will be created in the calling function
-  const stateWithoutProvider = removeKey(updatedState, 'provider');
-  return { statusCode: 200, body: JSON.stringify(stateWithoutProvider) };
+  const scrubbedState = state.scrub(updatedState);
+  return { statusCode: 200, body: JSON.stringify(scrubbedState) };
 }

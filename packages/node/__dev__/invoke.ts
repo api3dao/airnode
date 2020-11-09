@@ -7,7 +7,7 @@ dotenv.config();
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 async function invoke() {
-  await aws.start({ parameters: { config } });
+  await aws.startCoordinator({ parameters: { config } });
 }
 
 invoke();

@@ -79,7 +79,7 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   const providerTransactions = state5.EVMProviders.map(async (provider) => {
     logger.info(`Forking to submit transactions for provider:${provider.settings.name}...`, baseLogOptions);
-    return await spawnProviderRequestProcessor(provider);
+    return await spawnProviderRequestProcessor(state5.config, provider);
   });
   await Promise.all(providerTransactions);
   logger.info('Forking to submit transactions complete', baseLogOptions);

@@ -28,14 +28,14 @@ describe('spawnNewProvider', () => {
     const config = fixtures.buildConfig({ nodeSettings });
     const state = fixtures.buildEVMProviderState({ config });
     spawnLocalAwsMock.mockResolvedValueOnce(state);
-    const res = await worker.spawnNewProvider(state);
+    const res = await worker.spawnNewProvider(config, state);
     expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
       config,
       functionName: 'initializeProvider',
       payload: {
-        state: { ...state, config: {} },
+        state: { ...state, config },
       },
     });
   });
@@ -46,13 +46,13 @@ describe('spawnNewProvider', () => {
     const config = fixtures.buildConfig({ nodeSettings });
     const state = fixtures.buildEVMProviderState({ config });
     spawnAwsMock.mockResolvedValueOnce(state);
-    const res = await worker.spawnNewProvider(state);
+    const res = await worker.spawnNewProvider(config, state);
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
       config,
       functionName: 'initializeProvider',
-      payload: { state: { ...state, config: {} } },
+      payload: { state: { ...state, config } },
     });
   });
 });

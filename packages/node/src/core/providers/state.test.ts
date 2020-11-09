@@ -158,3 +158,27 @@ describe('update', () => {
     expect(res.currentBlock).toEqual(123);
   });
 });
+
+describe('scrub', () => {
+  const SCRUB_KEYS = ['config', 'provider'];
+
+  SCRUB_KEYS.forEach((key) => {
+    it(`removes the ${key} key`, () => {
+      const newState = fixtures.buildEVMProviderState();
+      expect(newState[key]).not.toEqual(undefined);
+      const scrubbed = state.scrub(newState);
+      expect(scrubbed[key]).toEqual(undefined);
+    });
+  });
+});
+
+describe('unscrubEVM', () => {
+  it('initializes a new provider', () => {
+    const newState = fixtures.buildEVMProviderState();
+    expect(newState.provider).toBeInstanceOf(Object);
+    const scrubbed = state.scrub(newState);
+    expect(scrubbed.provider).toEqual(undefined);
+    const unscrubbed = state.unscrubEVM(scrubbed);
+    expect(unscrubbed.provider).toBeInstanceOf(Object);
+  });
+});

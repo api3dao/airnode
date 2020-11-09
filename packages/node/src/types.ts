@@ -121,7 +121,7 @@ export interface ProviderSettings {
 }
 
 export type ProviderState<T extends {}> = T & {
-  readonly config: Config;
+  readonly config?: Config;
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
   readonly requests: GroupedRequests;
@@ -141,7 +141,7 @@ export interface CoordinatorState {
 }
 
 // ===========================================
-// EVM
+// EVM specific
 // ===========================================
 export interface EVMContracts {
   readonly Airnode: string;
