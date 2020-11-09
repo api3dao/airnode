@@ -1,5 +1,12 @@
 import * as yargs from 'yargs';
-import { deployFirstTime, redeploy, deployMnemonic, removeMnemonic, removeAirnode } from './commands';
+import {
+  deployFirstTime,
+  redeploy,
+  deployMnemonic,
+  removeWithReceipt,
+  removeMnemonic,
+  removeAirnode,
+} from './commands';
 import { version as nodeVersion } from '../node_modules/@airnode/node/package.json';
 
 function drawHeader() {
@@ -60,6 +67,21 @@ yargs
     async (args) => {
       try {
         await deployMnemonic(args.mnemonic, args.region);
+      } catch (e) {
+        console.error(e);
+        process.exitCode = 1;
+      }
+    }
+  )
+  .command(
+    'remove-with-receipt',
+    'Removes Airnode deployment and mnemonic using the receipt',
+    {
+      receiptFilename: { type: 'string', demandOption: true, alias: 'rf' },
+    },
+    async (args) => {
+      try {
+        await removeWithReceipt(args.receiptFilename);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;

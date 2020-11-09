@@ -1,6 +1,7 @@
 import ora from 'ora';
 import {
   parseFiles,
+  parseReceipt,
   generateServerlessSecretsFile,
   removeServerlessSecretsFile,
   checkConfigParameters,
@@ -48,8 +49,10 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
     throw e;
   }
 
-  writeJSONFile(`${providerIdShort}.receipt.json`, {
+  const receiptFilename = `${providerIdShort}_${configParams.cloudProvider}_${configParams.region}_${configParams.stage}.receipt.json`;
+  writeJSONFile(receiptFilename, {
     chainIds: configParams.chains.map((chain) => chain.id),
+    cloudProvider: configParams.cloudProvider,
     configId: configParams.configId,
     masterWalletAddress,
     providerId,
@@ -58,7 +61,7 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
     stage: configParams.stage,
     xpub: deriveXpub(mnemonic),
   });
-  ora().info(`Outputted ${providerIdShort}.receipt.json. This file does not contain any sensitive information.`);
+  ora().info(`Outputted ${receiptFilename}\n This file does not contain any sensitive information.`);
 }
 
 export async function redeploy(configPath, securityPath, nodeVersion) {
@@ -86,8 +89,10 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
     throw e;
   }
 
-  writeJSONFile(`${configParams.providerIdShort}.receipt.json`, {
+  const receiptFilename = `${configParams.providerIdShort}_${configParams.cloudProvider}_${configParams.region}_${configParams.stage}.receipt.json`;
+  writeJSONFile(receiptFilename, {
     chainIds: configParams.chains.map((chain) => chain.id),
+    cloudProvider: configParams.cloudProvider,
     configId: configParams.configId,
     masterWalletAddress,
     providerId,
@@ -96,9 +101,7 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
     stage: configParams.stage,
     xpub: deriveXpub(mnemonic),
   });
-  ora().info(
-    `Outputted ${configParams.providerIdShort}.receipt.json. This file does not contain any sensitive information.`
-  );
+  ora().info(`Outputted ${receiptFilename}\n This file does not contain any sensitive information.`);
 }
 
 export async function deployMnemonic(mnemonic, region) {
@@ -110,6 +113,12 @@ export async function deployMnemonic(mnemonic, region) {
   }
   await ssm.addMnemonic(mnemonic, providerIdShort);
   console.log(`Deployed mnemonic at ${region} under label ${providerIdShort}`);
+}
+
+export async function removeWithReceipt(receiptFilename) {
+  const receipt = await parseReceipt(receiptFilename);
+  await removeMnemonic(receipt.providerIdShort, receipt.region);
+  await removeAirnode(receipt.providerIdShort, receipt.region, receipt.stage);
 }
 
 export async function removeMnemonic(providerIdShort, region) {

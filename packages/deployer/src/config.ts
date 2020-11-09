@@ -27,6 +27,15 @@ export function parseFiles(configPath, securityPath) {
   };
 }
 
+export function parseReceipt(receiptFilename) {
+  try {
+    return JSON.parse(fs.readFileSync(receiptFilename, 'utf8'));
+  } catch (e) {
+    ora().fail('Failed to parse receipt.json');
+    throw e;
+  }
+}
+
 export function checkConfigParameters(configParams, nodeVersion, command) {
   if (command === 'deploy-first-time') {
     if (configParams.providerIdShort) {

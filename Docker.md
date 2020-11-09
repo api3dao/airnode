@@ -11,7 +11,11 @@ docker build . -t airnode-alpha
 
 ### `deploy-first-time`
 ```sh
-docker run -it --rm --env-file .env --env COMMAND=deploy-first-time -v $(pwd):/airnode/out airnode-alpha:latest
+docker run -it --rm \
+  --env-file .env \
+  --env COMMAND=deploy-first-time \
+  -v $(pwd):/airnode/out \
+  airnode-alpha:latest
 ```
 
 This command will require `config.json` and `security.json` to be in the current working directory in the future.
@@ -19,7 +23,11 @@ This command will require `config.json` and `security.json` to be in the current
 ### `redeploy`
 
 ```sh
-docker run -it --rm --env-file .env --env COMMAND=redeploy -v $(pwd):/airnode/out airnode-alpha:latest
+docker run -it --rm \
+  --env-file .env \
+  --env COMMAND=redeploy \
+  -v $(pwd):/airnode/out \
+  airnode-alpha:latest
 ```
 
 This command will require `config.json` and `security.json` to be in the current working directory in the future.
@@ -27,24 +35,40 @@ This command will require `config.json` and `security.json` to be in the current
 ### `deploy-mnemonic`
 
 ```sh
-docker run -it --rm --env-file .env --env COMMAND=deploy-mnemonic --env MNEMONIC=$MNEMONIC --env REGION=$REGION airnode-alpha:latest
+docker run -it --rm \
+  --env-file .env \
+  --env COMMAND=deploy-mnemonic \
+  --env MNEMONIC=$MNEMONIC \
+  --env REGION=$REGION \
+  airnode-alpha:latest
 ```
 
 Note that you must replace `$MNEMONIC` and `$REGION` with your values.
 Enclose your mnemonic in quotation marks because it includes whitespaces.
 
-### `remove-mnemonic`
+### `remove-with-receipt`
 
 ```sh
-docker run -it --rm --env-file .env --env COMMAND=remove-mnemonic --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT --env REGION=$REGION airnode-alpha:latest
+docker run -it --rm \
+  --env-file .env \
+  --env COMMAND=remove-with-receipt \
+  --env RECEIPT_FILENAME=$RECEIPT_FILENAME \
+  -v $(pwd):/airnode/out \
+  airnode-alpha:latest
 ```
 
-Note that you must replace `$PROVIDER_ID_SHORT` and `$REGION` with your values.
+Note that you must replace `$RECEIPT_FILENAME` with your value.
+`$RECEIPT_FILENAME` must be in the current working directory.
 
 ### `remove-mnemonic`
 
 ```sh
-docker run -it --rm --env-file .env --env COMMAND=remove-mnemonic --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT --env REGION=$REGION airnode-alpha:latest
+docker run -it --rm \
+  --env-file .env \
+  --env COMMAND=remove-mnemonic \
+  --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT \
+  --env REGION=$REGION \
+  airnode-alpha:latest
 ```
 
 Note that you must replace `$PROVIDER_ID_SHORT` and `$REGION` with your values.
@@ -52,7 +76,13 @@ Note that you must replace `$PROVIDER_ID_SHORT` and `$REGION` with your values.
 ### `remove-airnode`
 
 ```sh
-docker run -it --rm --env-file .env --env COMMAND=remove-airnode --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT --env REGION=$REGION --env STAGE=$STAGE airnode-alpha:latest
+docker run -it --rm \
+  --env-file .env \
+  --env COMMAND=remove-airnode \
+  --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT \
+  --env REGION=$REGION \
+  --env STAGE=$STAGE \
+  airnode-alpha:latest
 ```
 
 Note that you must replace `$PROVIDER_ID_SHORT`, `$REGION` and `$STAGE` with your values.

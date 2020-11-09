@@ -21,7 +21,8 @@ RUN cd /usr/local/bin \
 RUN yarn bootstrap
 RUN yarn build
 
-CMD cd /airnode/packages/deployer \
+CMD cp out/$RECEIPT_FILENAME packages/deployer/ | true \
+    && cd /airnode/packages/deployer \
     && yarn sls:config \
     && yarn terraform:init \
     && yarn command:$COMMAND \

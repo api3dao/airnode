@@ -10,6 +10,7 @@
     "command:deploy-first-time": "node dist/deployer-cli.js deploy-first-time -c config.json -s security.json",
     "command:redeploy": "node dist/deployer-cli.js redeploy -c config.json -s security.json",
     "command:deploy-mnemonic": "node dist/deployer-cli.js deploy-mnemonic -m \"$MNEMONIC\" -r $REGION",
+    "command:remove-with-receipt": "node dist/deployer-cli.js remove-with-receipt --rf $RECEIPT_FILENAME",
     "command:remove-mnemonic": "node dist/deployer-cli.js remove-mnemonic -p $PROVIDER_ID_SHORT -r $REGION",
     "command:remove-airnode": "node dist/deployer-cli.js remove-airnode -p $PROVIDER_ID_SHORT -r $REGION -s $STAGE",
     "terraform:init": "cd terraform && terraform init",

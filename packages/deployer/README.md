@@ -82,6 +82,16 @@ Its usage is not recommended otherwise.
 
 `--region, -r` (required): Region that the mnemonic will be deployed at
 
+### `remove-with-receipt`
+
+> Removes the mnemonic and the serverless functions that implement Airnode
+
+`--receiptFilename, --rf` (required): Full name of the `*.receipt.json` file
+
+**WARNING** This command will also remove the mnemonic associated with this deployment.
+If you have other deployments associated with this mnemonic (with different `region`s and `stage`s), you should not be using this command, but prefer `remove-airnode` instead.
+Otherwise, you will not be able to `redeploy` your other associated deployments.
+
 ### `remove-mnemonic`
 
 > Removes the mnemonic
