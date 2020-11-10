@@ -66,12 +66,15 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           minConfirmations: 6,
           name: 'infura-mainnet',
-          providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           url: 'https://mainnet.infura.io/v3/<key>',
+          xpub:
+            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         coordinatorId,
         currentBlock: 123456,
         gasPrice: null,
+        masterHDNode: expect.any(ethers.utils.HDNode),
         provider: expect.anything(),
         requests: {
           apiCalls: [],
@@ -92,12 +95,15 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           minConfirmations: 6,
           name: 'infura-ropsten',
-          providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           url: 'https://ropsten.infura.io/v3/<key>',
+          xpub:
+            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         coordinatorId,
         currentBlock: 987654,
         gasPrice: null,
+        masterHDNode: expect.any(ethers.utils.HDNode),
         provider: expect.anything(),
         requests: {
           apiCalls: [],

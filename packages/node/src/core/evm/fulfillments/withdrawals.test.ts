@@ -21,18 +21,26 @@ jest.mock('ethers', () => ({
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { RequestStatus } from 'src/types';
+import * as wallet from '../wallet';
 import * as withdrawals from './withdrawals';
 
 describe('submitWithdrawal', () => {
+  let xpub: string;
+
+  beforeEach(() => {
+    const masterHDNode = wallet.getMasterHDNode();
+    xpub = wallet.getExtendedPublicKey(masterHDNode);
+  });
+
   it('subtracts transaction costs and submits the remaining balance for pending requests', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
-    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xsuccessful' });
     const gasPrice = ethers.BigNumber.from(1000);
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const options = { gasPrice: ethers.BigNumber.from(1000), provider, xpub };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
@@ -60,10 +68,11 @@ describe('submitWithdrawal', () => {
   });
 
   it('does nothing if the request is already fulfilled', async () => {
+    const provider = new ethers.providers.JsonRpcProvider();
     const contract = new ethers.Contract('address', ['ABI']);
     const gasPrice = ethers.BigNumber.from('1000');
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Fulfilled });
-    const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, { gasPrice });
+    const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, { gasPrice, provider, xpub });
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -76,6 +85,7 @@ describe('submitWithdrawal', () => {
   });
 
   it('does nothing if the request is blocked or errored', async () => {
+    const provider = new ethers.providers.JsonRpcProvider();
     const contract = new ethers.Contract('address', ['ABI']);
     const gasPrice = ethers.BigNumber.from(1000);
     // NOTE: a withdrawal should not be able to become "errored" or "blocked", but this
@@ -83,8 +93,8 @@ describe('submitWithdrawal', () => {
     const blocked = fixtures.requests.createWithdrawal({ status: RequestStatus.Blocked });
     const errored = fixtures.requests.createWithdrawal({ status: RequestStatus.Errored });
 
-    const blockedRes = await withdrawals.submitWithdrawal(contract, blocked, { gasPrice });
-    const erroredRes = await withdrawals.submitWithdrawal(contract, errored, { gasPrice });
+    const blockedRes = await withdrawals.submitWithdrawal(contract, blocked, { gasPrice, provider, xpub });
+    const erroredRes = await withdrawals.submitWithdrawal(contract, errored, { gasPrice, provider, xpub });
 
     expect(blockedRes[0]).toEqual([
       {
@@ -106,12 +116,12 @@ describe('submitWithdrawal', () => {
   });
 
   it('does nothing if the withdrawal amount would be negative', async () => {
-    const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
-    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
+    const contract = new ethers.Contract('address', ['ABI']);
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const options = { gasPrice: ethers.BigNumber.from(1000), provider, xpub };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
@@ -129,8 +139,8 @@ describe('submitWithdrawal', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
     (provider.getBalance as jest.Mock).mockRejectedValueOnce(new Error('Could not fetch balance'));
-    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const options = { gasPrice: ethers.BigNumber.from(1000), provider, xpub };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
       {
@@ -147,10 +157,10 @@ describe('submitWithdrawal', () => {
   it('returns an error if the estimate gas limit call fails', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
-    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const options = { gasPrice: ethers.BigNumber.from(1000), provider, xpub };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
       {
@@ -167,12 +177,12 @@ describe('submitWithdrawal', () => {
   it('returns an error if the withdrawal fails to submit', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
-    const options = { gasPrice: ethers.BigNumber.from(1000), provider };
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
     const gasPrice = ethers.BigNumber.from(1000);
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const options = { gasPrice: ethers.BigNumber.from(1000), provider, xpub };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },

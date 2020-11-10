@@ -3,9 +3,7 @@ import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../../types';
 
-export function verifyDesignatedWallets<T>(requests: ClientRequest<T>[]): LogsData<ClientRequest<T>[]> {
-  const xpub = wallet.getExtendedPublicKey();
-
+export function verifyDesignatedWallets<T>(requests: ClientRequest<T>[], xpub: string): LogsData<ClientRequest<T>[]> {
   const logsWithVerifiedRequests: LogsData<ClientRequest<T>>[] = requests.map((request) => {
     if (request.status !== RequestStatus.Pending) {
       const log = logger.pend(
