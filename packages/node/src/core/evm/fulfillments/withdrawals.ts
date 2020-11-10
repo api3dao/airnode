@@ -20,8 +20,7 @@ export async function submitWithdrawal(
     return [[log], null, null];
   }
 
-  const xpub = wallet.getExtendedPublicKey();
-  const requesterAddress = wallet.deriveWalletAddressFromIndex(xpub, request.requesterIndex!);
+  const requesterAddress = wallet.deriveWalletAddressFromIndex(options.masterHDNode, request.requesterIndex!);
   const [balanceErr, currentBalance] = await go(options.provider!.getBalance(requesterAddress));
   if (balanceErr || !currentBalance) {
     const errLog = logger.pend(

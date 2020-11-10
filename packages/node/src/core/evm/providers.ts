@@ -10,6 +10,7 @@ interface BaseFetchOptions {
   adminAddressForCreatingProviderRecord?: string;
   airnodeAddress: string;
   convenienceAddress: string;
+  masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -20,6 +21,7 @@ interface FindOptions extends BaseFetchOptions {
 interface CreateOptions extends BaseFetchOptions {
   adminAddressForCreatingProviderRecord: string;
   airnodeAddress: string;
+  masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
   xpub: string;
 }
@@ -73,8 +75,9 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
     `Creating provider with address:${options.adminAddressForCreatingProviderRecord}...`
   );
 
-  const masterWallet = wallet.getMasterWallet(options.provider);
-  const airnode = new ethers.Contract(options.airnodeAddress, Airnode.ABI, masterWallet);
+  const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
+  const connectedWallet = masterWallet.connect(options.provider);
+  const airnode = new ethers.Contract(options.airnodeAddress, Airnode.ABI, connectedWallet);
 
   const log2 = logger.pend('INFO', 'Estimating transaction cost for creating provider...');
 
@@ -133,7 +136,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 export async function findOrCreateProviderWithBlock(
   options: BaseFetchOptions
 ): Promise<LogsData<ProviderWithBlockNumber | null>> {
-  const providerId = wallet.getProviderId(options.provider);
+  const providerId = wallet.getProviderId(options.masterHDNode);
   const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic:${providerId}`);
 
   const fetchOptions = { ...options, providerId };
@@ -154,7 +157,7 @@ export async function findOrCreateProviderWithBlock(
     const createOptions = {
       ...options,
       adminAddressForCreatingProviderRecord: options.adminAddressForCreatingProviderRecord,
-      xpub: wallet.getExtendedPublicKey(),
+      xpub: wallet.getExtendedPublicKey(options.masterHDNode),
     };
     const [createLogs, _createTx] = await create(createOptions);
     const logs = [idLog, ...providerBlockLogs, ...createLogs];

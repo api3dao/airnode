@@ -16,6 +16,7 @@ export function buildEVMState(
   chainProvider: ChainProvider,
   config: Config
 ): ProviderState<EVMProviderState> {
+  const masterHDNode = evm.getMasterHDNode();
   const provider = evm.newProvider(chainProvider.url, chain.id);
   const contracts = evm.contracts.build(chain);
 
@@ -27,15 +28,17 @@ export function buildEVMState(
     logFormat: config.nodeSettings.logFormat,
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
-    providerId: evm.getProviderId(provider),
+    providerId: evm.getProviderId(masterHDNode),
     url: chainProvider.url,
+    xpub: evm.getExtendedPublicKey(masterHDNode),
   };
 
   return {
-    coordinatorId,
-    provider,
-    contracts,
     config,
+    contracts,
+    coordinatorId,
+    masterHDNode,
+    provider,
     settings: providerSettings,
     currentBlock: null,
     gasPrice: null,
@@ -53,12 +56,13 @@ export function update<T>(state: ProviderState<T>, newState: Partial<ProviderSta
 
 export function scrub<T>(state: ProviderState<T>): ProviderState<T> {
   // Certain keys we do not want to return to calling functions when returning a provider state
-  return removeKeys(state, ['config', 'provider']) as ProviderState<T>;
+  return removeKeys(state, ['config', 'masterHDNode', 'provider']) as ProviderState<T>;
 }
 
 export function unscrubEVM(state: ProviderState<EVMProviderState>): ProviderState<EVMProviderState> {
   // The serverless function does not return an instance of an Ethereum
   // provider, so we create a new one before returning the state
+  const masterHDNode = evm.getMasterHDNode();
   const provider = evm.newProvider(state.settings.url, state.settings.chainId);
-  return update(state, { provider });
+  return update(state, { masterHDNode, provider });
 }

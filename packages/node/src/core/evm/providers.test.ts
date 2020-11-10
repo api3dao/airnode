@@ -15,6 +15,7 @@ jest.mock('ethers', () => ({
 }));
 
 import { ethers } from 'ethers';
+import * as wallet from './wallet';
 import * as providers from './providers';
 
 describe('findWithBlock', () => {
@@ -22,6 +23,7 @@ describe('findWithBlock', () => {
     adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+    masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
     providerId: '0xproviderId',
   };
@@ -130,6 +132,7 @@ describe('create', () => {
     adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+    masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
     xpub:
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
@@ -265,6 +268,7 @@ describe('findOrCreateProviderWithBlock', () => {
     adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+    masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
   };
 

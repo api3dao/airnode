@@ -7,7 +7,7 @@ See the [docs](https://github.com/api3dao/api3-docs) and the [whitepaper](https:
 ## Introduction
 
 `Airnode.sol` is a central contract that implements the entire protocol.
-It is entirely neutral, i.e., API3 is not its `Owner` or has any privileges.
+It is entirely permissionless, i.e., API3 is not its `Owner` or has any privileges.
 Therefore, it does not need to be duplicated, and all Airnode users will use the "official" `Airnode.sol` contract that is already deployed on their chain.
 
 Firstly, `Airnode.sol` is a database.
@@ -29,9 +29,3 @@ In other words, the request-response scheme will soon be finalized and improveme
 The protocol is not finalized yet to get more input about what additional features we should support.
 Therefore, the contracts are not thoroughly tested and audited yet.
 Feel free to raise any issues that are not already reported.
-
-## Contributing
-
-Join our Keybase to discuss the protocol and propose updates
-
-https://keybase.io/team/api3

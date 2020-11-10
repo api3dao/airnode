@@ -1,12 +1,6 @@
 import { ethers } from 'ethers';
 import * as config from '../config';
 
-export function getExtendedPublicKey() {
-  const mnemonic = config.getMasterKeyMnemonic();
-  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  return hdNode.neuter().extendedKey;
-}
-
 // We can reserve 2^256-1 different wallets as below
 // m/0/0/0: designatorAddress
 // m/0/0/1: First reserved wallet path
@@ -21,30 +15,33 @@ function getPathFromIndex(index: number | string) {
   return `m/0/0/${index}`;
 }
 
-export function getMasterWallet(provider?: ethers.providers.JsonRpcProvider) {
+export function getMasterHDNode(): ethers.utils.HDNode {
   const mnemonic = config.getMasterKeyMnemonic();
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  return new ethers.Wallet(masterHdNode.privateKey, provider);
+  return ethers.utils.HDNode.fromMnemonic(mnemonic);
 }
 
-export function getProviderId(provider?: ethers.providers.JsonRpcProvider) {
-  const masterWallet = getMasterWallet(provider);
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
+export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {
+  return masterHDNode.neuter().extendedKey;
 }
 
-export function deriveWalletAddressFromIndex(xpub: string, index: number | string) {
-  const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
-  const wallet = hdNode.derivePath(getPathFromIndex(index));
+export function getWallet(privateKey: string): ethers.Wallet {
+  return new ethers.Wallet(privateKey);
+}
+
+export function getProviderId(masterHDNode: ethers.utils.HDNode): string {
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterHDNode.address]));
+}
+
+export function deriveWalletAddressFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string): string {
+  const wallet = masterHDNode.derivePath(getPathFromIndex(index));
   return wallet.address;
 }
 
-export function deriveSigningWalletFromIndex(provider: ethers.providers.JsonRpcProvider, index: number | string) {
-  const mnemonic = config.getMasterKeyMnemonic();
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  const signerHdNode = masterHdNode.derivePath(getPathFromIndex(index));
-  return new ethers.Wallet(signerHdNode.privateKey, provider);
+export function deriveSigningWalletFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string): ethers.Wallet {
+  const signerHDNode = masterHDNode.derivePath(getPathFromIndex(index));
+  return getWallet(signerHDNode.privateKey);
 }
 
-export function isAdminWalletIndex(index: string) {
+export function isAdminWalletIndex(index: string): boolean {
   return index === '0';
 }

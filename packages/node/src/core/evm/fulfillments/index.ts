@@ -33,11 +33,15 @@ export async function submit(state: ProviderState<EVMProviderState>) {
 
   const promises = flatMap(requesterIndices, (index) => {
     const requests = requestsByRequesterIndex[index];
-    const signingWallet = wallet.deriveSigningWalletFromIndex(state.provider, index);
+    const signingWallet = wallet.deriveSigningWalletFromIndex(state.masterHDNode, index);
     const signer = signingWallet.connect(state.provider);
     const contract = new ethers.Contract(Airnode, AirnodeABI, signer);
 
-    const txOptions: TransactionOptions = { gasPrice: state.gasPrice!, provider: state.provider };
+    const txOptions: TransactionOptions = {
+      gasPrice: state.gasPrice!,
+      masterHDNode: state.masterHDNode,
+      provider: state.provider,
+    };
 
     // Submit transactions for API calls
     const submittedApiCalls = requests.apiCalls.map(async (apiCall) => {

@@ -107,6 +107,7 @@ export interface ProviderSettings {
   readonly name: string;
   readonly providerId: string;
   readonly url: string;
+  readonly xpub: string;
 }
 
 export type ProviderState<T extends {}> = T & {
@@ -140,6 +141,13 @@ export interface EVMContracts {
 export interface EVMProviderState {
   readonly contracts: EVMContracts;
   readonly gasPrice: ethers.BigNumber | null;
+  readonly provider: ethers.providers.JsonRpcProvider;
+  readonly masterHDNode: ethers.utils.HDNode;
+}
+
+export interface TransactionOptions {
+  readonly gasPrice: number | ethers.BigNumber;
+  readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -180,11 +188,6 @@ export interface LogWithMetadata {
 // ===========================================
 // Transactions
 // ===========================================
-export interface TransactionOptions {
-  readonly gasPrice: number | ethers.BigNumber;
-  readonly provider?: ethers.providers.JsonRpcProvider;
-}
-
 export interface TransactionReceipt {
   readonly id: string;
   readonly transactionHash: string;

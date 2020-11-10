@@ -1,11 +1,13 @@
+import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../../types';
 
-export function verifyDesignatedWallets<T>(requests: ClientRequest<T>[]): LogsData<ClientRequest<T>[]> {
-  const xpub = wallet.getExtendedPublicKey();
-
+export function verifyDesignatedWallets<T>(
+  requests: ClientRequest<T>[],
+  masterHDNode: ethers.utils.HDNode
+): LogsData<ClientRequest<T>[]> {
   const logsWithVerifiedRequests: LogsData<ClientRequest<T>>[] = requests.map((request) => {
     if (request.status !== RequestStatus.Pending) {
       const log = logger.pend(
@@ -30,7 +32,7 @@ export function verifyDesignatedWallets<T>(requests: ClientRequest<T>[]): LogsDa
       return [[log], updatedRequest];
     }
 
-    const expectedDesignatedWallet = wallet.deriveWalletAddressFromIndex(xpub, request.requesterIndex);
+    const expectedDesignatedWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, request.requesterIndex);
     if (request.designatedWallet !== expectedDesignatedWallet) {
       const log = logger.pend(
         'ERROR',
