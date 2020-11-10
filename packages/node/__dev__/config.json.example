@@ -6,38 +6,11 @@
     "nodeKey": "chainapi-key-to-access-this-node",
     "platformKey": "key-to-access-chainapi",
     "platformUrl": "https://chainapi.com/api/todo",
-    "providerId": "0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d",
+    "providerId": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
     "chains": [
       {
-        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "type": "evm",
-        "chainId": 1,
-        "providers": [
-          {
-            "blockHistoryLimit": 600,
-            "minConfirmations": 6,
-            "name": "infura-mainnet",
-            "url": "https://mainnet.infura.io/v3/<your key>"
-          }
-        ]
-      },
-      {
-        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
-        "type": "evm",
-        "chainId": 3,
-        "providers": [
-          {
-            "blockHistoryLimit": 600,
-            "minConfirmations": 6,
-            "name": "infura-ropsten",
-            "url": "https://ropsten.infura.io/v3/<your key>"
-          }
-        ]
-      },
-      {
-        "adminAddressForCreatingProviderRecord": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
-        "type": "evm",
-        "chainId": 1337,
+        "id": 1337,
         "providers": [
           {
             "name": "ganache-local",
@@ -50,19 +23,13 @@
   "triggers": {
     "requests": [
       {
-        "endpointId": "0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05",
+        "endpointId": "0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48",
         "oisTitle": "coinlayer",
         "endpointName": "convertToUsd"
       }
     ],
     "aggregator": [],
-    "flux": [
-      {
-        "address": "0x72C60F096323DCd883Cff0e75BDD723A10a5B87c",
-        "oisTitle": "coinlayer",
-        "endpointName": "convertToUsd"
-      }
-    ]
+    "flux": []
   },
   "ois": [
     {

@@ -28,12 +28,6 @@ jest.mock('ethers', () => ({
   },
 }));
 
-jest.mock('../../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { EVMProviderState, GroupedRequests, ProviderState, RequestType } from 'src/types';
@@ -44,7 +38,7 @@ describe('submit', () => {
   let initialState: ProviderState<EVMProviderState>;
 
   beforeEach(() => {
-    initialState = fixtures.createEVMProviderState();
+    initialState = fixtures.buildEVMProviderState();
   });
 
   it('submits transactions for multiple wallets and returns the transactions', async () => {

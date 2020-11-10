@@ -47,7 +47,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     parameters: {},
     providerId: parsedLog.args.providerId,
     requestCount: parsedLog.args.noRequests.toString(),
-    requesterIndex: parsedLog.args.requesterInd || null,
+    requesterIndex: parsedLog.args.requesterInd?.toString() || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,
     type: getApiCallType(parsedLog.topic),

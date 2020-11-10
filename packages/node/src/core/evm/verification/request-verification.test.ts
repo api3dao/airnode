@@ -1,15 +1,12 @@
-jest.mock('../../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import * as fixtures from 'test/fixtures';
 import * as requests from '../../requests';
 import * as verification from './request-verification';
+import * as wallet from '../wallet';
 import { RequestErrorCode, RequestStatus } from 'src/types';
 
 describe('verifyDesignatedWallets', () => {
+  const masterHDNode = wallet.getMasterHDNode();
+
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
@@ -17,7 +14,7 @@ describe('verifyDesignatedWallets', () => {
           designatedWallet: '0xinvalid',
           status: RequestStatus[status],
         });
-        const [logs, res] = verification.verifyDesignatedWallets([apiCall]);
+        const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
         expect(logs).toEqual([
           {
             level: 'DEBUG',
@@ -32,7 +29,7 @@ describe('verifyDesignatedWallets', () => {
           designatedWallet: '0xinvalid',
           status: RequestStatus[status],
         });
-        const [logs, res] = verification.verifyDesignatedWallets([withdrawal]);
+        const [logs, res] = verification.verifyDesignatedWallets([withdrawal], masterHDNode);
         expect(logs).toEqual([
           {
             level: 'DEBUG',
@@ -46,7 +43,7 @@ describe('verifyDesignatedWallets', () => {
 
   it('ignores API calls that have no requester index', () => {
     const apiCall = fixtures.requests.createApiCall({ designatedWallet: '0xinvalid', requesterIndex: null });
-    const [logs, res] = verification.verifyDesignatedWallets([apiCall]);
+    const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
         level: 'ERROR',
@@ -58,7 +55,7 @@ describe('verifyDesignatedWallets', () => {
 
   it('ignores API calls where the designated wallet does not match the expected address', () => {
     const apiCall = fixtures.requests.createApiCall({ designatedWallet: '0xinvalid', requesterIndex: '3' });
-    const [logs, res] = verification.verifyDesignatedWallets([apiCall]);
+    const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
         level: 'ERROR',
@@ -77,7 +74,7 @@ describe('verifyDesignatedWallets', () => {
       designatedWallet: '0xdEc1ef92C1c1C5C84Ae0aF715745E691071Cb4fa',
       requesterIndex: '3',
     });
-    const [logs, res] = verification.verifyDesignatedWallets([apiCall]);
+    const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
         level: 'DEBUG',

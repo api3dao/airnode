@@ -20,9 +20,10 @@ async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMPr
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const xpub = wallet.getExtendedPublicKey();
   const requesterIndices = currentState.requests.apiCalls.map((a) => a.requesterIndex);
-  const addresses = requesterIndices.map((index) => wallet.deriveWalletAddressFromIndex(xpub, index!));
+  const addresses = requesterIndices.map((index) =>
+    wallet.deriveWalletAddressFromIndex(currentState.masterHDNode, index!)
+  );
   const fetchOptions = { currentBlock: currentState.currentBlock!, provider: currentState.provider };
   // This should not throw
   const [logs, res] = await transactionCounts.fetchByAddress(addresses, fetchOptions);
@@ -52,6 +53,7 @@ export async function initializeProvider(
     adminAddressForCreatingProviderRecord: state1.settings.adminAddressForCreatingProviderRecord,
     airnodeAddress: state1.contracts.Airnode,
     convenienceAddress: state1.contracts.Convenience,
+    masterHDNode: state1.masterHDNode,
     provider: state1.provider,
   };
   const [providerLogs, providerBlockData] = await providers.findOrCreateProviderWithBlock(providerFetchOptions);
@@ -104,7 +106,10 @@ export async function initializeProvider(
   // =================================================================
   // STEP 5: Validate API calls now that all template fields are present
   // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(state4.requests.apiCalls);
+  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+    state4.requests.apiCalls,
+    state4.masterHDNode
+  );
   logger.logPending(verifyLogs, baseLogOptions);
 
   const state5 = state.update(state4, {

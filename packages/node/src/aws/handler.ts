@@ -1,10 +1,11 @@
-import { config } from '../core/config';
+import * as config from '../core/config';
 import * as handlers from '../core/handlers';
 import * as logger from '../core/logger';
-import { removeKey } from '../core/utils/object-utils';
+import * as state from '../core/providers/state';
+import { go } from '../core/utils/promise-utils';
 
-export async function start(_event: any) {
-  await handlers.startCoordinator(config.nodeSettings);
+export async function startCoordinator(event: any) {
+  await handlers.startCoordinator(config.parseConfig(event.parameters.config));
 
   return {
     statusCode: 200,
@@ -13,32 +14,48 @@ export async function start(_event: any) {
 }
 
 export async function initializeProvider(event: any) {
-  const { state } = event.parameters;
-  // TODO: Wrap this in a 'go' to catch and log any unexpected errors
-  const initializedState = await handlers.initializeProvider(state);
-  if (!initializedState) {
+  const { config } = event.parameters;
+  // State and config are sent separately
+  const stateWithConfig = state.update(event.parameters.state, { config });
+
+  const [err, initializedState] = await go(handlers.initializeProvider(stateWithConfig));
+  if (err || !initializedState) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: `Failed to initialize provider: ${state.settings.name}` }),
+      body: JSON.stringify({
+        error: err,
+        message: `Failed to initialize provider: ${stateWithConfig.settings.name}`,
+      }),
     };
   }
 
-  // NOTE: We can't return the instance of the provider. A new provider
-  // will be created in the calling function
-  const body = removeKey(initializedState, 'provider');
-  return { statusCode: 200, body: JSON.stringify(body) };
+  const scrubbedState = state.scrub(initializedState);
+  return { statusCode: 200, body: JSON.stringify(scrubbedState) };
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions } = event.parameters;
-  const [logs, response] = await handlers.callApi(aggregatedApiCall);
+  const { aggregatedApiCall, config, logOptions } = event.parameters;
+  const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
   logger.logPending(logs, logOptions);
   return { statusCode: 200, body: JSON.stringify(response) };
 }
 
 export async function processProviderRequests(event: any) {
-  const { state } = event.parameters;
-  const updatedState = await handlers.processTransactions(state);
-  const body = removeKey(updatedState, 'provider');
-  return { statusCode: 200, body: JSON.stringify(body) };
+  const { config } = event.parameters;
+  // State and config are sent separately
+  const stateWithConfig = state.update(event.parameters.state, { config });
+
+  const [err, updatedState] = await go(handlers.processTransactions(stateWithConfig));
+  if (err || !updatedState) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: err,
+        message: `Failed to process provider requests: ${stateWithConfig.settings.name}`,
+      }),
+    };
+  }
+
+  const scrubbedState = state.scrub(updatedState);
+  return { statusCode: 200, body: JSON.stringify(scrubbedState) };
 }

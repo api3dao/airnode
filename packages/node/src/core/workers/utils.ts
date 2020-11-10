@@ -1,10 +1,11 @@
-import { config } from '../config';
+import { Config, NodeCloudProvider } from '../../types';
 
 export interface WorkerParameters {
+  config: Config;
   functionName: string;
   payload: any;
 }
 
-export function isLocalEnv() {
-  return config.nodeSettings.cloudProvider.startsWith('local');
+export function isLocalEnv(cloudProvider: NodeCloudProvider) {
+  return cloudProvider.startsWith('local');
 }

@@ -1,11 +1,10 @@
-import { config } from '../config';
-import { WorkerParameters, isLocalEnv } from './utils';
+import { WorkerParameters } from './utils';
 import * as aws from './cloud-platforms/aws';
 
-export { WorkerParameters, isLocalEnv };
+export * from './utils';
 
 export function spawn(params: WorkerParameters): Promise<any> {
-  switch (config.nodeSettings.cloudProvider) {
+  switch (params.config.nodeSettings.cloudProvider) {
     case 'aws':
       return aws.spawn(params);
 

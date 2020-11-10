@@ -1,11 +1,3 @@
-jest.mock('../../config', () => ({
-  config: {
-    triggers: {
-      requests: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
-    },
-  },
-}));
-
 import * as fixtures from 'test/fixtures';
 import * as coordinatorState from '../../coordinator/state';
 import * as providerState from '../../providers/state';
@@ -19,9 +11,9 @@ describe('disaggregate - ClientRequests', () => {
       withdrawals: [],
     };
 
-    let provider0 = fixtures.createEVMProviderState();
-    let provider1 = fixtures.createEVMProviderState();
-    let provider2 = fixtures.createEVMProviderState();
+    let provider0 = fixtures.buildEVMProviderState();
+    let provider1 = fixtures.buildEVMProviderState();
+    let provider2 = fixtures.buildEVMProviderState();
 
     provider0 = providerState.update(provider0, { requests });
     provider1 = providerState.update(provider1, { requests });
@@ -32,8 +24,8 @@ describe('disaggregate - ClientRequests', () => {
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
-    const settings = fixtures.createNodeSettings();
-    let state = coordinatorState.create(settings);
+    const config = fixtures.buildConfig();
+    let state = coordinatorState.create(config);
     state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1, provider2] });
 
     const [logs, res] = disaggregation.disaggregate(state);
@@ -59,8 +51,8 @@ describe('disaggregate - ClientRequests', () => {
       withdrawals: [],
     };
 
-    let provider0 = fixtures.createEVMProviderState();
-    let provider1 = fixtures.createEVMProviderState();
+    let provider0 = fixtures.buildEVMProviderState();
+    let provider1 = fixtures.buildEVMProviderState();
 
     provider0 = providerState.update(provider0, { requests: requests0 });
     provider1 = providerState.update(provider1, { requests: requests1 });
@@ -72,8 +64,8 @@ describe('disaggregate - ClientRequests', () => {
     });
     const aggregatedApiCallsById = { btcCall: aggregatedApiCall };
 
-    const settings = fixtures.createNodeSettings();
-    let state = coordinatorState.create(settings);
+    const config = fixtures.buildConfig();
+    let state = coordinatorState.create(config);
     state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1] });
 
     const [logs, res] = disaggregation.disaggregate(state);

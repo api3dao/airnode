@@ -26,18 +26,6 @@ const chains: ChainConfig[] = [
   },
 ];
 
-jest.mock('../config', () => ({
-  config: {
-    nodeSettings: {
-      cloudProvider: 'local:aws',
-      chains,
-    },
-  },
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { ChainConfig } from 'src/types';
@@ -62,9 +50,8 @@ describe('initializeProviders', () => {
     getLogs.mockResolvedValueOnce([]);
 
     const coordinatorId = '837daEf231';
-    const settings = fixtures.createNodeSettings();
-
-    const res = await providers.initialize(coordinatorId, chains, settings);
+    const config = fixtures.buildConfig();
+    const res = await providers.initialize(coordinatorId, chains, config);
     expect(res).toEqual([
       {
         contracts: {
@@ -79,12 +66,15 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           minConfirmations: 6,
           name: 'infura-mainnet',
-          providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           url: 'https://mainnet.infura.io/v3/<key>',
+          xpub:
+            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         coordinatorId,
         currentBlock: 123456,
         gasPrice: null,
+        masterHDNode: expect.any(ethers.utils.HDNode),
         provider: expect.anything(),
         requests: {
           apiCalls: [],
@@ -105,12 +95,15 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           minConfirmations: 6,
           name: 'infura-ropsten',
-          providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           url: 'https://ropsten.infura.io/v3/<key>',
+          xpub:
+            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         coordinatorId,
         currentBlock: 987654,
         gasPrice: null,
+        masterHDNode: expect.any(ethers.utils.HDNode),
         provider: expect.anything(),
         requests: {
           apiCalls: [],
@@ -124,9 +117,9 @@ describe('initializeProviders', () => {
   it('throws an error if no providers are configured', async () => {
     expect.assertions(1);
     const coordinatorId = '837daEf231';
-    const settings = fixtures.createNodeSettings();
+    const config = fixtures.buildConfig();
     try {
-      await providers.initialize(coordinatorId, [], settings);
+      await providers.initialize(coordinatorId, [], config);
     } catch (e) {
       expect(e).toEqual(new Error('One or more chains must be defined in config.json'));
     }

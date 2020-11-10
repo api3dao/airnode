@@ -7,5 +7,7 @@
 coverage/
 
 # Config files
+.env
 config.json
-security.json
+**/.env
+**/config.json
