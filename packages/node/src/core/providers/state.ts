@@ -27,8 +27,7 @@ export function buildEVMState(
     logFormat: config.nodeSettings.logFormat,
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
-    // TODO: derive from mnemonic
-    providerId: config.nodeSettings.providerId,
+    providerId: evm.getProviderId(provider),
     url: chainProvider.url,
   };
 

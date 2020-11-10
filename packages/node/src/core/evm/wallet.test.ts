@@ -11,17 +11,27 @@ describe('getExtendedPublicKey', () => {
 });
 
 describe('getMasterWallet', () => {
-  it('returns the master wallet for the mnemonic', () => {
+  it('returns the master wallet for the mnemonic with the provider', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const masterWallet = wallet.getMasterWallet(provider);
     expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
   });
+
+  it('returns the master wallet for the mnemonic without the provider', () => {
+    const masterWallet = wallet.getMasterWallet();
+    expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
+  });
 });
 
-describe('computeProviderId', () => {
-  it('returns the providerId from the mnemonic', () => {
+describe('getProviderId', () => {
+  it('returns the providerId from the mnemonic with the provider', () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const res = wallet.computeProviderId(provider);
+    const res = wallet.getProviderId(provider);
+    expect(res).toEqual('0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb');
+  });
+
+  it('returns the providerId from the mnemonic without the provider', () => {
+    const res = wallet.getProviderId();
     expect(res).toEqual('0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb');
   });
 });

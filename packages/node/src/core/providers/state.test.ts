@@ -1,26 +1,9 @@
-const getBlockNumberMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getBlockNumber: getBlockNumberMock,
-        })),
-      },
-    },
-  };
-});
-
-import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import { ChainConfig, ChainProvider } from 'src/types';
 import * as state from './state';
 
 describe('create', () => {
   it('returns a clean state with defaults', () => {
-    const provider = new ethers.providers.JsonRpcProvider();
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
@@ -44,14 +27,14 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 6,
         name: 'ganache-test',
-        providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         url: 'http://localhost:4111',
       },
       config,
       coordinatorId: '837daEf231',
       currentBlock: null,
       gasPrice: null,
-      provider,
+      provider: expect.anything(),
       requests: {
         apiCalls: [],
         withdrawals: [],
@@ -61,7 +44,6 @@ describe('create', () => {
   });
 
   it('allows for overwriting settings', () => {
-    const provider = new ethers.providers.JsonRpcProvider();
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = {
       blockHistoryLimit: 150,
@@ -90,14 +72,14 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 3,
         name: 'ganache-test',
-        providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         url: 'http://localhost:4111',
       },
       config,
       coordinatorId: '837daEf231',
       currentBlock: null,
       gasPrice: null,
-      provider,
+      provider: expect.anything(),
       requests: {
         apiCalls: [],
         withdrawals: [],
@@ -107,7 +89,6 @@ describe('create', () => {
   });
 
   it('allows for overwriting contracts', () => {
-    const provider = new ethers.providers.JsonRpcProvider();
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
@@ -134,14 +115,14 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 6,
         name: 'ganache-test',
-        providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         url: 'http://localhost:4111',
       },
       config,
       coordinatorId: '837daEf231',
       currentBlock: null,
       gasPrice: null,
-      provider,
+      provider: expect.anything(),
       requests: {
         apiCalls: [],
         withdrawals: [],

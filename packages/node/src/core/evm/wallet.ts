@@ -21,13 +21,13 @@ function getPathFromIndex(index: number | string) {
   return `m/0/0/${index}`;
 }
 
-export function getMasterWallet(provider: ethers.providers.JsonRpcProvider) {
+export function getMasterWallet(provider?: ethers.providers.JsonRpcProvider) {
   const mnemonic = config.getMasterKeyMnemonic();
   const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return new ethers.Wallet(masterHdNode.privateKey, provider);
 }
 
-export function computeProviderId(provider: ethers.providers.JsonRpcProvider) {
+export function getProviderId(provider?: ethers.providers.JsonRpcProvider) {
   const masterWallet = getMasterWallet(provider);
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
 }

@@ -57,13 +57,6 @@ export type ClientRequest<T extends {}> = T & {
   readonly nonce?: number;
   readonly requesterIndex: string | null;
   readonly status: RequestStatus;
-
-  // TODO: protocol-overhaul remove these
-  readonly requesterId: string;
-  readonly walletIndex: string;
-  readonly walletAddress: string;
-  readonly walletBalance: string;
-  readonly walletMinimumBalance: string;
 };
 
 export type ApiCallType = 'short' | 'regular' | 'full';
@@ -80,10 +73,6 @@ export interface ApiCall {
   readonly responseValue?: string;
   readonly templateId: string | null;
   readonly type: ApiCallType;
-
-  // TODO: protocol-overhaul remove these
-  readonly errorAddress: string | null;
-  readonly errorFunctionId: string | null;
 }
 
 export interface ApiCallTemplate {
@@ -285,10 +274,10 @@ export interface NodeSettings {
   readonly chains: ChainConfig[];
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
-  readonly nodeKey: string;
-  readonly platformKey: string;
-  readonly platformUrl: string;
-  readonly providerId: string;
+  readonly nodeVersion: string;
+  readonly providerIdShort?: string;
+  readonly region: string;
+  readonly stage: string;
 }
 
 export interface Config {

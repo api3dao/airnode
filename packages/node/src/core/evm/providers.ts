@@ -133,7 +133,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 export async function findOrCreateProviderWithBlock(
   options: BaseFetchOptions
 ): Promise<LogsData<ProviderWithBlockNumber | null>> {
-  const providerId = wallet.computeProviderId(options.provider);
+  const providerId = wallet.getProviderId(options.provider);
   const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic:${providerId}`);
 
   const fetchOptions = { ...options, providerId };
