@@ -39,8 +39,8 @@ export async function submit(state: ProviderState<EVMProviderState>) {
 
     const txOptions: TransactionOptions = {
       gasPrice: state.gasPrice!,
+      masterHDNode: state.masterHDNode,
       provider: state.provider,
-      xpub: state.settings.xpub,
     };
 
     // Submit transactions for API calls

@@ -158,8 +158,8 @@ export interface EVMProviderState {
 
 export interface TransactionOptions {
   readonly gasPrice: number | ethers.BigNumber;
+  readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly xpub: string;
 }
 
 // ===========================================

@@ -28,21 +28,20 @@ export function getWallet(privateKey: string): ethers.Wallet {
   return new ethers.Wallet(privateKey);
 }
 
-export function getProviderId(masterHDNode: ethers.utils.HDNode) {
+export function getProviderId(masterHDNode: ethers.utils.HDNode): string {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterHDNode.address]));
 }
 
-export function deriveWalletAddressFromIndex(xpub: string, index: number | string) {
-  const hdNode = ethers.utils.HDNode.fromExtendedKey(xpub);
-  const wallet = hdNode.derivePath(getPathFromIndex(index));
+export function deriveWalletAddressFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string): string {
+  const wallet = masterHDNode.derivePath(getPathFromIndex(index));
   return wallet.address;
 }
 
-export function deriveSigningWalletFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string) {
+export function deriveSigningWalletFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string): ethers.Wallet {
   const signerHDNode = masterHDNode.derivePath(getPathFromIndex(index));
   return getWallet(signerHDNode.privateKey);
 }
 
-export function isAdminWalletIndex(index: string) {
+export function isAdminWalletIndex(index: string): boolean {
   return index === '0';
 }

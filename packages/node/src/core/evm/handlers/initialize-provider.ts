@@ -20,9 +20,10 @@ async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMPr
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const xpub = wallet.getExtendedPublicKey(currentState.masterHDNode);
   const requesterIndices = currentState.requests.apiCalls.map((a) => a.requesterIndex);
-  const addresses = requesterIndices.map((index) => wallet.deriveWalletAddressFromIndex(xpub, index!));
+  const addresses = requesterIndices.map((index) =>
+    wallet.deriveWalletAddressFromIndex(currentState.masterHDNode, index!)
+  );
   const fetchOptions = { currentBlock: currentState.currentBlock!, provider: currentState.provider };
   // This should not throw
   const [logs, res] = await transactionCounts.fetchByAddress(addresses, fetchOptions);
@@ -107,7 +108,7 @@ export async function initializeProvider(
   // =================================================================
   const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
     state4.requests.apiCalls,
-    state4.settings.xpub
+    state4.masterHDNode
   );
   logger.logPending(verifyLogs, baseLogOptions);
 

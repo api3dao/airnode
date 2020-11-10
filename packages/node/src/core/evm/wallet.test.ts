@@ -29,10 +29,9 @@ describe('getProviderId', () => {
 describe('deriveWalletAddressFromIndex', () => {
   it('returns the wallet address for the given index', () => {
     const masterHDNode = wallet.getMasterHDNode();
-    const xpub = wallet.getExtendedPublicKey(masterHDNode);
-    const adminWallet = wallet.deriveWalletAddressFromIndex(xpub, '0');
-    const wallet1 = wallet.deriveWalletAddressFromIndex(xpub, '1');
-    const wallet2 = wallet.deriveWalletAddressFromIndex(xpub, '777');
+    const adminWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, '0');
+    const wallet1 = wallet.deriveWalletAddressFromIndex(masterHDNode, '1');
+    const wallet2 = wallet.deriveWalletAddressFromIndex(masterHDNode, '777');
     expect(adminWallet).toEqual('0x566954B6E04BDb789e7d1118e3dC1AC9A34A8B44');
     expect(wallet1).toEqual('0xBff368EaD703f07fC6C9585e25d9755A47361562');
     expect(wallet2).toEqual('0x36c6c96d0ce55c37613a8acA1D895B923C557FA4');
