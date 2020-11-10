@@ -21,22 +21,16 @@ import * as wallet from '../wallet';
 import { RequestErrorCode, RequestStatus } from 'src/types';
 
 describe('submitApiCall', () => {
+  const masterHDNode = wallet.getMasterHDNode();
   const gasPrice = ethers.BigNumber.from('1000');
   const txOpts = { gasLimit: 500_000, gasPrice, nonce: 5 };
-
-  let xpub: string;
-
-  beforeEach(() => {
-    const masterHDNode = wallet.getMasterHDNode();
-    xpub = wallet.getExtendedPublicKey(masterHDNode);
-  });
 
   describe('Fulfilled API calls', () => {
     it('does nothing for API call requests that have already been fulfilled', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
       const contract = new ethers.Contract('address', ['ABI']);
       const apiCall = fixtures.requests.createApiCall({ status: RequestStatus.Fulfilled });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -56,7 +50,7 @@ describe('submitApiCall', () => {
       const provider = new ethers.providers.JsonRpcProvider();
       const contract = new ethers.Contract('address', ['ABI']);
       const apiCall = fixtures.requests.createApiCall({ status: RequestStatus.Blocked });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         {
           level: 'INFO',
@@ -78,7 +72,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
       contract.fulfill.mockResolvedValueOnce({ hash: '0xtransactionId' });
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         { level: 'INFO', message: `Submitting API call fulfillment with status code:0 for Request:${apiCall.id}...` },
@@ -114,7 +108,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
       contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         { level: 'INFO', message: `Submitting API call fulfillment with status code:0 for Request:${apiCall.id}...` },
@@ -155,7 +149,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: false });
       (contract.fail as jest.Mock).mockResolvedValueOnce({ hash: '0xfailtransaction' });
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
@@ -188,7 +182,7 @@ describe('submitApiCall', () => {
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce(null);
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         {
@@ -218,7 +212,7 @@ describe('submitApiCall', () => {
       (contract.callStatic.fulfill as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
       contract.fail.mockRejectedValueOnce(new Error('Server still says no'));
       const apiCall = fixtures.requests.createApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         {
@@ -268,7 +262,7 @@ describe('submitApiCall', () => {
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -314,7 +308,7 @@ describe('submitApiCall', () => {
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -355,7 +349,7 @@ describe('submitApiCall', () => {
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -405,7 +399,7 @@ describe('submitApiCall', () => {
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, provider, xpub });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
