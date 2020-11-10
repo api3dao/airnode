@@ -11,6 +11,7 @@ import { Roots, Log } from '../types';
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param roots - roots of specs and specsStruct
+ * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
 function validateConditionRegexInKey(
@@ -18,11 +19,18 @@ function validateConditionRegexInKey(
   condition: any,
   nonRedundantParams: any,
   paramPath: string,
-  roots: Roots
+  roots: Roots,
+  paramPathPrefix: string
 ): Log[] {
   const messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
+
+  // In case of '__rootThen' validate from root
+  const thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
+  const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
+  const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   // check all keys of children for a match with provided regex
   for (const thisName of Object.keys(specs)) {
@@ -35,25 +43,25 @@ function validateConditionRegexInKey(
     // key matched regex, this means "if section" of the condition is fulfilled so structure in "then section" must be present
     for (const param of matches) {
       let nonRedundantParamsCopy = {};
-      const parsedSpecs = utils.replaceConditionalMatch(param, condition['__then']);
+      const parsedSpecs = utils.replaceConditionalMatch(param, thenCondition);
 
       // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
-      if (nonRedundantParams[thisName]) {
-        nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thisName]));
+      if (currentNonRedundantParams[thisName]) {
+        nonRedundantParamsCopy = JSON.parse(JSON.stringify(currentNonRedundantParams[thisName]));
       } else {
-        nonRedundantParams[thisName] = utils.getEmptyNonRedundantParam(
+        currentNonRedundantParams[thisName] = utils.getEmptyNonRedundantParam(
           thisName,
           parsedSpecs,
-          nonRedundantParams,
-          specs[thisName]
+          currentNonRedundantParams,
+          currentSpecs[thisName]
         );
       }
 
       const result = validateSpecs(
-        specs[thisName],
+        currentSpecs[thisName],
         parsedSpecs,
-        `${paramPath}${paramPath ? '.' : ''}${thisName}`,
-        nonRedundantParams[thisName],
+        `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`,
+        currentNonRedundantParams[thisName],
         roots
       );
 
@@ -61,9 +69,9 @@ function validateConditionRegexInKey(
         // validateSpecs ended with errors => correct "then section" is not present in specs
         // returning nonRedundantParams to original state, because some parameters might be extra if nothing else requires them
         if (Object.keys(nonRedundantParamsCopy).length) {
-          nonRedundantParams[thisName] = nonRedundantParamsCopy;
+          currentNonRedundantParams[thisName] = nonRedundantParamsCopy;
         } else {
-          delete nonRedundantParams[thisName];
+          delete currentNonRedundantParams[thisName];
         }
 
         messages.push(
@@ -83,6 +91,7 @@ function validateConditionRegexInKey(
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param roots - roots of specs and specsStruct
+ * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
 function validateConditionRegexInValue(
@@ -90,14 +99,27 @@ function validateConditionRegexInValue(
   condition: any,
   nonRedundantParams: any,
   paramPath: string,
-  roots: Roots
+  roots: Roots,
+  paramPathPrefix: string
 ): Log[] {
   const messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
-  const thenParamName = Object.keys(condition['__then'])[0];
 
-  if (!specs[paramName].match(new RegExp(paramValue))) {
+  // In case of '__rootThen' validate from root
+  let thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
+  const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
+  const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
+  const thenParamName = Object.keys(thenCondition)[0];
+
+  if (paramName === '__this') {
+    if (!specs.match(new RegExp(paramValue))) {
+      return [];
+    }
+
+    thenCondition = utils.replaceConditionalMatch(specs, thenCondition);
+  } else if (!specs[paramName].match(new RegExp(paramValue))) {
     return [];
   }
 
@@ -109,16 +131,18 @@ function validateConditionRegexInValue(
    otherwise the required parameter is missing in specs and condition is not fulfilled
   */
   if (thenParamName === '__any') {
-    if (!isAnyParamValid(specs, condition['__then']['__any'], paramPath, nonRedundantParams, roots)) {
+    if (!isAnyParamValid(currentSpecs, thenCondition['__any'], currentParamPath, currentNonRedundantParams, roots)) {
       messages.push(logger.error(`Required conditions not met in ${paramPath}`));
     }
 
     return messages;
   }
 
-  if (!specs[thenParamName]) {
+  if (!currentSpecs[thenParamName]) {
     messages.push(
-      logger.error(`Missing parameter ${paramPath}${paramPath && thenParamName ? '.' : ''}${thenParamName}`)
+      logger.error(
+        `Missing parameter ${currentParamPath}${currentParamPath && thenParamName ? '.' : ''}${thenParamName}`
+      )
     );
 
     return messages;
@@ -127,26 +151,26 @@ function validateConditionRegexInValue(
   let nonRedundantParamsCopy = {};
 
   // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
-  if (nonRedundantParams[thenParamName]) {
-    nonRedundantParamsCopy = JSON.parse(JSON.stringify(nonRedundantParams[thenParamName]));
+  if (currentNonRedundantParams[thenParamName]) {
+    nonRedundantParamsCopy = JSON.parse(JSON.stringify(currentNonRedundantParams[thenParamName]));
   } else {
-    nonRedundantParams[thenParamName] = utils.getEmptyNonRedundantParam(
+    currentNonRedundantParams[thenParamName] = utils.getEmptyNonRedundantParam(
       thenParamName,
-      condition['__then'][thenParamName],
-      nonRedundantParams,
-      specs[thenParamName]
+      thenCondition[thenParamName],
+      currentNonRedundantParams,
+      currentSpecs[thenParamName]
     );
   }
 
-  if (!Object.keys(condition['__then'][thenParamName]).length) {
+  if (!Object.keys(thenCondition[thenParamName]).length) {
     return [];
   }
 
   const result = validateSpecs(
-    specs[thenParamName],
-    condition['__then'][thenParamName],
-    `${paramPath}${paramPath ? '.' : ''}${thenParamName}`,
-    nonRedundantParams[thenParamName],
+    currentSpecs[thenParamName],
+    thenCondition[thenParamName],
+    `${currentParamPath}${currentParamPath ? '.' : ''}${thenParamName}`,
+    currentNonRedundantParams[thenParamName],
     roots
   );
 
@@ -167,9 +191,9 @@ function validateConditionRegexInValue(
   if (!keepRedundantParams) {
     // returning nonRedundantParams to original state, since it wasn't used in "then section" of condition
     if (Object.keys(nonRedundantParamsCopy).length) {
-      nonRedundantParams[thenParamName] = nonRedundantParamsCopy;
+      currentNonRedundantParams[thenParamName] = nonRedundantParamsCopy;
     } else {
-      delete nonRedundantParams[thenParamName];
+      delete currentNonRedundantParams[thenParamName];
     }
   }
 
@@ -315,10 +339,14 @@ export function validateCondition(
   // condition is if, then condition
   const paramName = Object.keys(condition['__if'])[0];
 
-  if (paramName === '__this') {
-    messages.push(...validateConditionRegexInKey(specs, condition, nonRedundantParams, paramPath, roots));
-  } else if (specs[paramName]) {
-    messages.push(...validateConditionRegexInValue(specs, condition, nonRedundantParams, paramPath, roots));
+  if (paramName === '__this_name') {
+    messages.push(
+      ...validateConditionRegexInKey(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix)
+    );
+  } else if (specs[paramName] || paramName === '__this') {
+    messages.push(
+      ...validateConditionRegexInValue(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix)
+    );
   }
 
   return messages;
