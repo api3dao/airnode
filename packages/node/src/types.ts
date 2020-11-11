@@ -106,6 +106,7 @@ export interface ProviderSettings {
   readonly minConfirmations: number;
   readonly name: string;
   readonly providerId: string;
+  readonly providerIdShort: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -253,7 +254,8 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
-  readonly [name: string]: string;
+  readonly Airnode: string;
+  readonly Convenience: string;
 }
 
 export interface ChainProvider {
@@ -265,7 +267,7 @@ export interface ChainProvider {
 
 export interface ChainConfig {
   readonly adminAddressForCreatingProviderRecord?: string;
-  readonly contracts?: ChainContracts;
+  readonly contracts: ChainContracts;
   readonly id: number;
   readonly providers: ChainProvider[];
   readonly type: ChainType;

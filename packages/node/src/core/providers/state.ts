@@ -18,7 +18,6 @@ export function buildEVMState(
 ): ProviderState<EVMProviderState> {
   const masterHDNode = evm.getMasterHDNode();
   const provider = evm.newProvider(chainProvider.url, chain.id);
-  const contracts = evm.contracts.build(chain);
 
   const providerSettings: ProviderSettings = {
     adminAddressForCreatingProviderRecord: chain.adminAddressForCreatingProviderRecord,
@@ -29,13 +28,14 @@ export function buildEVMState(
     minConfirmations: chainProvider.minConfirmations || 6,
     name: chainProvider.name,
     providerId: evm.getProviderId(masterHDNode),
+    providerIdShort: evm.getProviderIdShort(masterHDNode),
     url: chainProvider.url,
     xpub: evm.getExtendedPublicKey(masterHDNode),
   };
 
   return {
     config,
-    contracts,
+    contracts: chain.contracts,
     coordinatorId,
     masterHDNode,
     provider,
@@ -59,10 +59,14 @@ export function scrub<T>(state: ProviderState<T>): ProviderState<T> {
   return removeKeys(state, ['config', 'masterHDNode', 'provider']) as ProviderState<T>;
 }
 
-export function unscrubEVM(state: ProviderState<EVMProviderState>): ProviderState<EVMProviderState> {
-  // The serverless function does not return an instance of an Ethereum
-  // provider, so we create a new one before returning the state
-  const masterHDNode = evm.getMasterHDNode();
-  const provider = evm.newProvider(state.settings.url, state.settings.chainId);
-  return update(state, { masterHDNode, provider });
+export function unscrub(state: ProviderState<any>) {
+  if (state.settings.chainType === 'evm') {
+    // The serverless function does not return an instance of an Ethereum
+    // provider, so we create a new one before returning the state
+    const masterHDNode = evm.getMasterHDNode();
+    const provider = evm.newProvider(state.settings.url, state.settings.chainId);
+    return update(state, { masterHDNode, provider }) as ProviderState<EVMProviderState>;
+  }
+
+  throw new Error(`Unknown chain type: ${state.settings.chainType}`);
 }

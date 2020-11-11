@@ -32,6 +32,10 @@ export function getProviderId(masterHDNode: ethers.utils.HDNode): string {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterHDNode.address]));
 }
 
+export function getProviderIdShort(masterHDNode: ethers.utils.HDNode): string {
+  return getProviderId(masterHDNode).substring(2, 9);
+}
+
 export function deriveWalletAddressFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string): string {
   const wallet = masterHDNode.derivePath(getPathFromIndex(index));
   return wallet.address;

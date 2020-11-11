@@ -16,11 +16,6 @@ describe('getWallet', () => {
     const masterWallet = wallet.getWallet(masterHDNode.privateKey);
     expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
   });
-
-  it('returns the master wallet for the mnemonic without the provider', () => {
-    const masterWallet = wallet.getMasterWallet();
-    expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
-  });
 });
 
 describe('getProviderId', () => {

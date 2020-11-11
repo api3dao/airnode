@@ -4,10 +4,9 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
   return {
     cloudProvider: 'local:aws',
     logFormat: 'plain',
-    nodeKey: 'node-key',
-    platformKey: 'key-to-access-chainapi',
-    platformUrl: 'https://chainapi.com/api',
-    providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+    nodeVersion: '1.0.0',
+    region: 'us-east-1',
+    stage: 'test',
     chains: [
       {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',

@@ -14,12 +14,20 @@ jest.mock('ethers', () => {
 const chains: ChainConfig[] = [
   {
     adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    contracts: {
+      Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+      Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
+    },
     id: 1,
     type: 'evm',
     providers: [{ name: 'infura-mainnet', url: 'https://mainnet.infura.io/v3/<key>' }],
   },
   {
     adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    contracts: {
+      Airnode: '0x32D228B5d44Fd18FefBfd68BfE5A5F3f75C873AE',
+      Convenience: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
+    },
     id: 3,
     type: 'evm',
     providers: [{ name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<key>' }],
@@ -55,8 +63,8 @@ describe('initializeProviders', () => {
     expect(res).toEqual([
       {
         contracts: {
-          Airnode: '<TODO>',
-          Convenience: '<TODO>',
+          Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+          Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
         },
         settings: {
           adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
