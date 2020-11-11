@@ -25,7 +25,7 @@ export function buildEVMState(
     chainId: chain.id,
     chainType: 'evm' as ChainType,
     logFormat: config.nodeSettings.logFormat,
-    minConfirmations: chainProvider.minConfirmations || 6,
+    minConfirmations: chainProvider.minConfirmations || 0,
     name: chainProvider.name,
     providerId: evm.getProviderId(masterHDNode),
     providerIdShort: evm.getProviderIdShort(masterHDNode),
