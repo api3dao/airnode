@@ -10,6 +10,10 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
     chains: [
       {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+        contracts: {
+          Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+          Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
+        },
         id: 1337,
         type: 'evm',
         providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],
