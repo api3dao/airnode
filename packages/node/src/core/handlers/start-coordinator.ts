@@ -10,7 +10,7 @@ import { Config } from '../../types';
 
 export async function startCoordinator(config: Config) {
   // =================================================================
-  // STEP 1: Creat a blank coordinator state
+  // STEP 1: Create a blank coordinator state
   // =================================================================
   const state1 = state.create(config);
   const { id: coordinatorId } = state1;
