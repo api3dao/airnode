@@ -1,13 +1,16 @@
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
-import { Config, EVMProviderState, ProviderState } from '../../types';
+import { EVMProviderState, ProviderState, WorkerOptions } from '../../types';
 
 export async function spawnNewProvider(
-  config: Config,
-  state: ProviderState<EVMProviderState>
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
 ): Promise<ProviderState<EVMProviderState>> {
-  const payload = { state };
-  const options = { config, functionName: 'initializeProvider', payload };
+  const options = {
+    ...workerOpts,
+    functionName: 'initializeProvider',
+    payload: { state },
+  };
 
   // If this throws, it will be caught by the calling function
   const responseState = await workers.spawn(options);
@@ -16,11 +19,14 @@ export async function spawnNewProvider(
 }
 
 export async function spawnProviderRequestProcessor(
-  config: Config,
-  state: ProviderState<EVMProviderState>
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
 ): Promise<ProviderState<EVMProviderState>> {
-  const payload = { state };
-  const options = { config, functionName: 'processProviderRequests', payload };
+  const options = {
+    ...workerOpts,
+    functionName: 'processProviderRequests',
+    payload: { state },
+  };
 
   // If this throws, it will be caught by the calling function
   const responseState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;

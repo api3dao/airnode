@@ -1,16 +1,18 @@
 import * as workers from '../../workers';
-import { AggregatedApiCall, ApiCallResponse, Config, LogOptions } from '../../../types';
+import { AggregatedApiCall, ApiCallResponse, LogOptions, WorkerOptions } from '../../../types';
 
 export async function spawnNewApiCall(
-  config: Config,
   aggregatedApiCall: AggregatedApiCall,
-  logOptions: LogOptions
+  logOptions: LogOptions,
+  workerOpts: WorkerOptions
 ): Promise<ApiCallResponse> {
-  const payload = { aggregatedApiCall, logOptions };
-  const options = { config, functionName: 'callApi', payload };
+  const options = {
+    ...workerOpts,
+    functionName: 'callApi',
+    payload: { aggregatedApiCall, logOptions },
+  };
 
   // If this throws, it will be caught by the calling function
   const response = (await workers.spawn(options)) as ApiCallResponse;
-
   return response;
 }

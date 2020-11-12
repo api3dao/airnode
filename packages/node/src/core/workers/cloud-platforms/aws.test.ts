@@ -24,6 +24,9 @@ describe('spawn', () => {
       config,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     };
     const res = await aws.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
@@ -47,6 +50,9 @@ describe('spawn', () => {
       config,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     };
     try {
       await aws.spawn(parameters);
@@ -72,6 +78,9 @@ describe('spawnLocal', () => {
       config: fixtures.buildConfig(),
       functionName: 'myCustomFn',
       payload: { from: 'ETH', to: 'USD' },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     };
     const res = await aws.spawnLocal(parameters);
     expect(res).toEqual({ value: 1000 });
@@ -89,6 +98,9 @@ describe('spawnLocal', () => {
         from: 'ETH',
         to: 'USD',
       },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     };
     try {
       await aws.spawnLocal(parameters);

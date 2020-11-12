@@ -6,7 +6,7 @@ import * as request from '../requests/request';
 import * as state from '../coordinator/state';
 import { formatDateTime } from '../utils/date-utils';
 import { spawnProviderRequestProcessor } from '../providers/worker';
-import { Config } from '../../types';
+import { Config, WorkerOptions } from '../../types';
 
 export async function startCoordinator(config: Config) {
   // =================================================================
@@ -19,10 +19,19 @@ export async function startCoordinator(config: Config) {
   const startedAt = new Date();
   logger.info(`Coordinator starting...`, baseLogOptions);
 
+  const workerOpts: WorkerOptions = {
+    coordinatorId,
+    coordinatorSettings: state1.settings,
+    config: state1.config,
+    providerIdShort: state1.settings.providerIdShort,
+    stage: state1.settings.stage,
+    region: state1.settings.region,
+  };
+
   // =================================================================
   // STEP 2: Get the initial state from each provider
   // =================================================================
-  const EVMProviders = await providers.initialize(state1.id, config.nodeSettings.chains, state1.config);
+  const EVMProviders = await providers.initialize(workerOpts);
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
@@ -48,9 +57,9 @@ export async function startCoordinator(config: Config) {
   // STEP 4: Execute API calls and save the responses
   // =================================================================
   const [callLogs, aggregatedCallsWithResponses] = await calls.callApis(
-    state3.config,
     state3.aggregatedApiCallsById,
-    baseLogOptions
+    baseLogOptions,
+    workerOpts
   );
   const state4 = state.update(state3, { aggregatedApiCallsById: aggregatedCallsWithResponses });
   logger.logPending(callLogs, baseLogOptions);
@@ -65,9 +74,9 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  const providerTransactions = state5.EVMProviders.map(async (provider) => {
-    logger.info(`Forking to submit transactions for provider:${provider.settings.name}...`, baseLogOptions);
-    return await spawnProviderRequestProcessor(state5.config, provider);
+  const providerTransactions = state5.EVMProviders.map(async (providerState) => {
+    logger.info(`Forking to submit transactions for provider:${providerState.settings.name}...`, baseLogOptions);
+    return await spawnProviderRequestProcessor(providerState, workerOpts);
   });
   await Promise.all(providerTransactions);
   logger.info('Forking to submit transactions complete', baseLogOptions);

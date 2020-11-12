@@ -97,16 +97,13 @@ export interface GroupedRequests {
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
-export interface ProviderSettings {
+export interface ProviderSettings extends CoordinatorSettings {
   readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
-  readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerId: string;
-  readonly providerIdShort: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -124,11 +121,20 @@ export interface AggregatedApiCallsById {
   readonly [requestId: string]: AggregatedApiCall;
 }
 
+export interface CoordinatorSettings {
+  readonly providerId: string;
+  readonly providerIdShort: string;
+  readonly logFormat: LogFormat;
+  readonly region: string;
+  readonly stage: string;
+}
+
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
-  readonly id: string;
   readonly EVMProviders: ProviderState<EVMProviderState>[];
+  readonly id: string;
+  readonly settings: CoordinatorSettings;
 }
 
 // ===========================================
@@ -175,6 +181,23 @@ export interface AggregatedApiCall {
   readonly type: AggregatedApiCallType;
   readonly errorCode?: RequestErrorCode;
   readonly responseValue?: string;
+}
+
+// ===========================================
+// Workers
+// ===========================================
+export interface WorkerOptions {
+  config: Config;
+  coordinatorId: string;
+  coordinatorSettings: CoordinatorSettings;
+  providerIdShort: string;
+  region: string;
+  stage: string;
+}
+
+export interface WorkerParameters extends WorkerOptions {
+  functionName: string;
+  payload: any;
 }
 
 // ===========================================
