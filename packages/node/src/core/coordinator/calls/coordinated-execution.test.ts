@@ -16,7 +16,8 @@ describe('callApis', () => {
     const aggregatedApiCallsById = {
       apiCallId: fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.UnauthorizedClient }),
     };
-    const [logs, res] = await coordinatedExecution.callApis(fixtures.buildConfig(), aggregatedApiCallsById, logOptions);
+    const workerOpts = fixtures.buildWorkerOptions();
+    const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Received 0 successful API call(s)' },
       { level: 'INFO', message: 'Received 0 errored API call(s)' },
@@ -31,7 +32,8 @@ describe('callApis', () => {
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ parameters });
     const aggregatedApiCallsById = { 'request-123': aggregatedApiCall };
-    const [logs, res] = await coordinatedExecution.callApis(fixtures.buildConfig(), aggregatedApiCallsById, logOptions);
+    const workerOpts = fixtures.buildWorkerOptions();
+    const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('INFO');
     expect(logs[0].message).toContain('API call to Endpoint:convertToUsd responded successfully in ');
@@ -61,7 +63,8 @@ describe('callApis', () => {
     const parameters = { from: 'ETH', _type: 'int256', _path: 'unknown' };
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ parameters });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
-    const [logs, res] = await coordinatedExecution.callApis(fixtures.buildConfig(), aggregatedApiCallsById, logOptions);
+    const workerOpts = fixtures.buildWorkerOptions();
+    const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
     expect(logs[0].message).toContain('API call to Endpoint:convertToUsd errored after ');
@@ -87,7 +90,8 @@ describe('callApis', () => {
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ parameters });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
-    const [logs, res] = await coordinatedExecution.callApis(fixtures.buildConfig(), aggregatedApiCallsById, logOptions);
+    const workerOpts = fixtures.buildWorkerOptions();
+    const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
     expect(logs[0].message).toContain('API call to Endpoint:convertToUsd errored after ');
@@ -111,7 +115,8 @@ describe('callApis', () => {
     spy.mockRejectedValueOnce(new Error('Worker crashed'));
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
-    const [logs, res] = await coordinatedExecution.callApis(fixtures.buildConfig(), aggregatedApiCallsById, logOptions);
+    const workerOpts = fixtures.buildWorkerOptions();
+    const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
     expect(logs[0].message).toContain('API call to Endpoint:convertToUsd failed after ');

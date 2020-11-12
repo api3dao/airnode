@@ -189,7 +189,6 @@ export interface AggregatedApiCall {
 export interface WorkerOptions {
   config: Config;
   coordinatorId: string;
-  coordinatorSettings: CoordinatorSettings;
   providerIdShort: string;
   region: string;
   stage: string;

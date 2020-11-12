@@ -15,12 +15,13 @@ import * as aws from './aws';
 import * as fixtures from 'test/fixtures';
 
 describe('spawn', () => {
-  it('invokes the lambda and returns the response', async () => {
+  it('derives the function name, invokes and returns the response', async () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(null, { value: 7777 }));
     const config = fixtures.buildConfig();
     const parameters = {
+      coordinatorId: 'abcdefg',
       config,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
@@ -33,7 +34,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'some-function',
+        FunctionName: 'airnode-test-19255a4-some-function',
         Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
       },
       expect.any(Function)
@@ -47,6 +48,7 @@ describe('spawn', () => {
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
     const config = fixtures.buildConfig();
     const parameters = {
+      coordinatorId: 'abcdefg',
       config,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
@@ -62,7 +64,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'some-function',
+        FunctionName: 'airnode-test-19255a4-some-function',
         Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
       },
       expect.any(Function)
@@ -75,6 +77,7 @@ describe('spawnLocal', () => {
     const response = { body: JSON.stringify({ value: 1000 }) };
     customFnMock.mockImplementationOnce(() => Promise.resolve(response));
     const parameters = {
+      coordinatorId: 'abcdefg',
       config: fixtures.buildConfig(),
       functionName: 'myCustomFn',
       payload: { from: 'ETH', to: 'USD' },
@@ -92,6 +95,7 @@ describe('spawnLocal', () => {
     customFnMock.mockImplementationOnce(() => Promise.reject(response));
     const config = fixtures.buildConfig();
     const parameters = {
+      coordinatorId: 'abcdefg',
       config,
       functionName: 'myCustomFn',
       payload: {
@@ -120,12 +124,16 @@ describe('spawnLocal', () => {
   it('throws an error if the function is not found', async () => {
     expect.assertions(1);
     const parameters = {
+      coordinatorId: 'abcdefg',
       config: fixtures.buildConfig(),
       functionName: 'unknownFn',
       payload: {
         from: 'ETH',
         to: 'USD',
       },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     };
     try {
       await aws.spawnLocal(parameters);

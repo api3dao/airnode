@@ -34,6 +34,8 @@ describe('create', () => {
         name: 'ganache-test',
         providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         providerIdShort: '19255a4',
+        region: 'us-east-1',
+        stage: 'test',
         url: 'http://localhost:4111',
         xpub:
           'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
@@ -87,6 +89,8 @@ describe('create', () => {
         name: 'ganache-test',
         providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         providerIdShort: '19255a4',
+        region: 'us-east-1',
+        stage: 'test',
         url: 'http://localhost:4111',
         xpub:
           'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',

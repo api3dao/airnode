@@ -6,7 +6,7 @@ describe('create', () => {
   it('returns a new coordinator state object', () => {
     const config = fixtures.buildConfig();
     const res = state.create(config);
-    expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'config', 'id']);
+    expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'config', 'id', 'settings']);
     expect(res.aggregatedApiCallsById).toEqual({});
     expect(res.EVMProviders).toEqual([]);
     expect(res.id.length).toEqual(16);
@@ -22,7 +22,7 @@ describe('update', () => {
     const config = fixtures.buildConfig();
     const newState = state.create(config);
     const res = state.update(newState, { aggregatedApiCallsById });
-    expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'config', 'id']);
+    expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'config', 'id', 'settings']);
     expect(res.aggregatedApiCallsById).toEqual({ apiCallId: fixtures.createAggregatedApiCall() });
     expect(res.EVMProviders).toEqual([]);
     expect(res.id.length).toEqual(16);

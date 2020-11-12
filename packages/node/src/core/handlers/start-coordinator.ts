@@ -21,7 +21,6 @@ export async function startCoordinator(config: Config) {
 
   const workerOpts: WorkerOptions = {
     coordinatorId,
-    coordinatorSettings: state1.settings,
     config: state1.config,
     providerIdShort: state1.settings.providerIdShort,
     stage: state1.settings.stage,

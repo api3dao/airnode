@@ -14,12 +14,11 @@ describe('spawn', () => {
     spawnAwsMock.mockResolvedValueOnce({ value: 777 });
     const settings = fixtures.buildNodeSettings({ cloudProvider: 'aws' });
     const config = fixtures.buildConfig({ nodeSettings: settings });
+    const workerOpts = fixtures.buildWorkerOptions({ config });
     const parameters: WorkerParameters = {
-      config,
+      ...workerOpts,
       functionName: 'customFn',
       payload: { from: 'ETH' },
-      stage: 'test',
-      region: 'us-east-1',
     };
     const res = await workers.spawn(parameters);
     expect(res).toEqual({ value: 777 });
@@ -31,12 +30,11 @@ describe('spawn', () => {
     spawnLocalAwsMock.mockResolvedValueOnce({ value: 1000 });
     const settings = fixtures.buildNodeSettings({ cloudProvider: 'local:aws' });
     const config = fixtures.buildConfig({ nodeSettings: settings });
+    const workerOpts = fixtures.buildWorkerOptions({ config });
     const parameters: WorkerParameters = {
-      config,
+      ...workerOpts,
       functionName: 'customFn',
       payload: { from: 'BTC' },
-      stage: 'test',
-      region: 'us-east-1',
     };
     const res = await workers.spawn(parameters);
     expect(res).toEqual({ value: 1000 });
