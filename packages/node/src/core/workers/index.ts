@@ -2,7 +2,7 @@ import * as aws from './cloud-platforms/aws';
 import { NodeCloudProvider, WorkerParameters } from '../../types';
 
 export function spawn(params: WorkerParameters): Promise<any> {
-  switch (params.config.nodeSettings.cloudProvider) {
+  switch (params.cloudProvider) {
     case 'aws':
       return aws.spawn(params);
 

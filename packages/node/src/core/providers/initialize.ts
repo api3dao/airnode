@@ -3,13 +3,11 @@ import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
 import * as providerStates from '../providers/state';
 import { spawnNewProvider } from '../providers/worker';
-import { ChainConfig, EVMProviderState, ProviderState, WorkerOptions } from '../../types';
+import { ChainConfig, Config, EVMProviderState, ProviderState, WorkerOptions } from '../../types';
 
 const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
-function initializeEVMProvider(chain: ChainConfig, workerOpts: WorkerOptions) {
-  const { coordinatorId, config } = workerOpts;
-
+function initializeEVMProvider(coordinatorId: string, config: Config, chain: ChainConfig, workerOpts: WorkerOptions) {
   return chain.providers.map(async (provider) => {
     const newState = providerStates.buildEVMState(coordinatorId, chain, provider, config);
     const initialization = spawnNewProvider(newState, workerOpts);
@@ -24,8 +22,8 @@ function initializeEVMProvider(chain: ChainConfig, workerOpts: WorkerOptions) {
   });
 }
 
-export async function initialize(workerOpts: WorkerOptions) {
-  const { chains } = workerOpts.config.nodeSettings;
+export async function initialize(coordinatorId: string, config: Config, workerOpts: WorkerOptions) {
+  const { chains } = config.nodeSettings;
 
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in the provided config');
@@ -37,7 +35,7 @@ export async function initialize(workerOpts: WorkerOptions) {
   // to configure duplicate providers safely (if they want the added redundancy)
   const EVMInitializations = flatMap(
     EVMChains.map((chain) => {
-      return initializeEVMProvider(chain, workerOpts);
+      return initializeEVMProvider(coordinatorId, config, chain, workerOpts);
     })
   );
 

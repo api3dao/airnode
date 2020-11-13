@@ -20,17 +20,16 @@ export async function startCoordinator(config: Config) {
   logger.info(`Coordinator starting...`, baseLogOptions);
 
   const workerOpts: WorkerOptions = {
-    coordinatorId,
-    config: state1.config,
+    cloudProvider: config.nodeSettings.cloudProvider,
     providerIdShort: state1.settings.providerIdShort,
-    stage: state1.settings.stage,
-    region: state1.settings.region,
+    stage: config.nodeSettings.stage,
+    region: config.nodeSettings.region,
   };
 
   // =================================================================
   // STEP 2: Get the initial state from each provider
   // =================================================================
-  const EVMProviders = await providers.initialize(workerOpts);
+  const EVMProviders = await providers.initialize(coordinatorId, config, workerOpts);
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);

@@ -24,21 +24,16 @@ import * as worker from './worker';
 describe('spawnNewProvider', () => {
   it('handles local AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const nodeSettings = fixtures.buildNodeSettings({ cloudProvider: 'local:aws' });
-    const config = fixtures.buildConfig({ nodeSettings });
-    const workerOpts = fixtures.buildWorkerOptions({ config });
-    const state = fixtures.buildEVMProviderState({ config });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
+    const state = fixtures.buildEVMProviderState();
     spawnLocalAwsMock.mockResolvedValueOnce(state);
     const res = await worker.spawnNewProvider(state, workerOpts);
     expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
-      coordinatorId: 'abcdefg',
-      config,
+      cloudProvider: 'local:aws',
       functionName: 'initializeProvider',
-      payload: {
-        state: { ...state, config },
-      },
+      payload: { state },
       providerIdShort: '19255a4',
       region: 'us-east-1',
       stage: 'test',
@@ -47,19 +42,16 @@ describe('spawnNewProvider', () => {
 
   it('handles remote AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const nodeSettings = fixtures.buildNodeSettings({ cloudProvider: 'aws' });
-    const config = fixtures.buildConfig({ nodeSettings });
-    const workerOpts = fixtures.buildWorkerOptions({ config });
-    const state = fixtures.buildEVMProviderState({ config });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce(state);
     const res = await worker.spawnNewProvider(state, workerOpts);
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
-      coordinatorId: 'abcdefg',
-      config,
+      cloudProvider: 'aws',
       functionName: 'initializeProvider',
-      payload: { state: { ...state, config } },
+      payload: { state },
       providerIdShort: '19255a4',
       region: 'us-east-1',
       stage: 'test',

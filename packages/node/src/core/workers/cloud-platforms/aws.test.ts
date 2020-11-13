@@ -19,15 +19,11 @@ describe('spawn', () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(null, { value: 7777 }));
-    const config = fixtures.buildConfig();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
-      coordinatorId: 'abcdefg',
-      config,
+      ...workerOpts,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
-      providerIdShort: '19255a4',
-      region: 'us-east-1',
-      stage: 'test',
     };
     const res = await aws.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
@@ -35,7 +31,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-test-19255a4-some-function',
-        Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
       },
       expect.any(Function)
     );
@@ -46,15 +42,11 @@ describe('spawn', () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
-    const config = fixtures.buildConfig();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
-      coordinatorId: 'abcdefg',
-      config,
+      ...workerOpts,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
-      providerIdShort: '19255a4',
-      region: 'us-east-1',
-      stage: 'test',
     };
     try {
       await aws.spawn(parameters);
@@ -65,7 +57,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-test-19255a4-some-function',
-        Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
       },
       expect.any(Function)
     );
@@ -76,14 +68,11 @@ describe('spawnLocal', () => {
   it('invokes the function and decodes the response', async () => {
     const response = { body: JSON.stringify({ value: 1000 }) };
     customFnMock.mockImplementationOnce(() => Promise.resolve(response));
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters = {
-      coordinatorId: 'abcdefg',
-      config: fixtures.buildConfig(),
+      ...workerOpts,
       functionName: 'myCustomFn',
       payload: { from: 'ETH', to: 'USD' },
-      providerIdShort: '19255a4',
-      region: 'us-east-1',
-      stage: 'test',
     };
     const res = await aws.spawnLocal(parameters);
     expect(res).toEqual({ value: 1000 });
@@ -93,18 +82,14 @@ describe('spawnLocal', () => {
     expect.assertions(3);
     const response = new Error('Server says no');
     customFnMock.mockImplementationOnce(() => Promise.reject(response));
-    const config = fixtures.buildConfig();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters = {
-      coordinatorId: 'abcdefg',
-      config,
+      ...workerOpts,
       functionName: 'myCustomFn',
       payload: {
         from: 'ETH',
         to: 'USD',
       },
-      providerIdShort: '19255a4',
-      region: 'us-east-1',
-      stage: 'test',
     };
     try {
       await aws.spawnLocal(parameters);
@@ -116,24 +101,20 @@ describe('spawnLocal', () => {
       parameters: {
         from: 'ETH',
         to: 'USD',
-        config,
       },
     });
   });
 
   it('throws an error if the function is not found', async () => {
     expect.assertions(1);
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters = {
-      coordinatorId: 'abcdefg',
-      config: fixtures.buildConfig(),
+      ...workerOpts,
       functionName: 'unknownFn',
       payload: {
         from: 'ETH',
         to: 'USD',
       },
-      providerIdShort: '19255a4',
-      region: 'us-east-1',
-      stage: 'test',
     };
     try {
       await aws.spawnLocal(parameters);

@@ -12,7 +12,7 @@ export function spawn(params: WorkerParameters) {
 
     const options = {
       FunctionName: resolvedName,
-      Payload: JSON.stringify({ ...params.payload, config: params.config }),
+      Payload: JSON.stringify(params.payload),
     };
 
     lambda.invoke(options, (err, data) => {
@@ -34,10 +34,7 @@ export function spawnLocal(params: WorkerParameters) {
 
     // Simulate the AWS event object
     const event = {
-      parameters: {
-        ...params.payload,
-        config: params.config,
-      },
+      parameters: params.payload,
     };
 
     const request = fn(event) as Promise<any>;

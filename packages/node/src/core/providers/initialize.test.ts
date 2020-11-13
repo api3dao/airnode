@@ -59,8 +59,8 @@ describe('initializeProviders', () => {
 
     const nodeSettings = fixtures.buildNodeSettings({ chains });
     const config = fixtures.buildConfig({ nodeSettings });
-    const workerOpts = fixtures.buildWorkerOptions({ config });
-    const res = await providers.initialize(workerOpts);
+    const workerOpts = fixtures.buildWorkerOptions();
+    const res = await providers.initialize('abcdefg', config, workerOpts);
     expect(res).toEqual([
       {
         contracts: {
@@ -133,9 +133,9 @@ describe('initializeProviders', () => {
     expect.assertions(1);
     const nodeSettings = fixtures.buildNodeSettings({ chains: [] });
     const config = fixtures.buildConfig({ nodeSettings });
-    const workerOpts = fixtures.buildWorkerOptions({ config });
+    const workerOpts = fixtures.buildWorkerOptions();
     try {
-      await providers.initialize(workerOpts);
+      await providers.initialize('abcdefg', config, workerOpts);
     } catch (e) {
       expect(e).toEqual(new Error('One or more chains must be defined in the provided config'));
     }

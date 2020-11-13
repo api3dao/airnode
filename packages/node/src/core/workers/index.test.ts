@@ -12,9 +12,7 @@ import { WorkerParameters } from 'src/types';
 describe('spawn', () => {
   it('spawns for aws', async () => {
     spawnAwsMock.mockResolvedValueOnce({ value: 777 });
-    const settings = fixtures.buildNodeSettings({ cloudProvider: 'aws' });
-    const config = fixtures.buildConfig({ nodeSettings: settings });
-    const workerOpts = fixtures.buildWorkerOptions({ config });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters: WorkerParameters = {
       ...workerOpts,
       functionName: 'customFn',
@@ -28,9 +26,7 @@ describe('spawn', () => {
 
   it('spawns for local:aws', async () => {
     spawnLocalAwsMock.mockResolvedValueOnce({ value: 1000 });
-    const settings = fixtures.buildNodeSettings({ cloudProvider: 'local:aws' });
-    const config = fixtures.buildConfig({ nodeSettings: settings });
-    const workerOpts = fixtures.buildWorkerOptions({ config });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters: WorkerParameters = {
       ...workerOpts,
       functionName: 'customFn',

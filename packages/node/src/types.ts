@@ -187,8 +187,7 @@ export interface AggregatedApiCall {
 // Workers
 // ===========================================
 export interface WorkerOptions {
-  config: Config;
-  coordinatorId: string;
+  cloudProvider: NodeCloudProvider;
   providerIdShort: string;
   region: string;
   stage: string;
