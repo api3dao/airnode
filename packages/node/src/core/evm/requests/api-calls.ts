@@ -51,15 +51,6 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,
     type: getApiCallType(parsedLog.topic),
-
-    // TODO: protocol-overhaul remove these
-    errorAddress: parsedLog.args.errorAddress,
-    errorFunctionId: parsedLog.args.errorFunctionId,
-    requesterId: 'requesterId',
-    walletIndex: '1',
-    walletAddress: 'walletAddress',
-    walletBalance: '100000',
-    walletMinimumBalance: '50000',
   };
 
   return request;

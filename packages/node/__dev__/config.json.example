@@ -3,14 +3,17 @@
   "nodeSettings": {
     "cloudProvider": "local:aws",
     "logFormat": "plain",
-    "nodeKey": "chainapi-key-to-access-this-node",
-    "platformKey": "key-to-access-chainapi",
-    "platformUrl": "https://chainapi.com/api/todo",
-    "providerId": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+    "nodeVersion": "1.0.0",
+    "region": "us-east-1",
+    "stage": "dev",
     "chains": [
       {
         "type": "evm",
         "id": 1337,
+        "contracts": {
+          "Airnode": "0x197F3826040dF832481f835652c290aC7c41f073",
+          "Convenience": "0x2393737d287c555d148012270Ce4567ABb1ee95C",
+        },
         "providers": [
           {
             "name": "ganache-local",

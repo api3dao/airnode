@@ -1,28 +1,16 @@
 import flatMap from 'lodash/flatMap';
-import isEmpty from 'lodash/isEmpty';
 import * as calls from '../coordinator/calls';
 import * as logger from '../logger';
 import * as providers from '../providers';
 import * as request from '../requests/request';
 import * as state from '../coordinator/state';
-import * as validation from '../config/validation';
 import { formatDateTime } from '../utils/date-utils';
 import { spawnProviderRequestProcessor } from '../providers/worker';
-import { Config } from '../../types';
+import { Config, WorkerOptions } from '../../types';
 
 export async function startCoordinator(config: Config) {
   // =================================================================
-  // STEP 1: Validate the provided options
-  // =================================================================
-  const settingsMessages = validation.validate(config.nodeSettings);
-  if (!isEmpty(settingsMessages)) {
-    const logOptions = { format: config.nodeSettings.logFormat, meta: {} };
-    settingsMessages!.forEach((msg) => logger.error(msg, logOptions));
-    return null;
-  }
-
-  // =================================================================
-  // STEP 2: Creat a blank coordinator state
+  // STEP 1: Create a blank coordinator state
   // =================================================================
   const state1 = state.create(config);
   const { id: coordinatorId } = state1;
@@ -31,10 +19,17 @@ export async function startCoordinator(config: Config) {
   const startedAt = new Date();
   logger.info(`Coordinator starting...`, baseLogOptions);
 
+  const workerOpts: WorkerOptions = {
+    cloudProvider: config.nodeSettings.cloudProvider,
+    providerIdShort: state1.settings.providerIdShort,
+    stage: config.nodeSettings.stage,
+    region: config.nodeSettings.region,
+  };
+
   // =================================================================
-  // STEP 3: Get the initial state from each provider
+  // STEP 2: Get the initial state from each provider
   // =================================================================
-  const EVMProviders = await providers.initialize(state1.id, config.nodeSettings.chains, state1.config);
+  const EVMProviders = await providers.initialize(coordinatorId, config, workerOpts);
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
@@ -48,7 +43,7 @@ export async function startCoordinator(config: Config) {
   }
 
   // =================================================================
-  // STEP 4: Group unique API calls
+  // STEP 3: Group unique API calls
   // =================================================================
   const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
@@ -57,35 +52,35 @@ export async function startCoordinator(config: Config) {
   const state3 = state.update(state2, { aggregatedApiCallsById });
 
   // =================================================================
-  // STEP 5: Execute API calls and save the responses
+  // STEP 4: Execute API calls and save the responses
   // =================================================================
   const [callLogs, aggregatedCallsWithResponses] = await calls.callApis(
-    state3.config,
     state3.aggregatedApiCallsById,
-    baseLogOptions
+    baseLogOptions,
+    workerOpts
   );
   const state4 = state.update(state3, { aggregatedApiCallsById: aggregatedCallsWithResponses });
   logger.logPending(callLogs, baseLogOptions);
 
   // =================================================================
-  // STEP 6: Map API responses back to each provider's API requests
+  // STEP 5: Map API responses back to each provider's API requests
   // =================================================================
   const [disaggregationLogs, providersWithAPIResponses] = calls.disaggregate(state4);
   logger.logPending(disaggregationLogs, baseLogOptions);
   const state5 = state.update(state4, { EVMProviders: providersWithAPIResponses });
 
   // =================================================================
-  // STEP 7: Initiate transactions for each provider
+  // STEP 6: Initiate transactions for each provider
   // =================================================================
-  const providerTransactions = state5.EVMProviders.map(async (provider) => {
-    logger.info(`Forking to submit transactions for provider:${provider.settings.name}...`, baseLogOptions);
-    return await spawnProviderRequestProcessor(state5.config, provider);
+  const providerTransactions = state5.EVMProviders.map(async (providerState) => {
+    logger.info(`Forking to submit transactions for provider:${providerState.settings.name}...`, baseLogOptions);
+    return await spawnProviderRequestProcessor(providerState, workerOpts);
   });
   await Promise.all(providerTransactions);
   logger.info('Forking to submit transactions complete', baseLogOptions);
 
   // =================================================================
-  // STEP 8: Log coordinator stats
+  // STEP 7: Log coordinator stats
   // =================================================================
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());

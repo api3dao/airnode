@@ -5,25 +5,25 @@ import { spawnNewApiCall } from '../../adapters/http/worker';
 import {
   AggregatedApiCall,
   AggregatedApiCallsById,
-  Config,
   LogsData,
   LogOptions,
   RequestErrorCode,
+  WorkerOptions,
 } from '../../../types';
 
 const WORKER_TIMEOUT = 29_500;
 
 async function execute(
-  config: Config,
   aggregatedApiCall: AggregatedApiCall,
-  logOptions: LogOptions
+  logOptions: LogOptions,
+  workerOpts: WorkerOptions
 ): Promise<LogsData<AggregatedApiCall>> {
   const startedAt = new Date();
   const baseLogMsg = `API call to Endpoint:${aggregatedApiCall.endpointName}`;
 
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process
-  const [err, res] = await goTimeout(WORKER_TIMEOUT, spawnNewApiCall(config, aggregatedApiCall, logOptions));
+  const [err, res] = await goTimeout(WORKER_TIMEOUT, spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts));
 
   const finishedAt = new Date();
   const durationMs = Math.abs(finishedAt.getTime() - startedAt.getTime());
@@ -59,15 +59,17 @@ function regroupAggregatedCalls(aggregatedApiCalls: AggregatedApiCall[]): Aggreg
 }
 
 export async function callApis(
-  config: Config,
   aggregatedApiCallsById: AggregatedApiCallsById,
-  logOptions: LogOptions
+  logOptions: LogOptions,
+  workerOpts: WorkerOptions
 ): Promise<LogsData<AggregatedApiCallsById>> {
   // Flatten all aggregated API calls and filter out ones that already have an error
   const flatAggregatedCalls = flatMap(Object.keys(aggregatedApiCallsById), (id) => aggregatedApiCallsById[id]);
   const validAggregatedCalls = flatAggregatedCalls.filter((ac) => !ac.errorCode);
 
-  const calls = validAggregatedCalls.map(async (aggregatedApiCall) => execute(config, aggregatedApiCall, logOptions));
+  const calls = validAggregatedCalls.map(async (aggregatedApiCall) =>
+    execute(aggregatedApiCall, logOptions, workerOpts)
+  );
 
   const logsWithresponses = await Promise.all(calls);
   const responseLogs = flatMap(logsWithresponses, (r) => r[0]);

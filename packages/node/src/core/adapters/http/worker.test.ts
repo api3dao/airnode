@@ -18,38 +18,42 @@ describe('spawnNewApiCall', () => {
   };
 
   it('handles local AWS calls', async () => {
-    const nodeSettings = fixtures.buildNodeSettings({ cloudProvider: 'local:aws' });
-    const config = fixtures.buildConfig({ nodeSettings });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     spawnLocalAwsMock1.mockResolvedValueOnce({ value: '0x123' });
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
-    const res = await worker.spawnNewApiCall(config, aggregatedApiCall, logOptions);
+    const res = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(res).toEqual({ value: '0x123' });
     expect(spawnLocalAwsMock1).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock1).toHaveBeenCalledWith({
-      config,
+      cloudProvider: 'local:aws',
       functionName: 'callApi',
       payload: {
         aggregatedApiCall,
         logOptions,
       },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     });
   });
 
   it('handles remote AWS calls', async () => {
-    const nodeSettings = fixtures.buildNodeSettings({ cloudProvider: 'aws' });
-    const config = fixtures.buildConfig({ nodeSettings });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     spawnAwsMock1.mockResolvedValueOnce({ value: '0x123' });
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
-    const res = await worker.spawnNewApiCall(config, aggregatedApiCall, logOptions);
+    const res = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(res).toEqual({ value: '0x123' });
     expect(spawnAwsMock1).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock1).toHaveBeenCalledWith({
-      config,
+      cloudProvider: 'aws',
       functionName: 'callApi',
       payload: {
         aggregatedApiCall,
         logOptions,
       },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     });
   });
 });

@@ -16,8 +16,6 @@ describe('mergeApiCallsWithTemplates', () => {
       endpointId: null,
       fulfillAddress: null,
       fulfillFunctionId: null,
-      errorAddress: null,
-      errorFunctionId: null,
       parameters: {},
     });
 
@@ -39,8 +37,6 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(res[0].endpointId).toEqual('templateEndpointId-0');
     expect(res[0].fulfillAddress).toEqual('templateFulfillAddress-0');
     expect(res[0].fulfillFunctionId).toEqual('templateFulfillFunctionId-0');
-    expect(res[0].errorAddress).toEqual(null);
-    expect(res[0].errorFunctionId).toEqual(null);
     // These fields are not overwritten
     expect(res[0].designatedWallet).toEqual('designatedWallet');
     expect(res[0].requesterIndex).toEqual('3');
@@ -83,8 +79,6 @@ describe('mergeApiCallsWithTemplates', () => {
       endpointId: 'requestEndpointId',
       fulfillAddress: 'requestFulfillAddress',
       fulfillFunctionId: 'requestFulfillFunctionId',
-      errorAddress: 'requestErrorAddress',
-      errorFunctionId: 'requestErrorFunctionId',
       parameters: { template: 'this will overwrite the template' },
     });
 
@@ -106,8 +100,6 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(res[0].endpointId).toEqual('requestEndpointId');
     expect(res[0].fulfillAddress).toEqual('requestFulfillAddress');
     expect(res[0].fulfillFunctionId).toEqual('requestFulfillFunctionId');
-    expect(res[0].errorAddress).toEqual('requestErrorAddress');
-    expect(res[0].errorFunctionId).toEqual('requestErrorFunctionId');
     expect(res[0].parameters).toEqual({ template: 'this will overwrite the template' });
   });
 

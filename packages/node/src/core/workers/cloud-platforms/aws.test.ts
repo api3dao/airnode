@@ -15,13 +15,13 @@ import * as aws from './aws';
 import * as fixtures from 'test/fixtures';
 
 describe('spawn', () => {
-  it('invokes the lambda and returns the response', async () => {
+  it('derives the function name, invokes and returns the response', async () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(null, { value: 7777 }));
-    const config = fixtures.buildConfig();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
-      config,
+      ...workerOpts,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
     };
@@ -30,8 +30,8 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'some-function',
-        Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
+        FunctionName: 'airnode-test-19255a4-some-function',
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
       },
       expect.any(Function)
     );
@@ -42,9 +42,9 @@ describe('spawn', () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
     invoke.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
-    const config = fixtures.buildConfig();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
-      config,
+      ...workerOpts,
       functionName: 'some-function',
       payload: { from: 'ETH', to: 'USD' },
     };
@@ -56,8 +56,8 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'some-function',
-        Payload: JSON.stringify({ from: 'ETH', to: 'USD', config }),
+        FunctionName: 'airnode-test-19255a4-some-function',
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
       },
       expect.any(Function)
     );
@@ -68,8 +68,9 @@ describe('spawnLocal', () => {
   it('invokes the function and decodes the response', async () => {
     const response = { body: JSON.stringify({ value: 1000 }) };
     customFnMock.mockImplementationOnce(() => Promise.resolve(response));
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters = {
-      config: fixtures.buildConfig(),
+      ...workerOpts,
       functionName: 'myCustomFn',
       payload: { from: 'ETH', to: 'USD' },
     };
@@ -81,9 +82,9 @@ describe('spawnLocal', () => {
     expect.assertions(3);
     const response = new Error('Server says no');
     customFnMock.mockImplementationOnce(() => Promise.reject(response));
-    const config = fixtures.buildConfig();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters = {
-      config,
+      ...workerOpts,
       functionName: 'myCustomFn',
       payload: {
         from: 'ETH',
@@ -100,15 +101,15 @@ describe('spawnLocal', () => {
       parameters: {
         from: 'ETH',
         to: 'USD',
-        config,
       },
     });
   });
 
   it('throws an error if the function is not found', async () => {
     expect.assertions(1);
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     const parameters = {
-      config: fixtures.buildConfig(),
+      ...workerOpts,
       functionName: 'unknownFn',
       payload: {
         from: 'ETH',
