@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 import * as awsHandlers from '../../../aws/handler';
-import { WorkerParameters } from '../utils';
+import { WorkerParameters } from '../../../types';
 
 export function spawn(params: WorkerParameters) {
   // lambda.invoke is synchronous so we need to wrap this in a promise
@@ -8,9 +8,11 @@ export function spawn(params: WorkerParameters) {
     // TODO: configure lambda environment
     const lambda = new AWS.Lambda();
 
+    const resolvedName = `airnode-${params.stage}-${params.providerIdShort}-${params.functionName}`;
+
     const options = {
-      FunctionName: params.functionName,
-      Payload: JSON.stringify({ ...params.payload, config: params.config }),
+      FunctionName: resolvedName,
+      Payload: JSON.stringify(params.payload),
     };
 
     lambda.invoke(options, (err, data) => {
@@ -32,10 +34,7 @@ export function spawnLocal(params: WorkerParameters) {
 
     // Simulate the AWS event object
     const event = {
-      parameters: {
-        ...params.payload,
-        config: params.config,
-      },
+      parameters: params.payload,
     };
 
     const request = fn(event) as Promise<any>;

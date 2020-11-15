@@ -3,14 +3,14 @@ import isEmpty from 'lodash/isEmpty';
 import { goTimeout } from '../utils/promise-utils';
 import * as providerStates from '../providers/state';
 import { spawnNewProvider } from '../providers/worker';
-import { ChainConfig, Config, EVMProviderState, ProviderState } from '../../types';
+import { ChainConfig, Config, EVMProviderState, ProviderState, WorkerOptions } from '../../types';
 
 const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
-function initializeEVMProvider(coordinatorId: string, chain: ChainConfig, config: Config) {
+function initializeEVMProvider(coordinatorId: string, config: Config, chain: ChainConfig, workerOpts: WorkerOptions) {
   return chain.providers.map(async (provider) => {
     const newState = providerStates.buildEVMState(coordinatorId, chain, provider, config);
-    const initialization = spawnNewProvider(config, newState);
+    const initialization = spawnNewProvider(newState, workerOpts);
 
     // Each provider gets 20 seconds to initialize. If it fails to initialize
     // in this time, it is ignored.
@@ -22,9 +22,11 @@ function initializeEVMProvider(coordinatorId: string, chain: ChainConfig, config
   });
 }
 
-export async function initialize(coordinatorId: string, chains: ChainConfig[], config: Config) {
+export async function initialize(coordinatorId: string, config: Config, workerOpts: WorkerOptions) {
+  const { chains } = config.nodeSettings;
+
   if (isEmpty(chains)) {
-    throw new Error('One or more chains must be defined in config.json');
+    throw new Error('One or more chains must be defined in the provided config');
   }
 
   const EVMChains = chains.filter((c) => c.type === 'evm');
@@ -33,7 +35,7 @@ export async function initialize(coordinatorId: string, chains: ChainConfig[], c
   // to configure duplicate providers safely (if they want the added redundancy)
   const EVMInitializations = flatMap(
     EVMChains.map((chain) => {
-      return initializeEVMProvider(coordinatorId, chain, config);
+      return initializeEVMProvider(coordinatorId, config, chain, workerOpts);
     })
   );
 

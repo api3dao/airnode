@@ -57,9 +57,10 @@ describe('initializeProviders', () => {
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
 
-    const coordinatorId = '837daEf231';
-    const config = fixtures.buildConfig();
-    const res = await providers.initialize(coordinatorId, chains, config);
+    const nodeSettings = fixtures.buildNodeSettings({ chains });
+    const config = fixtures.buildConfig({ nodeSettings });
+    const workerOpts = fixtures.buildWorkerOptions();
+    const res = await providers.initialize('abcdefg', config, workerOpts);
     expect(res).toEqual([
       {
         contracts: {
@@ -76,11 +77,13 @@ describe('initializeProviders', () => {
           name: 'infura-mainnet',
           providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           providerIdShort: '19255a4',
+          region: 'us-east-1',
+          stage: 'test',
           url: 'https://mainnet.infura.io/v3/<key>',
           xpub:
             'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
-        coordinatorId,
+        coordinatorId: 'abcdefg',
         currentBlock: 123456,
         gasPrice: null,
         masterHDNode: expect.any(ethers.utils.HDNode),
@@ -106,11 +109,13 @@ describe('initializeProviders', () => {
           name: 'infura-ropsten',
           providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           providerIdShort: '19255a4',
+          region: 'us-east-1',
+          stage: 'test',
           url: 'https://ropsten.infura.io/v3/<key>',
           xpub:
             'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
-        coordinatorId,
+        coordinatorId: 'abcdefg',
         currentBlock: 987654,
         gasPrice: null,
         masterHDNode: expect.any(ethers.utils.HDNode),
@@ -126,12 +131,13 @@ describe('initializeProviders', () => {
 
   it('throws an error if no providers are configured', async () => {
     expect.assertions(1);
-    const coordinatorId = '837daEf231';
-    const config = fixtures.buildConfig();
+    const nodeSettings = fixtures.buildNodeSettings({ chains: [] });
+    const config = fixtures.buildConfig({ nodeSettings });
+    const workerOpts = fixtures.buildWorkerOptions();
     try {
-      await providers.initialize(coordinatorId, [], config);
+      await providers.initialize('abcdefg', config, workerOpts);
     } catch (e) {
-      expect(e).toEqual(new Error('One or more chains must be defined in config.json'));
+      expect(e).toEqual(new Error('One or more chains must be defined in the provided config'));
     }
   });
 });

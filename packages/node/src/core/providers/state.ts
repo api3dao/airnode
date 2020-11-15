@@ -29,6 +29,8 @@ export function buildEVMState(
     name: chainProvider.name,
     providerId: evm.getProviderId(masterHDNode),
     providerIdShort: evm.getProviderIdShort(masterHDNode),
+    region: config.nodeSettings.region,
+    stage: config.nodeSettings.stage,
     url: chainProvider.url,
     xpub: evm.getExtendedPublicKey(masterHDNode),
   };
