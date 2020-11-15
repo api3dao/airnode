@@ -198,6 +198,12 @@ export interface WorkerParameters extends WorkerOptions {
   payload: any;
 }
 
+export interface WorkerResponse {
+  ok: boolean;
+  data?: any;
+  errorLog?: PendingLog;
+}
+
 // ===========================================
 // Events
 // ===========================================
@@ -294,7 +300,7 @@ export interface ChainConfig {
   readonly type: ChainType;
 }
 
-export type NodeCloudProvider = 'aws' | 'local:aws';
+export type NodeCloudProvider = 'aws';
 
 export interface NodeSettings {
   readonly chains: ChainConfig[];

@@ -23,28 +23,33 @@ async function execute(
 
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process
-  const [err, res] = await goTimeout(WORKER_TIMEOUT, spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts));
+  const [err, logData] = await goTimeout(WORKER_TIMEOUT, spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts));
+  const resLogs = logData ? logData[0] : [];
 
   const finishedAt = new Date();
   const durationMs = Math.abs(finishedAt.getTime() - startedAt.getTime());
 
-  // If the worker crashes for whatever reason, mark the request as failed
-  if (err || !res) {
+  // If the worker crashed for whatever reason, mark the request as failed
+  if (err || !logData) {
     const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, err);
-    return [[log], { ...aggregatedApiCall, errorCode: RequestErrorCode.ApiCallFailed }];
+    const updatedApiCall = { ...aggregatedApiCall, errorCode: RequestErrorCode.ApiCallFailed };
+    return [[...resLogs, log], updatedApiCall];
   }
+  const res = logData[1]!;
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.
   if (res.errorCode) {
     const log = logger.pend('ERROR', `${baseLogMsg} errored after ${durationMs}ms with error code:${res.errorCode}`);
-    return [[log], { ...aggregatedApiCall, errorCode: res.errorCode as RequestErrorCode }];
+    const updatedApiCall = { ...aggregatedApiCall, errorCode: res.errorCode as RequestErrorCode };
+    return [[...resLogs, log], updatedApiCall];
   }
 
   const completeLog = logger.pend('INFO', `${baseLogMsg} responded successfully in ${durationMs}ms`);
 
   // We can assume that the request was successful at this point
-  return [[completeLog], { ...aggregatedApiCall, responseValue: res.value as string }];
+  const updatedApiCall = { ...aggregatedApiCall, responseValue: res.value as string };
+  return [[...resLogs, completeLog], updatedApiCall];
 }
 
 function regroupAggregatedCalls(aggregatedApiCalls: AggregatedApiCall[]): AggregatedApiCallsById {
