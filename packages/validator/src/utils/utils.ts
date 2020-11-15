@@ -90,7 +90,11 @@ export function getEmptyNonRedundantParam(param: string, specsStruct: any, nonRe
     return nonRedundantParams[param];
   }
 
-  if ('__arrayItem' in (specsStruct[param] || {}) || ('__any' in (specsStruct[param] || {}) && Array.isArray(specs))) {
+  if (
+    '__arrayItem' in (specsStruct[param] || {}) ||
+    '__arrayItem' in (specsStruct['__objectItem'] || {}) ||
+    ('__any' in (specsStruct[param] || {}) && Array.isArray(specs))
+  ) {
     return [];
   }
 

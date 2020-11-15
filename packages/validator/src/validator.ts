@@ -10,6 +10,7 @@ import { Log, Result, Roots } from './types';
 const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
 const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
 const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
+const configSecuritySpecs = JSON.parse(fs.readFileSync('specs/configSecurity.json', 'utf8'));
 
 /**
  * Recursion validating provided specification against validator specification structure
@@ -127,7 +128,14 @@ export function validateSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(specs, apiSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = validateSpecs(
+          specs,
+          apiSpecs,
+          paramPath,
+          tmpNonRedundant,
+          tmpRoots,
+          `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -138,7 +146,32 @@ export function validateSpecs(
         tmpNonRedundant = [];
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(specs, endpointsSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = validateSpecs(
+          specs,
+          endpointsSpecs,
+          paramPath,
+          tmpNonRedundant,
+          tmpRoots,
+          `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`
+        );
+        messages.push(...tmpResult.messages);
+
+        nonRedundantParams['__noCheck'] = {};
+
+        break;
+
+      case '__oisSpecs':
+        tmpNonRedundant = {};
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+
+        tmpResult = validateSpecs(
+          specs,
+          oisSpecs,
+          paramPath,
+          tmpNonRedundant,
+          tmpRoots,
+          `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -233,6 +266,22 @@ export function isOisValid(specs: string): Result {
     const parsedSpecs = JSON.parse(specs);
     return validateSpecs(parsedSpecs, oisSpecs, '', nonRedundant, {
       specs: parsedSpecs,
+      nonRedundantParams: nonRedundant,
+    });
+  } catch (e) {
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+  }
+}
+
+export function isConfigSecurityValid(configSpecs: string, securitySpecs: string): Result {
+  const nonRedundant = {};
+
+  try {
+    const parsedConfigSpecs = JSON.parse(configSpecs);
+    const parsedSecuritySpecs = JSON.parse(securitySpecs);
+    const specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
+    return validateSpecs(specs, configSecuritySpecs, '', nonRedundant, {
+      specs,
       nonRedundantParams: nonRedundant,
     });
   } catch (e) {

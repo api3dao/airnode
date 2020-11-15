@@ -175,7 +175,11 @@ function validateConditionRegexInValue(
   );
 
   if (!result.messages.some((msg) => msg.level === 'error')) {
-    return [];
+    if (!nonRedundantParams[paramName]) {
+      nonRedundantParams[paramName] = {};
+    }
+
+    return result.messages;
   }
 
   messages.push(...result.messages);
@@ -195,6 +199,8 @@ function validateConditionRegexInValue(
     } else {
       delete currentNonRedundantParams[thenParamName];
     }
+  } else if (!nonRedundantParams[paramName]) {
+    nonRedundantParams[paramName] = {};
   }
 
   return messages;
