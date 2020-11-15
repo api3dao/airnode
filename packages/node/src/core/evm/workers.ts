@@ -2,7 +2,7 @@ import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
-import { EVMProviderState, LogsData, ProviderState, WorkerOptions } from '../../types';
+import { EVMProviderState, LogsData, ProviderState, WorkerFunctionName, WorkerOptions } from '../../types';
 
 export async function spawnNewProvider(
   state: ProviderState<EVMProviderState>,
@@ -10,7 +10,7 @@ export async function spawnNewProvider(
 ): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
   const options = {
     ...workerOpts,
-    functionName: 'initializeProvider',
+    functionName: 'initializeProvider' as WorkerFunctionName,
     payload: { state },
   };
 
@@ -38,13 +38,13 @@ export async function spawnProviderRequestProcessor(
 ): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
   const options = {
     ...workerOpts,
-    functionName: 'processProviderRequests',
+    functionName: 'processProviderRequests' as WorkerFunctionName,
     payload: { state },
   };
 
   const [err, res] = await go(workers.spawn(options));
   if (err || !res) {
-    const log = logger.pend('ERROR', `Failed to process provider requests: ${state.settings.name}`, err);
+    const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`, err);
     return [[log], null];
   }
 
@@ -52,7 +52,7 @@ export async function spawnProviderRequestProcessor(
     if (res.errorLog) {
       return [[res.errorLog], null];
     }
-    const log = logger.pend('ERROR', `Failed to process provider requests: ${state.settings.name}`);
+    const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`);
     return [[log], null];
   }
 

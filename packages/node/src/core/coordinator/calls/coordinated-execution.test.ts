@@ -10,21 +10,21 @@ describe('callApis', () => {
     meta: { coordinatorId: '123456' },
   };
 
-  it('filters out API calls that already have an error code', async () => {
-    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
-    const aggregatedApiCallsById = {
-      apiCallId: fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.UnauthorizedClient }),
-    };
-    const workerOpts = fixtures.buildWorkerOptions();
-    const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
-    expect(logs).toEqual([
-      { level: 'INFO', message: 'Received 0 successful API call(s)' },
-      { level: 'INFO', message: 'Received 0 errored API call(s)' },
-    ]);
-    expect(res).toEqual({});
-    expect(spy).not.toHaveBeenCalled();
-  });
-
+  // it('filters out API calls that already have an error code', async () => {
+  //   const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
+  //   const aggregatedApiCallsById = {
+  //     apiCallId: fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.UnauthorizedClient }),
+  //   };
+  //   const workerOpts = fixtures.buildWorkerOptions();
+  //   const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
+  //   expect(logs).toEqual([
+  //     { level: 'INFO', message: 'Received 0 successful API call(s)' },
+  //     { level: 'INFO', message: 'Received 0 errored API call(s)' },
+  //   ]);
+  //   expect(res).toEqual({});
+  //   expect(spy).not.toHaveBeenCalled();
+  // });
+  //
   // it('returns each API call with the response if successful', async () => {
   //   const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
   //   spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
@@ -116,11 +116,16 @@ describe('callApis', () => {
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis(aggregatedApiCallsById, logOptions, workerOpts);
-    expect(logs.length).toEqual(3);
-    expect(logs[0].level).toEqual('ERROR');
-    expect(logs[0].message).toContain('API call to Endpoint:convertToUsd failed after ');
-    expect(logs[1]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
-    expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
+    expect(logs.length).toEqual(4);
+    expect(logs[0]).toEqual({
+      level: 'ERROR',
+      message: 'Unable to call API endpoint:convertToUsd',
+      error: new Error('Worker crashed'),
+    });
+    expect(logs[1].level).toEqual('ERROR');
+    expect(logs[1].message).toContain('API call to Endpoint:convertToUsd failed after ');
+    expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
+    expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual({
       apiCallId: [
         {

@@ -22,27 +22,3 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
     });
   });
 }
-//
-// export function spawnLocal(params: WorkerParameters) {
-//   return new Promise((resolve, reject) => {
-//     const fn = awsHandlers[params.functionName];
-//
-//     if (!fn) {
-//       reject(new Error(`Cannot find AWS function: '${params.functionName}'`));
-//     }
-//
-//     // Simulate the AWS event object
-//     const event = {
-//       parameters: params.payload,
-//     };
-//
-//     const request = fn(event) as Promise<any>;
-//
-//     request
-//       .then((res: any) => {
-//         const data = JSON.parse(res.body);
-//         resolve(data);
-//       })
-//       .catch((e: Error) => reject(e));
-//   });
-// }

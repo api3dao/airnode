@@ -1,8 +1,6 @@
 const spawnAwsMock = jest.fn();
-const spawnLocalAwsMock = jest.fn();
 jest.mock('./cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
-  spawnLocal: spawnLocalAwsMock,
 }));
 
 import * as fixtures from 'test/fixtures';
@@ -23,28 +21,26 @@ describe('spawn', () => {
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith(parameters);
   });
-
-  it('spawns for local:aws', async () => {
-    spawnLocalAwsMock.mockResolvedValueOnce({ value: 1000 });
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
-    const parameters: WorkerParameters = {
-      ...workerOpts,
-      functionName: 'customFn',
-      payload: { from: 'BTC' },
-    };
-    const res = await workers.spawn(parameters);
-    expect(res).toEqual({ value: 1000 });
-    expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
-    expect(spawnLocalAwsMock).toHaveBeenCalledWith(parameters);
-  });
 });
 
 describe('isLocalEnv', () => {
-  it('returns true for local providers', () => {
-    expect(workers.isLocalEnv('local:aws')).toEqual(true);
+  const OLD_ENV = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...OLD_ENV };
   });
 
-  it('returns false for remote cloud providers', () => {
-    expect(workers.isLocalEnv('aws')).toEqual(false);
+  afterAll(() => {
+    process.env = OLD_ENV;
+  });
+
+  it('returns true if LOCAL_WORKERS is set', () => {
+    process.env.LOCAL_WORKERS = 'true';
+    expect(workers.isLocalEnv()).toEqual(true);
+  });
+
+  it('returns false if LOCAL_WORKERS is not set', () => {
+    expect(workers.isLocalEnv()).toEqual(false);
   });
 });

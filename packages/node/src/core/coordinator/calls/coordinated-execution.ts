@@ -30,12 +30,12 @@ async function execute(
   const durationMs = Math.abs(finishedAt.getTime() - startedAt.getTime());
 
   // If the worker crashed for whatever reason, mark the request as failed
-  if (err || !logData) {
+  if (err || !logData || !logData[1]) {
     const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, err);
     const updatedApiCall = { ...aggregatedApiCall, errorCode: RequestErrorCode.ApiCallFailed };
     return [[...resLogs, log], updatedApiCall];
   }
-  const res = logData[1]!;
+  const res = logData[1];
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.

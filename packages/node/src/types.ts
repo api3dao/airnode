@@ -193,8 +193,10 @@ export interface WorkerOptions {
   stage: string;
 }
 
+export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
+
 export interface WorkerParameters extends WorkerOptions {
-  functionName: string;
+  functionName: WorkerFunctionName;
   payload: any;
 }
 
