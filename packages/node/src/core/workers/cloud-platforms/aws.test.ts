@@ -13,6 +13,7 @@ jest.mock('../../../aws/handler', () => ({
 import AWS from 'aws-sdk';
 import * as aws from './aws';
 import * as fixtures from 'test/fixtures';
+import { WorkerFunctionName } from 'src/types';
 
 describe('spawn', () => {
   it('derives the function name, invokes and returns the response', async () => {
@@ -22,7 +23,7 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
       ...workerOpts,
-      functionName: 'some-function',
+      functionName: 'some-function' as WorkerFunctionName,
       payload: { from: 'ETH', to: 'USD' },
     };
     const res = await aws.spawn(parameters);
@@ -45,7 +46,7 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
       ...workerOpts,
-      functionName: 'some-function',
+      functionName: 'some-function' as WorkerFunctionName,
       payload: { from: 'ETH', to: 'USD' },
     };
     try {

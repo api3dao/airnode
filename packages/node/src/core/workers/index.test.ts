@@ -5,7 +5,7 @@ jest.mock('./cloud-platforms/aws', () => ({
 
 import * as fixtures from 'test/fixtures';
 import * as workers from './index';
-import { WorkerParameters } from 'src/types';
+import { WorkerFunctionName, WorkerParameters } from 'src/types';
 
 describe('spawn', () => {
   it('spawns for aws', async () => {
@@ -13,7 +13,7 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters: WorkerParameters = {
       ...workerOpts,
-      functionName: 'customFn',
+      functionName: 'customFn' as WorkerFunctionName,
       payload: { from: 'ETH' },
     };
     const res = await workers.spawn(parameters);
