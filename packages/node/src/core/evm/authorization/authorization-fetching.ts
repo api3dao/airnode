@@ -8,7 +8,7 @@ import { go, retryOperation } from '../../utils/promise-utils';
 import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../../types';
 
 interface FetchOptions {
-  address: string;
+  convenienceAddress: string;
   providerId: string;
   provider: ethers.providers.JsonRpcProvider;
 }
@@ -67,7 +67,7 @@ export async function fetch(
   const groupedPairs = chunk(pendingApiCalls, 10);
 
   // Create an instance of the contract that we can re-use
-  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
+  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
 
   // Fetch all authorization statuses in parallel
   const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(convenience, fetchOptions.providerId, pairs));
