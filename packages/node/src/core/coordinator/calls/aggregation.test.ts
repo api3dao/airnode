@@ -1,11 +1,3 @@
-jest.mock('../../config', () => ({
-  config: {
-    triggers: {
-      requests: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
-    },
-  },
-}));
-
 import * as fixtures from 'test/fixtures';
 import * as aggregation from './aggregation';
 
@@ -16,7 +8,7 @@ describe('aggregate (API calls)', () => {
       fixtures.requests.createApiCall(),
       fixtures.requests.createApiCall(),
     ];
-    const res = aggregation.aggregate(apiCalls);
+    const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
         endpointId: 'endpointId',
@@ -34,7 +26,7 @@ describe('aggregate (API calls)', () => {
       fixtures.requests.createApiCall({ fulfillAddress: '0x123' }),
       fixtures.requests.createApiCall({ fulfillAddress: '0x456' }),
     ];
-    const res = aggregation.aggregate(apiCalls);
+    const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
         endpointId: 'endpointId',

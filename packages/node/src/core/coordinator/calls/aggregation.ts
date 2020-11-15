@@ -1,7 +1,6 @@
-import { config } from '../../config';
-import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest } from '../../../types';
+import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest, Config } from '../../../types';
 
-function createAggregatedCall(request: ClientRequest<ApiCall>): AggregatedApiCall {
+function createAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
   const trigger = config.triggers.requests.find((t) => t.endpointId === request.endpointId);
 
   return {
@@ -15,7 +14,7 @@ function createAggregatedCall(request: ClientRequest<ApiCall>): AggregatedApiCal
   };
 }
 
-export function aggregate(flatApiCalls: ClientRequest<ApiCall>[]): AggregatedApiCallsById {
+export function aggregate(config: Config, flatApiCalls: ClientRequest<ApiCall>[]): AggregatedApiCallsById {
   const aggregatedApiCallsById = flatApiCalls.reduce((acc: AggregatedApiCallsById, request) => {
     const existingAggregatedCall = acc[request.id];
 
@@ -23,7 +22,7 @@ export function aggregate(flatApiCalls: ClientRequest<ApiCall>[]): AggregatedApi
     if (!existingAggregatedCall) {
       return {
         ...acc,
-        [request.id]: createAggregatedCall(request),
+        [request.id]: createAggregatedCall(config, request),
       };
     }
 

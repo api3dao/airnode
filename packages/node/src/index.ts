@@ -1,2 +1,6 @@
-export { start, initializeProvider, callApi, processProviderRequests } from './aws/handler';
+import * as aws from './aws/handler';
+
+export * from './core/handlers';
 export * from './types';
+
+export const AWS = { ...aws };

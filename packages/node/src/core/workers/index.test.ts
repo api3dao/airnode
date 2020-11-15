@@ -5,34 +5,46 @@ jest.mock('./cloud-platforms/aws', () => ({
   spawnLocal: spawnLocalAwsMock,
 }));
 
+import * as fixtures from 'test/fixtures';
+import * as workers from './index';
+import { WorkerParameters } from 'src/types';
+
 describe('spawn', () => {
-  beforeEach(() => jest.resetModules());
-
   it('spawns for aws', async () => {
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../config', () => ({ config }));
-
     spawnAwsMock.mockResolvedValueOnce({ value: 777 });
-
-    const { spawn } = require('./index');
-    const res = await spawn({ from: 'ETH' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const parameters: WorkerParameters = {
+      ...workerOpts,
+      functionName: 'customFn',
+      payload: { from: 'ETH' },
+    };
+    const res = await workers.spawn(parameters);
     expect(res).toEqual({ value: 777 });
-
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
-    expect(spawnAwsMock).toHaveBeenCalledWith({ from: 'ETH' });
+    expect(spawnAwsMock).toHaveBeenCalledWith(parameters);
   });
 
   it('spawns for local:aws', async () => {
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../config', () => ({ config }));
-
     spawnLocalAwsMock.mockResolvedValueOnce({ value: 1000 });
-
-    const { spawn } = require('./index');
-    const res = await spawn({ from: 'ETH' });
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
+    const parameters: WorkerParameters = {
+      ...workerOpts,
+      functionName: 'customFn',
+      payload: { from: 'BTC' },
+    };
+    const res = await workers.spawn(parameters);
     expect(res).toEqual({ value: 1000 });
-
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
-    expect(spawnLocalAwsMock).toHaveBeenCalledWith({ from: 'ETH' });
+    expect(spawnLocalAwsMock).toHaveBeenCalledWith(parameters);
+  });
+});
+
+describe('isLocalEnv', () => {
+  it('returns true for local providers', () => {
+    expect(workers.isLocalEnv('local:aws')).toEqual(true);
+  });
+
+  it('returns false for remote cloud providers', () => {
+    expect(workers.isLocalEnv('aws')).toEqual(false);
   });
 });

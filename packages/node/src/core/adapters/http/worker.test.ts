@@ -6,6 +6,7 @@ jest.mock('../../workers/cloud-platforms/aws', () => ({
 }));
 
 import * as fixtures from 'test/fixtures';
+import * as worker from './worker';
 import { LogOptions } from 'src/types';
 
 describe('spawnNewApiCall', () => {
@@ -17,42 +18,44 @@ describe('spawnNewApiCall', () => {
   };
 
   it('handles local AWS calls', async () => {
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../../config', () => ({ config }));
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
     spawnLocalAwsMock1.mockResolvedValueOnce({ value: '0x123' });
-    const { spawnNewApiCall } = require('./worker');
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
-    const res = await spawnNewApiCall(aggregatedApiCall, logOptions);
+    const res = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(res).toEqual({ value: '0x123' });
     expect(spawnLocalAwsMock1).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock1).toHaveBeenCalledWith({
-      functionName: 'airnode-9e5a89d-dev-callApi',
+      cloudProvider: 'local:aws',
+      functionName: 'callApi',
       payload: {
-        parameters: {
-          aggregatedApiCall,
-          logOptions,
-        },
+        aggregatedApiCall,
+        logOptions,
       },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     });
   });
 
   it('handles remote AWS calls', async () => {
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../../config', () => ({ config }));
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     spawnAwsMock1.mockResolvedValueOnce({ value: '0x123' });
-    const { spawnNewApiCall } = require('./worker');
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
-    const res = await spawnNewApiCall(aggregatedApiCall, logOptions);
+    const res = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(res).toEqual({ value: '0x123' });
     expect(spawnAwsMock1).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock1).toHaveBeenCalledWith({
-      functionName: 'airnode-9e5a89d-dev-callApi',
+      cloudProvider: 'aws',
+      functionName: 'callApi',
       payload: {
         parameters: {
           aggregatedApiCall,
           logOptions,
         },
       },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     });
   });
 });

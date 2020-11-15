@@ -16,12 +16,6 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<With
       transactionHash: logWithMetadata.transactionHash,
     },
     requesterIndex: parsedLog.args.requesterInd,
-    // TODO: protocol-overhaul remove these
-    requesterId: 'requesterId',
-    walletIndex: '1',
-    walletAddress: 'walletAddress',
-    walletBalance: '100000',
-    walletMinimumBalance: '50000',
   };
 
   return request;

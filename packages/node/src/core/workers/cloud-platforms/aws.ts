@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 import * as awsHandlers from '../../../aws/handler';
-import { WorkerParameters } from '../utils';
+import { WorkerParameters } from '../../../types';
 
 export function spawn(params: WorkerParameters) {
   // lambda.invoke is synchronous so we need to wrap this in a promise
@@ -8,8 +8,10 @@ export function spawn(params: WorkerParameters) {
     // Uses the current region by default
     const lambda = new AWS.Lambda();
 
+    const resolvedName = `airnode-${params.stage}-${params.providerIdShort}-${params.functionName}`;
+
     const options = {
-      FunctionName: params.functionName,
+      FunctionName: resolvedName,
       Payload: JSON.stringify(params.payload),
     };
 
@@ -30,7 +32,12 @@ export function spawnLocal(params: WorkerParameters) {
       reject(new Error(`Cannot find AWS function: '${params.functionName}'`));
     }
 
-    const request = fn(params.payload) as Promise<any>;
+    // Simulate the AWS event object
+    const event = {
+      parameters: params.payload,
+    };
+
+    const request = fn(event) as Promise<any>;
 
     request
       .then((res: any) => {

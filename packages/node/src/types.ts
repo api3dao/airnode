@@ -57,13 +57,6 @@ export type ClientRequest<T extends {}> = T & {
   readonly nonce?: number;
   readonly requesterIndex: string | null;
   readonly status: RequestStatus;
-
-  // TODO: protocol-overhaul remove these
-  readonly requesterId: string;
-  readonly walletIndex: string;
-  readonly walletAddress: string;
-  readonly walletBalance: string;
-  readonly walletMinimumBalance: string;
 };
 
 export type ApiCallType = 'short' | 'regular' | 'full';
@@ -80,10 +73,6 @@ export interface ApiCall {
   readonly responseValue?: string;
   readonly templateId: string | null;
   readonly type: ApiCallType;
-
-  // TODO: protocol-overhaul remove these
-  readonly errorAddress: string | null;
-  readonly errorFunctionId: string | null;
 }
 
 export interface ApiCallTemplate {
@@ -100,7 +89,7 @@ export interface ApiCallTemplate {
 export interface Withdrawal {
   readonly destinationAddress: string;
   readonly providerId: string;
-  readonly requesterId: string;
+  readonly requesterIndex: string;
 }
 
 export interface GroupedRequests {
@@ -108,19 +97,19 @@ export interface GroupedRequests {
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
-export interface ProviderSettings {
+export interface ProviderSettings extends CoordinatorSettings {
   readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
-  readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerId: string;
   readonly url: string;
+  readonly xpub: string;
 }
 
 export type ProviderState<T extends {}> = T & {
+  readonly config?: Config;
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
   readonly requests: GroupedRequests;
@@ -132,15 +121,24 @@ export interface AggregatedApiCallsById {
   readonly [requestId: string]: AggregatedApiCall;
 }
 
+export interface CoordinatorSettings {
+  readonly providerId: string;
+  readonly providerIdShort: string;
+  readonly logFormat: LogFormat;
+  readonly region: string;
+  readonly stage: string;
+}
+
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
-  readonly id: string;
-  readonly settings: NodeSettings;
+  readonly config: Config;
   readonly EVMProviders: ProviderState<EVMProviderState>[];
+  readonly id: string;
+  readonly settings: CoordinatorSettings;
 }
 
 // ===========================================
-// EVM
+// EVM specific
 // ===========================================
 export interface EVMContracts {
   readonly Airnode: string;
@@ -150,6 +148,13 @@ export interface EVMContracts {
 export interface EVMProviderState {
   readonly contracts: EVMContracts;
   readonly gasPrice: ethers.BigNumber | null;
+  readonly provider: ethers.providers.JsonRpcProvider;
+  readonly masterHDNode: ethers.utils.HDNode;
+}
+
+export interface TransactionOptions {
+  readonly gasPrice: number | ethers.BigNumber;
+  readonly masterHDNode: ethers.utils.HDNode;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -179,6 +184,21 @@ export interface AggregatedApiCall {
 }
 
 // ===========================================
+// Workers
+// ===========================================
+export interface WorkerOptions {
+  cloudProvider: NodeCloudProvider;
+  providerIdShort: string;
+  region: string;
+  stage: string;
+}
+
+export interface WorkerParameters extends WorkerOptions {
+  functionName: string;
+  payload: any;
+}
+
+// ===========================================
 // Events
 // ===========================================
 export interface LogWithMetadata {
@@ -190,11 +210,6 @@ export interface LogWithMetadata {
 // ===========================================
 // Transactions
 // ===========================================
-export interface TransactionOptions {
-  readonly gasPrice: number | ethers.BigNumber;
-  readonly provider?: ethers.providers.JsonRpcProvider;
-}
-
 export interface TransactionReceipt {
   readonly id: string;
   readonly transactionHash: string;
@@ -260,7 +275,8 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
-  readonly [name: string]: string;
+  readonly Airnode: string;
+  readonly Convenience: string;
 }
 
 export interface ChainProvider {
@@ -272,7 +288,7 @@ export interface ChainProvider {
 
 export interface ChainConfig {
   readonly adminAddressForCreatingProviderRecord?: string;
-  readonly contracts?: ChainContracts;
+  readonly contracts: ChainContracts;
   readonly id: number;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
@@ -284,10 +300,10 @@ export interface NodeSettings {
   readonly chains: ChainConfig[];
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
-  readonly nodeKey: string;
-  readonly platformKey: string;
-  readonly platformUrl: string;
-  readonly providerId: string;
+  readonly nodeVersion: string;
+  readonly providerIdShort?: string;
+  readonly region: string;
+  readonly stage: string;
 }
 
 export interface Config {

@@ -11,7 +11,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "dev:aws": "serverless offline --config serverless.local.yml",
+    "invoke:aws": "(cd __dev__ && ts-node invoke.ts)",
     "prepublishOnly": "yarn run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
@@ -30,8 +30,7 @@
     "lodash": "^4.17.20"
   },
   "devDependencies": {
-    "serverless": "^2.0.0",
-    "serverless-offline": "^6.7.0",
-    "serverless-plugin-typescript": "^1.1.9"
+    "@types/bluebird": "^3.5.32",
+    "@types/lodash": "^4.14.157"
   }
 }

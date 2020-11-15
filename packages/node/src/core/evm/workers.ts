@@ -1,39 +1,35 @@
-import * as evm from '../evm';
+import * as providerState from '../providers/state';
 import * as workers from '../workers';
-import { EVMProviderState, ProviderState } from '../../types';
+import { EVMProviderState, ProviderState, WorkerOptions } from '../../types';
 
 export async function spawnNewProvider(
-  state: ProviderState<EVMProviderState>
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
 ): Promise<ProviderState<EVMProviderState>> {
-  // TODO: This will probably need to change for other cloud providers
-  const payload = { parameters: { state } };
-  // TODO: Build the function name from parameters
-  const options = { functionName: 'airnode-9e5a89d-dev-initializeProvider', payload };
+  const options = {
+    ...workerOpts,
+    functionName: 'initializeProvider',
+    payload: { state },
+  };
 
   // If this throws, it will be caught by the calling function
-  const updatedState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
-
-  // The serverless function does not return an instance of an Ethereum
-  // provider, so we create a new one before returning the state
-  const evmProvider = evm.newProvider(updatedState.settings.url, updatedState.settings.chainId);
-
-  return { ...updatedState, provider: evmProvider };
+  const responseState = await workers.spawn(options);
+  const unscrubbedState = providerState.unscrub(responseState);
+  return unscrubbedState;
 }
 
 export async function spawnProviderRequestProcessor(
-  state: ProviderState<EVMProviderState>
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
 ): Promise<ProviderState<EVMProviderState>> {
-  // TODO: This will probably need to change for other cloud providers
-  const payload = { state };
-  // TODO: Build the function name from parameters
-  const options = { functionName: 'airnode-9e5a89d-dev-processProviderRequests', payload };
+  const options = {
+    ...workerOpts,
+    functionName: 'processProviderRequests',
+    payload: { state },
+  };
 
   // If this throws, it will be caught by the calling function
-  const updatedState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
-
-  // The serverless function does not return an instance of an Ethereum
-  // provider, so we create a new one before returning the state
-  const evmProvider = evm.newProvider(updatedState.settings.url, updatedState.settings.chainId);
-
-  return { ...updatedState, provider: evmProvider };
+  const responseState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
+  const unscrubbedState = providerState.unscrub(responseState);
+  return unscrubbedState;
 }

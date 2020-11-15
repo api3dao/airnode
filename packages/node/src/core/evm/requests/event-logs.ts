@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { config } from '../../config';
 import * as contracts from '../contracts';
 import * as events from './events';
 import { LogWithMetadata } from '../../../types';
@@ -9,6 +8,7 @@ interface FetchOptions {
   blockHistoryLimit: number;
   currentBlock: number;
   provider: ethers.providers.JsonRpcProvider;
+  providerId: string;
 }
 
 interface GroupedLogs {
@@ -23,7 +23,7 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
-    topics: [null, config.nodeSettings.providerId],
+    topics: [null, options.providerId],
   };
 
   // Let this throw if something goes wrong

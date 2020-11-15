@@ -1,9 +1,3 @@
-jest.mock('../config', () => ({
-  security: {
-    masterKeyMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
-  },
-}));
-
 import shuffle from 'lodash/shuffle';
 import * as fixtures from 'test/fixtures';
 import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from 'src/types';
@@ -14,7 +8,7 @@ describe('assign', () => {
   let initialState: ProviderState<EVMProviderState>;
 
   beforeEach(() => {
-    initialState = fixtures.createEVMProviderState();
+    initialState = fixtures.buildEVMProviderState();
   });
 
   it('sorts and assigns nonces requests API calls', () => {

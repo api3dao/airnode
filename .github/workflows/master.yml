@@ -24,10 +24,7 @@ jobs:
       run: npm run lint
 
     - name: Build
-      run: |
-        npm run build:protocol
-        npm run build:ois
-        npm run build:adapter
+      run: npm run build
 
     - name: Test adapter
       run: npm run test:adapter
@@ -37,14 +34,6 @@ jobs:
 
     - name: Test node
       run: npm run test:node
-
-    - name: Prepare config
-      run: |
-        cp packages/node/config.json.example packages/node/src/config.json
-        cp packages/node/security.json.example packages/node/src/security.json
-
-    - name: Build node
-      run: npm run build:node
 
     - name: Slack Notification
       uses: homoluctus/slatify@master

@@ -16,12 +16,12 @@ interface ApiCallsWithLogs {
 }
 
 export function blockRequestsWithWithdrawals(requests: GroupedRequests): LogsData<GroupedRequests> {
-  const withdrawalsByWalletIndex = fromPairs(requests.withdrawals.map((w) => [w.walletIndex, w]));
+  const withdrawalsByRequesterIndex = fromPairs(requests.withdrawals.map((w) => [w.requesterIndex, w]));
 
   const initialState: ApiCallsWithLogs = { logs: [], apiCalls: [] };
 
   const { logs, apiCalls } = requests.apiCalls.reduce((acc, apiCall) => {
-    const pendingWithdrawal = withdrawalsByWalletIndex[apiCall.walletIndex];
+    const pendingWithdrawal = withdrawalsByRequesterIndex[apiCall.requesterIndex!];
 
     if (pendingWithdrawal) {
       const warningLog = logger.pend(

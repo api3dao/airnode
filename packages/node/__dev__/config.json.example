@@ -1,0 +1,86 @@
+{
+  "id": "e08f5610-5772-4986-92fb-c8aef5aee6a0",
+  "nodeSettings": {
+    "cloudProvider": "aws",
+    "logFormat": "plain",
+    "nodeVersion": "0.1.0",
+    "region": "us-east-1",
+    "stage": "dev",
+    "chains": [
+      {
+        "type": "evm",
+        "id": 1337,
+        "contracts": {
+          "Airnode": "0x197F3826040dF832481f835652c290aC7c41f073",
+          "Convenience": "0x2393737d287c555d148012270Ce4567ABb1ee95C"
+        },
+        "providers": [
+          {
+            "name": "ganache-local",
+            "url": "http://localhost:4111"
+          }
+        ]
+      }
+    ]
+  },
+  "triggers": {
+    "requests": [
+      {
+        "endpointId": "0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48",
+        "oisTitle": "coinlayer",
+        "endpointName": "convertToUsd"
+      }
+    ],
+    "aggregator": [],
+    "flux": []
+  },
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.2.3",
+      "title": "ethgastation",
+      "apiSpecifications": {
+        "info": {
+          "title": "ethgastation"
+        },
+        "servers": [
+          {
+            "url": "https://ethgasstation.info/api"
+          }
+        ],
+        "paths": {
+          "/ethgasAPI.json": {
+            "get": {
+              "parameters": []
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {}
+        },
+        "security": []
+      },
+      "endpoints": [
+        {
+          "name": "fastest",
+          "operation": {
+            "method": "get",
+            "path": "/ethgasAPI.json"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [
+            {
+              "name": "_type",
+              "fixed": "int256"
+            },
+            {
+              "name": "_path",
+              "fixed": "fastest"
+            }
+          ],
+          "parameters": []
+        }
+      ]
+    }
+  ]
+}

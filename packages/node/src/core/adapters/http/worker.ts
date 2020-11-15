@@ -1,17 +1,18 @@
 import * as workers from '../../workers';
-import { AggregatedApiCall, ApiCallResponse, LogOptions } from '../../../types';
+import { AggregatedApiCall, ApiCallResponse, LogOptions, WorkerOptions } from '../../../types';
 
 export async function spawnNewApiCall(
   aggregatedApiCall: AggregatedApiCall,
-  logOptions: LogOptions
+  logOptions: LogOptions,
+  workerOpts: WorkerOptions
 ): Promise<ApiCallResponse> {
-  // TODO: This will probably need to change for other cloud providers
-  const payload = { parameters: { aggregatedApiCall, logOptions } };
-  // TODO: Build the function name from parameters
-  const options = { functionName: 'airnode-9e5a89d-dev-callApi', payload };
+  const options = {
+    ...workerOpts,
+    functionName: 'callApi',
+    payload: { aggregatedApiCall, logOptions },
+  };
 
   // If this throws, it will be caught by the calling function
   const response = (await workers.spawn(options)) as ApiCallResponse;
-
   return response;
 }

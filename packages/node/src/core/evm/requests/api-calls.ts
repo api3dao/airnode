@@ -47,19 +47,10 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     parameters: {},
     providerId: parsedLog.args.providerId,
     requestCount: parsedLog.args.noRequests.toString(),
-    requesterIndex: parsedLog.args.requesterInd || null,
+    requesterIndex: parsedLog.args.requesterInd?.toString() || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,
     type: getApiCallType(parsedLog.topic),
-
-    // TODO: protocol-overhaul remove these
-    errorAddress: parsedLog.args.errorAddress,
-    errorFunctionId: parsedLog.args.errorFunctionId,
-    requesterId: 'requesterId',
-    walletIndex: '1',
-    walletAddress: 'walletAddress',
-    walletBalance: '100000',
-    walletMinimumBalance: '50000',
   };
 
   return request;

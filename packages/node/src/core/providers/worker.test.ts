@@ -19,43 +19,42 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
+import * as worker from './worker';
 
 describe('spawnNewProvider', () => {
-  beforeEach(() => jest.resetModules());
-
   it('handles local AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../config', () => ({ config }));
-    const state = fixtures.createEVMProviderState();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
+    const state = fixtures.buildEVMProviderState();
     spawnLocalAwsMock.mockResolvedValueOnce(state);
-    const { spawnNewProvider } = require('./worker');
-    const res = await spawnNewProvider(state);
+    const res = await worker.spawnNewProvider(state, workerOpts);
     expect(res).toEqual({ ...state, provider });
     expect(spawnLocalAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnLocalAwsMock).toHaveBeenCalledWith({
-      functionName: 'airnode-9e5a89d-dev-initializeProvider',
-      payload: {
-        parameters: { state },
-      },
+      cloudProvider: 'local:aws',
+      functionName: 'initializeProvider',
+      payload: { state },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     });
   });
 
   it('handles remote AWS calls', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../config/index', () => ({ config }));
-    const state = fixtures.createEVMProviderState();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const state = fixtures.buildEVMProviderState();
     spawnAwsMock.mockResolvedValueOnce(state);
-    const { spawnNewProvider } = require('./worker');
-    const res = await spawnNewProvider(state);
+    const res = await worker.spawnNewProvider(state, workerOpts);
     expect(res).toEqual({ ...state, provider });
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
-      functionName: 'airnode-9e5a89d-dev-initializeProvider',
-      payload: {
-        parameters: { state },
-      },
+      cloudProvider: 'aws',
+      functionName: 'initializeProvider',
+      payload: { state },
+      providerIdShort: '19255a4',
+      region: 'us-east-1',
+      stage: 'test',
     });
   });
 });
