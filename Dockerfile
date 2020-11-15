@@ -18,13 +18,13 @@ RUN cd /usr/local/bin \
     && unzip terraform.zip \
     && rm terraform.zip
 
-RUN yarn bootstrap
-RUN yarn build
+RUN yarn run bootstrap
+RUN yarn run build
 
 CMD cp out/$RECEIPT_FILENAME packages/deployer/ | true \
     && cd /airnode/packages/deployer \
-    && yarn sls:config \
-    && yarn terraform:init \
-    && yarn command:$COMMAND \
+    && yarn run sls:config \
+    && yarn run terraform:init \
+    && yarn run command:$COMMAND \
     && cd /airnode \
     && cp packages/deployer/*.receipt.json out | true

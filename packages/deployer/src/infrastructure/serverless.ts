@@ -26,9 +26,9 @@ export async function removeAirnode(providerIdShort, region, stage) {
 }
 
 async function deployServerless(providerIdShort, region, stage) {
-  await exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn sls:deploy`);
+  await exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn run sls:deploy`);
 }
 
 async function removeServerless(providerIdShort, region, stage) {
-  await exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn sls:remove`);
+  await exec(`PROVIDER_ID_SHORT=${providerIdShort} REGION=${region} STAGE=${stage} yarn run sls:remove`);
 }
