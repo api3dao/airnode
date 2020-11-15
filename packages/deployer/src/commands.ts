@@ -117,8 +117,8 @@ export async function deployMnemonic(mnemonic, region) {
 
 export async function removeWithReceipt(receiptFilename) {
   const receipt = await parseReceipt(receiptFilename);
-  await removeMnemonic(receipt.providerIdShort, receipt.region);
   await removeAirnode(receipt.providerIdShort, receipt.region, receipt.stage);
+  await removeMnemonic(receipt.providerIdShort, receipt.region);
 }
 
 export async function removeMnemonic(providerIdShort, region) {
