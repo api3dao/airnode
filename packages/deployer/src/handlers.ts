@@ -1,1 +1,1 @@
-export { start, initializeProvider, callApi, processProviderRequests } from '@airnode/node';
+export * from '@airnode/node';

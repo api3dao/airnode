@@ -48,10 +48,8 @@ describe('spawnNewApiCall', () => {
       cloudProvider: 'aws',
       functionName: 'callApi',
       payload: {
-        parameters: {
-          aggregatedApiCall,
-          logOptions,
-        },
+        aggregatedApiCall,
+        logOptions,
       },
       providerIdShort: '19255a4',
       region: 'us-east-1',
