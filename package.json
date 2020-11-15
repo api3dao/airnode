@@ -14,6 +14,7 @@
     "build:ois": "(cd packages/ois && npm run build)",
     "clean": "lerna run clean --stream",
     "dev:invoke": "(cd packages/node && npm run dev:invoke)",
+    "dev:invoke:local": "(cd packages/node && npm run dev:invoke:local)",
     "lint": "npm run lint:eslint && npm run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:solhint": "solhint ./**/*.sol",
