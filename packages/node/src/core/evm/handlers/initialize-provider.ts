@@ -1,5 +1,5 @@
 import { go } from '../../utils/promise-utils';
-import * as authorization from '../authorization';
+import * as authorizations from '../authorization';
 import * as logger from '../../logger';
 import * as providers from '../providers';
 import * as requests from '../requests';
@@ -18,7 +18,7 @@ async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>
     provider: currentState.provider,
     providerId: currentState.settings.providerId,
   };
-  const [logs, res] = await authorization.fetch(currentState.requests.apiCalls, fetchOptions);
+  const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
   return { id: 'authorizations', data: res, logs };
 }
 
@@ -126,22 +126,21 @@ export async function initializeProvider(
   const authAndTxResults = await Promise.all(authAndTxCountPromises);
 
   // These promises can resolve in any order, so we need to find each one by it's key
-  const txCountData = authAndTxResults.find((r) => r.id === 'transaction-counts')!;
-  logger.logPending(txCountData.logs, baseLogOptions);
+  const txCountRes = authAndTxResults.find((r) => r.id === 'transaction-counts')!;
+  logger.logPending(txCountRes.logs, baseLogOptions);
 
-  // These promises can resolve in any order, so we need to find each one by it's key
-  const authData = authAndTxResults.find((r) => r.id === 'authorizations')!;
-  logger.logPending(authData.logs, baseLogOptions);
+  const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
+  logger.logPending(authRes.logs, baseLogOptions);
 
-  const transactionCountsByRequesterIndex = txCountData.data!;
-  const authorizationsByRequestId = authData.data!;
+  const transactionCountsByRequesterIndex = txCountRes.data!;
+  const authorizationsByRequestId = authRes.data!;
 
   const state6 = state.update(state5, { transactionCountsByRequesterIndex });
 
   // =================================================================
   // STEP 7: Apply authorization statuses to requests
   // =================================================================
-  const [authLogs, authorizedApiCalls] = authorization.mergeAuthorizations(
+  const [authLogs, authorizedApiCalls] = authorizations.mergeAuthorizations(
     state5.requests.apiCalls,
     authorizationsByRequestId
   );
