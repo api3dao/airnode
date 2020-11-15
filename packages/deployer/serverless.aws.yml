@@ -21,18 +21,18 @@ package:
   individually: true
   
 functions:
-  start:
-    handler: ./src/handlers.start
+  startCoordinator:
+    handler: ./src/handlers/aws/index.startCoordinator
     timeout: 60
 
   initializeProvider:
-    handler: ./src/handlers.initializeProvider
+    handler: ./src/handlers/aws/index.initializeProvider
     timeout: 20
 
   callApi:
-    handler: ./src/handlers.callApi
+    handler: ./src/handlers/aws/index.callApi
     timeout: 30
 
   processProviderRequests:
-    handler: ./src/handlers.processProviderRequests
+    handler: ./src/handlers/aws/index.processProviderRequests
     timeout: 10
