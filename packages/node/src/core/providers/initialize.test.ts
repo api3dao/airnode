@@ -95,7 +95,7 @@ describe('initializeProviders', () => {
         currentBlock: 123456,
         gasPrice: null,
         masterHDNode: expect.any(ethers.utils.HDNode),
-        provider: expect.anything(),
+        provider: expect.any(ethers.providers.JsonRpcProvider),
         requests: {
           apiCalls: [],
           withdrawals: [],
@@ -127,7 +127,7 @@ describe('initializeProviders', () => {
         currentBlock: 987654,
         gasPrice: null,
         masterHDNode: expect.any(ethers.utils.HDNode),
-        provider: expect.anything(),
+        provider: expect.any(ethers.providers.JsonRpcProvider),
         requests: {
           apiCalls: [],
           withdrawals: [],

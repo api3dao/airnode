@@ -13,7 +13,7 @@ describe('spawnNewProvider', () => {
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
     expect(logs).toEqual([]);
-    expect(res).toEqual({ ...state, provider: expect.anything() });
+    expect(res).toEqual(state);
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
       cloudProvider: 'aws',
@@ -33,7 +33,7 @@ describe('spawnProviderRequestProcessor', () => {
     spawnAwsMock.mockResolvedValueOnce({ ok: true, data: state });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
     expect(logs).toEqual([]);
-    expect(res).toEqual({ ...state, provider: expect.anything() });
+    expect(res).toEqual(state);
     expect(spawnAwsMock).toHaveBeenCalledTimes(1);
     expect(spawnAwsMock).toHaveBeenCalledWith({
       cloudProvider: 'aws',
