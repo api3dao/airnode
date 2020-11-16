@@ -84,6 +84,7 @@ describe('submit', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
     contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
+    contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await fulfillments.submit(state);
     expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, error: new Error('Server did not respond') }]);
@@ -103,6 +104,7 @@ describe('submit', () => {
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValue(ethers.BigNumber.from(250_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from(50_000));
+    contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server did not respond'));
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await fulfillments.submit(state);

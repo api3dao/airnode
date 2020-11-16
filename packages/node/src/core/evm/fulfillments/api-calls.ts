@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { go } from '../../utils/promise-utils';
+import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import {
@@ -50,21 +50,22 @@ async function testFulfill(
     `Attempting to fulfill API call with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const attemptedTx = airnode.callStatic.fulfill(
-    request.id,
-    request.providerId,
-    statusCode,
-    request.responseValue || ethers.constants.HashZero,
-    request.fulfillAddress,
-    request.fulfillFunctionId,
-    {
-      gasLimit: GAS_LIMIT,
-      gasPrice: options.gasPrice,
-      nonce: request.nonce!,
-    }
-  );
-
-  const [err, res] = await go(attemptedTx);
+  const operation = () =>
+    airnode.callStatic.fulfill(
+      request.id,
+      request.providerId,
+      statusCode,
+      request.responseValue || ethers.constants.HashZero,
+      request.fulfillAddress,
+      request.fulfillFunctionId,
+      {
+        gasLimit: GAS_LIMIT,
+        gasPrice: options.gasPrice,
+        nonce: request.nonce!,
+      }
+    );
+  const retryableOperation = retryOperation(2, operation, { timeouts: [5000, 5000] });
+  const [err, res] = await go(retryableOperation);
   if (err) {
     const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
@@ -84,21 +85,22 @@ async function submitFulfill(
     `Submitting API call fulfillment with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const tx = airnode.fulfill(
-    request.id,
-    request.providerId,
-    statusCode,
-    request.responseValue || ethers.constants.HashZero,
-    request.fulfillAddress,
-    request.fulfillFunctionId,
-    {
-      gasLimit: GAS_LIMIT,
-      gasPrice: options.gasPrice,
-      nonce: request.nonce!,
-    }
-  );
-
-  const [err, res] = await go(tx);
+  const tx = () =>
+    airnode.fulfill(
+      request.id,
+      request.providerId,
+      statusCode,
+      request.responseValue || ethers.constants.HashZero,
+      request.fulfillAddress,
+      request.fulfillFunctionId,
+      {
+        gasLimit: GAS_LIMIT,
+        gasPrice: options.gasPrice,
+        nonce: request.nonce!,
+      }
+    );
+  const retryableTx = retryOperation(2, tx, { timeouts: [5000, 5000] });
+  const [err, res] = await go(retryableTx);
   if (err) {
     const errorLog = logger.pend(
       'ERROR',
@@ -157,13 +159,14 @@ async function submitFail(
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
-  const tx = airnode.fail(request.id, request.providerId, request.fulfillAddress, request.fulfillFunctionId, {
-    gasLimit: GAS_LIMIT,
-    gasPrice: options.gasPrice,
-    nonce: request.nonce!,
-  });
-
-  const [err, res] = await go(tx);
+  const tx = () =>
+    airnode.fail(request.id, request.providerId, request.fulfillAddress, request.fulfillFunctionId, {
+      gasLimit: GAS_LIMIT,
+      gasPrice: options.gasPrice,
+      nonce: request.nonce!,
+    });
+  const retryableTx = retryOperation(2, tx, { timeouts: [5000, 5000] });
+  const [err, res] = await go(retryableTx);
   if (err) {
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
