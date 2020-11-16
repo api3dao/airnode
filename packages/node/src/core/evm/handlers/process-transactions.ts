@@ -20,7 +20,7 @@ export async function processTransactions(
   // =================================================================
   // STEP 1: Re-instantiate any classes
   // =================================================================
-  const state1 = state.unscrub(initialState);
+  const state1 = state.refresh(initialState);
 
   // =================================================================
   // STEP 2: Assign nonces to processable requests

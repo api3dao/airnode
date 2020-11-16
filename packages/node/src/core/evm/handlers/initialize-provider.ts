@@ -46,7 +46,7 @@ export async function initializeProvider(
   // =================================================================
   // STEP 1: Re-instantiate any classes
   // =================================================================
-  const state1 = state.unscrub(initialState);
+  const state1 = state.refresh(initialState);
 
   // =================================================================
   // STEP 2: Get current block number and find or create the provider
