@@ -9,7 +9,6 @@
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
     "dev:invoke": "(cd __dev__ && ts-node invoke.ts)",
-    "dev:invoke:local": "(cd __dev__ && LOCAL_WORKERS=true ts-node invoke.ts)",
     "prepublishOnly": "npm run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"

@@ -14,17 +14,6 @@ describe('callApis', () => {
     meta: { coordinatorId: '123456' },
   };
 
-  const OLD_ENV = process.env;
-
-  beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...OLD_ENV, LOCAL_WORKERS: 'true' };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
     const aggregatedApiCallsById = {

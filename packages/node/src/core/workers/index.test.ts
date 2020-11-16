@@ -22,25 +22,3 @@ describe('spawn', () => {
     expect(spawnAwsMock).toHaveBeenCalledWith(parameters);
   });
 });
-
-describe('isLocalEnv', () => {
-  const OLD_ENV = process.env;
-
-  beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...OLD_ENV };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
-  it('returns true if LOCAL_WORKERS is set', () => {
-    process.env.LOCAL_WORKERS = 'true';
-    expect(workers.isLocalEnv()).toEqual(true);
-  });
-
-  it('returns false if LOCAL_WORKERS is not set', () => {
-    expect(workers.isLocalEnv()).toEqual(false);
-  });
-});

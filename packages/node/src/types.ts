@@ -302,7 +302,7 @@ export interface ChainConfig {
   readonly type: ChainType;
 }
 
-export type NodeCloudProvider = 'aws';
+export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
   readonly chains: ChainConfig[];

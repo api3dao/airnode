@@ -48,19 +48,7 @@ import { ChainConfig } from 'src/types';
 import * as providers from './initialize';
 
 describe('initializeProviders', () => {
-  const OLD_ENV = process.env;
-
-  beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...OLD_ENV };
-  });
-
-  afterAll(() => {
-    process.env = OLD_ENV;
-  });
-
   it('sets the initial state for each provider', async () => {
-    process.env.LOCAL_WORKERS = 'true';
     const nodeSettings = fixtures.buildNodeSettings({ chains });
     const config = fixtures.buildConfig({ nodeSettings });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
@@ -150,7 +138,6 @@ describe('initializeProviders', () => {
   });
 
   it('throws an error if no providers are configured', async () => {
-    process.env.LOCAL_WORKERS = 'true';
     expect.assertions(1);
     const nodeSettings = fixtures.buildNodeSettings({ chains: [] });
     const config = fixtures.buildConfig({ nodeSettings });
