@@ -35,12 +35,12 @@ interface ProviderWithBlockNumber {
 
 export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData<ProviderWithBlockNumber | null>> {
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
-  const contractCall = () => convenience.getProviderAndBlockNumber(fetchOptions.providerId);
-  const retryableContractCall = retryOperation(2, contractCall, { timeouts: [5000, 5000] }) as Promise<any>;
+  const operation = () => convenience.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
+  const retryableOperation = retryOperation(2, operation, { timeouts: [5000, 5000] });
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and provider admin details...');
 
-  const [err, res] = await go(retryableContractCall);
+  const [err, res] = await go(retryableOperation);
   if (err || !res) {
     const errLog = logger.pend('ERROR', 'Unable to fetch current block and provider admin details', err);
     return [[fetchLog, errLog], null];

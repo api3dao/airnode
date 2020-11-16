@@ -1,15 +1,9 @@
-const getLogsMock = jest.fn();
 const parseLogMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
     ethers: {
       ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getLogs: getLogsMock,
-        })),
-      },
       utils: {
         ...original.utils,
         Interface: jest.fn().mockImplementation(() => ({
@@ -26,7 +20,6 @@ import * as eventLogs from './event-logs';
 
 describe('EVM event logs - fetch', () => {
   it('returns all logs with metadata', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
       topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
@@ -43,7 +36,7 @@ describe('EVM event logs - fetch', () => {
       transactionHash: '0x3',
     };
 
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent, fulfilledApiCallEvent, unknownEvent]);
 
     // TODO: We probably shouldn't be mocking the interface, but need to find
@@ -84,8 +77,9 @@ describe('EVM event logs - fetch', () => {
 
   it('throws an exception if the logs cannot be fetched', async () => {
     expect.assertions(1);
-    const provider = new ethers.providers.JsonRpcProvider();
-    const getLogs = provider.getLogs as jest.Mock;
+
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
+    getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
     getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
 
     const fetchOptions = {
@@ -104,13 +98,12 @@ describe('EVM event logs - fetch', () => {
 
   it('throws an exception if the logs cannot be parsed', async () => {
     expect.assertions(1);
-    const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
       topic: '0xinvalidtopic',
       transactionHash: '0x1',
     };
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent]);
 
     // TODO: We probably shouldn't be mocking the interface, but need to find

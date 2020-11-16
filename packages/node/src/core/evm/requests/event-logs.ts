@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import * as contracts from '../contracts';
 import * as events from './events';
 import { LogWithMetadata } from '../../../types';
+import { retryOperation } from '../../utils/promise-utils';
 
 interface FetchOptions {
   address: string;
@@ -26,8 +27,11 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
     topics: [null, options.providerId],
   };
 
+  const operation = () => options.provider.getLogs(filter);
+  const retryableOperation = retryOperation(2, operation, { timeouts: [5000, 5000] });
+
   // Let this throw if something goes wrong
-  const rawLogs = await options.provider.getLogs(filter);
+  const rawLogs = await retryableOperation;
 
   // If the provider returns a bad response, mapping logs could also throw
   const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);

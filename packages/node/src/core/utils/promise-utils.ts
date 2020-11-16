@@ -51,7 +51,7 @@ export interface RetryOptions {
   timeouts: number[];
 }
 
-export function retryOperation(retriesLeft: number, operation: () => Promise<any>, options: RetryOptions) {
+export function retryOperation<T>(retriesLeft: number, operation: () => Promise<T>, options: RetryOptions): Promise<T> {
   return new Promise((resolve, reject) => {
     const { timeouts } = options;
     // Find the timeout for this specific iteration
