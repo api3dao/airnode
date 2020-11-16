@@ -28,7 +28,7 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   };
 
   const operation = () => options.provider.getLogs(filter);
-  const retryableOperation = retryOperation(2, operation, { timeouts: [5000, 5000] });
+  const retryableOperation = retryOperation(2, operation);
 
   // Let this throw if something goes wrong
   const rawLogs = await retryableOperation;

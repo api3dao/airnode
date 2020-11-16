@@ -34,7 +34,7 @@ async function fetchAuthorizationStatuses(
       designatedWallets,
       clientAddresses
     ) as Promise<any>;
-  const retryableContractCall = retryOperation(2, contractCall, { timeouts: [5000, 5000] });
+  const retryableContractCall = retryOperation(2, contractCall);
 
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {

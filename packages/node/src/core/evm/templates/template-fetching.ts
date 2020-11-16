@@ -22,7 +22,7 @@ async function fetchTemplateGroup(
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => convenience.getTemplates(templateIds) as Promise<any>;
-  const retryableContractCall = retryOperation(2, contractCall, { timeouts: [5000, 5000] });
+  const retryableContractCall = retryOperation(2, contractCall);
 
   const [err, rawTemplates] = await go(retryableContractCall);
   // If we fail to fetch templates, the linked requests will be discarded and retried

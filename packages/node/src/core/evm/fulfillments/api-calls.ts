@@ -64,7 +64,7 @@ async function testFulfill(
         nonce: request.nonce!,
       }
     );
-  const retryableOperation = retryOperation(2, operation, { timeouts: [5000, 5000] });
+  const retryableOperation = retryOperation(2, operation);
   const [err, res] = await go(retryableOperation);
   if (err) {
     const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
@@ -99,7 +99,7 @@ async function submitFulfill(
         nonce: request.nonce!,
       }
     );
-  const retryableTx = retryOperation(2, tx, { timeouts: [5000, 5000] });
+  const retryableTx = retryOperation(2, tx);
   const [err, res] = await go(retryableTx);
   if (err) {
     const errorLog = logger.pend(
@@ -165,7 +165,7 @@ async function submitFail(
       gasPrice: options.gasPrice,
       nonce: request.nonce!,
     });
-  const retryableTx = retryOperation(2, tx, { timeouts: [5000, 5000] });
+  const retryableTx = retryOperation(2, tx);
   const [err, res] = await go(retryableTx);
   if (err) {
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
