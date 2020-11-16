@@ -18,31 +18,34 @@ export async function processTransactions(
   };
 
   // =================================================================
-  // STEP 1: Assign nonces to processable requests
+  // STEP 1: Re-instantiate any classes
   // =================================================================
-  const requestsWithNonces = nonces.assign(initialState);
-  const state1 = state.update(initialState, { requests: requestsWithNonces });
+  const state1 = state.unscrub(initialState);
 
   // =================================================================
-  // STEP 2: Get the latest gas price
+  // STEP 2: Assign nonces to processable requests
   // =================================================================
-  const gasPriceOptions = {
-    provider: state1.provider,
-  };
+  const requestsWithNonces = nonces.assign(initialState);
+  const state2 = state.update(initialState, { requests: requestsWithNonces });
+
+  // =================================================================
+  // STEP 3: Get the latest gas price
+  // =================================================================
+  const gasPriceOptions = { provider: state2.provider };
   const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
   logger.logPending(gasPriceLogs, baseLogOptions);
 
   if (!gasPrice) {
     logger.error('Cannot submit transactions with gas price. Returning...', baseLogOptions);
-    return state1;
+    return state2;
   }
 
   const gweiPrice = utils.weiToGwei(gasPrice);
   logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
-  const state2 = state.update(state1, { gasPrice });
+  const state3 = state.update(state1, { gasPrice });
 
   // =================================================================
-  // STEP 3: Submit transactions for each wallet
+  // STEP 4: Submit transactions for each wallet
   // =================================================================
   const receipts = await fulfillments.submit(state2);
   const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
@@ -52,5 +55,5 @@ export async function processTransactions(
 
   // TODO: apply tx hashes to each request
 
-  return state2;
+  return state3;
 }
