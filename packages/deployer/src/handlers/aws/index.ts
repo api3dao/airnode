@@ -15,7 +15,7 @@ export async function startCoordinator() {
 
 export async function initializeProvider(event: any) {
   // State and config are sent separately
-  const stateWithConfig = node.providerState.update(event.parameters.state, { config });
+  const stateWithConfig = node.providerState.update(event.state, { config });
 
   const [err, initializedState] = await node.promiseUtils.go(node.handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
@@ -30,7 +30,7 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions } = event.parameters;
+  const { aggregatedApiCall, logOptions } = event;
   const [logs, apiCallResponse] = await node.handlers.callApi(config, aggregatedApiCall);
   node.logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
@@ -39,7 +39,7 @@ export async function callApi(event: any) {
 
 export async function processProviderRequests(event: any) {
   // State and config are sent separately
-  const stateWithConfig = node.providerState.update(event.parameters.state, { config });
+  const stateWithConfig = node.providerState.update(event.state, { config });
 
   const [err, updatedState] = await node.promiseUtils.go(node.handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
