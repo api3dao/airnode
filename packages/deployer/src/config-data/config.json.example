@@ -9,6 +9,7 @@
     "logFormat": "plain",
     "chains": [
       {
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "type": "evm",
         "id": 3,
         "contracts": {
@@ -25,6 +26,7 @@
         ]
       },
       {
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "type": "evm",
         "id": 4,
         "contracts": {
