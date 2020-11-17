@@ -20,7 +20,7 @@ describe('spawnNewProvider', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-initializeProvider',
+        FunctionName: 'airnode-19255a4-test-initializeProvider',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -43,7 +43,7 @@ describe('spawnNewProvider', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-initializeProvider',
+        FunctionName: 'airnode-19255a4-test-initializeProvider',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -61,7 +61,7 @@ describe('spawnNewProvider', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-initializeProvider',
+        FunctionName: 'airnode-19255a4-test-initializeProvider',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -78,7 +78,7 @@ describe('spawnNewProvider', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-initializeProvider',
+        FunctionName: 'airnode-19255a4-test-initializeProvider',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -97,7 +97,7 @@ describe('spawnProviderRequestProcessor', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-processProviderRequests',
+        FunctionName: 'airnode-19255a4-test-processProviderRequests',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -120,7 +120,7 @@ describe('spawnProviderRequestProcessor', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-processProviderRequests',
+        FunctionName: 'airnode-19255a4-test-processProviderRequests',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -138,7 +138,7 @@ describe('spawnProviderRequestProcessor', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-processProviderRequests',
+        FunctionName: 'airnode-19255a4-test-processProviderRequests',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
@@ -155,7 +155,7 @@ describe('spawnProviderRequestProcessor', () => {
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-processProviderRequests',
+        FunctionName: 'airnode-19255a4-test-processProviderRequests',
         Payload: JSON.stringify({ state }),
       },
       expect.anything()
