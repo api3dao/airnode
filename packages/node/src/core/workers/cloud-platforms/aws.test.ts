@@ -13,6 +13,7 @@ jest.mock('../../../aws/handler', () => ({
 import AWS from 'aws-sdk';
 import * as aws from './aws';
 import * as fixtures from 'test/fixtures';
+import { WorkerFunctionName } from 'src/types';
 
 describe('spawn', () => {
   it('derives the function name, invokes and returns the response', async () => {
@@ -22,7 +23,7 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
       ...workerOpts,
-      functionName: 'some-function',
+      functionName: 'some-function' as WorkerFunctionName,
       payload: { from: 'ETH', to: 'USD' },
     };
     const res = await aws.spawn(parameters);
@@ -45,7 +46,7 @@ describe('spawn', () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
       ...workerOpts,
-      functionName: 'some-function',
+      functionName: 'some-function' as WorkerFunctionName,
       payload: { from: 'ETH', to: 'USD' },
     };
     try {
@@ -61,65 +62,5 @@ describe('spawn', () => {
       },
       expect.any(Function)
     );
-  });
-});
-
-describe('spawnLocal', () => {
-  it('invokes the function and decodes the response', async () => {
-    const response = { body: JSON.stringify({ value: 1000 }) };
-    customFnMock.mockImplementationOnce(() => Promise.resolve(response));
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
-    const parameters = {
-      ...workerOpts,
-      functionName: 'myCustomFn',
-      payload: { from: 'ETH', to: 'USD' },
-    };
-    const res = await aws.spawnLocal(parameters);
-    expect(res).toEqual({ value: 1000 });
-  });
-
-  it('throws an error if the lambda returns an error', async () => {
-    expect.assertions(3);
-    const response = new Error('Server says no');
-    customFnMock.mockImplementationOnce(() => Promise.reject(response));
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
-    const parameters = {
-      ...workerOpts,
-      functionName: 'myCustomFn',
-      payload: {
-        from: 'ETH',
-        to: 'USD',
-      },
-    };
-    try {
-      await aws.spawnLocal(parameters);
-    } catch (e) {
-      expect(e).toEqual(new Error('Server says no'));
-    }
-    expect(customFnMock).toHaveBeenCalledTimes(1);
-    expect(customFnMock).toHaveBeenCalledWith({
-      parameters: {
-        from: 'ETH',
-        to: 'USD',
-      },
-    });
-  });
-
-  it('throws an error if the function is not found', async () => {
-    expect.assertions(1);
-    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'local:aws' });
-    const parameters = {
-      ...workerOpts,
-      functionName: 'unknownFn',
-      payload: {
-        from: 'ETH',
-        to: 'USD',
-      },
-    };
-    try {
-      await aws.spawnLocal(parameters);
-    } catch (e) {
-      expect(e).toEqual(new Error("Cannot find AWS function: 'unknownFn'"));
-    }
   });
 });

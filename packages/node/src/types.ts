@@ -193,9 +193,17 @@ export interface WorkerOptions {
   stage: string;
 }
 
+export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
+
 export interface WorkerParameters extends WorkerOptions {
-  functionName: string;
+  functionName: WorkerFunctionName;
   payload: any;
+}
+
+export interface WorkerResponse {
+  ok: boolean;
+  data?: any;
+  errorLog?: PendingLog;
 }
 
 // ===========================================
@@ -294,7 +302,7 @@ export interface ChainConfig {
   readonly type: ChainType;
 }
 
-export type NodeCloudProvider = 'aws' | 'local:aws';
+export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
   readonly chains: ChainConfig[];

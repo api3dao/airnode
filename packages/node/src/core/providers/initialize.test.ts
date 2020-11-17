@@ -11,6 +11,13 @@ jest.mock('ethers', () => {
   };
 });
 
+const spawnAwsMock = jest.fn();
+jest.mock('../workers/cloud-platforms/aws', () => ({
+  spawn: spawnAwsMock,
+}));
+
+jest.mock('fs');
+
 const chains: ChainConfig[] = [
   {
     adminAddressForCreatingProviderRecord: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -35,12 +42,16 @@ const chains: ChainConfig[] = [
 ];
 
 import { ethers } from 'ethers';
+import fs from 'fs';
 import * as fixtures from 'test/fixtures';
 import { ChainConfig } from 'src/types';
 import * as providers from './initialize';
 
 describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
+    const nodeSettings = fixtures.buildNodeSettings({ chains });
+    const config = fixtures.buildConfig({ nodeSettings });
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getProviderAndBlockNumber.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -52,15 +63,12 @@ describe('initializeProviders', () => {
       blockNumber: ethers.BigNumber.from(987654),
       xpub: '0xxpub2',
     });
-
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
-
-    const nodeSettings = fixtures.buildNodeSettings({ chains });
-    const config = fixtures.buildConfig({ nodeSettings });
     const workerOpts = fixtures.buildWorkerOptions();
-    const res = await providers.initialize('abcdefg', config, workerOpts);
+    const [logs, res] = await providers.initialize('abcdefg', config, workerOpts);
+    expect(logs).toEqual([]);
     expect(res).toEqual([
       {
         contracts: {
