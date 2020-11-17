@@ -26,13 +26,13 @@ export async function processTransactions(
   // STEP 2: Assign nonces to processable requests
   // =================================================================
   const requestsWithNonces = nonces.assign(initialState);
-  const state2 = state.update(initialState, { requests: requestsWithNonces });
+  const state2 = state.update(state1, { requests: requestsWithNonces });
 
   // =================================================================
   // STEP 3: Get the latest gas price
   // =================================================================
   const gasPriceOptions = {
-    provider: state1.provider,
+    provider: state2.provider,
   };
   const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
   logger.logPending(gasPriceLogs, baseLogOptions);
