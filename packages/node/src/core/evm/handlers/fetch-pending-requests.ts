@@ -1,9 +1,9 @@
-import * as apiCalls from './api-calls';
-import * as blocking from './blocking';
-import * as eventLogs from './event-logs';
+import * as apiCalls from '../requests/api-calls';
+import * as blocking from '../requests/blocking';
+import * as eventLogs from '../requests/event-logs';
 import * as logger from '../../logger';
 import * as verification from '../verification';
-import * as withdrawals from './withdrawals';
+import * as withdrawals from '../requests/withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../../types';
 
 export async function fetchPendingRequests(state: ProviderState<EVMProviderState>): Promise<GroupedRequests> {

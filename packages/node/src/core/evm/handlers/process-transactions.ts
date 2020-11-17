@@ -31,9 +31,7 @@ export async function processTransactions(
   // =================================================================
   // STEP 3: Get the latest gas price
   // =================================================================
-  const gasPriceOptions = {
-    provider: state2.provider,
-  };
+  const gasPriceOptions = { provider: state2.provider };
   const [gasPriceLogs, gasPrice] = await getGasPrice(gasPriceOptions);
   logger.logPending(gasPriceLogs, baseLogOptions);
 

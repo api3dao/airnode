@@ -48,14 +48,17 @@ export function wait(ms: number) {
 
 export interface RetryOptions {
   delay?: number;
-  timeouts: number[];
+  timeouts?: number[];
 }
 
-export function retryOperation(retriesLeft: number, operation: () => Promise<any>, options: RetryOptions) {
+export function retryOperation<T>(
+  retriesLeft: number,
+  operation: () => Promise<T>,
+  options?: RetryOptions
+): Promise<T> {
   return new Promise((resolve, reject) => {
-    const { timeouts } = options;
-    // Find the timeout for this specific iteration
-    const timeout = timeouts[timeouts.length - retriesLeft];
+    // Find the timeout for this specific iteration. Default to 5 seconds timeout
+    const timeout = options?.timeouts ? options.timeouts[options.timeouts.length - retriesLeft] : 5000;
 
     // Wrap the original operation in a timeout
     const execution = promiseTimeout(timeout, operation());
@@ -66,7 +69,7 @@ export function retryOperation(retriesLeft: number, operation: () => Promise<any
       // but decrementing the number of retries left by 1
       if (retriesLeft - 1 > 0) {
         // Delay the new attempt slightly
-        return wait(options.delay || 50)
+        return wait(options?.delay || 50)
           .then(retryOperation.bind(null, retriesLeft - 1, operation, options))
           .then(resolve)
           .catch(reject);

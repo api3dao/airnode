@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { go } from '../../utils/promise-utils';
+import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../../types';
@@ -21,7 +21,9 @@ export async function submitWithdrawal(
   }
 
   const requesterAddress = wallet.deriveWalletAddressFromIndex(options.masterHDNode, request.requesterIndex!);
-  const [balanceErr, currentBalance] = await go(options.provider!.getBalance(requesterAddress));
+  const getBalanceOperation = () => options.provider!.getBalance(requesterAddress);
+  const retryableGetBalanceOperation = retryOperation(2, getBalanceOperation);
+  const [balanceErr, currentBalance] = await go(retryableGetBalanceOperation);
   if (balanceErr || !currentBalance) {
     const errLog = logger.pend(
       'ERROR',
@@ -31,19 +33,20 @@ export async function submitWithdrawal(
     return [[errLog], balanceErr, null];
   }
 
-  const estimateTx = airnode.estimateGas.fulfillWithdrawal(
-    request.id,
-    request.providerId,
-    request.requesterIndex,
-    request.destinationAddress,
-    // We need to send some funds for the gas price calculation to be correct
-    // We also can't send the current balance as that would cause the withdrawal
-    // to revert. The transaction cost would need to be subtracted first
-    { value: 1 }
-  );
-
+  const estimateTx = () =>
+    airnode.estimateGas.fulfillWithdrawal(
+      request.id,
+      request.providerId,
+      request.requesterIndex,
+      request.destinationAddress,
+      // We need to send some funds for the gas price calculation to be correct
+      // We also can't send the current balance as that would cause the withdrawal
+      // to revert. The transaction cost would need to be subtracted first
+      { value: 1 }
+    );
+  const retryableEstimate = retryOperation(2, estimateTx);
   // The node calculates how much gas the next transaction will cost (53,654)
-  const [estimateErr, estimatedGasLimit] = await go(estimateTx);
+  const [estimateErr, estimatedGasLimit] = await go(retryableEstimate);
   if (estimateErr || !estimatedGasLimit) {
     const estimateErrorLog = logger.pend(
       'ERROR',
@@ -80,21 +83,16 @@ export async function submitWithdrawal(
     `Submitting withdrawal wallet index:${request.requesterIndex} for Request:${request.id}...`
   );
 
-  const withdrawalTx = airnode.fulfillWithdrawal(
-    request.id,
-    request.providerId,
-    request.requesterIndex,
-    request.destinationAddress,
-    {
+  const withdrawalTx = () =>
+    airnode.fulfillWithdrawal(request.id, request.providerId, request.requesterIndex, request.destinationAddress, {
       gasLimit: paddedGasLimit,
       gasPrice: options.gasPrice!,
       nonce: request.nonce!,
       value: fundsToSend,
-    }
-  );
-
+    });
+  const retryableTx = retryOperation(2, withdrawalTx);
   // Note that we're using the requester wallet to call this
-  const [withdrawalErr, withdrawalRes] = await go(withdrawalTx);
+  const [withdrawalErr, withdrawalRes] = await go(retryableTx);
   if (withdrawalErr || !withdrawalRes) {
     const withdrawalErrLog = logger.pend(
       'ERROR',
