@@ -98,7 +98,7 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly adminAddressForCreatingProviderRecord?: string;
+  readonly providerAdminForRecordCreation?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
@@ -295,7 +295,7 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
-  readonly adminAddressForCreatingProviderRecord?: string;
+  readonly providerAdminForRecordCreation?: string;
   readonly contracts: ChainContracts;
   readonly id: number;
   readonly providers: ChainProvider[];

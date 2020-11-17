@@ -4,10 +4,10 @@ import { WorkerParameters, WorkerResponse } from '../../../types';
 export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
   // lambda.invoke is synchronous so we need to wrap this in a promise
   return new Promise((resolve, reject) => {
-    // TODO: configure lambda environment
+    // Uses the current region by default
     const lambda = new AWS.Lambda();
 
-    const resolvedName = `airnode-${params.stage}-${params.providerIdShort}-${params.functionName}`;
+    const resolvedName = `airnode-${params.providerIdShort}-${params.stage}-${params.functionName}`;
 
     const options = {
       FunctionName: resolvedName,

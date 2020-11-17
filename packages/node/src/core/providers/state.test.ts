@@ -8,7 +8,7 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
-      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+      providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
@@ -25,7 +25,7 @@ describe('create', () => {
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       settings: {
-        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+        providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
         blockHistoryLimit: 600,
         chainId: 1337,
         chainType: 'evm',
@@ -63,7 +63,7 @@ describe('create', () => {
       url: 'http://localhost:4111',
     };
     const chainConfig: ChainConfig = {
-      adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+      providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
@@ -80,7 +80,7 @@ describe('create', () => {
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       settings: {
-        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+        providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
         blockHistoryLimit: 150,
         chainId: 1337,
         chainType: 'evm',
