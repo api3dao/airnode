@@ -1,6 +1,6 @@
 # `validator`
 
-A tool capable of determining if provided OIS is valid or not.
+A tool capable of determining if provided OIS or `config.json` and `security.json` are valid or not.
 
 ## Usage
 
@@ -18,7 +18,7 @@ Where array `messages` contains message objects:
     message: string
 }
 ```
-If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages. Similarly functions `isApiSpecsValid` and `isEndpointsValid` check only the API and endpoint specifications contained in the OIS.
+If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages. Similarly functions `isApiSpecsValid` and `isEndpointsValid` check only the API and endpoint specifications contained in the OIS, as well as `isConfigSecurityValid` validates `config.json` and `security.json`
 
 The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as the template (validator specification structure). You can run the validator as script using the following command: `npm run validate --specs="[specsFile]" --template="[templateFile]"`
 
