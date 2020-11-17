@@ -26,7 +26,7 @@ export async function processTransactions(
   // STEP 2: Assign nonces to processable requests
   // =================================================================
   const requestsWithNonces = nonces.assign(initialState);
-  const state2 = state.update(initialState, { requests: requestsWithNonces });
+  const state2 = state.update(state1, { requests: requestsWithNonces });
 
   // =================================================================
   // STEP 3: Get the latest gas price
@@ -42,12 +42,12 @@ export async function processTransactions(
 
   const gweiPrice = utils.weiToGwei(gasPrice);
   logger.info(`Gas price set to ${gweiPrice} Gwei`, baseLogOptions);
-  const state3 = state.update(state1, { gasPrice });
+  const state3 = state.update(state2, { gasPrice });
 
   // =================================================================
   // STEP 4: Submit transactions for each wallet
   // =================================================================
-  const receipts = await fulfillments.submit(state2);
+  const receipts = await fulfillments.submit(state3);
   const successfulReceipts = receipts.filter((receipt) => !!receipt.data);
   successfulReceipts.forEach((receipt) => {
     logger.info(`Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`, baseLogOptions);
