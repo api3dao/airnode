@@ -61,7 +61,7 @@ export function scrub<T>(state: ProviderState<T>): ProviderState<T> {
   return removeKeys(state, ['config', 'masterHDNode', 'provider']) as ProviderState<T>;
 }
 
-export function unscrub(state: ProviderState<any>) {
+export function refresh(state: ProviderState<any>) {
   if (state.settings.chainType === 'evm') {
     // The serverless function does not return an instance of an Ethereum
     // provider, so we create a new one before returning the state

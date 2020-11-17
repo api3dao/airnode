@@ -14,8 +14,8 @@ export async function spawnNewProvider(
 
   // If this throws, it will be caught by the calling function
   const responseState = await workers.spawn(options);
-  const unscrubbedState = providerState.unscrub(responseState);
-  return unscrubbedState;
+  const refreshedState = providerState.refresh(responseState);
+  return refreshedState;
 }
 
 export async function spawnProviderRequestProcessor(
@@ -30,6 +30,6 @@ export async function spawnProviderRequestProcessor(
 
   // If this throws, it will be caught by the calling function
   const responseState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
-  const unscrubbedState = providerState.unscrub(responseState);
-  return unscrubbedState;
+  const refreshedState = providerState.refresh(responseState);
+  return refreshedState;
 }
