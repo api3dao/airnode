@@ -20,7 +20,7 @@ export function buildEVMState(
   const provider = evm.newProvider(chainProvider.url, chain.id);
 
   const providerSettings: ProviderSettings = {
-    adminAddressForCreatingProviderRecord: chain.adminAddressForCreatingProviderRecord,
+    providerAdminForRecordCreation: chain.providerAdminForRecordCreation,
     blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
