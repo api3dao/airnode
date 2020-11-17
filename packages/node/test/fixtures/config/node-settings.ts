@@ -9,7 +9,7 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
     stage: 'test',
     chains: [
       {
-        adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+        providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
         contracts: {
           Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
           Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',

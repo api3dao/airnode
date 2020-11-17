@@ -7,7 +7,7 @@ import * as wallet from './wallet';
 import { LogsData } from '../../types';
 
 interface BaseFetchOptions {
-  adminAddressForCreatingProviderRecord?: string;
+  providerAdminForRecordCreation?: string;
   airnodeAddress: string;
   convenienceAddress: string;
   masterHDNode: ethers.utils.HDNode;
@@ -19,7 +19,7 @@ interface FindOptions extends BaseFetchOptions {
 }
 
 interface CreateOptions extends BaseFetchOptions {
-  adminAddressForCreatingProviderRecord: string;
+  providerAdminForRecordCreation: string;
   airnodeAddress: string;
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
@@ -27,7 +27,7 @@ interface CreateOptions extends BaseFetchOptions {
 }
 
 interface ProviderWithBlockNumber {
-  adminAddressForCreatingProviderRecord: string;
+  providerAdminForRecordCreation: string;
   blockNumber: number;
   providerExists: boolean;
   xpub: string;
@@ -47,7 +47,7 @@ export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData
   }
 
   const data: ProviderWithBlockNumber = {
-    adminAddressForCreatingProviderRecord: res.admin,
+    providerAdminForRecordCreation: res.admin,
     // Converting this BigNumber to a JS number should not throw as the current block number
     // should always be a valid number
     blockNumber: res.blockNumber.toNumber(),
@@ -70,10 +70,7 @@ export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData
 }
 
 export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | null>> {
-  const log1 = logger.pend(
-    'INFO',
-    `Creating provider with address:${options.adminAddressForCreatingProviderRecord}...`
-  );
+  const log1 = logger.pend('INFO', `Creating provider with address:${options.providerAdminForRecordCreation}...`);
 
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
   const connectedWallet = masterWallet.connect(options.provider);
@@ -83,7 +80,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Gas cost is 160,076
   const [estimateErr, estimatedGasCost] = await go(
-    airnode.estimateGas.createProvider(options.adminAddressForCreatingProviderRecord, options.xpub, { value: 1 })
+    airnode.estimateGas.createProvider(options.providerAdminForRecordCreation, options.xpub, { value: 1 })
   );
   if (estimateErr || !estimatedGasCost) {
     const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
@@ -115,7 +112,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
 
-  const createProviderTx = airnode.createProvider(options.adminAddressForCreatingProviderRecord, options.xpub, {
+  const createProviderTx = airnode.createProvider(options.providerAdminForRecordCreation, options.xpub, {
     value: fundsToSend,
     gasLimit,
     gasPrice,
@@ -149,14 +146,14 @@ export async function findOrCreateProviderWithBlock(
   // If the extended public key was returned as an empty string, it means that the provider does
   // not exist onchain yet
   if (!providerBlockData.providerExists) {
-    if (!options.adminAddressForCreatingProviderRecord) {
-      const errLog = logger.pend('ERROR', 'Unable to find adminAddressForCreatingProviderRecord address');
+    if (!options.providerAdminForRecordCreation) {
+      const errLog = logger.pend('ERROR', 'Unable to find providerAdminForRecordCreation address');
       return [[idLog, ...providerBlockLogs, errLog], null];
     }
 
     const createOptions = {
       ...options,
-      adminAddressForCreatingProviderRecord: options.adminAddressForCreatingProviderRecord,
+      providerAdminForRecordCreation: options.providerAdminForRecordCreation,
       xpub: wallet.getExtendedPublicKey(options.masterHDNode),
     };
     const [createLogs, _createTx] = await create(createOptions);

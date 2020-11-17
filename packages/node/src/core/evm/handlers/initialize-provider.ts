@@ -54,7 +54,7 @@ export async function initializeProvider(
   // STEP 2: Get current block number and find or create the provider
   // =================================================================
   const providerFetchOptions = {
-    adminAddressForCreatingProviderRecord: state1.settings.adminAddressForCreatingProviderRecord,
+    providerAdminForRecordCreation: state1.settings.providerAdminForRecordCreation,
     airnodeAddress: state1.contracts.Airnode,
     convenienceAddress: state1.contracts.Convenience,
     masterHDNode: state1.masterHDNode,
