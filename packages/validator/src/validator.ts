@@ -128,14 +128,7 @@ export function validateSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(
-          specs,
-          apiSpecs,
-          paramPath,
-          tmpNonRedundant,
-          tmpRoots,
-          `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`
-        );
+        tmpResult = validateSpecs(specs, apiSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -146,14 +139,7 @@ export function validateSpecs(
         tmpNonRedundant = [];
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(
-          specs,
-          endpointsSpecs,
-          paramPath,
-          tmpNonRedundant,
-          tmpRoots,
-          `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`
-        );
+        tmpResult = validateSpecs(specs, endpointsSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -164,14 +150,7 @@ export function validateSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(
-          specs,
-          oisSpecs,
-          paramPath,
-          tmpNonRedundant,
-          tmpRoots,
-          `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`
-        );
+        tmpResult = validateSpecs(specs, oisSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
