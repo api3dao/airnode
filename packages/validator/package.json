@@ -19,7 +19,7 @@
   },
   "scripts": {
     "test": "jest",
-    "validate": "ts-node src/validate.ts"
+    "validate": "ts-node src/validateCmd.ts"
   },
   "dependencies": {
     "ts-node": "^9.0.0"

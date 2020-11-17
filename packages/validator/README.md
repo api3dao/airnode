@@ -33,14 +33,14 @@ To make modifications to OIS format as simple as possible, validator uses json s
 Here is an example of a very basic structure:
 ```
 {
-    'server': {
-        'url': {}
+    "server": {
+        "url": {}
     },
-    'component': {
-        'securityScheme': {
-            'in': {},
-            'name': {},
-            'type': {}
+    "component": {
+        "securityScheme": {
+            "in": {},
+            "name": {},
+            "type": {}
         }
     }
 }
@@ -121,30 +121,30 @@ Validator structure example:
 
 ```
 {
-    'server': {
-        '__maxSize': 1,
-        '__arrayItem': {
-            'url': {
-                '__regexp': '^(https?|ftp)://[^\\s/$.?#].[^\\s]*$'
+    "server": {
+        "__maxSize": 1,
+        "__arrayItem": {
+            "url": {
+                "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
             }
         }
     },
-    'component': {
-        'securitySchemes': {
-            '__objectItem': {
-                'in': {
-                    '__regexp': '^(query|header|cookie)$'
+    "component": {
+        "securitySchemes": {
+            "__objectItem": {
+                "in": {
+                    "__regexp": "^(query|header|cookie)$"
                 },
-                'name': {
-                    '__regexp': '^[^\\s\'"\\\\]+$'
+                "name": {
+                    "__regexp": "^[^\\s'\"\\\\]+$"
                 },
-                'type': {}
+                "type": {}
             }
         }
     },
-    'security': {
-        '__objectItem': {
-            '__arrayItem': {}
+    "security": {
+        "__objectItem": {
+            "__arrayItem": {}
         }
     }
 }
@@ -241,52 +241,52 @@ Sometimes a warning, should be considered an error and vice versa, the level of 
 Validator structure example:
 ```
 {
-  'array': {
-    '__arrayItem': {
-      '__keyRegexp': '^/[a-zA-Z{}/]+$',
-      '__conditions': [
+  "array": {
+    "__arrayItem": {
+      "__keyRegexp": "^/[a-zA-Z{}/]+$",
+      "__conditions": [
         {
-          '__if': {
-            '__this_name': '(?<={)[^\\/{}]+(?=})'
+          "__if": {
+            "__this_name": "(?<={)[^\\/{}]+(?=})"
           },
-          '__then': {
-            'param': {
-              '__regexp': '^__match$',
-              '__level': 'error'
+          "__then": {
+            "param": {
+              "__regexp": "^__match$",
+              "__level": "error"
             }
           }
         }
       ],
-      '__objectItem': {
-        '__conditions': [
+      "__objectItem": {
+        "__conditions": [
           {
-            '__if': {
-              'name': '^condition$'
+            "__if": {
+              "name": "^condition$"
             },
-            '__then': {
-              'fulfilled': {
-                '__regexp': '^(yes|no)$'
+            "__then": {
+              "fulfilled": {
+                "__regexp": "^(yes|no)$"
               }
             }
           },
           {
-            '__if': {
-              'two': '.*'
+            "__if": {
+              "two": ".*"
             },
-            '__then': {
-              '__any': {
-                '__regexp': '^two$'
+            "__then": {
+              "__any": {
+                "__regexp": "^two$"
               }
             }
           },
           {
-            '__require': {
-              'relative': {}
+            "__require": {
+              "relative": {}
             }
           },
           {
-            '__require': {
-              '/absolute.__this_name': {}
+            "__require": {
+              "/absolute.__this_name": {}
             }
           }
         ]

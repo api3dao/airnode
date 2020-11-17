@@ -5,8 +5,8 @@ import { validateSpecs } from './validator';
 
 /**
  * Validates specification from provided file according to template file
- * @param specsPath - specification to validate, root must be an object (not an array)
- * @param templatePath - validator specification structure
+ * @param specsPath - specification file to validate, root must be an object (not an array)
+ * @param templatePath - validator specification structure file
  * @returns array of error and warning messages
  */
 export function validate(specsPath: string | undefined, templatePath: string | undefined): Result {
@@ -28,6 +28,16 @@ export function validate(specsPath: string | undefined, templatePath: string | u
     return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
   }
 
+  return validateJson(specs, template);
+}
+
+/**
+ * Validates specification from provided string according to string containing template structure
+ * @param specs - specification to validate, root must be an object (not an array)
+ * @param template - validator specification structure
+ * @returns array of error and warning messages
+ */
+export function validateJson(specs: string, template: string): Result {
   try {
     const nonRedundant = {};
     const parsedTemplate = JSON.parse(template);
@@ -40,10 +50,4 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
-}
-
-if (process.env.npm_config_specs || process.env.npm_config_template) {
-  console.log(validate(process.env.npm_config_specs, process.env.npm_config_template));
-} else {
-  console.log(validate(process.argv[2], process.argv[3]));
 }

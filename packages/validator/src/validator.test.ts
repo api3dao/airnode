@@ -1,4 +1,5 @@
 import * as validator from './validator';
+import { validateJson } from './validate';
 
 function formattingMessage(paramPath, error = false) {
   return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };
@@ -22,6 +23,10 @@ function extraFieldMessage(param) {
 
 function conditionNotMetMessage(paramPath, param) {
   return { level: 'error', message: `Condition in ${paramPath} is not met with ${param}` };
+}
+
+function requiredConditionsNotMetMessage(paramPath) {
+  return { level: 'error', message: `Required conditions not met in ${paramPath}` };
 }
 
 const validAPISpecification = `{
@@ -1036,6 +1041,306 @@ describe('validator', () => {
         formattingMessage('config.nodeSettings.chains[0].providerAdminForRecordCreation'),
         keyFormattingMessage('Airnod', 'config.nodeSettings.chains[1].contracts.Airnod'),
         formattingMessage('security.id', true),
+      ],
+    });
+  });
+
+  it('readme examples', () => {
+    const basicTemplate = `  
+    {
+      "server": {
+        "url": {}
+      },
+      "component": {
+        "securityScheme": {
+            "in": {},
+            "name": {},
+            "type": {}
+        }
+      }
+    }
+    `;
+
+    const basicValidInput = `
+    {
+      "server": {
+        "url": "https://just.example.com"
+      },
+      "component": {
+        "securityScheme": {
+          "in": "query",
+          "name": "example",
+          "type": {}
+        }
+      }
+    }
+    `;
+
+    const basicInvalidInput = `
+    {
+      "server": {
+        "extra": {}
+      },
+      "component": {
+        "securityScheme": {}
+      }
+    }
+    `;
+
+    expect(validateJson(basicValidInput, basicTemplate)).toMatchObject({ valid: true, messages: [] });
+    expect(validateJson(basicInvalidInput, basicTemplate)).toMatchObject({
+      valid: false,
+      messages: [
+        missingParamMessage('server.url'),
+        missingParamMessage('component.securityScheme.in'),
+        missingParamMessage('component.securityScheme.name'),
+        missingParamMessage('component.securityScheme.type'),
+        extraFieldMessage('server.extra'),
+      ],
+    });
+
+    const arraysObjectsTemplate = `
+    {
+      "server": {
+        "__maxSize": 1,
+        "__arrayItem": {
+          "url": {
+            "__regexp": "^(https?|ftp)://[^\\\\s/$.?#].[^\\\\s]*$"
+          }
+        }
+      },
+      "component": {
+        "securitySchemes": {
+          "__objectItem": {
+            "in": {
+              "__regexp": "^(query|header|cookie)$"
+            },
+            "name": {
+              "__regexp": "^[^\\\\s'\\"\\\\\\\\]+$"
+            },
+            "type": {}
+          }
+        }
+      },
+      "security": {
+        "__objectItem": {
+          "__arrayItem": {}
+        }
+      }
+    }
+    `;
+
+    const arraysObjectValidInput = `
+      {
+        "server": [
+          {
+            "url": "https://just.example.com"
+          }
+        ],
+        "component": {
+          "securitySchemes": {
+            "scheme1": {
+              "in": "query",
+              "name": "example1",
+              "type": {}
+            },
+            "scheme2": {
+              "in": "query",
+              "name": "example2",
+              "type": {}
+            }
+          }
+        },
+        "security": {
+          "scheme1": [],
+          "scheme2": []
+        }
+      }
+    `;
+
+    const arraysObjectInvalidInput = `
+      {
+        "server": [
+          {
+            "url": "https://just.example.com"
+          },
+          {
+            "url": "example.com"
+          }
+        ],
+        "component": {
+          "securitySchemes": {
+            "scheme": {
+              "in": "invalid",
+              "name": {},
+              "type": {}
+            }
+          }
+        },
+        "security": {
+          "scheme": [
+            {
+              "extra": "extra"
+            }
+          ]
+        }
+      }
+    `;
+
+    expect(validateJson(arraysObjectValidInput, arraysObjectsTemplate)).toMatchObject({ valid: true, messages: [] });
+    expect(validateJson(arraysObjectInvalidInput, arraysObjectsTemplate)).toMatchObject({
+      valid: false,
+      messages: [
+        sizeExceededMessage('server', 1),
+        formattingMessage('server[1].url'),
+        formattingMessage('component.securitySchemes.scheme.in'),
+        formattingMessage('component.securitySchemes.scheme.name'),
+        extraFieldMessage('security.scheme[0].extra'),
+      ],
+    });
+
+    const conditionsTemplate = `
+    {
+      "array": {
+        "__arrayItem": {
+          "__keyRegexp": "^/[a-zA-Z{}/]+$",
+          "__conditions": [
+            {
+              "__if": {
+                "__this_name": "(?<={)[^\\\\/{}]+(?=})"
+              },
+              "__then": {
+                "param": {
+                  "__regexp": "^__match$",
+                  "__level": "error"
+                }
+              }
+            }
+          ],
+          "__objectItem": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": "^condition$"
+                },
+                "__then": {
+                  "fulfilled": {
+                    "__regexp": "^(yes|no)$"
+                  }
+                }
+              },
+              {
+                "__if": {
+                  "two": ".*"
+                },
+                "__then": {
+                  "__any": {
+                    "__regexp": "^two$"
+                  }
+                }
+              },
+              {
+                "__require": {
+                  "relative": {}
+                }
+              },
+              {
+                "__require": {
+                  "/absolute.__this_name": {}
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+    `;
+
+    const conditionsValidInput = `
+      {
+        "array": [
+          {
+            "/one": {
+              "relative": "param"
+            }
+          },
+          {
+            "/condition": {
+              "name": "condition",
+              "fulfilled": "yes",
+              "relative": "param"
+            }
+          },
+          {
+            "/path/{param}": {
+              "relative": "param",
+              "param": "param"
+            }
+          },
+          {
+            "/two": {
+              "two": "value",
+              "name": "two",
+              "relative": "param"
+            }
+          }
+        ],
+        "absolute": {
+          "/one": "one",
+          "/condition": "condition",
+          "/path/{param}": "two",
+          "/two": "three"
+        }
+      }
+    `;
+
+    const conditionsInvalidInput = `
+      {
+        "array": [
+          {
+            "/one": {
+              "notRelative": "param"
+            }
+          },
+          {
+            "/condition": {
+              "name": "condition",
+              "fulfilled": "invalid",
+              "relative": "param"
+            }
+          },
+          {
+            "/path/{param}": {
+              "relative": "another",
+              "param": "random"
+            }
+          },
+          {
+            "/two": {
+              "two": "different",
+              "relative": "param"
+            }
+          }
+        ],
+        "absolute": {
+          "/condition": "condition",
+          "/path/{param}": "two",
+          "/two": "two"
+        }
+      }
+    `;
+
+    expect(validateJson(conditionsValidInput, conditionsTemplate)).toMatchObject({ valid: true, messages: [] });
+    expect(validateJson(conditionsInvalidInput, conditionsTemplate)).toMatchObject({
+      valid: false,
+      messages: [
+        missingParamMessage('array[0]./one.relative'),
+        missingParamMessage('absolute./one'),
+        formattingMessage('array[1]./condition.fulfilled'),
+        conditionNotMetMessage('array[2]./path/{param}', 'param'),
+        requiredConditionsNotMetMessage('array[3]./two'),
+        extraFieldMessage('array[0]./one.notRelative'),
+        extraFieldMessage('array[2]./path/{param}.param'),
       ],
     });
   });
