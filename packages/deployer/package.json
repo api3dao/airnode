@@ -17,7 +17,7 @@
     "sls:config": "sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
     "sls:deploy": "sls deploy --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE",
     "sls:remove": "sls remove --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE",
-    "sls:invoke": "sls invoke --function start --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE"
+    "sls:invoke": "sls invoke --function startCoordinator --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE"
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",
