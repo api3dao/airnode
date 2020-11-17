@@ -7,7 +7,6 @@ import * as state from '../../providers/state';
 import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
 import * as verification from '../verification';
-import { newProvider } from '../retry-provider';
 import { EVMProviderState, PendingLog, ProviderState } from '../../../types';
 
 type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
@@ -45,10 +44,9 @@ export async function initializeProvider(
   };
 
   // =================================================================
-  // STEP 1: Create a new ProviderState
+  // STEP 1: Re-instantiate any classes
   // =================================================================
-  const provider = newProvider(initialState.settings.url, initialState.settings.chainId);
-  const state1 = state.update(initialState, { provider });
+  const state1 = state.refresh(initialState);
 
   // =================================================================
   // STEP 2: Get current block number and find or create the provider

@@ -28,8 +28,8 @@ export async function spawnNewProvider(
     return [[log], null];
   }
 
-  const unscrubbedState = providerState.unscrub(res.data);
-  return [[], unscrubbedState];
+  const refreshedState = providerState.refresh(res.data);
+  return [[], refreshedState];
 }
 
 export async function spawnProviderRequestProcessor(
@@ -56,6 +56,6 @@ export async function spawnProviderRequestProcessor(
     return [[log], null];
   }
 
-  const unscrubbedState = providerState.unscrub(res.data);
-  return [[], unscrubbedState];
+  const refreshedState = providerState.refresh(res.data);
+  return [[], refreshedState];
 }

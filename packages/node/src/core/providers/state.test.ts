@@ -131,15 +131,15 @@ describe('scrub', () => {
   });
 });
 
-describe('unscrub', () => {
+describe('refresh', () => {
   describe('EVM provider state', () => {
     it('initializes a new provider', () => {
       const newState = fixtures.buildEVMProviderState();
       expect(newState.provider).toBeInstanceOf(Object);
       const scrubbed = state.scrub(newState);
       expect(scrubbed.provider).toEqual(undefined);
-      const unscrubbed = state.unscrub(scrubbed);
-      expect(unscrubbed.provider).toBeInstanceOf(Object);
+      const refreshed = state.refresh(scrubbed);
+      expect(refreshed.provider).toBeInstanceOf(Object);
     });
 
     it('initializes a new master HD node', () => {
@@ -147,8 +147,8 @@ describe('unscrub', () => {
       expect(newState.masterHDNode).toBeInstanceOf(ethers.utils.HDNode);
       const scrubbed = state.scrub(newState);
       expect(scrubbed.masterHDNode).toEqual(undefined);
-      const unscrubbed = state.unscrub(scrubbed);
-      expect(unscrubbed.masterHDNode).toBeInstanceOf(ethers.utils.HDNode);
+      const refreshed = state.refresh(scrubbed);
+      expect(refreshed.masterHDNode).toBeInstanceOf(ethers.utils.HDNode);
     });
   });
 });
