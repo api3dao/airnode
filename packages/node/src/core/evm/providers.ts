@@ -80,7 +80,10 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Gas cost is 160,076
   const [estimateErr, estimatedGasCost] = await go(
-    airnode.estimateGas.createProvider(options.providerAdminForRecordCreation, options.xpub, { value: 1 })
+    airnode.estimateGas.createProvider(options.providerAdminForRecordCreation, options.xpub, {
+      value: 1,
+      gasLimit: 300_000,
+    })
   );
   if (estimateErr || !estimatedGasCost) {
     const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
