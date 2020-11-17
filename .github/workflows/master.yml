@@ -24,7 +24,7 @@ jobs:
       run: npm run lint
 
     - name: Prepare config
-      run: |
+      run: >
         cp packages/deployer/src/config-data/config.json.example
           packages/deployer/src/config-data/config.json
 
