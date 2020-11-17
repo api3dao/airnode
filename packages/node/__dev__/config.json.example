@@ -1,7 +1,7 @@
 {
   "id": "e08f5610-5772-4986-92fb-c8aef5aee6a0",
   "nodeSettings": {
-    "cloudProvider": "local:aws",
+    "cloudProvider": "local",
     "logFormat": "plain",
     "nodeVersion": "1.0.0",
     "region": "us-east-1",
@@ -12,7 +12,7 @@
         "id": 1337,
         "contracts": {
           "Airnode": "0x197F3826040dF832481f835652c290aC7c41f073",
-          "Convenience": "0x2393737d287c555d148012270Ce4567ABb1ee95C",
+          "Convenience": "0x2393737d287c555d148012270Ce4567ABb1ee95C"
         },
         "providers": [
           {
@@ -30,9 +30,7 @@
         "oisTitle": "coinlayer",
         "endpointName": "convertToUsd"
       }
-    ],
-    "aggregator": [],
-    "flux": []
+    ]
   },
   "ois": [
     {

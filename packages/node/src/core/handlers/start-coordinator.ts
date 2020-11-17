@@ -29,7 +29,9 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 2: Get the initial state from each provider
   // =================================================================
-  const EVMProviders = await providers.initialize(coordinatorId, config, workerOpts);
+  const [initializeLogs, EVMProviders] = await providers.initialize(coordinatorId, config, workerOpts);
+  logger.logPending(initializeLogs, baseLogOptions);
+
   const state2 = state.update(state1, { EVMProviders });
   state2.EVMProviders.forEach((provider) => {
     logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
@@ -72,11 +74,14 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  const providerTransactions = state5.EVMProviders.map(async (providerState) => {
+  const providerTxs = state5.EVMProviders.map(async (providerState) => {
     logger.info(`Forking to submit transactions for provider:${providerState.settings.name}...`, baseLogOptions);
     return await spawnProviderRequestProcessor(providerState, workerOpts);
   });
-  await Promise.all(providerTransactions);
+  const providerTxResponses = await Promise.all(providerTxs);
+
+  const providerTxLogs = flatMap(providerTxResponses, (pr) => pr[0]);
+  logger.logPending(providerTxLogs, baseLogOptions);
   logger.info('Forking to submit transactions complete', baseLogOptions);
 
   // =================================================================

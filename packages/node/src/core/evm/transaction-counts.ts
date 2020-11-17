@@ -3,21 +3,24 @@ import uniq from 'lodash/uniq';
 import flatMap from 'lodash/flatMap';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
+import * as wallet from './wallet';
 import { LogsData } from '../../types';
 
-interface TransactionCountByAddress {
+export interface TransactionCountByRequesterIndex {
   [index: string]: number;
 }
 
 interface FetchOptions {
   currentBlock: number;
+  masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
 }
 
 async function getWalletTransactionCount(
-  address: string,
+  requesterIndex: string,
   options: FetchOptions
-): Promise<LogsData<TransactionCountByAddress | null>> {
+): Promise<LogsData<TransactionCountByRequesterIndex | null>> {
+  const address = wallet.deriveWalletAddressFromIndex(options.masterHDNode, requesterIndex);
   const providerCall = () => options.provider.getTransactionCount(address, options.currentBlock) as Promise<number>;
   const retryableCall = retryOperation(2, providerCall, { timeouts: [4000, 4000] }) as Promise<number>;
 
@@ -26,15 +29,15 @@ async function getWalletTransactionCount(
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
     return [[log], null];
   }
-  return [[], { [address]: count }];
+  return [[], { [requesterIndex]: count }];
 }
 
-export async function fetchByAddress(
-  addresses: string[],
+export async function fetchByRequesterIndex(
+  requesterIndices: string[],
   options: FetchOptions
-): Promise<LogsData<TransactionCountByAddress>> {
+): Promise<LogsData<TransactionCountByRequesterIndex>> {
   // Ensure that there are no duplicated addresses
-  const uniqueAddresses = uniq(addresses);
+  const uniqueAddresses = uniq(requesterIndices);
 
   // Fetch all transaction counts in parallel
   const promises = uniqueAddresses.map((address) => getWalletTransactionCount(address, options));
@@ -42,7 +45,7 @@ export async function fetchByAddress(
   const logs = flatMap(logsWithCounts, (c) => c[0]);
   const countsByIndex = logsWithCounts.map((c) => c[1]);
 
-  const successfulResults = countsByIndex.filter((r) => !!r) as TransactionCountByAddress[];
+  const successfulResults = countsByIndex.filter((r) => !!r) as TransactionCountByRequesterIndex[];
 
   // Merge all successful results into a single object
   const combinedResults = Object.assign({}, ...successfulResults);

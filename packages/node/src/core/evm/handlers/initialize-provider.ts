@@ -1,31 +1,35 @@
 import { go } from '../../utils/promise-utils';
-import * as authorization from '../authorization';
+import * as authorizations from '../authorization';
 import * as logger from '../../logger';
 import * as providers from '../providers';
 import * as requests from '../requests';
 import * as state from '../../providers/state';
-import * as templateAuthorizations from './fetch-templates-authorizations';
+import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
 import * as verification from '../verification';
-import * as wallet from '../wallet';
 import { EVMProviderState, PendingLog, ProviderState } from '../../../types';
 
-type ParallelPromise = Promise<{ id: string; data: any; logs?: PendingLog[] }>;
+type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
 
-async function fetchTemplatesAndAuthorizations(currentState: ProviderState<EVMProviderState>) {
-  // This should not throw
-  const res = await templateAuthorizations.fetchTemplatesAndAuthorizations(currentState);
-  return { id: 'templates+authorizations', data: res };
+async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
+  const fetchOptions = {
+    convenienceAddress: currentState.contracts.Convenience,
+    provider: currentState.provider,
+    providerId: currentState.settings.providerId,
+  };
+  const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
+  return { id: 'authorizations', data: res, logs };
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const requesterIndices = currentState.requests.apiCalls.map((a) => a.requesterIndex);
-  const addresses = requesterIndices.map((index) =>
-    wallet.deriveWalletAddressFromIndex(currentState.masterHDNode, index!)
-  );
-  const fetchOptions = { currentBlock: currentState.currentBlock!, provider: currentState.provider };
+  const requesterIndices = currentState.requests.apiCalls.map((a) => a.requesterIndex!);
+  const fetchOptions = {
+    currentBlock: currentState.currentBlock!,
+    masterHDNode: currentState.masterHDNode,
+    provider: currentState.provider,
+  };
   // This should not throw
-  const [logs, res] = await transactionCounts.fetchByAddress(addresses, fetchOptions);
+  const [logs, res] = await transactionCounts.fetchByRequesterIndex(requesterIndices, fetchOptions);
   return { id: 'transaction-counts', data: res, logs };
 }
 
@@ -76,29 +80,27 @@ export async function initializeProvider(
   const state3 = state.update(state2, { requests: groupedRequests });
 
   // =================================================================
-  // STEP 4: Fetch templates, authorization and wallet data
+  // STEP 4: Fetch and apply templates to API calls
   // =================================================================
-  const templatesAndTransactionPromises: ParallelPromise[] = [
-    fetchTemplatesAndAuthorizations(state3),
-    fetchTransactionCounts(state3),
-  ];
-  const templatesAndTransactionResults = await Promise.all(templatesAndTransactionPromises);
+  const templateFetchOptions = {
+    convenienceAddress: state3.contracts.Convenience,
+    provider: state3.provider,
+  };
+  // This should not throw
+  const [templFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
+  logger.logPending(templFetchLogs, baseLogOptions);
 
-  // // Each of these promises returns its result with an ID as the
-  // // order in which they resolve in not guaranteed.
-  const templatesAndTransactions = templatesAndTransactionResults.find(
-    (result) => result.id === 'templates+authorizations'
-  )!;
-  const { authorizationsByEndpoint, templatedApiCalls } = templatesAndTransactions.data;
+  const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(apiCalls, templatesById);
+  logger.logPending(templVerificationLogs, baseLogOptions);
 
-  const transactionCountsByAddress = templatesAndTransactionResults.find(
-    (result) => result.id === 'transaction-counts'
-  )!;
-  logger.logPending(transactionCountsByAddress.logs!, baseLogOptions);
+  const [templApplicationLogs, templatedApiCalls] = templates.mergeApiCallsWithTemplates(
+    templVerifiedApiCalls,
+    templatesById
+  );
+  logger.logPending(templApplicationLogs, baseLogOptions);
 
   const state4 = state.update(state3, {
     requests: { ...state3.requests, apiCalls: templatedApiCalls },
-    transactionCountsByRequesterIndex: transactionCountsByAddress.data,
   });
 
   // =================================================================
@@ -115,17 +117,36 @@ export async function initializeProvider(
   });
 
   // =================================================================
-  // STEP 6: Merge authorizations and transaction counts
+  // STEP 6: Fetch authorizations and transaction counts
   // =================================================================
-  const [authLogs, authorizedApiCalls] = authorization.mergeAuthorizations(
+  // NOTE: None of these promises cannot fail otherwise Promise.all will reject
+  const authAndTxCountPromises: ParallelPromise[] = [fetchAuthorizations(state5), fetchTransactionCounts(state5)];
+  const authAndTxResults = await Promise.all(authAndTxCountPromises);
+
+  // These promises can resolve in any order, so we need to find each one by it's key
+  const txCountRes = authAndTxResults.find((r) => r.id === 'transaction-counts')!;
+  logger.logPending(txCountRes.logs, baseLogOptions);
+
+  const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
+  logger.logPending(authRes.logs, baseLogOptions);
+
+  const transactionCountsByRequesterIndex = txCountRes.data!;
+  const authorizationsByRequestId = authRes.data!;
+
+  const state6 = state.update(state5, { transactionCountsByRequesterIndex });
+
+  // =================================================================
+  // STEP 7: Apply authorization statuses to requests
+  // =================================================================
+  const [authLogs, authorizedApiCalls] = authorizations.mergeAuthorizations(
     state5.requests.apiCalls,
-    authorizationsByEndpoint
+    authorizationsByRequestId
   );
   logger.logPending(authLogs, baseLogOptions);
 
-  const state6 = state.update(state5, {
+  const state7 = state.update(state6, {
     requests: { ...state5.requests, apiCalls: authorizedApiCalls },
   });
 
-  return state6;
+  return state7;
 }
