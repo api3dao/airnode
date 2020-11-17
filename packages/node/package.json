@@ -11,7 +11,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "invoke:aws": "(cd __dev__ && ts-node invoke.ts)",
+    "dev:invoke": "(cd __dev__ && ts-node invoke.ts)",
     "prepublishOnly": "yarn run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"

@@ -1,7 +1,7 @@
 {
   "id": "e08f5610-5772-4986-92fb-c8aef5aee6a0",
   "nodeSettings": {
-    "cloudProvider": "aws",
+    "cloudProvider": "local",
     "logFormat": "plain",
     "nodeVersion": "0.1.0",
     "region": "us-east-1",
@@ -30,9 +30,7 @@
         "oisTitle": "coinlayer",
         "endpointName": "convertToUsd"
       }
-    ],
-    "aggregator": [],
-    "flux": []
+    ]
   },
   "ois": [
     {
