@@ -82,9 +82,10 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log2 = logger.pend('INFO', 'Estimating transaction cost for creating provider...');
 
   // Gas cost is 160,076
-  const [estimateErr, estimatedGasCost] = await go(
-    airnode.estimateGas.createProvider(options.adminAddressForCreatingProviderRecord, options.xpub, { value: 1 })
-  );
+  const gasEstimateOp = () =>
+    airnode.estimateGas.createProvider(options.adminAddressForCreatingProviderRecord, options.xpub, { value: 1 });
+  const retryableGasEstimateOp = retryOperation(2, gasEstimateOp);
+  const [estimateErr, estimatedGasCost] = await go(retryableGasEstimateOp);
   if (estimateErr || !estimatedGasCost) {
     const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
     return [[log1, log2, errLog], null];
@@ -94,7 +95,9 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log3 = logger.pend('INFO', `Estimated gas limit: ${gasLimit.toString()}`);
 
   // Fetch the current gas price
-  const [gasPriceErr, gasPrice] = await go(options.provider.getGasPrice());
+  const gasPriceOp = () => options.provider.getGasPrice();
+  const retryableGasPriceOp = retryOperation(2, gasPriceOp);
+  const [gasPriceErr, gasPrice] = await go(retryableGasPriceOp);
   if (gasPriceErr || !gasPrice) {
     const errLog = logger.pend('ERROR', 'Unable to fetch gas price', gasPriceErr);
     return [[log1, log2, log3, errLog], null];
@@ -102,7 +105,9 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log4 = logger.pend('INFO', `Gas price set to ${utils.weiToGwei(gasPrice)} Gwei`);
 
   // Get the balance for the master wallet
-  const [balanceErr, masterWalletBalance] = await go(options.provider.getBalance(masterWallet.address));
+  const balanceOp = () => options.provider.getBalance(masterWallet.address);
+  const retryableBalanceOp = retryOperation(2, balanceOp);
+  const [balanceErr, masterWalletBalance] = await go(retryableBalanceOp);
   if (balanceErr || !masterWalletBalance) {
     const errLog = logger.pend('ERROR', 'Unable to fetch master wallet balance', balanceErr);
     return [[log1, log2, log3, log4, errLog], null];
@@ -115,12 +120,14 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
 
-  const createProviderTx = airnode.createProvider(options.adminAddressForCreatingProviderRecord, options.xpub, {
-    value: fundsToSend,
-    gasLimit,
-    gasPrice,
-  });
-  const [txErr, tx] = (await go(createProviderTx)) as any;
+  const createProviderTx = () =>
+    airnode.createProvider(options.adminAddressForCreatingProviderRecord, options.xpub, {
+      value: fundsToSend,
+      gasLimit,
+      gasPrice,
+    }) as Promise<any>;
+  const retryableCreateProviderTx = retryOperation(2, createProviderTx);
+  const [txErr, tx] = await go(retryableCreateProviderTx);
   if (txErr || !tx) {
     const errLog = logger.pend('ERROR', 'Unable to submit create provider transaction', txErr);
     return [[log1, log2, log3, log4, log5, log6, errLog], null];
