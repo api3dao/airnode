@@ -17,7 +17,7 @@ export function newProvider(url: string, chainId: number) {
   // a list of "known" networks to stop these extra calls if possible.
   const network = NETWORKS[chainId] || null;
 
-  // Ethers only let's us configure the timeout when creating a provider, so
+  // Ethers only lets us configure the timeout when creating a provider, so
   // set a high value here and we'll control it ourselves by overriding
   // the 'perform' method.
   return new RetryProvider({ url, timeout: 30_000 }, network);
