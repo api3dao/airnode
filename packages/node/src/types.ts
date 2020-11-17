@@ -57,13 +57,6 @@ export type ClientRequest<T extends {}> = T & {
   readonly nonce?: number;
   readonly requesterIndex: string | null;
   readonly status: RequestStatus;
-
-  // TODO: protocol-overhaul remove these
-  readonly requesterId: string;
-  readonly walletIndex: string;
-  readonly walletAddress: string;
-  readonly walletBalance: string;
-  readonly walletMinimumBalance: string;
 };
 
 export type ApiCallType = 'short' | 'regular' | 'full';
@@ -80,10 +73,6 @@ export interface ApiCall {
   readonly responseValue?: string;
   readonly templateId: string | null;
   readonly type: ApiCallType;
-
-  // TODO: protocol-overhaul remove these
-  readonly errorAddress: string | null;
-  readonly errorFunctionId: string | null;
 }
 
 export interface ApiCallTemplate {
@@ -108,15 +97,13 @@ export interface GroupedRequests {
   readonly withdrawals: ClientRequest<Withdrawal>[];
 }
 
-export interface ProviderSettings {
+export interface ProviderSettings extends CoordinatorSettings {
   readonly adminAddressForCreatingProviderRecord?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
-  readonly logFormat: LogFormat;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerId: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -134,11 +121,20 @@ export interface AggregatedApiCallsById {
   readonly [requestId: string]: AggregatedApiCall;
 }
 
+export interface CoordinatorSettings {
+  readonly providerId: string;
+  readonly providerIdShort: string;
+  readonly logFormat: LogFormat;
+  readonly region: string;
+  readonly stage: string;
+}
+
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
-  readonly id: string;
   readonly EVMProviders: ProviderState<EVMProviderState>[];
+  readonly id: string;
+  readonly settings: CoordinatorSettings;
 }
 
 // ===========================================
@@ -185,6 +181,29 @@ export interface AggregatedApiCall {
   readonly type: AggregatedApiCallType;
   readonly errorCode?: RequestErrorCode;
   readonly responseValue?: string;
+}
+
+// ===========================================
+// Workers
+// ===========================================
+export interface WorkerOptions {
+  cloudProvider: NodeCloudProvider;
+  providerIdShort: string;
+  region: string;
+  stage: string;
+}
+
+export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
+
+export interface WorkerParameters extends WorkerOptions {
+  functionName: WorkerFunctionName;
+  payload: any;
+}
+
+export interface WorkerResponse {
+  ok: boolean;
+  data?: any;
+  errorLog?: PendingLog;
 }
 
 // ===========================================
@@ -264,7 +283,8 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
-  readonly [name: string]: string;
+  readonly Airnode: string;
+  readonly Convenience: string;
 }
 
 export interface ChainProvider {
@@ -276,22 +296,22 @@ export interface ChainProvider {
 
 export interface ChainConfig {
   readonly adminAddressForCreatingProviderRecord?: string;
-  readonly contracts?: ChainContracts;
+  readonly contracts: ChainContracts;
   readonly id: number;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }
 
-export type NodeCloudProvider = 'aws' | 'local:aws';
+export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
   readonly chains: ChainConfig[];
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
-  readonly nodeKey: string;
-  readonly platformKey: string;
-  readonly platformUrl: string;
-  readonly providerId: string;
+  readonly nodeVersion: string;
+  readonly providerIdShort?: string;
+  readonly region: string;
+  readonly stage: string;
 }
 
 export interface Config {

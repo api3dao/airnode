@@ -1,14 +1,13 @@
-import { WorkerParameters } from './utils';
 import * as aws from './cloud-platforms/aws';
+import * as localHandlers from './local-handlers';
+import { WorkerParameters, WorkerResponse } from '../../types';
 
-export * from './utils';
-
-export function spawn(params: WorkerParameters): Promise<any> {
-  switch (params.config.nodeSettings.cloudProvider) {
+export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
+  switch (params.cloudProvider) {
     case 'aws':
       return aws.spawn(params);
 
-    case 'local:aws':
-      return aws.spawnLocal(params);
+    case 'local':
+      return localHandlers[params.functionName](params.payload);
   }
 }

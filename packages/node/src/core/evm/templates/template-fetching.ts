@@ -9,7 +9,7 @@ import { Convenience } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../../types';
 
 interface FetchOptions {
-  address: string;
+  convenienceAddress: string;
   provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -64,7 +64,7 @@ export async function fetch(
   const groupedTemplateIds = chunk(uniq(templateIds), 10);
 
   // Create an instance of the contract that we can re-use
-  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
+  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(convenience, ids));

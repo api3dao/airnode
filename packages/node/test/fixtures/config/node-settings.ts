@@ -2,15 +2,18 @@ import { NodeSettings } from '../../../src/types';
 
 export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSettings {
   return {
-    cloudProvider: 'local:aws',
+    cloudProvider: 'local',
     logFormat: 'plain',
-    nodeKey: 'node-key',
-    platformKey: 'key-to-access-chainapi',
-    platformUrl: 'https://chainapi.com/api',
-    providerId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+    nodeVersion: '1.0.0',
+    region: 'us-east-1',
+    stage: 'test',
     chains: [
       {
         adminAddressForCreatingProviderRecord: '0xadminAddressForCreatingProviderRecord',
+        contracts: {
+          Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+          Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
+        },
         id: 1337,
         type: 'evm',
         providers: [{ name: 'ganache-local', url: 'http://localhost:4111' }],

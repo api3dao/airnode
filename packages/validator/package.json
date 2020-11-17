@@ -18,7 +18,11 @@
     "url": "git+https://github.com/api3dao/airnode.git"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "validate": "ts-node src/validate.ts"
+  },
+  "dependencies": {
+    "ts-node": "^9.0.0"
   },
   "bugs": {
     "url": "https://github.com/api3dao/airnode/issues"

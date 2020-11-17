@@ -1,29 +1,61 @@
+import { go } from '../utils/promise-utils';
+import * as logger from '../logger';
 import * as providerState from '../providers/state';
 import * as workers from '../workers';
-import { Config, EVMProviderState, ProviderState } from '../../types';
+import { EVMProviderState, LogsData, ProviderState, WorkerFunctionName, WorkerOptions } from '../../types';
 
 export async function spawnNewProvider(
-  config: Config,
-  state: ProviderState<EVMProviderState>
-): Promise<ProviderState<EVMProviderState>> {
-  const payload = { state };
-  const options = { config, functionName: 'initializeProvider', payload };
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
+  const options = {
+    ...workerOpts,
+    functionName: 'initializeProvider' as WorkerFunctionName,
+    payload: { state },
+  };
 
-  // If this throws, it will be caught by the calling function
-  const responseState = await workers.spawn(options);
-  const unscrubbedState = providerState.unscrubEVM(responseState);
-  return unscrubbedState;
+  const [err, res] = await go(workers.spawn(options));
+  if (err || !res) {
+    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
+    return [[log], null];
+  }
+
+  if (!res.ok) {
+    if (res.errorLog) {
+      return [[res.errorLog], null];
+    }
+    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`);
+    return [[log], null];
+  }
+
+  const unscrubbedState = providerState.unscrub(res.data);
+  return [[], unscrubbedState];
 }
 
 export async function spawnProviderRequestProcessor(
-  config: Config,
-  state: ProviderState<EVMProviderState>
-): Promise<ProviderState<EVMProviderState>> {
-  const payload = { state };
-  const options = { config, functionName: 'processProviderRequests', payload };
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
+  const options = {
+    ...workerOpts,
+    functionName: 'processProviderRequests' as WorkerFunctionName,
+    payload: { state },
+  };
 
-  // If this throws, it will be caught by the calling function
-  const responseState = (await workers.spawn(options)) as ProviderState<EVMProviderState>;
-  const unscrubbedState = providerState.unscrubEVM(responseState);
-  return unscrubbedState;
+  const [err, res] = await go(workers.spawn(options));
+  if (err || !res) {
+    const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`, err);
+    return [[log], null];
+  }
+
+  if (!res.ok) {
+    if (res.errorLog) {
+      return [[res.errorLog], null];
+    }
+    const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`);
+    return [[log], null];
+  }
+
+  const unscrubbedState = providerState.unscrub(res.data);
+  return [[], unscrubbedState];
 }

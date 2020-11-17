@@ -1,16 +1,38 @@
+import * as logger from '../../logger';
 import * as workers from '../../workers';
-import { AggregatedApiCall, ApiCallResponse, Config, LogOptions } from '../../../types';
+import { go } from '../../utils/promise-utils';
+import {
+  AggregatedApiCall,
+  ApiCallResponse,
+  LogOptions,
+  LogsData,
+  WorkerFunctionName,
+  WorkerOptions,
+} from '../../../types';
 
 export async function spawnNewApiCall(
-  config: Config,
   aggregatedApiCall: AggregatedApiCall,
-  logOptions: LogOptions
-): Promise<ApiCallResponse> {
-  const payload = { aggregatedApiCall, logOptions };
-  const options = { config, functionName: 'callApi', payload };
+  logOptions: LogOptions,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ApiCallResponse | null>> {
+  const options = {
+    ...workerOpts,
+    functionName: 'callApi' as WorkerFunctionName,
+    payload: { aggregatedApiCall, logOptions },
+  };
 
-  // If this throws, it will be caught by the calling function
-  const response = (await workers.spawn(options)) as ApiCallResponse;
+  const [err, res] = await go(workers.spawn(options));
+  if (err || !res) {
+    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`, err);
+    return [[log], null];
+  }
 
-  return response;
+  if (!res.ok) {
+    if (res.errorLog) {
+      return [[res.errorLog], null];
+    }
+    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`);
+    return [[log], null];
+  }
+  return [[], res.data];
 }
