@@ -38,9 +38,9 @@ export async function startCoordinator(config: Config) {
   });
   logger.info('Forking to initialize providers complete', baseLogOptions);
 
-  const hasNoRequests = state2.EVMProviders.every((provider) => request.hasNoRequests(provider!.requests));
+  const hasNoRequests = state2.EVMProviders.every((provider) => request.hasNoActionableRequests(provider!.requests));
   if (hasNoRequests) {
-    logger.info('No actionable requests detected. Exiting...', baseLogOptions);
+    logger.info('No actionable requests detected. Returning...', baseLogOptions);
     return state2;
   }
 

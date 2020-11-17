@@ -1,7 +1,19 @@
 import * as fixtures from 'test/fixtures';
 import * as aggregation from './aggregation';
+import { RequestStatus } from 'src/types';
 
 describe('aggregate (API calls)', () => {
+  it('ignores requests that are not pending', () => {
+    const apiCalls = [
+      fixtures.requests.createApiCall({ status: RequestStatus.Errored }),
+      fixtures.requests.createApiCall({ status: RequestStatus.Ignored }),
+      fixtures.requests.createApiCall({ status: RequestStatus.Blocked }),
+      fixtures.requests.createApiCall({ status: RequestStatus.Fulfilled }),
+    ];
+    const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
+    expect(res).toEqual({});
+  });
+
   it('groups calls if they have the exact same attributes', () => {
     const apiCalls = [
       fixtures.requests.createApiCall(),
