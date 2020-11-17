@@ -1,4 +1,4 @@
-import rawConfig from '../../config.json';
+import rawConfig from '../../config-data/config.json';
 import * as node from '@airnode/node';
 
 const config = node.config.parseConfig(rawConfig);
@@ -7,7 +7,7 @@ function encodeBody(data: node.WorkerResponse): string {
   return JSON.stringify(data);
 }
 
-export async function startCoordinator(event: any) {
+export async function startCoordinator() {
   await node.handlers.startCoordinator(config);
   const response = { ok: true, data: { message: 'Coordinator completed' } };
   return { statusCode: 200, body: encodeBody(response) };
