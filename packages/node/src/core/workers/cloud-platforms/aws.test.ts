@@ -31,7 +31,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-some-function',
+        FunctionName: 'airnode-19255a4-test-some-function',
         Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
       },
       expect.any(Function)
@@ -57,7 +57,7 @@ describe('spawn', () => {
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
-        FunctionName: 'airnode-test-19255a4-some-function',
+        FunctionName: 'airnode-19255a4-test-some-function',
         Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
       },
       expect.any(Function)
