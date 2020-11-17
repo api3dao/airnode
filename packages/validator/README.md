@@ -88,10 +88,10 @@ Expected result:
     "valid": false,
     "messages": [
         { "level": "error", "message": "Missing parameter server.url" },
-        { "level": "warning", "message": "Extra field: server.extra" },
         { "level": "error", "message": "Missing parameter component.securityScheme.in" },
         { "level": "error", "message": "Missing parameter component.securityScheme.name" },
-        { "level": "error", "message": "Missing parameter component.securityScheme.type" }
+        { "level": "error", "message": "Missing parameter component.securityScheme.type" },
+        { "level": "warning", "message": "Extra field: server.extra" }
     ]
 }
 ```
@@ -225,9 +225,11 @@ All the conditions of the parameter are objects inside array with key `__conditi
 
 `__require` consists of a parameter path that validator will check and throw error if it doesn't exist. The path is relative to the location of the parameter, but if it starts with `/` it is absolute path starting in the root of the whole specification. The path can also contain special token `__this_name` which will be replaced by the name of parameter that the condition relates to.
 
-`__if` contains name of the parameter which the validator should check and regular expression, which will be matched with the value of provided parameter. `__then` contains structure that will be checked only if the condition in `__if` is fulfilled.
+`__if` contains name of the parameter which the validator should check and regular expression, which will be matched with the value of provided parameter. `__then` contains structure that will be checked only if the condition in `__if` is fulfilled. Keyword `__rootThen` can be used, validator will start checking from the root of the specification, instead of the element that condition is nested in.
 
-`__if` can also contain `__this` keyword, in this case validator, won't be checking parameters of in the value of the object, but key of the object. Value of `__this` is a regular expression, if the regular expression is fulfilled, section `__then` can contain keyword `__match`, which will be replaced with result of the regular expression in `__this`.
+`__if` can also contain `__this` keyword, validator will be checking against the value of element the condition is nested in. Value of `__this` is a regular expression, if the regular expression is fulfilled, section `__then` can contain keyword `__match`, which will be replaced with result of the regular expression in `__this`.
+
+Similar to `__this` is keyword `__this_name`, in which except checking against the value of parameter the validator will be checking the key of parameter.
 
 Section `__then` can contain keyword `__any`, on level where array or object is expected. Validator will check every item/object, if none of them fulfills the condition, the specs will be invalid.
 
@@ -242,7 +244,7 @@ Validator structure example:
       '__conditions': [
         {
           '__if': {
-            '__this': '(?<={)[^\\/{}]+(?=})'
+            '__this_name': '(?<={)[^\\/{}]+(?=})'
           },
           '__then': {
             'param': {
@@ -375,7 +377,9 @@ Expected output:
         { "level": "error", "message": "Missing parameter absolute./one" },
         { "level": "warning", "message": "array[1]./condition.fulfilled is not formatted correctly" },
         { "level": "error", "message": "Condition in array[2]./path/{param} is not met with param" },
-        { "level": "error", "message": "Required conditions not met in array[3]./two" }
+        { "level": "error", "message": "Required conditions not met in array[3]./two" },
+        { "level": "warning", "message": "Extra field: array[0]./one.notRelative" },
+        { "level": "warning",  "message": "Extra field: array[2]./path/{param}.param" }
     ]
 }
 ```
