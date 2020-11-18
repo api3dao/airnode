@@ -18,8 +18,11 @@ interface GroupedLogs {
 }
 
 export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
+  // Protect against a potential negative fromBlock value
+  const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
+
   const filter: ethers.providers.Filter = {
-    fromBlock: options.currentBlock - options.blockHistoryLimit,
+    fromBlock,
     toBlock: options.currentBlock,
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid

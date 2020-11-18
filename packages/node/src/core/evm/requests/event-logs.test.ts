@@ -73,6 +73,14 @@ describe('EVM event logs - fetch', () => {
         transactionHash: '0x3',
       },
     ]);
+    expect(getLogs).toHaveBeenCalledTimes(1);
+    expect(getLogs).toHaveBeenCalledWith({
+      // 10716084 - 600
+      fromBlock: 10715484,
+      toBlock: 10716084,
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+    });
   });
 
   it('throws an exception if the logs cannot be fetched', async () => {
@@ -126,6 +134,27 @@ describe('EVM event logs - fetch', () => {
     } catch (e) {
       expect(e).toEqual(new Error('Unable to parse topic'));
     }
+  });
+
+  it('protects against negative fromBlock values', async () => {
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
+    getLogs.mockResolvedValueOnce([]);
+    const fetchOptions = {
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 99999999,
+      currentBlock: 10716084,
+      provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+    };
+    const res = await eventLogs.fetch(fetchOptions);
+    expect(res).toEqual([]);
+    expect(getLogs).toHaveBeenCalledTimes(1);
+    expect(getLogs).toHaveBeenCalledWith({
+      fromBlock: 0,
+      toBlock: 10716084,
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+    });
   });
 });
 
