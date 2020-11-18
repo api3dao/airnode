@@ -73,9 +73,10 @@ export async function callApis(
   const flatAggregatedCalls = flatMap(Object.keys(aggregatedApiCallsById), (id) => aggregatedApiCallsById[id]);
   const validAggregatedCalls = flatAggregatedCalls.filter((ac) => !ac.errorCode);
 
-  const calls = validAggregatedCalls.map(async (aggregatedApiCall) =>
-    execute(aggregatedApiCall, logOptions, workerOpts)
-  );
+  // Execute all API calls concurrently
+  const calls = validAggregatedCalls.map(async (aggregatedApiCall) => {
+    return await execute(aggregatedApiCall, logOptions, workerOpts);
+  });
 
   const logsWithresponses = await Promise.all(calls);
   const responseLogs = flatMap(logsWithresponses, (r) => r[0]);
