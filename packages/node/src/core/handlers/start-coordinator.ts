@@ -46,7 +46,7 @@ export async function startCoordinator(config: Config) {
   }
 
   // =================================================================
-  // STEP 3: Group unique API calls and perform validation
+  // STEP 3: Group unique API calls and validate
   // =================================================================
   const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
