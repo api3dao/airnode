@@ -44,26 +44,6 @@ describe('callApi', () => {
     );
   });
 
-  it('returns an error if the OIS is not found', async () => {
-    const aggregatedCall = fixtures.createAggregatedApiCall({ oisTitle: 'unknownOis' });
-    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
-    expect(logs).toEqual([{ level: 'ERROR', message: 'Unknown OIS:unknownOis received for Request:apiCallId' }]);
-    expect(res).toEqual({
-      errorCode: RequestErrorCode.UnknownOIS,
-    });
-  });
-
-  it('returns an error if the endpoint is not found', async () => {
-    const aggregatedCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
-    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
-    expect(logs).toEqual([
-      { level: 'ERROR', message: 'Unknown Endpoint:unknownEndpoint in OIS:oisTitle received for Request:apiCallId' },
-    ]);
-    expect(res).toEqual({
-      errorCode: RequestErrorCode.UnknownEndpoint,
-    });
-  });
-
   it('returns an error if no _type parameter is found', async () => {
     const aggregatedCall = fixtures.createAggregatedApiCall();
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
