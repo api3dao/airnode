@@ -24,6 +24,7 @@ functions:
   startCoordinator:
     handler: ./src/handlers/aws/index.startCoordinator
     timeout: 60
+    reservedConcurrency: 1
 
   initializeProvider:
     handler: ./src/handlers/aws/index.initializeProvider
