@@ -1,4 +1,5 @@
 import isUndefined from 'lodash/isUndefined';
+import BigNumber from 'bignumber.js';
 import * as caster from './caster';
 import * as encoder from './encoder';
 import * as extraction from './extraction';
@@ -22,10 +23,10 @@ export function processByCasting(rawValue: unknown, type: ResponseType) {
   return caster.castValue(rawValue, type);
 }
 
-export function processByMultiplying(value: number | string, times?: number | string): string {
+export function processByMultiplying(value: BigNumber, times?: number | string): string {
   if (!times) {
-    // Remove any trailing decimals if they exist (floor the number)
-    return value.toString().split('.')[0];
+    const stringifiedNumber = caster.bigNumberToString(value);
+    return caster.floorStringifiedNumber(stringifiedNumber);
   }
   return caster.multiplyValue(value, times);
 }

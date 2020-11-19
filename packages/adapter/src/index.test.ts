@@ -2,6 +2,7 @@ const responseMock = jest.fn();
 jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { Request, ResponseParameters } from './types';
 import * as fixtures from '../test/fixtures';
 import * as adapter from './index';
@@ -194,12 +195,13 @@ describe('re-exported functions', () => {
 
   it('exports processByCasting', () => {
     expect(adapter.processByCasting('true', 'bool')).toEqual(true);
-    expect(adapter.processByCasting('777', 'int256')).toEqual(777);
+    expect(adapter.processByCasting('777', 'int256')).toEqual(new BigNumber('777'));
     expect(adapter.processByCasting('BTC_USD', 'bytes32')).toEqual('BTC_USD');
   });
 
   it('exports multiplyValue', () => {
-    const res = adapter.processByMultiplying(7.789, 1000);
+    const value = new BigNumber(7.789);
+    const res = adapter.processByMultiplying(value, 1000);
     expect(res).toEqual('7789');
   });
 
