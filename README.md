@@ -28,7 +28,7 @@ It houses the following packages:
 
 To install dependencies, run this at the repository root:
 ```sh
-yarn bootstrap
+yarn run bootstrap
 ```
 
 ## Contributing
