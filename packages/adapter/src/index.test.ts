@@ -171,7 +171,7 @@ describe('extractAndEncodeValue', () => {
 
   it('extracts and encodes the value from complex objects', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: 100 };
+    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
     const res = adapter.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       value: '75051',
@@ -201,7 +201,8 @@ describe('re-exported functions', () => {
 
   it('exports multiplyValue', () => {
     const value = new BigNumber(7.789);
-    const res = adapter.processByMultiplying(value, 1000);
+    const times = new BigNumber(1000);
+    const res = adapter.processByMultiplying(value, times);
     expect(res).toEqual('7789');
   });
 

@@ -150,8 +150,9 @@ describe('castValue', () => {
 
 describe('multiplyValue', () => {
   it('multiplies number values by the times parameter', () => {
-    const value = new BigNumber(777.7777);
-    const res = caster.multiplyValue(value, 10_000);
+    const value = new BigNumber('777.7777');
+    const times = new BigNumber(10_000);
+    const res = caster.multiplyValue(value, times);
     expect(res).toEqual('7777777');
   });
 
@@ -162,17 +163,17 @@ describe('multiplyValue', () => {
 
   it('floors the result if there are any remaining decimals', () => {
     const value = new BigNumber(777.7777);
-    const res = caster.multiplyValue(value, 3);
+    const res = caster.multiplyValue(value, '3');
     expect(res).toEqual('2333');
   });
 
   it('handles very large numbers', () => {
-    const res = caster.multiplyValue('123479127389712587938092347987348719823', 987298123);
+    const res = caster.multiplyValue('123479127389712587938092347987348719823', '987298123');
     expect(res).toEqual('121910710701541127580751015368572218827700792229');
   });
 
   it('floors very large decimals', () => {
-    const res = caster.multiplyValue('12479127389712987348782.371238923', 10);
+    const res = caster.multiplyValue('12479127389712987348782.371238923', new BigNumber(10));
     expect(res).toEqual('124791273897129873487823');
   });
 });

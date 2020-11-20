@@ -43,7 +43,7 @@ describe('processByCasting', () => {
 describe('processByMultiplying', () => {
   it('multiplies number values by the times', () => {
     const value = new BigNumber(7.789);
-    const res = proccessor.processByMultiplying(value, 1000);
+    const res = proccessor.processByMultiplying(value, '1000');
     expect(res).toEqual('7789');
   });
 
