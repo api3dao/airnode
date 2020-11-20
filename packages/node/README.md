@@ -20,7 +20,7 @@ Airnode has not yet been published, so you will need to clone and install the en
 git clone git@github.com:api3dao/airnode.git
 
 # Run from the repository root
-npm run bootstrap
+yarn run bootstrap
 ```
 
 ## Configuration
@@ -33,10 +33,10 @@ Airnode does not yet have an stable API for usage. However, you can run for deve
 
 ```sh
 # Run Airnode once using the AWS serverless handler
-npm run invoke:aws
+yarn run invoke:aws
 
 # Expose a local endpoint at localhost:3000 where you can initiate actions by sending HTTP requests
-npm run dev:aws
+yarn run dev:aws
 ```
 
 ## Behaviour
