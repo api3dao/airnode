@@ -2,24 +2,14 @@ import BigNumber from 'bignumber.js';
 import * as http from './clients/http';
 import { initialize as initializeState } from './state';
 import { Config, Options, Request, ResponseParameters } from './types';
-import * as requestBuilder from './request-builder';
-import {
-  isNumberType,
-  processByExtracting,
-  processByCasting,
-  processByMultiplying,
-  processByEncoding,
-} from './response-processor';
+import * as building from './request-building';
+import * as processing from './response-processing';
 
 export * from './types';
 
-// Re-export functions from response-processor
-export { isNumberType, processByExtracting, processByCasting, processByMultiplying, processByEncoding };
-
 export function buildRequest(options: Options): Request {
   const state = initializeState(options);
-
-  return requestBuilder.build(state);
+  return building.buildRequest(state);
 }
 
 export function executeRequest(request: Request, config?: Config) {
@@ -38,15 +28,15 @@ export function buildAndExecuteRequest(options: Options, config?: Config) {
 }
 
 export function extractAndEncodeResponse(data: unknown, parameters: ResponseParameters) {
-  const rawValue = processByExtracting(data, parameters._path);
+  const rawValue = processing.extractValue(data, parameters._path);
+  const value = processing.castValue(rawValue, parameters._type);
 
-  let value = processByCasting(rawValue, parameters._type);
-
-  if (isNumberType(parameters._type)) {
-    value = processByMultiplying(value as BigNumber, parameters._times);
+  if (parameters._type === 'int256') {
+    const multipledValue = processing.multiplyValue(value as BigNumber, parameters._times);
+    const encodedValue = processing.encodeValue(multipledValue.toString(), 'int256');
+    return { value, encodedValue };
   }
 
-  const encodedValue = processByEncoding(value, parameters._type);
-
+  const encodedValue = processing.encodeValue(value, parameters._type);
   return { value, encodedValue };
 }

@@ -1,3 +1,5 @@
+import isUndefined from 'lodash/isUndefined';
+
 export function getRawValue(data: any, path?: string, defaultValue?: any) {
   // Some APIs return a simple value not in an object or array, like
   // a string, number or boolean. If this is the case, the user can
@@ -17,4 +19,14 @@ export function getRawValue(data: any, path?: string, defaultValue?: any) {
       return defaultValue;
     }
   }, data);
+}
+
+export function extractValue(data: unknown, path?: string) {
+  const rawValue = getRawValue(data, path);
+
+  if (isUndefined(rawValue)) {
+    throw new Error(`Unable to find value from path: '${path}'`);
+  }
+
+  return rawValue;
 }

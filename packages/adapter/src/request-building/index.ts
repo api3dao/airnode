@@ -2,7 +2,7 @@ import { Request, State } from '../types';
 import { buildParameters } from './parameters';
 import { parsePathWithParameters } from './path-parser';
 
-export function build(state: State): Request {
+export function buildRequest(state: State): Request {
   const { endpoint, ois } = state;
 
   // A single base URL should always exist at the API level
