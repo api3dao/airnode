@@ -23,7 +23,7 @@ export function processByCasting(rawValue: unknown, type: ResponseType) {
   return caster.castValue(rawValue, type);
 }
 
-export function processByMultiplying(value: BigNumber, times?: number | string): string {
+export function processByMultiplying(value: BigNumber, times?: string | BigNumber): string {
   if (!times) {
     const stringifiedNumber = caster.bigNumberToString(value);
     return caster.floorStringifiedNumber(stringifiedNumber);
