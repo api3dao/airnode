@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import * as caster from './caster';
 
 describe('castValue', () => {
@@ -46,6 +47,9 @@ describe('castValue', () => {
       expect(() => caster.castValue(NaN, 'int256')).toThrowError(new Error("Unable to convert: 'null' to int256"));
       expect(() => caster.castValue(Infinity, 'int256')).toThrowError(new Error("Unable to convert: 'null' to int256"));
       expect(() => caster.castValue('', 'int256')).toThrowError(new Error('Unable to convert: \'""\' to int256'));
+      expect(() => caster.castValue('123.123.123', 'int256')).toThrowError(
+        new Error('Unable to convert: \'"123.123.123"\' to int256')
+      );
     });
 
     it('throws an error for unknown strings', () => {
@@ -73,19 +77,24 @@ describe('castValue', () => {
     });
 
     it('casts boolean-like values to either 1 or 0', () => {
-      expect(caster.castValue(false, 'int256')).toEqual(0);
-      expect(caster.castValue('false', 'int256')).toEqual(0);
+      const zero = new BigNumber(0);
+      expect(caster.castValue(false, 'int256')).toEqual(zero);
+      expect(caster.castValue('false', 'int256')).toEqual(zero);
 
-      expect(caster.castValue(true, 'int256')).toEqual(1);
-      expect(caster.castValue('true', 'int256')).toEqual(1);
+      const one = new BigNumber(1);
+      expect(caster.castValue(true, 'int256')).toEqual(one);
+      expect(caster.castValue('true', 'int256')).toEqual(one);
     });
 
-    it('casts number-like values to numbers', () => {
-      expect(caster.castValue(0, 'int256')).toEqual(0);
-      expect(caster.castValue('0', 'int256')).toEqual(0);
-      expect(caster.castValue('777.789', 'int256')).toEqual(777.789);
-      expect(caster.castValue(777, 'int256')).toEqual(777);
-      expect(caster.castValue(777.777, 'int256')).toEqual(777.777);
+    it('casts number-like values to BigNumbers', () => {
+      expect(caster.castValue(0, 'int256')).toEqual(new BigNumber(0));
+      expect(caster.castValue('0', 'int256')).toEqual(new BigNumber(0));
+      expect(caster.castValue('777.789', 'int256')).toEqual(new BigNumber('777.789'));
+      expect(caster.castValue(777, 'int256')).toEqual(new BigNumber(777));
+      expect(caster.castValue(777.777, 'int256')).toEqual(new BigNumber('777.777'));
+      expect(caster.castValue(Number.MAX_SAFE_INTEGER.toString() + '1000', 'int256')).toEqual(
+        new BigNumber('90071992547409911000')
+      );
     });
   });
 
@@ -141,7 +150,9 @@ describe('castValue', () => {
 
 describe('multiplyValue', () => {
   it('multiplies number values by the times parameter', () => {
-    const res = caster.multiplyValue(777.7777, 10_000);
+    const value = new BigNumber('777.7777');
+    const times = new BigNumber(10_000);
+    const res = caster.multiplyValue(value, times);
     expect(res).toEqual('7777777');
   });
 
@@ -151,17 +162,34 @@ describe('multiplyValue', () => {
   });
 
   it('floors the result if there are any remaining decimals', () => {
-    const res = caster.multiplyValue(777.7777, 3);
+    const value = new BigNumber(777.7777);
+    const res = caster.multiplyValue(value, '3');
     expect(res).toEqual('2333');
   });
 
   it('handles very large numbers', () => {
-    const res = caster.multiplyValue('123479127389712587938092347987348719823', 987298123);
+    const res = caster.multiplyValue('123479127389712587938092347987348719823', '987298123');
     expect(res).toEqual('121910710701541127580751015368572218827700792229');
   });
 
   it('floors very large decimals', () => {
-    const res = caster.multiplyValue('12479127389712987348782.371238923', 10);
+    const res = caster.multiplyValue('12479127389712987348782.371238923', new BigNumber(10));
     expect(res).toEqual('124791273897129873487823');
+  });
+});
+
+describe('bigNumberToString', () => {
+  it('returns the string equivalent', () => {
+    expect(caster.bigNumberToString(new BigNumber(-999))).toEqual('-999');
+    expect(caster.bigNumberToString(new BigNumber('0'))).toEqual('0');
+    expect(caster.bigNumberToString(new BigNumber(Number.MAX_SAFE_INTEGER))).toEqual('9007199254740991');
+    expect(caster.bigNumberToString(new BigNumber('123.123'))).toEqual('123.123');
+    expect(caster.bigNumberToString(new BigNumber(123.123))).toEqual('123.123');
+  });
+});
+
+describe('floorStringifiedNumber', () => {
+  it('returns the number before the decimal point', () => {
+    expect(caster.floorStringifiedNumber('1234.99')).toEqual('1234');
   });
 });
