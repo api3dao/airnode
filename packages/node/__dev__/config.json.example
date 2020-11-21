@@ -3,7 +3,7 @@
   "nodeSettings": {
     "cloudProvider": "local",
     "logFormat": "plain",
-    "nodeVersion": "0.1.0",
+    "nodeVersion": "1.0.0",
     "region": "us-east-1",
     "stage": "dev",
     "chains": [
@@ -36,36 +36,71 @@
     {
       "oisFormat": "1.0.0",
       "version": "1.2.3",
-      "title": "ethgastation",
+      "title": "coinlayer",
       "apiSpecifications": {
         "info": {
-          "title": "ethgastation"
+          "title": "Coinlayer - Price Conversion"
         },
         "servers": [
           {
-            "url": "https://ethgasstation.info/api"
+            "url": "https://api.coinlayer.com"
           }
         ],
         "paths": {
-          "/ethgasAPI.json": {
+          "/convert": {
             "get": {
-              "parameters": []
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "from"
+                },
+                {
+                  "in": "query",
+                  "name": "to"
+                },
+                {
+                  "in": "query",
+                  "name": "amount"
+                },
+                {
+                  "in": "query",
+                  "name": "date"
+                }
+              ]
             }
           }
         },
         "components": {
-          "securitySchemes": {}
+          "securitySchemes": {
+            "coinlayerSecurityScheme": {
+              "in": "query",
+              "type": "apiKey",
+              "name": "access_key"
+            }
+          }
         },
-        "security": []
+        "security": [
+          {
+            "coinlayerSecurityScheme": []
+          }
+        ]
       },
       "endpoints": [
         {
-          "name": "fastest",
+          "name": "convertToUsd",
           "operation": {
             "method": "get",
-            "path": "/ethgasAPI.json"
+            "path": "/convert"
           },
-          "fixedOperationParameters": [],
+          "fixedOperationParameters": [
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "to"
+              },
+              "value": "USD"
+            }
+          ],
           "reservedParameters": [
             {
               "name": "_type",
@@ -73,10 +108,31 @@
             },
             {
               "name": "_path",
-              "fixed": "fastest"
+              "fixed": "result"
+            },
+            {
+              "name": "_times",
+              "default": "1000000"
             }
           ],
-          "parameters": []
+          "parameters": [
+            {
+              "name": "from",
+              "default": "EUR",
+              "operationParameter": {
+                "in": "query",
+                "name": "from"
+              }
+            },
+            {
+              "name": "amount",
+              "default": "1",
+              "operationParameter": {
+                "name": "amount",
+                "in": "query"
+              }
+            }
+          ]
         }
       ]
     }
