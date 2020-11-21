@@ -176,6 +176,7 @@ describe('create', () => {
 
   it('returns null if the gas limit estimate fails', async () => {
     estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
+    estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
     const [logs, res] = await providers.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
@@ -187,12 +188,13 @@ describe('create', () => {
       },
     ]);
     expect(res).toEqual(null);
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(2);
     expect(createProviderMock).not.toHaveBeenCalled();
   });
 
   it('returns null if the gas price cannot be fetched', async () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     const [logs, res] = await providers.create(options);
@@ -211,6 +213,7 @@ describe('create', () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     const [logs, res] = await providers.create(options);
@@ -233,6 +236,7 @@ describe('create', () => {
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
+    createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
     const [logs, res] = await providers.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
@@ -249,7 +253,7 @@ describe('create', () => {
     ]);
     expect(res).toEqual(null);
     expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).toHaveBeenCalledTimes(1);
+    expect(createProviderMock).toHaveBeenCalledTimes(2);
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',

@@ -138,6 +138,7 @@ describe('submitWithdrawal', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
     (provider.getBalance as jest.Mock).mockRejectedValueOnce(new Error('Could not fetch balance'));
+    (provider.getBalance as jest.Mock).mockRejectedValueOnce(new Error('Could not fetch balance'));
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
@@ -157,6 +158,7 @@ describe('submitWithdrawal', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
+    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
@@ -179,6 +181,7 @@ describe('submitWithdrawal', () => {
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
+    contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
     const gasPrice = ethers.BigNumber.from(1000);
     const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
@@ -197,7 +200,7 @@ describe('submitWithdrawal', () => {
     ]);
     expect(err).toEqual(new Error('Could not submit withdrawal'));
     expect(data).toEqual(null);
-    expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
+    expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(2);
     expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
       withdrawal.id,
       withdrawal.providerId,

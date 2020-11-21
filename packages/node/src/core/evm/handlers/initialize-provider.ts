@@ -2,7 +2,8 @@ import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
 import * as logger from '../../logger';
 import * as providers from '../providers';
-import * as requests from '../requests';
+import { fetchPendingRequests } from './fetch-pending-requests';
+import * as requests from '../../requests';
 import * as state from '../../providers/state';
 import * as templates from '../templates';
 import * as transactionCounts from '../transaction-counts';
@@ -70,12 +71,13 @@ export async function initializeProvider(
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
   // =================================================================
-  const [dataErr, groupedRequests] = await go(requests.fetchPendingRequests(state2));
+  const [dataErr, groupedRequests] = await go(fetchPendingRequests(state2));
   if (dataErr || !groupedRequests) {
     logger.error('Unable to get pending requests', { ...baseLogOptions, error: dataErr });
     return null;
   }
-  const { apiCalls, withdrawals } = groupedRequests;
+  const apiCalls = requests.filterActionableApiCalls(groupedRequests.apiCalls);
+  const withdrawals = requests.filterActionableWithdrawals(groupedRequests.withdrawals);
   logger.info(`Pending requests: ${apiCalls.length} API call(s), ${withdrawals.length} withdrawal(s)`, baseLogOptions);
   const state3 = state.update(state2, { requests: groupedRequests });
 

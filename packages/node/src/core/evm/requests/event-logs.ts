@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import * as contracts from '../contracts';
 import * as events from './events';
 import { LogWithMetadata } from '../../../types';
+import { retryOperation } from '../../utils/promise-utils';
 
 interface FetchOptions {
   address: string;
@@ -17,8 +18,11 @@ interface GroupedLogs {
 }
 
 export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
+  // Protect against a potential negative fromBlock value
+  const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
+
   const filter: ethers.providers.Filter = {
-    fromBlock: options.currentBlock - options.blockHistoryLimit,
+    fromBlock,
     toBlock: options.currentBlock,
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
@@ -26,8 +30,11 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
     topics: [null, options.providerId],
   };
 
+  const operation = () => options.provider.getLogs(filter);
+  const retryableOperation = retryOperation(2, operation);
+
   // Let this throw if something goes wrong
-  const rawLogs = await options.provider.getLogs(filter);
+  const rawLogs = await retryableOperation;
 
   // If the provider returns a bad response, mapping logs could also throw
   const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);

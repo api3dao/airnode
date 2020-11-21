@@ -2,14 +2,7 @@ import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
 import { goTimeout } from '../../utils/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
-import {
-  AggregatedApiCall,
-  AggregatedApiCallsById,
-  LogsData,
-  LogOptions,
-  RequestErrorCode,
-  WorkerOptions,
-} from '../../../types';
+import { AggregatedApiCall, LogsData, LogOptions, RequestErrorCode, WorkerOptions } from '../../../types';
 
 const WORKER_TIMEOUT = 29_500;
 
@@ -18,6 +11,14 @@ async function execute(
   logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<AggregatedApiCall>> {
+  if (aggregatedApiCall.errorCode) {
+    const log = logger.pend(
+      'WARN',
+      `Not executing Request:${aggregatedApiCall.id} as it has error code:${aggregatedApiCall.errorCode}`
+    );
+    return [[log], aggregatedApiCall];
+  }
+
   const startedAt = new Date();
   const baseLogMsg = `API call to Endpoint:${aggregatedApiCall.endpointName}`;
 
@@ -53,34 +54,19 @@ async function execute(
   return [[...resLogs, completeLog], updatedApiCall];
 }
 
-function regroupAggregatedCalls(aggregatedApiCalls: AggregatedApiCall[]): AggregatedApiCallsById {
-  return aggregatedApiCalls.reduce((acc, aggregatedApiCall) => {
-    const existingAggregatedCalls = acc[aggregatedApiCall.id] || [];
-
-    return {
-      ...acc,
-      [aggregatedApiCall.id]: [...existingAggregatedCalls, aggregatedApiCall],
-    };
-  }, {});
-}
-
 export async function callApis(
-  aggregatedApiCallsById: AggregatedApiCallsById,
+  aggregatedApiCalls: AggregatedApiCall[],
   logOptions: LogOptions,
   workerOpts: WorkerOptions
-): Promise<LogsData<AggregatedApiCallsById>> {
-  // Flatten all aggregated API calls and filter out ones that already have an error
-  const flatAggregatedCalls = flatMap(Object.keys(aggregatedApiCallsById), (id) => aggregatedApiCallsById[id]);
-  const validAggregatedCalls = flatAggregatedCalls.filter((ac) => !ac.errorCode);
-
-  const calls = validAggregatedCalls.map(async (aggregatedApiCall) =>
-    execute(aggregatedApiCall, logOptions, workerOpts)
-  );
+): Promise<LogsData<AggregatedApiCall[]>> {
+  // Execute all API calls concurrently
+  const calls = aggregatedApiCalls.map(async (aggregatedApiCall) => {
+    return await execute(aggregatedApiCall, logOptions, workerOpts);
+  });
 
   const logsWithresponses = await Promise.all(calls);
   const responseLogs = flatMap(logsWithresponses, (r) => r[0]);
   const responses = flatMap(logsWithresponses, (r) => r[1]);
-  const regroupedResponses = regroupAggregatedCalls(responses);
 
   const successfulResponsesCount = responses.filter((r) => !!r.responseValue).length;
   const successLog = logger.pend('INFO', `Received ${successfulResponsesCount} successful API call(s)`);
@@ -89,5 +75,5 @@ export async function callApis(
   const errorLog = logger.pend('INFO', `Received ${erroredResponsesCount} errored API call(s)`);
 
   const logs = [...responseLogs, successLog, errorLog];
-  return [logs, regroupedResponses];
+  return [logs, responses];
 }

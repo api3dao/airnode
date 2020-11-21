@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import * as proccessor from './index';
 
 describe('isNumberType', () => {
@@ -33,11 +34,6 @@ describe('processByCasting', () => {
     expect(res).toEqual('somestring');
   });
 
-  it('casts simple numbers', () => {
-    const res = proccessor.processByCasting('777.77', 'int256');
-    expect(res).toEqual(777.77);
-  });
-
   it('casts booleans', () => {
     const res = proccessor.processByCasting('true', 'bool');
     expect(res).toEqual(true);
@@ -46,19 +42,21 @@ describe('processByCasting', () => {
 
 describe('processByMultiplying', () => {
   it('multiplies number values by the times', () => {
-    const res = proccessor.processByMultiplying(7.789, 1000);
+    const value = new BigNumber(7.789);
+    const res = proccessor.processByMultiplying(value, '1000');
     expect(res).toEqual('7789');
   });
 
   it('floors and converts to a string if times is not provided', () => {
-    const res = proccessor.processByMultiplying(1234.75);
+    const value = new BigNumber(1234.75);
+    const res = proccessor.processByMultiplying(value);
     expect(res).toEqual('1234');
   });
 });
 
 describe('encodeValue', () => {
-  it('encodes numbers', () => {
-    const res = proccessor.processByEncoding(777, 'int256');
+  it('encodes stringified numbers', () => {
+    const res = proccessor.processByEncoding('777', 'int256');
     expect(res).toEqual('0x0000000000000000000000000000000000000000000000000000000000000309');
   });
 

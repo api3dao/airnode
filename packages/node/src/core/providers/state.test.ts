@@ -45,7 +45,7 @@ describe('create', () => {
       currentBlock: null,
       gasPrice: null,
       masterHDNode: expect.any(ethers.utils.HDNode),
-      provider: expect.anything(),
+      provider: expect.any(ethers.providers.JsonRpcProvider),
       requests: {
         apiCalls: [],
         withdrawals: [],
@@ -99,8 +99,8 @@ describe('create', () => {
       coordinatorId: '837daEf231',
       currentBlock: null,
       gasPrice: null,
-      provider: expect.anything(),
       masterHDNode: expect.any(ethers.utils.HDNode),
+      provider: expect.any(ethers.providers.JsonRpcProvider),
       requests: {
         apiCalls: [],
         withdrawals: [],
@@ -135,11 +135,11 @@ describe('refresh', () => {
   describe('EVM provider state', () => {
     it('initializes a new provider', () => {
       const newState = fixtures.buildEVMProviderState();
-      expect(newState.provider).toBeInstanceOf(Object);
+      expect(newState.provider).toBeInstanceOf(ethers.providers.JsonRpcProvider);
       const scrubbed = state.scrub(newState);
       expect(scrubbed.provider).toEqual(undefined);
       const refreshed = state.refresh(scrubbed);
-      expect(refreshed.provider).toBeInstanceOf(Object);
+      expect(refreshed.provider).toBeInstanceOf(ethers.providers.JsonRpcProvider);
     });
 
     it('initializes a new master HD node', () => {

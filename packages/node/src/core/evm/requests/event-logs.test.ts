@@ -1,15 +1,9 @@
-const getLogsMock = jest.fn();
 const parseLogMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
     ethers: {
       ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getLogs: getLogsMock,
-        })),
-      },
       utils: {
         ...original.utils,
         Interface: jest.fn().mockImplementation(() => ({
@@ -26,7 +20,6 @@ import * as eventLogs from './event-logs';
 
 describe('EVM event logs - fetch', () => {
   it('returns all logs with metadata', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
       topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
@@ -43,7 +36,7 @@ describe('EVM event logs - fetch', () => {
       transactionHash: '0x3',
     };
 
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent, fulfilledApiCallEvent, unknownEvent]);
 
     // TODO: We probably shouldn't be mocking the interface, but need to find
@@ -80,12 +73,21 @@ describe('EVM event logs - fetch', () => {
         transactionHash: '0x3',
       },
     ]);
+    expect(getLogs).toHaveBeenCalledTimes(1);
+    expect(getLogs).toHaveBeenCalledWith({
+      // 10716084 - 600
+      fromBlock: 10715484,
+      toBlock: 10716084,
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+    });
   });
 
   it('throws an exception if the logs cannot be fetched', async () => {
     expect.assertions(1);
-    const provider = new ethers.providers.JsonRpcProvider();
-    const getLogs = provider.getLogs as jest.Mock;
+
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
+    getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
     getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
 
     const fetchOptions = {
@@ -104,13 +106,12 @@ describe('EVM event logs - fetch', () => {
 
   it('throws an exception if the logs cannot be parsed', async () => {
     expect.assertions(1);
-    const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
       topic: '0xinvalidtopic',
       transactionHash: '0x1',
     };
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent]);
 
     // TODO: We probably shouldn't be mocking the interface, but need to find
@@ -133,6 +134,27 @@ describe('EVM event logs - fetch', () => {
     } catch (e) {
       expect(e).toEqual(new Error('Unable to parse topic'));
     }
+  });
+
+  it('protects against negative fromBlock values', async () => {
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
+    getLogs.mockResolvedValueOnce([]);
+    const fetchOptions = {
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 99999999,
+      currentBlock: 10716084,
+      provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+    };
+    const res = await eventLogs.fetch(fetchOptions);
+    expect(res).toEqual([]);
+    expect(getLogs).toHaveBeenCalledTimes(1);
+    expect(getLogs).toHaveBeenCalledWith({
+      fromBlock: 0,
+      toBlock: 10716084,
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+    });
   });
 });
 

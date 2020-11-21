@@ -95,7 +95,7 @@ processByCasting(value: unknown, type: ResponseType): string | boolean | number
 Multiplies the input value by the `times` parameter. Returns the input value as is if `times` is undefined.
 
 ```ts
-processByMultiplying(value: number, times?: number): number
+processByMultiplying(value: string | BigNumber, times?: string | BigNumber): string
 ```
 
 ### processByEncoding
@@ -237,7 +237,7 @@ const data = {
 // Option 1:
 const rawValue = adapter.processByExtracting(data, 'prices.1');
 const value = adapter.processByCasting(rawValue, 'int256');
-const multipledValue = adapter.processByMultiplying(value, 100);
+const multipledValue = adapter.processByMultiplying(value, '100');
 const encodedValue = adapter.processByEncoding(multipledValue, 'int256');
 console.log(encodedValue);
 // '0x000000000000000000000000000000000000000000000000000000000001252b'
@@ -245,7 +245,7 @@ console.log(encodedValue);
 // Option 2:
 const parameters = {
   path: 'prices.1',
-  times: 100,
+  times: '100',
   type: 'int256',
 };
 const result = adapter.extractAndEncodeResponse(data, parameters);

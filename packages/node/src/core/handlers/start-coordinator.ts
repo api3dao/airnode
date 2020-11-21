@@ -1,4 +1,5 @@
 import flatMap from 'lodash/flatMap';
+import keyBy from 'lodash/keyBy';
 import * as calls from '../coordinator/calls';
 import * as logger from '../logger';
 import * as providers from '../providers';
@@ -38,31 +39,41 @@ export async function startCoordinator(config: Config) {
   });
   logger.info('Forking to initialize providers complete', baseLogOptions);
 
-  const hasNoRequests = state2.EVMProviders.every((provider) => request.hasNoRequests(provider!.requests));
+  const hasNoRequests = state2.EVMProviders.every((provider) => request.hasNoActionableRequests(provider!.requests));
   if (hasNoRequests) {
-    logger.info('No actionable requests detected. Exiting...', baseLogOptions);
+    logger.info('No actionable requests detected. Returning...', baseLogOptions);
     return state2;
   }
 
   // =================================================================
-  // STEP 3: Group unique API calls
+  // STEP 3: Group unique API calls and validate
   // =================================================================
   const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
-  const flatAggregatedCalls = flatMap(Object.keys(aggregatedApiCallsById), (id) => aggregatedApiCallsById[id]);
-  logger.info(`Processing ${flatAggregatedCalls.length} pending API call(s)...`, baseLogOptions);
-  const state3 = state.update(state2, { aggregatedApiCallsById });
+  const [validatedAggCallLogs, validatedAggApiCallsById] = calls.validateAggregatedApiCalls(
+    state2.config,
+    aggregatedApiCallsById
+  );
+  logger.logPending(validatedAggCallLogs, baseLogOptions);
+  const state3 = state.update(state2, { aggregatedApiCallsById: validatedAggApiCallsById });
 
   // =================================================================
   // STEP 4: Execute API calls and save the responses
   // =================================================================
-  const [callLogs, aggregatedCallsWithResponses] = await calls.callApis(
-    state3.aggregatedApiCallsById,
+  const aggregateCallIds = Object.keys(state3.aggregatedApiCallsById);
+  const flatAggregatedCalls = flatMap(aggregateCallIds, (id) => state3.aggregatedApiCallsById[id]);
+  const pendingAggregatedCalls = flatAggregatedCalls.filter((a) => !a.errorCode);
+  logger.info(`Processing ${pendingAggregatedCalls.length} pending API call(s)...`, baseLogOptions);
+
+  const [callLogs, processedAggregatedApiCalls] = await calls.callApis(
+    pendingAggregatedCalls,
     baseLogOptions,
     workerOpts
   );
-  const state4 = state.update(state3, { aggregatedApiCallsById: aggregatedCallsWithResponses });
   logger.logPending(callLogs, baseLogOptions);
+
+  const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');
+  const state4 = state.update(state3, { aggregatedApiCallsById: processedAggregatedApiCallsById });
 
   // =================================================================
   // STEP 5: Map API responses back to each provider's API requests

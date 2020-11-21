@@ -1,10 +1,28 @@
 import isEmpty from 'lodash/isEmpty';
-import { ClientRequest, GroupedRequests, RequestStatus } from '../../types';
+import { ApiCall, ClientRequest, GroupedRequests, RequestStatus, Withdrawal } from '../../types';
 
-export function hasNoRequests(requests: GroupedRequests): boolean {
-  return Object.keys(requests).every((requestType) => {
-    return isEmpty(requests[requestType]);
-  });
+export function filterActionableApiCalls(apiCalls: ClientRequest<ApiCall>[]): ClientRequest<ApiCall>[] {
+  return apiCalls.filter((a) => a.status === RequestStatus.Pending || a.status === RequestStatus.Errored);
+}
+
+export function filterActionableWithdrawals(withdrawals: ClientRequest<Withdrawal>[]): ClientRequest<Withdrawal>[] {
+  return withdrawals.filter((w) => w.status === RequestStatus.Pending);
+}
+
+export function hasActionableApiCalls(apiCalls: ClientRequest<ApiCall>[]): boolean {
+  const actionableApiCalls = filterActionableApiCalls(apiCalls);
+  return !isEmpty(actionableApiCalls);
+}
+
+export function hasActionableWithdrawals(withdrawals: ClientRequest<Withdrawal>[]): boolean {
+  const actionableWithdrawals = filterActionableWithdrawals(withdrawals);
+  return !isEmpty(actionableWithdrawals);
+}
+
+export function hasNoActionableRequests(groupedRequests: GroupedRequests): boolean {
+  const noApiCalls = !hasActionableApiCalls(groupedRequests.apiCalls);
+  const noWithdrawals = !hasActionableWithdrawals(groupedRequests.withdrawals);
+  return noApiCalls && noWithdrawals;
 }
 
 export function getStatusNames() {

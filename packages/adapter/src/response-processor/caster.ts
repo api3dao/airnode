@@ -3,7 +3,7 @@ import isFinite from 'lodash/isFinite';
 import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import BigNumber from 'bignumber.js';
-import { ResponseType } from '../types';
+import { ResponseType, ValueType } from '../types';
 
 interface SpecialNumber {
   result: number;
@@ -18,10 +18,10 @@ const SPECIAL_NUMBERS: SpecialNumber[] = [
   { value: 'true', result: 1 },
 ];
 
-function castNumber(value: any, type: ResponseType) {
+function castNumber(value: any, type: ResponseType): BigNumber {
   const specialNumber = SPECIAL_NUMBERS.find((n) => n.value === value);
   if (specialNumber) {
-    return specialNumber.result;
+    return new BigNumber(specialNumber.result);
   }
 
   // +value attempts to convert to a number
@@ -29,17 +29,15 @@ function castNumber(value: any, type: ResponseType) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${type}`);
   }
 
-  const castNumber = Number(value);
-
-  // Catch anything that was missed
-  if (!isFinite(castNumber)) {
+  // We can't use ethers.js BigNumber.from here as it cannot handle decimals
+  try {
+    return new BigNumber(value);
+  } catch (e) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${type}`);
   }
-
-  return castNumber;
 }
 
-function castBoolean(value: unknown) {
+function castBoolean(value: unknown): boolean {
   switch (value) {
     case 0:
     case '0':
@@ -54,7 +52,7 @@ function castBoolean(value: unknown) {
   }
 }
 
-function castBytes32(value: any) {
+function castBytes32(value: any): string {
   // Objects convert to "[object Object]" which isn't very useful
   if (isArray(value) || isPlainObject(value)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes32`);
@@ -62,7 +60,7 @@ function castBytes32(value: any) {
   return String(value);
 }
 
-export function castValue(value: unknown, type: ResponseType) {
+export function castValue(value: unknown, type: ResponseType): ValueType {
   switch (type) {
     case 'int256':
       return castNumber(value, type);
@@ -75,13 +73,21 @@ export function castValue(value: unknown, type: ResponseType) {
   }
 }
 
-export function multiplyValue(value: number | string, times: number | string): string {
+export function multiplyValue(value: string | BigNumber, times: string | BigNumber): string {
+  const bigNumProduct = new BigNumber(value).times(new BigNumber(times));
+  const stringProduct = bigNumberToString(bigNumProduct);
+  return floorStringifiedNumber(stringProduct);
+}
+
+export function bigNumberToString(value: BigNumber): string {
   // https://blog.enuma.io/update/2019/01/31/safe-use-of-bignumber.js.html
   // .toString(10) removes the exponential notation, if it is present
-  const stringProduct = new BigNumber(value).times(new BigNumber(times)).toString(10);
+  return value.toString(10);
+}
 
+export function floorStringifiedNumber(value: string): string {
   // TODO: Document this behaviour
   // Ethers BigNumber can't handle decimals so we convert to a string and if
   // there are still any remaining decimals, remove them (floor the result)
-  return stringProduct.split('.')[0];
+  return value.split('.')[0];
 }
