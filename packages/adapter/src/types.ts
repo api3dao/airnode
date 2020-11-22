@@ -1,14 +1,14 @@
 import BigNumber from 'bignumber.js';
 import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/ois';
 
-export interface Options {
+export interface BuildRequestOptions {
   ois: OIS;
   endpointName: string;
   parameters: { [key: string]: string };
   securitySchemes?: SecurityScheme[];
 }
 
-export interface State extends Options {
+export interface CachedBuildRequestOptions extends BuildRequestOptions {
   operation: Operation;
   endpoint: Endpoint;
 }

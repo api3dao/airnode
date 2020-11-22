@@ -1,15 +1,13 @@
 import BigNumber from 'bignumber.js';
 import * as http from './clients/http';
-import { initialize as initializeState } from './state';
-import { Config, Options, Request, ResponseParameters } from './types';
+import { BuildRequestOptions, Config, Request, ResponseParameters } from './types';
 import * as building from './request-building';
 import * as processing from './response-processing';
 
 export * from './types';
 
-export function buildRequest(options: Options): Request {
-  const state = initializeState(options);
-  return building.buildRequest(state);
+export function buildRequest(options: BuildRequestOptions): Request {
+  return building.buildRequest(options);
 }
 
 export function executeRequest(request: Request, config?: Config) {
@@ -22,7 +20,7 @@ export function executeRequest(request: Request, config?: Config) {
   }
 }
 
-export function buildAndExecuteRequest(options: Options, config?: Config) {
+export function buildAndExecuteRequest(options: BuildRequestOptions, config?: Config) {
   const request = buildRequest(options);
   return executeRequest(request, config);
 }

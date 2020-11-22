@@ -9,7 +9,7 @@ import * as adapter from './index';
 
 describe('buildingRequest', () => {
   it('builds and returns the request', () => {
-    const res = adapter.buildRequest(fixtures.getOptions());
+    const res = adapter.buildRequest(fixtures.buildRequestOptions());
     expect(res).toEqual({
       baseUrl: 'https://api.myapi.com',
       data: {

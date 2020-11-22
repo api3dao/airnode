@@ -1,18 +1,17 @@
 import { EndpointParameter, FixedParameter } from '@airnode/ois';
-import { State } from '../types';
-import { initialize as initializeState } from '../state';
+import { CachedBuildRequestOptions } from '../types';
 import * as fixtures from '../../test/fixtures';
 import * as parameters from './parameters';
 
 describe('building parameters', () => {
-  let state: State;
+  let options: CachedBuildRequestOptions;
 
   beforeEach(() => {
-    state = initializeState(fixtures.getOptions());
+    options = initializeState(fixtures.getOptions());
   });
 
   it('returns parameters', () => {
-    const res = parameters.buildParameters(state);
+    const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: {},
       query: {

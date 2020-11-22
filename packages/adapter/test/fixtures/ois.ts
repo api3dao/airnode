@@ -1,100 +1,102 @@
 import { OIS } from '@airnode/ois';
 
-export const ois: OIS = {
-  oisFormat: '1.0.0',
-  version: '1.2.3',
-  title: 'myapi',
-  apiSpecifications: {
-    servers: [
-      {
-        url: 'https://api.myapi.com',
+export function buildOIS(): OIS {
+  return {
+    oisFormat: '1.0.0',
+    version: '1.2.3',
+    title: 'myapi',
+    apiSpecifications: {
+      servers: [
+        {
+          url: 'https://api.myapi.com',
+        },
+      ],
+      paths: {
+        '/convert': {
+          get: {
+            parameters: [
+              {
+                in: 'query',
+                name: 'from',
+              },
+              {
+                in: 'query',
+                name: 'to',
+              },
+              {
+                in: 'query',
+                name: 'amount',
+              },
+              {
+                in: 'query',
+                name: 'date',
+              },
+            ],
+          },
+        },
       },
-    ],
-    paths: {
-      '/convert': {
-        get: {
-          parameters: [
-            {
-              in: 'query',
-              name: 'from',
-            },
-            {
+      components: {
+        securitySchemes: {
+          myapiApiScheme: {
+            in: 'query',
+            type: 'apiKey',
+            name: 'access_key',
+          },
+        },
+      },
+      security: {
+        myapiApiScheme: [],
+      },
+    },
+    endpoints: [
+      {
+        name: 'convertToUsd',
+        operation: {
+          method: 'get',
+          path: '/convert',
+        },
+        fixedOperationParameters: [
+          {
+            operationParameter: {
               in: 'query',
               name: 'to',
             },
-            {
-              in: 'query',
-              name: 'amount',
-            },
-            {
-              in: 'query',
-              name: 'date',
-            },
-          ],
-        },
-      },
-    },
-    components: {
-      securitySchemes: {
-        myapiApiScheme: {
-          in: 'query',
-          type: 'apiKey',
-          name: 'access_key',
-        },
-      },
-    },
-    security: {
-      myapiApiScheme: [],
-    },
-  },
-  endpoints: [
-    {
-      name: 'convertToUsd',
-      operation: {
-        method: 'get',
-        path: '/convert',
-      },
-      fixedOperationParameters: [
-        {
-          operationParameter: {
-            in: 'query',
-            name: 'to',
+            value: 'USD',
           },
-          value: 'USD',
-        },
-      ],
-      reservedParameters: [
-        {
-          name: 'eType',
-          fixed: 'uint256',
-        },
-        {
-          name: 'path',
-          fixed: 'result',
-        },
-        {
-          name: 'times',
-          default: '100000',
-        },
-      ],
-      parameters: [
-        {
-          name: 'f',
-          default: 'EUR',
-          operationParameter: {
-            in: 'query',
-            name: 'from',
+        ],
+        reservedParameters: [
+          {
+            name: 'eType',
+            fixed: 'uint256',
           },
-        },
-        {
-          name: 'amount',
-          default: '1',
-          operationParameter: {
+          {
+            name: 'path',
+            fixed: 'result',
+          },
+          {
+            name: 'times',
+            default: '100000',
+          },
+        ],
+        parameters: [
+          {
+            name: 'f',
+            default: 'EUR',
+            operationParameter: {
+              in: 'query',
+              name: 'from',
+            },
+          },
+          {
             name: 'amount',
-            in: 'query',
+            default: '1',
+            operationParameter: {
+              name: 'amount',
+              in: 'query',
+            },
           },
-        },
-      ],
-    },
-  ],
-};
+        ],
+      },
+    ],
+  };
+}

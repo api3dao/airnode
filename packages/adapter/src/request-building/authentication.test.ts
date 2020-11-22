@@ -1,14 +1,14 @@
 import { ApiSecurityScheme } from '@airnode/ois';
-import { State } from '../types';
+import { CachedBuildRequestOptions } from '../types';
 import { initialize as initializeState } from '../state';
 import * as fixtures from '../../test/fixtures';
 import * as authentication from './authentication';
 
 describe('building empty parameters', () => {
-  let state: State;
+  let options: CachedBuildRequestOptions;
 
   beforeEach(() => {
-    state = initializeState(fixtures.getOptions());
+    options = initializeState(fixtures.getOptions());
   });
 
   it('returns no parameters if secret securitySchemes is empty', () => {
