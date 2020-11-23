@@ -5,7 +5,7 @@
 docker build . -t airnode-alpha
 ```
 
-2. Ensure that your `.env` file looks like [`/packages/deployer/.env.example`](/packages/deployer/.env.example) and is the current working directory.
+2. Ensure that your `.env` file looks like [`.env.example`](/packages/deployer/.env.example) and is the current working directory.
 
 3. If you will be running [`deploy-first-time`](#deploy-first-time) or [`redeploy`](#redeploy), your `config.json` and `security.json` must be in the current working directory.
 
