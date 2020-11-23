@@ -2,14 +2,14 @@ const responseMock = jest.fn();
 jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
 import { Request, ResponseParameters } from './types';
 import * as fixtures from '../test/fixtures';
 import * as adapter from './index';
 
 describe('buildingRequest', () => {
   it('builds and returns the request', () => {
-    const res = adapter.buildRequest(fixtures.buildRequestOptions());
+    const options = fixtures.buildRequestOptions();
+    const res = adapter.buildRequest(options);
     expect(res).toEqual({
       baseUrl: 'https://api.myapi.com',
       data: {
@@ -28,7 +28,6 @@ describe('buildingRequest', () => {
 describe('executeRequest', () => {
   it('executes simple GET requests', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
-
     const request: Request = {
       baseUrl: 'https://api.myapi.com',
       data: { from: 'ETH', to: 'USD' },
@@ -38,7 +37,6 @@ describe('executeRequest', () => {
     };
     const res = await adapter.executeRequest(request);
     expect(res).toEqual({ value: '10000' });
-
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
       url: 'https://api.myapi.com/convert',
@@ -50,7 +48,6 @@ describe('executeRequest', () => {
 
   it('executes GET requests with config', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
-
     const request: Request = {
       baseUrl: 'https://api.myapi.com',
       data: { from: 'ETH', to: 'USD' },
@@ -60,7 +57,6 @@ describe('executeRequest', () => {
     };
     const res = await adapter.executeRequest(request, { timeout: 12_999 });
     expect(res).toEqual({ value: '10000' });
-
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
       url: 'https://api.myapi.com/convert',
@@ -73,7 +69,6 @@ describe('executeRequest', () => {
 
   it('executes simple POST requests', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
-
     const request: Request = {
       baseUrl: 'https://api.myapi.com',
       data: { from: 'ETH', to: 'USD' },
@@ -83,7 +78,6 @@ describe('executeRequest', () => {
     };
     const res = await adapter.executeRequest(request);
     expect(res).toEqual({ value: '10000' });
-
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
       url: 'https://api.myapi.com/convert',
@@ -95,7 +89,6 @@ describe('executeRequest', () => {
 
   it('executes POST requests with config', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
-
     const request: Request = {
       baseUrl: 'https://api.myapi.com',
       data: { from: 'ETH', to: 'USD' },
@@ -105,7 +98,6 @@ describe('executeRequest', () => {
     };
     const res = await adapter.executeRequest(request, { timeout: 12_999 });
     expect(res).toEqual({ value: '10000' });
-
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
       url: 'https://api.myapi.com/convert',
@@ -120,10 +112,9 @@ describe('executeRequest', () => {
 describe('buildAndExecuteRequest', () => {
   it('builds and executes the request', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
-
-    const res = await adapter.buildAndExecuteRequest(fixtures.getOptions());
+    const options = fixtures.buildRequestOptions();
+    const res = await adapter.buildAndExecuteRequest(options);
     expect(res).toEqual({ value: '10000' });
-
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
       url: 'https://api.myapi.com/convert',
@@ -140,10 +131,9 @@ describe('buildAndExecuteRequest', () => {
 
   it('builds and executes the request with optional config', async () => {
     responseMock.mockResolvedValueOnce({ value: '7777' });
-
-    const res = await adapter.buildAndExecuteRequest(fixtures.getOptions(), { timeout: 3500 });
+    const options = fixtures.buildRequestOptions();
+    const res = await adapter.buildAndExecuteRequest(options, { timeout: 3500 });
     expect(res).toEqual({ value: '7777' });
-
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
       url: 'https://api.myapi.com/convert',
@@ -177,37 +167,5 @@ describe('extractAndEncodeValue', () => {
       value: '75051',
       encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
-  });
-});
-
-describe('re-exported functions', () => {
-  it('exports isNumberType()', () => {
-    expect(adapter.isNumberType('bytes32')).toEqual(false);
-    expect(adapter.isNumberType('bool')).toEqual(false);
-    expect(adapter.isNumberType('int256')).toEqual(true);
-  });
-
-  it('exports processByExtracting', () => {
-    const data = { a: { b: [{ c: 1 }, { d: 5 }] } };
-    const res = adapter.processByExtracting(data, 'a.b.1.d');
-    expect(res).toEqual(5);
-  });
-
-  it('exports processByCasting', () => {
-    expect(adapter.processByCasting('true', 'bool')).toEqual(true);
-    expect(adapter.processByCasting('777', 'int256')).toEqual(new BigNumber('777'));
-    expect(adapter.processByCasting('BTC_USD', 'bytes32')).toEqual('BTC_USD');
-  });
-
-  it('exports multiplyValue', () => {
-    const value = new BigNumber(7.789);
-    const times = new BigNumber(1000);
-    const res = adapter.processByMultiplying(value, times);
-    expect(res).toEqual('7789');
-  });
-
-  it('exports encodedValue', () => {
-    const res = adapter.processByEncoding('random string', 'bytes32');
-    expect(res).toEqual('0x72616e646f6d20737472696e6700000000000000000000000000000000000000');
   });
 });

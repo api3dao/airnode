@@ -1,6 +1,6 @@
 import { OIS } from '@airnode/ois';
 
-export function buildOIS(): OIS {
+export function buildOIS(overrides?: Partial<OIS>): OIS {
   return {
     oisFormat: '1.0.0',
     version: '1.2.3',
@@ -98,5 +98,6 @@ export function buildOIS(): OIS {
         ],
       },
     ],
+    ...overrides,
   };
 }

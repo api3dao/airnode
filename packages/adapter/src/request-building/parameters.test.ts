@@ -1,16 +1,10 @@
 import { EndpointParameter, FixedParameter } from '@airnode/ois';
-import { CachedBuildRequestOptions } from '../types';
 import * as fixtures from '../../test/fixtures';
 import * as parameters from './parameters';
 
 describe('building parameters', () => {
-  let options: CachedBuildRequestOptions;
-
-  beforeEach(() => {
-    options = initializeState(fixtures.getOptions());
-  });
-
   it('returns parameters', () => {
+    const options = fixtures.buildCacheRequestOptions();
     const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: {},
@@ -26,45 +20,35 @@ describe('building parameters', () => {
 });
 
 describe('fixed parameters', () => {
-  let state: State;
-
-  beforeEach(() => {
-    state = initializeState(fixtures.getOptions());
-  });
-
   it('appends parameters for each target', () => {
     const pathParameter: FixedParameter = {
       value: 'path-value',
       operationParameter: { in: 'path', name: 'path_param' },
     };
-
     const headerParameter: FixedParameter = {
       value: 'header-value',
       operationParameter: { in: 'header', name: 'header_param' },
     };
-
     const cookieParameter: FixedParameter = {
       value: 'cookie-value',
       operationParameter: { in: 'cookie', name: 'cookie_param' },
     };
-
+    const options = fixtures.buildCacheRequestOptions();
     // Add to the endpoint specification
-    state.endpoint.fixedOperationParameters = [
-      ...state.endpoint.fixedOperationParameters,
+    options.endpoint.fixedOperationParameters = [
+      ...options.endpoint.fixedOperationParameters,
       pathParameter,
       headerParameter,
       cookieParameter,
     ];
-
     // Add to the API specification
-    state.operation.parameters = [
-      ...state.operation.parameters,
+    options.operation.parameters = [
+      ...options.operation.parameters,
       { name: 'path_param', in: 'path' },
       { name: 'header_param', in: 'header' },
       { name: 'cookie_param', in: 'cookie' },
     ];
-
-    const res = parameters.buildParameters(state);
+    const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: { path_param: 'path-value' },
       query: {
@@ -81,14 +65,17 @@ describe('fixed parameters', () => {
   });
 
   it('ignores parameters not defined in the API specification', () => {
+    const ois = fixtures.buildOIS();
     // Erases the 'from' parameter
-    state.ois.apiSpecifications.paths['/convert'].get.parameters[0].name = 'unknown';
-    const res = parameters.buildParameters(state);
+    ois.apiSpecifications.paths['/convert'].get.parameters[0].name = 'unknown';
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: {},
       query: {
         access_key: 'super-secret-key',
         amount: '1',
+        from: 'ETH',
         to: 'USD',
       },
       headers: {},
@@ -97,48 +84,37 @@ describe('fixed parameters', () => {
 });
 
 describe('user parameters', () => {
-  let state: State;
-
-  beforeEach(() => {
-    state = initializeState(fixtures.getOptions());
-  });
-
   it('appends parameters for each target', () => {
     const pathParameter: EndpointParameter = {
       name: 'p',
       operationParameter: { in: 'path', name: 'path_param' },
     };
-
     const headerParameter: EndpointParameter = {
       name: 'h',
       operationParameter: { in: 'header', name: 'header_param' },
     };
-
     const cookieParameter: EndpointParameter = {
       name: 'c',
       operationParameter: { in: 'cookie', name: 'cookie_param' },
     };
-
+    const options = fixtures.buildCacheRequestOptions();
     // Add to the endpoint specification
-    state.endpoint.parameters = [...state.endpoint.parameters, pathParameter, headerParameter, cookieParameter];
-
+    options.endpoint.parameters = [...options.endpoint.parameters, pathParameter, headerParameter, cookieParameter];
     // Add to the API specification
-    state.operation.parameters = [
-      ...state.operation.parameters,
+    options.operation.parameters = [
+      ...options.operation.parameters,
       { name: 'path_param', in: 'path' },
       { name: 'header_param', in: 'header' },
       { name: 'cookie_param', in: 'cookie' },
     ];
-
     // Add to the parameters that get sent at run-time from the user
-    state.parameters = {
-      ...state.parameters,
+    options.parameters = {
+      ...options.parameters,
       p: 'path-key',
       h: 'header-key',
       c: 'cookie-key',
     };
-
-    const res = parameters.buildParameters(state);
+    const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: { path_param: 'path-key' },
       query: {
@@ -155,9 +131,10 @@ describe('user parameters', () => {
   });
 
   it('ignores parameters not defined in the API specification', () => {
+    const options = fixtures.buildCacheRequestOptions();
     // Erases the 'to' parameter
-    state.ois.apiSpecifications.paths['/convert'].get.parameters[1].name = 'unknown';
-    const res = parameters.buildParameters(state);
+    options.ois.apiSpecifications.paths['/convert'].get.parameters[1].name = 'unknown';
+    const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: {},
       query: {
@@ -170,9 +147,10 @@ describe('user parameters', () => {
   });
 
   it('ignores parameters not defined in the endpoint specification', () => {
+    const options = fixtures.buildCacheRequestOptions();
     // Erases the 'from' parameter
-    state.endpoint.parameters![0].name = 'unknown';
-    const res = parameters.buildParameters(state);
+    options.endpoint.parameters![0].name = 'unknown';
+    const res = parameters.buildParameters(options);
     expect(res).toEqual({
       paths: {},
       query: {

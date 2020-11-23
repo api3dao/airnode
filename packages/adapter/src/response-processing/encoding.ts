@@ -31,7 +31,6 @@ export function convertBoolToBytes32(value: boolean) {
 }
 
 export function encodeValue(value: ValueType, type: ResponseType) {
-  // NOTE: value should be in the matching type at this point
   switch (type) {
     case 'int256':
       return convertNumberToBytes32(value as string);

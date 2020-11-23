@@ -1,19 +1,11 @@
-import { ApiSecurityScheme } from '@airnode/ois';
-import { CachedBuildRequestOptions } from '../types';
-import { initialize as initializeState } from '../state';
+import { ApiSecurityScheme, ApiSpecification } from '@airnode/ois';
 import * as fixtures from '../../test/fixtures';
 import * as authentication from './authentication';
 
 describe('building empty parameters', () => {
-  let options: CachedBuildRequestOptions;
-
-  beforeEach(() => {
-    options = initializeState(fixtures.getOptions());
-  });
-
   it('returns no parameters if secret securitySchemes is empty', () => {
-    state.securitySchemes = undefined;
-    const res = authentication.buildParameters(state);
+    const options = fixtures.buildCacheRequestOptions({ securitySchemes: undefined });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
       query: {},
@@ -22,8 +14,17 @@ describe('building empty parameters', () => {
   });
 
   it('returns no parameters if API securitySchemes is empty', () => {
-    state.ois.apiSpecifications.components.securitySchemes = {};
-    const res = authentication.buildParameters(state);
+    const ois = fixtures.buildOIS();
+    const apiSpecifications: ApiSpecification = {
+      ...ois.apiSpecifications,
+      components: {
+        ...ois.apiSpecifications.components,
+        securitySchemes: {},
+      },
+    };
+    const invalidOIS = fixtures.buildOIS({ apiSpecifications });
+    const options = fixtures.buildCacheRequestOptions({ ois: invalidOIS });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
       query: {},
@@ -31,9 +32,11 @@ describe('building empty parameters', () => {
     });
   });
 
-  it('ignores schemes that do not have a matching secrets', () => {
-    state.securitySchemes = [{ securitySchemeName: 'unknown', value: 'supersecret' }];
-    const res = authentication.buildParameters(state);
+  it('ignores schemes that do not have a matching secret schemes', () => {
+    const ois = fixtures.buildOIS();
+    const securitySchemes = [{ securitySchemeName: 'unknown', value: 'supersecret' }];
+    const options = fixtures.buildCacheRequestOptions({ ois, securitySchemes });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
       query: {},
@@ -43,14 +46,9 @@ describe('building empty parameters', () => {
 });
 
 describe('building API key authentication parameters', () => {
-  let state: State;
-
-  beforeEach(() => {
-    state = initializeState(fixtures.getOptions());
-  });
-
   it('returns the API key in the query', () => {
-    const res = authentication.buildParameters(state);
+    const options = fixtures.buildCacheRequestOptions();
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: { access_key: 'super-secret-key' },
       headers: {},
@@ -59,8 +57,10 @@ describe('building API key authentication parameters', () => {
   });
 
   it('returns the API key in the headers', () => {
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = 'header';
-    const res = authentication.buildParameters(state);
+    const ois = fixtures.buildOIS();
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = 'header';
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: { access_key: 'super-secret-key' },
@@ -69,8 +69,10 @@ describe('building API key authentication parameters', () => {
   });
 
   it('returns the API key in the cookies', () => {
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = 'cookie';
-    const res = authentication.buildParameters(state);
+    const ois = fixtures.buildOIS();
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = 'cookie';
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: {},
@@ -79,29 +81,32 @@ describe('building API key authentication parameters', () => {
   });
 
   it('returns the API key in multiple places', () => {
+    const ois = fixtures.buildOIS();
+    const queryScheme: ApiSecurityScheme = { in: 'query', type: 'apiKey', name: 'query_key' };
     const headerScheme: ApiSecurityScheme = { in: 'header', type: 'apiKey', name: 'header_key' };
-    state.ois.apiSpecifications.components.securitySchemes.headerApiScheme = headerScheme;
-
     const cookieScheme: ApiSecurityScheme = { in: 'cookie', type: 'apiKey', name: 'cookie_key' };
-    state.ois.apiSpecifications.components.securitySchemes.cookieApiScheme = cookieScheme;
-
-    state.securitySchemes = [
-      ...state.securitySchemes!,
-      { value: 'secret-header', securitySchemeName: 'headerApiScheme' },
-      { value: 'secret-cookie', securitySchemeName: 'cookieApiScheme' },
+    ois.apiSpecifications.components.securitySchemes.queryScheme = queryScheme;
+    ois.apiSpecifications.components.securitySchemes.headerScheme = headerScheme;
+    ois.apiSpecifications.components.securitySchemes.cookieScheme = cookieScheme;
+    const securitySchemes = [
+      { value: 'secret-query', securitySchemeName: 'queryScheme' },
+      { value: 'secret-header', securitySchemeName: 'headerScheme' },
+      { value: 'secret-cookie', securitySchemeName: 'cookieScheme' },
     ];
-
-    const res = authentication.buildParameters(state);
+    const options = fixtures.buildCacheRequestOptions({ ois, securitySchemes });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
-      query: { access_key: 'super-secret-key' },
+      query: { query_key: 'secret-query' },
       headers: { header_key: 'secret-header' },
       cookies: { cookie_key: 'secret-cookie' },
     });
   });
 
   it('ignores undefined scheme names', () => {
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme.name = undefined;
-    const res = authentication.buildParameters(state);
+    const ois = fixtures.buildOIS();
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.name = undefined;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: {},
@@ -110,8 +115,10 @@ describe('building API key authentication parameters', () => {
   });
 
   it('ignores undefined scheme targets', () => {
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = undefined;
-    const res = authentication.buildParameters(state);
+    const ois = fixtures.buildOIS();
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.in = undefined;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: {},
@@ -121,19 +128,13 @@ describe('building API key authentication parameters', () => {
 });
 
 describe('building HTTP authentication parameters', () => {
-  let state: State;
-
-  beforeEach(() => {
-    state = initializeState(fixtures.getOptions());
-  });
-
   it('returns Basic Authentication in the headers', () => {
+    const ois = fixtures.buildOIS();
     const scheme: ApiSecurityScheme = { scheme: 'basic', type: 'http' };
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
-
-    state.securitySchemes![0].value = 'd2h5YXJleW91OnJlYWRpbmd0aGlz';
-
-    const res = authentication.buildParameters(state);
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    options.securitySchemes![0].value = 'd2h5YXJleW91OnJlYWRpbmd0aGlz';
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: { Authorization: 'Basic d2h5YXJleW91OnJlYWRpbmd0aGlz' },
@@ -142,12 +143,12 @@ describe('building HTTP authentication parameters', () => {
   });
 
   it('returns Bearer Authentication in the headers', () => {
+    const ois = fixtures.buildOIS();
     const scheme: ApiSecurityScheme = { scheme: 'bearer', type: 'http' };
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
-
-    state.securitySchemes![0].value = 'secret-jwt';
-
-    const res = authentication.buildParameters(state);
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    options.securitySchemes![0].value = 'secret-jwt';
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: { Authorization: 'Bearer secret-jwt' },
@@ -156,9 +157,11 @@ describe('building HTTP authentication parameters', () => {
   });
 
   it('ignores unknown or undefined schemes', () => {
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme.type = 'http';
-    state.ois.apiSpecifications.components.securitySchemes.myapiApiScheme.scheme = undefined;
-    const res = authentication.buildParameters(state);
+    const ois = fixtures.buildOIS();
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.type = 'http';
+    ois.apiSpecifications.components.securitySchemes.myapiApiScheme.scheme = undefined;
+    const options = fixtures.buildCacheRequestOptions({ ois });
+    const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
       headers: {},

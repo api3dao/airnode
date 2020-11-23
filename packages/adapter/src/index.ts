@@ -29,10 +29,10 @@ export function extractAndEncodeResponse(data: unknown, parameters: ResponsePara
   const rawValue = processing.extractValue(data, parameters._path);
   const value = processing.castValue(rawValue, parameters._type);
 
-  if (parameters._type === 'int256') {
-    const multipledValue = processing.multiplyValue(value as BigNumber, parameters._times);
+  if (parameters._type === 'int256' && value instanceof BigNumber) {
+    const multipledValue = processing.multiplyValue(value, parameters._times);
     const encodedValue = processing.encodeValue(multipledValue.toString(), 'int256');
-    return { value, encodedValue };
+    return { value: multipledValue, encodedValue };
   }
 
   const encodedValue = processing.encodeValue(value, parameters._type);
