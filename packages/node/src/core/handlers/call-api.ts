@@ -12,7 +12,7 @@ import { AggregatedApiCall, ApiCallResponse, Config, LogsData, RequestErrorCode 
 const TOTAL_TIMEOUT = 29_000;
 const API_CALL_TIMEOUT = 20_000;
 
-function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.Options {
+function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
   const parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
 
