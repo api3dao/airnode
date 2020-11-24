@@ -11,12 +11,6 @@ interface ValidatedField {
 function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
   switch (apiCall.type) {
     case 'short':
-      return [
-        { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
-        { value: apiCall.templateId, type: 'bytes32' },
-        { value: apiCall.encodedParameters, type: 'bytes' },
-      ];
-
     case 'regular':
       return [
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
