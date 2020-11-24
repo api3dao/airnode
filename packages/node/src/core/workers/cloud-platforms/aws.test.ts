@@ -5,11 +5,6 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-const customFnMock = jest.fn();
-jest.mock('../../../aws/handler', () => ({
-  myCustomFn: customFnMock,
-}));
-
 import AWS from 'aws-sdk';
 import * as aws from './aws';
 import * as fixtures from 'test/fixtures';
