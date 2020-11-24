@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import { ApiSecurityScheme } from '@airnode/ois';
-import { Parameters, State } from '../types';
+import { CachedBuildRequestOptions, Parameters } from '../types';
 
 interface Authentication {
   query: Parameters;
@@ -67,21 +67,21 @@ function addSchemeAuthentication(
   return authentication;
 }
 
-export function buildParameters(state: State): Authentication {
+export function buildParameters(options: CachedBuildRequestOptions): Authentication {
   const initialParameters: Authentication = {
     query: {},
     headers: {},
     cookies: {},
   };
 
-  const { securitySchemes } = state;
+  const { securitySchemes } = options;
   // Security schemes originate from 'security.json' and contain all of the authentication details
   if (!securitySchemes || isEmpty(securitySchemes)) {
     return initialParameters;
   }
 
   // API security schemes originate from 'config.json' and specify which schemes should be used
-  const apiSecuritySchemes = state.ois.apiSpecifications.components.securitySchemes;
+  const apiSecuritySchemes = options.ois.apiSpecifications.components.securitySchemes;
   if (isEmpty(apiSecuritySchemes)) {
     return initialParameters;
   }

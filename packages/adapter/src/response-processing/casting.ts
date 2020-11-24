@@ -73,7 +73,11 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
   }
 }
 
-export function multiplyValue(value: string | BigNumber, times: string | BigNumber): string {
+export function multiplyValue(value: string | BigNumber, times?: string | BigNumber): string {
+  if (!times) {
+    const stringifiedNumber = bigNumberToString(new BigNumber(value));
+    return floorStringifiedNumber(stringifiedNumber);
+  }
   const bigNumProduct = new BigNumber(value).times(new BigNumber(times));
   const stringProduct = bigNumberToString(bigNumProduct);
   return floorStringifiedNumber(stringProduct);

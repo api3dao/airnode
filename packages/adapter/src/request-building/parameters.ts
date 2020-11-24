@@ -1,5 +1,5 @@
 import { ParameterTarget } from '@airnode/ois';
-import { BuilderParameters, RequestParameters, State } from '../types';
+import { BuilderParameters, CachedBuildRequestOptions, RequestParameters } from '../types';
 import * as authentication from './authentication';
 import * as cookies from './cookies';
 
@@ -36,8 +36,8 @@ function appendParameter(
   }
 }
 
-function buildFixedParameters(state: State): BuilderParameters {
-  const { endpoint, operation } = state;
+function buildFixedParameters(options: CachedBuildRequestOptions): BuilderParameters {
+  const { endpoint, operation } = options;
 
   return endpoint.fixedOperationParameters.reduce((acc, parameter) => {
     const { name, in: target } = parameter.operationParameter;
@@ -52,10 +52,10 @@ function buildFixedParameters(state: State): BuilderParameters {
   }, initalParameters());
 }
 
-function buildUserParameters(state: State): BuilderParameters {
-  const { endpoint, operation } = state;
+function buildUserParameters(options: CachedBuildRequestOptions): BuilderParameters {
+  const { endpoint, operation } = options;
 
-  const parameterKeys = Object.keys(state.parameters);
+  const parameterKeys = Object.keys(options.parameters);
 
   return parameterKeys.reduce((acc, key) => {
     const parameter = endpoint.parameters.find((p) => p.name === key);
@@ -72,14 +72,14 @@ function buildUserParameters(state: State): BuilderParameters {
 
     const { name, in: target } = parameter.operationParameter;
 
-    return appendParameter(acc, target, name, state.parameters[key]);
+    return appendParameter(acc, target, name, options.parameters[key]);
   }, initalParameters());
 }
 
-export function buildParameters(state: State): RequestParameters {
-  const auth = authentication.buildParameters(state);
-  const fixed = buildFixedParameters(state);
-  const user = buildUserParameters(state);
+export function buildParameters(options: CachedBuildRequestOptions): RequestParameters {
+  const auth = authentication.buildParameters(options);
+  const fixed = buildFixedParameters(options);
+  const user = buildUserParameters(options);
 
   const cookie = cookies.buildHeader({ ...user.cookies, ...fixed.cookies, ...auth.cookies });
 

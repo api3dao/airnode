@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { ResponseType, ValueType } from '../types';
 
 export function convertNumberToBytes32(value: string) {
   const bigNumber = ethers.BigNumber.from(value);
@@ -27,4 +28,17 @@ export function convertBoolToBytes32(value: boolean) {
   const bytesRepresentation = ethers.utils.hexValue(value ? 1 : 0);
   const paddedBytesRepresentation = ethers.utils.hexZeroPad(bytesRepresentation, 32);
   return paddedBytesRepresentation;
+}
+
+export function encodeValue(value: ValueType, type: ResponseType) {
+  switch (type) {
+    case 'int256':
+      return convertNumberToBytes32(value as string);
+
+    case 'bool':
+      return convertBoolToBytes32(value as boolean);
+
+    case 'bytes32':
+      return convertStringToBytes32(value as string);
+  }
 }

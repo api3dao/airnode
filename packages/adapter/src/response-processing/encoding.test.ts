@@ -1,40 +1,40 @@
 import { ethers } from 'ethers';
-import * as encoder from './encoder';
+import * as encoding from './encoding';
 
 describe('convertNumberToBytes32', () => {
   it('converts positive numbers to bytes32', () => {
-    expect(encoder.convertNumberToBytes32('777')).toEqual(
+    expect(encoding.convertNumberToBytes32('777')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000309'
     );
-    expect(encoder.convertNumberToBytes32('1234567890')).toEqual(
+    expect(encoding.convertNumberToBytes32('1234567890')).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000499602d2'
     );
   });
 
   it('converts negative numbers to bytes32', () => {
-    expect(encoder.convertNumberToBytes32('-777')).toEqual(
+    expect(encoding.convertNumberToBytes32('-777')).toEqual(
       '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcf7'
     );
-    expect(encoder.convertNumberToBytes32('-1234567890')).toEqual(
+    expect(encoding.convertNumberToBytes32('-1234567890')).toEqual(
       '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffb669fd2e'
     );
   });
 
   it('converts very large numbers to bytes32', () => {
-    expect(encoder.convertNumberToBytes32('12839712893719823718973198273537864783642')).toEqual(
+    expect(encoding.convertNumberToBytes32('12839712893719823718973198273537864783642')).toEqual(
       '0x00000000000000000000000000000025bb86c101e22b4eda9326a6e67b9e571a'
     );
   });
 
   it('converts 0 to bytes32', () => {
-    expect(encoder.convertNumberToBytes32('0')).toEqual(
+    expect(encoding.convertNumberToBytes32('0')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000000'
     );
   });
 
   it('throws if attempting to convert a decimal number', () => {
     expect(() => {
-      encoder.convertNumberToBytes32('12.3');
+      encoding.convertNumberToBytes32('12.3');
     }).toThrowError();
   });
 });
@@ -47,8 +47,8 @@ describe('convertStringToBytes32', () => {
     // Double check length
     expect(exactString.length).toEqual(31);
 
-    const longEncoded = encoder.convertStringToBytes32(longString);
-    const exactEncoded = encoder.convertStringToBytes32(exactString);
+    const longEncoded = encoding.convertStringToBytes32(longString);
+    const exactEncoded = encoding.convertStringToBytes32(exactString);
 
     expect(longEncoded).toEqual('0x6120737472696e672077697468206d6f7265207468616e203331206368617200');
     expect(exactEncoded).toEqual('0x7878787878787878787878787878787878787878787878787878787878787800');
@@ -63,16 +63,16 @@ describe('convertStringToBytes32', () => {
   });
 
   it('converts strings to bytes32', () => {
-    expect(encoder.convertStringToBytes32('randomstring')).toEqual(
+    expect(encoding.convertStringToBytes32('randomstring')).toEqual(
       '0x72616e646f6d737472696e670000000000000000000000000000000000000000'
     );
-    expect(encoder.convertStringToBytes32('{"a":23}')).toEqual(
+    expect(encoding.convertStringToBytes32('{"a":23}')).toEqual(
       '0x7b2261223a32337d000000000000000000000000000000000000000000000000'
     );
   });
 
   it('converts empty strings to bytes32', () => {
-    expect(encoder.convertStringToBytes32('')).toEqual(
+    expect(encoding.convertStringToBytes32('')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000000'
     );
   });
@@ -80,14 +80,34 @@ describe('convertStringToBytes32', () => {
 
 describe('convertBoolToBytes32', () => {
   it('converts true to bytes32', () => {
-    expect(encoder.convertBoolToBytes32(true)).toEqual(
+    expect(encoding.convertBoolToBytes32(true)).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000001'
     );
   });
 
   it('converts false to bytes32', () => {
-    expect(encoder.convertBoolToBytes32(false)).toEqual(
+    expect(encoding.convertBoolToBytes32(false)).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000000'
+    );
+  });
+});
+
+describe('encodeValue', () => {
+  it('encodes int256 values', () => {
+    expect(encoding.encodeValue('1234567890', 'int256')).toEqual(
+      '0x00000000000000000000000000000000000000000000000000000000499602d2'
+    );
+  });
+
+  it('encodes bool values', () => {
+    expect(encoding.encodeValue(true, 'bool')).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000001'
+    );
+  });
+
+  it('encodes bytes32 values', () => {
+    expect(encoding.encodeValue('randomstring', 'bytes32')).toEqual(
+      '0x72616e646f6d737472696e670000000000000000000000000000000000000000'
     );
   });
 });
