@@ -1,0 +1,80 @@
+{
+  "ois": {
+    "__arrayItem": {
+      "__oisSpecs": {}
+    }
+  },
+  "triggers": {
+    "__optional": {
+      "request": {
+        "endpointId": {},
+        "oisTitle": {},
+        "endpointName": {}
+      }
+    }
+  },
+  "nodeSettings": {
+    "providerIdShort": {
+      "__regexp": "^[a-f0-9]{7}$"
+    },
+    "nodeVersion": {
+      "__regexp": "^([0-9]*\\.){2}([0-9]*)$"
+    },
+    "cloudProvider": {
+      "__regexp": "^(aws|local:aws)$"
+    },
+    "region": {},
+    "stage": {},
+    "logFormat": {
+      "__regexp": "^(json|plain)$"
+    },
+    "chains": {
+      "__arrayItem": {
+        "id": {},
+        "type": {
+          "__regexp": "^evm$"
+        },
+        "providers": {
+          "__arrayItem": {
+            "name": {},
+            "url": {
+              "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
+            },
+            "__optional": {
+              "blockHistoryLimit": {},
+              "minConfirmations": {}
+            }
+          }
+        },
+        "__optional": {
+          "providerAdminForRecordCreation": {
+            "__regexp": "^0x[a-f0-9]{64}$"
+          },
+          "contracts": {
+            "__keyRegexp": "^(Airnode|Convenience)$",
+            "__objectItem": {
+              "__regexp": "^0x[a-f0-9]{64}$"
+            }
+          }
+        }
+      }
+    }
+  },
+  "id": {
+    "__conditions": [
+      {
+        "__if": {
+          "__this": ".*"
+        },
+        "__rootThen": {
+          "security": {
+            "id": {
+              "__regexp": "^__match$",
+              "__level": "error"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

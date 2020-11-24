@@ -1,0 +1,12 @@
+{
+  "__any": {
+    "__keyRegexp": "^(?!id).*$",
+    "__objectItem": {
+      "__arrayItem": {
+        "securitySchemeName": {},
+        "value": {}
+      }
+    }
+  },
+  "id": {}
+}
