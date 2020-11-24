@@ -14,7 +14,6 @@ export async function startCoordinator() {
 }
 
 export async function initializeProvider(event: any) {
-  // State and config are sent separately
   const stateWithConfig = { ...event.state, config };
 
   const [err, initializedState] = await node.promiseUtils.go(node.handlers.initializeProvider(stateWithConfig));
@@ -38,7 +37,6 @@ export async function callApi(event: any) {
 }
 
 export async function processProviderRequests(event: any) {
-  // State and config are sent separately
   const stateWithConfig = { ...event.state, config };
 
   const [err, updatedState] = await node.promiseUtils.go(node.handlers.processTransactions(stateWithConfig));
