@@ -24,7 +24,7 @@ async function createProvider(airnode, providerAdminRole) {
   const gasEstimate = await airnode
     .connect(masterWallet)
     .estimateGas.createProvider(providerAdminRole._address, providerXpub, { value: 1 });
-  const gasLimit = ethers.BigNumber.from(200_000);
+  const gasLimit = ethers.BigNumber.from(200000);
   expect(gasLimit.gt(gasEstimate)).to.equal(true);
   // Calculate the amount that will be sent back to the provider admin
   const gasPrice = await waffle.provider.getGasPrice();
