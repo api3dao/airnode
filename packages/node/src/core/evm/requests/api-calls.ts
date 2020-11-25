@@ -7,8 +7,8 @@ import {
   ApiCall,
   ApiCallType,
   ClientRequest,
+  EVMEventLogWithMetadata,
   LogsData,
-  LogWithMetadata,
   RequestErrorCode,
   RequestStatus,
 } from '../../../types';
@@ -28,7 +28,7 @@ function getApiCallType(topic: string): ApiCallType {
   }
 }
 
-export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiCall> {
+export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<ApiCall> = {
@@ -41,6 +41,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<ApiC
     fulfillFunctionId: parsedLog.args.fulfillFunctionId,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
+      currentBlock: logWithMetadata.currentBlock,
       transactionHash: logWithMetadata.transactionHash,
     },
     // Parameters are decoded separately

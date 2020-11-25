@@ -1,6 +1,9 @@
 import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
+import { buildMetadata } from './metadata';
 
 export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
+  const metadata = buildMetadata();
+
   // These fields have invalid values on purpose to allow for easier reading. When necessary,
   // they can be overridden with valid values
   return {
@@ -11,10 +14,7 @@ export function createApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientR
     fulfillAddress: 'fulfillAddress',
     fulfillFunctionId: 'fulfillFunctionId',
     encodedParameters: 'encodedParameters',
-    metadata: {
-      blockNumber: 10716082,
-      transactionHash: 'logTransactionHash',
-    },
+    metadata,
     parameters: { from: 'ETH' },
     providerId: 'providerId',
     requestCount: '12',

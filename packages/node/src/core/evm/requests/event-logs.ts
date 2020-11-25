@@ -1,23 +1,24 @@
 import { ethers } from 'ethers';
 import * as contracts from '../contracts';
 import * as events from './events';
-import { LogWithMetadata } from '../../../types';
+import { EVMEventLogWithMetadata } from '../../../types';
 import { retryOperation } from '../../utils/promise-utils';
 
 interface FetchOptions {
   address: string;
   blockHistoryLimit: number;
   currentBlock: number;
+  ignoreBlockedRequestsAfterBlocks: number;
   provider: ethers.providers.JsonRpcProvider;
   providerId: string;
 }
 
 interface GroupedLogs {
-  apiCalls: LogWithMetadata[];
-  withdrawals: LogWithMetadata[];
+  apiCalls: EVMEventLogWithMetadata[];
+  withdrawals: EVMEventLogWithMetadata[];
 }
 
-export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
+export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetadata[]> {
   // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
 
@@ -40,6 +41,8 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
+    currentBlock: options.currentBlock,
+    ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
     transactionHash: log.transactionHash,
     parsedLog: airnodeInterface.parseLog(log),
   }));
@@ -47,7 +50,7 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
   return logsWithBlocks;
 }
 
-export function group(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
+export function group(logsWithMetadata: EVMEventLogWithMetadata[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
     withdrawals: [],

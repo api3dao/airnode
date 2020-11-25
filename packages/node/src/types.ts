@@ -46,6 +46,8 @@ export enum RequestType {
 
 export interface RequestMetadata {
   readonly blockNumber: number;
+  readonly currentBlock: number;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly transactionHash: string;
 }
 
@@ -102,6 +104,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
   readonly url: string;
@@ -209,8 +212,10 @@ export interface WorkerResponse {
 // ===========================================
 // Events
 // ===========================================
-export interface LogWithMetadata {
+export interface EVMEventLogWithMetadata {
   readonly blockNumber: number;
+  readonly currentBlock: number;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly parsedLog: ethers.utils.LogDescription;
   readonly transactionHash: string;
 }
@@ -290,6 +295,7 @@ export interface ChainContracts {
 export interface ChainProvider {
   readonly blockHistoryLimit?: number;
   readonly minConfirmations?: number;
+  readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly name: string;
   readonly url: string;
 }
