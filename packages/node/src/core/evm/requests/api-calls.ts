@@ -42,6 +42,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
+      ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       transactionHash: logWithMetadata.transactionHash,
     },
     // Parameters are decoded separately
@@ -106,7 +107,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: LogWithMetadata[]): LogsData<ClientRequest<ApiCall>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsData<ClientRequest<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isApiCallFulfillment(log.parsedLog));

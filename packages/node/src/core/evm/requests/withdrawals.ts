@@ -14,6 +14,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
+      ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       transactionHash: logWithMetadata.transactionHash,
     },
     requesterIndex: parsedLog.args.requesterInd,
