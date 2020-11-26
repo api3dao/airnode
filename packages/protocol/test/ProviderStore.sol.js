@@ -101,7 +101,7 @@ describe('fulfillWithdrawal', function () {
           value: 1,
           gasLimit: 500000,
         });
-      const gasLimit = ethers.BigNumber.from(80_000);
+      const gasLimit = ethers.BigNumber.from(80000);
       expect(gasLimit.gt(gasEstimate)).to.equal(true);
       // Calculate the amount that will be sent back to the requester admin
       const gasPrice = await waffle.provider.getGasPrice();

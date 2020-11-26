@@ -133,7 +133,7 @@ describe('User flow', function () {
       .connect(masterWallet)
       .estimateGas.createProvider(roles.providerAdmin._address, providerXpub, { value: 1 });
     // Overestimate a bit
-    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
+    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
     const txCost = gasLimit.mul(gasPrice);
     const masterWalletBalance = await waffle.provider.getBalance(masterWallet.address);
@@ -305,7 +305,7 @@ describe('User flow', function () {
         { value: 1 }
       );
     // Overestimate a bit
-    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
+    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
     const txCost = gasLimit.mul(gasPrice);
     const designatedWalletBalance = await waffle.provider.getBalance(designatedWallet.address);

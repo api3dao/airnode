@@ -6,6 +6,7 @@
 
 # Log files
 *.log
+*.receipt.json
 
 # Test files
 coverage/
