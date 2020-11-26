@@ -14,7 +14,7 @@ It houses the following packages:
 
 [**adapter**:](/packages/adapter/README.md) The module that makes an API call, processes the response and returns a single value
 
-[**deployer (not merged yet)**:](https://github.com/api3dao/airnode/tree/aws-deployment/packages/deployer) Tools to automate Airnode deployment
+[**deployer**:](/packages/deployer/README.md) Tools to automate Airnode deployment
 
 [**node**:](/packages/node/README.md) Airnode itself
 
