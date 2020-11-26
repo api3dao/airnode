@@ -1,15 +1,22 @@
 {
   "name": "@airnode/operation",
+  "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
-    "build": "buidler compile",
-    "test": "buidler test"
+    "compile": "cp -r ../protocol/contracts/* contracts/; hardhat compile",
+    "node": "hardhat node",
+    "test": "hardhat test"
   },
   "devDependencies": {
-    "@nomiclabs/buidler": "^1.4.7",
-    "@nomiclabs/buidler-ethers": "^2.0.0",
-    "@nomiclabs/buidler-waffle": "^2.1.0",
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "@typechain/ethers-v5": "^4.0.0",
     "chai": "^4.2.0",
-    "ethereum-waffle": "^3.1.0",
-    "ethers": "^5.0.14"
+    "ethereum-waffle": "^3.2.1",
+    "ethers": "^5.0.14",
+    "hardhat": "^2.0.3",
+    "hardhat-typechain": "^0.3.3",
+    "ts-generator": "^0.1.1",
+    "typechain": "^4.0.0"
   }
 }

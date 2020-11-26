@@ -1,5 +1,8 @@
 node_modules
 
-# Buidler files
+# Hardhat files
 cache
 artifacts
+
+# Typescript files for contracts
+typechain

@@ -1,65 +1,51 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.12;
 
 
 interface IRequesterStore {
     event RequesterCreated(
-        bytes32 indexed requesterId,
+        uint256 indexed requesterInd,
         address admin
         );
 
     event RequesterUpdated(
-        bytes32 indexed requesterId,
+        uint256 indexed requesterInd,
         address admin
         );
 
-    event ClientEndorsed(
-        bytes32 indexed requesterId,
-        address indexed clientAddress
-        );
-
-    event ClientDisendorsed(
-        bytes32 indexed requesterId,
-        address indexed clientAddress
+    event ClientEndorsementStatusUpdated(
+        uint256 indexed requesterInd,
+        address indexed clientAddress,
+        bool endorsementStatus
         );
 
     function createRequester(address admin)
         external
-        returns (bytes32 requesterId);
+        returns (uint256 requesterInd);
 
     function updateRequesterAdmin(
-        bytes32 requesterId,
+        uint256 requesterInd,
         address admin
         )
         external;
 
-    function updateEndorsementPermission(bytes32 requesterId)
-        external;
-
-    function endorseClient(
-        bytes32 requesterId,
-        address clientAddress
+    function updateClientEndorsementStatus(
+        uint256 requesterInd,
+        address clientAddress,
+        bool endorsementStatus
         )
         external;
 
-    function disendorseClient(
-        bytes32 requesterId,
-        address clientAddress
-        )
-        external;
-
-    function getRequesterAdmin(bytes32 requesterId)
+    function getRequesterAdmin(uint256 requesterInd)
         external
         view
         returns (address admin);
 
-    function getClientRequesterId(address clientAddress)
+    function getRequesterEndorsementStatusOfClientAddress(
+        uint256 requesterInd,
+        address clientAddress
+        )
         external
         view
-        returns (bytes32 requesterId);
-
-    function getClientPermittedEndorser(address clientAddress)
-        external
-        view
-        returns (bytes32 requesterId);
+        returns (bool endorsementStatus);
 }
