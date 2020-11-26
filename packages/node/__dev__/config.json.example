@@ -16,7 +16,6 @@
         },
         "providers": [
           {
-            "ignoreBlockedRequestsAfterBlocks": 20,
             "name": "ganache-local",
             "url": "http://localhost:4111"
           }

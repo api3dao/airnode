@@ -57,13 +57,10 @@ describe('create', () => {
 
   it('allows for overwriting settings', () => {
     const coordinatorId = '837daEf231';
-    const chainProvider: ChainProvider = {
+    const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
+    const chainConfig: ChainConfig = {
       blockHistoryLimit: 150,
       minConfirmations: 3,
-      name: 'ganache-test',
-      url: 'http://localhost:4111',
-    };
-    const chainConfig: ChainConfig = {
       providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',

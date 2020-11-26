@@ -293,17 +293,17 @@ export interface ChainContracts {
 }
 
 export interface ChainProvider {
-  readonly blockHistoryLimit?: number;
-  readonly minConfirmations?: number;
-  readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly name: string;
   readonly url: string;
 }
 
 export interface ChainConfig {
-  readonly providerAdminForRecordCreation?: string;
+  readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: number;
+  readonly ignoreBlockedRequestsAfterBlocks?: number;
+  readonly minConfirmations?: number;
+  readonly providerAdminForRecordCreation?: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }
