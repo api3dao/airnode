@@ -1,33 +1,40 @@
 import { ethers } from 'ethers';
-import { config, FROM_BLOCK_LIMIT } from '../../config';
 import * as contracts from '../contracts';
 import * as events from './events';
 import { LogWithMetadata } from '../../../types';
+import { retryOperation } from '../../utils/promise-utils';
 
 interface FetchOptions {
   address: string;
+  blockHistoryLimit: number;
   currentBlock: number;
   provider: ethers.providers.JsonRpcProvider;
+  providerId: string;
 }
 
 interface GroupedLogs {
   apiCalls: LogWithMetadata[];
-  walletDesignations: LogWithMetadata[];
   withdrawals: LogWithMetadata[];
 }
 
 export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
+  // Protect against a potential negative fromBlock value
+  const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
+
   const filter: ethers.providers.Filter = {
-    fromBlock: options.currentBlock - FROM_BLOCK_LIMIT,
+    fromBlock,
     toBlock: options.currentBlock,
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
-    topics: [null, config.nodeSettings.providerId],
+    topics: [null, options.providerId],
   };
 
+  const operation = () => options.provider.getLogs(filter);
+  const retryableOperation = retryOperation(2, operation);
+
   // Let this throw if something goes wrong
-  const rawLogs = await options.provider.getLogs(filter);
+  const rawLogs = await retryableOperation;
 
   // If the provider returns a bad response, mapping logs could also throw
   const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
@@ -43,7 +50,6 @@ export async function fetch(options: FetchOptions): Promise<LogWithMetadata[]> {
 export function group(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
-    walletDesignations: [],
     withdrawals: [],
   };
 
@@ -52,10 +58,6 @@ export function group(logsWithMetadata: LogWithMetadata[]): GroupedLogs {
 
     if (events.isApiCallRequest(parsedLog) || events.isApiCallFulfillment(parsedLog)) {
       return { ...acc, apiCalls: [...acc.apiCalls, log] };
-    }
-
-    if (events.isWalletDesignationRequest(parsedLog) || events.isWalletDesignationFulfillment(parsedLog)) {
-      return { ...acc, walletDesignations: [...acc.walletDesignations, log] };
     }
 
     if (events.isWithdrawalRequest(parsedLog) || events.isWithdrawalFulfillment(parsedLog)) {

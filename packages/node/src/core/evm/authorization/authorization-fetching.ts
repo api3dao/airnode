@@ -2,90 +2,84 @@ import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
-import uniqBy from 'lodash/uniqBy';
 import { Convenience } from '../contracts';
 import * as logger from '../../logger';
 import { go, retryOperation } from '../../utils/promise-utils';
-import { ApiCall, AuthorizationByEndpointId, ClientRequest, LogsErrorData, RequestStatus } from '../../../types';
+import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../../types';
 
 interface FetchOptions {
-  address: string;
+  convenienceAddress: string;
+  providerId: string;
   provider: ethers.providers.JsonRpcProvider;
-}
-
-interface AuthorizationStatus {
-  authorized: boolean;
-  endpointId: string;
-  requesterAddress: string;
 }
 
 async function fetchAuthorizationStatuses(
   convenience: ethers.Contract,
+  providerId: string,
   apiCalls: ClientRequest<ApiCall>[]
-): Promise<LogsErrorData<AuthorizationStatus[]>> {
+): Promise<LogsData<AuthorizationByRequestId | null>> {
   // Ordering must remain the same when mapping these two arrays
+  const requestIds = apiCalls.map((a) => a.id);
   const endpointIds = apiCalls.map((a) => a.endpointId);
-  const requesters = apiCalls.map((a) => a.requesterAddress);
+  const requesterIndices = apiCalls.map((a) => a.requesterIndex);
+  const designatedWallets = apiCalls.map((a) => a.designatedWallet);
+  const clientAddresses = apiCalls.map((a) => a.clientAddress);
 
-  const contractCall = () => convenience.checkAuthorizationStatuses(endpointIds, requesters);
-  const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
+  const contractCall = () =>
+    convenience.checkAuthorizationStatuses(
+      providerId,
+      requestIds,
+      endpointIds,
+      requesterIndices,
+      designatedWallets,
+      clientAddresses
+    ) as Promise<any>;
+  const retryableContractCall = retryOperation(2, contractCall);
 
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {
     const log = logger.pend('ERROR', 'Failed to fetch authorization details', err);
-    return [[log], null, []];
+    return [[log], null];
   }
 
   // Authorization statuses are returned in the same order that they are requested.
   const authorizations = apiCalls.reduce((acc, apiCall, index) => {
-    const status: AuthorizationStatus = {
-      endpointId: apiCall.endpointId!,
-      requesterAddress: apiCall.requesterAddress,
-      authorized: data[index],
-    };
-    return [...acc, status];
-  }, []);
+    return { ...acc, [apiCall.id]: data[index] };
+  }, {});
 
-  return [[], null, authorizations];
+  return [[], authorizations];
 }
 
 export async function fetch(
   apiCalls: ClientRequest<ApiCall>[],
   fetchOptions: FetchOptions
-): Promise<LogsErrorData<AuthorizationByEndpointId>> {
+): Promise<LogsData<AuthorizationByRequestId>> {
   // If an API call has a templateId but the template failed to load, then we cannot process
   // that request. These requests will be marked as blocked.
   const pendingApiCalls = apiCalls.filter((a) => a.status === RequestStatus.Pending);
 
   // If there are no pending API calls then there is no need to make an ETH call
   if (isEmpty(pendingApiCalls)) {
-    return [[], null, {}];
+    return [[], {}];
   }
 
-  // Remove duplicate API calls with the same endpoint ID and requester address
-  const uniquePairs = uniqBy(pendingApiCalls, (a) => `${a.endpointId}-${a.requesterAddress}`);
-
   // Request groups of 10 at a time
-  const groupedPairs = chunk(uniquePairs, 10);
+  const groupedPairs = chunk(pendingApiCalls, 10);
 
   // Create an instance of the contract that we can re-use
-  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
+  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
 
   // Fetch all authorization statuses in parallel
-  const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(convenience, pairs));
+  const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(convenience, fetchOptions.providerId, pairs));
 
   const responses = await Promise.all(promises);
   const responseLogs = flatMap(responses, (r) => r[0]);
-  const authorizationStatuses = flatMap(responses, (r) => r[2]);
+  const authorizationStatuses = responses.map((r) => r[1]);
 
-  // Store each "authorization" against the endpointId so it can be easily looked up
-  const authorizationsByEndpoint = authorizationStatuses.reduce((acc, authorization) => {
-    const currentEndpointRequesters = acc[authorization.endpointId] || {};
-    const requesterAuthorization = { [authorization.requesterAddress]: authorization.authorized };
-    const updatedEnpointRequesters = { ...currentEndpointRequesters, ...requesterAuthorization };
+  const successfulResults = authorizationStatuses.filter((r) => !!r) as AuthorizationByRequestId[];
 
-    return { ...acc, [authorization.endpointId]: updatedEnpointRequesters };
-  }, {});
+  // Merge all successful results into a single object
+  const combinedResults = Object.assign({}, ...successfulResults) as AuthorizationByRequestId;
 
-  return [responseLogs, null, authorizationsByEndpoint];
+  return [responseLogs, combinedResults];
 }

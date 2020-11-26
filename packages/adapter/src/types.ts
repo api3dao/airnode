@@ -1,13 +1,14 @@
+import BigNumber from 'bignumber.js';
 import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/ois';
 
-export interface Options {
+export interface BuildRequestOptions {
   ois: OIS;
   endpointName: string;
   parameters: { [key: string]: string };
   securitySchemes?: SecurityScheme[];
 }
 
-export interface State extends Options {
+export interface CachedBuildRequestOptions extends BuildRequestOptions {
   operation: Operation;
   endpoint: Endpoint;
 }
@@ -38,12 +39,12 @@ export interface Config {
   timeout?: number;
 }
 
-export type ValueType = string | number | boolean;
+export type ValueType = string | BigNumber | boolean;
 
 export type ResponseType = 'int256' | 'bool' | 'bytes32';
 
 export interface ResponseParameters {
   _path?: string;
-  _times?: number;
+  _times?: string | BigNumber;
   _type: ResponseType;
 }

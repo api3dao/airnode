@@ -1,8 +1,6 @@
-import { OIS, SecuritySpecification } from '@airnode/ois';
+import { OIS } from '@airnode/ois';
 import { Config } from '../../types';
 import { randomString } from '../utils/string-utils';
-import rawConfig from '../../../config.json';
-import rawSecurity from '../../../security.json';
 
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
@@ -14,16 +12,20 @@ function parseOises(oises: OIS[]): OIS[] {
   });
 }
 
-function parseConfig(config: any): Config {
+export function parseConfig(config: any): Config {
   const ois = parseOises(config.ois);
   return { ...config, ois };
 }
 
-// Add runtime configuration and typings
-export const config = parseConfig(rawConfig);
+export function getMasterKeyMnemonic(): string {
+  const mnemonic = process.env.MASTER_KEY_MNEMONIC;
+  // The node cannot function without a master mnemonic
+  if (!mnemonic) {
+    throw new Error('Unable to find MASTER_KEY_MNEMONIC from the environment. Please ensure this is set first');
+  }
+  return mnemonic;
+}
 
-export const security = rawSecurity as SecuritySpecification;
-
-// 600 blocks = roughly 1 hour in the past
-export const FROM_BLOCK_LIMIT = Number(process.env.PAST_BLOCK_LIMIT || '600');
-export const NODE_WALLET_ADDRESS = process.env.NODE_WALLET_ADDRESS || '<TODO>';
+export function getConfigSecret(oisTitle: string, securitySchemeName: string) {
+  return process.env[`${oisTitle}_${securitySchemeName}`];
+}

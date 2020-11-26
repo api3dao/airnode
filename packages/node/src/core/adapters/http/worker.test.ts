@@ -1,70 +1,89 @@
-const spawnAwsMock1 = jest.fn();
-const spawnLocalAwsMock1 = jest.fn();
-jest.mock('../../workers/cloud-platforms/aws', () => ({
-  spawn: spawnAwsMock1,
-  spawnLocal: spawnLocalAwsMock1,
+const invokeMock = jest.fn();
+jest.mock('aws-sdk', () => ({
+  Lambda: jest.fn().mockImplementation(() => ({
+    invoke: invokeMock,
+  })),
 }));
 
+import * as fixtures from 'test/fixtures';
+import * as logger from '../../logger';
+import * as worker from './worker';
+import { LogOptions } from 'src/types';
+
 describe('spawnNewApiCall', () => {
-  beforeEach(() => jest.resetModules());
-
-  it('handles local AWS calls', async () => {
-    const config = { nodeSettings: { cloudProvider: 'local:aws' } };
-    jest.mock('../../config', () => ({ config }));
-
-    spawnLocalAwsMock1.mockResolvedValueOnce({ value: '0x123' });
-
-    const { spawnNewApiCall } = require('./worker');
-
-    const options = {
-      oisTitle: 'my-api',
-      endpointName: 'my-endpoint',
-      parameters: { from: 'ETH' },
-    };
-
-    const res = await spawnNewApiCall(options);
-    expect(res).toEqual({ value: '0x123' });
-
-    expect(spawnLocalAwsMock1).toHaveBeenCalledTimes(1);
-    expect(spawnLocalAwsMock1).toHaveBeenCalledWith({
-      functionName: 'callApi',
-      payload: {
-        queryStringParameters: {
-          aggregatedApiCall: {
-            oisTitle: 'my-api',
-            endpointName: 'my-endpoint',
-            parameters: { from: 'ETH' },
-          },
-        },
-      },
-    });
-  });
+  const logOptions: LogOptions = {
+    format: 'plain',
+    meta: { coordinatorId: '837daEf231' },
+  };
 
   it('handles remote AWS calls', async () => {
-    const config = { nodeSettings: { cloudProvider: 'aws' } };
-    jest.mock('../../config', () => ({ config }));
-
-    spawnAwsMock1.mockResolvedValueOnce({ value: '0x123' });
-
-    const { spawnNewApiCall } = require('./worker');
-
-    const options = {
-      oisTitle: 'my-api',
-      endpointName: 'my-endpoint',
-      parameters: { from: 'USDC' },
-    };
-
-    const res = await spawnNewApiCall(options);
+    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: true, data: { value: '0x123' } }));
+    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x123' });
-
-    expect(spawnAwsMock1).toHaveBeenCalledTimes(1);
-    expect(spawnAwsMock1).toHaveBeenCalledWith({
-      functionName: 'callApi',
-      payload: {
-        oisTitle: 'my-api',
-        endpointName: 'my-endpoint',
-        parameters: { from: 'USDC' },
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+    expect(invokeMock).toHaveBeenCalledWith(
+      {
+        FunctionName: 'airnode-19255a4-test-callApi',
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
       },
-    });
+      expect.anything()
+    );
+  });
+
+  it('returns an error if the worker rejects', async () => {
+    invokeMock.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
+    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Unable to call API endpoint:convertToUsd', error: new Error('Something went wrong') },
+    ]);
+    expect(res).toEqual(null);
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+    expect(invokeMock).toHaveBeenCalledWith(
+      {
+        FunctionName: 'airnode-19255a4-test-callApi',
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+      },
+      expect.anything()
+    );
+  });
+
+  it('returns an error if the response has an error log', async () => {
+    const errorLog = logger.pend('ERROR', 'Something went wrong');
+    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: false, errorLog }));
+    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    expect(logs).toEqual([errorLog]);
+    expect(res).toEqual(null);
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+    expect(invokeMock).toHaveBeenCalledWith(
+      {
+        FunctionName: 'airnode-19255a4-test-callApi',
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+      },
+      expect.anything()
+    );
+  });
+
+  it('returns an error if the response is not ok', async () => {
+    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: false }));
+    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to call API endpoint:convertToUsd' }]);
+    expect(res).toEqual(null);
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+    expect(invokeMock).toHaveBeenCalledWith(
+      {
+        FunctionName: 'airnode-19255a4-test-callApi',
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+      },
+      expect.anything()
+    );
   });
 });

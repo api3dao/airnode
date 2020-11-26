@@ -1,86 +1,57 @@
-import { go } from '../utils/promise-utils';
-import { ProviderConfig, ProviderState } from '../../types';
-import * as authorization from '../evm/authorization';
+import flatMap from 'lodash/flatMap';
+import isEmpty from 'lodash/isEmpty';
+import { goTimeout } from '../utils/promise-utils';
 import * as logger from '../logger';
-import * as triggers from '../evm/triggers';
-import * as templates from '../evm/templates';
-import * as transactionCounts from '../evm/transaction-counts';
-import * as state from './state';
+import { buildEVMState } from '../providers/state';
+import { spawnNewProvider } from '../providers/worker';
+import { Config, EVMProviderState, LogsData, ProviderState, WorkerOptions } from '../../types';
 
-type ParallelPromise = Promise<{ id: string; data: any }>;
+const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
 
-async function fetchTemplatesAndAuthorizations(currentState: ProviderState) {
-  // This should not throw
-  const res = await templates.fetchTemplatesAndAuthorizations(currentState);
-  return { id: 'templates+authorizations', data: res };
+async function initializeEVMProvider(
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
+  const initialization = spawnNewProvider(state, workerOpts);
+
+  // Each provider gets 20 seconds to initialize. If it fails to initialize
+  // in this time, it is ignored. It is important to catch any potential errors
+  // here as a single promise rejecting will cause Promise.all to reject
+  const [err, logsWithRes] = await goTimeout(PROVIDER_INITIALIZATION_TIMEOUT, initialization);
+  if (err || !logsWithRes) {
+    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
+    return [[log], null];
+  }
+  return logsWithRes;
 }
 
-async function fetchTransactionCounts(currentState: ProviderState) {
-  // This should not throw
-  const res = await transactionCounts.getTransactionCountByIndex(currentState);
-  return { id: 'transaction-counts', data: res };
-}
+export async function initialize(
+  coordinatorId: string,
+  config: Config,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ProviderState<EVMProviderState>[]>> {
+  const { chains } = config.nodeSettings;
 
-export async function initializeState(config: ProviderConfig, index: number): Promise<ProviderState | null> {
-  // =================================================================
-  // STEP 1: Create a new ProviderState
-  // =================================================================
-  const state1 = state.create(config, index);
-
-  // =================================================================
-  // STEP 2: Get the current block number
-  // =================================================================
-  const [blockErr, currentBlock] = await go(state1.provider.getBlockNumber());
-  if (blockErr || !currentBlock) {
-    logger.logProviderError(config.name, 'Unable to get current block', blockErr);
-    return null;
+  if (isEmpty(chains)) {
+    throw new Error('One or more chains must be defined in the provided config');
   }
-  logger.logProviderJSON(config.name, 'INFO', `Current block set to: ${currentBlock}`);
-  const state2 = state.update(state1, { currentBlock });
 
-  // =================================================================
-  // STEP 3: Get the pending actionable items from triggers
-  // =================================================================
-  const [dataErr, walletDataByIndex] = await go(triggers.fetchWalletDataByIndex(state2));
-  if (dataErr || !walletDataByIndex) {
-    logger.logProviderError(config.name, 'Unable to get pending requests and wallet data', dataErr);
-    return null;
-  }
-  const state3 = state.update(state2, { walletDataByIndex });
+  const EVMChains = chains.filter((c) => c.type === 'evm');
 
-  // =================================================================
-  // STEP 4: Fetch templates, authorization and wallet data
-  // =================================================================
-  const templatesAndTransactionPromises: ParallelPromise[] = [
-    fetchTemplatesAndAuthorizations(state3),
-    fetchTransactionCounts(state3),
-  ];
-  const templatesAndTransactionResults = await Promise.all(templatesAndTransactionPromises);
-
-  // // Each of these promises returns its result with an ID as the
-  // // order in which they resolve in not guaranteed.
-  const { walletDataWithTemplates, authorizationsByEndpoint } = templatesAndTransactionResults.find(
-    (result) => result.id === 'templates+authorizations'
-  )!.data;
-  const transactionCountsByWalletIndex = templatesAndTransactionResults.find(
-    (result) => result.id === 'transaction-counts'
-  )!.data;
-
-  const walletDataWithTransactionCounts = templates.mergeTemplatesAndTransactionCounts(
-    walletDataWithTemplates,
-    transactionCountsByWalletIndex
+  // Providers are identified by their index in the array. This allows users
+  // to configure duplicate providers safely (if they want the added redundancy)
+  const EVMInitializations = flatMap(
+    EVMChains.map((chain) => {
+      return chain.providers.map(async (provider) => {
+        const state = buildEVMState(coordinatorId, chain, provider, config);
+        return initializeEVMProvider(state, workerOpts);
+      });
+    })
   );
 
-  // // =================================================================
-  // // STEP 5: Merge authorizations and transaction counts
-  // // =================================================================
-  const [authLogs, _authErr, walletDataWithAuthorizations] = authorization.mergeAuthorizations(
-    walletDataWithTransactionCounts,
-    authorizationsByEndpoint
-  );
-  logger.logPendingMessages(state3.config.name, authLogs);
-
-  const state5 = state.update(state3, { walletDataByIndex: walletDataWithAuthorizations });
-
-  return state5;
+  const providerStates = await Promise.all(EVMInitializations);
+  const logs = flatMap(providerStates.map((ps) => ps[0]));
+  const successfulResponses = providerStates.filter((ps) => !!ps[1]);
+  const successfulProviders = successfulResponses.map((ps) => ps[1]) as ProviderState<EVMProviderState>[];
+  return [logs, successfulProviders];
 }

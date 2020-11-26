@@ -1,15 +1,9 @@
-const getLogsMock = jest.fn();
 const parseLogMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
     ethers: {
       ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getLogs: getLogsMock,
-        })),
-      },
       utils: {
         ...original.utils,
         Interface: jest.fn().mockImplementation(() => ({
@@ -20,30 +14,20 @@ jest.mock('ethers', () => {
   };
 });
 
-jest.mock('../../config', () => ({
-  config: {
-    nodeSettings: {
-      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-    },
-  },
-  FROM_BLOCK_LIMIT: 100,
-}));
-
 import { ethers } from 'ethers';
 import { removeKeys } from '../../utils/object-utils';
 import * as eventLogs from './event-logs';
 
 describe('EVM event logs - fetch', () => {
   it('returns all logs with metadata', async () => {
-    const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
-      topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00',
+      topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
       transactionHash: '0x1',
     };
     const fulfilledApiCallEvent = {
       blockNumber: 10716083,
-      topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3',
+      topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5',
       transactionHash: '0x2',
     };
     const unknownEvent = {
@@ -52,7 +36,7 @@ describe('EVM event logs - fetch', () => {
       transactionHash: '0x3',
     };
 
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent, fulfilledApiCallEvent, unknownEvent]);
 
     // TODO: We probably shouldn't be mocking the interface, but need to find
@@ -65,20 +49,22 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
 
     const res = await eventLogs.fetch(fetchOptions);
     expect(res).toEqual([
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' },
+        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' },
+        parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
       },
       {
@@ -87,18 +73,29 @@ describe('EVM event logs - fetch', () => {
         transactionHash: '0x3',
       },
     ]);
+    expect(getLogs).toHaveBeenCalledTimes(1);
+    expect(getLogs).toHaveBeenCalledWith({
+      // 10716084 - 600
+      fromBlock: 10715484,
+      toBlock: 10716084,
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+    });
   });
 
   it('throws an exception if the logs cannot be fetched', async () => {
     expect.assertions(1);
-    const provider = new ethers.providers.JsonRpcProvider();
-    const getLogs = provider.getLogs as jest.Mock;
+
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
+    getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
     getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     try {
       await eventLogs.fetch(fetchOptions);
@@ -109,13 +106,12 @@ describe('EVM event logs - fetch', () => {
 
   it('throws an exception if the logs cannot be parsed', async () => {
     expect.assertions(1);
-    const provider = new ethers.providers.JsonRpcProvider();
     const newApiCallEvent = {
       blockNumber: 10716082,
       topic: '0xinvalidtopic',
       transactionHash: '0x1',
     };
-    const getLogs = provider.getLogs as jest.Mock;
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockResolvedValueOnce([newApiCallEvent]);
 
     // TODO: We probably shouldn't be mocking the interface, but need to find
@@ -128,14 +124,37 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 600,
       currentBlock: 10716084,
       provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     try {
       await eventLogs.fetch(fetchOptions);
     } catch (e) {
       expect(e).toEqual(new Error('Unable to parse topic'));
     }
+  });
+
+  it('protects against negative fromBlock values', async () => {
+    const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
+    getLogs.mockResolvedValueOnce([]);
+    const fetchOptions = {
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      blockHistoryLimit: 99999999,
+      currentBlock: 10716084,
+      provider: new ethers.providers.JsonRpcProvider(),
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+    };
+    const res = await eventLogs.fetch(fetchOptions);
+    expect(res).toEqual([]);
+    expect(getLogs).toHaveBeenCalledTimes(1);
+    expect(getLogs).toHaveBeenCalledWith({
+      fromBlock: 0,
+      toBlock: 10716084,
+      address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
+    });
   });
 });
 
@@ -144,12 +163,12 @@ describe('EVM event logs - group', () => {
     const logsWithMetadata: any = [
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' },
+        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' },
+        parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -165,52 +184,12 @@ describe('EVM event logs - group', () => {
       apiCalls: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0x74676e35c7aea7d314a29a1d492d5d8893a25cc42d1651aa8b28176f6ed1da00' },
+          parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
           transactionHash: '0x1',
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0x99c3dc9fae9ea6e1e48e90bf434d9b64c4ebdb218f1a39f1752cccfa010c71e3' },
-          transactionHash: '0x2',
-        },
-      ],
-      walletDesignations: [],
-      withdrawals: [],
-    });
-  });
-
-  it('groups wallet designation requests and fulfillments', () => {
-    const logsWithMetadata: any = [
-      {
-        blockNumber: 10716082,
-        parsedLog: { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' },
-        transactionHash: '0x1',
-      },
-      {
-        blockNumber: 10716083,
-        parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
-        transactionHash: '0x2',
-      },
-      // Unknown event
-      {
-        blockNumber: 10716082,
-        parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
-        transactionHash: '0x3',
-      },
-    ];
-
-    const res = eventLogs.group(logsWithMetadata);
-    expect(res).toEqual({
-      apiCalls: [],
-      walletDesignations: [
-        {
-          blockNumber: 10716082,
-          parsedLog: { topic: '0x54731539873419bbdf008e1d7a666aeed0a8e141953b2dd4ba187dba3981bfc3' },
-          transactionHash: '0x1',
-        },
-        {
-          blockNumber: 10716083,
-          parsedLog: { topic: '0x82a39020b75d675eeedadd41636e88c5e43c4604955bbfb64f6017aa9ae39ba6' },
+          parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
           transactionHash: '0x2',
         },
       ],
@@ -241,7 +220,6 @@ describe('EVM event logs - group', () => {
     const res = eventLogs.group(logsWithMetadata);
     expect(res).toEqual({
       apiCalls: [],
-      walletDesignations: [],
       withdrawals: [
         {
           blockNumber: 10716082,

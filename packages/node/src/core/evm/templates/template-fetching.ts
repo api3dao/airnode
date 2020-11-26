@@ -6,10 +6,10 @@ import uniq from 'lodash/uniq';
 import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import { Convenience } from '../contracts';
-import { ApiCall, ApiCallTemplate, ClientRequest, LogsErrorData } from '../../../types';
+import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../../types';
 
 interface FetchOptions {
-  address: string;
+  convenienceAddress: string;
   provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -20,51 +20,51 @@ interface ApiCallTemplatesById {
 async function fetchTemplateGroup(
   convenience: ethers.Contract,
   templateIds: string[]
-): Promise<LogsErrorData<ApiCallTemplatesById>> {
+): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => convenience.getTemplates(templateIds) as Promise<any>;
-  const retryableContractCall = retryOperation(2, contractCall, { timeouts: [4000, 4000] }) as Promise<any>;
+  const retryableContractCall = retryOperation(2, contractCall);
 
   const [err, rawTemplates] = await go(retryableContractCall);
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
   if (err || !rawTemplates) {
     const log = logger.pend('ERROR', 'Failed to fetch API call templates', err);
-    return [[log], null, {}];
+    return [[log], {}];
   }
 
   const templatesById = templateIds.reduce((acc, templateId, index) => {
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
-      templateId,
+      designatedWallet: rawTemplates.designatedWallets[index],
+      encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
-      providerId: rawTemplates.providerIds[index],
       fulfillAddress: rawTemplates.fulfillAddresses[index],
       fulfillFunctionId: rawTemplates.fulfillFunctionIds[index],
-      errorAddress: rawTemplates.errorAddresses[index],
-      errorFunctionId: rawTemplates.errorFunctionIds[index],
-      encodedParameters: rawTemplates.parameters[index],
+      id: templateId,
+      providerId: rawTemplates.providerIds[index],
+      requesterIndex: rawTemplates.requesterInds[index],
     };
     return { ...acc, [templateId]: template };
   }, {});
 
-  return [[], null, templatesById];
+  return [[], templatesById];
 }
 
 export async function fetch(
   apiCalls: ClientRequest<ApiCall>[],
   fetchOptions: FetchOptions
-): Promise<LogsErrorData<ApiCallTemplatesById>> {
+): Promise<LogsData<ApiCallTemplatesById>> {
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);
   if (isEmpty(templateIds)) {
-    return [[], null, {}];
+    return [[], {}];
   }
 
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(uniq(templateIds), 10);
 
   // Create an instance of the contract that we can re-use
-  const convenience = new ethers.Contract(fetchOptions.address, Convenience.ABI, fetchOptions.provider);
+  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(convenience, ids));
@@ -74,8 +74,8 @@ export async function fetch(
 
   // Merge all templates into a single object, keyed by their ID for faster/easier lookup
   const templatesById = templateResponses.reduce((acc, result) => {
-    return { ...acc, ...result[2] };
+    return { ...acc, ...result[1] };
   }, {});
 
-  return [templateResponseLogs, null, templatesById];
+  return [templateResponseLogs, templatesById];
 }

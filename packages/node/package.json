@@ -1,21 +1,26 @@
 {
   "name": "@airnode/node",
   "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "npm run clean && npm run compile",
+    "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
-    "dev:aws": "serverless offline --config serverless.aws.yml",
-    "prepublishOnly": "npm run build",
+    "dev:invoke": "(cd __dev__ && ts-node invoke.ts)",
+    "prepublishOnly": "yarn run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
     "@airnode/adapter": "^0.1.0",
     "@airnode/ois": "^0.1.0",
+    "@types/bluebird": "^3.5.32",
+    "@types/lodash": "^4.14.157",
     "aws-sdk": "^2.753.0",
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
@@ -26,10 +31,6 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.32",
-    "@types/lodash": "^4.14.157",
-    "serverless": "^2.0.0",
-    "serverless-dotenv-plugin": "^3.0.0",
-    "serverless-offline": "^6.7.0",
-    "serverless-plugin-typescript": "^1.1.9"
+    "@types/lodash": "^4.14.157"
   }
 }

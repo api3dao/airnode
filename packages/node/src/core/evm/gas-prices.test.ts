@@ -18,60 +18,41 @@ jest.mock('ethers', () => {
 });
 
 import { ethers } from 'ethers';
-import { ProviderState } from '../../types';
-import * as providerState from '../providers/state';
-import * as utils from './utils';
 import * as gasPrices from './gas-prices';
 
 describe('getGasPrice', () => {
-  let state: ProviderState;
+  const baseOptions = {
+    provider: new ethers.providers.JsonRpcProvider(),
+  };
 
-  beforeEach(() => {
-    const config = { chainId: 1234, url: 'https://some.provider', name: 'test-provider' };
-    state = providerState.create(config, 0);
+  it('returns the gas price from the provider', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockResolvedValueOnce(ethers.BigNumber.from('48000000000'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    expect(logs).toEqual([]);
+    expect(gasPrice).toEqual(ethers.BigNumber.from('48000000000'));
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(1);
   });
 
-  it('takes the gas price feed price if it is highest', async () => {
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('53000000000'));
-
-    const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
-
-    const gasPrice = await gasPrices.getGasPrice(state);
-    expect(utils.weiToGwei(gasPrice)).toEqual('53.0');
+  it('retries once on failure', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    getGasPrice.mockResolvedValueOnce(ethers.BigNumber.from('53000000000'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    expect(logs).toEqual([]);
+    expect(gasPrice).toEqual(ethers.BigNumber.from('53000000000'));
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
   });
 
-  it('takes the node price if it is highest', async () => {
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('53000000000'));
-
-    const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('55000000000'));
-
-    const gasPrice = await gasPrices.getGasPrice(state);
-    expect(utils.weiToGwei(gasPrice)).toEqual('55.0');
-  });
-
-  it('returns the fallback price if no usable responses are received from any sources', async () => {
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockRejectedValueOnce(new Error('Contract says no'));
-
-    const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockRejectedValueOnce(new Error('Node says no'));
-
-    const gasPrice = await gasPrices.getGasPrice(state);
-    expect(utils.weiToGwei(gasPrice)).toEqual('40.0');
-  });
-
-  it('limits the maximum gas price that can be returned', async () => {
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.latestAnswer.mockResolvedValueOnce(utils.weiToBigNumber('43000000000000'));
-
-    const getGasPrice = state.provider.getGasPrice as jest.Mock;
-    getGasPrice.mockResolvedValueOnce(utils.weiToBigNumber('48000000000'));
-
-    const gasPrice = await gasPrices.getGasPrice(state);
-    expect(utils.weiToGwei(gasPrice)).toEqual('1000.0');
+  it('retries a maximum of two times then returns null', async () => {
+    const getGasPrice = baseOptions.provider.getGasPrice as jest.Mock;
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    getGasPrice.mockRejectedValueOnce(new Error('Server is down'));
+    const [logs, gasPrice] = await gasPrices.getGasPrice(baseOptions);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to get gas price from provider', error: new Error('Server is down') },
+    ]);
+    expect(gasPrice).toEqual(null);
+    expect(baseOptions.provider.getGasPrice).toHaveBeenCalledTimes(2);
   });
 });

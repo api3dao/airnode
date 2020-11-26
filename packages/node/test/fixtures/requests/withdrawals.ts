@@ -1,28 +1,19 @@
-import { BaseRequest, ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
-
-export function createBaseWithdrawal(params?: Partial<BaseRequest<Withdrawal>>): BaseRequest<Withdrawal> {
-  return {
-    id: 'withdrawalId',
-    requesterId: 'requesterId',
-    destinationAddress: 'destinationAddress',
-    providerId: 'providerId',
-    status: RequestStatus.Pending,
-    metadata: {
-      blockNumber: 10716082,
-      providerIndex: 0,
-      transactionHash: 'logTransactionHash',
-    },
-    ...params,
-  };
-}
+import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
 
 export function createWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
+  // These fields have invalid values on purpose to allow for easier reading. When necessary,
+  // they can be overridden with valid values
   return {
-    ...createBaseWithdrawal(),
-    walletIndex: '12',
-    walletAddress: 'walletAddress',
-    walletBalance: '100000',
-    walletMinimumBalance: '500000',
+    designatedWallet: 'designatedWallet',
+    destinationAddress: 'destinationAddress',
+    id: 'withdrawalId',
+    metadata: {
+      blockNumber: 10716082,
+      transactionHash: 'logTransactionHash',
+    },
+    providerId: 'providerId',
+    requesterIndex: '1',
+    status: RequestStatus.Pending,
     ...params,
   };
 }

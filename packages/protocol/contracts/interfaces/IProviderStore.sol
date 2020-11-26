@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.12;
 
 import "./IRequesterStore.sol";
 
@@ -8,104 +8,59 @@ interface IProviderStore is IRequesterStore {
     event ProviderCreated(
         bytes32 indexed providerId,
         address admin,
-        uint256 walletDesignationDeposit,
-        uint256 minBalance
+        string xpub
         );
 
     event ProviderUpdated(
         bytes32 indexed providerId,
-        address admin,
-        uint256 walletDesignationDeposit,
-        uint256 minBalance
-        );
-
-    event ProviderKeysInitialized(
-        bytes32 indexed providerId,
-        string xpub,
-        address walletDesignator
-        );
-
-    event WalletDesignationRequested(
-        bytes32 indexed providerId,
-        bytes32 indexed requesterId,
-        bytes32 walletDesignationRequestId,
-        uint256 walletInd,
-        uint256 depositAmount
-        );
-
-    event WalletDesignationFulfilled(
-        bytes32 indexed providerId,
-        bytes32 indexed requesterId,
-        bytes32 walletDesignationRequestId,
-        address walletAddress,
-        uint256 walletInd
+        address admin
         );
 
     event WithdrawalRequested(
         bytes32 indexed providerId,
-        bytes32 indexed requesterId,
+        uint256 indexed requesterInd,
         bytes32 withdrawalRequestId,
+        address designatedWallet,
         address destination
         );
 
     event WithdrawalFulfilled(
         bytes32 indexed providerId,
-        bytes32 indexed requesterId,
+        uint256 indexed requesterInd,
         bytes32 withdrawalRequestId,
+        address designatedWallet,
         address destination,
         uint256 amount
         );
 
-
     function createProvider(
         address admin,
-        uint256 walletDesignationDeposit,
-        uint256 minBalance
+        string calldata xpub
         )
         external
+        payable
         returns (bytes32 providerId);
 
     function updateProvider(
         bytes32 providerId,
-        address admin,
-        uint256 walletDesignationDeposit,
-        uint256 minBalance
+        address admin
         )
         external;
-
-    function initializeProviderKeys(
-        bytes32 providerId,
-        string calldata xpub,
-        address walletDesignator
-        )
-        external;
-
-    function requestWalletDesignation(
-        bytes32 providerId,
-        bytes32 requesterId
-    )
-        external
-        payable
-        returns(uint256 walletInd);
-
-    function rebroadcastWalletDesignationRequest(bytes32 walletDesignationRequestId)
-        external;
-
-    function fulfillWalletDesignation(
-        bytes32 walletDesignationRequestId,
-        address walletAddress
-        )
-        external
-        payable;
 
     function requestWithdrawal(
         bytes32 providerId,
-        bytes32 requesterId,
+        uint256 requesterInd,
+        address designatedWallet,
         address destination
     )
         external;
 
-    function fulfillWithdrawal(bytes32 withdrawalRequestId)
+    function fulfillWithdrawal(
+        bytes32 withdrawalRequestId,
+        bytes32 providerId,
+        uint256 requesterInd,
+        address destination
+        )
         external
         payable;
 
@@ -114,46 +69,6 @@ interface IProviderStore is IRequesterStore {
         view
         returns (
             address admin,
-            string memory xpub,
-            address walletDesignator,
-            uint256 walletDesignationDeposit,
-            uint256 minBalance
+            string memory xpub
         );
-
-    function getProviderMinBalance(bytes32 providerId)
-        external
-        view
-        returns (uint256 minBalance);
-
-    function getProviderWalletStatus(
-        bytes32 providerId,
-        address walletAddress
-        )
-        external
-        view
-        returns (bool status);
-
-    function getProviderWalletIndWithAddress(
-        bytes32 providerId,
-        address walletAddress
-        )
-        external
-        view
-        returns (uint256 walletInd);
-
-    function getProviderWalletAddressWithInd(
-        bytes32 providerId,
-        uint256 walletInd
-        )
-        external
-        view
-        returns (address walletAddress);
-
-    function getProviderWalletIndWithRequesterId(
-        bytes32 providerId,
-        bytes32 requesterId
-        )
-        external
-        view
-        returns (uint256 walletInd);
 }

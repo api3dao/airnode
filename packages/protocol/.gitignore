@@ -3,3 +3,5 @@
 #Buidler files
 /cache
 /artifacts
+
+credentials.json

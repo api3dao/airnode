@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.8;
+pragma solidity 0.6.12;
 
 
 interface ITemplateStore {
@@ -7,20 +7,20 @@ interface ITemplateStore {
         bytes32 indexed templateId,
         bytes32 providerId,
         bytes32 endpointId,
+        uint256 requesterInd,
+        address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes parameters
         );
 
     function createTemplate(
         bytes32 providerId,
         bytes32 endpointId,
+        uint256 requesterInd,
+        address designatedWallet,
         address fulfillAddress,
-        address errorAddress,
         bytes4 fulfillFunctionId,
-        bytes4 errorFunctionId,
         bytes calldata parameters
         )
         external
@@ -32,10 +32,10 @@ interface ITemplateStore {
         returns (
             bytes32 providerId,
             bytes32 endpointId,
+            uint256 requesterInd,
+            address designatedWallet,
             address fulfillAddress,
-            address errorAddress,
             bytes4 fulfillFunctionId,
-            bytes4 errorFunctionId,
             bytes memory parameters
         );
 }

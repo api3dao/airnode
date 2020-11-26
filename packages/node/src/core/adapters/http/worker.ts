@@ -1,17 +1,38 @@
+import * as logger from '../../logger';
 import * as workers from '../../workers';
-import { AggregatedApiCall, ApiCallError, ApiCallResponse } from '../../../types';
+import { go } from '../../utils/promise-utils';
+import {
+  AggregatedApiCall,
+  ApiCallResponse,
+  LogOptions,
+  LogsData,
+  WorkerFunctionName,
+  WorkerOptions,
+} from '../../../types';
 
-export type AnyApiCallResponse = Partial<ApiCallResponse & ApiCallError>;
+export async function spawnNewApiCall(
+  aggregatedApiCall: AggregatedApiCall,
+  logOptions: LogOptions,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ApiCallResponse | null>> {
+  const options = {
+    ...workerOpts,
+    functionName: 'callApi' as WorkerFunctionName,
+    payload: { aggregatedApiCall, logOptions },
+  };
 
-export async function spawnNewApiCall(aggregatedApiCall: AggregatedApiCall): Promise<AnyApiCallResponse> {
-  // TODO: This will probably need to change for other cloud providers
-  // TODO: queryStringParameters is probably not right...
-  const payload = workers.isLocalEnv() ? { queryStringParameters: { aggregatedApiCall } } : aggregatedApiCall;
+  const [err, res] = await go(workers.spawn(options));
+  if (err || !res) {
+    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`, err);
+    return [[log], null];
+  }
 
-  const options = { functionName: 'callApi', payload };
-
-  // If this throws, it will be caught by the calling function
-  const response = (await workers.spawn(options)) as AnyApiCallResponse;
-
-  return response;
+  if (!res.ok) {
+    if (res.errorLog) {
+      return [[res.errorLog], null];
+    }
+    const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`);
+    return [[log], null];
+  }
+  return [[], res.data];
 }

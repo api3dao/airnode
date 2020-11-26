@@ -1,5 +1,5 @@
-describe('mapBaseRequests (Withdrawal)', () => {
+describe('mapClientRequests (Withdrawal)', () => {
   // TODO: get some example events to use here
-  pending('returns Withdrawal base requests');
+  pending('returns Withdrawal requests');
   pending('updates the status of Withdrawal requests that have already been fulfilled');
 });
