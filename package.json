@@ -1,9 +1,8 @@
 {
   "name": "airnode",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/api3dao/airnode.git"
+  "engines": {
+    "node": "^12.13.1"
   },
   "scripts": {
     "bootstrap": "yarn install && lerna bootstrap",
