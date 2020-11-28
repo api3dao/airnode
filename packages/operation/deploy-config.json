@@ -1,0 +1,31 @@
+{
+  "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
+  "endpoints": [
+    {
+      "name": "convertToUsd",
+      "authorizedAddresses": ["0x0000000000000000000000000000000000000000"]
+    }
+  ],
+  "requesters": [
+    {
+      "ethBalance": "5",
+      "clients": {
+        "MockAirnodeClient": {
+          "endorsed": true,
+          "shortRequests": [
+            { "templateId": "template-1" },
+            { "templateId": "template-1" },
+            { "templateId": "template-1" }
+          ],
+          "templates": [
+            {
+              "id": "template-1",
+              "endpointName": "convertToUsd",
+              "parameters": { "to": "USD" }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

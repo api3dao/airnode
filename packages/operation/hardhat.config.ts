@@ -4,12 +4,14 @@ import '@nomiclabs/hardhat-waffle';
 import 'hardhat-typechain';
 
 const config: HardhatUserConfig = {
-  defaultNetwork: 'hardhat',
+  defaultNetwork: 'localhost',
   solidity: {
     compilers: [{ version: '0.6.12', settings: {} }],
   },
   networks: {
-    hardhat: {},
+    localhost: {
+      url: 'http://127.0.0.1:8545/',
+    },
     coverage: {
       url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client
     },
