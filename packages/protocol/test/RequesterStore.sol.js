@@ -20,7 +20,7 @@ beforeEach(async () => {
 describe('createRequester', function () {
   it('creates a requester record', async function () {
     const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-    const requesterAdmin = await airnode.getRequesterAdmin(requesterInd);
+    const requesterAdmin = await airnode.requesterIndToAdmin(requesterInd);
     expect(requesterAdmin).to.equal(roles.requesterAdmin._address);
   });
   it('assigns requester indices incrementally', async function () {
@@ -40,7 +40,7 @@ describe('updateRequesterAdmin', function () {
       )
         .to.emit(airnode, 'RequesterUpdated')
         .withArgs(requesterInd, roles.updatedRequesterAdmin._address);
-      const updatedRequesterAdmin = await airnode.getRequesterAdmin(requesterInd);
+      const updatedRequesterAdmin = await airnode.requesterIndToAdmin(requesterInd);
       expect(updatedRequesterAdmin).to.equal(roles.updatedRequesterAdmin._address);
     });
   });
@@ -58,7 +58,7 @@ describe('updateRequesterAdmin', function () {
       it('updates the client endorsement status', async function () {
         const requesterInd = await createRequester(airnode, roles.requesterAdmin);
         // Verify that the client is initially not endorsed
-        const endorsementStatus1 = await airnode.getRequesterEndorsementStatusOfClientAddress(
+        const endorsementStatus1 = await airnode.requesterIndToClientAddressToEndorsementStatus(
           requesterInd,
           roles.client._address
         );
@@ -69,7 +69,7 @@ describe('updateRequesterAdmin', function () {
         )
           .to.emit(airnode, 'ClientEndorsementStatusUpdated')
           .withArgs(requesterInd, roles.client._address, true);
-        const endorsementStatus2 = await airnode.getRequesterEndorsementStatusOfClientAddress(
+        const endorsementStatus2 = await airnode.requesterIndToClientAddressToEndorsementStatus(
           requesterInd,
           roles.client._address
         );
@@ -82,7 +82,7 @@ describe('updateRequesterAdmin', function () {
         )
           .to.emit(airnode, 'ClientEndorsementStatusUpdated')
           .withArgs(requesterInd, roles.client._address, false);
-        const endorsementStatus3 = await airnode.getRequesterEndorsementStatusOfClientAddress(
+        const endorsementStatus3 = await airnode.requesterIndToClientAddressToEndorsementStatus(
           requesterInd,
           roles.client._address
         );
