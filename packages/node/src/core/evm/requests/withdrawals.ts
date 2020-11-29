@@ -1,8 +1,8 @@
 import * as events from './events';
 import * as logger from '../../logger';
-import { ClientRequest, LogsData, LogWithMetadata, RequestStatus, Withdrawal } from '../../../types';
+import { ClientRequest, EVMEventLogWithMetadata, LogsData, RequestStatus, Withdrawal } from '../../../types';
 
-export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<Withdrawal> {
+export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<Withdrawal> = {
@@ -13,6 +13,8 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<With
     destinationAddress: parsedLog.args.destination,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
+      currentBlock: logWithMetadata.currentBlock,
+      ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       transactionHash: logWithMetadata.transactionHash,
     },
     requesterIndex: parsedLog.args.requesterInd,
@@ -23,7 +25,7 @@ export function initialize(logWithMetadata: LogWithMetadata): ClientRequest<With
 
 export function updateFulfilledRequests(
   withdrawals: ClientRequest<Withdrawal>[],
-  fulfillmentLogs: LogWithMetadata[]
+  fulfillmentLogs: EVMEventLogWithMetadata[]
 ): LogsData<ClientRequest<Withdrawal>[]> {
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
 
@@ -48,7 +50,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: LogWithMetadata[]): LogsData<ClientRequest<Withdrawal>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsData<ClientRequest<Withdrawal>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
   const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));

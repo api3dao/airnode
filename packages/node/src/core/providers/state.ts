@@ -21,11 +21,14 @@ export function buildEVMState(
 
   const providerSettings: ProviderSettings = {
     providerAdminForRecordCreation: chain.providerAdminForRecordCreation,
-    blockHistoryLimit: chainProvider.blockHistoryLimit || 600,
+    // The number of blocks to look back for events to process
+    blockHistoryLimit: chain.blockHistoryLimit || 600,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
+    // If this number of blocks has passed, then ignore requests instead of blocking them
+    ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || 20,
     logFormat: config.nodeSettings.logFormat,
-    minConfirmations: chainProvider.minConfirmations || 0,
+    minConfirmations: chain.minConfirmations || 0,
     name: chainProvider.name,
     providerId: evm.getProviderId(masterHDNode),
     providerIdShort: evm.getProviderIdShort(masterHDNode),
