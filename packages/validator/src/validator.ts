@@ -7,7 +7,7 @@ import { validateOptional } from './validators/optionalValidator';
 import { isAnyParamValid } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
 
-const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
+const apiSpecs = JSON.parse(fs.readFileSync('specs/apiSpecifications.json', 'utf8'));
 const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
 const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
 const configSecuritySpecs = JSON.parse(fs.readFileSync('specs/configSecurity.json', 'utf8'));
