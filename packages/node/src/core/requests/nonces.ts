@@ -1,5 +1,6 @@
 import { removeKey } from '../utils/object-utils';
 import * as grouping from './grouping';
+import { blockedOrIgnored } from './request';
 import * as sorting from './sorting';
 import {
   ApiCall,
@@ -41,11 +42,7 @@ function groupRequests(flatRequests: ClientRequest<any>[]): GroupedRequests {
   return { apiCalls, withdrawals };
 }
 
-function assignWalletNonces(
-  flatRequests: ClientRequest<AnyRequest>[],
-  transactionCount: number,
-  currentBlock: number
-): ClientRequest<any>[] {
+function assignWalletNonces(flatRequests: ClientRequest<AnyRequest>[], transactionCount: number): ClientRequest<any>[] {
   const initialState = {
     assignmentBlocked: false,
     nextNonce: transactionCount,
@@ -60,11 +57,8 @@ function assignWalletNonces(
     }
 
     if (request.status === RequestStatus.Blocked) {
-      // If the request is blocked and roughly 2+ minutes have passed,
-      // then ignore the request so as to not block subsequent
-      // requests indefinitely.
-      const maxBlockNumber = request.metadata.blockNumber + 20;
-      const assignmentBlocked = maxBlockNumber > currentBlock;
+      const status = blockedOrIgnored(request);
+      const assignmentBlocked = status === RequestStatus.Blocked;
 
       return {
         ...acc,
@@ -102,7 +96,7 @@ export function assign(state: ProviderState<EVMProviderState>): GroupedRequests 
       const transactionCount = state.transactionCountsByRequesterIndex[requesterIndex];
 
       // Assign nonces to each request
-      const flattenRequestsWithNonces = assignWalletNonces(flatRequests, transactionCount, state.currentBlock!);
+      const flattenRequestsWithNonces = assignWalletNonces(flatRequests, transactionCount);
 
       // Re-group requests so they can be added back to the state
       const { apiCalls, withdrawals } = groupRequests(flattenRequestsWithNonces);

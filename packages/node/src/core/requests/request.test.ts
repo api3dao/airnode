@@ -2,6 +2,22 @@ import * as fixtures from 'test/fixtures';
 import * as request from './request';
 import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
 
+describe('blockdOrIgnored', () => {
+  it('ignores requests that have passed the specified block limit', () => {
+    const metadata = fixtures.requests.buildMetadata({ ignoreBlockedRequestsAfterBlocks: 1 });
+    const apiCall = fixtures.requests.createApiCall({ metadata });
+    const res = request.blockedOrIgnored(apiCall);
+    expect(res).toEqual(RequestStatus.Ignored);
+  });
+
+  it('blocks requests that are within the specified block limit', () => {
+    const metadata = fixtures.requests.buildMetadata({ ignoreBlockedRequestsAfterBlocks: 100 });
+    const apiCall = fixtures.requests.createApiCall({ metadata });
+    const res = request.blockedOrIgnored(apiCall);
+    expect(res).toEqual(RequestStatus.Blocked);
+  });
+});
+
 describe('filterActionableApiCalls', () => {
   it('returns actionable API calls', () => {
     const apiCalls = [

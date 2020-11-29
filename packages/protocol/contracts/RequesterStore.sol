@@ -9,8 +9,8 @@ import "./interfaces/IRequesterStore.sol";
 /// A requester endorsing a client means that the client can request their
 /// requests to be fulfilled by the respective requester's designated wallets.
 contract RequesterStore is IRequesterStore {
-    mapping(uint256 => address) private requesterIndToAdmin;
-    mapping(uint256 => mapping(address => bool)) internal requesterIndToClientAddressToEndorsementStatus;
+    mapping(uint256 => address) public requesterIndToAdmin;
+    mapping(uint256 => mapping(address => bool)) public requesterIndToClientAddressToEndorsementStatus;
     uint256 private noRequesters = 1;
 
 
@@ -71,35 +71,6 @@ contract RequesterStore is IRequesterStore {
             clientAddress,
             endorsementStatus
             );
-    }
-
-    /// @notice Retrieves the requester admin
-    /// @param requesterInd Requester index
-    /// @return admin Requester admin
-    function getRequesterAdmin(uint256 requesterInd)
-        external
-        view
-        override
-        returns (address admin)
-    {
-        admin = requesterIndToAdmin[requesterInd];
-    }
-
-    /// @notice Retrieves the endorsement status of a client address by a
-    /// requester
-    /// @param requesterInd Requester index
-    /// @param clientAddress Client address
-    /// @return endorsementStatus Endorsement status
-    function getRequesterEndorsementStatusOfClientAddress(
-        uint256 requesterInd,
-        address clientAddress
-        )
-        external
-        view
-        override
-        returns (bool endorsementStatus)
-    {
-        endorsementStatus = requesterIndToClientAddressToEndorsementStatus[requesterInd][clientAddress];
     }
 
     /// @dev Reverts if the caller is not the requester admin

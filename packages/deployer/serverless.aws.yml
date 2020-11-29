@@ -25,6 +25,8 @@ functions:
     handler: ./src/handlers/aws/index.startCoordinator
     timeout: 60
     reservedConcurrency: 1
+    events:
+      - schedule: rate(1 minute)
 
   initializeProvider:
     handler: ./src/handlers/aws/index.initializeProvider

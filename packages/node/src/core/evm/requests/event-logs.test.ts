@@ -51,6 +51,7 @@ describe('EVM event logs - fetch', () => {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       blockHistoryLimit: 600,
       currentBlock: 10716084,
+      ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
       providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
@@ -59,16 +60,22 @@ describe('EVM event logs - fetch', () => {
     expect(res).toEqual([
       {
         blockNumber: 10716082,
+        currentBlock: 10716084,
+        ignoreBlockedRequestsAfterBlocks: 20,
         parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
+        currentBlock: 10716084,
+        ignoreBlockedRequestsAfterBlocks: 20,
         parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
         transactionHash: '0x2',
       },
       {
         blockNumber: 10716082,
+        currentBlock: 10716084,
+        ignoreBlockedRequestsAfterBlocks: 20,
         parsedLog: { topic: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b' },
         transactionHash: '0x3',
       },
@@ -94,6 +101,7 @@ describe('EVM event logs - fetch', () => {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       blockHistoryLimit: 600,
       currentBlock: 10716084,
+      ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
       providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
@@ -126,6 +134,7 @@ describe('EVM event logs - fetch', () => {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       blockHistoryLimit: 600,
       currentBlock: 10716084,
+      ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
       providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
@@ -143,6 +152,7 @@ describe('EVM event logs - fetch', () => {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       blockHistoryLimit: 99999999,
       currentBlock: 10716084,
+      ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
       providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };

@@ -35,17 +35,4 @@ interface IRequesterStore {
         bool endorsementStatus
         )
         external;
-
-    function getRequesterAdmin(uint256 requesterInd)
-        external
-        view
-        returns (address admin);
-
-    function getRequesterEndorsementStatusOfClientAddress(
-        uint256 requesterInd,
-        address clientAddress
-        )
-        external
-        view
-        returns (bool endorsementStatus);
 }
