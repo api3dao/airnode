@@ -1,26 +1,29 @@
 {
-  "providers": [
-    { "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely" }
-  ],
-  "endpoints": [
-    {
-      "name": "convertToUsd",
-      "authorizers": ["public"]
+  "providers": {
+    "TestCurrencyExchange": {
+      "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
+      "endpoints": [
+        {
+          "name": "convertToUsd",
+          "authorizers": ["public"]
+        }
+      ]
     }
-  ],
+  },
   "authorizers": {
     "public": "0x0000000000000000000000000000000000000000"
+  },
+  "templates": {
+    "template-1": {
+      "providerName": "TestCurrencyExchange",
+      "endpointName": "convertToUsd",
+      "fulfillContract": "MockAirnodeClient",
+      "parameters": { "to": "USD" }
+    }
   },
   "clients": {
     "MockAirnodeClient": {
       "endorsers": ["bob"]
-    }
-  },
-  "templates": {
-    "template-1": {
-      "endpointName": "convertToUsd",
-      "fulfillContract": "MockAirnodeClient",
-      "parameters": { "to": "USD" }
     }
   },
   "requesters": {

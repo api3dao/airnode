@@ -59,7 +59,7 @@ function deriveExtendedPublicKey() {
 }
 
 async function assignAccounts() {
-  const masterSigner = provider.getSigner(0);
+  const masterSigner = new ethers.Wallet.fromMnemonic(MNEMONIC);
   const masterAddress = await masterSigner.getAddress();
   const providerAdminSigner = provider.getSigner(1);
   const providerAdminAddress = await providerAdminSigner.getAddress();
