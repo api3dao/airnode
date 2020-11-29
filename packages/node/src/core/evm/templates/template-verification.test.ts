@@ -121,7 +121,7 @@ describe('verify', () => {
         expect(res[0]).toEqual({
           ...apiCall,
           status: RequestStatus.Ignored,
-          errorCode: RequestErrorCode.InvalidTemplate,
+          errorCode: RequestErrorCode.TemplateInvalid,
         });
       });
     });

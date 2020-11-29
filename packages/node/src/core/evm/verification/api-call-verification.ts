@@ -53,7 +53,7 @@ export function verifyApiCallIds(apiCalls: ClientRequest<ApiCall>[]): LogsData<C
       const updatedApiCall = {
         ...apiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.InvalidRequestID,
+        errorCode: RequestErrorCode.RequestInvalid,
       };
       return [[log], updatedApiCall];
     }

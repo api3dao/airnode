@@ -74,7 +74,7 @@ describe('disaggregate - ClientRequests', () => {
     ]);
     expect(res[0].requests.apiCalls[0].responseValue).toEqual(undefined);
     expect(res[0].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.UnableToMatchAggregatedCall);
+    expect(res[0].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.NoMatchingAggregatedCall);
     expect(res[1].requests.apiCalls[0].responseValue).toEqual('0x123');
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
     expect(res[1].requests.apiCalls[0].errorCode).toEqual(undefined);

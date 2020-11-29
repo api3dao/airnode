@@ -134,6 +134,6 @@ describe('mergeApiCallsWithTemplates', () => {
       { level: 'ERROR', message: 'Template ID:templateId-0 contains invalid parameters: invalid-parameters' },
     ]);
     expect(res[0].status).toEqual(RequestStatus.Errored);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.InvalidTemplateParameters);
+    expect(res[0].errorCode).toEqual(RequestErrorCode.TemplateParameterDecodingFailed);
   });
 });

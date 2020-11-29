@@ -7,7 +7,7 @@ describe('mergeAuthorizations', () => {
     const apiCall = fixtures.requests.createApiCall({
       id: '0xapiCallId',
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.InvalidRequestParameters,
+      errorCode: RequestErrorCode.RequestParameterDecodingFailed,
     });
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
@@ -67,8 +67,6 @@ describe('mergeAuthorizations', () => {
           'Client:0xclientAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:0xapiCallId',
       },
     ]);
-    expect(res).toEqual([
-      { ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.UnauthorizedClient },
-    ]);
+    expect(res).toEqual([{ ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.Unauthorized }]);
   });
 });

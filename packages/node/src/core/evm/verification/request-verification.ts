@@ -41,7 +41,7 @@ export function verifyDesignatedWallets<T>(
       const updatedRequest = {
         ...request,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.InvalidDesignatedWallet,
+        errorCode: RequestErrorCode.DesignatedWalletInvalid,
       };
       return [[log], updatedRequest];
     }

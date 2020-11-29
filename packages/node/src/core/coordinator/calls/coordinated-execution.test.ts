@@ -16,13 +16,13 @@ describe('callApis', () => {
 
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
-    const aggregatedApiCall = fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.UnauthorizedClient });
+    const aggregatedApiCall = fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.Unauthorized });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs).toEqual([
       {
         level: 'WARN',
-        message: `Not executing Request:${aggregatedApiCall.id} as it has error code:${RequestErrorCode.UnauthorizedClient}`,
+        message: `Not executing Request:${aggregatedApiCall.id} as it has error code:${RequestErrorCode.Unauthorized}`,
       },
       { level: 'INFO', message: 'Received 0 successful API call(s)' },
       { level: 'INFO', message: 'Received 1 errored API call(s)' },

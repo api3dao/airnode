@@ -51,7 +51,7 @@ describe('callApi', () => {
       { level: 'ERROR', message: "No '_type' parameter was found for Endpoint:convertToUsd, OIS:oisTitle" },
     ]);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.InvalidResponseParameters,
+      errorCode: RequestErrorCode.ResponseParametersInvalid,
     });
   });
 

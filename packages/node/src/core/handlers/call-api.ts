@@ -44,7 +44,7 @@ export async function callApi(
   const responseParameters = getResponseParameters(endpoint, aggregatedApiCall.parameters || {});
   if (!responseParameters._type) {
     const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
-    return [[log], { errorCode: RequestErrorCode.InvalidResponseParameters }];
+    return [[log], { errorCode: RequestErrorCode.ResponseParametersInvalid }];
   }
 
   const options = buildOptions(ois, aggregatedApiCall);

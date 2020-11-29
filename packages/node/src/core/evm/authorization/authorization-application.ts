@@ -57,7 +57,7 @@ function applyAuthorization(
   const updatedApiCall = {
     ...apiCall,
     status: RequestStatus.Errored,
-    errorCode: RequestErrorCode.UnauthorizedClient,
+    errorCode: RequestErrorCode.Unauthorized,
   };
   return [[log], updatedApiCall];
 }
