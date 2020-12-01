@@ -76,7 +76,7 @@ describe('verifyApiCallIds', () => {
     const expectedId = '0xf3a0b019f604865080f94155ef50099c601da17e092300b751b262294e2bf9b4';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.InvalidRequestID });
+    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
   });
 
   it('ignores regular API calls with invalid IDs', () => {
@@ -90,7 +90,7 @@ describe('verifyApiCallIds', () => {
     const expectedId = '0xf3a0b019f604865080f94155ef50099c601da17e092300b751b262294e2bf9b4';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.InvalidRequestID });
+    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
   });
 
   it('ignores full API calls with invalid IDs', () => {
@@ -106,6 +106,6 @@ describe('verifyApiCallIds', () => {
     const expectedId = '0x681dd91d865d759081d5c68461f0ec4f89729ce9fd0fc0219e7029de9566c6d8';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.InvalidRequestID });
+    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
   });
 });

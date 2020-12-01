@@ -72,7 +72,7 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
     const updatedRequest = {
       ...request,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.InvalidRequestParameters,
+      errorCode: RequestErrorCode.RequestParameterDecodingFailed,
     };
 
     return [[log], updatedRequest];

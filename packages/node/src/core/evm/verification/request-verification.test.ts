@@ -65,7 +65,7 @@ describe('verifyDesignatedWallets', () => {
     expect(res[0]).toEqual({
       ...apiCall,
       status: RequestStatus.Ignored,
-      errorCode: RequestErrorCode.InvalidDesignatedWallet,
+      errorCode: RequestErrorCode.DesignatedWalletInvalid,
     });
   });
 

@@ -19,13 +19,11 @@ export const TEMPLATE_VALIDATION_FIELDS = [
 
 export function getExpectedTemplateId(template: ApiCallTemplate): string {
   const templateValues = TEMPLATE_VALIDATION_FIELDS.map((f) => template[f]);
-
-  return ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(
-      ['bytes32', 'bytes32', 'uint256', 'address', 'address', 'bytes4', 'bytes'],
-      templateValues
-    )
+  const encodedValues = ethers.utils.defaultAbiCoder.encode(
+    ['bytes32', 'bytes32', 'uint256', 'address', 'address', 'bytes4', 'bytes'],
+    templateValues
   );
+  return ethers.utils.keccak256(encodedValues);
 }
 
 export function verify(
@@ -71,7 +69,7 @@ export function verify(
       const updatedApiCall = {
         ...apiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.InvalidTemplate,
+        errorCode: RequestErrorCode.TemplateInvalid,
       };
       return [[log], updatedApiCall];
     }

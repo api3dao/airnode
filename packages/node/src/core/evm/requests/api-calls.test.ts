@@ -172,7 +172,7 @@ describe('applyParameters', () => {
     expect(withParameters).toEqual({
       ...initialRequest,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.InvalidRequestParameters,
+      errorCode: RequestErrorCode.RequestParameterDecodingFailed,
     });
   });
 });

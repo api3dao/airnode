@@ -31,7 +31,7 @@ function updateApiCallResponse(
     const updatedCall = {
       ...apiCall,
       status: RequestStatus.Blocked,
-      errorCode: RequestErrorCode.UnableToMatchAggregatedCall,
+      errorCode: RequestErrorCode.NoMatchingAggregatedCall,
     };
     return [[log], updatedCall];
   }

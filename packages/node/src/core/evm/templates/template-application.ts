@@ -81,7 +81,7 @@ function updateApiCallWithTemplate(
     const updatedApiCall = {
       ...apiCall,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.InvalidTemplateParameters,
+      errorCode: RequestErrorCode.TemplateParameterDecodingFailed,
     };
     return [[log], updatedApiCall];
   }
