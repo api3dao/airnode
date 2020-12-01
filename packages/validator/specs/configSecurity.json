@@ -8,10 +8,14 @@
 		"triggers": {
 			"__optional": {
 				"request": {
-					"endpointId": {},
-					"oisTitle": {},
-					"endpointName": {}
-				}
+          "__arrayItem": {
+            "endpointId": {
+              "__regexp": "^0x[a-fA-F0-9]{64}$"
+            },
+            "oisTitle": {},
+            "endpointName": {}
+          }
+        }
 			}
 		},
 		"nodeSettings": {
