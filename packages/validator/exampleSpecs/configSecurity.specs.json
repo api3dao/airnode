@@ -46,7 +46,7 @@
       ]
     },
     "triggers": {
-      "requests": [
+      "request": [
         {
           "endpointId": "0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05",
           "oisTitle": "coinlayer",
@@ -60,9 +60,6 @@
         "version": "1.2.3",
         "title": "coinlayer",
         "apiSpecifications": {
-          "info": {
-            "title": "Coinlayer - Price Conversion"
-          },
           "servers": [
             {
               "url": "https://api.coinlayer.com"
@@ -101,11 +98,9 @@
               }
             }
           },
-          "security": [
-            {
-              "coinlayerSecurityScheme": []
-            }
-          ]
+          "security": {
+            "coinlayerSecurityScheme": []
+          }
         },
         "endpoints": [
           {
@@ -165,10 +160,7 @@
     "apiCredentials": {
       "coinlayer": [
         {
-          "in": "query",
-          "name": "access_key",
           "securitySchemeName": "coinlayerSecurityScheme",
-          "type": "apiKey",
           "value": "mysupersecretkey"
         }
       ]
