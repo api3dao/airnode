@@ -1,14 +1,12 @@
 import '@nomiclabs/hardhat-ethers';
-import flatMap from 'lodash/flatMap';
-import uniq from 'lodash/uniq';
 import { ethers } from 'hardhat';
 import { Contract, providers, Wallet } from 'ethers';
 import { encodeMap } from 'cbor-custom';
-import config from '../deploy-config.json';
+import config from '../deploy-evm-dev.json';
 
 interface Account {
   address: string;
-  signer: providers.JsonRpcSigner;
+  signer: providers.JsonRpcSigner | Wallet;
 }
 
 interface DesignatedWallet {
@@ -17,8 +15,6 @@ interface DesignatedWallet {
   wallet: Wallet;
 }
 
-const MNEMONIC = config.mnemonic;
-
 let airnode: Contract;
 let convenience: Contract;
 const clients: { [name: string]: Contract } = {};
@@ -26,8 +22,7 @@ const clients: { [name: string]: Contract } = {};
 let provider: providers.JsonRpcProvider;
 let xpub: string;
 
-let master: Account;
-let providerAdmin: Account;
+const providerAdmins: Account[] = [];
 const accounts: Account[] = [];
 // Each account will have a designated wallet at the same array index
 const designatedWallets: DesignatedWallet[] = [];
@@ -43,8 +38,7 @@ async function deployContracts() {
   convenience = await Convenience.deploy(airnode.address);
   await convenience.deployed();
 
-  const clientNames = flatMap(config.requesters, (r) => Object.keys(r.clients));
-  for (const clientName of uniq(clientNames)) {
+  for (const clientName of Object.keys(config.clients)) {
     const MockClient = await ethers.getContractFactory(clientName, master);
     const mockClient = await MockClient.deploy(airnode.address);
     await mockClient.deployed();
@@ -52,28 +46,29 @@ async function deployContracts() {
   }
 }
 
-function deriveExtendedPublicKey() {
-  const wallet = ethers.Wallet.fromMnemonic(MNEMONIC);
+function deriveExtendedPublicKey(mnemonic: string) {
+  const wallet = ethers.Wallet.fromMnemonic(mnemonic);
   const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
   return hdNode.neuter().extendedKey;
 }
 
 async function assignAccounts() {
-  const masterSigner = new ethers.Wallet.fromMnemonic(MNEMONIC);
-  const masterAddress = await masterSigner.getAddress();
-  const providerAdminSigner = provider.getSigner(1);
-  const providerAdminAddress = await providerAdminSigner.getAddress();
+  for (const providerName of Object.keys(config.ApiProviders)) {
+    // @ts-ignore
+    const apiProvider = config.ApiProviders[providerName];
+    const providerAdminWallet = deriveWalletFromPath(apiProvider.mnemonic, 'm');
+    const providerAdminAddress = await providerAdminWallet.getAddress();
+    providerAdmins.push({ signer: providerAdminWallet, address: providerAdminAddress });
 
-  master = { signer: masterSigner, address: masterAddress };
-  providerAdmin = { signer: providerAdminSigner, address: providerAdminAddress };
-
-  const requesterCount = config.requesters.length;
-  const requesterIndices = [...new Array(requesterCount).keys()];
-  for (const index of requesterIndices) {
-    const signer = provider.getSigner(index + 2);
-    const address = await signer.getAddress();
-    accounts.push({ signer, address });
+    for (const requesterName of Object.keys(config.requesters)) {
+      const requester = config.requesters[requesterName];
+      const requesterWallet = deriveWalletFromPath(apiProvider.mnemonic, 'm');
+      const requesterAddress = await providerAdminWallet.getAddress();
+      const address = await signer.getAddress();
+      accounts.push({ signer, address });
+    }
   }
+
 }
 
 async function createAndAuthorizeEndpoints(providerId: string) {
@@ -88,8 +83,8 @@ async function createAndAuthorizeEndpoints(providerId: string) {
   }
 }
 
-function deriveWalletFromPath(path: string) {
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(MNEMONIC);
+function deriveWalletFromPath(mnemonic: string, path: string) {
+  const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   const designatorHdNode = masterHdNode.derivePath(path);
   return new ethers.Wallet(designatorHdNode.privateKey, provider);
 }
