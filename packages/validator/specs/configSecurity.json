@@ -20,7 +20,7 @@
 		},
 		"nodeSettings": {
 			"providerIdShort": {
-				"__regexp": "^[a-f0-9]{7}$"
+				"__regexp": "^[a-fA-F0-9]{7}$"
 			},
 			"nodeVersion": {
 				"__regexp": "^([0-9]*\\.){2}([0-9]*)$"
@@ -53,12 +53,12 @@
 					},
 					"__optional": {
 						"providerAdminForRecordCreation": {
-							"__regexp": "^0x[a-f0-9]{64}$"
+							"__regexp": "^0x[a-fA-F0-9]{40}$"
 						},
 						"contracts": {
 							"__keyRegexp": "^(Airnode|Convenience)$",
 							"__objectItem": {
-								"__regexp": "^0x[a-f0-9]{64}$"
+								"__regexp": "^0x[a-fA-F0-9]{40}$"
 							}
 						}
 					}
