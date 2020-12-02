@@ -6,8 +6,9 @@
   },
   "endpoints": [
     {
-      "name": "convertToUsd",
-      "authorizers": ["public"]
+      "apiProvider": "TestCurrencyExchange",
+      "authorizers": ["public"],
+      "name": "convertToUsd"
     }
   ],
   "authorizers": {
