@@ -1,7 +1,7 @@
 import fs from 'fs';
 import * as logger from './utils/logger';
 import { Result } from './types';
-import { validateSpecs } from './validator';
+import { validateSpecs, isConfigSecurityValid } from './validator';
 
 /**
  * Validates specification from provided file according to template file
@@ -50,4 +50,32 @@ export function validateJson(specs: string, template: string): Result {
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
+}
+
+/**
+ * Validates config and security
+ * @param configPath - path to config json file
+ * @param securityPath - path to security json file
+ * @returns array of error and warning messages
+ */
+export function validateConfigSecurity(configPath: string | undefined, securityPath: string | undefined): Result {
+  if (!configPath || !securityPath) {
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
+  }
+
+  let config, security;
+
+  try {
+    config = fs.readFileSync(configPath);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${configPath}`)] };
+  }
+
+  try {
+    security = fs.readFileSync(securityPath);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${securityPath}`)] };
+  }
+
+  return isConfigSecurityValid(config, security);
 }
