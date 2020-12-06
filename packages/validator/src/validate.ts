@@ -6,7 +6,7 @@ import { validateSpecs, isConfigSecurityValid } from './validator';
 /**
  * Validates specification from provided file according to template file
  * @param specsPath - specification file to validate, root must be an object (not an array)
- * @param templatePath - validator specification structure file
+ * @param templatePath - template json file
  * @returns array of error and warning messages
  */
 export function validate(specsPath: string | undefined, templatePath: string | undefined): Result {
@@ -34,7 +34,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
 /**
  * Validates specification from provided string according to string containing template structure
  * @param specs - specification to validate, root must be an object (not an array)
- * @param template - validator specification structure
+ * @param template - template json
  * @returns array of error and warning messages
  */
 export function validateJson(specs: string, template: string): Result {

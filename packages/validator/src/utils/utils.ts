@@ -19,23 +19,23 @@ export function getLastParamName(paramPath: string): string {
 /**
  * Replaces all "__match" instances in provided object and all it's children, except children of "__conditions"
  * @param match - string that "__match" instances will be replaced with
- * @param specs - object in which "__match" instances will be replaced in
+ * @param template - object in which "__match" instances will be replaced in
  * @returns specs object with replaced "__match" instances
  */
-export function replaceConditionalMatch(match: string, specs: any): any {
+export function replaceConditionalMatch(match: string, template: any): any {
   const ignoredKeys = ['__conditions'];
-  const keys = Object.keys(specs);
+  const keys = Object.keys(template);
   const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
 
   return filteredKeys.reduce((acc, key) => {
     const newKey = key.replace(/__match/g, match);
 
-    if (typeof specs[key] === 'string') {
-      const newValue = specs[key].replace(/__match/g, match);
+    if (typeof template[key] === 'string') {
+      const newValue = template[key].replace(/__match/g, match);
       return { ...acc, [newKey]: newValue };
     }
 
-    const newValue = replaceConditionalMatch(match, specs[key]);
+    const newValue = replaceConditionalMatch(match, template[key]);
     return { ...acc, [newKey]: newValue };
   }, {});
 }
@@ -80,20 +80,20 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
 /**
  * Detects empty type that should be inserted into nonRedundantParams
  * @param param - name of the parameter of which the type should be determined
- * @param specsStruct - validator specification structure, must be on the same level as specs
+ * @param template - must be on the same level as specs
  * @param nonRedundantParams - object containing required and optional parameters that are used
  * @param specs - specification that is being validated
  * @returns empty value of the same type as parameter, if parameter exists in nonRedundantParams returns value of parameter
  */
-export function getEmptyNonRedundantParam(param: string, specsStruct: any, nonRedundantParams: any, specs: any): any {
+export function getEmptyNonRedundantParam(param: string, template: any, nonRedundantParams: any, specs: any): any {
   if (nonRedundantParams[param]) {
     return nonRedundantParams[param];
   }
 
   if (
-    '__arrayItem' in (specsStruct[param] || {}) ||
-    '__arrayItem' in (specsStruct['__objectItem'] || {}) ||
-    ('__any' in (specsStruct[param] || {}) && Array.isArray(specs))
+    '__arrayItem' in (template[param] || {}) ||
+    '__arrayItem' in (template['__objectItem'] || {}) ||
+    ('__any' in (template[param] || {}) && Array.isArray(specs))
   ) {
     return [];
   }

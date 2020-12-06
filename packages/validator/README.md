@@ -20,7 +20,7 @@ Where array `messages` contains message objects:
 ```
 If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages. Similarly functions `isApiSpecsValid` and `isEndpointsValid` check only the API and endpoint specifications contained in the OIS, as well as `isConfigSecurityValid` validates `config.json` and `security.json`
 
-The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as the template (validator specification structure). You can run the validator as script using the following command: 
+The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as template. You can run the validator as script using the following command: 
 
 ```sh
 npm run validate --specs="[specsFile]" --template="[templateFile]"
@@ -29,16 +29,16 @@ npm run validate --specs="[specsFile]" --template="[templateFile]"
 In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`. Try it out using the example specification:
 
 ```sh
-npm run validate exampleSpecs/ois.specs.json specs/ois.json
+npm run validate exampleSpecs/ois.specs.json templates/ois.json
 ```
 
-## Validator structure
+## Validator templates
 
-To make modifications to OIS format as simple as possible, validator uses json structure that defines the valid format.
+To make modifications to OIS format as simple as possible, validator uses json template that defines the valid format.
 
 ### Basics
 
-Here is an example of a very basic structure:
+Here is an example of a very basic template:
 ```
 {
     "server": {
@@ -54,7 +54,7 @@ Here is an example of a very basic structure:
 }
 ```
 
-This means all the parameters are required, OIS will be valid only if it has all of them. Empty parentheses `{}` mean parameter can have any value except non-empty object. Example of valid OIS using validator structure above:
+This means all the parameters are required, OIS will be valid only if it has all of them. Empty parentheses `{}` mean parameter can have any value except non-empty object. Example of valid OIS using template above:
 
 ```
 {
@@ -125,7 +125,7 @@ Token `__arrayItem` means that the parameter is an array and contents of the tok
 
 `__objectItem` is used in combination with `__keyRegexp` or in conditions, it describes the structure of the object inside the parameter.
 
-Validator structure example:
+Validator template example:
 
 ```
 {
@@ -246,7 +246,7 @@ Section `__then` can contain keyword `__any`, on level where array or object is 
 
 Sometimes a warning, should be considered an error and vice versa, the level of the message can be adjusted with `__level` for specific parameter.
 
-Validator structure example:
+Validator template example:
 ```
 {
   "array": {
