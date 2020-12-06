@@ -22,6 +22,8 @@
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && yarn run test)",
     "test:adapter:watch": "(cd packages/adapter && yarn run test:watch)",
+    "test:airnode-abi": "(cd packages/airnode-abi && yarn run test)",
+    "test:airnode-abi:watch": "(cd packages/airnode-abi && yarn run test:watch)",
     "test:protocol": "(cd packages/protocol && yarn run test)",
     "test:node": "(cd packages/node && yarn run test)",
     "test:node:watch": "(cd packages/node && yarn run test:watch)"
