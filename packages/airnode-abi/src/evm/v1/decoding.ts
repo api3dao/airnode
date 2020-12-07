@@ -3,6 +3,22 @@ import chunk from 'lodash/chunk';
 import { PARAMETER_TYPE_ENCODINGS } from '../utils';
 import { ABIParameterType, DecodedMap } from '../../types';
 
+type TransformationFunction = (value: any) => string;
+
+type TransformationReference = {
+  [key in ABIParameterType]: TransformationFunction | null;
+};
+
+// Certain types need to be parsed after ABI decoding happens
+const TRANSFORMATIONS: TransformationReference = {
+  bytes: ethers.utils.parseBytes32String,
+  bytes32: ethers.utils.parseBytes32String,
+  string: null,
+  address: null,
+  int256: null,
+  uint256: null,
+};
+
 export function decodeMap(encodedData: string): DecodedMap {
   // Alternatively:
   // const header = encodedData.substring(0, 66);
@@ -19,7 +35,9 @@ export function decodeMap(encodedData: string): DecodedMap {
   const encodedParameterTypes = parsedHeader.substring(1);
 
   // Replace encoded types with full type names
-  const fullParameterTypes: ABIParameterType[] = Array.from(encodedParameterTypes).map((type) => PARAMETER_TYPE_ENCODINGS[type]);
+  const fullParameterTypes: ABIParameterType[] = Array.from(encodedParameterTypes).map(
+    (type) => PARAMETER_TYPE_ENCODINGS[type]
+  );
 
   // The first `bytes32` is the type encoding
   const initialDecodedTypes: ABIParameterType[] = ['bytes32'];
@@ -37,10 +55,15 @@ export function decodeMap(encodedData: string): DecodedMap {
   const [_version, ...decodedParameters] = decodedData;
   const parameterPairs = chunk(decodedParameters, 2);
 
-  return parameterPairs.reduce((acc, pair) => {
+  return parameterPairs.reduce((acc, pair, index) => {
     const [encodedName, encodedValue] = pair;
     const name = ethers.utils.parseBytes32String(encodedName);
-    const value = ethers.utils.parseBytes32String(encodedValue);
-    return { ...acc, [name]: value };
+    const type = fullParameterTypes[index];
+    const transformation = TRANSFORMATIONS[type];
+    if (!transformation) {
+      return { ...acc, [name]: encodedValue };
+    }
+    const parsedValue = ethers.utils.parseBytes32String(encodedValue);
+    return { ...acc, [name]: parsedValue };
   }, {});
 }
