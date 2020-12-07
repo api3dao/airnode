@@ -1,5 +1,13 @@
 import * as cbor from './cbor';
 
+describe('encode', () => {
+  it('encodes parameters', () => {
+    const parameters = { from: 'ETH', _times: 1000000 };
+    const res = cbor.encode(parameters);
+    expect(res).toEqual('0x6466726f6d63455448665f74696d65731a000f4240');
+  });
+});
+
 describe('safeDecode', () => {
   it('decodes parameters successfully', () => {
     const res = cbor.safeDecode('0x636b6579a169736f6d657468696e676576616c7565');
