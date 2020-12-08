@@ -19,6 +19,21 @@ const TRANSFORMATIONS: TransformationReference = {
   uint256: null,
 };
 
+function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, string][]): DecodedMap {
+  return nameValuePairs.reduce((acc, pair, index) => {
+    const [encodedName, encodedValue] = pair;
+    const name = ethers.utils.parseBytes32String(encodedName);
+    const type = types[index];
+    const transformation = TRANSFORMATIONS[type];
+    // If the type does not need to be transformed, return it as is
+    if (!transformation) {
+      return { ...acc, [name]: encodedValue };
+    }
+    const parsedValue = ethers.utils.parseBytes32String(encodedValue);
+    return { ...acc, [name]: parsedValue };
+  }, {});
+}
+
 export function decode(encodedData: string): DecodedMap {
   // Alternatively:
   // const header = encodedData.substring(0, 66);
@@ -53,17 +68,7 @@ export function decode(encodedData: string): DecodedMap {
   const decodedData = ethers.utils.defaultAbiCoder.decode(decodingTypes, encodedData);
 
   const [_version, ...decodedParameters] = decodedData;
-  const parameterPairs = chunk(decodedParameters, 2);
+  const nameValuePairs = chunk(decodedParameters, 2) as [string, string][];
 
-  return parameterPairs.reduce((acc, pair, index) => {
-    const [encodedName, encodedValue] = pair;
-    const name = ethers.utils.parseBytes32String(encodedName);
-    const type = fullParameterTypes[index];
-    const transformation = TRANSFORMATIONS[type];
-    if (!transformation) {
-      return { ...acc, [name]: encodedValue };
-    }
-    const parsedValue = ethers.utils.parseBytes32String(encodedValue);
-    return { ...acc, [name]: parsedValue };
-  }, {});
+  return buildDecodedMap(fullParameterTypes, nameValuePairs);
 }
