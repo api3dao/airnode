@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
-import { PARAMETER_TYPE_ENCODINGS } from '../utils';
-import { ABIParameterType, DecodedMap } from '../../types';
+import { PARAMETER_SHORT_TYPES } from './utils';
+import { ABIParameterType, DecodedMap } from './types';
 
 type TransformationFunction = (value: any) => string;
 
@@ -19,7 +19,7 @@ const TRANSFORMATIONS: TransformationReference = {
   uint256: null,
 };
 
-export function decodeMap(encodedData: string): DecodedMap {
+export function decode(encodedData: string): DecodedMap {
   // Alternatively:
   // const header = encodedData.substring(0, 66);
   const header = ethers.utils.hexlify(ethers.utils.arrayify(encodedData).slice(0, 32));
@@ -36,7 +36,7 @@ export function decodeMap(encodedData: string): DecodedMap {
 
   // Replace encoded types with full type names
   const fullParameterTypes: ABIParameterType[] = Array.from(encodedParameterTypes).map(
-    (type) => PARAMETER_TYPE_ENCODINGS[type]
+    (type) => PARAMETER_SHORT_TYPES[type]
   );
 
   // The first `bytes32` is the type encoding

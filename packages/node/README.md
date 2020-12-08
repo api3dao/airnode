@@ -73,7 +73,7 @@ core/
 
 ## Security
 
-API3 and Airnode take security very seriously. If you find a security related incident please let the team know privately.
+API3 and Airnode take security very seriously. If you find a security related bug please let the team know privately.
 
 ## Contributing
 

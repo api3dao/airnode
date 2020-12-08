@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as decoding from './decoding';
 import * as encoding from './encoding';
-import { ABIParameterType } from '../../types';
+import { ABIParameterType } from './types';
 
 describe('encodeMap', () => {
   const encodingValues: { [key in ABIParameterType]: [string, string | ethers.BigNumber] } = {
@@ -18,7 +18,7 @@ describe('encodeMap', () => {
       const [name, value] = encodingValues[type];
       const types = [type as ABIParameterType];
       const encoded = encoding.encode(types, [name], [value]);
-      const decoded = decoding.decodeMap(encoded);
+      const decoded = decoding.decode(encoded);
       expect(decoded).toEqual({ [name]: value });
     });
   });
@@ -35,7 +35,7 @@ describe('encodeMap', () => {
       ethers.BigNumber.from('777'),
     ];
     const encoded = encoding.encode(types, names, values);
-    const decoded = decoding.decodeMap(encoded);
+    const decoded = decoding.decode(encoded);
     expect(decoded).toEqual({
       'bytes32 name': 'bytes 32 value',
       'bytes name': 'bytes value',
@@ -51,7 +51,7 @@ describe('encodeMap', () => {
     const names = ['balance', 'holders'];
     const values = ['-100', '777'];
     const encoded = encoding.encode(types, names, values);
-    const decoded = decoding.decodeMap(encoded);
+    const decoded = decoding.decode(encoded);
     expect(decoded).toEqual({
       balance: ethers.BigNumber.from('-100'),
       holders: ethers.BigNumber.from('777'),

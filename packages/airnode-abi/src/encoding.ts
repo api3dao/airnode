@@ -2,8 +2,8 @@ import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import flatten from 'lodash/flatten';
 import zip from 'lodash/zip';
-import { ABIParameterType } from '../../types';
-import { PARAMETER_TYPE_ENCODINGS } from '../utils';
+import { ABIParameterType } from './types';
+import { PARAMETER_SHORT_TYPES } from './utils';
 
 type TransformationFunction = (value: any) => InputValue;
 
@@ -24,13 +24,13 @@ const TRANSFORMATIONS: TransformationReference = {
 };
 
 function buildSchemaHeader(types: ABIParameterType[]): string {
-  const allShortTypes = Object.keys(PARAMETER_TYPE_ENCODINGS);
+  const allShortTypes = Object.keys(PARAMETER_SHORT_TYPES);
 
   // Shorten all selected types with the corresponding "short" type
   // i.e. 'address' types get set as simply 'a' and 'bytes32' becomes
   // simply 'b' etc
   const selectedShortTypes = types.reduce((acc: string[], type) => {
-    const shortType = allShortTypes.find((st) => PARAMETER_TYPE_ENCODINGS[st] === type);
+    const shortType = allShortTypes.find((st) => PARAMETER_SHORT_TYPES[st] === type);
     return [...acc, shortType!];
   }, []);
 
