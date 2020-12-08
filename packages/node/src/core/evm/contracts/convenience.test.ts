@@ -4,8 +4,8 @@ describe('Convenience', () => {
   it('exposes the addresses for each network', () => {
     expect(Convenience.addresses).toEqual({
       1: '<TODO>',
-      3: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
-      4: '0xC7CEFcf5e20EeB102527E855D0791155785EeeEE',
+      3: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
+      4: '0x452aC3e0AE3652DD887BDAbaeC5C979773fA1Ed1',
       1337: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
     });
   });

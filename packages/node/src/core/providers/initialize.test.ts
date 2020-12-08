@@ -32,8 +32,8 @@ const chains: ChainConfig[] = [
   {
     providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
-      Airnode: '0x32D228B5d44Fd18FefBfd68BfE5A5F3f75C873AE',
-      Convenience: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
+      Airnode: '0xe92365D93A95eC54564A0d823Bc5Cb63d950a058',
+      Convenience: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
     },
     id: 3,
     type: 'evm',
@@ -105,8 +105,8 @@ describe('initializeProviders', () => {
       },
       {
         contracts: {
-          Airnode: '0x32D228B5d44Fd18FefBfd68BfE5A5F3f75C873AE',
-          Convenience: '0xd029Ec5D9184Ecd8E853dC9642bdC1E0766266A1',
+          Airnode: '0xe92365D93A95eC54564A0d823Bc5Cb63d950a058',
+          Convenience: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
         },
         settings: {
           providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
