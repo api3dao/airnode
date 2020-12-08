@@ -1,5 +1,5 @@
 import flatMap from 'lodash/flatMap';
-import * as cbor from '../cbor';
+import * as encoding from '../abi-encoding';
 import * as contracts from '../contracts';
 import * as events from './events';
 import * as logger from '../../logger';
@@ -63,7 +63,7 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
     return [[], request];
   }
 
-  const parameters = cbor.safeDecode(request.encodedParameters);
+  const parameters = encoding.safeDecode(request.encodedParameters);
   if (parameters === null) {
     const { id, encodedParameters } = request;
 
