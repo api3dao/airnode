@@ -24,7 +24,7 @@ describe('encodeMap', () => {
   });
 
   it('encodes multiple types', () => {
-    const types: ABIParameterType[] = ['bytes32', 'address', 'string', 'int256', 'bytes', 'uint256'];
+    const types = ['bytes32', 'address', 'string', 'int256', 'bytes', 'uint256'];
     const names = ['bytes32 name', 'wallet', 'string name', 'balance', 'bytes name', 'holders'];
     const values = [
       'bytes 32 value',
@@ -47,7 +47,7 @@ describe('encodeMap', () => {
   });
 
   it('encodes stringified numbers to BigNumbers', () => {
-    const types: ABIParameterType[] = ['int256', 'uint256'];
+    const types = ['int256', 'uint256'];
     const names = ['balance', 'holders'];
     const values = ['-100', '777'];
     const encoded = encoding.encode(types, names, values);
@@ -56,5 +56,53 @@ describe('encodeMap', () => {
       balance: ethers.BigNumber.from('-100'),
       holders: ethers.BigNumber.from('777'),
     });
+  });
+
+  it('throws an error for unrecognised types', () => {
+    expect.assertions(1);
+    const types = ['int256', 'xyz'];
+    const names = ['balance', 'holders'];
+    const values = ['-100', '100'];
+    try {
+      encoding.encode(types, names, values);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
+
+  it('throws an error if a different number of types is provided', () => {
+    expect.assertions(1);
+    const types = ['int256'];
+    const names = ['balance', 'holders'];
+    const values = ['-100', '100'];
+    try {
+      encoding.encode(types, names, values);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
+
+  it('throws an error if a different number of names is provided', () => {
+    expect.assertions(1);
+    const types = ['int256', 'uint256'];
+    const names = ['balance'];
+    const values = ['-100', '100'];
+    try {
+      encoding.encode(types, names, values);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
+
+  it('throws an error if a different number of types is provided', () => {
+    expect.assertions(1);
+    const types = ['int256', 'uint256'];
+    const names = ['balance', 'holders'];
+    const values = ['-100'];
+    try {
+      encoding.encode(types, names, values);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
   });
 });
