@@ -33,7 +33,7 @@ jobs:
     - name: Test adapter
       run: yarn run test:adapter
 
-    - name: Test Airnode ABI
+    - name: Test airnode-abi
       run: yarn run test:airnode-abi
 
     - name: Test protocol contracts
