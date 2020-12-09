@@ -26,21 +26,26 @@ yarn add @airnode/airnode-abi
 
 ### Encoding
 
-**NB:** The `types`, `names` and `values` array inputs must all have the same number of elements
+`encode` accepts an array of objects with the following required keys:
 
-You can find a full list of supported types in the [Airnode ABI specifications](https://github.com/api3dao/api3-docs/blob/master/airnode/airnode-abi-specifications.md#type-encodings). Submitting an unsupported type will result in an error.
+1. `type` - The full list of accepted types can be found in the [specifications](https://github.com/api3dao/api3-docs/blob/master/airnode/airnode-abi-specifications.md#type-encodings)
 
-`int256` and `uint256` values can be submitted as either strings or [ethers BigNumber](https://docs.ethers.io/v5/api/utils/bignumber/) values.
+2. `name`
+
+3. `value`
+
+It is important to note that numeric values (`int256` and `uint256`) should be submitted as **strings** in order to preserve precision.
 
 ```ts
 import { encode } from '@airnode/airnode-abi';
 
-const types = ['bytes32', 'uint256'];
-const names = ['from', 'amount'];
-const values = ['ETH', '100000'];
-const encoded = encode(types, names, values);
+const parameters = [
+  { type: 'bytes32', name: 'from', value: 'ETH' },
+  { type: 'uint256', name: 'amount', value: '100000' },
+];
+const encodedData = encode(parameters);
 
-console.log(encoded);
+console.log(encodedData);
 // '0x...'
 ```
 
@@ -48,7 +53,7 @@ console.log(encoded);
 
 Decoding returns an object where the keys are the "names" and the values are the "values" from the initial encoding.
 
-It is important to note that `int256` and `uint256` types are returned as [ethers BigNumbers](https://docs.ethers.io/v5/api/utils/bignumber/). This is done to preserve precision. These values can be converted to strings if necessary using `.toString()`. See the [BigNumber](https://docs.ethers.io/v5/api/utils/bignumber/) docs for more information.
+It is important to note that `int256` and `uint256` will be decoded back to strings.
 
 ```ts
 import { decode } from '@airnode/airnode-abi';
