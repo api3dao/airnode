@@ -1,26 +1,15 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
-import flatten from 'lodash/flatten';
-import zip from 'lodash/zip';
-import { ABIParameterType } from './types';
 import { PARAMETER_SHORT_TYPES } from './utils';
-
-type TransformationFunction = (value: any) => InputValue;
+import { ABIParameterType, InputParameter } from './types';
 
 type TransformationReference = {
-  [key in ABIParameterType]: TransformationFunction | null;
+  [key: string]: (value: any) => string;
 };
-
-type InputValue = string | ethers.BigNumber;
 
 // Certain types need to be encoded/transformed before ABI encoding happens
 const TRANSFORMATIONS: TransformationReference = {
-  bytes: ethers.utils.formatBytes32String,
   bytes32: ethers.utils.formatBytes32String,
-  string: null,
-  address: null,
-  int256: null,
-  uint256: null,
 };
 
 function buildSchemaHeader(types: ABIParameterType[]): string {
@@ -38,11 +27,10 @@ function buildSchemaHeader(types: ABIParameterType[]): string {
   return `1${selectedShortTypes.join('')}`;
 }
 
-function encodeNameValuePairs(types: ABIParameterType[], namesValuePairs: [string, InputValue][]) {
-  return namesValuePairs.map((pair, index) => {
-    const type = types[index];
+function buildNameValuePairs(parameters: InputParameter[]): string[] {
+  return flatMap(parameters, (parameter) => {
+    const { name, value, type } = parameter;
     const transform = TRANSFORMATIONS[type];
-    const [name, value] = pair;
     const encodedName = ethers.utils.formatBytes32String(name!);
     // If the type does not need to be transformed, return it as is
     if (!transform) {
@@ -53,27 +41,22 @@ function encodeNameValuePairs(types: ABIParameterType[], namesValuePairs: [strin
   });
 }
 
-export function encode(types: string[], names: string[], values: InputValue[]): string {
+export function encode(parameters: InputParameter[]): string {
+  const types = parameters.map((parameter) => parameter.type) as ABIParameterType[];
+
   // Each parameter name is represented by a `bytes32` string. The value
   // types are what the user provides
-  const nameTypes = flatMap(types, (type) => ['bytes32', type]);
+  const nameTypePairs = flatMap(types, (type) => ['bytes32', type]);
 
   // The first type is always a bytes32 as it represents the schema header
-  const allTypes = ['bytes32', ...nameTypes];
+  const allTypes = ['bytes32', ...nameTypePairs];
 
   // Build the schema which includes the version and the abbreviated list of parameters
   const schemaHeader = buildSchemaHeader(types as ABIParameterType[]);
   const encodedHeader = ethers.utils.formatBytes32String(schemaHeader);
 
-  // zip() pairs each element of the first array with the corresponding element
-  // of the second array.
-  const nameValuePairs = zip(names, values) as [string, InputValue][];
-
-  // Encode each name/value pair where necessary
-  const encodedNameValuePairs = encodeNameValuePairs(types as ABIParameterType[], nameValuePairs);
-
-  // We need to flatten all pairs out into a single array
-  const flatNameValues = flatten(encodedNameValuePairs);
+  // Map and encode each name/value pair where necessary
+  const flatNameValues = buildNameValuePairs(parameters);
 
   // The schema header is always the first value to be encoded
   const allValues = [encodedHeader, ...flatNameValues];
