@@ -5,13 +5,11 @@ import zip from 'lodash/zip';
 import { ABIParameterType } from './types';
 import { PARAMETER_SHORT_TYPES } from './utils';
 
-type TransformationFunction = (value: any) => InputValue;
+type TransformationFunction = (value: any) => string;
 
 type TransformationReference = {
   [key in ABIParameterType]: TransformationFunction | null;
 };
-
-type InputValue = string | ethers.BigNumber;
 
 // Certain types need to be encoded/transformed before ABI encoding happens
 const TRANSFORMATIONS: TransformationReference = {
@@ -38,7 +36,7 @@ function buildSchemaHeader(types: ABIParameterType[]): string {
   return `1${selectedShortTypes.join('')}`;
 }
 
-function encodeNameValuePairs(types: ABIParameterType[], namesValuePairs: [string, InputValue][]) {
+function encodeNameValuePairs(types: ABIParameterType[], namesValuePairs: [string, string][]) {
   return namesValuePairs.map((pair, index) => {
     const type = types[index];
     const transform = TRANSFORMATIONS[type];
@@ -53,7 +51,7 @@ function encodeNameValuePairs(types: ABIParameterType[], namesValuePairs: [strin
   });
 }
 
-export function encode(types: string[], names: string[], values: InputValue[]): string {
+export function encode(types: string[], names: string[], values: string[]): string {
   // Each parameter name is represented by a `bytes32` string. The value
   // types are what the user provides
   const nameTypes = flatMap(types, (type) => ['bytes32', type]);
@@ -67,7 +65,7 @@ export function encode(types: string[], names: string[], values: InputValue[]): 
 
   // zip() pairs each element of the first array with the corresponding element
   // of the second array.
-  const nameValuePairs = zip(names, values) as [string, InputValue][];
+  const nameValuePairs = zip(names, values) as [string, string][];
 
   // Encode each name/value pair where necessary
   const encodedNameValuePairs = encodeNameValuePairs(types as ABIParameterType[], nameValuePairs);

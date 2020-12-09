@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import * as decoding from './decoding';
 
 describe('decode', () => {
@@ -13,14 +12,14 @@ describe('decode', () => {
     const data =
       '0x316900000000000000000000000000000000000000000000000000000000000054657374496e744e616d65000000000000000000000000000000000000000000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc18';
     const res = decoding.decode(data);
-    expect(res).toEqual({ TestIntName: ethers.BigNumber.from('-1000') });
+    expect(res).toEqual({ TestIntName: '-1000' });
   });
 
   it('decodes uint256 types', () => {
     const data =
       '0x31750000000000000000000000000000000000000000000000000000000000005465737455496e744e616d65000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007d0';
     const res = decoding.decode(data);
-    expect(res).toEqual({ TestUIntName: ethers.BigNumber.from('2000') });
+    expect(res).toEqual({ TestUIntName: '2000' });
   });
 
   it('decodes bytes types', () => {
@@ -52,8 +51,8 @@ describe('decode', () => {
       'bytes32 name': 'bytes 32 value',
       'bytes name': 'bytes value',
       'string name': 'string value',
-      balance: ethers.BigNumber.from('-100'),
-      holders: ethers.BigNumber.from('777'),
+      balance: '-100',
+      holders: '777',
       wallet: '0x4128922394C63A204Dd98ea6fbd887780b78bb7d',
     });
   });

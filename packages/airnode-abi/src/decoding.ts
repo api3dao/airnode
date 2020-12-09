@@ -15,8 +15,8 @@ const TRANSFORMATIONS: TransformationReference = {
   bytes32: ethers.utils.parseBytes32String,
   string: null,
   address: null,
-  int256: null,
-  uint256: null,
+  int256: (value: ethers.BigNumber) => value.toString(),
+  uint256: (value: ethers.BigNumber) => value.toString(),
 };
 
 function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, string][]): DecodedMap {
@@ -24,12 +24,12 @@ function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, str
     const [encodedName, encodedValue] = pair;
     const name = ethers.utils.parseBytes32String(encodedName);
     const type = types[index];
-    const transformation = TRANSFORMATIONS[type];
+    const transform = TRANSFORMATIONS[type];
     // If the type does not need to be transformed, return it as is
-    if (!transformation) {
+    if (!transform) {
       return { ...acc, [name]: encodedValue };
     }
-    const parsedValue = ethers.utils.parseBytes32String(encodedValue);
+    const parsedValue = transform(encodedValue);
     return { ...acc, [name]: parsedValue };
   }, {});
 }
