@@ -8,3 +8,8 @@ export interface DecodedMap {
   [key: string]: string;
 }
 
+export interface InputParameter {
+  name: string;
+  type: string;
+  value: string;
+}

@@ -3,18 +3,13 @@ import chunk from 'lodash/chunk';
 import { PARAMETER_SHORT_TYPES } from './utils';
 import { ABIParameterType, DecodedMap } from './types';
 
-type TransformationFunction = (value: any) => string;
-
 type TransformationReference = {
-  [key in ABIParameterType]: TransformationFunction | null;
+  [key: string]: (value: any) => string;
 };
 
 // Certain types need to be parsed after ABI decoding happens
 const TRANSFORMATIONS: TransformationReference = {
-  bytes: ethers.utils.parseBytes32String,
   bytes32: ethers.utils.parseBytes32String,
-  string: null,
-  address: null,
   int256: (value: ethers.BigNumber) => value.toString(),
   uint256: (value: ethers.BigNumber) => value.toString(),
 };
