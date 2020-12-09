@@ -59,13 +59,3 @@ const decoded = decode(encodedData);
 console.log(decoded);
 // { from: 'ETH', amount: ethers.BigNumber.from('100000') }
 ```
-
-## Security
-
-API3 and Airnode take security very seriously. If you find a security related bug please let the team know privately.
-
-## Contributing
-
-Airnode welcomes all contributors, regardless of how big or small the change is!
-
-If you find a bug, please log an [issue](https://github.com/api3dao/api3-docs)
