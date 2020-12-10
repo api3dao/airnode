@@ -30,6 +30,11 @@ function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, str
 }
 
 export function decode(encodedData: string): DecodedMap {
+  // Special cases for empty parameters
+  if (encodedData === '0x') {
+    return {};
+  }
+
   // Alternatively:
   // const header = encodedData.substring(0, 66);
   const header = ethers.utils.hexlify(ethers.utils.arrayify(encodedData).slice(0, 32));
