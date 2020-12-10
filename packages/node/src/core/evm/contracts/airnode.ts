@@ -24,8 +24,8 @@ const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32
 export const Airnode: Contract = {
   addresses: {
     1: '<TODO>',
-    3: '0xe92365D93A95eC54564A0d823Bc5Cb63d950a058',
-    4: '0x59F53E7bC3bb9C6E3Eb21883194C8e69588553D8',
+    3: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
+    4: '0xf8f2f4a8317947B6037186e5aC87D015bcD756C1',
     1337: '0x197F3826040dF832481f835652c290aC7c41f073',
   },
   ABI: compiledContract.abi,
