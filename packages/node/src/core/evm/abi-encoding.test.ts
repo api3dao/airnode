@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { safeDecode } from './abi-encoding';
 
 describe('safeDecode', () => {
@@ -8,7 +7,7 @@ describe('safeDecode', () => {
     );
     expect(res).toEqual({
       from: 'ETH',
-      amount: ethers.BigNumber.from('1000'),
+      amount: '1000',
     });
   });
 

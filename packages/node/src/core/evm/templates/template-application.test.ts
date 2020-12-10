@@ -22,7 +22,8 @@ describe('mergeApiCallsWithTemplates', () => {
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
         designatedWallet: 'designatedWallet-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        encodedParameters:
+          '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
@@ -46,8 +47,8 @@ describe('mergeApiCallsWithTemplates', () => {
     const apiCall = fixtures.requests.createApiCall({
       templateId: 'templateId-0',
       parameters: {
-        from: 'ETH',
-        amount: '1',
+        to: 'USD',
+        date: '2020-10-24',
       },
     });
 
@@ -57,7 +58,8 @@ describe('mergeApiCallsWithTemplates', () => {
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        encodedParameters:
+          '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         id: 'templateId-0',
         providerId: 'templateProviderId-0',
         requesterIndex: '5',
@@ -68,18 +70,19 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(logs).toEqual([{ level: 'DEBUG', message: `Template ID:templateId-0 applied to Request:${apiCall.id}` }]);
     expect(res[0].parameters).toEqual({
       from: 'ETH',
-      amount: '1',
-      template: 'value',
+      amount: '1000',
+      to: 'USD',
+      date: '2020-10-24',
     });
   });
 
-  it('overwrites template parameters with request parameters', () => {
+  it('overwrites template parameters with request parameters with the same name', () => {
     const apiCall = fixtures.requests.createApiCall({
       templateId: 'templateId-0',
       endpointId: 'requestEndpointId',
       fulfillAddress: 'requestFulfillAddress',
       fulfillFunctionId: 'requestFulfillFunctionId',
-      parameters: { template: 'this will overwrite the template' },
+      parameters: { from: 'BTC', amount: '5000' },
     });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
@@ -88,7 +91,8 @@ describe('mergeApiCallsWithTemplates', () => {
         endpointId: 'templateEndpointId-0',
         fulfillAddress: 'templateFulfillAddress-0',
         fulfillFunctionId: 'templateFulfillFunctionId-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        encodedParameters:
+          '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         id: 'templateId-0',
         providerId: 'templateProviderId-0',
         requesterIndex: '5',
@@ -100,7 +104,7 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(res[0].endpointId).toEqual('requestEndpointId');
     expect(res[0].fulfillAddress).toEqual('requestFulfillAddress');
     expect(res[0].fulfillFunctionId).toEqual('requestFulfillFunctionId');
-    expect(res[0].parameters).toEqual({ template: 'this will overwrite the template' });
+    expect(res[0].parameters).toEqual({ from: 'BTC', amount: '5000' });
   });
 
   it('blocks API calls where the template cannot be found', () => {
