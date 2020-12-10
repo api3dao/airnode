@@ -30,9 +30,8 @@ function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, str
 }
 
 export function decode(encodedData: string): DecodedMap {
-  const { AddressZero, HashZero } = ethers.constants;
   // Special cases for empty parameters
-  if (encodedData === '0x' || encodedData === AddressZero || encodedData === HashZero) {
+  if (encodedData === '0x') {
     return {};
   }
 

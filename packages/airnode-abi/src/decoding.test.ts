@@ -7,16 +7,6 @@ describe('decode', () => {
     expect(res).toEqual({});
   });
 
-  it('has a special case for AddressZero', () => {
-    const res = decoding.decode(ethers.constants.AddressZero);
-    expect(res).toEqual({});
-  });
-
-  it('has a special case for HashZero', () => {
-    const res = decoding.decode(ethers.constants.HashZero);
-    expect(res).toEqual({});
-  });
-
   it('decodes address types', () => {
     const data =
       '0x316100000000000000000000000000000000000000000000000000000000000054657374416464726573734e616d6500000000000000000000000000000000000000000000000000000000004128922394c63a204dd98ea6fbd887780b78bb7d';
@@ -71,6 +61,24 @@ describe('decode', () => {
       holders: '20000000000000000000',
       wallet: '0x4128922394C63A204Dd98ea6fbd887780b78bb7d',
     });
+  });
+
+  it('throws an error for AddressZero', () => {
+    expect.assertions(1);
+    try {
+      decoding.decode(ethers.constants.AddressZero);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
+
+  it('throws an error for HashZero', () => {
+    expect.assertions(1);
+    try {
+      decoding.decode(ethers.constants.HashZero);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
   });
 
   it('throws an error for empty strings', () => {

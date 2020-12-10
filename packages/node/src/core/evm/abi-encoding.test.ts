@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { safeDecode } from './abi-encoding';
 
 describe('safeDecode', () => {
@@ -14,6 +15,16 @@ describe('safeDecode', () => {
   it('returns empty parameters if data is empty', () => {
     const res = safeDecode('0x');
     expect(res).toEqual({});
+  });
+
+  it('returns null for AddressZero', () => {
+    const res = safeDecode(ethers.constants.AddressZero);
+    expect(res).toEqual(null);
+  });
+
+  it('returns null for HashZero', () => {
+    const res = safeDecode(ethers.constants.HashZero);
+    expect(res).toEqual(null);
   });
 
   it('returns null for empty strings', () => {
