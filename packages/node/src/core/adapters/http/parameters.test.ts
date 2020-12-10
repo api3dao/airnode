@@ -24,18 +24,17 @@ describe('getResponseParameterValue', () => {
   });
 
   it('returns the reserved parameter from the Endpoint first', () => {
-    const endpoint = { ...baseEndpoint };
     // This should be ignored
     const requestParameters = { _type: 'bytes32' };
-    const res = parameters.getResponseParameterValue('_type', endpoint, requestParameters);
+    const res = parameters.getResponseParameterValue('_type', baseEndpoint, requestParameters);
     expect(res).toEqual('int256');
   });
 
-  it('returns the request parameter from the Endpoint if no reserved parameter exists', () => {
+  it('returns undefined if no reserved parameter exists', () => {
     const endpoint = { ...baseEndpoint, reservedParameters: [] };
     const requestParameters = { _type: 'bytes32' };
     const res = parameters.getResponseParameterValue('_type', endpoint, requestParameters);
-    expect(res).toEqual('bytes32');
+    expect(res).toEqual(undefined);
   });
 
   it('returns the default if the request parameter does not exist', () => {
@@ -71,14 +70,5 @@ describe('getResponseParameters', () => {
   it('fetches the response parameters', () => {
     const res = parameters.getResponseParameters(baseEndpoint, { _type: 'bytes32', _path: 'updated.path' });
     expect(res).toEqual({ _type: 'int256', _path: 'updated.path' });
-  });
-
-  it('converts _times to a number', () => {
-    const res = parameters.getResponseParameters(baseEndpoint, {
-      _type: 'bytes32',
-      _path: 'updated.path',
-      _times: '1000000',
-    });
-    expect(res).toEqual({ _type: 'int256', _path: 'updated.path', _times: 1000000 });
   });
 });

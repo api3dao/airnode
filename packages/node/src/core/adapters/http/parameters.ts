@@ -9,8 +9,10 @@ export function getResponseParameterValue(
   requestParameters: ApiCallParameters
 ): string | undefined {
   const reservedParameter = endpoint.reservedParameters.find((rp) => rp.name === name);
+  // Reserved parameters must be whitelisted in order to be use, even if they have no
+  // fixed or default value
   if (!reservedParameter) {
-    return requestParameters[name];
+    return undefined;
   }
 
   if (reservedParameter.fixed) {
@@ -30,9 +32,5 @@ export function getResponseParameters(endpoint: Endpoint, requestParameters: Api
   const _times = getResponseParameterValue('_times', endpoint, requestParameters);
   const _type = getResponseParameterValue('_type', endpoint, requestParameters);
 
-  return {
-    _type,
-    _path,
-    _times: _times ? Number(_times) : undefined,
-  };
+  return { _type, _path, _times };
 }
