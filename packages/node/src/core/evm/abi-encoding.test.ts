@@ -11,14 +11,14 @@ describe('safeDecode', () => {
     });
   });
 
-  it('returns null if parameters are empty', () => {
+  it('returns empty parameters if data is empty', () => {
     const res = safeDecode('0x');
-    expect(res).toEqual(null);
+    expect(res).toEqual({});
   });
 
-  it('returns an empty object if parameters are falsey', () => {
+  it('returns null for empty strings', () => {
     const res = safeDecode('');
-    expect(res).toEqual({});
+    expect(res).toEqual(null);
   });
 
   it('returns null if the parameters cannot be decoded', () => {
