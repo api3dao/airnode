@@ -3339,7 +3339,7 @@ ethers@^4.0.32:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^5.0.0, ethers@^5.0.1, ethers@^5.0.13:
+ethers@^5.0.0, ethers@^5.0.1:
   version "5.0.21"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.0.21.tgz#13d55fe67e240c65641b8353f41e5574484d30a2"
   integrity sha512-e57K+CF1y+6rBtAgqcVRSv1/XMY6PEzzly2iwvogjh0+9Z44GynHwb9++xwSMed5Ntz4i4ZB1fF3vWYDNK2q7w==
@@ -4434,9 +4434,9 @@ inherits@2.0.3:
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
 ini@^1.3.4, ini@^1.3.5:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
-  integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.7.tgz#a09363e1911972ea16d7a8851005d84cf09a9a84"
+  integrity sha512-iKpRpXP+CrP2jyrxvg1kMUpXDyRUFDWurxbnVT1vQPx+Wz9uCYsMIqYuSBLV+PAaZG/d7kRLKRFc9oDMsH+mFQ==
 
 interpret@^1.0.0:
   version "1.4.0"

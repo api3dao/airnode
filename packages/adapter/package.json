@@ -17,10 +17,7 @@
   },
   "dependencies": {
     "@airnode/ois": "^0.1.0",
-    "@types/lodash": "^4.14.161",
     "axios": "^0.19.2",
-    "bignumber.js": "^9.0.0",
-    "ethers": "^5.0.13",
-    "lodash": "^4.17.20"
+    "bignumber.js": "^9.0.0"
   }
 }
