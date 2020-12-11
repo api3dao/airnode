@@ -14,12 +14,5 @@
     "prepublishOnly": "yarn run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
-  },
-  "dependencies": {
-    "ethers": "^5.0.13",
-    "lodash": "^4.17.20"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.165"
   }
 }

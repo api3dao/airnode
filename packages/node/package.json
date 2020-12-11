@@ -21,16 +21,12 @@
     "@airnode/airnode-abi": "^0.1.0",
     "@airnode/ois": "^0.1.0",
     "@types/bluebird": "^3.5.32",
-    "@types/lodash": "^4.14.157",
     "aws-sdk": "^2.753.0",
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
-    "date-fns": "^2.16.1",
-    "ethers": "^5.0.13",
-    "lodash": "^4.17.20"
+    "date-fns": "^2.16.1"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.32",
-    "@types/lodash": "^4.14.157"
+    "@types/bluebird": "^3.5.32"
   }
 }
