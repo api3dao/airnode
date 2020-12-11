@@ -1,4 +1,4 @@
-import { buildEVMState } from '../../../src/core/providers/state';
+import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig, buildNodeSettings } from '../config';
 import { ChainConfig, ChainProvider, EVMProviderState, ProviderState } from 'src/types';
 
