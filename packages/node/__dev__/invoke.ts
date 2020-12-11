@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import * as local from '../src/core/workers/local-handlers';
+import * as local from '../src/workers/local-handlers';
 
 dotenv.config();
 

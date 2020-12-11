@@ -70,13 +70,3 @@ core/
 └── workers/            # Utility function that allow for "forking"
 
 ```
-
-## Security
-
-API3 and Airnode take security very seriously. If you find a security related incident please let the team know privately.
-
-## Contributing
-
-Airnode welcomes all contributors, regardless of how big or small the change is!
-
-If you find a bug, please log an [issue](https://github.com/api3dao/api3-docs)

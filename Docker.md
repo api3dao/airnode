@@ -2,7 +2,7 @@
 
 1. Build the Docker image
 ```sh
-docker build . -t airnode-alpha
+docker build . -t api3/airnode
 ```
 
 2. Ensure that your `.env` file looks like [`.env.example`](/packages/deployer/.env.example) and is the current working directory.
@@ -17,7 +17,7 @@ docker run -it --rm \
   --env-file .env \
   --env COMMAND=deploy-first-time \
   -v $(pwd):/airnode/out \
-  airnode-alpha:latest
+  api3/airnode:latest
 ```
 
 ### `redeploy`
@@ -27,7 +27,7 @@ docker run -it --rm \
   --env-file .env \
   --env COMMAND=redeploy \
   -v $(pwd):/airnode/out \
-  airnode-alpha:latest
+  api3/airnode:latest
 ```
 
 ### `deploy-mnemonic`
@@ -38,7 +38,7 @@ docker run -it --rm \
   --env COMMAND=deploy-mnemonic \
   --env MNEMONIC=$MNEMONIC \
   --env REGION=$REGION \
-  airnode-alpha:latest
+  api3/airnode:latest
 ```
 
 Note that you must replace `$MNEMONIC` and `$REGION` with your values.
@@ -52,7 +52,7 @@ docker run -it --rm \
   --env COMMAND=remove-with-receipt \
   --env RECEIPT_FILENAME=$RECEIPT_FILENAME \
   -v $(pwd):/airnode/out \
-  airnode-alpha:latest
+  api3/airnode:latest
 ```
 
 Note that you must replace `$RECEIPT_FILENAME` with your value.
@@ -66,7 +66,7 @@ docker run -it --rm \
   --env COMMAND=remove-mnemonic \
   --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT \
   --env REGION=$REGION \
-  airnode-alpha:latest
+  api3/airnode:latest
 ```
 
 Note that you must replace `$PROVIDER_ID_SHORT` and `$REGION` with your values.
@@ -80,7 +80,7 @@ docker run -it --rm \
   --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT \
   --env REGION=$REGION \
   --env STAGE=$STAGE \
-  airnode-alpha:latest
+  api3/airnode:latest
 ```
 
 Note that you must replace `$PROVIDER_ID_SHORT`, `$REGION` and `$STAGE` with your values.

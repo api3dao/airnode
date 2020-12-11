@@ -18,26 +18,29 @@ jobs:
         node-version: '12.x'
 
     - name: Install Dependencies
-      run: npm run bootstrap
+      run: yarn run bootstrap
 
     - name: Lint code
-      run: npm run lint
+      run: yarn run lint
 
     - name: Prepare config
       run: |
         cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json
 
     - name: Build
-      run: npm run build
+      run: yarn run build
 
     - name: Test adapter
-      run: npm run test:adapter
+      run: yarn run test:adapter
+
+    - name: Test airnode-abi
+      run: yarn run test:airnode-abi
 
     - name: Test protocol contracts
-      run: npm run test:protocol
+      run: yarn run test:protocol
 
     - name: Test node
-      run: npm run test:node
+      run: yarn run test:node
 
     - name: Slack Notification
       uses: homoluctus/slatify@master
