@@ -12,7 +12,7 @@ import "./TemplateStore.sol";
 /// records of providers, requesters, endpoints, etc.
 contract Airnode is EndpointStore, TemplateStore, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
-    mapping(bytes32 => bool) private requestWithIdHasFailed;
+    mapping(bytes32 => bool) public requestWithIdHasFailed;
     uint256 private noRequests = 0;
 
 
@@ -296,25 +296,12 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             )
     {
         delete requestIdToFulfillmentParameters[requestId];
-        // Failure is recorded so that it can be checked externally with
-        // checkIfRequestHasFailed()
+        // Failure is recorded so that it can be checked externally
         requestWithIdHasFailed[requestId] = true;
         emit ClientRequestFailed(
             providerId,
             requestId
             );
-    }
-
-    /// @notice Used to check if a request has failed because it could not be
-    /// fulfilled
-    /// @param requestId Request ID
-    /// @return status If the request has failed
-    function checkIfRequestHasFailed(bytes32 requestId)
-        external
-        view
-        returns(bool status)
-    {
-        status = requestWithIdHasFailed[requestId];
     }
 
     /// @dev Reverts unless the incoming fulfillment parameters do not match
