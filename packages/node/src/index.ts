@@ -1,6 +1,6 @@
-export * as handlers from './core/handlers';
+export * as handlers from './handlers';
 export * as config from './config';
-export * as providerState from './core/providers/state';
+export * as providerState from './providers/state';
 export * as logger from './logger';
-export * as promiseUtils from './core/utils/promise-utils';
+export * as promiseUtils from './utils/promise-utils';
 export * from './types';

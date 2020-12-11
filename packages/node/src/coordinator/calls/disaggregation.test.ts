@@ -1,6 +1,6 @@
 import * as fixtures from 'test/fixtures';
 import * as coordinatorState from '../state';
-import * as providerState from '../../core/providers/state';
+import * as providerState from '../../providers/state';
 import * as disaggregation from './disaggregation';
 import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
 
