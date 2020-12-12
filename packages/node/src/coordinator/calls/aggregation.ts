@@ -1,11 +1,4 @@
-import {
-  AggregatedApiCall,
-  AggregatedApiCallsById,
-  ApiCall,
-  ClientRequest,
-  Config,
-  RequestStatus,
-} from '../../types';
+import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest, Config, RequestStatus } from '../../types';
 
 function createAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
   const trigger = config.triggers.requests.find((t) => t.endpointId === request.endpointId);

@@ -1,13 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import {
-  AggregatedApiCall,
-  AggregatedApiCallsById,
-  Config,
-  LogsData,
-  PendingLog,
-  RequestErrorCode,
-} from '../../types';
+import { AggregatedApiCall, AggregatedApiCallsById, Config, LogsData, PendingLog, RequestErrorCode } from '../../types';
 
 export function validateAggregatedApiCall(
   config: Config,

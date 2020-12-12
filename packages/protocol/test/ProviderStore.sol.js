@@ -25,7 +25,7 @@ describe('createProvider', function () {
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     // Check the created provider record
     const retrievedProvider = await airnode.getProvider(providerId);
-    expect(retrievedProvider.admin).to.equal(roles.providerAdmin._address);
+    expect(retrievedProvider.admin).to.equal(roles.providerAdmin.address);
     expect(retrievedProvider.xpub).to.equal(providerXpub);
   });
 });
@@ -36,12 +36,12 @@ describe('updateProvider', function () {
       let providerXpub, providerId;
       ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       // Update the provider record
-      await expect(airnode.connect(roles.providerAdmin).updateProvider(providerId, roles.updatedProviderAdmin._address))
+      await expect(airnode.connect(roles.providerAdmin).updateProvider(providerId, roles.updatedProviderAdmin.address))
         .to.emit(airnode, 'ProviderUpdated')
-        .withArgs(providerId, roles.updatedProviderAdmin._address);
+        .withArgs(providerId, roles.updatedProviderAdmin.address);
       // Check the updated provider record
       const retrievedProvider = await airnode.getProvider(providerId);
-      expect(retrievedProvider.admin).to.equal(roles.updatedProviderAdmin._address);
+      expect(retrievedProvider.admin).to.equal(roles.updatedProviderAdmin.address);
       expect(retrievedProvider.xpub).to.equal(providerXpub);
     });
   });
@@ -51,7 +51,7 @@ describe('updateProvider', function () {
       ({ providerId } = await createProvider(airnode, roles.providerAdmin));
       // Attempt to update the provider record
       await expect(
-        airnode.connect(roles.randomPerson).updateProvider(providerId, roles.updatedProviderAdmin._address)
+        airnode.connect(roles.randomPerson).updateProvider(providerId, roles.updatedProviderAdmin.address)
       ).to.be.revertedWith('Caller is not provider admin');
     });
   });
@@ -75,7 +75,7 @@ describe('requestWithdrawal', function () {
       await expect(
         airnode
           .connect(roles.randomPerson)
-          .requestWithdrawal(providerId, requesterInd, designatedWallet, roles.randomPerson._address)
+          .requestWithdrawal(providerId, requesterInd, designatedWallet, roles.randomPerson.address)
       ).to.be.revertedWith('Caller is not requester admin');
     });
   });
@@ -88,7 +88,7 @@ describe('fulfillWithdrawal', function () {
       ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
-      const destination = roles.requesterAdmin._address;
+      const destination = roles.requesterAdmin.address;
       const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
       await roles.requesterAdmin.sendTransaction({
         to: designatedWallet.address,
@@ -109,7 +109,7 @@ describe('fulfillWithdrawal', function () {
       const designatedWalletBalance = await waffle.provider.getBalance(designatedWallet.address);
       const fundsToSend = designatedWalletBalance.sub(txCost);
       // Fulfill the withdrawal request with the designated wallet
-      const initialRequesterAdminBalance = await waffle.provider.getBalance(roles.requesterAdmin._address);
+      const initialRequesterAdminBalance = await waffle.provider.getBalance(roles.requesterAdmin.address);
       const expectedRequesterAdminBalance = initialRequesterAdminBalance.add(fundsToSend);
       await expect(
         airnode
@@ -122,7 +122,7 @@ describe('fulfillWithdrawal', function () {
       )
         .to.emit(airnode, 'WithdrawalFulfilled')
         .withArgs(providerId, requesterInd, withdrawalRequestId, designatedWallet.address, destination, fundsToSend);
-      expect(await waffle.provider.getBalance(roles.requesterAdmin._address)).to.equal(expectedRequesterAdminBalance);
+      expect(await waffle.provider.getBalance(roles.requesterAdmin.address)).to.equal(expectedRequesterAdminBalance);
     });
     context('If the withdrawal is already fulfilled', async function () {
       it('reverts', async function () {
@@ -130,7 +130,7 @@ describe('fulfillWithdrawal', function () {
         ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
         const requesterInd = await createRequester(airnode, roles.requesterAdmin);
         const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
-        const destination = roles.requesterAdmin._address;
+        const destination = roles.requesterAdmin.address;
         const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
         await roles.requesterAdmin.sendTransaction({
           to: designatedWallet.address,
@@ -159,7 +159,7 @@ describe('fulfillWithdrawal', function () {
       ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
       const requesterInd = await createRequester(airnode, roles.requesterAdmin);
       const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
-      const destination = roles.requesterAdmin._address;
+      const destination = roles.requesterAdmin.address;
       const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
       await roles.requesterAdmin.sendTransaction({
         to: designatedWallet.address,
