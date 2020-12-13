@@ -1,29 +1,43 @@
 {
-  "apiProviders": [
-    {
+  "apiProviders": {
+    "CurrencyConverterAPI": {
       "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
-      "endpoints": [
-        { "id": "convertToUSD", "authorizers": ["public"] }
-      ],
-      "templates": [
-        {
-          "id": "template-1",
-          "endpointId": "convertToUSD",
-          "fulfillClient": "MockAirnodeClient",
-          "parameters": { "to": "USD" }
+      "endpoints": {
+        "convertToUSD": {
+          "authorizers": ["public"]
         }
-      ],
-      "requesters": ["bob"]
+      },
+      "templates": {
+        "template-1": {
+          "endpointId": "convertToUSD",
+          "fulfillClientId": "MockAirnodeClient",
+          "fulfillFunctionName": "fulfill",
+          "parameters": {
+            "to": "USD",
+            "_type": "uint256",
+            "_path": "result",
+            "_times": "100000"
+          }
+        }
+      }
     }
-  ],
-  "authorizers": [
-    { "id": "public", "value": "0x0000000000000000000000000000000000000000" }
-  ],
-  "clients": [
-    { "id": "MockAirnodeClient", "endorsers": ["bob"] }
-  ],
-  "requesters": [
-    { "id": "alice", "ethBalance": "1" },
-    { "id": "bob", "ethBalance": "5" }
-  ]
+  },
+  "authorizers": {
+    "public": "0x0000000000000000000000000000000000000000"
+  },
+  "clients": {
+    "MockAirnodeClient": { "endorsers": ["bob"] }
+  },
+  "requesters": {
+    "alice": {
+      "apiProviders": {
+        "CurrencyConverterAPI": { "ethBalance": "1" }
+      }
+    },
+    "bob": {
+      "apiProviders": {
+        "CurrencyConverterAPI": { "ethBalance": "5" }
+      }
+    }
+  }
 }
