@@ -4,7 +4,7 @@ async function createTemplate(
   airnode,
   providerId,
   endpointId,
-  requesterInd,
+  requesterIndex,
   designatedWallet,
   fulfillAddress,
   fulfillFunctionId,
@@ -13,13 +13,13 @@ async function createTemplate(
   const expectedTemplateId = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
       ['bytes32', 'bytes32', 'uint256', 'address', 'address', 'bytes4', 'bytes'],
-      [providerId, endpointId, requesterInd, designatedWallet, fulfillAddress, fulfillFunctionId, parameters]
+      [providerId, endpointId, requesterIndex, designatedWallet, fulfillAddress, fulfillFunctionId, parameters]
     )
   );
   const tx = await airnode.createTemplate(
     providerId,
     endpointId,
-    requesterInd,
+    requesterIndex,
     designatedWallet,
     fulfillAddress,
     fulfillFunctionId,
@@ -29,7 +29,7 @@ async function createTemplate(
     templateId: expectedTemplateId,
     providerId,
     endpointId,
-    requesterInd,
+    requesterIndex,
     designatedWallet,
     fulfillAddress,
     fulfillFunctionId,

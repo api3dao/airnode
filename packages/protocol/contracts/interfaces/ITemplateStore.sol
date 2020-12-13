@@ -7,7 +7,7 @@ interface ITemplateStore {
         bytes32 indexed templateId,
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -17,7 +17,7 @@ interface ITemplateStore {
     function createTemplate(
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -32,7 +32,7 @@ interface ITemplateStore {
         returns (
             bytes32 providerId,
             bytes32 endpointId,
-            uint256 requesterInd,
+            uint256 requesterIndex,
             address designatedWallet,
             address fulfillAddress,
             bytes4 fulfillFunctionId,

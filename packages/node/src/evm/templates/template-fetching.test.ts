@@ -33,7 +33,7 @@ describe('fetch (templates)', () => {
       fulfillFunctionIds: Array.from(Array(10).keys()).map((n) => `fulfillFunctionId-${n}`),
       parameters: Array.from(Array(10).keys()).map(() => '0x6874656d706c6174656576616c7565'),
       providerIds: Array.from(Array(10).keys()).map((n) => `providerId-${n}`),
-      requesterInds: Array.from(Array(10).keys()).map((n) => `requesterInd-${n}`),
+      requesterIndices: Array.from(Array(10).keys()).map((n) => `requesterIndex-${n}`),
     };
 
     const secondRawTemplates = {
@@ -43,7 +43,7 @@ describe('fetch (templates)', () => {
       fulfillFunctionIds: Array.from(Array(9).keys()).map((n) => `fulfillFunctionId-${n + 10}`),
       parameters: Array.from(Array(9).keys()).map(() => '0x6874656d706c6174656576616c7565'),
       providerIds: Array.from(Array(9).keys()).map((n) => `providerId-${n + 10}`),
-      requesterInds: Array.from(Array(10).keys()).map((n) => `requesterInd-${n + 10}`),
+      requesterIndices: Array.from(Array(10).keys()).map((n) => `requesterIndex-${n + 10}`),
     };
 
     getTemplatesMock.mockResolvedValueOnce(firstRawTemplates);
@@ -77,7 +77,7 @@ describe('fetch (templates)', () => {
       fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
       providerIds: ['providerId-0'],
-      requesterInds: ['requesterIndex-0'],
+      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
@@ -107,7 +107,7 @@ describe('fetch (templates)', () => {
       fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
       providerIds: ['providerId-0'],
-      requesterInds: ['requesterIndex-0'],
+      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
@@ -151,7 +151,7 @@ describe('fetch (templates)', () => {
       fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
       providerIds: ['providerId-0'],
-      requesterInds: ['requesterIndex-0'],
+      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
@@ -183,7 +183,7 @@ describe('fetch (templates)', () => {
       fulfillAddresses: ['fulfillAddresses-0'],
       fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
-      requesterInds: ['requesterIndex-0'],
+      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));

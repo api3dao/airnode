@@ -8,7 +8,7 @@ async function makeRequest(
   clientUserRole,
   templateId,
   providerId,
-  requestTimeRequesterInd,
+  requestTimeRequesterIndex,
   requestTimeDesignatedWalletAddress,
   requestTimeFulfillAddress,
   requestTimeFulfillFunctionId,
@@ -16,12 +16,12 @@ async function makeRequest(
 ) {
   await airnode
     .connect(requesterAdminRole)
-    .updateClientEndorsementStatus(requestTimeRequesterInd, requestTimeAirnodeClient.address, true);
+    .updateClientEndorsementStatus(requestTimeRequesterIndex, requestTimeAirnodeClient.address, true);
   const tx = await requestTimeAirnodeClient
     .connect(clientUserRole)
     .makeRequest(
       templateId,
-      requestTimeRequesterInd,
+      requestTimeRequesterIndex,
       requestTimeDesignatedWalletAddress,
       requestTimeFulfillAddress,
       requestTimeFulfillFunctionId,
@@ -35,7 +35,7 @@ async function makeRequest(
       providerId,
       clientAddress: requestTimeFulfillAddress,
       templateId,
-      requesterInd: requestTimeRequesterInd,
+      requesterIndex: requestTimeRequesterIndex,
       designatedWallet: requestTimeDesignatedWalletAddress,
       fulfillAddress: requestTimeFulfillAddress,
       fulfillFunctionId: requestTimeFulfillFunctionId,
@@ -59,10 +59,10 @@ async function makeShortRequest(
   clientUserRole,
   templateId,
   providerId,
-  requesterInd,
+  requesterIndex,
   requestTimeParameters
 ) {
-  await airnode.connect(requesterAdminRole).updateClientEndorsementStatus(requesterInd, airnodeClient.address, true);
+  await airnode.connect(requesterAdminRole).updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
   const tx = await airnodeClient.connect(clientUserRole).makeShortRequest(templateId, requestTimeParameters);
   const log = await verifyLog(airnode, tx, 'ClientShortRequestCreated(bytes32,bytes32,uint256,address,bytes32,bytes)', {
     providerId,
@@ -87,19 +87,19 @@ async function makeFullRequest(
   clientUserRole,
   providerId,
   endpointId,
-  requesterInd,
+  requesterIndex,
   designatedWallet,
   fulfillAddress,
   fulfillFunctionId,
   requestTimeParameters
 ) {
-  await airnode.connect(requesterAdminRole).updateClientEndorsementStatus(requesterInd, airnodeClient.address, true);
+  await airnode.connect(requesterAdminRole).updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
   const tx = await airnodeClient
     .connect(clientUserRole)
     .makeFullRequest(
       providerId,
       endpointId,
-      requesterInd,
+      requesterIndex,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,
@@ -113,7 +113,7 @@ async function makeFullRequest(
       providerId,
       clientAddress: fulfillAddress,
       endpointId,
-      requesterInd,
+      requesterIndex,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,

@@ -70,12 +70,12 @@ describe('requestWithdrawal', function () {
     it('reverts', async function () {
       let providerXpub, providerId;
       ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-      const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+      const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+      const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
       await expect(
         airnode
           .connect(roles.randomPerson)
-          .requestWithdrawal(providerId, requesterInd, designatedWallet, roles.randomPerson.address)
+          .requestWithdrawal(providerId, requesterIndex, designatedWallet, roles.randomPerson.address)
       ).to.be.revertedWith('Caller is not requester admin');
     });
   });
@@ -86,8 +86,8 @@ describe('fulfillWithdrawal', function () {
     it('fulfills withdrawal', async function () {
       let providerMnemonic, providerXpub, providerId;
       ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-      const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
+      const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+      const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterIndex.toString()}`);
       const destination = roles.requesterAdmin.address;
       const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
       await roles.requesterAdmin.sendTransaction({
@@ -97,7 +97,7 @@ describe('fulfillWithdrawal', function () {
       // Estimate the gas required to fulfill the withdrawal request
       const gasEstimate = await airnode
         .connect(designatedWallet)
-        .estimateGas.fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+        .estimateGas.fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, destination, {
           value: 1,
           gasLimit: 500000,
         });
@@ -114,22 +114,22 @@ describe('fulfillWithdrawal', function () {
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, destination, {
             value: fundsToSend,
             gasLimit: gasLimit,
             gasPrice: gasPrice,
           })
       )
         .to.emit(airnode, 'WithdrawalFulfilled')
-        .withArgs(providerId, requesterInd, withdrawalRequestId, designatedWallet.address, destination, fundsToSend);
+        .withArgs(providerId, requesterIndex, withdrawalRequestId, designatedWallet.address, destination, fundsToSend);
       expect(await waffle.provider.getBalance(roles.requesterAdmin.address)).to.equal(expectedRequesterAdminBalance);
     });
     context('If the withdrawal is already fulfilled', async function () {
       it('reverts', async function () {
         let providerMnemonic, providerXpub, providerId;
         ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
-        const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-        const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
+        const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+        const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterIndex.toString()}`);
         const destination = roles.requesterAdmin.address;
         const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
         await roles.requesterAdmin.sendTransaction({
@@ -138,14 +138,14 @@ describe('fulfillWithdrawal', function () {
         });
         await airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, destination, {
             value: 1,
             gasLimit: 500000,
           });
         await expect(
           airnode
             .connect(designatedWallet)
-            .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, {
+            .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, destination, {
               value: 1,
               gasLimit: 500000,
             })
@@ -157,8 +157,8 @@ describe('fulfillWithdrawal', function () {
     it('reverts', async function () {
       let providerMnemonic, providerXpub, providerId;
       ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-      const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
+      const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+      const designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterIndex.toString()}`);
       const destination = roles.requesterAdmin.address;
       const withdrawalRequestId = await requestWithdrawal(airnode, roles.requesterAdmin, providerXpub, providerId);
       await roles.requesterAdmin.sendTransaction({
@@ -168,12 +168,7 @@ describe('fulfillWithdrawal', function () {
       await expect(
         airnode
           .connect(roles.randomPerson)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, destination, { value: 1, gasLimit: 500000 })
-      ).to.be.revertedWith('No such withdrawal request');
-      await expect(
-        airnode
-          .connect(designatedWallet)
-          .fulfillWithdrawal(ethers.constants.HashZero, providerId, requesterInd, destination, {
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, destination, {
             value: 1,
             gasLimit: 500000,
           })
@@ -181,7 +176,15 @@ describe('fulfillWithdrawal', function () {
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, ethers.constants.HashZero, requesterInd, destination, {
+          .fulfillWithdrawal(ethers.constants.HashZero, providerId, requesterIndex, destination, {
+            value: 1,
+            gasLimit: 500000,
+          })
+      ).to.be.revertedWith('No such withdrawal request');
+      await expect(
+        airnode
+          .connect(designatedWallet)
+          .fulfillWithdrawal(withdrawalRequestId, ethers.constants.HashZero, requesterIndex, destination, {
             value: 1,
             gasLimit: 500000,
           })
@@ -197,7 +200,7 @@ describe('fulfillWithdrawal', function () {
       await expect(
         airnode
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterInd, ethers.constants.AddressZero, {
+          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, ethers.constants.AddressZero, {
             value: 1,
             gasLimit: 500000,
           })

@@ -19,36 +19,36 @@ beforeEach(async () => {
 
 describe('createRequester', function () {
   it('creates a requester record', async function () {
-    const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-    const requesterAdmin = await airnode.requesterIndToAdmin(requesterInd);
+    const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+    const requesterAdmin = await airnode.requesterIndexToAdmin(requesterIndex);
     expect(requesterAdmin).to.equal(roles.requesterAdmin.address);
   });
   it('assigns requester indices incrementally', async function () {
-    const requesterInd1 = await createRequester(airnode, roles.requesterAdmin);
-    expect(requesterInd1).to.equal(ethers.BigNumber.from(1));
-    const requesterInd2 = await createRequester(airnode, roles.requesterAdmin);
-    expect(requesterInd2).to.equal(ethers.BigNumber.from(2));
+    const requesterIndex1 = await createRequester(airnode, roles.requesterAdmin);
+    expect(requesterIndex1).to.equal(ethers.BigNumber.from(1));
+    const requesterIndex2 = await createRequester(airnode, roles.requesterAdmin);
+    expect(requesterIndex2).to.equal(ethers.BigNumber.from(2));
   });
 });
 
 describe('updateRequesterAdmin', function () {
   context('If the caller is the requester admin', async function () {
     it('updates the requester admin', async function () {
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+      const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
       await expect(
-        airnode.connect(roles.requesterAdmin).updateRequesterAdmin(requesterInd, roles.updatedRequesterAdmin.address)
+        airnode.connect(roles.requesterAdmin).updateRequesterAdmin(requesterIndex, roles.updatedRequesterAdmin.address)
       )
         .to.emit(airnode, 'RequesterUpdated')
-        .withArgs(requesterInd, roles.updatedRequesterAdmin.address);
-      const updatedRequesterAdmin = await airnode.requesterIndToAdmin(requesterInd);
+        .withArgs(requesterIndex, roles.updatedRequesterAdmin.address);
+      const updatedRequesterAdmin = await airnode.requesterIndexToAdmin(requesterIndex);
       expect(updatedRequesterAdmin).to.equal(roles.updatedRequesterAdmin.address);
     });
   });
   context('If the caller is not the requester admin', async function () {
     it('reverts', async function () {
-      const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+      const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
       await expect(
-        airnode.connect(roles.randomPerson).updateRequesterAdmin(requesterInd, roles.updatedRequesterAdmin.address)
+        airnode.connect(roles.randomPerson).updateRequesterAdmin(requesterIndex, roles.updatedRequesterAdmin.address)
       ).to.be.revertedWith('Caller is not requester admin');
     });
   });
@@ -56,32 +56,36 @@ describe('updateRequesterAdmin', function () {
   describe('updateClientEndorsementStatus', function () {
     context('If the caller is the requester admin', async function () {
       it('updates the client endorsement status', async function () {
-        const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+        const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
         // Verify that the client is initially not endorsed
-        const endorsementStatus1 = await airnode.requesterIndToClientAddressToEndorsementStatus(
-          requesterInd,
+        const endorsementStatus1 = await airnode.requesterIndexToClientAddressToEndorsementStatus(
+          requesterIndex,
           roles.client.address
         );
         expect(endorsementStatus1).to.equal(false);
         // Endorse the client
         await expect(
-          airnode.connect(roles.requesterAdmin).updateClientEndorsementStatus(requesterInd, roles.client.address, true)
+          airnode
+            .connect(roles.requesterAdmin)
+            .updateClientEndorsementStatus(requesterIndex, roles.client.address, true)
         )
           .to.emit(airnode, 'ClientEndorsementStatusUpdated')
-          .withArgs(requesterInd, roles.client.address, true);
-        const endorsementStatus2 = await airnode.requesterIndToClientAddressToEndorsementStatus(
-          requesterInd,
+          .withArgs(requesterIndex, roles.client.address, true);
+        const endorsementStatus2 = await airnode.requesterIndexToClientAddressToEndorsementStatus(
+          requesterIndex,
           roles.client.address
         );
         expect(endorsementStatus2).to.equal(true);
         // Disendorse the client
         await expect(
-          airnode.connect(roles.requesterAdmin).updateClientEndorsementStatus(requesterInd, roles.client.address, false)
+          airnode
+            .connect(roles.requesterAdmin)
+            .updateClientEndorsementStatus(requesterIndex, roles.client.address, false)
         )
           .to.emit(airnode, 'ClientEndorsementStatusUpdated')
-          .withArgs(requesterInd, roles.client.address, false);
-        const endorsementStatus3 = await airnode.requesterIndToClientAddressToEndorsementStatus(
-          requesterInd,
+          .withArgs(requesterIndex, roles.client.address, false);
+        const endorsementStatus3 = await airnode.requesterIndexToClientAddressToEndorsementStatus(
+          requesterIndex,
           roles.client.address
         );
         expect(endorsementStatus3).to.equal(false);
@@ -89,9 +93,9 @@ describe('updateRequesterAdmin', function () {
     });
     context('If the caller is not the requester admin', async function () {
       it('reverts', async function () {
-        const requesterInd = await createRequester(airnode, roles.requesterAdmin);
+        const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
         await expect(
-          airnode.connect(roles.randomPerson).updateClientEndorsementStatus(requesterInd, roles.client.address, false)
+          airnode.connect(roles.randomPerson).updateClientEndorsementStatus(requesterIndex, roles.client.address, false)
         ).to.be.revertedWith('Caller is not requester admin');
       });
     });

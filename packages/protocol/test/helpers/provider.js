@@ -52,15 +52,15 @@ async function createProvider(airnode, providerAdminRole) {
 
 async function requestWithdrawal(airnode, requesterAdminRole, providerXpub, providerId) {
   await airnode.connect(requesterAdminRole).createRequester(requesterAdminRole.address);
-  const requesterInd = ethers.BigNumber.from(1);
-  const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+  const requesterIndex = ethers.BigNumber.from(1);
+  const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
   const destination = requesterAdminRole.address;
   const tx = await airnode
     .connect(requesterAdminRole)
-    .requestWithdrawal(providerId, requesterInd, designatedWallet, destination);
+    .requestWithdrawal(providerId, requesterIndex, designatedWallet, destination);
   const log = await verifyLog(airnode, tx, 'WithdrawalRequested(bytes32,uint256,bytes32,address,address)', {
     providerId,
-    requesterInd,
+    requesterIndex,
     designatedWallet,
     destination,
   });

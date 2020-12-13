@@ -49,7 +49,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     parameters: {},
     providerId: parsedLog.args.providerId,
     requestCount: parsedLog.args.noRequests.toString(),
-    requesterIndex: parsedLog.args.requesterInd?.toString() || null,
+    requesterIndex: parsedLog.args.requesterIndex?.toString() || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,
     type: getApiCallType(parsedLog.topic),
