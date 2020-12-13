@@ -1,5 +1,5 @@
 import { Contract } from './types';
-import { ConvenienceArtifact } from '@airnode/protocol';
+import { ConvenienceAbi } from '@airnode/protocol';
 
 export const Convenience: Contract = {
   addresses: {
@@ -8,6 +8,6 @@ export const Convenience: Contract = {
     4: '0xB5Edd78ED86b7043D212391f5A6d84cd40111be7',
     1337: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
   },
-  ABI: ConvenienceArtifact.abi,
+  ABI: ConvenienceAbi,
   topics: {},
 };
