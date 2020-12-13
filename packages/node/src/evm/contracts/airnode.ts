@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import compiledContract from './json/airnode.json';
+import { AirnodeArtifact } from '@airnode/protocol';
 import { Contract } from './types';
 
 const ClientRequestCreated = ethers.utils.id(
@@ -28,7 +28,7 @@ export const Airnode: Contract = {
     4: '0xf8f2f4a8317947B6037186e5aC87D015bcD756C1',
     1337: '0x197F3826040dF832481f835652c290aC7c41f073',
   },
-  ABI: compiledContract.abi,
+  ABI: AirnodeArtifact.abi,
   topics: {
     // API calls
     ClientRequestCreated,

@@ -20,6 +20,7 @@
     "@airnode/adapter": "^0.1.0",
     "@airnode/airnode-abi": "^0.1.0",
     "@airnode/ois": "^0.1.0",
+    "@airnode/protocol": "^0.1.0",
     "@types/bluebird": "^3.5.32",
     "aws-sdk": "^2.753.0",
     "axios": "^0.19.2",
