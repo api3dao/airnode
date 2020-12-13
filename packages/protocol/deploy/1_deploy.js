@@ -13,5 +13,3 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   });
   log(`Deployed Convenience at ${convenience.address}`);
 };
-
-module.exports.tags = ['deploy'];
