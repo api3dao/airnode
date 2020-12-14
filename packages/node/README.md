@@ -48,7 +48,7 @@ https://docs.google.com/spreadsheets/d/1DanVn7WyP96D5max2_5T5enJz7TcCsRceoqDfDfC
 ## Directory Structure
 
 ```sh
-core/
+src/
 ├── adapters/           # Modules allowing Airnode access to the outside world
 │   └── http/           # The HTTP adapter
 ├── config/             # Global Airnode configuration

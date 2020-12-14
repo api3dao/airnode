@@ -72,7 +72,7 @@ describe('User flow', function () {
     // Now the requester wants the amount deposited at their reserved wallet back
     await airnode
       .connect(roles.requesterAdmin)
-      .requestWithdrawal(providerId, requesterInd, designatedWalletAddress, roles.requesterAdmin._address);
+      .requestWithdrawal(providerId, requesterInd, designatedWalletAddress, roles.requesterAdmin.address);
     // and the Airnode fulfills it
     await fulfillWithdrawalRequest(providerId, providerMnemonic);
   });
@@ -131,7 +131,7 @@ describe('User flow', function () {
     // Gas cost is 160,076
     const estimatedGasCost = await airnode
       .connect(masterWallet)
-      .estimateGas.createProvider(roles.providerAdmin._address, providerXpub, { value: 1 });
+      .estimateGas.createProvider(roles.providerAdmin.address, providerXpub, { value: 1 });
     // Overestimate a bit
     const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
@@ -140,7 +140,7 @@ describe('User flow', function () {
     const fundsToSend = masterWalletBalance.sub(txCost);
     // Create the provider and send the rest of the master wallet balance along with
     // this transaction. Provider admin will receive these funds.
-    await airnode.connect(masterWallet).createProvider(roles.providerAdmin._address, providerXpub, {
+    await airnode.connect(masterWallet).createProvider(roles.providerAdmin.address, providerXpub, {
       value: fundsToSend,
       gasLimit: gasLimit,
       gasPrice: gasPrice,
@@ -155,7 +155,7 @@ describe('User flow', function () {
   }
 
   async function createRequester() {
-    const tx = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
+    const tx = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
     // Get the newly created requester's ID from the event
     const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash

@@ -3,21 +3,19 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "build": "buidler compile",
-    "deploy:rinkeby": "buidler deploy --network rinkeby",
-    "deploy:ropsten": "buidler deploy --network ropsten",
-    "test": "buidler test",
-    "test:coverage": "buidler coverage"
+    "build": "hardhat compile",
+    "deploy:rinkeby": "hardhat deploy --network rinkeby",
+    "deploy:ropsten": "hardhat deploy --network ropsten",
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage"
   },
   "dependencies": {
-    "@nomiclabs/buidler": "^1.4.6",
-    "@nomiclabs/buidler-ethers": "^2.0.0",
-    "@nomiclabs/buidler-waffle": "^2.1.0",
-    "buidler-deploy": "^0.6.0-beta.16",
+    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
     "chai": "^4.2.0",
-    "ethereum-waffle": "^3.1.0",
-    "ethers": "^5.0.13",
-    "ganache-core": "^2.11.3",
-    "solidity-coverage": "^0.7.11"
+    "ethereum-waffle": "^3.2.1",
+    "hardhat": "^2.0.5",
+    "hardhat-deploy": "^0.7.0-beta.38",
+    "solidity-coverage": "^0.7.13"
   }
 }
