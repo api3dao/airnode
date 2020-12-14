@@ -1,11 +1,12 @@
 import { Airnode } from './airnode';
+import { AirnodeAddresses } from '@airnode/protocol';
 
 describe('Airnode', () => {
   it('exposes the addresses for each network', () => {
     expect(Airnode.addresses).toEqual({
       1: '<TODO>',
-      3: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
-      4: '0xf8f2f4a8317947B6037186e5aC87D015bcD756C1',
+      3: AirnodeAddresses[3],
+      4: AirnodeAddresses[4],
       1337: '0x197F3826040dF832481f835652c290aC7c41f073',
     });
   });

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",
+    "@airnode/protocol": "^0.1.0",
     "@types/yargs": "^15.0.9",
     "ora": "^5.1.0",
     "serverless": "^2.8.0",

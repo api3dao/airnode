@@ -22,7 +22,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @dev This is the recommended way of making a request in most cases. Use
     /// makeShortRequest() if gas efficiency is critical.
     /// @param templateId Template ID from TemplateStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
@@ -34,7 +34,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @return requestId Request ID
     function makeRequest(
         bytes32 templateId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -45,7 +45,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         returns (bytes32 requestId)
     {
         require(
-            requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
+            requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
             "Client not endorsed by requester"
             );
         requestId = keccak256(abi.encode(
@@ -66,7 +66,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             noRequests,
             msg.sender,
             templateId,
-            requesterInd,
+            requesterIndex,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId,
@@ -94,7 +94,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     {
         Template storage template = templates[templateId];
         require(
-            requesterIndToClientAddressToEndorsementStatus[template.requesterInd][msg.sender],
+            requesterIndexToClientAddressToEndorsementStatus[template.requesterIndex][msg.sender],
             "Client not endorsed by requester"
             );
         requestId = keccak256(abi.encode(
@@ -128,7 +128,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// use it unless you have a good reason.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
@@ -139,7 +139,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     function makeFullRequest(
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -150,7 +150,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         returns (bytes32 requestId)
     {
         require(
-            requesterIndToClientAddressToEndorsementStatus[requesterInd][msg.sender],
+            requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
             "Client not endorsed by requester"
             );
         requestId = keccak256(abi.encode(
@@ -171,7 +171,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             noRequests,
             msg.sender,
             endpointId,
-            requesterInd,
+            requesterIndex,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId,

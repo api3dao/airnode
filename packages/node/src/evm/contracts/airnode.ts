@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import compiledContract from './json/airnode.json';
+import { AirnodeABI, AirnodeAddresses } from '@airnode/protocol';
 import { Contract } from './types';
 
 const ClientRequestCreated = ethers.utils.id(
@@ -24,11 +24,11 @@ const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32
 export const Airnode: Contract = {
   addresses: {
     1: '<TODO>',
-    3: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
-    4: '0xf8f2f4a8317947B6037186e5aC87D015bcD756C1',
+    3: AirnodeAddresses[3],
+    4: AirnodeAddresses[4],
     1337: '0x197F3826040dF832481f835652c290aC7c41f073',
   },
-  ABI: compiledContract.abi,
+  ABI: AirnodeABI,
   topics: {
     // API calls
     ClientRequestCreated,

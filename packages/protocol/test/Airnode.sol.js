@@ -14,7 +14,7 @@ let providerMnemonic;
 let providerXpub;
 let providerId;
 let endpointId;
-let requesterInd;
+let requesterIndex;
 let designatedWalletAddress;
 let designatedWallet;
 let fulfillAddress;
@@ -24,7 +24,7 @@ let parameters;
 let templateId;
 let templateBytesId;
 
-let requestTimeRequesterInd;
+let requestTimeRequesterIndex;
 let requestTimeDesignatedWalletAddress;
 let requestTimeDesignatedWallet;
 let requestTimeFulfillAddress;
@@ -50,9 +50,9 @@ beforeEach(async () => {
 
   ({ providerMnemonic, providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
   endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-  requesterInd = await createRequester(airnode, roles.requesterAdmin);
-  designatedWalletAddress = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
-  designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterInd.toString()}`);
+  requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+  designatedWalletAddress = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
+  designatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requesterIndex.toString()}`);
   await roles.requesterAdmin.sendTransaction({
     to: designatedWallet.address,
     value: ethers.utils.parseEther('0.1'),
@@ -73,7 +73,7 @@ beforeEach(async () => {
     airnode,
     providerId,
     endpointId,
-    requesterInd,
+    requesterIndex,
     designatedWalletAddress,
     fulfillAddress,
     fulfillFunctionId,
@@ -83,19 +83,19 @@ beforeEach(async () => {
     airnode,
     providerId,
     endpointId,
-    requesterInd,
+    requesterIndex,
     designatedWalletAddress,
     fulfillAddress,
     fulfillBytesFunctionId,
     parameters
   );
 
-  requestTimeRequesterInd = await createRequester(airnode, roles.requesterAdmin);
+  requestTimeRequesterIndex = await createRequester(airnode, roles.requesterAdmin);
   requestTimeDesignatedWalletAddress = deriveWalletAddressFromPath(
     providerXpub,
-    `m/0/${requestTimeRequesterInd.toString()}`
+    `m/0/${requestTimeRequesterIndex.toString()}`
   );
-  requestTimeDesignatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requestTimeRequesterInd.toString()}`);
+  requestTimeDesignatedWallet = deriveWalletFromPath(providerMnemonic, `m/0/${requestTimeRequesterIndex.toString()}`);
   await roles.requesterAdmin.sendTransaction({
     to: requestTimeDesignatedWallet.address,
     value: ethers.utils.parseEther('0.1'),
@@ -119,7 +119,7 @@ describe('makeRequest', function () {
         roles.clientUser,
         templateId,
         providerId,
-        requestTimeRequesterInd,
+        requestTimeRequesterIndex,
         requestTimeDesignatedWalletAddress,
         requestTimeFulfillAddress,
         fulfillFunctionId,
@@ -132,7 +132,14 @@ describe('makeRequest', function () {
       await expect(
         airnodeClient
           .connect(roles.clientUser)
-          .makeRequest(templateId, requesterInd, designatedWalletAddress, fulfillAddress, fulfillFunctionId, parameters)
+          .makeRequest(
+            templateId,
+            requesterIndex,
+            designatedWalletAddress,
+            fulfillAddress,
+            fulfillFunctionId,
+            parameters
+          )
       ).to.be.revertedWith('Client not endorsed by requester');
     });
   });
@@ -148,7 +155,7 @@ describe('makeShortRequest', function () {
         roles.clientUser,
         templateId,
         providerId,
-        requesterInd,
+        requesterIndex,
         requestTimeParameters
       );
     });
@@ -172,7 +179,7 @@ describe('makeFullRequest', function () {
         roles.clientUser,
         providerId,
         endpointId,
-        requesterInd,
+        requesterIndex,
         designatedWalletAddress,
         fulfillAddress,
         fulfillFunctionId,
@@ -188,7 +195,7 @@ describe('makeFullRequest', function () {
           .makeFullRequest(
             providerId,
             endpointId,
-            requesterInd,
+            requesterIndex,
             designatedWalletAddress,
             fulfillAddress,
             fulfillFunctionId,
@@ -210,7 +217,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -238,7 +245,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -263,7 +270,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -288,7 +295,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -313,7 +320,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -338,7 +345,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -364,7 +371,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         await expect(
@@ -387,7 +394,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseRequestId = '0x000000000000000000000000000000000000000000000000000000000000dead';
@@ -409,7 +416,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
@@ -431,7 +438,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseFulfillAddress = '0x000000000000000000000000000000000000dead';
@@ -453,7 +460,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseFulfillFunctionId = '0x0000dead';
@@ -475,7 +482,7 @@ describe('fulfill', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         await expect(
@@ -496,7 +503,7 @@ describe('fulfill', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -522,7 +529,7 @@ describe('fulfill', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -547,7 +554,7 @@ describe('fulfill', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -572,7 +579,7 @@ describe('fulfill', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -597,7 +604,7 @@ describe('fulfill', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -622,7 +629,7 @@ describe('fulfill', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -649,7 +656,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillBytesFunctionId,
@@ -688,7 +695,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillBytesFunctionId,
@@ -719,7 +726,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillBytesFunctionId,
@@ -750,7 +757,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillBytesFunctionId,
@@ -775,7 +782,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillBytesFunctionId,
@@ -806,7 +813,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillBytesFunctionId,
@@ -832,7 +839,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateBytesId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const tx = await airnode
@@ -862,7 +869,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateBytesId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseRequestId = '0x000000000000000000000000000000000000000000000000000000000000dead';
@@ -884,7 +891,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateBytesId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
@@ -906,7 +913,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateBytesId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseFulfillAddress = '0x000000000000000000000000000000000000dead';
@@ -928,7 +935,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateBytesId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseFulfillFunctionId = '0x0000dead';
@@ -950,7 +957,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           templateBytesId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         await expect(
@@ -973,7 +980,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillBytesFunctionId,
@@ -1006,7 +1013,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillBytesFunctionId,
@@ -1031,7 +1038,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillBytesFunctionId,
@@ -1056,7 +1063,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillBytesFunctionId,
@@ -1081,7 +1088,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillBytesFunctionId,
@@ -1106,7 +1113,7 @@ describe('fulfillBytes', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillBytesFunctionId,
@@ -1135,7 +1142,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -1159,7 +1166,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -1182,7 +1189,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -1205,7 +1212,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -1228,7 +1235,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -1251,7 +1258,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requestTimeRequesterInd,
+          requestTimeRequesterIndex,
           requestTimeDesignatedWalletAddress,
           requestTimeFulfillAddress,
           fulfillFunctionId,
@@ -1275,7 +1282,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         await expect(
@@ -1296,7 +1303,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseRequestId = '0x000000000000000000000000000000000000000000000000000000000000dead';
@@ -1316,7 +1323,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
@@ -1336,7 +1343,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseFulfillAddress = '0x000000000000000000000000000000000000dead';
@@ -1356,7 +1363,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         const falseFulfillFunctionId = '0x0000dead';
@@ -1376,7 +1383,7 @@ describe('fail', function () {
           roles.clientUser,
           templateId,
           providerId,
-          requesterInd,
+          requesterIndex,
           requestTimeParameters
         );
         await expect(
@@ -1397,7 +1404,7 @@ describe('fail', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -1421,7 +1428,7 @@ describe('fail', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -1444,7 +1451,7 @@ describe('fail', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -1467,7 +1474,7 @@ describe('fail', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -1490,7 +1497,7 @@ describe('fail', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
@@ -1513,7 +1520,7 @@ describe('fail', function () {
           roles.clientUser,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWalletAddress,
           fulfillAddress,
           fulfillFunctionId,
