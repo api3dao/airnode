@@ -31,7 +31,7 @@ describe('getProviderAndBlockNumber', function () {
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     // 34,175 gas
     const returnedValues = await convenience.getProviderAndBlockNumber(providerId);
-    expect(returnedValues.admin).to.equal(roles.providerAdmin._address);
+    expect(returnedValues.admin).to.equal(roles.providerAdmin.address);
     expect(returnedValues.xpub).to.equal(providerXpub);
     expect(returnedValues.blockNumber).to.equal(await waffle.provider.getBlockNumber());
   });

@@ -65,6 +65,8 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
           },
         ],
         reservedParameters: [
+          { name: '_type' },
+          { name: '_path' },
           {
             name: '_times',
             default: '100000',
