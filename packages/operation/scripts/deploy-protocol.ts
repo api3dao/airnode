@@ -7,7 +7,7 @@ import config from '../deploy-evm-dev.json';
 // Types
 interface DesignatedWallet {
   address: string;
-  apiProviderId: string;
+  apiProviderName: string;
   wallet: Wallet;
 }
 
@@ -25,6 +25,11 @@ interface ApiProvider {
   xpub: string;
 }
 
+interface Template {
+  apiProviderName: string;
+  onchainTemplateId: string;
+}
+
 // Contracts
 let airnode: Contract;
 let convenience: Contract;
@@ -37,7 +42,7 @@ let ethProvider: providers.JsonRpcProvider;
 
 const apiProvidersByName: { [name: string]: ApiProvider } = {};
 const requestersByName: { [name: string]: RequesterAccount } = {};
-// const templatesByName: { [name: string]: string } = {};
+const templatesByName: { [name: string]: Template } = {};
 
 async function deployContracts() {
   const Airnode = await ethers.getContractFactory('Airnode', deployer);
@@ -75,12 +80,16 @@ function deriveExtendedPublicKey(mnemonic: string) {
   return hdNode.neuter().extendedKey;
 }
 
+function deriveProviderId(apiProvider: ApiProvider) {
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [apiProvider.address]));
+}
+
 async function assignAccounts() {
   for (const providerName of Object.keys(config.apiProviders)) {
     // @ts-ignore TODO Add types
     const apiProvider = config.apiProviders[providerName];
     const providerAdminWallet = deriveWalletFromPath(apiProvider.mnemonic, 'm');
-    const providerAdminAddress = await providerAdminWallet.getAddress();
+    const providerAdminAddress = providerAdminWallet.address;
     const xpub = deriveExtendedPublicKey(apiProvider.mnemonic);
     apiProvidersByName[providerName] = {
       address: providerAdminAddress,
@@ -117,7 +126,7 @@ async function createProviders() {
   for (const apiProviderName of Object.keys(apiProvidersByName)) {
     const apiProvider = apiProvidersByName[apiProviderName];
     const value = ethers.utils.parseEther('1');
-    await airnode.connect(deployer).createProvider(apiProvider.address, apiProvider.xpub, { value });
+    await airnode.connect(apiProvider.signer).createProvider(apiProvider.address, apiProvider.xpub, { value });
   }
 }
 
@@ -126,20 +135,23 @@ async function authorizeEndpoints() {
     // @ts-ignore TODO Add types
     const configApiProvider = config.apiProviders[providerName];
     const apiProvider = apiProvidersByName[providerName];
-    const providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [apiProvider.address]));
+    const providerId = deriveProviderId(apiProvider);
 
     for (const endpointName of Object.keys(configApiProvider.endpoints)) {
       // @ts-ignore TODO Add types
-      const endpoint = configApiProvider.endpoints[endpointName];
+      const configEndpoint = configApiProvider.endpoints[endpointName];
       const { keccak256, defaultAbiCoder } = ethers.utils;
-      const endpointId = keccak256(defaultAbiCoder.encode(['string'], [endpoint.name]));
+      const endpointId = keccak256(defaultAbiCoder.encode(['string'], [endpointName]));
 
-      const authorizerAddresses = endpoint.authorizers.reduce((acc: string[], authorizerName: string) => {
+      const authorizerAddresses = configEndpoint.authorizers.reduce((acc: string[], authorizerName: string) => {
         const address = authorizersByName[authorizerName];
         return [...acc, address];
       }, []);
 
-      await airnode.connect(apiProvider.signer).updateEndpointAuthorizers(providerId, endpointId, authorizerAddresses);
+      // Ethers can't estimate a gas limit here so just set it really high
+      await airnode
+        .connect(apiProvider.signer)
+        .updateEndpointAuthorizers(providerId, endpointId, authorizerAddresses, { gasLimit: 8500000 });
     }
   }
 }
@@ -163,7 +175,7 @@ async function assignDesignatedWallets() {
 
       requester.designatedWallets.push({
         address: wallet.address,
-        apiProviderId: apiProviderName,
+        apiProviderName: apiProviderName,
         wallet,
       });
     }
@@ -177,7 +189,7 @@ async function fundDesignatedWallets() {
     const requester = requestersByName[requesterName];
 
     for (const designatedWallet of requester.designatedWallets) {
-      const configApiProvider = configRequester.apiProviders[designatedWallet.apiProviderId];
+      const configApiProvider = configRequester.apiProviders[designatedWallet.apiProviderName];
       if (!configApiProvider) {
         continue;
       }
@@ -198,64 +210,49 @@ async function endorseClients() {
       const requester = requestersByName[endorserName];
       await airnode
         .connect(requester.signer)
-        .updateClientEndorsementStatus(requester.requesterIndex, client.address, client.endorsed);
+        .updateClientEndorsementStatus(requester.requesterIndex, client.address, true);
     }
   }
 }
 
-// async function createTemplates() {
-//   const providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [providerAdmin.address]));
-//
-//   for (const [index, designatedWallet] of designatedWallets.entries()) {
-//     const requester = config.requesters[index];
-//
-//     for (const clientName of Object.keys(requester.clients)) {
-//       // TODO: add types
-//       // @ts-ignore
-//       const client = requester.clients[clientName];
-//       const clientContract = clients[clientName];
-//
-//       for (const template of client.templates) {
-//         const { keccak256, defaultAbiCoder } = ethers.utils;
-//         const endpointId = keccak256(defaultAbiCoder.encode(['string'], [template.endpointName]));
-//         const tx = await airnode.createTemplate(
-//           providerId,
-//           endpointId,
-//           designatedWallet.requesterIndex,
-//           designatedWallet.address,
-//           clientContract.address,
-//           clientContract.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
-//           encodeMap(template.parameters)
-//         );
-//         const logs = await provider.getLogs({ address: airnode.address });
-//         const log = logs.find((log) => log.transactionHash === tx.hash);
-//         const parsedLog = airnode.interface.parseLog(log!);
-//         const onchainTemplateId = parsedLog.args.templateId;
-//         templateAddressesById[template.id] = onchainTemplateId;
-//       }
-//     }
-//   }
-// }
-//
-// async function makeShortRequests() {
-//   for (const requester of config.requesters) {
-//     for (const clientName of Object.keys(requester.clients)) {
-//       // TODO: add types
-//       // @ts-ignore
-//       const client = requester.clients[clientName];
-//       const clientContract = clients[clientName];
-//
-//       for (const request of client.shortRequests) {
-//         const templateAddress = templateAddressesById[request.templateId];
-//         // TODO: add types
-//         // @ts-ignore
-//         const template = client.templates.find((t) => t.id === request.templateId);
-//         const encodedParameters = encodeMap(template.parameters);
-//         await clientContract.makeShortRequest(templateAddress, encodedParameters);
-//       }
-//     }
-//   }
-// }
+async function createTemplates() {
+  for (const apiProviderName of Object.keys(apiProvidersByName)) {
+    const apiProvider = apiProvidersByName[apiProviderName];
+    // @ts-ignore TODO add types
+    const configApiProvider = config.apiProviders[apiProviderName];
+    const providerId = deriveProviderId(apiProvider);
+
+    for (const templateName of Object.keys(configApiProvider.templates)) {
+      // @ts-ignore TODO: add types
+      const configTemplate = configApiProvider.templates[templateName];
+      const client = clientsByName[configTemplate.fulfillClient];
+      const requester = requestersByName[configTemplate.requester];
+      const designatedWallet = requester.designatedWallets.find((w) => w.apiProviderName === apiProviderName);
+
+      const { keccak256, defaultAbiCoder } = ethers.utils;
+      const endpointId = keccak256(defaultAbiCoder.encode(['string'], [configTemplate.endpoint]));
+
+      const tx = await airnode.createTemplate(
+        providerId,
+        endpointId,
+        requester.requesterIndex,
+        designatedWallet!.address,
+        client.address,
+        client.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
+        encode(configTemplate.parameters)
+      );
+      const logs = await ethProvider.getLogs({ address: airnode.address });
+      const log = logs.find((log) => log.transactionHash === tx.hash);
+      const parsedLog = airnode.interface.parseLog(log!);
+      const templateId = parsedLog.args.templateId;
+
+      templatesByName[templateName] = {
+        apiProviderName,
+        onchainTemplateId: templateId,
+      };
+    }
+  }
+}
 
 async function main() {
   ethProvider = ethers.provider;
@@ -282,10 +279,24 @@ async function main() {
   console.log('Endorsing clients...');
   await endorseClients();
 
-  // await createTemplates();
+  console.log('Creating templates...');
+  await createTemplates();
 
-  console.log('Protocol deployed to:', airnode.address);
-  console.log('Convenience deployed to:', convenience.address);
+  console.log('=======================CONTRACTS=======================');
+  console.log('AIRNODE ADDRESS:    ', airnode.address);
+  console.log('CONVENIENCE ADDRESS:', convenience.address);
+  console.log('=======================CONTRACTS=======================');
+
+  console.log('\n=======================TEMPLATES=======================');
+  for (const templateName of Object.keys(templatesByName)) {
+    const template = templatesByName[templateName];
+    console.log('-------------------------------------------------------');
+    console.log(`TEMPLATE NAME: ${templateName}`);
+    console.log(`API PROVIDER : ${template.apiProviderName}`);
+    console.log(`ONCHAIN ID:    ${template.onchainTemplateId}`);
+    console.log('-------------------------------------------------------');
+  }
+  console.log('=======================TEMPLATES=======================');
 }
 
 // We recommend this pattern to be able to use async/await everywhere

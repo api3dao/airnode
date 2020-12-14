@@ -9,15 +9,16 @@
       },
       "templates": {
         "template-1": {
-          "endpointId": "convertToUSD",
-          "fulfillClientId": "MockAirnodeClient",
+          "endpoint": "convertToUSD",
+          "fulfillClient": "MockAirnodeClient",
           "fulfillFunctionName": "fulfill",
-          "parameters": {
-            "to": "USD",
-            "_type": "uint256",
-            "_path": "result",
-            "_times": "100000"
-          }
+          "requester": "alice",
+          "parameters": [
+            { "type": "bytes32", "name": "to", "value": "USD" },
+            { "type": "bytes32", "name": "_type", "value": "uint256" },
+            { "type": "bytes32", "name": "_path", "value": "result" },
+            { "type": "bytes32", "name": "_times", "value": "100000" }
+          ]
         }
       }
     }
