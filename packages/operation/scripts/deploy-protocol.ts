@@ -125,8 +125,13 @@ async function assignAccounts() {
 async function createProviders() {
   for (const apiProviderName of Object.keys(apiProvidersByName)) {
     const apiProvider = apiProvidersByName[apiProviderName];
-    const value = ethers.utils.parseEther('1');
-    await airnode.connect(apiProvider.signer).createProvider(apiProvider.address, apiProvider.xpub, { value });
+
+    // Ensure that the API provider address has enough ETH to create the onchain provider
+    await deployer.sendTransaction({ to: apiProvider.address, value: ethers.utils.parseEther('5') });
+
+    await airnode
+      .connect(apiProvider.signer)
+      .createProvider(apiProvider.address, apiProvider.xpub, { value: ethers.utils.parseEther('1') });
   }
 }
 
