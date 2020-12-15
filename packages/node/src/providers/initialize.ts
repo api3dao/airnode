@@ -5,8 +5,7 @@ import * as logger from '../logger';
 import { buildEVMState } from '../providers/state';
 import { spawnNewProvider } from '../providers/worker';
 import { Config, EVMProviderState, LogsData, ProviderState, WorkerOptions } from '../types';
-
-const PROVIDER_INITIALIZATION_TIMEOUT = 20_000;
+import { PROVIDER_INITIALIZATION_TIMEOUT } from '../constants';
 
 async function initializeEVMProvider(
   state: ProviderState<EVMProviderState>,

@@ -7,6 +7,7 @@ import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import { Convenience } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
+import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 interface FetchOptions {
   convenienceAddress: string;
@@ -22,7 +23,7 @@ async function fetchTemplateGroup(
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => convenience.getTemplates(templateIds) as Promise<any>;
-  const retryableContractCall = retryOperation(2, contractCall);
+  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, rawTemplates] = await go(retryableContractCall);
   // If we fail to fetch templates, the linked requests will be discarded and retried
@@ -61,7 +62,7 @@ export async function fetch(
   }
 
   // Requests are made for up to 10 templates at a time
-  const groupedTemplateIds = chunk(uniq(templateIds), 10);
+  const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);

@@ -3,6 +3,7 @@ import * as contracts from '../contracts';
 import * as events from './events';
 import { EVMEventLogWithMetadata } from '../../types';
 import { retryOperation } from '../../utils/promise-utils';
+import { OPERATION_RETRIES } from '../../constants';
 
 interface FetchOptions {
   address: string;
@@ -32,7 +33,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
   };
 
   const operation = () => options.provider.getLogs(filter);
-  const retryableOperation = retryOperation(2, operation);
+  const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
   // Let this throw if something goes wrong
   const rawLogs = await retryableOperation;
