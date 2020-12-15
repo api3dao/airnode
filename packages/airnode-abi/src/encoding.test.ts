@@ -2,7 +2,7 @@ import * as decoding from './decoding';
 import * as encoding from './encoding';
 import { InputParameter } from './types';
 
-describe('encodeMap', () => {
+describe('encode', () => {
   const inputParameters: InputParameter[] = [
     { type: 'bytes', name: 'TestBytesName', value: '0x123abc' },
     { type: 'bytes32', name: 'TestBytes32Name', value: 'Some bytes32 value' },
@@ -19,6 +19,11 @@ describe('encodeMap', () => {
       const decoded = decoding.decode(encoded);
       expect(decoded).toEqual({ [name]: value });
     });
+  });
+
+  it('encodes empty parameters', () => {
+    const encoded = encoding.encode([]);
+    expect(encoded).toEqual('0x3100000000000000000000000000000000000000000000000000000000000000');
   });
 
   it('encodes multiple types', () => {
