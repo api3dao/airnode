@@ -8,6 +8,7 @@
     "bootstrap": "yarn install && lerna bootstrap",
     "build": "lerna run build --stream",
     "build:adapter": "(cd packages/adapter && yarn run build)",
+    "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
     "build:deployer": "(cd packages/deployer && yarn run build)",
     "build:protocol": "(cd packages/protocol && yarn run build)",
     "build:node": "(cd packages/node && yarn run build)",
