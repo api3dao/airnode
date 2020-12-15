@@ -11,7 +11,7 @@ import "./interfaces/ITemplateStore.sol";
 /// passing the same parameters repeatedly.
 /// @dev A template is composed of two groups of parameters. The first group is
 /// requester-agnostic (providerId, endpointInd, parameters), while the second
-/// group is requester-specific (requesterInd, designatedWallet, fulfillAddress,
+/// group is requester-specific (requesterIndex, designatedWallet, fulfillAddress,
 /// fulfillFunctionId). Short requests refer to a template and use both of
 /// these groups of parameters. Regular requests refer to a template, but only
 /// use the requester-agnostic parameters of it, and require the client to
@@ -23,7 +23,7 @@ contract TemplateStore is ITemplateStore {
     struct Template {
         bytes32 providerId;
         bytes32 endpointId;
-        uint256 requesterInd;
+        uint256 requesterIndex;
         address designatedWallet;
         address fulfillAddress;
         bytes4 fulfillFunctionId;
@@ -44,7 +44,7 @@ contract TemplateStore is ITemplateStore {
     /// ID.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
@@ -57,7 +57,7 @@ contract TemplateStore is ITemplateStore {
     function createTemplate(
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -70,7 +70,7 @@ contract TemplateStore is ITemplateStore {
         templateId = keccak256(abi.encode(
             providerId,
             endpointId,
-            requesterInd,
+            requesterIndex,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId,
@@ -79,7 +79,7 @@ contract TemplateStore is ITemplateStore {
         templates[templateId] = Template({
             providerId: providerId,
             endpointId: endpointId,
-            requesterInd: requesterInd,
+            requesterIndex: requesterIndex,
             designatedWallet: designatedWallet,
             fulfillAddress: fulfillAddress,
             fulfillFunctionId: fulfillFunctionId,
@@ -89,7 +89,7 @@ contract TemplateStore is ITemplateStore {
           templateId,
           providerId,
           endpointId,
-          requesterInd,
+          requesterIndex,
           designatedWallet,
           fulfillAddress,
           fulfillFunctionId,
@@ -101,7 +101,7 @@ contract TemplateStore is ITemplateStore {
     /// @param templateId Request template ID
     /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
-    /// @return requesterInd Requester index from RequesterStore
+    /// @return requesterIndex Requester index from RequesterStore
     /// @return designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @return fulfillAddress Address that will be called to fulfill
@@ -117,7 +117,7 @@ contract TemplateStore is ITemplateStore {
         returns (
             bytes32 providerId,
             bytes32 endpointId,
-            uint256 requesterInd,
+            uint256 requesterIndex,
             address designatedWallet,
             address fulfillAddress,
             bytes4 fulfillFunctionId,
@@ -126,7 +126,7 @@ contract TemplateStore is ITemplateStore {
     {
         providerId = templates[templateId].providerId;
         endpointId = templates[templateId].endpointId;
-        requesterInd = templates[templateId].requesterInd;
+        requesterIndex = templates[templateId].requesterIndex;
         designatedWallet = templates[templateId].designatedWallet;
         fulfillAddress = templates[templateId].fulfillAddress;
         fulfillFunctionId = templates[templateId].fulfillFunctionId;

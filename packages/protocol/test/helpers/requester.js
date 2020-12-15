@@ -5,7 +5,7 @@ async function createRequester(airnode, requesterAdminRole) {
   const log = await verifyLog(airnode, tx, 'RequesterCreated(uint256,address)', {
     admin: requesterAdminRole.address,
   });
-  return log.args.requesterInd;
+  return log.args.requesterIndex;
 }
 
 module.exports = {

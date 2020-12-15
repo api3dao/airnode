@@ -42,7 +42,7 @@ contract Convenience is IConvenience {
     /// @param templateIds Request template IDs
     /// @return providerIds Provider IDs from ProviderStore
     /// @return endpointIds Endpoint IDs from EndpointStore
-    /// @return requesterInds Requester indices from RequesterStore
+    /// @return requesterIndices Requester indices from RequesterStore
     /// @return designatedWallets Designated wallets that are requested to
     /// fulfill the request
     /// @return fulfillAddresses Addresses that will be called to fulfill
@@ -58,7 +58,7 @@ contract Convenience is IConvenience {
         returns (
             bytes32[] memory providerIds,
             bytes32[] memory endpointIds,
-            uint256[] memory requesterInds,
+            uint256[] memory requesterIndices,
             address[] memory designatedWallets,
             address[] memory fulfillAddresses,
             bytes4[] memory fulfillFunctionIds,
@@ -67,7 +67,7 @@ contract Convenience is IConvenience {
     {
         providerIds = new bytes32[](templateIds.length);
         endpointIds = new bytes32[](templateIds.length);
-        requesterInds = new uint256[](templateIds.length);
+        requesterIndices = new uint256[](templateIds.length);
         designatedWallets = new address[](templateIds.length);
         fulfillAddresses = new address[](templateIds.length);
         fulfillFunctionIds = new bytes4[](templateIds.length);
@@ -77,7 +77,7 @@ contract Convenience is IConvenience {
             (
                 providerIds[ind],
                 endpointIds[ind],
-                requesterInds[ind],
+                requesterIndices[ind],
                 designatedWallets[ind],
                 fulfillAddresses[ind],
                 fulfillFunctionIds[ind],
@@ -114,7 +114,7 @@ contract Convenience is IConvenience {
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
@@ -122,7 +122,7 @@ contract Convenience is IConvenience {
         bytes32 providerId,
         bytes32 requestId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address clientAddress
         )
@@ -162,7 +162,7 @@ contract Convenience is IConvenience {
                 // This means that we will not be able to return a true from
                 // this group of authorizers.
                 if (!authorizer.checkIfAuthorized(
-                    requestId, providerId, endpointId, requesterInd, designatedWallet, clientAddress
+                    requestId, providerId, endpointId, requesterIndex, designatedWallet, clientAddress
                     )) {
                     authorizedByAll = false;
                 }
@@ -180,7 +180,7 @@ contract Convenience is IConvenience {
     /// @param providerId Provider ID from ProviderStore
     /// @param requestIds Request IDs
     /// @param endpointIds Endpoint IDs from EndpointStore
-    /// @param requesterInds Requester indices from RequesterStore
+    /// @param requesterIndices Requester indices from RequesterStore
     /// @param designatedWallets Designated wallets
     /// @param clientAddresses Client addresses
     /// @return statuses Authorization statuses of the request
@@ -188,7 +188,7 @@ contract Convenience is IConvenience {
         bytes32 providerId,
         bytes32[] calldata requestIds,
         bytes32[] calldata endpointIds,
-        uint256[] calldata requesterInds,
+        uint256[] calldata requesterIndices,
         address[] calldata designatedWallets,
         address[] calldata clientAddresses
         )
@@ -199,7 +199,7 @@ contract Convenience is IConvenience {
     {
         require(
             requestIds.length == endpointIds.length
-                && requestIds.length == requesterInds.length
+                && requestIds.length == requesterIndices.length
                 && requestIds.length == designatedWallets.length
                 && requestIds.length == clientAddresses.length,
             "Parameter lengths must be equal"
@@ -211,7 +211,7 @@ contract Convenience is IConvenience {
                 providerId,
                 requestIds[ind],
                 endpointIds[ind],
-                requesterInds[ind],
+                requesterIndices[ind],
                 designatedWallets[ind],
                 clientAddresses[ind]
                 );

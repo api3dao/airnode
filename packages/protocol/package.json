@@ -2,6 +2,7 @@
   "name": "@airnode/protocol",
   "version": "0.1.0",
   "license": "MIT",
+  "main": "index",
   "scripts": {
     "build": "hardhat compile",
     "deploy:rinkeby": "hardhat deploy --network rinkeby",

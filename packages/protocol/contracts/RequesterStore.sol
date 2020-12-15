@@ -9,42 +9,42 @@ import "./interfaces/IRequesterStore.sol";
 /// A requester endorsing a client means that the client can request their
 /// requests to be fulfilled by the respective requester's designated wallets.
 contract RequesterStore is IRequesterStore {
-    mapping(uint256 => address) public requesterIndToAdmin;
-    mapping(uint256 => mapping(address => bool)) public requesterIndToClientAddressToEndorsementStatus;
+    mapping(uint256 => address) public requesterIndexToAdmin;
+    mapping(uint256 => mapping(address => bool)) public requesterIndexToClientAddressToEndorsementStatus;
     uint256 private noRequesters = 1;
 
 
     /// @notice Creates a requester with the given parameters, addressable by
     /// the index it returns
     /// @param admin Requester admin
-    /// @return requesterInd Requester index
+    /// @return requesterIndex Requester index
     function createRequester(address admin)
         external
         override
-        returns (uint256 requesterInd)
+        returns (uint256 requesterIndex)
     {
-        requesterInd = noRequesters++;
-        requesterIndToAdmin[requesterInd] = admin;
+        requesterIndex = noRequesters++;
+        requesterIndexToAdmin[requesterIndex] = admin;
         emit RequesterCreated(
-            requesterInd,
+            requesterIndex,
             admin
             );
     }
 
     /// @notice Updates the requester admin
-    /// @param requesterInd Requester index
+    /// @param requesterIndex Requester index
     /// @param admin Requester admin
     function updateRequesterAdmin(
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address admin
         )
         external
         override
-        onlyRequesterAdmin(requesterInd)
+        onlyRequesterAdmin(requesterIndex)
     {
-        requesterIndToAdmin[requesterInd] = admin;
+        requesterIndexToAdmin[requesterIndex] = admin;
         emit RequesterUpdated(
-            requesterInd,
+            requesterIndex,
             admin
             );
     }
@@ -54,31 +54,31 @@ contract RequesterStore is IRequesterStore {
     /// @dev This is not provider specific, i.e., the requester allows the
     /// client's requests to be fulfilled through its designated wallets across
     /// all providers
-    /// @param requesterInd Requester index
+    /// @param requesterIndex Requester index
     /// @param clientAddress Client address
     function updateClientEndorsementStatus(
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address clientAddress,
         bool endorsementStatus
         )
         external
         override
-        onlyRequesterAdmin(requesterInd)
+        onlyRequesterAdmin(requesterIndex)
     {
-        requesterIndToClientAddressToEndorsementStatus[requesterInd][clientAddress] = endorsementStatus;
+        requesterIndexToClientAddressToEndorsementStatus[requesterIndex][clientAddress] = endorsementStatus;
         emit ClientEndorsementStatusUpdated(
-            requesterInd,
+            requesterIndex,
             clientAddress,
             endorsementStatus
             );
     }
 
     /// @dev Reverts if the caller is not the requester admin
-    /// @param requesterInd Requester index
-    modifier onlyRequesterAdmin(uint256 requesterInd)
+    /// @param requesterIndex Requester index
+    modifier onlyRequesterAdmin(uint256 requesterIndex)
     {
         require(
-            msg.sender == requesterIndToAdmin[requesterInd],
+            msg.sender == requesterIndexToAdmin[requesterIndex],
             "Caller is not requester admin"
             );
         _;

@@ -1,6 +1,6 @@
 import * as ethers from 'ethers';
 import ora from 'ora';
-import { abi } from './Airnode.json';
+import { AirnodeABI } from '@airnode/protocol';
 
 const chainIdsToNames = {
   1: 'mainnet',
@@ -20,7 +20,7 @@ export async function checkProviderRecords(providerId, chains, masterWalletAddre
       // Use the first provider of the chain in config.json
       const provider = new ethers.providers.JsonRpcProvider(chain.providers[0].url);
       // chain.contracts.Airnode is a required field
-      const airnode = new ethers.Contract(chain.contracts.Airnode, abi, provider);
+      const airnode = new ethers.Contract(chain.contracts.Airnode, AirnodeABI, provider);
       const providerRecord = await airnode.getProvider(providerId);
       if (providerRecord.xpub === '') {
         spinner.warn(`Provider record not found on chain: ${chainName}`);

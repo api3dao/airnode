@@ -23,8 +23,8 @@ describe('createTemplate', function () {
     let providerXpub, providerId;
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-    const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+    const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     const fulfillAddress = '0x0000000000000000000000000000000000000123';
     const fulfillFunctionId = ethers.utils.hexDataSlice(
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes('myFunction(bytes32,uint256,bytes32)')),
@@ -36,7 +36,7 @@ describe('createTemplate', function () {
       airnode,
       providerId,
       endpointId,
-      requesterInd,
+      requesterIndex,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,

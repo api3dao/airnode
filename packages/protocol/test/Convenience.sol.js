@@ -42,8 +42,8 @@ describe('getTemplates', function () {
     let providerXpub, providerId;
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-    const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+    const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     const fulfillAddress = '0x0000000000000000000000000000000000000123';
     const fulfillFunctionId = ethers.utils.hexDataSlice(
       ethers.utils.keccak256(ethers.utils.toUtf8Bytes('myFunction(bytes32,uint256,bytes32)')),
@@ -55,7 +55,7 @@ describe('getTemplates', function () {
       airnode,
       providerId,
       endpointId,
-      requesterInd,
+      requesterIndex,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,
@@ -67,7 +67,7 @@ describe('getTemplates', function () {
     for (var ind = 0; ind < noTemplates; ind++) {
       expect(templates.providerIds[ind]).to.equal(providerId);
       expect(templates.endpointIds[ind]).to.equal(endpointId);
-      expect(templates.requesterInds[ind]).to.equal(requesterInd);
+      expect(templates.requesterIndices[ind]).to.equal(requesterIndex);
       expect(templates.designatedWallets[ind]).to.equal(designatedWallet);
       expect(templates.fulfillAddresses[ind]).to.equal(fulfillAddress);
       expect(templates.fulfillFunctionIds[ind]).to.equal(fulfillFunctionId);
@@ -85,8 +85,8 @@ describe('checkAuthorizationStatus', function () {
     await airnode
       .connect(roles.providerAdmin)
       .updateEndpointAuthorizers(providerId, endpointId, Array(noAuthorizers).fill(authorizer.address));
-    const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+    const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // 91,529 gas
     const authorizationStatus = await convenience.checkAuthorizationStatus(
       providerId,
@@ -109,8 +109,8 @@ describe('checkAuthorizationStatuses', function () {
     await airnode
       .connect(roles.providerAdmin)
       .updateEndpointAuthorizers(providerId, endpointId, Array(noAuthorizers).fill(authorizer.address));
-    const requesterInd = await createRequester(airnode, roles.requesterAdmin);
-    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+    const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
+    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // 722,267 gas
     const noRequests = 10;
     const authorizationStatuses = await convenience.checkAuthorizationStatuses(

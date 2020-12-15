@@ -76,19 +76,19 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// provider to send the funds kept in their designated wallet to
     /// destination
     /// @param providerId Provider ID
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that the withdrawal is
     /// requested from
     /// @param destination Withdrawal destination
     function requestWithdrawal(
         bytes32 providerId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address destination
     )
         external
         override
-        onlyRequesterAdmin(requesterInd)
+        onlyRequesterAdmin(requesterIndex)
     {
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             this,
@@ -96,14 +96,14 @@ contract ProviderStore is RequesterStore, IProviderStore {
             ));
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             providerId,
-            requesterInd,
+            requesterIndex,
             designatedWallet,
             destination
             ));
         withdrawalRequestIdToParameters[withdrawalRequestId] = withdrawalParameters;
         emit WithdrawalRequested(
             providerId,
-            requesterInd,
+            requesterIndex,
             withdrawalRequestId,
             designatedWallet,
             destination
@@ -115,12 +115,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @dev The oracle node sends the funds through this method to emit an
     /// event that indicates that the withdrawal request has been fulfilled
     /// @param providerId Provider ID
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param destination Withdrawal destination
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
         bytes32 providerId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address destination
         )
         external
@@ -129,7 +129,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     {
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             providerId,
-            requesterInd,
+            requesterIndex,
             msg.sender,
             destination
             ));
@@ -140,7 +140,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         delete withdrawalRequestIdToParameters[withdrawalRequestId];
         emit WithdrawalFulfilled(
             providerId,
-            requesterInd,
+            requesterIndex,
             withdrawalRequestId,
             msg.sender,
             destination,
