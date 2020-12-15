@@ -2,7 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import { encode } from '@airnode/airnode-abi';
 import { ethers } from 'hardhat';
 import { Contract, providers, Wallet } from 'ethers';
-import config from '../deploy-evm-dev.json';
+import config from '../config/evm-dev-deploy.json';
 
 // Types
 interface DesignatedWallet {
@@ -287,19 +287,33 @@ async function main() {
   console.log('Creating templates...');
   await createTemplates();
 
-  console.log('=======================CONTRACTS=======================');
+  console.log('\n=======================CONTRACTS=======================');
   console.log('AIRNODE ADDRESS:    ', airnode.address);
   console.log('CONVENIENCE ADDRESS:', convenience.address);
   console.log('=======================CONTRACTS=======================');
 
+  console.log('\n=======================CLIENTS=======================');
+  const clientNames = Object.keys(clientsByName);
+  for (const [index, clientName] of clientNames.entries()) {
+    const client = clientsByName[clientName];
+    console.log(`CLIENT NAME: ${clientName}`);
+    console.log(`ADDRESS    : ${client.address}`);
+    if (index + 1 < clientNames.length) {
+      console.log('-------------------------------------------------------');
+    }
+  }
+  console.log('=======================CLIENTS=======================');
+
   console.log('\n=======================TEMPLATES=======================');
-  for (const templateName of Object.keys(templatesByName)) {
+  const templateNames = Object.keys(templatesByName);
+  for (const [index, templateName] of templateNames.entries()) {
     const template = templatesByName[templateName];
-    console.log('-------------------------------------------------------');
     console.log(`TEMPLATE NAME: ${templateName}`);
     console.log(`API PROVIDER : ${template.apiProviderName}`);
     console.log(`ONCHAIN ID:    ${template.onchainTemplateId}`);
-    console.log('-------------------------------------------------------');
+    if (index + 1 < templateNames.length) {
+      console.log('-------------------------------------------------------');
+    }
   }
   console.log('=======================TEMPLATES=======================');
 }
