@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "compile": "hardhat compile && yarn run copy-artifacts:protocol",
-    "copy-artifacts:protocol": "cp -ra ../protocol/artifacts/. ./artifacts/",
+    "compile": "cp -r ../protocol/contracts/* contracts/; hardhat compile",
     "dev:eth-deploy": "hardhat run scripts/evm-dev-deploy.ts",
     "dev:eth-node": "hardhat node",
     "dev:eth-requests": "hardhat run scripts/evm-dev-requests.ts",

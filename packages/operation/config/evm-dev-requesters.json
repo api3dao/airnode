@@ -1,0 +1,16 @@
+{
+  "requesters": [
+    {
+      "id": "alice",
+      "apiProviders": {
+        "CurrencyConverterAPI": { "ethBalance": "1" }
+      }
+    },
+    {
+      "id": "bob",
+      "apiProviders": {
+        "CurrencyConverterAPI": { "ethBalance": "5" }
+      }
+    }
+  ]
+}

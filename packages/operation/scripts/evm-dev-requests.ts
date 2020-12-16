@@ -1,20 +1,21 @@
 import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
 import { encode } from '@airnode/airnode-abi';
-// import { AirnodeABI, ConvenienceABI } from '@airnode/protocol';
 import { providers } from 'ethers';
-import config from '../config/evm-dev-requests.json';
+import requestConfig from '../config/evm-dev-requests.json';
+import requesterConfig from '../config/evm-dev-requesters.json';
 
 // Types
 type RequestType = 'short' | 'regular' | 'full';
 
 interface Request {
-  type: RequestType;
   client: string;
+  requesterId: string;
+  type: RequestType;
 }
 
 interface RequestParameter {
-  name: string
+  name: string;
   type: string;
   value: string;
 }
@@ -25,42 +26,33 @@ interface ShortRequest extends Request {
 }
 
 // General
-let deployer: providers.JsonRpcSigner;
 let ethProvider: providers.JsonRpcProvider;
 
-// Contracts
-// let airnode: Contract;
-// let convenience: Contract;
-//
-// function assignContracts() {
-//   const airnodeAddress = config.addresses.Airnode;
-//   airnode = new ethers.Contract(airnodeAddress, AirnodeABI, ethProvider);
-//
-//   const convenienceAddress = config.addresses.Convenience;
-//   convenience = new ethers.Contract(convenienceAddress, ConvenienceABI, ethProvider);
-// }
+function getRequesterSigner(requesterId: string) {
+  const requesterIndex = requesterConfig.requesters.findIndex((r) => r.id === requesterId);
+  return ethProvider.getSigner(requesterIndex + 1);
+}
 
-async function makeShortRequest(index: number, request: ShortRequest) {
+async function makeShortRequest(request: ShortRequest) {
+  const signer = getRequesterSigner(request.requesterId);
+  const ABI = ['function makeShortRequest(bytes32 templateId, bytes calldata parameters) external'];
+
   // @ts-ignore TODO add types
-  const clientAddress = config.clients[request.client];
-  const abi = [
-    'function makeShortRequest(bytes32 templateId, bytes calldata parameters) external',
-  ];
-  const client = new ethers.Contract(clientAddress, abi, deployer);
+  const clientAddress = requestConfig.clients[request.client];
+  const client = new ethers.Contract(clientAddress, ABI, ethProvider);
   const encodedParameters = encode(request.parameters);
-  console.log(request.templateId);
-  console.log(encodedParameters);
-  const tx = await client.makeShortRequest(request.templateId, encodedParameters);
-  console.log(`Request ${index} submitted. Tx: ${tx}`);
+
+  await client.connect(signer).makeShortRequest(request.templateId, encodedParameters);
 }
 
 async function makeRequests() {
-  for (const [index, request] of config.requests.entries()) {
+  for (const [index, request] of requestConfig.requests.entries()) {
     switch (request.type) {
       case 'short':
-        await makeShortRequest(index, request as ShortRequest);
+        await makeShortRequest(request as ShortRequest);
     }
-    if (index + 1 < config.requests.length) {
+    console.log(`Request #${index} submitted`);
+    if (index + 1 < requestConfig.requests.length) {
       console.log('-------------------------------------------------------');
     }
   }
@@ -68,13 +60,10 @@ async function makeRequests() {
 
 async function main() {
   ethProvider = ethers.provider;
-  deployer = ethProvider.getSigner(0);
 
-  // console.log('Assigning contracts...');
-  // assignContracts();
-
-  console.log('Making requests...');
-  makeRequests();
+  console.log('\n=======================REQUESTS=======================');
+  await makeRequests();
+  console.log('=======================REQUESTS=======================');
 }
 
 // We recommend this pattern to be able to use async/await everywhere
@@ -82,6 +71,6 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
+    console.log(error);
     process.exit(1);
   });

@@ -12,7 +12,7 @@
           "endpoint": "convertToUSD",
           "fulfillClient": "MockAirnodeClient",
           "fulfillFunctionName": "fulfill",
-          "requester": "alice",
+          "requester": "bob",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
             { "type": "bytes32", "name": "_type", "value": "uint256" },
@@ -28,17 +28,5 @@
   },
   "clients": {
     "MockAirnodeClient": { "endorsers": ["bob"] }
-  },
-  "requesters": {
-    "alice": {
-      "apiProviders": {
-        "CurrencyConverterAPI": { "ethBalance": "1" }
-      }
-    },
-    "bob": {
-      "apiProviders": {
-        "CurrencyConverterAPI": { "ethBalance": "5" }
-      }
-    }
   }
 }

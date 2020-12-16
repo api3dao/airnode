@@ -9,6 +9,11 @@ const config: HardhatUserConfig = {
     compilers: [{ version: '0.6.12', settings: {} }],
   },
   networks: {
+    hardhat: {
+      accounts: {
+        count: 100,
+      },
+    },
     localhost: {
       url: 'http://127.0.0.1:8545/',
     },

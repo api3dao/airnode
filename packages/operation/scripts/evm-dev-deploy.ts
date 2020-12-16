@@ -2,7 +2,8 @@ import '@nomiclabs/hardhat-ethers';
 import { encode } from '@airnode/airnode-abi';
 import { ethers } from 'hardhat';
 import { Contract, providers, Wallet } from 'ethers';
-import config from '../config/evm-dev-deploy.json';
+import deployConfig from '../config/evm-dev-deploy.json';
+import requesterConfig from '../config/evm-dev-requesters.json';
 
 // Types
 interface DesignatedWallet {
@@ -41,7 +42,7 @@ let deployer: providers.JsonRpcSigner;
 let ethProvider: providers.JsonRpcProvider;
 
 const apiProvidersByName: { [name: string]: ApiProvider } = {};
-const requestersByName: { [name: string]: RequesterAccount } = {};
+const requestersById: { [name: string]: RequesterAccount } = {};
 const templatesByName: { [name: string]: Template } = {};
 
 async function deployContracts() {
@@ -53,16 +54,16 @@ async function deployContracts() {
   convenience = await Convenience.deploy(airnode.address);
   await convenience.deployed();
 
-  for (const clientName of Object.keys(config.clients)) {
+  for (const clientName of Object.keys(deployConfig.clients)) {
     const MockClient = await ethers.getContractFactory(clientName, deployer);
     const mockClient = await MockClient.deploy(airnode.address);
     await mockClient.deployed();
     clientsByName[clientName] = mockClient;
   }
 
-  for (const authorizerName of Object.keys(config.authorizers)) {
-    // @ts-ignore Add types
-    const authorizerValue = config.authorizers[authorizerName];
+  for (const authorizerName of Object.keys(deployConfig.authorizers)) {
+    // @ts-ignore TODO add types
+    const authorizerValue = deployConfig.authorizers[authorizerName];
     if (authorizerValue.startsWith('0x')) {
       authorizersByName[authorizerName] = authorizerValue;
       continue;
@@ -85,9 +86,9 @@ function deriveProviderId(apiProvider: ApiProvider) {
 }
 
 async function assignAccounts() {
-  for (const providerName of Object.keys(config.apiProviders)) {
+  for (const providerName of Object.keys(deployConfig.apiProviders)) {
     // @ts-ignore TODO Add types
-    const apiProvider = config.apiProviders[providerName];
+    const apiProvider = deployConfig.apiProviders[providerName];
     const providerAdminWallet = deriveWalletFromPath(apiProvider.mnemonic, 'm');
     const providerAdminAddress = providerAdminWallet.address;
     const xpub = deriveExtendedPublicKey(apiProvider.mnemonic);
@@ -101,7 +102,7 @@ async function assignAccounts() {
 
   // Start assigning signers from index 1. These accounts are already funded
   let signerIndex = 1;
-  for (const requesterName of Object.keys(config.requesters)) {
+  for (const configRequester of requesterConfig.requesters) {
     const requesterSigner = ethProvider.getSigner(signerIndex);
     const requesterAddress = await requesterSigner.getAddress();
 
@@ -109,9 +110,9 @@ async function assignAccounts() {
     const logs = await ethProvider.getLogs({ address: airnode.address });
     const log = logs.find((log) => log.transactionHash === tx.hash);
     const parsedLog = airnode.interface.parseLog(log!);
-    const requesterIndex = parsedLog.args.requesterInd;
+    const requesterIndex = parsedLog.args.requesterIndex;
 
-    requestersByName[requesterName] = {
+    requestersById[configRequester.id] = {
       address: requesterAddress,
       designatedWallets: [],
       requesterIndex,
@@ -138,7 +139,7 @@ async function createProviders() {
 async function authorizeEndpoints() {
   for (const providerName of Object.keys(apiProvidersByName)) {
     // @ts-ignore TODO Add types
-    const configApiProvider = config.apiProviders[providerName];
+    const configApiProvider = deployConfig.apiProviders[providerName];
     const apiProvider = apiProvidersByName[providerName];
     const providerId = deriveProviderId(apiProvider);
 
@@ -168,10 +169,8 @@ function deriveWalletFromPath(mnemonic: string, path: string) {
 }
 
 async function assignDesignatedWallets() {
-  for (const requesterName of Object.keys(config.requesters)) {
-    // @ts-ignore TODO add types
-    const configRequester = config.requesters[requesterName];
-    const requester = requestersByName[requesterName];
+  for (const configRequester of requesterConfig.requesters) {
+    const requester = requestersById[configRequester.id];
 
     for (const apiProviderName of Object.keys(configRequester.apiProviders)) {
       // @ts-ignore TODO add types
@@ -188,12 +187,11 @@ async function assignDesignatedWallets() {
 }
 
 async function fundDesignatedWallets() {
-  for (const requesterName of Object.keys(requestersByName)) {
-    // @ts-ignore TODO add types
-    const configRequester = config.requesters[requesterName];
-    const requester = requestersByName[requesterName];
+  for (const configRequester of requesterConfig.requesters) {
+    const requester = requestersById[configRequester.id];
 
     for (const designatedWallet of requester.designatedWallets) {
+      // @ts-ignore TODO add types
       const configApiProvider = configRequester.apiProviders[designatedWallet.apiProviderName];
       if (!configApiProvider) {
         continue;
@@ -206,13 +204,14 @@ async function fundDesignatedWallets() {
 }
 
 async function endorseClients() {
-  for (const clientName of Object.keys(config.clients)) {
+  for (const clientName of Object.keys(deployConfig.clients)) {
     // @ts-ignore TODO add types
-    const configClient = config.clients[clientName];
+    const configClient = deployConfig.clients[clientName];
     const client = clientsByName[clientName];
 
-    for (const endorserName of configClient.endorsers) {
-      const requester = requestersByName[endorserName];
+    for (const requesterId of configClient.endorsers) {
+      const requester = requestersById[requesterId];
+
       await airnode
         .connect(requester.signer)
         .updateClientEndorsementStatus(requester.requesterIndex, client.address, true);
@@ -224,14 +223,14 @@ async function createTemplates() {
   for (const apiProviderName of Object.keys(apiProvidersByName)) {
     const apiProvider = apiProvidersByName[apiProviderName];
     // @ts-ignore TODO add types
-    const configApiProvider = config.apiProviders[apiProviderName];
+    const configApiProvider = deployConfig.apiProviders[apiProviderName];
     const providerId = deriveProviderId(apiProvider);
 
     for (const templateName of Object.keys(configApiProvider.templates)) {
       // @ts-ignore TODO: add types
       const configTemplate = configApiProvider.templates[templateName];
       const client = clientsByName[configTemplate.fulfillClient];
-      const requester = requestersByName[configTemplate.requester];
+      const requester = requestersById[configTemplate.requester];
       const designatedWallet = requester.designatedWallets.find((w) => w.apiProviderName === apiProviderName);
 
       const { keccak256, defaultAbiCoder } = ethers.utils;
