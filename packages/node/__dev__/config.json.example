@@ -11,13 +11,13 @@
         "type": "evm",
         "id": 1337,
         "contracts": {
-          "Airnode": "0x197F3826040dF832481f835652c290aC7c41f073",
-          "Convenience": "0x2393737d287c555d148012270Ce4567ABb1ee95C"
+          "Airnode": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          "Convenience": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
         },
         "providers": [
           {
-            "name": "ganache-local",
-            "url": "http://localhost:4111"
+            "name": "evm-local",
+            "url": "http://127.0.0.1:8545/"
           }
         ]
       }
