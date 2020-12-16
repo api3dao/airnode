@@ -10,7 +10,9 @@ import {
   RequestStatus,
   TransactionOptions,
 } from '../../types';
-import { OPERATION_RETRIES, GAS_LIMIT } from '../../constants';
+import { OPERATION_RETRIES } from '../../constants';
+
+const GAS_LIMIT = 500_000;
 
 type StaticResponse = { callSuccess: boolean } | null;
 

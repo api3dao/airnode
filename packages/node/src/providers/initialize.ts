@@ -5,7 +5,7 @@ import * as logger from '../logger';
 import { buildEVMState } from '../providers/state';
 import { spawnNewProvider } from '../providers/worker';
 import { Config, EVMProviderState, LogsData, ProviderState, WorkerOptions } from '../types';
-import { PROVIDER_INITIALIZATION_TIMEOUT } from '../constants';
+import { WORKER_PROVIDER_INITIALIZATION_TIMEOUT } from '../constants';
 
 async function initializeEVMProvider(
   state: ProviderState<EVMProviderState>,
@@ -16,7 +16,7 @@ async function initializeEVMProvider(
   // Each provider gets 20 seconds to initialize. If it fails to initialize
   // in this time, it is ignored. It is important to catch any potential errors
   // here as a single promise rejecting will cause Promise.all to reject
-  const [err, logsWithRes] = await goTimeout(PROVIDER_INITIALIZATION_TIMEOUT, initialization);
+  const [err, logsWithRes] = await goTimeout(WORKER_PROVIDER_INITIALIZATION_TIMEOUT, initialization);
   if (err || !logsWithRes) {
     const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
     return [[log], null];
