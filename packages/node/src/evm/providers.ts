@@ -5,6 +5,7 @@ import * as logger from '../logger';
 import * as utils from './utils';
 import * as wallet from './wallet';
 import { LogsData } from '../types';
+import { OPERATION_RETRIES } from '../constants';
 
 interface BaseFetchOptions {
   providerAdminForRecordCreation?: string;
@@ -36,7 +37,7 @@ interface ProviderWithBlockNumber {
 export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData<ProviderWithBlockNumber | null>> {
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
   const operation = () => convenience.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
-  const retryableOperation = retryOperation(2, operation);
+  const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and provider admin details...');
 
@@ -84,7 +85,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
       gasLimit: 300_000,
       value: 1,
     });
-  const retryableGasEstimateOp = retryOperation(2, gasEstimateOp);
+  const retryableGasEstimateOp = retryOperation(OPERATION_RETRIES, gasEstimateOp);
   const [estimateErr, estimatedGasCost] = await go(retryableGasEstimateOp);
   if (estimateErr || !estimatedGasCost) {
     const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
@@ -96,7 +97,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Fetch the current gas price
   const gasPriceOp = () => options.provider.getGasPrice();
-  const retryableGasPriceOp = retryOperation(2, gasPriceOp);
+  const retryableGasPriceOp = retryOperation(OPERATION_RETRIES, gasPriceOp);
   const [gasPriceErr, gasPrice] = await go(retryableGasPriceOp);
   if (gasPriceErr || !gasPrice) {
     const errLog = logger.pend('ERROR', 'Unable to fetch gas price', gasPriceErr);
@@ -106,7 +107,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Get the balance for the master wallet
   const balanceOp = () => options.provider.getBalance(masterWallet.address);
-  const retryableBalanceOp = retryOperation(2, balanceOp);
+  const retryableBalanceOp = retryOperation(OPERATION_RETRIES, balanceOp);
   const [balanceErr, masterWalletBalance] = await go(retryableBalanceOp);
   if (balanceErr || !masterWalletBalance) {
     const errLog = logger.pend('ERROR', 'Unable to fetch master wallet balance', balanceErr);
@@ -126,7 +127,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
       gasLimit,
       gasPrice,
     }) as Promise<any>;
-  const retryableCreateProviderTx = retryOperation(2, createProviderTx);
+  const retryableCreateProviderTx = retryOperation(OPERATION_RETRIES, createProviderTx);
   const [txErr, tx] = await go(retryableCreateProviderTx);
   if (txErr || !tx) {
     const errLog = logger.pend('ERROR', 'Unable to submit create provider transaction', txErr);

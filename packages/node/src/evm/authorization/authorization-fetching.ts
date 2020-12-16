@@ -6,6 +6,7 @@ import { Convenience } from '../contracts';
 import * as logger from '../../logger';
 import { go, retryOperation } from '../../utils/promise-utils';
 import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../types';
+import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 interface FetchOptions {
   convenienceAddress: string;
@@ -34,7 +35,7 @@ async function fetchAuthorizationStatuses(
       designatedWallets,
       clientAddresses
     ) as Promise<any>;
-  const retryableContractCall = retryOperation(2, contractCall);
+  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {
@@ -64,7 +65,7 @@ export async function fetch(
   }
 
   // Request groups of 10 at a time
-  const groupedPairs = chunk(pendingApiCalls, 10);
+  const groupedPairs = chunk(pendingApiCalls, CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);

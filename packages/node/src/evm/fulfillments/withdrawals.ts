@@ -3,6 +3,7 @@ import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../types';
+import { OPERATION_RETRIES } from '../../constants';
 
 type SubmitResponse = ethers.Transaction | null;
 
@@ -22,7 +23,7 @@ export async function submitWithdrawal(
 
   const requesterAddress = wallet.deriveWalletAddressFromIndex(options.masterHDNode, request.requesterIndex!);
   const getBalanceOperation = () => options.provider!.getBalance(requesterAddress);
-  const retryableGetBalanceOperation = retryOperation(2, getBalanceOperation);
+  const retryableGetBalanceOperation = retryOperation(OPERATION_RETRIES, getBalanceOperation);
   const [balanceErr, currentBalance] = await go(retryableGetBalanceOperation);
   if (balanceErr || !currentBalance) {
     const errLog = logger.pend(
@@ -44,7 +45,7 @@ export async function submitWithdrawal(
       // to revert. The transaction cost would need to be subtracted first
       { value: 1 }
     );
-  const retryableEstimate = retryOperation(2, estimateTx);
+  const retryableEstimate = retryOperation(OPERATION_RETRIES, estimateTx);
   // The node calculates how much gas the next transaction will cost (53,654)
   const [estimateErr, estimatedGasLimit] = await go(retryableEstimate);
   if (estimateErr || !estimatedGasLimit) {
@@ -90,7 +91,7 @@ export async function submitWithdrawal(
       nonce: request.nonce!,
       value: fundsToSend,
     });
-  const retryableTx = retryOperation(2, withdrawalTx);
+  const retryableTx = retryOperation(OPERATION_RETRIES, withdrawalTx);
   // Note that we're using the requester wallet to call this
   const [withdrawalErr, withdrawalRes] = await go(retryableTx);
   if (withdrawalErr || !withdrawalRes) {

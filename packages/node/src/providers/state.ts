@@ -9,6 +9,7 @@ import {
   ProviderSettings,
   ProviderState,
 } from '../types';
+import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 
 export function buildEVMState(
   coordinatorId: string,
@@ -22,13 +23,13 @@ export function buildEVMState(
   const providerSettings: ProviderSettings = {
     providerAdminForRecordCreation: chain.providerAdminForRecordCreation,
     // The number of blocks to look back for events to process
-    blockHistoryLimit: chain.blockHistoryLimit || 600,
+    blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,
     chainId: chain.id,
     chainType: 'evm' as ChainType,
     // If this number of blocks has passed, then ignore requests instead of blocking them
-    ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || 20,
+    ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || BLOCK_COUNT_IGNORE_LIMIT,
     logFormat: config.nodeSettings.logFormat,
-    minConfirmations: chain.minConfirmations || 0,
+    minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
     name: chainProvider.name,
     providerId: evm.getProviderId(masterHDNode),
     providerIdShort: evm.getProviderIdShort(masterHDNode),
