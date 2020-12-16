@@ -3,8 +3,7 @@ import * as logger from '../../logger';
 import { goTimeout } from '../../utils/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
 import { AggregatedApiCall, LogsData, LogOptions, RequestErrorCode, WorkerOptions } from '../../types';
-
-const WORKER_TIMEOUT = 29_500;
+import { WORKER_CALL_API_TIMEOUT } from '../../constants';
 
 async function execute(
   aggregatedApiCall: AggregatedApiCall,
@@ -25,7 +24,10 @@ async function execute(
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process. We need to catch any errors here (like a timeout)
   // as a rejection here will cause Promise.all to fail
-  const [err, logData] = await goTimeout(WORKER_TIMEOUT, spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts));
+  const [err, logData] = await goTimeout(
+    WORKER_CALL_API_TIMEOUT,
+    spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts)
+  );
   const resLogs = logData ? logData[0] : [];
 
   const finishedAt = new Date();

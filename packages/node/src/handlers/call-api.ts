@@ -6,11 +6,7 @@ import { getConfigSecret } from '../config';
 import * as logger from '../logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { AggregatedApiCall, ApiCallResponse, Config, LogsData, RequestErrorCode } from '../types';
-
-// Each API call is allowed 20 seconds to complete, before it is retried until the
-// maximum timeout is reached.
-const TOTAL_TIMEOUT = 29_000;
-const API_CALL_TIMEOUT = 20_000;
+import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 
 function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
@@ -48,10 +44,12 @@ export async function callApi(
   }
 
   const options = buildOptions(ois, aggregatedApiCall);
+  // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
+  // maximum timeout is reached.
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
 
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
-  const retryableCall = retryOnTimeout(TOTAL_TIMEOUT, () =>
+  const retryableCall = retryOnTimeout(API_CALL_TOTAL_TIMEOUT, () =>
     adapter.buildAndExecuteRequest(options, adapterConfig)
   ) as Promise<any>;
 

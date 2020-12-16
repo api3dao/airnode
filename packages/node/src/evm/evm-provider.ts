@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { NETWORKS } from './networks';
+import { EVM_PROVIDER_TIMEOUT } from '../constants';
 
 export function buildEVMProvider(url: string, chainId: number) {
   // Ethers makes a call to get the network in the background if it is
@@ -8,5 +9,5 @@ export function buildEVMProvider(url: string, chainId: number) {
   const network = NETWORKS[chainId] || null;
 
   // Ethers only let's us configure the timeout when creating a provider
-  return new ethers.providers.JsonRpcProvider({ url, timeout: 10_000 }, network);
+  return new ethers.providers.JsonRpcProvider({ url, timeout: EVM_PROVIDER_TIMEOUT }, network);
 }

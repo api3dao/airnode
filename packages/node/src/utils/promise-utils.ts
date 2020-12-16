@@ -1,4 +1,5 @@
 import Bluebird from 'bluebird';
+import { DEFAULT_RETRY_OPERATION_TIMEOUT } from '../constants';
 
 // Adapted from:
 // https://github.com/then/is-promise
@@ -58,7 +59,9 @@ export function retryOperation<T>(
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     // Find the timeout for this specific iteration. Default to 5 seconds timeout
-    const timeout = options?.timeouts ? options.timeouts[options.timeouts.length - retriesLeft] : 5000;
+    const timeout = options?.timeouts
+      ? options.timeouts[options.timeouts.length - retriesLeft]
+      : DEFAULT_RETRY_OPERATION_TIMEOUT;
 
     // Wrap the original operation in a timeout
     const execution = promiseTimeout(timeout, operation());

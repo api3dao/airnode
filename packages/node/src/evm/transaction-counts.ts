@@ -5,6 +5,7 @@ import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as wallet from './wallet';
 import { LogsData } from '../types';
+import { OPERATION_RETRIES } from '../constants';
 
 export interface TransactionCountByRequesterIndex {
   [index: string]: number;
@@ -22,7 +23,7 @@ async function getWalletTransactionCount(
 ): Promise<LogsData<TransactionCountByRequesterIndex | null>> {
   const address = wallet.deriveWalletAddressFromIndex(options.masterHDNode, requesterIndex);
   const providerCall = () => options.provider.getTransactionCount(address, options.currentBlock);
-  const retryableCall = retryOperation(2, providerCall);
+  const retryableCall = retryOperation(OPERATION_RETRIES, providerCall);
   const [err, count] = await go(retryableCall);
   if (err || count === null) {
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
