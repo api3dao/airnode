@@ -197,7 +197,7 @@ async function fundDesignatedWallets() {
         continue;
       }
       const value = ethers.utils.parseEther(configApiProvider.ethBalance);
-      const to = requester.address;
+      const to = designatedWallet.address;
       await deployer.sendTransaction({ to, value });
     }
   }
