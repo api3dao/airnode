@@ -21,8 +21,8 @@ interface Request {
 }
 
 interface ShortRequest extends Request {
-  template: string;
   parameters: RequestParameter[];
+  template: string;
 }
 
 interface RegularRequest extends Request {
@@ -31,14 +31,11 @@ interface RegularRequest extends Request {
   template: string;
 }
 
-// interface FullRequest extends Request {
-//   designatedWallet: string;
-//   endpointId: string;
-//   fulfillFunctionId: string;
-//   parameters: RequestParameter[];
-//   providerId: string;
-//   requesterIndex: string;
-// }
+interface FullRequest extends Request {
+  endpoint: string;
+  fulfillFunctionName: string;
+  parameters: RequestParameter[];
+}
 
 // General
 let ethProvider: providers.JsonRpcProvider;
@@ -54,6 +51,13 @@ const CLIENT_ABI = [
 function getRequesterIndex(requesterId: string) {
   const requesterIndex = config.requesters.findIndex((r) => r.id === requesterId);
   return requesterIndex + 1;
+}
+
+function getProviderId(apiProvider: string) {
+  // @ts-ignore TODO add types
+  const { mnemonic } = config.apiProviders[apiProvider];
+  const masterWallet = deriveWalletFromPath(mnemonic, 'm');
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
 }
 
 function deriveWalletFromPath(mnemonic: string, path: string) {
@@ -110,6 +114,33 @@ async function makeRegularRequest(request: RegularRequest) {
     );
 }
 
+async function makeFullRequest(request: FullRequest) {
+  const requesterIndex = getRequesterIndex(request.requesterId);
+  const signer = ethProvider.getSigner(requesterIndex);
+  const providerId = getProviderId(request.apiProvider);
+  const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [request.endpoint]));
+
+  // @ts-ignore TODO add types
+  const clientAddress = config.addresses.clients[request.client];
+  const client = new ethers.Contract(clientAddress, CLIENT_ABI, ethProvider);
+  const encodedParameters = encode(request.parameters);
+
+  // @ts-ignore TODO add types
+  const designatedWallet = getDesignatedWallet(request.apiProvider, requesterIndex);
+
+  await client
+    .connect(signer)
+    .makeFullRequest(
+      providerId,
+      endpointId,
+      requesterIndex,
+      designatedWallet.address,
+      client.address,
+      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes32)`),
+      encodedParameters
+    );
+}
+
 async function makeRequests() {
   for (const [index, request] of config.requests.entries()) {
     switch (request.type as RequestType) {
@@ -122,6 +153,7 @@ async function makeRequests() {
         break;
 
       case 'full':
+        await makeFullRequest(request as FullRequest);
         break;
     }
 

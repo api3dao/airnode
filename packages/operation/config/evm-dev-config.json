@@ -70,6 +70,15 @@
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
       "parameters": []
+    },
+    {
+      "requesterId": "bob",
+      "type": "full",
+      "apiProvider": "CurrencyConverterAPI",
+      "endpoint": "convertToUSD",
+      "client": "MockAirnodeClient",
+      "fulfillFunctionName": "fulfill",
+      "parameters": []
     }
   ]
 }
