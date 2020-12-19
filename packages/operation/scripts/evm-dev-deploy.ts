@@ -2,8 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import { encode } from '@airnode/airnode-abi';
 import { ethers } from 'hardhat';
 import { Contract, providers, Wallet } from 'ethers';
-import deployConfig from '../config/evm-dev-deploy.json';
-import requesterConfig from '../config/evm-dev-requesters.json';
+import config from '../config/evm-dev-config.json';
 
 // Types
 interface DesignatedWallet {
@@ -54,16 +53,16 @@ async function deployContracts() {
   convenience = await Convenience.deploy(airnode.address);
   await convenience.deployed();
 
-  for (const clientName of Object.keys(deployConfig.clients)) {
+  for (const clientName of Object.keys(config.clients)) {
     const MockClient = await ethers.getContractFactory(clientName, deployer);
     const mockClient = await MockClient.deploy(airnode.address);
     await mockClient.deployed();
     clientsByName[clientName] = mockClient;
   }
 
-  for (const authorizerName of Object.keys(deployConfig.authorizers)) {
+  for (const authorizerName of Object.keys(config.authorizers)) {
     // @ts-ignore TODO add types
-    const authorizerValue = deployConfig.authorizers[authorizerName];
+    const authorizerValue = config.authorizers[authorizerName];
     if (authorizerValue.startsWith('0x')) {
       authorizersByName[authorizerName] = authorizerValue;
       continue;
@@ -86,9 +85,9 @@ function deriveProviderId(apiProvider: ApiProvider) {
 }
 
 async function assignAccounts() {
-  for (const providerName of Object.keys(deployConfig.apiProviders)) {
+  for (const providerName of Object.keys(config.apiProviders)) {
     // @ts-ignore TODO Add types
-    const apiProvider = deployConfig.apiProviders[providerName];
+    const apiProvider = config.apiProviders[providerName];
     const providerAdminWallet = deriveWalletFromPath(apiProvider.mnemonic, 'm');
     const providerAdminAddress = providerAdminWallet.address;
     const xpub = deriveExtendedPublicKey(apiProvider.mnemonic);
@@ -102,7 +101,7 @@ async function assignAccounts() {
 
   // Start assigning signers from index 1. These accounts are already funded
   let signerIndex = 1;
-  for (const configRequester of requesterConfig.requesters) {
+  for (const configRequester of config.requesters) {
     const requesterSigner = ethProvider.getSigner(signerIndex);
     const requesterAddress = await requesterSigner.getAddress();
 
@@ -139,7 +138,7 @@ async function createProviders() {
 async function authorizeEndpoints() {
   for (const providerName of Object.keys(apiProvidersByName)) {
     // @ts-ignore TODO Add types
-    const configApiProvider = deployConfig.apiProviders[providerName];
+    const configApiProvider = config.apiProviders[providerName];
     const apiProvider = apiProvidersByName[providerName];
     const providerId = deriveProviderId(apiProvider);
 
@@ -169,7 +168,7 @@ function deriveWalletFromPath(mnemonic: string, path: string) {
 }
 
 async function assignDesignatedWallets() {
-  for (const configRequester of requesterConfig.requesters) {
+  for (const configRequester of config.requesters) {
     const requester = requestersById[configRequester.id];
 
     for (const apiProviderName of Object.keys(configRequester.apiProviders)) {
@@ -187,7 +186,7 @@ async function assignDesignatedWallets() {
 }
 
 async function fundDesignatedWallets() {
-  for (const configRequester of requesterConfig.requesters) {
+  for (const configRequester of config.requesters) {
     const requester = requestersById[configRequester.id];
 
     for (const designatedWallet of requester.designatedWallets) {
@@ -204,9 +203,9 @@ async function fundDesignatedWallets() {
 }
 
 async function endorseClients() {
-  for (const clientName of Object.keys(deployConfig.clients)) {
+  for (const clientName of Object.keys(config.clients)) {
     // @ts-ignore TODO add types
-    const configClient = deployConfig.clients[clientName];
+    const configClient = config.clients[clientName];
     const client = clientsByName[clientName];
 
     for (const requesterId of configClient.endorsers) {
@@ -223,7 +222,7 @@ async function createTemplates() {
   for (const apiProviderName of Object.keys(apiProvidersByName)) {
     const apiProvider = apiProvidersByName[apiProviderName];
     // @ts-ignore TODO add types
-    const configApiProvider = deployConfig.apiProviders[apiProviderName];
+    const configApiProvider = config.apiProviders[apiProviderName];
     const providerId = deriveProviderId(apiProvider);
 
     for (const templateName of Object.keys(configApiProvider.templates)) {
@@ -290,6 +289,18 @@ async function main() {
   console.log('AIRNODE ADDRESS:    ', airnode.address);
   console.log('CONVENIENCE ADDRESS:', convenience.address);
   console.log('=======================CONTRACTS=======================');
+
+  console.log('\n=======================REQUESTERS=======================');
+  const requesterIds = Object.keys(requestersById);
+  for (const [index, requesterId] of requesterIds.entries()) {
+    const requester = requestersById[requesterId];
+    console.log(`REQUESTER      : ${requesterId}`);
+    console.log(`REQUESTER INDEX: ${requester.requesterIndex}`);
+    if (index + 1 < requesterIds.length) {
+      console.log('-------------------------------------------------------');
+    }
+  }
+  console.log('=======================REQUESTERS=======================');
 
   console.log('\n=======================CLIENTS=======================');
   const clientNames = Object.keys(clientsByName);

@@ -1,0 +1,75 @@
+{
+  "addresses": {
+    "clients": {
+      "MockAirnodeClient": "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
+    },
+    "templates": {
+      "CurrencyConverterAPI": {
+        "template-1": "0x747f464d39cbe9884854ba2b6cf58ad7b94a6e520826faf74c3c4b2d3b34276d"
+      }
+    }
+  },
+  "apiProviders": {
+    "CurrencyConverterAPI": {
+      "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
+      "endpoints": {
+        "convertToUSD": {
+          "authorizers": ["public"]
+        }
+      },
+      "templates": {
+        "template-1": {
+          "endpoint": "convertToUSD",
+          "fulfillClient": "MockAirnodeClient",
+          "fulfillFunctionName": "fulfill",
+          "requester": "bob",
+          "parameters": [
+            { "type": "bytes32", "name": "to", "value": "USD" },
+            { "type": "bytes32", "name": "_type", "value": "uint256" },
+            { "type": "bytes32", "name": "_path", "value": "result" },
+            { "type": "bytes32", "name": "_times", "value": "100000" }
+          ]
+        }
+      }
+    }
+  },
+  "authorizers": {
+    "public": "0x0000000000000000000000000000000000000000"
+  },
+  "clients": {
+    "MockAirnodeClient": { "endorsers": ["bob"] }
+  },
+  "requesters": [
+    {
+      "id": "alice",
+      "apiProviders": {
+        "CurrencyConverterAPI": { "ethBalance": "1" }
+      }
+    },
+    {
+      "id": "bob",
+      "apiProviders": {
+        "CurrencyConverterAPI": { "ethBalance": "5" }
+      }
+    }
+  ],
+  "requests": [
+    {
+      "requesterId": "bob",
+      "type": "short",
+      "apiProvider": "CurrencyConverterAPI",
+      "template": "template-1",
+      "client": "MockAirnodeClient",
+      "parameters": []
+    },
+    {
+      "requesterId": "bob",
+      "type": "regular",
+      "apiProvider": "CurrencyConverterAPI",
+      "template": "template-1",
+      "client": "MockAirnodeClient",
+      "fulfillFunctionName": "fulfill",
+      "parameters": []
+    }
+  ]
+}
