@@ -34,6 +34,9 @@ yarn dev:eth-deploy
 
 # Make requests for Airnode to action (separate terminal)
 yarn dev:eth-requests
+
+# Airnode can then be invoked to process the requests
+yarn dev:invoke
 ```
 
 ### Ethereum Development Node
@@ -87,7 +90,7 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 }
 ```
 
-#### 1. Addresses
+### 1. Addresses
 
 Before you can make requests to the deployed Airnode contracts, you need to provide the addresses to use. This is because the "make requests" script has no context of what was previously deployed.
 
@@ -99,7 +102,7 @@ The following fields are required:
 
 `addresses.templates.[api-provider].[template-name]` - the string address value of each template that was deployed. Templates are grouped by API provider as they can have duplicate names between API providers.
 
-#### 2. apiProviders
+### 2. apiProviders
 
 `apiProviders` must have a unique name as the key.
 
@@ -125,17 +128,17 @@ The following fields are required:
 
 `parameters` - a list of parameters that be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
-#### 3. authorizers
+### 3. authorizers
 
 `authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed, while all other values will require a contract of the same name. See the [Authorizer documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/authorizer.md) for more details.
 
-#### 4. clients
+### 4. clients
 
 `clients` - a key/value object where the key represents the unique client contract name and the value represents the client options. All names defined correspond with actual contracts in the `contracts/folder`. See the [client documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/client.md) for more details.
 
 `client.[name].endorsers` - a list of requesters who have endorsed the client. See the [endorsement documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) for more details.
 
-#### 5. requesters
+### 5. requesters
 
 Requesters represent an ordered list of entities making requests to a given API provider. Typically these would be individuals or businesses. You can find more information in the [Requester documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md).
 
@@ -147,33 +150,27 @@ Each requester object has the following structure:
 
 `apiProviders.[name].ethBalance` - a string value that represents how much ETH should be deposited into the requester's designated wallet for the given API provider. Requesters have one designated wallet per API provider.
 
-#### 6. requests
+### 6. requests
 
 There are currently three types of requests that can be made. You can learn more about these request types in the [request documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/request.md)
 
-**Short requests**
+**Shared Fields**
 
 `requesterId` - the ID for the requester making
 
-`type` - "short"
+`type` - "short", "regular" or "full"
 
 `apiProvider` - the name of the API provider
 
 `client` - the name of the client contract
+
+**Short Requests**
 
 `template` - the name of the template
 
 `parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 **Regular Requests**
-
-`requesterId` - the ID for the requester making
-
-`type` - "regular"
-
-`apiProvider` - the name of the API provider
-
-`client` - the name of the client contract
 
 `template` - the name of the template
 
@@ -182,14 +179,6 @@ There are currently three types of requests that can be made. You can learn more
 `parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 **Full Requests**
-
-`requesterId` - the ID for the requester making
-
-`type` - "full"
-
-`apiProvider` - the name of the API provider
-
-`client` - the name of the client contract
 
 `endpoint` - the name of the endpoint for the specific API provider
 
@@ -280,7 +269,12 @@ There are currently three types of requests that can be made. You can learn more
       "endpoint": "convertToUSD",
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
-      "parameters": []
+      "parameters": [
+        { "type": "bytes32", "name": "to", "value": "USD" },
+        { "type": "bytes32", "name": "_type", "value": "uint256" },
+        { "type": "bytes32", "name": "_path", "value": "result" },
+        { "type": "bytes32", "name": "_times", "value": "100000" }
+      ]
     }
   ]
 }
