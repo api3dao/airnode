@@ -14,7 +14,7 @@ yarn run bootstrap
 yarn run build
 
 # Compile Solidity contracts
-yarn run compile
+yarn run dev:eth-compile
 ```
 
 ## Airnode Development

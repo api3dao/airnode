@@ -15,7 +15,7 @@
     "build:ois": "(cd packages/ois && yarn run build)",
     "clean": "lerna run clean --stream",
     "dev:invoke": "(cd packages/node && yarn run dev:invoke)",
-    "dev:eth-compile": "(cd packages/operation && yarn run compile)",
+    "dev:eth-compile": "(cd packages/operation && yarn run dev:eth-compile)",
     "dev:eth-deploy": "(cd packages/operation && yarn run dev:eth-deploy)",
     "dev:eth-node": "(cd packages/operation && yarn run dev:eth-node)",
     "dev:eth-requests": "(cd packages/operation && yarn run dev:eth-requests)",
