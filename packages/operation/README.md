@@ -8,13 +8,13 @@ This package is currently not intended to be used in a standalone way. Instead y
 
 ```sh
 # Install and link dependencies
-yarn bootstrap
+yarn run bootstrap
 
 # Build each @airnode package
-yarn build
+yarn run build
 
 # Compile Solidity contracts
-yarn compile
+yarn run compile
 ```
 
 ## Airnode Development
@@ -25,18 +25,18 @@ See below for more details
 
 ```sh
 # Start Eth node
-yarn dev:eth-node
+yarn run dev:eth-node
 
 # Deploy Airnode with API providers, templates, requesters etc (separate terminal)
-yarn dev:eth-deploy
+yarn run dev:eth-deploy
 
 # Copy the output client and template addresses into the config/evm-dev-config.json file
 
 # Make requests for Airnode to action (separate terminal)
-yarn dev:eth-requests
+yarn run dev:eth-requests
 
 # Airnode can then be invoked to process the requests
-yarn dev:invoke
+yarn run dev:invoke
 ```
 
 ### Ethereum Development Node
@@ -44,7 +44,7 @@ yarn dev:invoke
 Start an Ethereum development node by running:
 
 ```sh
-yarn dev:eth-node
+yarn run dev:eth-node
 ```
 
 By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your `config.json` when running the Airnode node.
@@ -56,7 +56,7 @@ This development node uses [Hardhat](https://hardhat.org/) behind the scenes. It
 After starting an Ethereum development node, you can deploy the Airnode contracts to it by running:
 
 ```sh
-yarn dev:eth-deploy
+yarn run dev:eth-deploy
 ```
 
 Along with simply deploying the Airnode contracts, the above command will also create API providers onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
@@ -68,7 +68,7 @@ It is important to note that the Ethereum development node uses the same master 
 Now that the contracts have been deployed and initial data setup, you can create some requests by running:
 
 ```sh
-yarn dev:eth-requests
+yarn run dev:eth-requests
 ```
 
 Invoking Airnode will cause these requests to be actioned.
