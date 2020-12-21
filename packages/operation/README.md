@@ -30,7 +30,7 @@ yarn run dev:eth-node
 # Deploy Airnode with API providers, templates, requesters etc (separate terminal)
 yarn run dev:eth-deploy
 
-# Copy the output client and template addresses into the config/evm-dev-config.json file
+# Copy the output client addresses and template hashes into the config/evm-dev-config.json file
 
 # Make requests for Airnode to action (separate terminal)
 yarn run dev:eth-requests
@@ -100,7 +100,7 @@ The following fields are required:
 
 `addresses.clients.[name]` - the string address value of each client contract that was deployed.
 
-`addresses.templates.[api-provider].[template-name]` - the string address value of each template that was deployed. Templates are grouped by API provider as they can have duplicate names between API providers.
+`addresses.templates.[api-provider].[template-name]` - the string hash value of each template that was deployed. Templates are grouped by API provider as they can have duplicate names between API providers.
 
 ### 2. apiProviders
 
