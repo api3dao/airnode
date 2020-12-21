@@ -81,7 +81,7 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 ```json
 {
-  "addresses": { ... },
+  "deployed": { ... },
   "apiProviders": { ... },
   "authorizers": { ... },
   "clients": { ... },
@@ -90,17 +90,17 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 }
 ```
 
-### 1. Addresses
+### 1. deployed
 
-Before you can make requests to the deployed Airnode contracts, you need to provide the addresses to use. This is because the "make requests" script has no context of what was previously deployed.
+Before you can make requests to the deployed Airnode contracts, you need to provide the addresses/hashes to use. This is because the "make requests" script has no context of what was previously deployed.
 
 All relevant values are output by the "deploy Airnode" script.
 
 The following fields are required:
 
-`addresses.clients.[name]` - the string address value of each client contract that was deployed.
+`deployed.clients.[name]` - the string address value of each client contract that was deployed.
 
-`addresses.templates.[api-provider].[template-name]` - the string hash value of each template that was deployed. Templates are grouped by API provider as they can have duplicate names between API providers.
+`deployed.templates.[api-provider].[template-name]` - the string hash value of each template that was deployed. Templates are grouped by API provider as they can have duplicate names between API providers.
 
 ### 2. apiProviders
 
@@ -190,7 +190,7 @@ There are currently three types of requests that can be made. You can learn more
 
 ```json
 {
-  "addresses": {
+  "deployed": {
     "clients": {
       "MockAirnodeClient": "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
     },
