@@ -16,3 +16,7 @@ export function deriveWalletFromPath(mnemonic: string, path: string, provider: e
   const designatorHdNode = masterHdNode.derivePath(path);
   return new ethers.Wallet(designatorHdNode.privateKey, provider);
 }
+
+export function getDesignatedWallet(mnemonic: string, requesterIndex: number, provider: ethers.providers.JsonRpcProvider) {
+  return deriveWalletFromPath(mnemonic, `m/0/0/${requesterIndex}`, provider);
+}

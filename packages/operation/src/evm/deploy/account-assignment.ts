@@ -24,7 +24,7 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
 
   const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
-    const requesterWallet = ethers.Wallet.createRandom();
+    const requesterWallet = ethers.Wallet.createRandom().connect(state.provider);
     const requesterAddress = requesterWallet.address;
 
     const tx = await Airnode!.connect(state.deployer).createRequester(requesterAddress);

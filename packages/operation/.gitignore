@@ -6,3 +6,6 @@ artifacts
 
 # Typescript files for contracts
 typechain
+
+# Script output files
+deployments

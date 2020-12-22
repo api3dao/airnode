@@ -57,7 +57,7 @@ export async function createTemplates(state: State): Promise<State> {
 
       templatesByName[templateName] = {
         apiProviderName,
-        onchainTemplateId: templateId,
+        hash: templateId,
       };
     }
   }

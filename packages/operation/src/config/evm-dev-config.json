@@ -1,14 +1,4 @@
 {
-  "deployed": {
-    "clients": {
-      "MockAirnodeClient": "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
-    },
-    "templates": {
-      "CurrencyConverterAPI": {
-        "template-1": "0x747f464d39cbe9884854ba2b6cf58ad7b94a6e520826faf74c3c4b2d3b34276d"
-      }
-    }
-  },
   "apiProviders": {
     "CurrencyConverterAPI": {
       "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
