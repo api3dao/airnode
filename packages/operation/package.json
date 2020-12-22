@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev:eth-compile": "cp -r ../protocol/contracts/* contracts/; hardhat compile",
-    "dev:eth-deploy": "hardhat run scripts/evm-dev-deploy.ts",
+    "dev:eth-deploy": "ts-node src/scripts/evm-dev-deploy.ts",
     "dev:eth-node": "hardhat node",
     "dev:eth-requests": "hardhat run scripts/evm-dev-requests.ts",
     "test": "hardhat test"

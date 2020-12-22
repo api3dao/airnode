@@ -11,7 +11,8 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       accounts: {
-        count: 100,
+        // 1 million ETH
+        accountsBalance: '1000000000000000000000000',
       },
     },
     localhost: {
