@@ -4,37 +4,49 @@ A tool capable of determining if provided OIS or `config.json` and `security.jso
 
 ## Usage
 
-Function `isOisValid` in `lib/validator.js` takes json string of OIS as parameter and returns object with following structure:
+The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as template:
+```sh
+npm run validate --specs="[specsFile]" --template="[templateFile]"
+```
+
+In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`. Try it out using the example specification:
+```sh
+npm run validate exampleSpecs/ois.specs.json templates/ois.json
+```
+
+Validation of config and security has a separate command, in which the template is omitted:
+```sh
+npm run validateConfigSecurity --config="[configFile]" --security="[securityFile]"
+```
+
+Which can be simplified in the same manner as `validate` command and invoked with example specifications:
+```sh
+npm run validateConfigSecurity exampleSpecs/config.specs.json exampleSpecs/security.specs.json
+```
+
+### Output
+
+Validator will print the result into console as a JSON in the following format:
+
 ```
 {
     valid: boolean,
     messages: array
 }
 ```
-Where array `messages` contains message objects:
+Where array `messages` may contain message objects:
 ```
 {
     level: 'error' | 'warning',
     message: string
 }
 ```
-If provided OIS is valid, parameter `valid` will be true, however parameter `messages` still might contain messages with `level` set to `warning`. If `valid` is `false`, there will be always one or more error messages. Similarly functions `isApiSpecsValid` and `isEndpointsValid` check only the API and endpoint specifications contained in the OIS, as well as `isConfigSecurityValid` validates `config.json` and `security.json`
 
-The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as template. You can run the validator as script using the following command: 
-
-```sh
-npm run validate --specs="[specsFile]" --template="[templateFile]"
-```
-
-In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`. Try it out using the example specification:
-
-```sh
-npm run validate exampleSpecs/ois.specs.json templates/ois.json
-```
+If provided specification is valid, parameter `valid` will be set to `true`, however parameter `messages` may still contain messages, but only with `level` set to `warning`. In case `valid` is `false`, there will be always one or more error messages.
 
 ## Validator templates
 
-To make modifications to OIS format as simple as possible, validator uses json template that defines the valid format.
+To make modifications to OIS format as simple as possible, validator uses JSON templates which define a valid format of specification.
 
 ### Basics
 
