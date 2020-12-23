@@ -12,9 +12,6 @@ yarn run bootstrap
 
 # Build each @airnode package
 yarn run build
-
-# Compile Solidity contracts
-yarn run dev:eth-compile
 ```
 
 ## Airnode Development
@@ -24,15 +21,13 @@ See below for more details
 ### tl;dr
 
 ```sh
-# Start Eth node
+# Start Eth node (separate terminal)
 yarn run dev:eth-node
 
-# Deploy Airnode with API providers, templates, requesters etc (separate terminal)
+# Deploy Airnode with API providers, templates, requesters etc. This creates a "deployment" file in a deployments/ folder.
 yarn run dev:eth-deploy
 
-# Copy the output client addresses and template hashes into the config/evm-dev-config.json file
-
-# Make requests for Airnode to action (separate terminal)
+# Make requests for Airnode to action
 yarn run dev:eth-requests
 
 # Airnode can then be invoked to process the requests
@@ -61,6 +56,8 @@ yarn run dev:eth-deploy
 
 Along with simply deploying the Airnode contracts, the above command will also create API providers onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
 
+Running this command will build and save a "deployment" file in a `./deployments` folder. This file contains the addresses for the relevant accounts and contracts that are created. This is necessary as subsequent scripts do not have context of what these addresses and contracts are. You do not need to edit this file yourself.
+
 It is important to note that the Ethereum development node uses the same master mnemonic which means that the contracts will be deployed to the same addresses after restarting the node.
 
 ### Making Requests
@@ -71,7 +68,9 @@ Now that the contracts have been deployed and initial data setup, you can create
 yarn run dev:eth-requests
 ```
 
-Invoking Airnode will cause these requests to be actioned.
+A deployment file (`evm-dev.json`) must be present in the deployments folder before running this script.
+
+Airnode can now be invoked which will cause these requests to be actioned.
 
 ## Configuration
 
@@ -81,7 +80,6 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 ```json
 {
-  "deployed": { ... },
   "apiProviders": { ... },
   "authorizers": { ... },
   "clients": { ... },
@@ -90,19 +88,7 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 }
 ```
 
-### 1. deployed
-
-Before you can make requests to the deployed Airnode contracts, you need to provide the addresses/hashes to use. This is because the "make requests" script has no context of what was previously deployed.
-
-All relevant values are output by the "deploy Airnode" script.
-
-The following fields are required:
-
-`deployed.clients.[name]` - the string address value of each client contract that was deployed.
-
-`deployed.templates.[api-provider].[template-name]` - the string hash value of each template that was deployed. Templates are grouped by API provider as they can have duplicate names between API providers.
-
-### 2. apiProviders
+### 1. apiProviders
 
 `apiProviders` must have a unique name as the key.
 
@@ -128,17 +114,17 @@ The following fields are required:
 
 `parameters` - a list of parameters that be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
-### 3. authorizers
+### 2. authorizers
 
 `authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed, while all other values will require a contract of the same name. See the [Authorizer documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/authorizer.md) for more details.
 
-### 4. clients
+### 3. clients
 
 `clients` - a key/value object where the key represents the unique client contract name and the value represents the client options. All names defined correspond with actual contracts in the `contracts/folder`. See the [client documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/client.md) for more details.
 
 `client.[name].endorsers` - a list of requesters who have endorsed the client. See the [endorsement documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) for more details.
 
-### 5. requesters
+### 4. requesters
 
 Requesters represent an ordered list of entities making requests to a given API provider. Typically these would be individuals or businesses. You can find more information in the [Requester documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md).
 
@@ -150,7 +136,7 @@ Each requester object has the following structure:
 
 `apiProviders.[name].ethBalance` - a string value that represents how much ETH should be deposited into the requester's designated wallet for the given API provider. Requesters have one designated wallet per API provider.
 
-### 6. requests
+### 5. requests
 
 There are currently three types of requests that can be made. You can learn more about these request types in the [request documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/request.md)
 
@@ -190,16 +176,6 @@ There are currently three types of requests that can be made. You can learn more
 
 ```json
 {
-  "deployed": {
-    "clients": {
-      "MockAirnodeClient": "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
-    },
-    "templates": {
-      "CurrencyConverterAPI": {
-        "template-1": "0x747f464d39cbe9884854ba2b6cf58ad7b94a6e520826faf74c3c4b2d3b34276d"
-      }
-    }
-  },
   "apiProviders": {
     "CurrencyConverterAPI": {
       "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
