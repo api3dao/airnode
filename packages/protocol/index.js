@@ -13,8 +13,8 @@ for (const network in networkChainIds) {
 }
 
 module.exports = {
-  AirnodeABI: AirnodeArtifact.abi,
-  ConvenienceABI: ConvenienceArtifact.abi,
+  AirnodeArtifact,
+  ConvenienceArtifact,
   AirnodeAddresses,
   ConvenienceAddresses,
 };
