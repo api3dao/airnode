@@ -1,16 +1,6 @@
 import { Airnode } from './airnode';
-import { AirnodeAddresses } from '@airnode/protocol';
 
 describe('Airnode', () => {
-  it('exposes the addresses for each network', () => {
-    expect(Airnode.addresses).toEqual({
-      1: '<TODO>',
-      3: AirnodeAddresses[3],
-      4: AirnodeAddresses[4],
-      1337: '0x197F3826040dF832481f835652c290aC7c41f073',
-    });
-  });
-
   it('exposes the contract ABI events', () => {
     const events = Airnode.ABI.filter((fn: any) => fn.type === 'event')
       .map((fn: any) => fn.name)

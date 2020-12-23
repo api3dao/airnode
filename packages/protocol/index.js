@@ -14,8 +14,8 @@ for (const network in networkChainIds) {
 }
 
 module.exports = {
-  Airnode: AirnodeArtifact,
-  Convenience: ConvenienceArtifact,
+  AirnodeArtifact,
+  ConvenienceArtifact,
   AirnodeAddresses,
   ConvenienceAddresses,
   mocks: {
