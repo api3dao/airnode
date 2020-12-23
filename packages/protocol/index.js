@@ -1,5 +1,6 @@
 const AirnodeArtifact = require('./artifacts/contracts/Airnode.sol/Airnode.json');
 const ConvenienceArtifact = require('./artifacts/contracts/Convenience.sol/Convenience.json');
+const MockAirnodeClientArtifact = require('./artifacts/contracts/mock/MockAirnodeClient.sol/MockAirnodeClient.json');
 
 const AirnodeAddresses = {};
 const ConvenienceAddresses = {};
@@ -20,4 +21,9 @@ module.exports = {
   ConvenienceArtifact,
   AirnodeAddresses,
   ConvenienceAddresses,
+  mocks: {
+    MockAirnodeClient: MockAirnodeClientArtifact,
+  },
+  // TODO
+  authorizers: {},
 };
