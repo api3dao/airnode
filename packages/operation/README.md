@@ -30,7 +30,7 @@ yarn run dev:eth-deploy
 # Make requests for Airnode to action
 yarn run dev:eth-requests
 
-# Airnode can then be invoked to process the requests
+# Airnode can then be invoked to process the requests. You must have a valid node development setup in place
 yarn run dev:invoke
 ```
 
