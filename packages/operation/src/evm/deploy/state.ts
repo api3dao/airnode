@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { Config, DeployState as State, Deployment } from '../../types';
 
-export function buildState(config: Config): State {
+export function buildDeployState(config: Config): State {
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
   const deployer = provider.getSigner(0);
 

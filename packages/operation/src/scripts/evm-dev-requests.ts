@@ -28,7 +28,7 @@ async function run() {
   console.log('--> Loading deployment...');
   const deployment = io.loadDeployment();
 
-  const state1 = requests.buildState(config, deployment);
+  const state1 = requests.buildRequestsState(config, deployment);
 
   console.log('--> Making requests...');
   for (const [index, request] of state1.config.requests.entries()) {
