@@ -1,8 +1,5 @@
 import { HardhatUserConfig } from 'hardhat/types';
 
-import '@nomiclabs/hardhat-waffle';
-import 'hardhat-typechain';
-
 const config: HardhatUserConfig = {
   defaultNetwork: 'localhost',
   solidity: {
