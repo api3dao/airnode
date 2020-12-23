@@ -1,16 +1,19 @@
 const AirnodeArtifact = require('./artifacts/contracts/Airnode.sol/Airnode.json');
 const ConvenienceArtifact = require('./artifacts/contracts/Convenience.sol/Convenience.json');
 
-const networkChainIds = { ropsten: 3, rinkeby: 4 };
-
 const AirnodeAddresses = {};
 const ConvenienceAddresses = {};
-for (const network in networkChainIds) {
-  const AirnodeDeployment = require(`./deployments/${network}/Airnode.json`);
-  AirnodeAddresses[networkChainIds[network]] = AirnodeDeployment.receipt.contractAddress;
-  const ConvenienceDeployment = require(`./deployments/${network}/Convenience.json`);
-  ConvenienceAddresses[networkChainIds[network]] = ConvenienceDeployment.receipt.contractAddress;
-}
+let AirnodeDeployment, ConvenienceDeployment;
+// Ropsten - 3
+AirnodeDeployment = require(`./deployments/ropsten/Airnode.json`);
+AirnodeAddresses[3] = AirnodeDeployment.receipt.contractAddress;
+ConvenienceDeployment = require(`./deployments/ropsten/Convenience.json`);
+ConvenienceAddresses[3] = ConvenienceDeployment.receipt.contractAddress;
+// Rinkeby - 4
+AirnodeDeployment = require(`./deployments/rinkeby/Airnode.json`);
+AirnodeAddresses[4] = AirnodeDeployment.receipt.contractAddress;
+ConvenienceDeployment = require(`./deployments/rinkeby/Convenience.json`);
+ConvenienceAddresses[4] = ConvenienceDeployment.receipt.contractAddress
 
 module.exports = {
   AirnodeArtifact,
