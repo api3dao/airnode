@@ -1,4 +1,4 @@
-import { Airnode as AirnodeArtifact, Convenience as ConvenienceArtifact, authorizers, mocks } from '@airnode/protocol';
+import { AirnodeArtifact, ConvenienceArtifact, authorizers, mocks } from '@airnode/protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 

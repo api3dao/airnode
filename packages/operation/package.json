@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "dev:eth-compile": "cp -r ../protocol/contracts/* contracts/; hardhat compile",
     "dev:eth-deploy": "ts-node src/scripts/evm-dev-deploy.ts",
     "dev:eth-node": "hardhat node",
     "dev:eth-requests": "ts-node src/scripts/evm-dev-requests.ts",
@@ -12,16 +11,6 @@
   "devDependencies": {
     "@airnode/airnode-abi": "^0.1.0",
     "@airnode/protocol": "^0.1.0",
-    "@nomiclabs/hardhat-ethers": "^2.0.0",
-    "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "@typechain/ethers-v5": "^4.0.0",
-    "@types/lodash": "^4.14.165",
-    "cbor-custom": "^0.1.3",
-    "chai": "^4.2.0",
-    "ethereum-waffle": "^3.2.1",
-    "hardhat": "^2.0.3",
-    "hardhat-typechain": "^0.3.3",
-    "ts-generator": "^0.1.1",
-    "typechain": "^4.0.0"
+    "hardhat": "^2.0.3"
   }
 }
