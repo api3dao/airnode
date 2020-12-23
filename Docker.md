@@ -2,7 +2,7 @@
 
 1. Build the Docker image
 ```sh
-docker build . -t api3/airnode
+docker build . -t api3/airnode:latest
 ```
 
 2. Ensure that your `.env` file looks like [`.env.example`](/packages/deployer/.env.example) and is the current working directory.
