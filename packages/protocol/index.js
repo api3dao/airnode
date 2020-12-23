@@ -14,7 +14,7 @@ ConvenienceAddresses[3] = ConvenienceDeployment.receipt.contractAddress;
 AirnodeDeployment = require(`./deployments/rinkeby/Airnode.json`);
 AirnodeAddresses[4] = AirnodeDeployment.receipt.contractAddress;
 ConvenienceDeployment = require(`./deployments/rinkeby/Convenience.json`);
-ConvenienceAddresses[4] = ConvenienceDeployment.receipt.contractAddress
+ConvenienceAddresses[4] = ConvenienceDeployment.receipt.contractAddress;
 
 module.exports = {
   AirnodeArtifact,
