@@ -29,7 +29,7 @@ export async function createTemplates(state: State): Promise<State> {
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
     const apiProvider = state.apiProvidersByName[apiProviderName];
     const configApiProvider = state.config.apiProviders[apiProviderName];
-    const providerId = deriveProviderId(apiProvider);
+    const providerId = deriveProviderId(apiProvider.address);
 
     for (const templateName of Object.keys(configApiProvider.templates)) {
       const configTemplate = configApiProvider.templates[templateName];

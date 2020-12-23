@@ -24,7 +24,6 @@ export function buildSaveableDeployment(state: State): Deployment {
     Convenience: state.contracts.Convenience!.address,
   };
 
-
   const clientNames = Object.keys(state.clientsByName);
   const clients = clientNames.reduce((acc: any, name: string) => {
     const client = state.clientsByName[name];
@@ -36,6 +35,7 @@ export function buildSaveableDeployment(state: State): Deployment {
     const requester = state.requestersById[id];
     const data = {
       address: requester.address,
+      privateKey: requester.signer.privateKey,
       requesterIndex: requester.requesterIndex.toString(),
     };
     return { ...acc, [id]: data };

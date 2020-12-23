@@ -36,7 +36,7 @@ export interface RequesterAccount {
   readonly address: string;
   readonly designatedWallets: DesignatedWallet[];
   readonly requesterIndex: ethers.BigNumber;
-  readonly signer: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  readonly signer: ethers.Wallet;
 }
 
 export interface APIProvider {
@@ -65,6 +65,7 @@ export interface DeployedAPIProvider {
 
 export interface DeployedRequester {
   readonly address: string;
+  readonly privateKey: string;
   readonly requesterIndex: string;
 }
 
@@ -74,7 +75,7 @@ export interface Deployment {
   readonly contracts: {
     readonly Airnode: string;
     readonly Convenience: string;
-  }
+  };
   readonly requesters: { readonly [id: string]: DeployedRequester };
 }
 

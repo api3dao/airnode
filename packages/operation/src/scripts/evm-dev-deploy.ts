@@ -1,7 +1,8 @@
 import * as deploy from '../evm/deploy';
 import * as io from '../evm/io';
 
-async function main() {
+async function run() {
+  console.log('--> Loading configuration...');
   const config = io.loadConfig();
 
   const state1 = deploy.buildState(config);
@@ -36,11 +37,11 @@ async function main() {
 
   console.log('--> Deployment successful!');
 
-  console.log('--> Saving deployment records...');
+  console.log('--> Saving deployment...');
   io.saveDeployment(state15);
-  console.log('--> Deployment records saved...');
+  console.log('--> Deployment saved!');
 
   return state15;
 }
 
-main();
+run();

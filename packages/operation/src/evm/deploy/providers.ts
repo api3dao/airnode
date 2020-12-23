@@ -22,7 +22,7 @@ export async function authorizeEndpoints(state: State): Promise<State> {
   for (const providerName of Object.keys(state.apiProvidersByName)) {
     const configApiProvider = state.config.apiProviders[providerName];
     const apiProvider = state.apiProvidersByName[providerName];
-    const providerId = deriveProviderId(apiProvider);
+    const providerId = deriveProviderId(apiProvider.address);
 
     for (const endpointName of Object.keys(configApiProvider.endpoints)) {
       const configEndpoint = configApiProvider.endpoints[endpointName];

@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { APIProvider } from '../types';
 
 export function deriveExtendedPublicKey(mnemonic: string) {
   const wallet = ethers.Wallet.fromMnemonic(mnemonic);
@@ -7,8 +6,8 @@ export function deriveExtendedPublicKey(mnemonic: string) {
   return hdNode.neuter().extendedKey;
 }
 
-export function deriveProviderId(apiProvider: APIProvider) {
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [apiProvider.address]));
+export function deriveProviderId(apiProviderAddress: string) {
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [apiProviderAddress]));
 }
 
 export function deriveWalletFromPath(mnemonic: string, path: string, provider: ethers.providers.JsonRpcProvider) {
@@ -17,6 +16,10 @@ export function deriveWalletFromPath(mnemonic: string, path: string, provider: e
   return new ethers.Wallet(designatorHdNode.privateKey, provider);
 }
 
-export function getDesignatedWallet(mnemonic: string, requesterIndex: number, provider: ethers.providers.JsonRpcProvider) {
+export function getDesignatedWallet(
+  mnemonic: string,
+  requesterIndex: string,
+  provider: ethers.providers.JsonRpcProvider
+) {
   return deriveWalletFromPath(mnemonic, `m/0/0/${requesterIndex}`, provider);
 }
