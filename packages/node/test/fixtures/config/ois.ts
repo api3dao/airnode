@@ -4,11 +4,11 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
   return {
     oisFormat: '1.0.0',
     version: '1.2.3',
-    title: 'oisTitle',
+    title: 'test-ois',
     apiSpecifications: {
       servers: [
         {
-          url: 'https://api.myapi.com',
+          url: 'http://localhost:3000',
         },
       ],
       paths: {
@@ -50,7 +50,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
     },
     endpoints: [
       {
-        name: 'convertToUsd',
+        name: 'convertToUSD',
         operation: {
           method: 'get',
           path: '/convert',

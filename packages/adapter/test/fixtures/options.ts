@@ -6,7 +6,7 @@ export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): B
   const ois = buildOIS();
   return {
     ois: ois,
-    endpointName: 'convertToUsd',
+    endpointName: 'convertToUSD',
     parameters: { f: 'ETH', amount: '1' },
     securitySchemes: securitySchemes,
     ...overrides,

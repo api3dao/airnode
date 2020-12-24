@@ -16,7 +16,7 @@ describe('callApi', () => {
   });
 
   it('calls the adapter with the given parameters', async () => {
-    process.env.oisTitle_myapiApiScheme = 'supersecret';
+    process.env['test-ois_myapiApiScheme'] = 'supersecret';
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
@@ -27,7 +27,7 @@ describe('callApi', () => {
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(
       {
-        endpointName: 'convertToUsd',
+        endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
         securitySchemes: [
@@ -48,7 +48,7 @@ describe('callApi', () => {
     const aggregatedCall = fixtures.createAggregatedApiCall();
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
-      { level: 'ERROR', message: "No '_type' parameter was found for Endpoint:convertToUsd, OIS:oisTitle" },
+      { level: 'ERROR', message: "No '_type' parameter was found for Endpoint:convertToUSD, OIS:test-ois" },
     ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ResponseParametersInvalid,
@@ -63,7 +63,7 @@ describe('callApi', () => {
     const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to call Endpoint:convertToUsd', error: new Error('Network is down') },
+      { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
     ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ApiCallFailed,

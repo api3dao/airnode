@@ -50,7 +50,7 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
     },
     endpoints: [
       {
-        name: 'convertToUsd',
+        name: 'convertToUSD',
         operation: {
           method: 'get',
           path: '/convert',

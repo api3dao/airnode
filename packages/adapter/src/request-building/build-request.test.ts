@@ -26,7 +26,7 @@ describe('buildingRequest', () => {
     try {
       build.buildRequest(options);
     } catch (e) {
-      expect(e).toEqual(new Error("Endpoint: 'convertToUsd' not found in the OIS."));
+      expect(e).toEqual(new Error("Endpoint: 'convertToUSD' not found in the OIS."));
     }
   });
 });
