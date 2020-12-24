@@ -10,8 +10,9 @@ This package simply implements the scripts used by that image and is not meant t
 ## Setup
 
 - Download the [Terraform v0.13.* binary](https://www.terraform.io/downloads.html) and move it to your `PATH`
-- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `.env` in the package directory (refer to [`.env.example`](/packages/deployer/.env.example))
+- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `.env` in the package directory (refer to [`.env.example`](https://github.com/api3dao/airnode/blob/master/packages/deployer/.env.example))
 - Install Serverless Framework globally
+
 ```sh
 npm install -g serverless
 ```
