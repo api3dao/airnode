@@ -59,7 +59,7 @@ describe('verifyDesignatedWallets', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Invalid designated wallet:${apiCall.designatedWallet} for Request:${apiCall.id}. Expected:0xdEc1ef92C1c1C5C84Ae0aF715745E691071Cb4fa`,
+        message: `Invalid designated wallet:${apiCall.designatedWallet} for Request:${apiCall.id}. Expected:0x2EfDDdd9337999A00f36f28e58F036381B8b1125`,
       },
     ]);
     expect(res[0]).toEqual({
@@ -71,14 +71,14 @@ describe('verifyDesignatedWallets', () => {
 
   it('does nothing if the designated wallet matches the expected wallet', () => {
     const apiCall = fixtures.requests.createApiCall({
-      designatedWallet: '0xdEc1ef92C1c1C5C84Ae0aF715745E691071Cb4fa',
+      designatedWallet: '0x2EfDDdd9337999A00f36f28e58F036381B8b1125',
       requesterIndex: '3',
     });
     const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
-        message: `Request ID:${apiCall.id} is linked to a valid designated wallet:0xdEc1ef92C1c1C5C84Ae0aF715745E691071Cb4fa`,
+        message: `Request ID:${apiCall.id} is linked to a valid designated wallet:0x2EfDDdd9337999A00f36f28e58F036381B8b1125`,
       },
     ]);
     expect(res[0]).toEqual(apiCall);

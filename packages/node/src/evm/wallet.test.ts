@@ -32,9 +32,9 @@ describe('deriveWalletAddressFromIndex', () => {
     const adminWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, '0');
     const wallet1 = wallet.deriveWalletAddressFromIndex(masterHDNode, '1');
     const wallet2 = wallet.deriveWalletAddressFromIndex(masterHDNode, '777');
-    expect(adminWallet).toEqual('0x566954B6E04BDb789e7d1118e3dC1AC9A34A8B44');
-    expect(wallet1).toEqual('0xBff368EaD703f07fC6C9585e25d9755A47361562');
-    expect(wallet2).toEqual('0x36c6c96d0ce55c37613a8acA1D895B923C557FA4');
+    expect(adminWallet).toEqual('0xF47dD64127f46ca44679647BC1B3c6B248bf79A0');
+    expect(wallet1).toEqual('0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E');
+    expect(wallet2).toEqual('0x5547c2B0420D120f1DE7767c9BE451705df5a4E5');
   });
 });
 
@@ -43,7 +43,7 @@ describe('deriveSigningWalletFromIndex', () => {
     const masterHDNode = wallet.getMasterHDNode();
     const signingWallet = wallet.deriveSigningWalletFromIndex(masterHDNode, '0');
     expect(signingWallet._isSigner).toEqual(true);
-    expect(signingWallet.address).toEqual('0x566954B6E04BDb789e7d1118e3dC1AC9A34A8B44');
+    expect(signingWallet.address).toEqual('0xF47dD64127f46ca44679647BC1B3c6B248bf79A0');
   });
 });
 
