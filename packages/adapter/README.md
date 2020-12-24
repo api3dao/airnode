@@ -26,7 +26,7 @@ Available functions:
 
 - [executeRequest](#executeRequest)
 
-- [buildAndExecuteRequest](buildAndExecuteRequest)
+- [buildAndExecuteRequest](#buildAndExecuteRequest)
 
 - [processByExtracting](#processByExtracting)
 
