@@ -28,7 +28,7 @@ function validateConditionRegexInKey(
 
   // In case of '__rootThen' validate from root
   const thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
-  const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
+  let currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
   const currentTemplate = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
@@ -48,6 +48,8 @@ function validateConditionRegexInKey(
       // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
       if (currentNonRedundantParams[thisName]) {
         nonRedundantParamsCopy = JSON.parse(JSON.stringify(currentNonRedundantParams[thisName]));
+      } else if (condition['__rootThen']) {
+        nonRedundantParamsCopy = JSON.parse(JSON.stringify(currentNonRedundantParams));
       } else {
         currentNonRedundantParams[thisName] = utils.getEmptyNonRedundantParam(
           thisName,
@@ -58,10 +60,10 @@ function validateConditionRegexInKey(
       }
 
       const result = validateSpecs(
-        currentTemplate[thisName],
+        condition['__rootThen'] ? currentTemplate : currentTemplate[thisName],
         template,
-        `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`,
-        currentNonRedundantParams[thisName],
+        `${condition['__rootThen'] ? '' : `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`}`,
+        condition['__rootThen'] ? currentNonRedundantParams : currentNonRedundantParams[thisName],
         roots
       );
 
@@ -70,6 +72,8 @@ function validateConditionRegexInKey(
         // returning nonRedundantParams to original state, because some parameters might be extra if nothing else requires them
         if (Object.keys(nonRedundantParamsCopy).length) {
           currentNonRedundantParams[thisName] = nonRedundantParamsCopy;
+        } else if (condition['__rootThen']) {
+          currentNonRedundantParams = nonRedundantParamsCopy;
         } else {
           delete currentNonRedundantParams[thisName];
         }
