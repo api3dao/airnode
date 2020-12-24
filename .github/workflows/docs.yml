@@ -1,0 +1,16 @@
+name: Check Markdown links
+
+on: push
+
+jobs:
+  markdown-link-check:
+    name: Run Linting and Tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clone airnode
+      uses: actions/checkout@master
+
+    - name: Check hyperlinks
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
