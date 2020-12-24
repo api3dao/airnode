@@ -12,21 +12,24 @@ See the [docs](https://github.com/api3dao/api3-docs) for more information.
 This is a monorepo managed using [Lerna](https://github.com/lerna/lerna).
 It houses the following packages:
 
-[**adapter**:](/packages/adapter/README.md) The module that makes an API call, processes the response and returns a single value
+[**adapter**:](https://github.com/api3dao/airnode/tree/master/packages/adapter) The module that makes an API call, processes the response and returns a single value
 
-[**deployer**:](/packages/deployer/README.md) Tools to automate Airnode deployment
+[**airnode-abi**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi) Encoding and decoding utilities for Airnode according to the [Airnode ABI specifications](https://github.com/api3dao/api3-docs/blob/master/airnode/airnode-abi-specifications.md)
 
-[**node**:](/packages/node/README.md) Airnode itself
+[**deployer**:](https://github.com/api3dao/airnode/tree/master/packages/deployer) Tools to automate Airnode deployment
 
-[**ois**:](/packages/ois) Types for [Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md)
+[**node**:](https://github.com/api3dao/airnode/tree/master/packages/node) Airnode itself
 
-[**protocol**:](/packages/protocol/README.md) Contracts that implement the Airnode protocol (the request-response version)
+[**ois**:](https://github.com/api3dao/airnode/tree/master/packages/ois) Types for [Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md)
 
-[**validator**:](/packages/validator) A package that can be used to validate [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) and [security.json](https://github.com/api3dao/api3-docs/blob/master/airnode/security-json.md) files
+[**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement the Airnode protocol (the request-response version)
+
+[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/validator) A package that can be used to validate [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) and [security.json](https://github.com/api3dao/api3-docs/blob/master/airnode/security-json.md) files
 
 ## Instructions
 
 To install dependencies, run this at the repository root:
+
 ```sh
 yarn run bootstrap
 ```
