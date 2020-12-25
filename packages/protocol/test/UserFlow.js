@@ -46,17 +46,17 @@ describe('User flow', function () {
       .connect(roles.providerAdmin)
       .updateEndpointAuthorizers(providerId, endpointId, [ethers.constants.AddressZero]);
     // Create the on-chain requester record
-    const requesterInd = await createRequester();
+    const requesterIndex = await createRequester();
     // The requester can fund their designated wallet
-    const designatedWalletAddress = await fundDesignatedWallet(requesterInd, providerXpub);
+    const designatedWalletAddress = await fundDesignatedWallet(requesterIndex, providerXpub);
     // The requester introduces the client contract to the Airnode contract as one
     // of its own. This means that the requests made by the client contract will
     // be funded by the requester's designated wallet.
     await airnode
       .connect(roles.requesterAdmin)
-      .updateClientEndorsementStatus(requesterInd, airnodeClient.address, true);
+      .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
     // The requester creates the template which keeps the request parameters
-    const templateId = await createTemplate(providerId, endpointId, requesterInd, designatedWalletAddress);
+    const templateId = await createTemplate(providerId, endpointId, requesterIndex, designatedWalletAddress);
     // Someone calls the client contract, which triggers a short request
     await airnodeClient.makeShortRequest(templateId, ethers.utils.randomBytes(16));
     // The Airnode fulfills the short request
@@ -72,7 +72,7 @@ describe('User flow', function () {
     // Now the requester wants the amount deposited at their reserved wallet back
     await airnode
       .connect(roles.requesterAdmin)
-      .requestWithdrawal(providerId, requesterInd, designatedWalletAddress, roles.requesterAdmin._address);
+      .requestWithdrawal(providerId, requesterIndex, designatedWalletAddress, roles.requesterAdmin.address);
     // and the Airnode fulfills it
     await fulfillWithdrawalRequest(providerId, providerMnemonic);
   });
@@ -131,16 +131,16 @@ describe('User flow', function () {
     // Gas cost is 160,076
     const estimatedGasCost = await airnode
       .connect(masterWallet)
-      .estimateGas.createProvider(roles.providerAdmin._address, providerXpub, { value: 1 });
+      .estimateGas.createProvider(roles.providerAdmin.address, providerXpub, { value: 1 });
     // Overestimate a bit
-    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
+    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
     const txCost = gasLimit.mul(gasPrice);
     const masterWalletBalance = await waffle.provider.getBalance(masterWallet.address);
     const fundsToSend = masterWalletBalance.sub(txCost);
     // Create the provider and send the rest of the master wallet balance along with
     // this transaction. Provider admin will receive these funds.
-    await airnode.connect(masterWallet).createProvider(roles.providerAdmin._address, providerXpub, {
+    await airnode.connect(masterWallet).createProvider(roles.providerAdmin.address, providerXpub, {
       value: fundsToSend,
       gasLimit: gasLimit,
       gasPrice: gasPrice,
@@ -155,19 +155,19 @@ describe('User flow', function () {
   }
 
   async function createRequester() {
-    const tx = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin._address);
+    const tx = await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
     // Get the newly created requester's ID from the event
     const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
     )[0];
     const parsedLog = airnode.interface.parseLog(log);
-    return parsedLog.args.requesterInd;
+    return parsedLog.args.requesterIndex;
   }
 
-  async function fundDesignatedWallet(requesterInd, providerXpub) {
+  async function fundDesignatedWallet(requesterIndex, providerXpub) {
     // The requester derives the address of their designated wallet using the provider's
-    // xpub and their requesterInd and fund that wallet.
-    const designatedWalletAddress = await deriveWalletAddressFromPath(providerXpub, `m/0/${requesterInd.toString()}`);
+    // xpub and their requesterIndex and fund that wallet.
+    const designatedWalletAddress = await deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // The requester should send more than minBalance of the provider (it was 0.01 ETH in this case)
     await roles.requesterAdmin.sendTransaction({
       to: designatedWalletAddress,
@@ -176,13 +176,13 @@ describe('User flow', function () {
     return designatedWalletAddress;
   }
 
-  async function createTemplate(providerId, endpointId, requesterInd, designatedWalletAddress) {
+  async function createTemplate(providerId, endpointId, requesterIndex, designatedWalletAddress) {
     // Note that we are not connecting to the contract as requesterAdmin.
     // That's because it doesn't matter who creates the template.
     const tx = await airnode.createTemplate(
       providerId,
       endpointId,
-      requesterInd,
+      requesterIndex,
       designatedWalletAddress,
       airnodeClient.address,
       airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
@@ -227,7 +227,7 @@ describe('User flow', function () {
         [
           template.providerId,
           template.endpointId,
-          template.requesterInd,
+          template.requesterIndex,
           template.designatedWallet,
           template.fulfillAddress,
           template.fulfillFunctionId,
@@ -239,7 +239,7 @@ describe('User flow', function () {
     // Verify that the designated wallet is correct
     const expectedDesignatedWallet = await deriveWalletAddressFromPath(
       providerXpub,
-      `m/0/${template.requesterInd.toString()}`
+      `m/0/${template.requesterIndex.toString()}`
     );
     expect(template.designatedWallet).to.equal(expectedDesignatedWallet);
     // Check authorization status
@@ -247,7 +247,7 @@ describe('User flow', function () {
       providerId,
       parsedRequestLog.args.requestId,
       template.endpointId,
-      template.requesterInd,
+      template.requesterIndex,
       template.designatedWallet,
       parsedRequestLog.args.clientAddress
     );
@@ -258,7 +258,7 @@ describe('User flow', function () {
     // parsedRequestLog.args.parameters, insert these to correct fields and make the
     // API call. After it gets the response, it processes it according to the reserved
     // parameters (_path, _times, _type) and fulfills the request with the outcome.
-    const designatedWallet = await deriveWalletFromPath(providerMnemonic, `m/0/${template.requesterInd.toString()}`);
+    const designatedWallet = await deriveWalletFromPath(providerMnemonic, `m/0/${template.requesterIndex.toString()}`);
     await airnode.connect(designatedWallet).fulfill(
       parsedRequestLog.args.requestId,
       providerId,
@@ -289,7 +289,7 @@ describe('User flow', function () {
 
     const designatedWallet = await deriveWalletFromPath(
       providerMnemonic,
-      `m/0/${parsedWithdrawalRequestLog.args.requesterInd.toString()}`
+      `m/0/${parsedWithdrawalRequestLog.args.requesterIndex.toString()}`
     );
     // Verify that the provided designatedWallet was correct
     expect(parsedWithdrawalRequestLog.args.designatedWallet).to.equal(designatedWallet.address);
@@ -300,12 +300,12 @@ describe('User flow', function () {
       .estimateGas.fulfillWithdrawal(
         parsedWithdrawalRequestLog.args.withdrawalRequestId,
         parsedWithdrawalRequestLog.args.providerId,
-        parsedWithdrawalRequestLog.args.requesterInd,
+        parsedWithdrawalRequestLog.args.requesterIndex,
         parsedWithdrawalRequestLog.args.destination,
         { value: 1 }
       );
     // Overestimate a bit
-    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
+    const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
     const txCost = gasLimit.mul(gasPrice);
     const designatedWalletBalance = await waffle.provider.getBalance(designatedWallet.address);
@@ -315,7 +315,7 @@ describe('User flow', function () {
       .fulfillWithdrawal(
         parsedWithdrawalRequestLog.args.withdrawalRequestId,
         parsedWithdrawalRequestLog.args.providerId,
-        parsedWithdrawalRequestLog.args.requesterInd,
+        parsedWithdrawalRequestLog.args.requesterIndex,
         parsedWithdrawalRequestLog.args.destination,
         { value: fundsToSend, gasLimit: gasLimit, gasPrice: gasPrice }
       );

@@ -28,7 +28,7 @@ contract MockAirnodeClient is AirnodeClient {
 
     /// @notice A wrapper for the respective method at Airnode.sol for testing
     /// @param templateId Template ID from TemplateStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
@@ -39,7 +39,7 @@ contract MockAirnodeClient is AirnodeClient {
     /// template)
     function makeRequest(
         bytes32 templateId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -49,7 +49,7 @@ contract MockAirnodeClient is AirnodeClient {
     {
         bytes32 requestId = airnode.makeRequest(
             templateId,
-            requesterInd,
+            requesterIndex,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId,
@@ -79,7 +79,7 @@ contract MockAirnodeClient is AirnodeClient {
     /// @notice A wrapper for the respective method at Airnode.sol for testing
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
@@ -89,7 +89,7 @@ contract MockAirnodeClient is AirnodeClient {
     function makeFullRequest(
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -100,7 +100,7 @@ contract MockAirnodeClient is AirnodeClient {
         bytes32 requestId = airnode.makeFullRequest(
             providerId,
             endpointId,
-            requesterInd,
+            requesterIndex,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId,

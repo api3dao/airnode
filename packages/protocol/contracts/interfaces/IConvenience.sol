@@ -21,7 +21,7 @@ interface IConvenience {
         returns (
             bytes32[] memory providerIds,
             bytes32[] memory endpointIds,
-            uint256[] memory requesterInds,
+            uint256[] memory requesterIndices,
             address[] memory designatedWallets,
             address[] memory fulfillAddresses,
             bytes4[] memory fulfillFunctionIds,
@@ -32,7 +32,7 @@ interface IConvenience {
         bytes32 providerId,
         bytes32 requestId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address clientAddress
         )
@@ -44,7 +44,7 @@ interface IConvenience {
         bytes32 providerId,
         bytes32[] calldata requestIds, 
         bytes32[] calldata endpointIds,
-        uint256[] calldata requesterInds,
+        uint256[] calldata requesterIndices,
         address[] calldata designatedWallets,
         address[] calldata clientAddresses
         )

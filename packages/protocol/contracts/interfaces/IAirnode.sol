@@ -8,11 +8,11 @@ import "./ITemplateStore.sol";
 interface IAirnode is IEndpointStore, ITemplateStore {
     event ClientRequestCreated(
         bytes32 indexed providerId,
-        bytes32 requestId,
+        bytes32 indexed requestId,
         uint256 noRequests,
         address clientAddress,
         bytes32 templateId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -21,7 +21,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
 
     event ClientShortRequestCreated(
         bytes32 indexed providerId,
-        bytes32 requestId,
+        bytes32 indexed requestId,
         uint256 noRequests,
         address clientAddress,
         bytes32 templateId,
@@ -30,11 +30,11 @@ interface IAirnode is IEndpointStore, ITemplateStore {
 
     event ClientFullRequestCreated(
         bytes32 indexed providerId,
-        bytes32 requestId,
+        bytes32 indexed requestId,
         uint256 noRequests,
         address clientAddress,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -43,26 +43,26 @@ interface IAirnode is IEndpointStore, ITemplateStore {
 
     event ClientRequestFulfilled(
         bytes32 indexed providerId,
-        bytes32 requestId,
+        bytes32 indexed requestId,
         uint256 statusCode,
         bytes32 data
         );
 
     event ClientRequestFulfilledWithBytes(
         bytes32 indexed providerId,
-        bytes32 requestId,
+        bytes32 indexed requestId,
         uint256 statusCode,
         bytes data
         );
 
     event ClientRequestFailed(
         bytes32 indexed providerId,
-        bytes32 requestId
+        bytes32 indexed requestId
         );
 
     function makeRequest(
         bytes32 templateId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
@@ -81,7 +81,7 @@ interface IAirnode is IEndpointStore, ITemplateStore {
     function makeFullRequest(
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,

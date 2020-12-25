@@ -1,6 +1,6 @@
-import * as aws from './aws/handler';
-
-export * from './core/handlers';
+export * as handlers from './handlers';
+export * as config from './config';
+export * as providerState from './providers/state';
+export * as logger from './logger';
+export * as promiseUtils from './utils/promise-utils';
 export * from './types';
-
-export const AWS = { ...aws };

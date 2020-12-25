@@ -1,44 +1,54 @@
 {
   "name": "airnode",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/api3dao/airnode.git"
+  "engines": {
+    "node": "^12.13.1"
   },
   "scripts": {
-    "bootstrap": "npm install && lerna bootstrap",
+    "bootstrap": "yarn install && lerna bootstrap",
     "build": "lerna run build --stream",
-    "build:adapter": "(cd packages/adapter && npm run build)",
-    "build:protocol": "(cd packages/protocol && npm run build)",
-    "build:node": "(cd packages/node && npm run build)",
-    "build:ois": "(cd packages/ois && npm run build)",
+    "build-all": "lerna run build --stream && yarn run build:deployer",
+    "build:adapter": "(cd packages/adapter && yarn run build)",
+    "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
+    "build:deployer": "(cd packages/deployer && yarn run _build)",
+    "build:node": "(cd packages/node && yarn run build)",
+    "build:ois": "(cd packages/ois && yarn run build)",
+    "build:protocol": "(cd packages/protocol && yarn run build)",
     "clean": "lerna run clean --stream",
-    "dev:invoke": "(cd packages/node && npm run dev:invoke)",
-    "lint": "npm run lint:eslint && npm run lint:solhint",
+    "dev:invoke": "(cd packages/node && yarn run dev:invoke)",
+    "lint": "yarn run lint:eslint && yarn run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:solhint": "solhint ./**/*.sol",
     "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|ts)\"",
     "test": "lerna run test --stream",
-    "test:adapter": "(cd packages/adapter && npm run test)",
-    "test:adapter:watch": "(cd packages/adapter && npm run test:watch)",
-    "test:protocol": "(cd packages/protocol && npm run test)",
-    "test:node": "(cd packages/node && npm run test)",
-    "test:node:watch": "(cd packages/node && npm run test:watch)"
+    "test:adapter": "(cd packages/adapter && yarn run test)",
+    "test:adapter:watch": "(cd packages/adapter && yarn run test:watch)",
+    "test:airnode-abi": "(cd packages/airnode-abi && yarn run test)",
+    "test:airnode-abi:watch": "(cd packages/airnode-abi && yarn run test:watch)",
+    "test:protocol": "(cd packages/protocol && yarn run test)",
+    "test:node": "(cd packages/node && yarn run test)",
+    "test:node:watch": "(cd packages/node && yarn run test:watch)"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.165",
+    "@types/node": "^14.10.2",
+    "ethers": "^5.0.24",
+    "lerna": "^3.22.1",
+    "lodash": "^4.17.20",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.0.2"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
-    "@types/node": "^14.10.2",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "dotenv": "^8.2.0",
     "eslint": "^7.9.0",
     "husky": "^4.3.0",
     "jest": "^26.4.2",
-    "lerna": "^3.22.1",
     "prettier": "^2.1.2",
     "pretty-quick": "^3.0.2",
-    "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
     "ts-jest": "^26.3.0",
     "ts-node": "^9.0.0",
@@ -46,7 +56,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run pretty-quick && npm run lint"
+      "pre-commit": "yarn run pretty-quick && yarn run lint"
     }
   }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "@airnode/airnode-abi",
+  "license": "MIT",
+  "version": "0.1.0",
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn run clean && yarn run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "yarn run build",
+    "test": "SILENCE_LOGGER=true jest --coverage",
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
+  }
+}

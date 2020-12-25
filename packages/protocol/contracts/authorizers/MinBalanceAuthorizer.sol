@@ -50,7 +50,7 @@ contract MinBalanceAuthorizer is IMinBalanceAuthorizer {
     /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterInd Requester index from RequesterStore
+    /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
@@ -58,7 +58,7 @@ contract MinBalanceAuthorizer is IMinBalanceAuthorizer {
         bytes32 requestId,    // solhint-disable-line
         bytes32 providerId,
         bytes32 endpointId,   // solhint-disable-line
-        uint256 requesterInd, // solhint-disable-line
+        uint256 requesterIndex, // solhint-disable-line
         address designatedWallet,
         address clientAddress // solhint-disable-line
         )

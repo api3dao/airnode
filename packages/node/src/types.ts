@@ -9,26 +9,23 @@ export interface ApiCallParameters {
 }
 
 export enum RequestErrorCode {
-  InvalidRequestParameters = 1,
-  InvalidTemplateParameters = 2,
-  InvalidResponseParameters = 4,
-  RequesterDataNotFound = 5,
-  ReservedWalletIndex = 6,
-  InsufficientBalance = 7,
-  UnauthorizedClient = 8,
-  TemplateNotFound = 9,
-  AuthorizationNotFound = 10,
-  ApiCallFailed = 11,
-  ResponseValueNotFound = 12,
-  UnableToMatchAggregatedCall = 13,
-  UnableToCastResponse = 14,
-  PendingWithdrawal = 15,
-  UnknownEndpoint = 16,
-  UnknownOIS = 17,
-  FulfillTransactionFailed = 18,
-  InvalidTemplate = 19,
-  InvalidDesignatedWallet = 20,
-  InvalidRequestID = 21,
+  RequestParameterDecodingFailed = 1,
+  RequestInvalid = 2,
+  TemplateNotFound = 3,
+  TemplateParameterDecodingFailed = 4,
+  TemplateInvalid = 5,
+  DesignatedWalletInvalid = 6,
+  AuthorizationNotFound = 7,
+  Unauthorized = 8,
+  PendingWithdrawal = 9,
+  UnknownOIS = 10,
+  UnknownEndpoint = 11,
+  NoMatchingAggregatedCall = 12,
+  ApiCallFailed = 13,
+  ResponseParametersInvalid = 14,
+  ResponseValueNotFound = 15,
+  ResponseValueNotCastable = 16,
+  FulfillTransactionFailed = 17,
 }
 
 export enum RequestStatus {
@@ -46,6 +43,8 @@ export enum RequestType {
 
 export interface RequestMetadata {
   readonly blockNumber: number;
+  readonly currentBlock: number;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly transactionHash: string;
 }
 
@@ -98,10 +97,11 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly adminAddressForCreatingProviderRecord?: string;
+  readonly providerAdminForRecordCreation?: string;
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
   readonly url: string;
@@ -209,8 +209,10 @@ export interface WorkerResponse {
 // ===========================================
 // Events
 // ===========================================
-export interface LogWithMetadata {
+export interface EVMEventLogWithMetadata {
   readonly blockNumber: number;
+  readonly currentBlock: number;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly parsedLog: ethers.utils.LogDescription;
   readonly transactionHash: string;
 }
@@ -288,16 +290,17 @@ export interface ChainContracts {
 }
 
 export interface ChainProvider {
-  readonly blockHistoryLimit?: number;
-  readonly minConfirmations?: number;
   readonly name: string;
   readonly url: string;
 }
 
 export interface ChainConfig {
-  readonly adminAddressForCreatingProviderRecord?: string;
+  readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: number;
+  readonly ignoreBlockedRequestsAfterBlocks?: number;
+  readonly minConfirmations?: number;
+  readonly providerAdminForRecordCreation?: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

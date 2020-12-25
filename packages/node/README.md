@@ -20,7 +20,7 @@ Airnode has not yet been published, so you will need to clone and install the en
 git clone git@github.com:api3dao/airnode.git
 
 # Run from the repository root
-npm run bootstrap
+yarn run bootstrap
 ```
 
 ## Configuration
@@ -33,10 +33,10 @@ Airnode does not yet have an stable API for usage. However, you can run for deve
 
 ```sh
 # Run Airnode once using the AWS serverless handler
-npm run invoke:aws
+yarn run invoke:aws
 
 # Expose a local endpoint at localhost:3000 where you can initiate actions by sending HTTP requests
-npm run dev:aws
+yarn run dev:aws
 ```
 
 ## Behaviour
@@ -48,7 +48,7 @@ https://docs.google.com/spreadsheets/d/1DanVn7WyP96D5max2_5T5enJz7TcCsRceoqDfDfC
 ## Directory Structure
 
 ```sh
-core/
+src/
 ├── adapters/           # Modules allowing Airnode access to the outside world
 │   └── http/           # The HTTP adapter
 ├── config/             # Global Airnode configuration
@@ -70,13 +70,3 @@ core/
 └── workers/            # Utility function that allow for "forking"
 
 ```
-
-## Security
-
-API3 and Airnode take security very seriously. If you find a security related incident please let the team know privately.
-
-## Contributing
-
-Airnode welcomes all contributors, regardless of how big or small the change is!
-
-If you find a bug, please log an [issue](https://github.com/api3dao/api3-docs)

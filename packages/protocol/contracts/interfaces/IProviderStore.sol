@@ -18,16 +18,16 @@ interface IProviderStore is IRequesterStore {
 
     event WithdrawalRequested(
         bytes32 indexed providerId,
-        uint256 indexed requesterInd,
-        bytes32 withdrawalRequestId,
+        uint256 indexed requesterIndex,
+        bytes32 indexed withdrawalRequestId,
         address designatedWallet,
         address destination
         );
 
     event WithdrawalFulfilled(
         bytes32 indexed providerId,
-        uint256 indexed requesterInd,
-        bytes32 withdrawalRequestId,
+        uint256 indexed requesterIndex,
+        bytes32 indexed withdrawalRequestId,
         address designatedWallet,
         address destination,
         uint256 amount
@@ -49,7 +49,7 @@ interface IProviderStore is IRequesterStore {
 
     function requestWithdrawal(
         bytes32 providerId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address designatedWallet,
         address destination
     )
@@ -58,7 +58,7 @@ interface IProviderStore is IRequesterStore {
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
         bytes32 providerId,
-        uint256 requesterInd,
+        uint256 requesterIndex,
         address destination
         )
         external

@@ -1,0 +1,32 @@
+{
+  "name": "@airnode/deployer",
+  "license": "MIT",
+  "version": "0.1.0",
+  "scripts": {
+    "_build": "yarn run clean && yarn run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "command:help": "node dist/deployer-cli.js --help",
+    "command:deploy-first-time": "node dist/deployer-cli.js deploy-first-time -c ./src/config-data/config.json -s ./src/config-data/security.json",
+    "command:redeploy": "node dist/deployer-cli.js redeploy -c ./src/config-data/config.json -s ./src/config-data/security.json",
+    "command:deploy-mnemonic": "node dist/deployer-cli.js deploy-mnemonic -m \"$MNEMONIC\" -r $REGION",
+    "command:remove-with-receipt": "node dist/deployer-cli.js remove-with-receipt --rf $RECEIPT_FILENAME",
+    "command:remove-mnemonic": "node dist/deployer-cli.js remove-mnemonic -p $PROVIDER_ID_SHORT -r $REGION",
+    "command:remove-airnode": "node dist/deployer-cli.js remove-airnode -p $PROVIDER_ID_SHORT -r $REGION -s $STAGE",
+    "terraform:init": "cd terraform && terraform init",
+    "sls:config": "sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
+    "sls:deploy": "sls deploy --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE",
+    "sls:remove": "sls remove --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE",
+    "sls:invoke": "sls invoke --function startCoordinator --config serverless.aws.yml --providerIdShort $PROVIDER_ID_SHORT --region $REGION --stage $STAGE"
+  },
+  "dependencies": {
+    "@airnode/node": "^0.1.0",
+    "@airnode/protocol": "^0.1.0",
+    "@types/yargs": "^15.0.9",
+    "ora": "^5.1.0",
+    "serverless": "^2.8.0",
+    "serverless-plugin-optimize": "^4.1.4-rc.1",
+    "serverless-plugin-typescript": "^1.1.9",
+    "yargs": "^16.0.3"
+  }
+}

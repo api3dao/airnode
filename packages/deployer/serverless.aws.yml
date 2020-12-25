@@ -1,0 +1,41 @@
+service:
+  name: airnode-${opt:providerIdShort}
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-plugin-optimize
+
+provider:
+  name: aws
+  region: ${opt:region}
+  stage: ${opt:stage}
+  runtime: nodejs12.x
+  memorySize: 256
+  environment: ${file(secrets.json)}
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action: 'lambda:InvokeFunction'
+      Resource: '*'
+
+package: 
+  individually: true
+  
+functions:
+  startCoordinator:
+    handler: ./src/handlers/aws/index.startCoordinator
+    timeout: 60
+    reservedConcurrency: 1
+    events:
+      - schedule: rate(1 minute)
+
+  initializeProvider:
+    handler: ./src/handlers/aws/index.initializeProvider
+    timeout: 20
+
+  callApi:
+    handler: ./src/handlers/aws/index.callApi
+    timeout: 30
+
+  processProviderRequests:
+    handler: ./src/handlers/aws/index.processProviderRequests
+    timeout: 10
