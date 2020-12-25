@@ -2,7 +2,7 @@
 
 A tool capable of determining if provided OIS or `config.json` and `security.json` are valid or not.
 
-## Usage
+# Usage
 
 The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as template:
 ```sh
@@ -24,7 +24,7 @@ Which can be simplified in the same manner as `validate` command and invoked wit
 npm run validateConfigSecurity exampleSpecs/config.specs.json exampleSpecs/security.specs.json
 ```
 
-### Output
+# Output
 
 Validator will print the result into console as a JSON in the following format:
 
@@ -44,57 +44,55 @@ Where array `messages` may contain message objects:
 
 If provided specification is valid, parameter `valid` will be set to `true`, however parameter `messages` may still contain messages, but only with `level` set to `warning`. In case `valid` is `false`, there will be always one or more error messages.
 
-## Validator templates
+# Validator templates
 
 To make modifications to OIS format as simple as possible, validator uses JSON templates which define a valid format of specification.
 
-### Basics
+## Basics
 
-Here is an example of a very basic template:
-```
+Most basic validator template can simply include names of all required parameters, which will result in validator accepting any specification that has exactly these parameters with any values.
+
+#### Template
+```json
 {
-    "server": {
-        "url": {}
-    },
-    "component": {
-        "securityScheme": {
-            "in": {},
-            "name": {},
-            "type": {}
-        }
-    }
+	"server": {
+		"url": {}
+	},
+	"component": {
+		"securityScheme": {
+			"in": {},
+			"name": {},
+			"type": {}
+		}
+	}
 }
 ```
-
-This means all the parameters are required, OIS will be valid only if it has all of them. Empty parentheses `{}` mean parameter can have any value except non-empty object. Example of valid OIS using template above:
-
-```
+---
+#### Valid specification
+```json
 {
-    "server": {
-        "url": "https://just.example.com"
-    },
-    "component": {
-        "securityScheme": {
-            "in": "query",
-            "name": "example",
-            "type": {}
-        }
-    }
+	"server": {
+		"url": "https://just.example.com"
+	},
+	"component": {
+		"securityScheme": {
+			"in": "query",
+			"name": "example",
+			"type": {}
+		}
+	}
 }
 ```
-
-Expected result:
-
-```
+#### Expected output
+```json
 {
     "valid": true,
     "messages": []
 }
 ```
 ---
-Example of invalid input:
-
-```
+#### Invalid specification
+```json
 {
     "server": {
         "extra": {}
@@ -104,9 +102,8 @@ Example of invalid input:
     }
 }
 ```
-Expected result:
-
-```
+#### Expected output
+```json
 {
     "valid": false,
     "messages": [
@@ -169,47 +166,46 @@ Notice `__keyRegexp` is nested on the same level as key of the parameter it is v
 
 `^[^\s'"\\]+$` - any string with at least 1 character and not containing any whitespaces, `'`, `"` or `\\`
 
-### Arrays and objects
+## Arrays and objects
 
 Token `__arrayItem` means that the parameter is an array and contents of the token describe what should be the structure of the contents in the array. `maxSize` is an array specific token, which can be used to set maximal count of elements in the array.
 
 `__objectItem` is used in combination with `__keyRegexp` or in conditions, it describes the structure of the object inside the parameter.
 
-Validator template example:
-
-```
+#### Template
+```json
 {
-    "server": {
-        "__maxSize": 1,
-        "__arrayItem": {
-            "url": {
-                "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
-            }
-        }
-    },
-    "component": {
-        "securitySchemes": {
-            "__objectItem": {
-                "in": {
-                    "__regexp": "^(query|header|cookie)$"
-                },
-                "name": {
-                    "__regexp": "^[^\\s'\"\\\\]+$"
-                },
-                "type": {}
-            }
-        }
-    },
-    "security": {
-        "__objectItem": {
-            "__arrayItem": {}
-        }
-    }
+	"server": {
+		"__maxSize": 1,
+		"__arrayItem": {
+			"url": {
+				"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
+			}
+		}
+	},
+	"component": {
+		"securitySchemes": {
+			"__objectItem": {
+				"in": {
+					"__regexp": "^(query|header|cookie)$"
+				},
+				"name": {
+					"__regexp": "^[^\\s'\"\\\\]+$"
+				},
+				"type": {}
+			}
+		}
+	},
+	"security": {
+		"__objectItem": {
+			"__arrayItem": {}
+		}
+	}
 }
 ```
 ---
-Valid input:
-```
+#### Valid specification
+```json
 {
   "server": [
     {
@@ -237,8 +233,8 @@ Valid input:
 }
 ```
 ---
-Invalid input:
-```
+#### Invalid specification
+```json
 {
   "server": [
     {
@@ -266,19 +262,20 @@ Invalid input:
   }
 }
 ```
-Expected result:
-```
+#### Expected output
+```json
 {
-    "valid": false,
-    "messages": [
-        { "level": "error", "message": "server must contain 1 or less items" },
-        { "level": "warning", "message": "server[1].url is not formatted correctly" },
-        { "level": "warning", "message": "component.securitySchemes.scheme.in is not formatted correctly" },
-        { "level": "warning", "message": "component.securitySchemes.scheme.name is not formatted correctly" },
-        { "level": "warning", "message": "Extra field: security.scheme[0].extra" }
-    ] 
+	"valid": false,
+	"messages": [
+		{ "level": "error", "message": "server must contain 1 or less items" },
+		{ "level": "warning", "message": "server[1].url is not formatted correctly" },
+		{ "level": "warning", "message": "component.securitySchemes.scheme.in is not formatted correctly" },
+		{ "level": "warning", "message": "component.securitySchemes.scheme.name is not formatted correctly" },
+		{ "level": "warning", "message": "Extra field: security.scheme[0].extra" }
+	] 
 }
 ```
+---
 
 ## Conditions
 
@@ -337,7 +334,7 @@ Conditions are objects containing `__if` and `__then` objects, these objects are
   }
 }
 ```
-#### Expected result
+#### Expected output
 
 ```json
 {
@@ -393,7 +390,6 @@ In this example parameter `conditionsExample.value` is required, if it's value i
 ```
 ---
 #### Invalid specification
-
 ```json
 {
 	"items": {
@@ -408,9 +404,7 @@ In this example parameter `conditionsExample.value` is required, if it's value i
 	}
 }
 ```
-
-#### Expected result
-
+#### Expected output
 ```json
 {
 	"valid": false,
@@ -499,7 +493,7 @@ Regular expressions are often used in `__if` parameter of condition, matched str
 }
 ```
 
-#### Expected result
+#### Expected output
 ```json
 {
 	"valid": false,
@@ -578,7 +572,7 @@ Section `__then` can contain keyword `__any`, on level where array or object is 
 	}
 }
 ```
-#### Expected result
+#### Expected output
 ```json
 {
 	"valid": false,
@@ -624,7 +618,7 @@ Sometimes a warning, should be considered an error and vice versa, the level of 
 	"optionalExample": {}
 }
 ```
-#### Expected result
+#### Expected output
 ```json
 {
 	"valid": false,
