@@ -1097,6 +1097,35 @@ describe('validator', () => {
       });
     });
 
+    it('regular expressions', () => {
+      const regexpTemplate = `
+        {
+          "__keyRegexp": "^server$",
+          "__objectItem": {
+            "__regexp": "^(https?|ftp)://[^\\\\s/$.?#].[^\\\\s]*$"
+          }
+        }
+      `;
+
+      const validRegexpInput = `
+      {
+        "server": "https://www.google.com/"
+      }
+      `;
+
+      const invalidRegexpInput = `
+      {
+        "invalid": "google"
+      }
+      `;
+
+      expect(validateJson(validRegexpInput, regexpTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidRegexpInput, regexpTemplate)).toMatchObject({
+        valid: false,
+        messages: [keyFormattingMessage('invalid', 'invalid'), formattingMessage('invalid')],
+      });
+    });
+
     it('arrays and objects', () => {
       const arraysObjectsTemplate = `
     {
