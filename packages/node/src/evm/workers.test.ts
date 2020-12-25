@@ -12,7 +12,9 @@ import * as worker from './workers';
 describe('spawnNewProvider', () => {
   it('handles remote AWS calls', async () => {
     const state = fixtures.buildEVMProviderState();
-    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: true, data: state }));
+    invokeMock.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
     expect(logs).toEqual([]);
@@ -53,7 +55,9 @@ describe('spawnNewProvider', () => {
   it('returns an error if the response has an error log', async () => {
     const state = fixtures.buildEVMProviderState();
     const errorLog = logger.pend('ERROR', 'Something went wrong');
-    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: false, errorLog }));
+    invokeMock.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
     expect(logs).toEqual([errorLog]);
@@ -70,7 +74,9 @@ describe('spawnNewProvider', () => {
 
   it('returns an error if the response is not ok', async () => {
     const state = fixtures.buildEVMProviderState();
-    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: false }));
+    invokeMock.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
     expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to initialize provider:ganache-test' }]);
@@ -89,7 +95,9 @@ describe('spawnNewProvider', () => {
 describe('spawnProviderRequestProcessor', () => {
   it('handles remote AWS calls', async () => {
     const state = fixtures.buildEVMProviderState();
-    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: true, data: state }));
+    invokeMock.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: state }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
     expect(logs).toEqual([]);
@@ -130,7 +138,9 @@ describe('spawnProviderRequestProcessor', () => {
   it('returns an error if the response has an error log', async () => {
     const state = fixtures.buildEVMProviderState();
     const errorLog = logger.pend('ERROR', 'Something went wrong');
-    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: false, errorLog }));
+    invokeMock.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
     expect(logs).toEqual([errorLog]);
@@ -147,7 +157,9 @@ describe('spawnProviderRequestProcessor', () => {
 
   it('returns an error if the response is not ok', async () => {
     const state = fixtures.buildEVMProviderState();
-    invokeMock.mockImplementationOnce((params, callback) => callback(null, { ok: false }));
+    invokeMock.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
     expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to process provider requests:ganache-test' }]);
