@@ -6,12 +6,12 @@ A tool capable of determining if provided OIS or `config.json` and `security.jso
 
 The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as template:
 ```sh
-npm run validate --specs="[specsFile]" --template="[templateFile]"
+npm run validate --template="[templateFile]" --specs="[specsFile]"
 ```
 
 In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`. Try it out using the example specification:
 ```sh
-npm run validate exampleSpecs/ois.specs.json templates/ois.json
+npm run validate templates/ois.json exampleSpecs/ois.specs.json
 ```
 
 Validation of config and security has a separate command, in which the template is omitted:
