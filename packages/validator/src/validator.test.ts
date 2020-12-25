@@ -25,10 +25,6 @@ function conditionNotMetMessage(paramPath, param) {
   return { level: 'error', message: `Condition in ${paramPath} is not met with ${param}` };
 }
 
-function requiredConditionsNotMetMessage(paramPath) {
-  return { level: 'error', message: `Required conditions not met in ${paramPath}` };
-}
-
 const validAPISpecification = `{
 "servers": [
     {
@@ -1045,8 +1041,9 @@ describe('validator', () => {
     });
   });
 
-  it('readme examples', () => {
-    const basicTemplate = `  
+  describe('readme examples', () => {
+    it('basic', () => {
+      const basicTemplate = `  
     {
       "server": {
         "url": {}
@@ -1061,7 +1058,7 @@ describe('validator', () => {
     }
     `;
 
-    const basicValidInput = `
+      const basicValidInput = `
     {
       "server": {
         "url": "https://just.example.com"
@@ -1076,7 +1073,7 @@ describe('validator', () => {
     }
     `;
 
-    const basicInvalidInput = `
+      const basicInvalidInput = `
     {
       "server": {
         "extra": {}
@@ -1087,19 +1084,21 @@ describe('validator', () => {
     }
     `;
 
-    expect(validateJson(basicValidInput, basicTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(basicInvalidInput, basicTemplate)).toMatchObject({
-      valid: false,
-      messages: [
-        missingParamMessage('server.url'),
-        missingParamMessage('component.securityScheme.in'),
-        missingParamMessage('component.securityScheme.name'),
-        missingParamMessage('component.securityScheme.type'),
-        extraFieldMessage('server.extra'),
-      ],
+      expect(validateJson(basicValidInput, basicTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(basicInvalidInput, basicTemplate)).toMatchObject({
+        valid: false,
+        messages: [
+          missingParamMessage('server.url'),
+          missingParamMessage('component.securityScheme.in'),
+          missingParamMessage('component.securityScheme.name'),
+          missingParamMessage('component.securityScheme.type'),
+          extraFieldMessage('server.extra'),
+        ],
+      });
     });
 
-    const arraysObjectsTemplate = `
+    it('arrays and objects', () => {
+      const arraysObjectsTemplate = `
     {
       "server": {
         "__maxSize": 1,
@@ -1130,7 +1129,7 @@ describe('validator', () => {
     }
     `;
 
-    const arraysObjectValidInput = `
+      const arraysObjectValidInput = `
       {
         "server": [
           {
@@ -1158,7 +1157,7 @@ describe('validator', () => {
       }
     `;
 
-    const arraysObjectInvalidInput = `
+      const arraysObjectInvalidInput = `
       {
         "server": [
           {
@@ -1187,161 +1186,293 @@ describe('validator', () => {
       }
     `;
 
-    expect(validateJson(arraysObjectValidInput, arraysObjectsTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(arraysObjectInvalidInput, arraysObjectsTemplate)).toMatchObject({
-      valid: false,
-      messages: [
-        sizeExceededMessage('server', 1),
-        formattingMessage('server[1].url'),
-        formattingMessage('component.securitySchemes.scheme.in'),
-        formattingMessage('component.securitySchemes.scheme.name'),
-        extraFieldMessage('security.scheme[0].extra'),
-      ],
+      expect(validateJson(arraysObjectValidInput, arraysObjectsTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(arraysObjectInvalidInput, arraysObjectsTemplate)).toMatchObject({
+        valid: false,
+        messages: [
+          sizeExceededMessage('server', 1),
+          formattingMessage('server[1].url'),
+          formattingMessage('component.securitySchemes.scheme.in'),
+          formattingMessage('component.securitySchemes.scheme.name'),
+          extraFieldMessage('security.scheme[0].extra'),
+        ],
+      });
     });
 
-    const conditionsTemplate = `
-    {
-      "array": {
-        "__arrayItem": {
-          "__keyRegexp": "^/[a-zA-Z{}/]+$",
-          "__conditions": [
-            {
-              "__if": {
-                "__this_name": "(?<={)[^\\\\/{}]+(?=})"
-              },
-              "__then": {
-                "param": {
-                  "__regexp": "^__match$",
-                  "__level": "error"
-                }
-              }
-            }
-          ],
-          "__objectItem": {
+    it('conditions', () => {
+      const basicTemplate = `
+        {
+          "conditionsExample": {
+            "value": {},
             "__conditions": [
               {
                 "__if": {
-                  "name": "^condition$"
+                  "value": "^one$"
                 },
                 "__then": {
-                  "fulfilled": {
-                    "__regexp": "^(yes|no)$"
+                  "one": {
+                    "__regexp": "^This is required by one$"
                   }
                 }
               },
               {
                 "__if": {
-                  "two": ".*"
+                  "value": "^two$"
                 },
                 "__then": {
-                  "__any": {
-                    "__regexp": "^two$"
+                  "two": {
+                    "__regexp": "^This is required by two$"
                   }
-                }
-              },
-              {
-                "__require": {
-                  "relative": {}
-                }
-              },
-              {
-                "__require": {
-                  "/absolute.__this_name": {}
                 }
               }
             ]
           }
         }
-      }
-    }
-    `;
+      `;
 
-    const conditionsValidInput = `
-      {
-        "array": [
-          {
-            "/one": {
-              "relative": "param"
-            }
-          },
-          {
-            "/condition": {
-              "name": "condition",
-              "fulfilled": "yes",
-              "relative": "param"
-            }
-          },
-          {
-            "/path/{param}": {
-              "relative": "param",
-              "param": "param"
-            }
-          },
-          {
-            "/two": {
-              "two": "value",
-              "name": "two",
-              "relative": "param"
-            }
+      const validBasicSpec = `
+        {
+          "conditionsExample": {
+            "value": "one",
+            "one": "This is required by one"
           }
-        ],
-        "absolute": {
-          "/one": "one",
-          "/condition": "condition",
-          "/path/{param}": "two",
-          "/two": "three"
+        }
+      `;
+
+      const invalidBasicSpec = `
+      {
+        "conditionsExample": {
+          "value": "two",
+          "one": "This is required by two"
         }
       }
-    `;
+      `;
 
-    const conditionsInvalidInput = `
+      expect(validateJson(validBasicSpec, basicTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidBasicSpec, basicTemplate)).toMatchObject({
+        valid: false,
+        messages: [missingParamMessage('conditionsExample.two'), extraFieldMessage('conditionsExample.one')],
+      });
+
+      const requireTemplate = `
       {
-        "array": [
-          {
-            "/one": {
-              "notRelative": "param"
+        "items": {
+        "__objectItem": {
+          "__keyRegexp": "^require[0-9]$",
+          "__conditions": [
+            {
+              "__require": {
+                "/outer.__this_name.inner": {}
+              }
             }
-          },
-          {
-            "/condition": {
-              "name": "condition",
-              "fulfilled": "invalid",
-              "relative": "param"
-            }
-          },
-          {
-            "/path/{param}": {
-              "relative": "another",
-              "param": "random"
-            }
-          },
-          {
-            "/two": {
-              "two": "different",
-              "relative": "param"
-            }
-          }
-        ],
-        "absolute": {
-          "/condition": "condition",
-          "/path/{param}": "two",
-          "/two": "two"
+          ]
+        }
         }
       }
-    `;
+      `;
 
-    expect(validateJson(conditionsValidInput, conditionsTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(conditionsInvalidInput, conditionsTemplate)).toMatchObject({
-      valid: false,
-      messages: [
-        missingParamMessage('array[0]./one.relative'),
-        missingParamMessage('absolute./one'),
-        formattingMessage('array[1]./condition.fulfilled'),
-        conditionNotMetMessage('array[2]./path/{param}', 'param'),
-        requiredConditionsNotMetMessage('array[3]./two'),
-        extraFieldMessage('array[0]./one.notRelative'),
-        extraFieldMessage('array[2]./path/{param}.param'),
-      ],
+      const validRequireSpec = `
+      {
+        "items": {
+          "require0": {},
+          "require5": {}
+        },
+        "outer": {
+          "require0": {
+            "inner": {}
+          },
+          "require5": {
+            "inner": {}
+          }
+        }
+      }
+      `;
+
+      const invalidRequireSpec = `
+      {
+        "items": {
+            "require0": {},
+            "require5": {}
+          },
+        "outer": {
+          "require0": {},
+          "require1": {
+            "inner": {}
+          }
+        }
+      }
+      `;
+
+      expect(validateJson(validRequireSpec, requireTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidRequireSpec, requireTemplate)).toMatchObject({
+        valid: false,
+        messages: [
+          missingParamMessage('outer.require0.inner'),
+          missingParamMessage('outer.require5.inner'),
+          extraFieldMessage('outer.require1'),
+        ],
+      });
+
+      const ifThenMatchesTemplate = `
+      {
+        "items": {
+          "__objectItem": {
+            "__conditions": [
+              {
+                "__if": {
+                  "__this": "^matchedValue$"
+                },
+                "__rootThen": {
+                  "thenItems": {
+                    "byValue": {
+                      "__regexp": "^__match$"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "__conditions": [
+                  {
+                      "__if": {
+                          "__this_name": "^matchedKey$"
+                      },
+                      "__rootThen": {
+                          "thenItems": {
+                              "byKey": {
+                                  "__regexp": "^__match$"
+                              }
+                          }
+                      }
+                  }
+              ]
+        },
+        "thenItems": {}
+      }
+      `;
+
+      const validIfThenMatchesSpec = `
+      {
+        "items": {
+          "item1": "matchedValue",
+          "matchedKey": "item2"
+        },
+        "thenItems": {
+              "byValue": "matchedValue",
+              "byKey": "matchedKey"
+          }
+      }
+      `;
+
+      const invalidIfThenMatchesSpec = `
+      {
+        "items": {
+          "item1": "matchedValue",
+          "matchedKey": "item2"
+        },
+        "thenItems": {}
+      }
+      `;
+
+      expect(validateJson(validIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({
+        valid: false,
+        messages: [missingParamMessage('thenItems.byValue'), conditionNotMetMessage('items.matchedKey', 'matchedKey')],
+      });
+
+      const anyTemplate = `
+      {
+        "items": {
+          "__objectItem": {
+            "__keyRegexp": ".*"
+          },
+          "__conditions": [
+            {
+              "__if": {
+                "__this_name": "^anyExample$"
+              },
+              "__rootThen": {
+                "thenItems": {
+                  "__any": {
+                    "valid": {}
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "thenItems": {
+          "item1": {},
+          "item2": {},
+          "item3": {}
+        }
+      }
+      `;
+
+      const validAnySpec = `
+      {
+        "items": {
+          "anyExample": {}
+        },
+        "thenItems": {
+          "item1": {},
+          "item2": {
+            "valid": "true"
+          },
+          "item3": {}
+        }
+      }
+      `;
+
+      const invalidAnySpec = `
+        {
+          "items": {
+            "anyExample": {}
+          },
+          "thenItems": {
+                "item1": {},
+                "item2": {},
+                "item3": {}
+          }
+        }
+      `;
+
+      expect(validateJson(validAnySpec, anyTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidAnySpec, anyTemplate)).toMatchObject({
+        valid: false,
+        messages: [conditionNotMetMessage('items.anyExample', 'anyExample')],
+      });
+
+      const optionalLevelTemplate = `
+      {
+        "levelExample": {
+          "__regexp": "^true$",
+          "__level": "error"
+        },
+          "__optional": {
+            "optionalExample": {}
+          }
+      }
+      `;
+
+      const validOptionalLevelSpec = `
+      {
+        "levelExample": "true"
+      }
+      `;
+
+      const invalidOptionalLevelSpec = `
+      {
+        "levelExample": "false",
+        "optionalExample": {}
+      }
+      `;
+
+      expect(validateJson(validOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({
+        valid: false,
+        messages: [formattingMessage('levelExample', true)],
+      });
     });
   });
 });
