@@ -10,9 +10,9 @@ jobs:
       - name: Clone airnode
         uses: actions/checkout@v2
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: '12.x'
+          node-version: '12'
       - name: Install Dependencies
         run: yarn run bootstrap
       - name: Lint code
@@ -38,6 +38,10 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
       - run: yarn run test:adapter
 
   test-airnode-abi:
@@ -50,6 +54,10 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
       - run: yarn run test:airnode-abi
 
   test-node:
@@ -62,6 +70,10 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
       - run: yarn run test:node
 
   test-protocol:
@@ -74,6 +86,10 @@ jobs:
         with:
           path: ./*
           key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
       - run: yarn run test:protocol
 
   tests-pass:
