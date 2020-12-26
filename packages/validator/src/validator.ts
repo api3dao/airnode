@@ -6,6 +6,7 @@ import { validateRegexp } from './validators/regexpValidator';
 import { validateOptional } from './validators/optionalValidator';
 import { isAnyParamValid } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
+import { execute } from './validators/action';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
 const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
@@ -32,8 +33,8 @@ export function validateSpecs(
 ): Result {
   const messages: Log[] = [];
   let tmpNonRedundant: {} | [] = [];
-  let tmpResult: Result = { valid: true, messages: [] };
-  let tmpRoots: Roots = { specs: specs, nonRedundantParams: nonRedundantParams };
+  let tmpResult: Result = { valid: true, messages: [], output: {} };
+  let tmpRoots: Roots = { specs: specs, nonRedundantParams: nonRedundantParams, output: {} };
 
   for (const key of Object.keys(template)) {
     switch (key) {
@@ -117,9 +118,12 @@ export function validateSpecs(
 
         break;
 
+      case '__action':
+        continue;
+
       case '__apiSpecs':
         tmpNonRedundant = {};
-        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
         tmpResult = validateSpecs(specs, apiTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
@@ -130,7 +134,7 @@ export function validateSpecs(
 
       case '__endpointsSpecs':
         tmpNonRedundant = [];
-        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
         tmpResult = validateSpecs(specs, endpointsTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
@@ -141,7 +145,7 @@ export function validateSpecs(
 
       case '__oisSpecs':
         tmpNonRedundant = {};
-        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
         tmpResult = validateSpecs(specs, oisTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
@@ -178,6 +182,10 @@ export function validateSpecs(
     }
   }
 
+  if (Object.keys(template).some((key) => key === '__action')) {
+    execute(specs, template['__action'], `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`, roots);
+  }
+
   let valid = true;
 
   if (specs === roots.specs) {
@@ -185,7 +193,7 @@ export function validateSpecs(
     valid = !messages.some((msg) => msg.level === 'error');
   }
 
-  return { valid, messages };
+  return { valid, messages, output: roots.output };
 }
 
 /**
@@ -195,15 +203,17 @@ export function validateSpecs(
  */
 export function isApiSpecsValid(specs: string): Result {
   const nonRedundant = {};
+  const output = {};
 
   try {
     const parsedSpecs = JSON.parse(specs);
     return validateSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
+      output,
     });
   } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
   }
 }
 
@@ -214,15 +224,17 @@ export function isApiSpecsValid(specs: string): Result {
  */
 export function isEndpointsValid(specs: string): Result {
   const nonRedundant = [];
+  const output = {};
 
   try {
     const parsedSpecs = JSON.parse(specs);
     return validateSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
+      output,
     });
   } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
   }
 }
 
@@ -233,20 +245,23 @@ export function isEndpointsValid(specs: string): Result {
  */
 export function isOisValid(specs: string): Result {
   const nonRedundant = {};
+  const output = {};
 
   try {
     const parsedSpecs = JSON.parse(specs);
     return validateSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
+      output,
     });
   } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
   }
 }
 
 export function isConfigSecurityValid(configSpecs: string, securitySpecs: string): Result {
   const nonRedundant = {};
+  const output = {};
 
   try {
     const parsedConfigSpecs = JSON.parse(configSpecs);
@@ -255,8 +270,9 @@ export function isConfigSecurityValid(configSpecs: string, securitySpecs: string
     return validateSpecs(specs, configSecurityTemplate, '', nonRedundant, {
       specs,
       nonRedundantParams: nonRedundant,
+      output,
     });
   } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
   }
 }

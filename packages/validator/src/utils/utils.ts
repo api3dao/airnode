@@ -100,3 +100,49 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
 
   return {};
 }
+
+/**
+ * Inserts value into specification inside specified parameter, creates missing parameters in parameter if they don't exist
+ * @param paramPath - full path to parameter
+ * @param spec - specification that will be modified
+ * @param value - value that will be inserted
+ */
+export function insertValue(paramPath: string, spec: any, value: any) {
+  console.log(`Inserting ${Object.keys(value)[0] || value} to ${paramPath}`);
+
+  for (const param of paramPath.split('.')) {
+    if (param === '') {
+      for (const key of Object.keys(value)) {
+        spec[key] = JSON.parse(JSON.stringify(value[key]));
+      }
+
+      break;
+    }
+
+    if (paramPath.endsWith(param)) {
+      spec[param] = JSON.parse(JSON.stringify(value));
+      break;
+    }
+
+    if (!spec[param]) {
+      spec[param] = {};
+    }
+
+    spec = spec[param];
+  }
+}
+
+export function parseParamPath(paramPath: string, path: string): string {
+  if (paramPath === '' || path === '') {
+    return paramPath;
+  }
+
+  const parsedPath = path.split('.');
+
+  for (const match of paramPath.match(/\{\{([0-9]+)\}\}/g) || []) {
+    const index = parseInt(match.match('[0-9]+')![0]);
+    paramPath = paramPath.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
+  }
+
+  return paramPath;
+}

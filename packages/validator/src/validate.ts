@@ -11,7 +11,7 @@ import { validateSpecs, isConfigSecurityValid } from './validator';
  */
 export function validate(specsPath: string | undefined, templatePath: string | undefined): Result {
   if (!specsPath || !templatePath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
   }
 
   let template, specs;
@@ -19,13 +19,13 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   try {
     template = fs.readFileSync(templatePath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
+    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)], output: {} };
   }
 
   try {
     specs = fs.readFileSync(specsPath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
+    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
   }
 
   return validateJson(specs, template);
@@ -40,15 +40,17 @@ export function validate(specsPath: string | undefined, templatePath: string | u
 export function validateJson(specs: string, template: string): Result {
   try {
     const nonRedundant = {};
+    const output = {};
     const parsedTemplate = JSON.parse(template);
     const parsedSpecs = JSON.parse(specs);
 
     return validateSpecs(parsedSpecs, parsedTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
+      output,
     });
   } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
   }
 }
 
@@ -60,7 +62,7 @@ export function validateJson(specs: string, template: string): Result {
  */
 export function validateConfigSecurity(configPath: string | undefined, securityPath: string | undefined): Result {
   if (!configPath || !securityPath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
   }
 
   let config, security;
@@ -68,13 +70,13 @@ export function validateConfigSecurity(configPath: string | undefined, securityP
   try {
     config = fs.readFileSync(configPath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${configPath}`)] };
+    return { valid: false, messages: [logger.error(`Unable to read file ${configPath}`)], output: {} };
   }
 
   try {
     security = fs.readFileSync(securityPath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${securityPath}`)] };
+    return { valid: false, messages: [logger.error(`Unable to read file ${securityPath}`)], output: {} };
   }
 
   return isConfigSecurityValid(config, security);
