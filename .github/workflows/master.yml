@@ -23,10 +23,10 @@ jobs:
       - name: Build
         run: yarn run build
       - uses: actions/cache@v2
-          id: cache-build
-          with:
-            path: ./*
-            key: ${{ github.sha }}
+        id: cache-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
 
   test-adapter:
     name: Test @airnode/adapter
