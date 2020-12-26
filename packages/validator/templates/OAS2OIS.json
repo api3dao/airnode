@@ -1,0 +1,38 @@
+{
+	"__action": [
+		{
+			"__insert": {
+				"__target": "oisFormat",
+				"__value": "1.0.0"
+			}
+		}
+	],
+	"info": {
+		"title": {},
+		"version": {},
+		"__action": [
+			{
+				"__copy": {
+					"__target": ""
+				}
+			}
+		]
+	},
+	"paths": {
+		"__keyRegexp": "^\\/[^\\s'\"\\\\]+$",
+		"__objectItem": {
+			"__keyRegexp": "^(get|post)$",
+			"__objectItem": {
+				"parameters": {
+					"__action": [
+						{
+							"__copy": {
+								"__target": "paths.{{1}}.{{2}}.parameters"
+							}
+						}
+					]
+				}
+			}
+		}
+	}
+}
