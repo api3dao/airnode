@@ -24,7 +24,7 @@
     ]
   },
   "triggers": {
-    "requests": [
+    "request": [
       {
         "endpointId": "0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48",
         "oisTitle": "coinlayer",
