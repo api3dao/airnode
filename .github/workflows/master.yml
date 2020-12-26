@@ -1,50 +1,62 @@
-name: Test @airnode packages
+name: Continuous Build
 
 on: push
 
 jobs:
   build:
     name: Run Linting and Tests
-
     runs-on: ubuntu-latest
-
     steps:
     - name: Clone airnode
       uses: actions/checkout@v2
-
     - name: Setup Node
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-
     - name: Install Dependencies
       run: yarn run bootstrap
-
     - name: Lint code
       run: yarn run lint
-
     - name: Prepare config
       run: |
         cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json
-
     - name: Build
       run: yarn run build
 
-    - name: Test adapter
-      run: yarn run test:adapter
+  test-adapter:
+    name: Test @airnode/adapter
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - run: yarn run build
 
-    - name: Test airnode-abi
-      run: yarn run test:airnode-abi
+  test-airnode-abi:
+    name: Test @airnode/airnode-abi
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - run: yarn run test:airnode-abi
 
-    - name: Test protocol contracts
-      run: yarn run test:protocol
+  test-node:
+    name: Test @airnode/node
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - run: yarn run test:node
 
-    - name: Test node
-      run: yarn run test:node
+  test-protocol:
+    name: Test @airnode/protocol
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - run: yarn run test:protocol
 
-    - name: Start API and Ethereum node
-      run: yarn run dev:background
-
+  notify:
+    name: Send notifications
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [build, test-adapter, test-airnode-abi, test-node test-protocol]
+    steps:
     - name: Slack Notification
       uses: homoluctus/slatify@master
       if: always()
