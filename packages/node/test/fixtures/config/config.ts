@@ -6,7 +6,7 @@ export function buildConfig(config?: Partial<Config>): Config {
   return {
     id: 'my-config',
     triggers: {
-      requests: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
+      request: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
     },
     ois: [ois.buildOIS()],
     nodeSettings: settings.buildNodeSettings(),

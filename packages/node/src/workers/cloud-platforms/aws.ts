@@ -18,7 +18,7 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
       if (err) {
         reject(err);
       }
-      resolve(data as WorkerResponse);
+      resolve(JSON.parse(JSON.parse(data.Payload as string).body) as WorkerResponse);
     });
   });
 }
