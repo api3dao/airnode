@@ -55,7 +55,7 @@ jobs:
     name: Send notifications
     runs-on: ubuntu-latest
     if: always()
-    needs: [build, test-adapter, test-airnode-abi, test-node test-protocol]
+    needs: [build, test-adapter, test-airnode-abi, test-node, test-protocol]
     steps:
     - name: Slack Notification
       uses: homoluctus/slatify@master
