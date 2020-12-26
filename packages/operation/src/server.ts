@@ -1,10 +1,10 @@
 import express from 'express';
 
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 
-app.get('/', (req, res) => res.send('Express + TypeScript Server'));
+app.get('/', (req, res) => res.send('Airnode mock web API is running!'));
 
 app.listen(PORT, () => {
-  console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running at http://localhost:${PORT}`);
 });

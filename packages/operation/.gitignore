@@ -10,3 +10,7 @@ typechain
 
 # Script output files
 deployments
+
+# Ignore log files
+logs
+*.log
