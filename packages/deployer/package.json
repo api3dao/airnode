@@ -3,7 +3,7 @@
   "license": "MIT",
   "version": "0.1.0",
   "scripts": {
-    "build": "yarn run clean && yarn run compile",
+    "_build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
     "command:help": "node dist/deployer-cli.js --help",

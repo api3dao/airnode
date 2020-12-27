@@ -5,3 +5,4 @@
 /artifacts
 
 credentials.json
+*.flat.sol
