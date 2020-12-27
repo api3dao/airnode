@@ -6,9 +6,6 @@ export async function createProviders(state: State): Promise<State> {
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
     const apiProvider = state.apiProvidersByName[apiProviderName];
 
-    // Ensure that the API provider address has enough ETH to create the onchain provider
-    await state.deployer.sendTransaction({ to: apiProvider.address, value: ethers.utils.parseEther('5') });
-
     await state.contracts
       .Airnode!.connect(apiProvider.signer)
       .createProvider(apiProvider.address, apiProvider.xpub, { value: ethers.utils.parseEther('1') });
