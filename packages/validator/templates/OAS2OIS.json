@@ -24,13 +24,26 @@
 			"__keyRegexp": "^(get|post)$",
 			"__objectItem": {
 				"parameters": {
-					"__action": [
-						{
-							"__copy": {
-								"__target": "paths.{{1}}.{{2}}.parameters"
-							}
+					"__arrayItem": {
+						"in": {
+							"__action": [
+								{
+									"__copy": {
+										"__target": "paths.{{1}}.{{2}}.{{3}}.in"
+									}
+								}
+							]
+						},
+						"name": {
+							"__action": [
+								{
+									"__copy": {
+										"__target": "paths.{{1}}.{{2}}.{{3}}.name"
+									}
+								}
+							]
 						}
-					]
+					}
 				}
 			}
 		}

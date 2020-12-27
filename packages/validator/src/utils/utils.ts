@@ -108,15 +108,32 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
  * @param value - value that will be inserted
  */
 export function insertValue(paramPath: string, spec: any, value: any) {
-  console.log(`Inserting ${Object.keys(value)[0] || value} to ${paramPath}`);
-
-  for (const param of paramPath.split('.')) {
+  for (let param of paramPath.split('.')) {
     if (param === '') {
       for (const key of Object.keys(value)) {
         spec[key] = JSON.parse(JSON.stringify(value[key]));
       }
 
       break;
+    }
+
+    if (param.match(/\[[0-9]+\]$/)) {
+      const index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
+      param = param.replace(/\[[0-9]+\]$/, '');
+
+      if (!spec[param]) {
+        spec[param] = [];
+      }
+
+      spec = spec[param];
+
+      if (spec.length <= index) {
+        spec.push({});
+      }
+
+      spec = spec[index];
+
+      continue;
     }
 
     if (paramPath.endsWith(param)) {
