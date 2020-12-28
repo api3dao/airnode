@@ -100,19 +100,23 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 `endpoints.[name].authorizers` - a list of `authorizer` contracts. The values must correspond to a value defined in the `authorizers` top-level field.
 
+`endpoints.[name].oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
+
 **Templates**
 
 `templates` - a key/value object where the key is the unique template name and the value is the template object.
 
-`template.[name].endpoint` - a unique name given to the endpoint. Casing is important here
+`templates.[name].endpoint` - a unique name given to the endpoint. Casing is important here
 
-`fulfillClient` - the name of the fulfilling client contract. The contract must be defined in the `clients` top-level field
+`templates.[name].oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
 
-`fulfillFunctionName` - the function to call when a request is fulfilled
+`templates.[name].fulfillClient` - the name of the fulfilling client contract. The contract must be defined in the `clients` top-level field
 
-`requester` - the name of the requester who will have permissions to use the template. Must be defined in the `requesters` field.
+`templates.[name].fulfillFunctionName` - the function to call when a request is fulfilled
 
-`parameters` - a list of parameters that be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
+`templates.[name].requester` - the name of the requester who will have permissions to use the template. Must be defined in the `requesters` field.
+
+`templates.[name].parameters` - a list of parameters that be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 ### 2. authorizers
 
