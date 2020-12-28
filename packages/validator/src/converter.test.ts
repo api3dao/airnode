@@ -36,6 +36,10 @@ const generatedOIS = {
           scheme: 'Basic',
         },
       },
+      security: {
+        api_key: [],
+        http_basic: [],
+      },
     },
   },
 };
