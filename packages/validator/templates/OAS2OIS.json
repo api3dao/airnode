@@ -18,6 +18,20 @@
 			}
 		]
 	},
+	"servers": {
+		"__arrayItem": {
+			"url": {
+				"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
+				"__action": [
+					{
+						"__copy": {
+							"__target": "apiSpecifications.servers[0].url"
+						}
+					}
+				]
+			}
+		}
+	},
 	"paths": {
 		"__keyRegexp": "^\\/[^\\s'\"\\\\]+$",
 		"__objectItem": {
@@ -26,10 +40,11 @@
 				"parameters": {
 					"__arrayItem": {
 						"in": {
+							"__regexp": "^(path|query|header|cookie)$",
 							"__action": [
 								{
 									"__copy": {
-										"__target": "paths.{{1}}.{{2}}.{{3}}.in"
+										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.in"
 									}
 								}
 							]
@@ -38,13 +53,74 @@
 							"__action": [
 								{
 									"__copy": {
-										"__target": "paths.{{1}}.{{2}}.{{3}}.name"
+										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.name"
 									}
 								}
 							]
 						}
 					}
 				}
+			}
+		}
+	},
+	"components": {
+		"securitySchemes": {
+			"__objectItem": {
+				"type": {
+					"__regexp": "^(apiKey|http)$",
+					"__action": [
+						{
+							"__copy": {
+								"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
+							}
+						}
+					]
+				},
+				"in": {
+					"__regexp": "^(query|header|cookie)$",
+					"__action": [
+						{
+							"__copy": {
+								"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
+							}
+						}
+					]
+				},
+				"__conditions": [
+					{
+						"__if": {
+							"type": "^apiKey$"
+						},
+						"__then": {
+							"name": {
+								"__action": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.name"
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"type": "^http$"
+						},
+						"__then": {
+							"scheme": {
+								"__regexp": "^(Basic|Bearer)$",
+								"__action": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.scheme"
+										}
+									}
+								]
+							}
+						}
+					}
+				]
 			}
 		}
 	}
