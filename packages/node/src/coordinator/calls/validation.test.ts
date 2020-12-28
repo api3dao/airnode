@@ -22,7 +22,10 @@ describe('validateAggregatedApiCall', () => {
     const aggCall = fixtures.createAggregatedApiCall({ endpointName: 'unknownEndpoint' });
     const [logs, res] = validation.validateAggregatedApiCall(fixtures.buildConfig(), aggCall);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Unknown Endpoint:unknownEndpoint in OIS:test-ois received for Request:apiCallId' },
+      {
+        level: 'ERROR',
+        message: 'Unknown Endpoint:unknownEndpoint in OIS:currency-converter-ois received for Request:apiCallId',
+      },
     ]);
     expect(res).toEqual({ ...aggCall, errorCode: RequestErrorCode.UnknownEndpoint });
   });
@@ -45,7 +48,7 @@ describe('validateAggregatedApiCalls', () => {
           { level: 'ERROR', message: `Unknown OIS:unknownOIS received for Request:${unknownOIS.id}` },
           {
             level: 'ERROR',
-            message: `Unknown Endpoint:unknownEndpoint in OIS:test-ois received for Request:${unknownEndpoint.id}`,
+            message: `Unknown Endpoint:unknownEndpoint in OIS:currency-converter-ois received for Request:${unknownEndpoint.id}`,
           },
         ],
         ['message']

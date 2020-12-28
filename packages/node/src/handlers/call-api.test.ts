@@ -16,7 +16,7 @@ describe('callApi', () => {
   });
 
   it('calls the adapter with the given parameters', async () => {
-    process.env['test-ois_myapiApiScheme'] = 'supersecret';
+    process.env['currency-converter-ois_myapiApiScheme'] = 'supersecret';
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
@@ -48,7 +48,10 @@ describe('callApi', () => {
     const aggregatedCall = fixtures.createAggregatedApiCall();
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
-      { level: 'ERROR', message: "No '_type' parameter was found for Endpoint:convertToUSD, OIS:test-ois" },
+      {
+        level: 'ERROR',
+        message: "No '_type' parameter was found for Endpoint:convertToUSD, OIS:currency-converter-ois",
+      },
     ]);
     expect(res).toEqual({
       errorCode: RequestErrorCode.ResponseParametersInvalid,

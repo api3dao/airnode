@@ -5,7 +5,7 @@ export function createAggregatedApiCall(params?: Partial<AggregatedApiCall>): Ag
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',
     id: 'apiCallId',
-    oisTitle: 'test-ois',
+    oisTitle: 'currency-converter-ois',
     parameters: { from: 'ETH' },
     type: 'request',
     ...params,
