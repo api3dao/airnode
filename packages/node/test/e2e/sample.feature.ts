@@ -1,3 +1,3 @@
-it('does not process requests twice', () => {
+it('does not process requests twice', async () => {
   // TODO
 });
