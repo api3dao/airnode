@@ -236,7 +236,7 @@ export interface RequestTrigger {
 }
 
 export interface Triggers {
-  readonly requests: RequestTrigger[];
+  readonly request: RequestTrigger[];
 }
 
 // ===========================================

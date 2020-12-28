@@ -30,7 +30,7 @@ describe('fetchByRequesterIndex', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 5 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
-    expect(getTransactionCountMock).toHaveBeenCalledWith('0xBff368EaD703f07fC6C9585e25d9755A47361562', 10716084);
+    expect(getTransactionCountMock).toHaveBeenCalledWith('0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084);
   });
 
   it('returns transaction counts for multiple wallets', async () => {
@@ -47,8 +47,8 @@ describe('fetchByRequesterIndex', () => {
     expect(res).toEqual({ 1: 45, 2: 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
     expect(getTransactionCountMock.mock.calls).toEqual([
-      ['0xBff368EaD703f07fC6C9585e25d9755A47361562', 10716084],
-      ['0x6722FC66C05d7092833CC772fD2C00Fdc0f939a6', 10716084],
+      ['0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084],
+      ['0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12', 10716084],
     ]);
   });
 
@@ -66,8 +66,8 @@ describe('fetchByRequesterIndex', () => {
     expect(res).toEqual({ 1: 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
     expect(getTransactionCountMock.mock.calls).toEqual([
-      ['0xBff368EaD703f07fC6C9585e25d9755A47361562', 10716084],
-      ['0xBff368EaD703f07fC6C9585e25d9755A47361562', 10716084],
+      ['0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084],
+      ['0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084],
     ]);
   });
 
@@ -84,7 +84,7 @@ describe('fetchByRequesterIndex', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'Unable to fetch transaction count for wallet:0xBff368EaD703f07fC6C9585e25d9755A47361562',
+        message: 'Unable to fetch transaction count for wallet:0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
         error: new Error('Server says no'),
       },
     ]);

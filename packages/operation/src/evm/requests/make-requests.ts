@@ -1,38 +1,35 @@
 import { ethers } from 'ethers';
 import { encode } from '@airnode/airnode-abi';
-import { deriveProviderId, getDesignatedWallet } from '../utils';
+import { mocks } from '@airnode/protocol';
+import { deriveEndpointId, deriveProviderId, getDesignatedWallet } from '../utils';
 import { FullRequest, RegularRequest, RequestsState as State, RequestType, ShortRequest } from '../../types';
 
-const CLIENT_ABI = [
-  'function makeShortRequest(bytes32 templateId, bytes calldata parameters)',
-  'function makeRequest(bytes32 templateId, uint256 requesterIndex, address designatedWallet, address fulfillAddress, bytes4 fulfillFunctionId, bytes calldata parameters)',
-  'function makeFullRequest(bytes32 providerId, bytes32 endpointId, uint256 requesterIndex, address designatedWallet, address fulfillAddress, bytes4 fulfillFunctionId, bytes calldata parameters)',
-  'function fulfill(bytes32 requestId, uint256 statusCode, bytes32 data)',
-  'function fulfillBytes(bytes32 requestId, uint256 statusCode, bytes calldata data)',
-];
-
 export async function makeShortRequest(state: State, request: ShortRequest) {
-  const { privateKey } = state.deployment.requesters[request.requesterId];
+  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
+  const { privateKey } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
+  const clientAbi = mocks.MockAirnodeClient.abi;
   const clientAddress = state.deployment.clients[request.client];
-  const client = new ethers.Contract(clientAddress, CLIENT_ABI, state.provider);
+  const client = new ethers.Contract(clientAddress, clientAbi, state.provider);
   const encodedParameters = encode(request.parameters);
 
-  const templateAddress = state.deployment.apiProviders[request.apiProvider].templates[request.template];
+  const templateId = state.deployment.apiProviders[request.apiProvider].templates[request.template].hash;
 
-  await client.connect(signer).makeShortRequest(templateAddress, encodedParameters);
+  await client.connect(signer).makeShortRequest(templateId, encodedParameters);
 }
 
 export async function makeRegularRequest(state: State, request: RegularRequest) {
-  const { privateKey, requesterIndex } = state.deployment.requesters[request.requesterId];
+  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
+  const { privateKey, requesterIndex } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
+  const clientAbi = mocks.MockAirnodeClient.abi;
   const clientAddress = state.deployment.clients[request.client];
-  const client = new ethers.Contract(clientAddress, CLIENT_ABI, state.provider);
+  const client = new ethers.Contract(clientAddress, clientAbi, state.provider);
   const encodedParameters = encode(request.parameters);
 
-  const templateAddress = state.deployment.apiProviders[request.apiProvider].templates[request.template];
+  const templateId = state.deployment.apiProviders[request.apiProvider].templates[request.template].hash;
 
   const { mnemonic } = state.config.apiProviders[request.apiProvider];
   const designatedWallet = getDesignatedWallet(mnemonic, requesterIndex, state.provider);
@@ -40,7 +37,7 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
   await client
     .connect(signer)
     .makeRequest(
-      templateAddress,
+      templateId,
       requesterIndex,
       designatedWallet.address,
       client.address,
@@ -50,15 +47,17 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
 }
 
 export async function makeFullRequest(state: State, request: FullRequest) {
-  const { privateKey, requesterIndex } = state.deployment.requesters[request.requesterId];
+  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
+  const { privateKey, requesterIndex } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
   const apiProviderAddress = state.deployment.apiProviders[request.apiProvider].address;
   const providerId = deriveProviderId(apiProviderAddress);
-  const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [request.endpoint]));
+  const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
 
+  const clientAbi = mocks.MockAirnodeClient.abi;
   const clientAddress = state.deployment.clients[request.client];
-  const client = new ethers.Contract(clientAddress, CLIENT_ABI, state.provider);
+  const client = new ethers.Contract(clientAddress, clientAbi, state.provider);
   const encodedParameters = encode(request.parameters);
 
   const { mnemonic } = state.config.apiProviders[request.apiProvider];

@@ -6,11 +6,11 @@ export function buildConfig(config?: Partial<Config>): Config {
   return {
     id: 'test-config',
     triggers: {
-      requests: [
+      request: [
         {
-          endpointId: '0x8b4b3591c5b12c65a837459ada36116f755c9a156df205eba211c5789fc48da6',
+          endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
           endpointName: 'convertToUSD',
-          oisTitle: 'test-ois',
+          oisTitle: 'currency-converter-ois',
         },
       ],
     },

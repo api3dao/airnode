@@ -52,7 +52,7 @@ export async function assignDesignatedWallets(state: State) {
 
     const designatedWallets = designatedProviderNames.map((providerName) => {
       const apiProvider = state.apiProvidersByName[providerName];
-      const wallet = deriveWalletFromPath(apiProvider.mnemonic, `m/0/0/${requester.requesterIndex}`, state.provider);
+      const wallet = deriveWalletFromPath(apiProvider.mnemonic, `m/0/${requester.requesterIndex}`, state.provider);
       return {
         address: wallet.address,
         apiProviderName: providerName,

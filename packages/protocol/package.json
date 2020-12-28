@@ -8,7 +8,11 @@
     "deploy:rinkeby": "hardhat deploy --network rinkeby",
     "deploy:ropsten": "hardhat deploy --network ropsten",
     "test": "hardhat test",
-    "test:coverage": "hardhat coverage"
+    "test:coverage": "hardhat coverage",
+    "flatten": "yarn run flatten:airnode && yarn run flatten:convenience && yarn run flatten:delete-license-lines",
+    "flatten:airnode": "hardhat flatten contracts/Airnode.sol > Airnode.flat.sol && yarn run flatten:delete-license-lines",
+    "flatten:convenience": "hardhat flatten contracts/Convenience.sol > Convenience.flat.sol && yarn run flatten:delete-license-lines",
+    "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",

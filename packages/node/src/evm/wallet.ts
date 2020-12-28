@@ -1,18 +1,15 @@
 import { ethers } from 'ethers';
 import * as config from '../config';
 
-// We can reserve 2^256-1 different wallets as below
-// m/0/0/0: designatorAddress
-// m/0/0/1: First reserved wallet path
-// m/0/0/2: Second reserved wallet path
+// 2^31-1 different wallets can be designated as below
+// m/0/0: masterWalletAddress
+// m/0/1: First reserved wallet path
+// m/0/2: Second reserved wallet path
 // ...
-// m/0/0/2^31-1 (each index is represented in 31-bits)
-// m/0/1/0
-// m/0/1/1
-// ...
-// but there is no need for more than 2^31-1 per provider
+// m/0/2^31-1 (each index is represented in 31-bits)
+// Although this can be extended as m/0/*/... it will not be needed.
 function getPathFromIndex(index: number | string) {
-  return `m/0/0/${index}`;
+  return `m/0/${index}`;
 }
 
 export function getMasterHDNode(): ethers.utils.HDNode {
