@@ -1,6 +1,6 @@
 import { Config } from '@airnode/operation';
 
-export function buildDeployConfig(): Config {
+export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
     apiProviders: {
       CurrencyConverterAPI: {
@@ -77,5 +77,6 @@ export function buildDeployConfig(): Config {
         parameters: [],
       },
     ],
+    ...config,
   };
 }
