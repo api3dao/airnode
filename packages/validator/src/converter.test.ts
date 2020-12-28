@@ -1,7 +1,8 @@
 import { validate } from './validate';
+import { extraFieldMessage, formattingMessage, missingParamMessage } from './utils/messages';
 
 const generatedOIS = {
-  title: 'OAS2OIS',
+  title: 'Swagger Petstore',
   version: '1.0.0',
   oisFormat: '1.0.0',
   apiSpecifications: {
@@ -42,8 +43,12 @@ const generatedOIS = {
 describe('converter', () => {
   it('OAS2OIS', () => {
     expect(validate('exampleSpecs/OAS.specs.json', 'templates/OAS2OIS.json')).toEqual({
-      valid: true,
-      messages: [],
+      valid: false,
+      messages: [
+        formattingMessage('components.securitySchemes.petstore_auth.type'),
+        missingParamMessage('components.securitySchemes.petstore_auth.in'),
+        extraFieldMessage('components.securitySchemes.petstore_auth.flows'),
+      ],
       output: generatedOIS,
     });
   });

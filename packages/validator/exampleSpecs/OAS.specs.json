@@ -1,7 +1,18 @@
 {
 	"info": {
-		"title": "OAS2OIS",
-		"version": "1.0.0"
+		"version": "1.0.0",
+		"title": "Swagger Petstore",
+		"description": "A sample API that uses a petstore as an example to demonstrate features in the OpenAPI 3.0 specification",
+		"termsOfService": "http://swagger.io/terms/",
+		"contact": {
+			"name": "Swagger API Team",
+			"email": "apiteam@swagger.io",
+			"url": "http://swagger.io"
+		},
+		"license": {
+			"name": "Apache 2.0",
+			"url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+		}
 	},
 	"servers": [
 		{
@@ -31,6 +42,18 @@
 				"type": "http",
 				"in": "query",
 				"scheme": "Basic"
+			},
+			"petstore_auth": {
+				"type": "oauth2",
+				"flows": {
+					"implicit": {
+						"authorizationUrl": "http://example.org/api/oauth/dialog",
+						"scopes": {
+							"write:pets": "modify pets in your account",
+							"read:pets": "read your pets"
+						}
+					}
+				}
 			}
 		}
 	}

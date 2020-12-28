@@ -37,6 +37,16 @@ export function validateSpecs(
   let tmpRoots: Roots = { specs: specs, nonRedundantParams: nonRedundantParams, output: {} };
 
   for (const key of Object.keys(template)) {
+    if (key === '__ignore') {
+      for (const copy of Object.keys(specs)) {
+        if (!nonRedundantParams[copy]) {
+          nonRedundantParams[copy] = specs[copy];
+        }
+      }
+
+      break;
+    }
+
     switch (key) {
       case '__conditions':
         for (const condition of template[key]) {

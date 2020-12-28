@@ -8,15 +8,25 @@
 		}
 	],
 	"info": {
-		"title": {},
-		"version": {},
-		"__action": [
-			{
-				"__copy": {
-					"__target": ""
+		"title": {
+			"__action": [
+				{
+					"__copy": {
+						"__target": "title"
+					}
 				}
-			}
-		]
+			]
+		},
+		"version": {
+			"__action": [
+				{
+					"__copy": {
+						"__target": "version"
+					}
+				}
+			]
+		},
+		"__ignore": {}
 	},
 	"servers": {
 		"__arrayItem": {
@@ -57,9 +67,11 @@
 									}
 								}
 							]
-						}
+						},
+						"__ignore": {}
 					}
-				}
+				},
+				"__ignore": {}
 			}
 		}
 	},
@@ -67,26 +79,44 @@
 		"securitySchemes": {
 			"__objectItem": {
 				"type": {
-					"__regexp": "^(apiKey|http)$",
-					"__action": [
-						{
-							"__copy": {
-								"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
-							}
-						}
-					]
+					"__regexp": "^(apiKey|http)$"
 				},
 				"in": {
-					"__regexp": "^(query|header|cookie)$",
-					"__action": [
-						{
-							"__copy": {
-								"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
-							}
-						}
-					]
+					"__regexp": "^(query|header|cookie)$"
 				},
 				"__conditions": [
+					{
+						"__if": {
+							"type": "^(apiKey|http)$"
+						},
+						"__then": {
+							"type": {
+								"__action": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"in": "^(query|header|cookie)$"
+						},
+						"__then": {
+							"in": {
+								"__action": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
+										}
+									}
+								]
+							}
+						}
+					},
 					{
 						"__if": {
 							"type": "^apiKey$"
@@ -122,6 +152,8 @@
 					}
 				]
 			}
-		}
-	}
+		},
+		"__ignore": {}
+	},
+	"__ignore": {}
 }
