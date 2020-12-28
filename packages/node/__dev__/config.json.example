@@ -11,13 +11,13 @@
         "type": "evm",
         "id": 1337,
         "contracts": {
-          "Airnode": "0x197F3826040dF832481f835652c290aC7c41f073",
-          "Convenience": "0x2393737d287c555d148012270Ce4567ABb1ee95C"
+          "Airnode": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+          "Convenience": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
         },
         "providers": [
           {
-            "name": "ganache-local",
-            "url": "http://localhost:4111"
+            "name": "evm-local",
+            "url": "http://127.0.0.1:8545/"
           }
         ]
       }
@@ -26,9 +26,9 @@
   "triggers": {
     "request": [
       {
-        "endpointId": "0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48",
+        "endpointId": "0x8b4b3591c5b12c65a837459ada36116f755c9a156df205eba211c5789fc48da6",
         "oisTitle": "coinlayer",
-        "endpointName": "convertToUsd"
+        "endpointName": "convertToUSD"
       }
     ]
   },
@@ -87,7 +87,7 @@
       },
       "endpoints": [
         {
-          "name": "convertToUsd",
+          "name": "convertToUSD",
           "operation": {
             "method": "get",
             "path": "/convert"
