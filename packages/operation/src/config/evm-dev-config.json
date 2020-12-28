@@ -68,6 +68,7 @@
       "type": "full",
       "apiProvider": "CurrencyConverterAPI",
       "endpoint": "convertToUSD",
+      "oisTitle": "currency-converter-ois",
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
       "parameters": []
