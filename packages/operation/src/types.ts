@@ -151,6 +151,7 @@ export interface RegularRequest extends Request {
 export interface FullRequest extends Request {
   readonly endpoint: string;
   readonly fulfillFunctionName: string;
+  readonly oisTitle: string;
   readonly parameters: InputParameter[];
 }
 

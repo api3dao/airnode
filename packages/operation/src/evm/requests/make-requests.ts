@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { encode } from '@airnode/airnode-abi';
 import { mocks } from '@airnode/protocol';
-import { deriveProviderId, getDesignatedWallet } from '../utils';
+import { deriveEndpointId, deriveProviderId, getDesignatedWallet } from '../utils';
 import { FullRequest, RegularRequest, RequestsState as State, RequestType, ShortRequest } from '../../types';
 
 export async function makeShortRequest(state: State, request: ShortRequest) {
@@ -53,7 +53,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
 
   const apiProviderAddress = state.deployment.apiProviders[request.apiProvider].address;
   const providerId = deriveProviderId(apiProviderAddress);
-  const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [request.endpoint]));
+  const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
 
   const clientAbi = mocks.MockAirnodeClient.abi;
   const clientAddress = state.deployment.clients[request.client];

@@ -174,6 +174,8 @@ There are currently three types of requests that can be made. You can learn more
 
 `fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would be `fulfill` or similar.
 
+`oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
+
 `parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 #### Full Example
@@ -185,12 +187,14 @@ There are currently three types of requests that can be made. You can learn more
       "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
       "endpoints": {
         "convertToUSD": {
-          "authorizers": ["public"]
+          "authorizers": ["public"],
+          "oisTitle": "currency-converter-api"
         }
       },
       "templates": {
         "template-1": {
           "endpoint": "convertToUSD",
+          "oisTitle": "currency-converter-api",
           "fulfillClient": "MockAirnodeClient",
           "fulfillFunctionName": "fulfill",
           "requester": "bob",
@@ -247,6 +251,7 @@ There are currently three types of requests that can be made. You can learn more
       "type": "full",
       "apiProvider": "CurrencyConverterAPI",
       "endpoint": "convertToUSD",
+      "oisTitle": "currency-converter-api",
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
       "parameters": [
