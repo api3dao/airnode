@@ -4,12 +4,14 @@
       "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
       "endpoints": {
         "convertToUSD": {
-          "authorizers": ["public"]
+          "authorizers": ["public"],
+          "oisTitle": "currency-converter-ois"
         }
       },
       "templates": {
         "template-1": {
           "endpoint": "convertToUSD",
+          "oisTitle": "currency-converter-ois",
           "fulfillClient": "MockAirnodeClient",
           "fulfillFunctionName": "fulfill",
           "requester": "bob",

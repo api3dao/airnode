@@ -1,5 +1,14 @@
 import { ethers } from 'ethers';
-import { Config, DeployState as State, Deployment } from '../../types';
+import { deriveEndpointId } from '../utils';
+import {
+  Config,
+  ConfigRequester,
+  DeployState as State,
+  DeployedAPIProvider,
+  DeployedEndpoint,
+  DeployedTemplate,
+  Deployment,
+} from '../../types';
 
 export function buildDeployState(config: Config): State {
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -18,6 +27,36 @@ export function buildDeployState(config: Config): State {
   };
 }
 
+function buildSaveableAPIProvider(state: State, apiProviderName: string): DeployedAPIProvider {
+  const configApiProvider = state.config.apiProviders[apiProviderName];
+
+  const endpointNames = Object.keys(configApiProvider.endpoints);
+  const endpoints = endpointNames.reduce((acc: any, name: string) => {
+    const configEndpoint = configApiProvider.endpoints[name];
+    const endpointId = deriveEndpointId(configEndpoint.oisTitle, name);
+    const data: DeployedEndpoint = { endpointId };
+    return { ...acc, [name]: data };
+  }, {});
+
+  const templateNames = Object.keys(configApiProvider.templates);
+  const templates = templateNames.reduce((acc: any, name: string) => {
+    const key = `${apiProviderName}-${name}`;
+    const configTemplate = configApiProvider.templates[name];
+    const template = state.templatesByName[key];
+    const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
+    const data: DeployedTemplate = { endpointId, hash: template.hash };
+    return { ...acc, [name]: data };
+  }, {});
+
+  const apiProvider = state.apiProvidersByName[apiProviderName];
+
+  return {
+    address: apiProvider.address,
+    endpoints,
+    templates,
+  };
+}
+
 export function buildSaveableDeployment(state: State): Deployment {
   const contracts = {
     Airnode: state.contracts.Airnode!.address,
@@ -30,31 +69,21 @@ export function buildSaveableDeployment(state: State): Deployment {
     return { ...acc, [name]: client.address };
   }, {});
 
-  const requesterIds = Object.keys(state.requestersById);
-  const requesters = requesterIds.reduce((acc: any, id: string) => {
-    const requester = state.requestersById[id];
+  const requesters = state.config.requesters.reduce((acc: any, configRequester: ConfigRequester) => {
+    const requester = state.requestersById[configRequester.id];
     const data = {
       address: requester.address,
+      id: configRequester.id,
       privateKey: requester.signer.privateKey,
       requesterIndex: requester.requesterIndex.toString(),
     };
-    return { ...acc, [id]: data };
-  }, {});
-
-  const templateNames = Object.keys(state.templatesByName);
-  const templateByProvider = templateNames.reduce((acc: any, name: string) => {
-    const template = state.templatesByName[name];
-    const existingTemplates = acc[template.apiProviderName] || {};
-    const updatedTemplates = { ...existingTemplates, [name]: template.hash };
-    return { ...acc, [template.apiProviderName]: updatedTemplates };
-  }, {});
+    return [...acc, data];
+  }, []);
 
   const apiProviderNames = Object.keys(state.apiProvidersByName);
   const apiProviders = apiProviderNames.reduce((acc: any, name: string) => {
-    const apiProvider = state.apiProvidersByName[name];
-    const templates = templateByProvider[name];
-    const data = { address: apiProvider.address, templates };
-    return { ...acc, [name]: data };
+    const saveableApiProvider = buildSaveableAPIProvider(state, name);
+    return { ...acc, [name]: saveableApiProvider };
   }, {});
 
   return {

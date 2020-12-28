@@ -54,21 +54,35 @@ export interface Template {
 // ===========================================
 // Deployment
 // ===========================================
+export interface DeployedEndpoint {
+  readonly endpointId: string;
+}
+
 export interface DeployedTemplate {
-  readonly [name: string]: string;
+  readonly endpointId: string;
+  readonly hash: string;
 }
 
 export interface DeployedAPIProvider {
   readonly address: string;
+  readonly endpoints: { [name: string]: DeployedEndpoint };
   readonly templates: { [name: string]: DeployedTemplate };
 }
 
-export interface DeployedRequester {
+export interface DeployedDesignatedWallet {
   readonly address: string;
+  readonly apiProviderName: string;
+}
+
+export interface DeployedRequester {
+  readonly id: string;
   readonly privateKey: string;
+  readonly requesterId: string;
   readonly requesterIndex: string;
 }
 
+// Deployment should ideally mirror the structure of the config file, but with
+// different fields for addresses, hashes and other deployment data
 export interface Deployment {
   readonly apiProviders: { readonly [name: string]: DeployedAPIProvider };
   readonly clients: { readonly [name: string]: string };
@@ -76,7 +90,7 @@ export interface Deployment {
     readonly Airnode: string;
     readonly Convenience: string;
   };
-  readonly requesters: { readonly [id: string]: DeployedRequester };
+  readonly requesters: DeployedRequester[];
 }
 
 // ===========================================
@@ -88,12 +102,14 @@ export interface ConfigClient {
 
 export interface ConfigEndpoint {
   readonly authorizers: string[];
+  readonly oisTitle: string;
 }
 
 export interface ConfigTemplate {
   readonly endpoint: string;
   readonly fulfillClient: string;
   readonly fulfillFunctionName: string;
+  readonly oisTitle: string;
   readonly requester: string;
   readonly parameters: InputParameter[];
 }

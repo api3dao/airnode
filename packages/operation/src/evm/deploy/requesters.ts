@@ -1,6 +1,5 @@
-import { ethers } from 'ethers';
 import { encode } from '@airnode/airnode-abi';
-import { deriveProviderId } from '../utils';
+import { deriveEndpointId, deriveProviderId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 
 export async function endorseClients(state: State): Promise<State> {
@@ -36,9 +35,7 @@ export async function createTemplates(state: State): Promise<State> {
       const client = state.clientsByName[configTemplate.fulfillClient];
       const requester = state.requestersById[configTemplate.requester];
       const designatedWallet = requester.designatedWallets.find((w) => w.apiProviderName === apiProviderName);
-
-      const { keccak256, defaultAbiCoder } = ethers.utils;
-      const endpointId = keccak256(defaultAbiCoder.encode(['string'], [configTemplate.endpoint]));
+      const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
 
       const tx = await Airnode!.createTemplate(
         providerId,
@@ -55,7 +52,7 @@ export async function createTemplates(state: State): Promise<State> {
       const parsedLog = Airnode!.interface.parseLog(log!);
       const templateId = parsedLog.args.templateId;
 
-      templatesByName[templateName] = {
+      templatesByName[`${apiProviderName}-${templateName}`] = {
         apiProviderName,
         hash: templateId,
       };

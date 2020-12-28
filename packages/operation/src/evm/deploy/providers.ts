@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { deriveProviderId } from '../utils';
+import { deriveEndpointId, deriveProviderId } from '../utils';
 import { DeployState as State } from '../../types';
 
 export async function createProviders(state: State): Promise<State> {
@@ -23,9 +23,7 @@ export async function authorizeEndpoints(state: State): Promise<State> {
 
     for (const endpointName of Object.keys(configApiProvider.endpoints)) {
       const configEndpoint = configApiProvider.endpoints[endpointName];
-
-      const { keccak256, defaultAbiCoder } = ethers.utils;
-      const endpointId = keccak256(defaultAbiCoder.encode(['string'], [endpointName]));
+      const endpointId = deriveEndpointId(configEndpoint.oisTitle, endpointName);
 
       const authorizerAddresses = configEndpoint.authorizers.reduce((acc: string[], authorizerName: string) => {
         const address = state.authorizersByName[authorizerName];
