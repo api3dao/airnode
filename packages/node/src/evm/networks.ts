@@ -18,5 +18,4 @@ export const NETWORKS: NetworkDetails = {
   1: { chainId: 1, name: 'homestead' },
   3: { chainId: 3, name: 'ropsten' },
   4: { chainId: 4, name: 'rinkeby' },
-  31337: { chainId: 31337, name: 'hardhat' },
 };
