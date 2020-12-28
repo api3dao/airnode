@@ -77,7 +77,6 @@ export interface DeployedDesignatedWallet {
 export interface DeployedRequester {
   readonly id: string;
   readonly privateKey: string;
-  readonly requesterId: string;
   readonly requesterIndex: string;
 }
 
