@@ -6,7 +6,7 @@ describe('buildingRequest', () => {
     const options = fixtures.buildRequestOptions();
     const res = build.buildRequest(options);
     expect(res).toEqual({
-      baseUrl: 'https://api.myapi.com',
+      baseUrl: 'http://localhost:5000',
       data: {
         access_key: 'super-secret-key',
         amount: '1',

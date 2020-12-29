@@ -8,7 +8,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
     apiSpecifications: {
       servers: [
         {
-          url: 'http://localhost:3000',
+          url: 'http://localhost:5000',
         },
       ],
       paths: {
