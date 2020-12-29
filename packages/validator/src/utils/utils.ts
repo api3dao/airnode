@@ -102,7 +102,7 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
 }
 
 /**
- * Inserts value into specification inside specified parameter, creates missing parameters in parameter if they don't exist
+ * Inserts value into specification inside specified parameter, creates missing parameters in parameter if they don't exist and merges parameter with value if both of them are objects
  * @param paramPath - full path to parameter
  * @param spec - specification that will be modified
  * @param value - value that will be inserted
@@ -137,7 +137,24 @@ export function insertValue(paramPath: string, spec: any, value: any) {
     }
 
     if (paramPath.endsWith(param)) {
+      if (typeof spec === 'object' && typeof value === 'object') {
+        if (!value.length || !Object.keys(value)) {
+          if (spec[param] === undefined) {
+            spec[param] = value;
+          }
+
+          break;
+        }
+
+        for (const key of Object.keys(value)) {
+          spec[key] = JSON.parse(JSON.stringify(value[key]));
+        }
+
+        break;
+      }
+
       spec[param] = JSON.parse(JSON.stringify(value));
+
       break;
     }
 
