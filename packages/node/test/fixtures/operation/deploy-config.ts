@@ -4,7 +4,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
     apiProviders: {
       CurrencyConverterAPI: {
-        mnemonic: 'bracket simple lock network census onion spy real spread pig hawk lonely',
+        mnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
         endpoints: {
           convertToUSD: {
             authorizers: ['public'],

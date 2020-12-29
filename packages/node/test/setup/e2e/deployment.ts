@@ -35,3 +35,8 @@ export async function deployAirnode(config: operation.Config): Promise<operation
 
   return deployment;
 }
+
+export async function makeRequests(config: operation.Config, deployment: operation.Deployment): Promise<void> {
+  const state1 = operation.buildRequestsState(config, deployment);
+  await operation.makeRequests(state1);
+}
