@@ -56,7 +56,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
     const messages: { level: 'warning' | 'error'; message: string }[] = [];
 
     for (let i = 0; i < specs.length; i++) {
-      if (nonRedundant[i]) {
+      if (nonRedundant[i] !== undefined) {
         messages.push(...warnExtraFields(nonRedundant[i], specs[i], `${paramPath}[${i}]`));
       }
     }
@@ -65,7 +65,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }
 
   return Object.keys(specs).reduce((acc, key) => {
-    if (nonRedundant[key]) {
+    if (nonRedundant[key] !== undefined) {
       return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], `${paramPath}${paramPath ? '.' : ''}${key}`)];
     }
 
