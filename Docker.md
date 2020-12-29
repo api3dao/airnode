@@ -11,6 +11,8 @@ docker build . -t api3/airnode:latest
 
 4. Run the image with one of the following commands:
 
+*If you are using Windows, use CMD (and not PowerShell), replace `\` with `^` and `$(pwd)` with `%cd%`.*
+
 ### `deploy-first-time`
 ```sh
 docker run -it --rm \
