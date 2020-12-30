@@ -13,7 +13,7 @@ app.get('/convert', (req, res) => {
     return;
   }
 
-  res.status(500).send({ success: false, error: 'Unknown price pair' });
+  res.status(404).send({ success: false, error: 'Unknown price pair' });
 });
 
 app.listen(PORT, () => {
