@@ -117,15 +117,24 @@ export function insertValue(paramPath: string, spec: any, value: any) {
       break;
     }
 
-    if (param.match(/\[[0-9]+\]$/)) {
-      const index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
-      param = param.replace(/\[[0-9]+\]$/, '');
+    if (param.match(/\[[0-9]*\]$/)) {
+      let index = -1;
+
+      if (param.match(/\[([0-9]+)\]$/)) {
+        index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
+      }
+
+      param = param.replace(/\[[0-9]*\]$/, '');
 
       if (!spec[param]) {
         spec[param] = [];
       }
 
       spec = spec[param];
+
+      if (index === -1) {
+        index = spec.length;
+      }
 
       if (spec.length <= index) {
         spec.push({});
@@ -166,6 +175,11 @@ export function insertValue(paramPath: string, spec: any, value: any) {
   }
 }
 
+/**
+ * Replaces "{{index}}" keywords in paramPath with parameter names from path on "index"
+ * @param paramPath - parameters path that can include "{{index}}", which will be replaced
+ * @param path - path that will be used to replace "{{index}}" with appropriate parameter names
+ */
 export function parseParamPath(paramPath: string, path: string): string {
   if (paramPath === '' || path === '') {
     return paramPath;
