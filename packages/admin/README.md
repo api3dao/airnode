@@ -151,7 +151,7 @@ npx @api3/airnode-admin update-provider-admin \
 
 ### `derive-endpoint-id`
 
-Derives the endpoint ID using the OIS title and the endpoint name using the convention described [here](https://github.com/api3dao/api3-docs/blob/master/guides/configuring-airnode.md#triggers).
+Derives the endpoint ID using the OIS title and the endpoint name using the convention described [here](https://github.com/api3dao/api3-docs/blob/master/provider-guides/configuring-airnode.md#triggers).
 
 ```sh
 npx @api3/airnode-admin derive-endpoint-id \
