@@ -1,5 +1,5 @@
 {
-  "name": "@api3/airnode-admin",
+  "name": "@airnode/admin",
   "license": "MIT",
   "version": "0.1.0",
   "bin": "./cli-wrapper.js",
