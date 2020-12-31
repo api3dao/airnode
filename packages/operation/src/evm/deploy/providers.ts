@@ -6,9 +6,11 @@ export async function createProviders(state: State): Promise<State> {
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
     const apiProvider = state.apiProvidersByName[apiProviderName];
 
-    await state.contracts
+    const tx = await state.contracts
       .Airnode!.connect(apiProvider.signer)
       .createProvider(apiProvider.address, apiProvider.xpub, { value: ethers.utils.parseEther('1') });
+
+    await tx.wait();
   }
   return state;
 }
@@ -31,9 +33,11 @@ export async function authorizeEndpoints(state: State): Promise<State> {
       }, []);
 
       // Ethers can't estimate a gas limit here so just set it really high
-      await Airnode!
+      const tx = await Airnode!
         .connect(apiProvider.signer)
         .updateEndpointAuthorizers(providerId, endpointId, authorizerAddresses, { gasLimit: 8500000 });
+
+      await tx.wait();
     }
   }
   return state;

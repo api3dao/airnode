@@ -1,3 +1,4 @@
+export { operation } from './operation';
 export { requests } from './requests';
 
 export * from './aggregated-api-call';

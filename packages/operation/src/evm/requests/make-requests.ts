@@ -16,7 +16,8 @@ export async function makeShortRequest(state: State, request: ShortRequest) {
 
   const templateId = state.deployment.apiProviders[request.apiProvider].templates[request.template].hash;
 
-  await client.connect(signer).makeShortRequest(templateId, encodedParameters);
+  const tx = await client.connect(signer).makeShortRequest(templateId, encodedParameters);
+  await tx.wait();
 }
 
 export async function makeRegularRequest(state: State, request: RegularRequest) {
@@ -34,7 +35,7 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
   const { mnemonic } = state.config.apiProviders[request.apiProvider];
   const designatedWallet = getDesignatedWallet(mnemonic, requesterIndex, state.provider);
 
-  await client
+  const tx = await client
     .connect(signer)
     .makeRequest(
       templateId,
@@ -44,6 +45,7 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
       client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes32)`),
       encodedParameters
     );
+  await tx.wait();
 }
 
 export async function makeFullRequest(state: State, request: FullRequest) {
@@ -63,7 +65,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
   const { mnemonic } = state.config.apiProviders[request.apiProvider];
   const designatedWallet = getDesignatedWallet(mnemonic, requesterIndex, state.provider);
 
-  await client
+  const tx = await client
     .connect(signer)
     .makeFullRequest(
       providerId,
@@ -74,6 +76,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
       client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes32)`),
       encodedParameters
     );
+  await tx.wait();
 }
 
 export async function makeRequests(state: State) {

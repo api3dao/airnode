@@ -66,15 +66,15 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
         ],
         reservedParameters: [
           {
-            name: 'eType',
-            fixed: 'uint256',
+            name: '_type',
+            fixed: 'int256',
           },
           {
-            name: 'path',
+            name: '_path',
             fixed: 'result',
           },
           {
-            name: 'times',
+            name: '_times',
             default: '100000',
           },
         ],

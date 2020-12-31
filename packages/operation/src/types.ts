@@ -159,6 +159,7 @@ export interface Config {
   readonly apiProviders: { readonly [name: string]: ConfigAPIProvider };
   readonly authorizers: { readonly [name: string]: string };
   readonly clients: { readonly [name: string]: ConfigClient };
+  readonly deployerIndex: number;
   readonly requesters: ConfigRequester[];
   readonly requests: Array<ShortRequest | RegularRequest | FullRequest>;
 }

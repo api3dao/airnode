@@ -1,7 +1,6 @@
 import fs from 'fs';
 import * as handlers from '../../src/workers/local-handlers';
 import * as operation from '../setup/e2e/deployment';
-import { buildDeployConfig } from '../fixtures/operation/deploy-config';
 import * as e2eUtils from '../setup/e2e/utils';
 import * as fixtures from '../fixtures';
 
@@ -10,8 +9,11 @@ it('does not process requests twice', async () => {
 
   const provider = e2eUtils.buildProvider();
 
-  const deployConfig = buildDeployConfig();
+  const deployerIndex = e2eUtils.getDeployerIndex(__filename);
+  const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
   const deployment = await operation.deployAirnode(deployConfig);
+
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
 
   await operation.makeRequests(deployConfig, deployment);
 

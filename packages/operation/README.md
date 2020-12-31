@@ -200,7 +200,7 @@ There are currently three types of requests that can be made. You can learn more
           "requester": "bob",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
-            { "type": "bytes32", "name": "_type", "value": "uint256" },
+            { "type": "bytes32", "name": "_type", "value": "int256" },
             { "type": "bytes32", "name": "_path", "value": "result" },
             { "type": "bytes32", "name": "_times", "value": "100000" }
           ]
@@ -235,7 +235,9 @@ There are currently three types of requests that can be made. You can learn more
       "apiProvider": "CurrencyConverterAPI",
       "template": "template-1",
       "client": "MockAirnodeClient",
-      "parameters": []
+      "parameters": [
+        { "type": "bytes32", "name": "from", "value": "ETH" }
+      ]
     },
     {
       "requesterId": "bob",
@@ -244,7 +246,9 @@ There are currently three types of requests that can be made. You can learn more
       "template": "template-1",
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
-      "parameters": []
+      "parameters": [
+        { "type": "bytes32", "name": "from", "value": "ETH" }
+      ]
     },
     {
       "requesterId": "bob",
@@ -255,8 +259,9 @@ There are currently three types of requests that can be made. You can learn more
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
       "parameters": [
+        { "type": "bytes32", "name": "from", "value": "ETH" },
         { "type": "bytes32", "name": "to", "value": "USD" },
-        { "type": "bytes32", "name": "_type", "value": "uint256" },
+        { "type": "bytes32", "name": "_type", "value": "int256" },
         { "type": "bytes32", "name": "_path", "value": "result" },
         { "type": "bytes32", "name": "_times", "value": "100000" }
       ]

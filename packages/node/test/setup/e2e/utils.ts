@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { ethers } from 'ethers';
 import { Airnode } from '../../../src/evm/contracts';
 import { ChainConfig } from '../../../src/types';
@@ -21,7 +22,7 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
 }
 
 export function buildProvider() {
-  return new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
+  return new ethers.providers.StaticJsonRpcProvider('http://127.0.0.1:8545/');
 }
 
 export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, address: string) {
@@ -32,4 +33,12 @@ export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, a
   };
   const rawLogs = await provider.getLogs(filter);
   return rawLogs.map((log) => airnodeInterface.parseLog(log));
+}
+
+export function getDeployerIndex(fullFilePath: string) {
+  const features = fs.readdirSync('./test/e2e', { withFileTypes: true }).filter((item) => !item.isDirectory());
+
+  const filename = fullFilePath.split(/[\\/]/).pop();
+
+  return features.findIndex((feature) => feature.name === filename);
 }

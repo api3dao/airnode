@@ -1,7 +1,11 @@
 import express from 'express';
+import morgan from 'morgan';
+
+const PORT = 5000;
 
 const app = express();
-const PORT = 5000;
+
+app.use(morgan('combined'));
 
 app.get('/', (req, res) => res.send('Airnode mock web API is running!'));
 

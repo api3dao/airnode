@@ -1,10 +1,12 @@
+import { ethers } from 'ethers';
 import { Config } from '@airnode/operation';
 
 export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
+    deployerIndex: 0,
     apiProviders: {
       CurrencyConverterAPI: {
-        mnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+        mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
         endpoints: {
           convertToUSD: {
             authorizers: ['public'],
@@ -38,7 +40,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         id: 'alice',
         apiProviders: {
-          CurrencyConverterAPI: { ethBalance: '1' },
+          CurrencyConverterAPI: { ethBalance: '2' },
         },
       },
       {

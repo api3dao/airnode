@@ -74,7 +74,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
         ],
         parameters: [
           {
-            name: 'f',
+            name: 'from',
             default: 'EUR',
             operationParameter: {
               in: 'query',
