@@ -3,9 +3,7 @@
 </p>
 
 Airnode is a fully-serverless oracle node that is designed specifically for API providers to operate their own oracles.
-See the [docs](https://github.com/api3dao/api3-docs) for more information.
-
-**Deployment instructions will be provided soon!**
+See the [docs](https://github.com/api3dao/api3-docs) for deployment and usage instructions.
 
 ## Structure
 
