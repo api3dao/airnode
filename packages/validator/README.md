@@ -1,4 +1,4 @@
-# `validator`
+# `@airnode/validator`
 
 A tool capable of determining if provided OIS is valid or not.
 
