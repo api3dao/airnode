@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { ethers } from 'ethers';
 import { encode } from '@airnode/airnode-abi';
 import * as handlers from '../../src/workers/local-handlers';
 import * as e2e from '../setup/e2e';
@@ -14,7 +15,7 @@ it('sets the correct status code for both successful and failed requests', async
     { type: 'bytes32', name: 'to', value: 'USD' },
     { type: 'bytes32', name: '_type', value: 'int256' },
     { type: 'bytes32', name: '_path', value: 'result' },
-    { type: 'bytes32', name: '_times', value: '100000' },
+    { type: 'bytes32', name: '_times', value: '1000000' },
   ];
   // Returns a 404
   const invalidParameters = [...baseParameters, { type: 'bytes32', name: 'from', value: 'UNKNOWN_COIN' }];
@@ -47,6 +48,10 @@ it('sets the correct status code for both successful and failed requests', async
   const validFulfillment = logs.find(
     (log) => log.args.requestId === validRequest!.args.requestId && log.name === 'ClientRequestFulfilled'
   );
+  // The API responds with 723.392028 which multipled by the _times parameter
+  const validResponseValue = ethers.BigNumber.from(validFulfillment!.args.data).toString();
+  expect(validResponseValue).toEqual('723392028');
+  // 0 indicates success
   expect(validFulfillment!.args.statusCode.toString()).toEqual('0');
 
   const encodedInvalidParams = encode(invalidParameters);
@@ -54,5 +59,9 @@ it('sets the correct status code for both successful and failed requests', async
   const invalidFulfillment = logs.find(
     (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'ClientRequestFulfilled'
   );
+  // There is no valid response data to return so this is empty
+  const invalidResponseValue = ethers.BigNumber.from(invalidFulfillment!.args.data).toString();
+  expect(invalidResponseValue).toEqual('0');
+  // A status code > 1 indicates an error
   expect(invalidFulfillment!.args.statusCode.toString()).toEqual(RequestErrorCode.ApiCallFailed.toString());
 });
