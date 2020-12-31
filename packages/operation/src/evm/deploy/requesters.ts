@@ -50,7 +50,10 @@ export async function createTemplates(state: State): Promise<State> {
       );
       await tx.wait();
 
-      const logs = await state.provider.getLogs({ address: Airnode!.address });
+      const logs = await state.provider.getLogs({
+        fromBlock: 0,
+        address: Airnode!.address,
+      });
       const log = logs.find((log) => log.transactionHash === tx.hash);
       const parsedLog = Airnode!.interface.parseLog(log!);
       const templateId = parsedLog.args.templateId;

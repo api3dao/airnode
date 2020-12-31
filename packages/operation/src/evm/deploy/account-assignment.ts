@@ -1,3 +1,4 @@
+// import isEmpty from 'lodash/isEmpty';
 import { ethers } from 'ethers';
 import { deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
 import { APIProvider, DeployState as State, RequesterAccount } from '../../types';
@@ -19,10 +20,6 @@ export async function assignProviderAccounts(state: State): Promise<State> {
   return { ...state, apiProvidersByName };
 }
 
-export function wait(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
 export async function assignRequesterAccounts(state: State): Promise<State> {
   const { Airnode } = state.contracts;
 
@@ -34,11 +31,12 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
     const tx = await Airnode!.connect(state.deployer).createRequester(requesterAddress);
     await tx.wait();
 
-    wait(50);
+    const logs = await state.provider.getLogs({
+      fromBlock: 0,
+      address: Airnode!.address,
+    });
 
-    const logs = await state.provider.getLogs({ address: Airnode!.address });
     const log = logs.find((log) => log.transactionHash === tx.hash);
-
     const parsedLog = Airnode!.interface.parseLog(log!);
     const requesterIndex = parsedLog.args.requesterIndex;
 
