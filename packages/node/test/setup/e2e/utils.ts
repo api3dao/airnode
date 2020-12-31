@@ -36,6 +36,8 @@ export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, a
   return rawLogs.map((log) => airnodeInterface.parseLog(log));
 }
 
+// We want to use a separate account each time we deploy Airnode. These accounts
+// are assigned based on the feature file's index in the folder.
 export function getDeployerIndex(fullFilePath: string) {
   const features = orderBy(
     fs.readdirSync('./test/e2e', { withFileTypes: true }).filter((item) => !item.isDirectory()),
