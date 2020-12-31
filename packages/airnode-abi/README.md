@@ -1,4 +1,5 @@
-# @airnode/airnode-abi
+# Monorepo version: `@airnode/airnode-abi`
+# Stand-alone version: `@api3/airnode-abi`
 
 > Encoding and decoding utilities intended for use with Airnode
 
