@@ -19,7 +19,7 @@ export async function fundRequesterAccounts(state: State): Promise<State> {
     const requester = state.requestersById[requesterId];
     const tx = await state.deployer.sendTransaction({
       to: requester.address,
-      value: ethers.utils.parseEther('20'),
+      value: ethers.utils.parseEther('2'),
     });
     await tx.wait();
   }
