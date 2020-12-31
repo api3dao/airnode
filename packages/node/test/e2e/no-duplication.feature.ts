@@ -1,23 +1,22 @@
 import fs from 'fs';
 import * as handlers from '../../src/workers/local-handlers';
-import * as operation from '../setup/e2e/deployment';
-import * as e2eUtils from '../setup/e2e/utils';
+import * as e2e from '../setup/e2e';
 import * as fixtures from '../fixtures';
 
 it('does not process requests twice', async () => {
   jest.setTimeout(45_000);
 
-  const provider = e2eUtils.buildProvider();
+  const provider = e2e.buildProvider();
 
-  const deployerIndex = e2eUtils.getDeployerIndex(__filename);
+  const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
-  const deployment = await operation.deployAirnode(deployConfig);
+  const deployment = await e2e.deployAirnode(deployConfig);
 
   process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
 
-  await operation.makeRequests(deployConfig, deployment);
+  await e2e.makeRequests(deployConfig, deployment);
 
-  const preinvokeLogs = await e2eUtils.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
 
   const preinvokeShortRequests = preinvokeLogs.filter((log) => log.name === 'ClientShortRequestCreated');
   const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
@@ -30,19 +29,14 @@ it('does not process requests twice', async () => {
   expect(preinvokeFullRequests.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
-  const contracts = {
-    Airnode: deployment.contracts.Airnode,
-    Convenience: deployment.contracts.Convenience,
-  };
-
-  const chain = e2eUtils.buildChainConfig(contracts);
+  const chain = e2e.buildChainConfig(deployment.contracts);
   const nodeSettings = fixtures.buildNodeSettings({ chains: [chain] });
   const config = fixtures.buildConfig({ nodeSettings });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   await handlers.startCoordinator();
 
-  const postinvokeLogs = await e2eUtils.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
 
   const postinvokeShortRequests = postinvokeLogs.filter((log) => log.name === 'ClientShortRequestCreated');
   const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
@@ -64,6 +58,6 @@ it('does not process requests twice', async () => {
   await handlers.startCoordinator();
 
   // There should be no more logs created
-  const postpostLogs = await e2eUtils.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const postpostLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
   expect(postpostLogs.length).toEqual(postinvokeLogs.length);
 });
