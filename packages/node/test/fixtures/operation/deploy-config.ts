@@ -6,6 +6,8 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     deployerIndex: 0,
     apiProviders: {
       CurrencyConverterAPI: {
+        // We need to create a new mnemonic each time otherwise E2E tests
+        // will share the same API provider wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
         endpoints: {
           convertToUSD: {
