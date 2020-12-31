@@ -5,8 +5,11 @@
   "main": "index",
   "scripts": {
     "build": "hardhat compile",
-    "deploy:rinkeby": "hardhat deploy --network rinkeby",
     "deploy:ropsten": "hardhat deploy --network ropsten",
+    "deploy:rinkeby": "hardhat deploy --network rinkeby",
+    "deploy:goerli": "hardhat deploy --network goerli",
+    "deploy:xdai": "hardhat deploy --network xdai",
+    "deploy:fantom": "hardhat deploy --network fantom",
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "flatten": "yarn run flatten:airnode && yarn run flatten:convenience && yarn run flatten:delete-license-lines",
