@@ -1,4 +1,3 @@
-// import isEmpty from 'lodash/isEmpty';
 import { ethers } from 'ethers';
 import { deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
 import { APIProvider, DeployState as State, RequesterAccount } from '../../types';
