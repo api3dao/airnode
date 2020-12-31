@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy';
 import fs from 'fs';
 import { ethers } from 'ethers';
 import { Airnode } from '../../../src/evm/contracts';
@@ -36,7 +37,10 @@ export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, a
 }
 
 export function getDeployerIndex(fullFilePath: string) {
-  const features = fs.readdirSync('./test/e2e', { withFileTypes: true }).filter((item) => !item.isDirectory());
+  const features = orderBy(
+    fs.readdirSync('./test/e2e', { withFileTypes: true }).filter((item) => !item.isDirectory()),
+    ['name']
+  );
 
   const filename = fullFilePath.split(/[\\/]/).pop();
 
