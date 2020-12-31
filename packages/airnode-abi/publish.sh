@@ -8,6 +8,6 @@ mv package.publish.json package.json
 cd ../..
 yarn run build:airnode-abi
 cd packages/airnode-abi
-npm publish
+npm publish --access public
 mv package.json package.publish.json
 mv package.monorepo.json package.json
