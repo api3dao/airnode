@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@api3/airnode-protocol@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/airnode-protocol/-/airnode-protocol-0.1.0.tgz#70cfb758452c4c213f76c8c7595d8f122ada614d"
+  integrity sha512-djd35riQyn5WPBpldhxZhdi5Hv3EHXIJIZ/RoHqcyBSEbVLVEsj7mGiDFND6AEJaLudmNa3bhX35AVd8dilSNQ==
+
 "@ethersproject/abi@5.0.9", "@ethersproject/abi@^5.0.5":
   version "5.0.9"
   resolved "https://registry.yarnpkg.com/@ethersproject/abi/-/abi-5.0.9.tgz#738c1c557e56d8f395a5a27caef9b0449bc85a10"
@@ -559,11 +564,6 @@ strip-ansi@^6.0.0:
   integrity sha512-AuvKTrTfQNYNIctbR1K/YGTR1756GycPsg7b9bdV9Duqur4gv6aKqHXah67Z8ImS7WEz5QVcOtlfW2rZEugt6w==
   dependencies:
     ansi-regex "^5.0.0"
-
-test__214@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/test__214/-/test__214-0.1.0.tgz#e6da0fd2bd5031893fb1ba458bf50bdd6e01476d"
-  integrity sha512-cN/QXLq91hvp2FC4Of5o+WPt795BquMnEKAzu07l9BphVbjJpuXf87Kx1AXkWDfPKuoyIJCmER1S9YfJPUs6pQ==
 
 wrap-ansi@^7.0.0:
   version "7.0.0"

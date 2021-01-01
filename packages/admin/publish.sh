@@ -3,8 +3,7 @@
 sed -i 's=@airnode/protocol=@api3/airnode-protocol=g' ./src/evm.ts
 mv package.json package.monorepo.json
 mv package.publish.json package.json
-cd ..
-cd ..
+cd ../..
 yarn run bootstrap
 yarn run build:admin
 cd packages/admin
