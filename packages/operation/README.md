@@ -14,6 +14,20 @@ yarn run bootstrap
 yarn run build
 ```
 
+## Dummy web API
+
+An optional "dummy" web API is also included in this package. This API uses [express.js](https://github.com/expressjs/express) behind the scenes that exposes a few hardcoded endpoints. These endpoint are intended to only be used when developing Airnode and running E2E tests. The server can be controlled with the following commands:
+
+```sh
+# Start the API at http://localhost:5000
+yarn run dev:api
+
+# Start the API at http://localhost:5000 (in a background process)
+yarn run dev:api:background
+```
+
+See [Managing background processes](#managing-background-processes) for more information on how to control background processes.
+
 ## Airnode Development
 
 See below for more details
@@ -21,8 +35,11 @@ See below for more details
 ### tl;dr
 
 ```sh
-# Start Eth node (separate terminal)
+# Start an Eth node at http://localhost:8545 (separate terminal)
 yarn run dev:eth-node
+
+# OR to start as a background process
+yarn run dev:eth-node:background
 
 # Deploy Airnode with API providers, templates, requesters etc. This creates a "deployment" file in a deployments/ folder.
 yarn run dev:eth-deploy
@@ -268,4 +285,27 @@ There are currently three types of requests that can be made. You can learn more
     }
   ]
 }
+```
+
+## Managing background processes
+
+Background processes are managed using [PM2](https://pm2.keymetrics.io/). The configuration for PM2 can be found in the `ecosystem.config.js` file. This file also controls where logs for background processes are output. By default, they will be output to a `logs/` folder within the operation package.
+
+Background processes can be controlled using the following commands:
+
+```sh
+# List existing background processes and their current statuses
+yarn run dev:list
+
+# Start both the Ethereum node and the dummy API as background processes
+yarn run dev:background
+
+# Remove any existing log files
+yarn run dev:clean
+
+# Stop any background processes
+yarn run dev:stop
+
+# Delete any lingering background processes
+yarn run dev:delete
 ```
