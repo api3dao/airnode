@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@airnode/protocol": "^0.1.0",
-    "airnode-abi": "^0.1.1",
+    "@airnode/airnode-abi": "^0.1.0",
     "ethers": "^5.0.24",
     "yargs": "^16.2.0"
   },

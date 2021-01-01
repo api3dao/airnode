@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@api3/airnode-abi@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@api3/airnode-abi/-/airnode-abi-0.1.0.tgz#e2e59460e88eb2e30cf5e1d6ae283f907ea1bd68"
+  integrity sha512-Ns35soneqwQb38mWg7s3xZpGVG0HkxlIy2Ndv2XJFL4ZOzojeKe/9clX6WQC+oct4z4Noeg7hUmlPMwchHejng==
+  dependencies:
+    lodash "^4.17.20"
+
 "@api3/airnode-protocol@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@api3/airnode-protocol/-/airnode-protocol-0.1.0.tgz#70cfb758452c4c213f76c8c7595d8f122ada614d"
@@ -364,13 +371,6 @@ aes-js@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/aes-js/-/aes-js-3.0.0.tgz#e21df10ad6c2053295bcbb8dab40b09dbea87e4d"
   integrity sha1-4h3xCtbCBTKVvLuNq0Cwnb6ofk0=
-
-airnode-abi@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/airnode-abi/-/airnode-abi-0.1.1.tgz#45c5d46af67a548aba8f6c0de9d4c6db4756d153"
-  integrity sha512-HMbadGxtfBJBiQxHPWt4fKN4t87miZYb9FeINfFPT7iw1PuRsJXHs5curEIq7C5jBitM5JG1mPoFh9H6pMHiFQ==
-  dependencies:
-    lodash "^4.17.20"
 
 ansi-regex@^5.0.0:
   version "5.0.0"

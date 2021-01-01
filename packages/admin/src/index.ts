@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import * as airnodeAbi from 'airnode-abi';
+import * as airnodeAbi from '@airnode/airnode-abi';
 
 export async function createRequester(airnode, requesterAdmin) {
   const receipt = await airnode.createRequester(requesterAdmin);
