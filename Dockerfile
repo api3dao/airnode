@@ -4,8 +4,6 @@ ENV NODE_ENV production
 
 WORKDIR /airnode
 COPY . /airnode
-RUN cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json \
-    && cp packages/deployer/src/config-data/security.json.example packages/deployer/src/config-data/security.json
 
 # Need git to install dependencies
 RUN apk update \

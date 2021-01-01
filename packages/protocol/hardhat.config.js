@@ -14,21 +14,25 @@ module.exports = {
       url: credentials.mainnet.providerUrl || '',
       accounts: { mnemonic: credentials.mainnet.mnemonic || '' },
     },
-    rinkeby: {
-      url: credentials.rinkeby.providerUrl || '',
-      accounts: { mnemonic: credentials.rinkeby.mnemonic || '' },
-    },
     ropsten: {
       url: credentials.ropsten.providerUrl || '',
       accounts: { mnemonic: credentials.ropsten.mnemonic || '' },
     },
-  },
-  namedAccounts: {
-    deployer: {
-      default: 0,
-      1: 0,
-      3: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
-      4: '0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238',
+    rinkeby: {
+      url: credentials.rinkeby.providerUrl || '',
+      accounts: { mnemonic: credentials.rinkeby.mnemonic || '' },
+    },
+    goerli: {
+      url: credentials.goerli.providerUrl || '',
+      accounts: { mnemonic: credentials.goerli.mnemonic || '' },
+    },
+    xdai: {
+      url: credentials.xdai.providerUrl || '',
+      accounts: { mnemonic: credentials.xdai.mnemonic || '' },
+    },
+    fantom: {
+      url: credentials.fantom.providerUrl || '',
+      accounts: { mnemonic: credentials.fantom.mnemonic || '' },
     },
   },
   solidity: {
