@@ -1,7 +1,7 @@
 import * as apiCalls from './api-calls';
 import * as withdrawals from './withdrawals';
 
-export const requests = {
+export const evm = {
   ...apiCalls,
   ...withdrawals,
 };

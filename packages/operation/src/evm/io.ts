@@ -17,7 +17,7 @@ export function loadDeployment() {
 }
 
 export function saveDeployment(state: State) {
-  if (!fs.existsSync(DEPLOY_DIR)){
+  if (!fs.existsSync(DEPLOY_DIR)) {
     fs.mkdirSync(DEPLOY_DIR);
   }
   const deployData = buildSaveableDeployment(state);
