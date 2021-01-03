@@ -61,11 +61,11 @@ describe('Airnode', () => {
     );
 
     // Withdrawals
-    expect(Airnode.topics.WithdrawalFulfilled).toEqual(
-      '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439'
-    );
     expect(Airnode.topics.WithdrawalRequested).toEqual(
-      '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b'
+      '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3'
+    );
+    expect(Airnode.topics.WithdrawalFulfilled).toEqual(
+      '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa'
     );
   });
 });
