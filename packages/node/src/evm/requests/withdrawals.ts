@@ -38,11 +38,11 @@ export function updateFulfilledRequests(
         return {
           ...acc,
           logs: [...acc.logs, log],
-          request: [...acc.requests, fulfilledWithdrawal],
+          requests: [...acc.requests, fulfilledWithdrawal],
         };
       }
 
-      return acc;
+      return { ...acc, requests: [...acc.requests, withdrawal] };
     },
     { logs: [], requests: [] }
   );
@@ -59,7 +59,7 @@ export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsDa
   const withdrawalRequests = requestLogs.map((log) => initialize(log));
 
   // Update the status of requests that have already been fulfilled
-  const [fulfilledLogs, fulfilledWithdrawals] = updateFulfilledRequests(withdrawalRequests, fulfillmentLogs);
+  const [fulfilledLogs, withdrawalsWithFulfillments] = updateFulfilledRequests(withdrawalRequests, fulfillmentLogs);
 
-  return [fulfilledLogs, fulfilledWithdrawals];
+  return [fulfilledLogs, withdrawalsWithFulfillments];
 }
