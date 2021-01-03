@@ -77,7 +77,7 @@
       "requesterId": "alice",
       "type": "withdrawal",
       "apiProvider": "CurrencyConverterAPI",
-      "destination": "alice"
+      "destination": "self"
     }
   ]
 }
