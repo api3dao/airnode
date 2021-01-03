@@ -72,6 +72,12 @@
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
       "parameters": []
+    },
+    {
+      "requesterId": "alice",
+      "type": "withdrawal",
+      "apiProvider": "CurrencyConverterAPI",
+      "destination": "alice"
     }
   ]
 }

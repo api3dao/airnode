@@ -21,6 +21,10 @@ export interface DeployState {
 
 export interface RequestsState {
   readonly config: Config;
+  readonly contracts: {
+    readonly Airnode: ethers.Contract;
+    readonly Convenience: ethers.Contract;
+  };
   readonly deployment: Deployment;
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;
@@ -75,6 +79,7 @@ export interface DeployedDesignatedWallet {
 }
 
 export interface DeployedRequester {
+  readonly address: string;
   readonly id: string;
   readonly privateKey: string;
   readonly requesterIndex: string;
@@ -128,31 +133,37 @@ export interface ConfigRequester {
   readonly apiProviders: { readonly [name: string]: ConfigRequesterAPIProvider };
 }
 
-export type RequestType = 'short' | 'regular' | 'full';
+export type RequestType = 'short' | 'regular' | 'full' | 'withdrawal';
 
 export interface Request {
   readonly apiProvider: string;
-  readonly client: string;
   readonly requesterId: string;
   readonly type: RequestType;
 }
 
 export interface ShortRequest extends Request {
+  readonly client: string;
   readonly parameters: InputParameter[];
   readonly template: string;
 }
 
 export interface RegularRequest extends Request {
+  readonly client: string;
   readonly fulfillFunctionName: string;
   readonly parameters: InputParameter[];
   readonly template: string;
 }
 
 export interface FullRequest extends Request {
+  readonly client: string;
   readonly endpoint: string;
   readonly fulfillFunctionName: string;
   readonly oisTitle: string;
   readonly parameters: InputParameter[];
+}
+
+export interface Withdrawal extends Request {
+  readonly destination: string;
 }
 
 export interface Config {
@@ -160,5 +171,5 @@ export interface Config {
   readonly authorizers: { readonly [name: string]: string };
   readonly clients: { readonly [name: string]: ConfigClient };
   readonly requesters: ConfigRequester[];
-  readonly requests: Array<ShortRequest | RegularRequest | FullRequest>;
+  readonly requests: Array<ShortRequest | RegularRequest | FullRequest | Withdrawal>;
 }
