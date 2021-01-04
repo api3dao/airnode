@@ -52,7 +52,9 @@
       "apiProvider": "CurrencyConverterAPI",
       "template": "template-1",
       "client": "MockAirnodeClient",
-      "parameters": []
+      "parameters": [
+        { "type": "bytes32", "name": "from", "value": "ETH" }
+      ]
     },
     {
       "requesterId": "bob",
@@ -61,7 +63,9 @@
       "template": "template-1",
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
-      "parameters": []
+      "parameters": [
+        { "type": "bytes32", "name": "from", "value": "ETH" }
+      ]
     },
     {
       "requesterId": "bob",
