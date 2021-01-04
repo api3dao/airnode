@@ -27,12 +27,12 @@ export function updateFulfilledRequests(
   withdrawals: ClientRequest<Withdrawal>[],
   fulfillmentLogs: EVMEventLogWithMetadata[]
 ): LogsData<ClientRequest<Withdrawal>[]> {
-  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
+  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawalRequestId);
 
   const { logs, requests } = withdrawals.reduce(
     (acc, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
-        const log = logger.pend('DEBUG', `WithdrawalRequest ID:${withdrawal.id} has already been fulfilled`);
+        const log = logger.pend('DEBUG', `Request ID:${withdrawal.id} (withdrawal) has already been fulfilled`);
         const fulfilledWithdrawal = { ...withdrawal, status: RequestStatus.Fulfilled };
 
         return {

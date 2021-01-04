@@ -88,7 +88,7 @@ export function updateFulfilledRequests(
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
-        const log = logger.pend('DEBUG', `Request ID:${apiCall.id} has already been fulfilled`);
+        const log = logger.pend('DEBUG', `Request ID:${apiCall.id} (API call) has already been fulfilled`);
 
         const fulfilledApiCall = { ...apiCall, status: RequestStatus.Fulfilled };
 
