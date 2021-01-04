@@ -53,7 +53,7 @@
       "template": "template-1",
       "client": "MockAirnodeClient",
       "parameters": [
-        { "type": "bytes32", "name": "to", "value": "USD" }
+        { "type": "bytes32", "name": "from", "value": "ETH" }
       ]
     },
     {
@@ -64,7 +64,7 @@
       "client": "MockAirnodeClient",
       "fulfillFunctionName": "fulfill",
       "parameters": [
-        { "type": "bytes32", "name": "to", "value": "USD" }
+        { "type": "bytes32", "name": "from", "value": "ETH" }
       ]
     },
     {
@@ -81,7 +81,7 @@
       "requesterId": "alice",
       "type": "withdrawal",
       "apiProvider": "CurrencyConverterAPI",
-      "destination": "self"
+      "destination": "alice"
     }
   ]
 }

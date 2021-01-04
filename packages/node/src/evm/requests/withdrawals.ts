@@ -25,10 +25,8 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
 
 export function updateFulfilledRequests(
   withdrawals: ClientRequest<Withdrawal>[],
-  fulfillmentLogs: EVMEventLogWithMetadata[]
+  fulfilledRequestIds: string[]
 ): LogsData<ClientRequest<Withdrawal>[]> {
-  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawalRequestId);
-
   const { logs, requests } = withdrawals.reduce(
     (acc, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
@@ -59,7 +57,8 @@ export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsDa
   const withdrawalRequests = requestLogs.map((log) => initialize(log));
 
   // Update the status of requests that have already been fulfilled
-  const [fulfilledLogs, withdrawalsWithFulfillments] = updateFulfilledRequests(withdrawalRequests, fulfillmentLogs);
+  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
+  const [fulfilledLogs, withdrawalsWithFulfillments] = updateFulfilledRequests(withdrawalRequests, fulfilledRequestIds);
 
   return [fulfilledLogs, withdrawalsWithFulfillments];
 }

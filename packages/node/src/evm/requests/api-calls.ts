@@ -37,8 +37,8 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
     endpointId: parsedLog.args.endpointId || null,
-    fulfillAddress: parsedLog.args.fulfillAddress,
-    fulfillFunctionId: parsedLog.args.fulfillFunctionId,
+    fulfillAddress: parsedLog.args.fulfillAddress || null,
+    fulfillFunctionId: parsedLog.args.fulfillFunctionId || null,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
