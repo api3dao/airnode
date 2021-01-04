@@ -153,7 +153,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
         providerId: 'providerId',
         requestCount: '12',
         requesterIndex: '3',
-        status: 'Fulfilled',
+        status: RequestStatus.Fulfilled,
         templateId: null,
         type: 'regular',
       },
