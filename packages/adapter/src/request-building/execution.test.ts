@@ -2,28 +2,9 @@ const responseMock = jest.fn();
 jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
-import { Request, ResponseParameters } from './types';
-import * as fixtures from '../test/fixtures';
-import * as adapter from './index';
-
-describe('buildingRequest', () => {
-  it('builds and returns the request', () => {
-    const options = fixtures.buildRequestOptions();
-    const res = adapter.buildRequest(options);
-    expect(res).toEqual({
-      baseUrl: 'http://localhost:5000',
-      data: {
-        access_key: 'super-secret-key',
-        amount: '1',
-        from: 'ETH',
-        to: 'USD',
-      },
-      headers: {},
-      method: 'get',
-      path: '/convert',
-    });
-  });
-});
+import { Request } from '../types';
+import * as fixtures from '../../test/fixtures';
+import * as execution from './execution';
 
 describe('executeRequest', () => {
   it('executes simple GET requests', async () => {
@@ -35,7 +16,7 @@ describe('executeRequest', () => {
       method: 'get',
       path: '/convert',
     };
-    const res = await adapter.executeRequest(request);
+    const res = await execution.executeRequest(request);
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
@@ -55,7 +36,7 @@ describe('executeRequest', () => {
       method: 'get',
       path: '/convert',
     };
-    const res = await adapter.executeRequest(request, { timeout: 12_999 });
+    const res = await execution.executeRequest(request, { timeout: 12_999 });
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
@@ -76,7 +57,7 @@ describe('executeRequest', () => {
       method: 'post',
       path: '/convert',
     };
-    const res = await adapter.executeRequest(request);
+    const res = await execution.executeRequest(request);
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
@@ -96,7 +77,7 @@ describe('executeRequest', () => {
       method: 'post',
       path: '/convert',
     };
-    const res = await adapter.executeRequest(request, { timeout: 12_999 });
+    const res = await execution.executeRequest(request, { timeout: 12_999 });
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
@@ -113,7 +94,7 @@ describe('buildAndExecuteRequest', () => {
   it('builds and executes the request', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
     const options = fixtures.buildRequestOptions();
-    const res = await adapter.buildAndExecuteRequest(options);
+    const res = await execution.buildAndExecuteRequest(options);
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
@@ -132,7 +113,7 @@ describe('buildAndExecuteRequest', () => {
   it('builds and executes the request with optional config', async () => {
     responseMock.mockResolvedValueOnce({ value: '7777' });
     const options = fixtures.buildRequestOptions();
-    const res = await adapter.buildAndExecuteRequest(options, { timeout: 3500 });
+    const res = await execution.buildAndExecuteRequest(options, { timeout: 3500 });
     expect(res).toEqual({ value: '7777' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
@@ -146,26 +127,6 @@ describe('buildAndExecuteRequest', () => {
         to: 'USD',
       },
       timeout: 3500,
-    });
-  });
-});
-
-describe('extractAndEncodeValue', () => {
-  it('returns a simple value with the encodedValue', () => {
-    const res = adapter.extractAndEncodeResponse('simplestring', { _type: 'bytes32' });
-    expect(res).toEqual({
-      value: 'simplestring',
-      encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
-    });
-  });
-
-  it('extracts and encodes the value from complex objects', () => {
-    const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
-    const res = adapter.extractAndEncodeResponse(data, parameters);
-    expect(res).toEqual({
-      value: '75051',
-      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     });
   });
 });
