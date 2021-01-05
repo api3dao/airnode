@@ -187,7 +187,7 @@ console.log(values)
 // [new BigNumber(123.456), new BigNumber(7777)];
 ```
 
-**NB: ALL REMAINING DECIMAL PLACES WILL BE REMOVED. i.e. THE NUMBER WILL BE FLOORED**. This is necessary because Solidity cannot natively handle floating point or decimal numbers.
+**NB:** It is also important to note, that when a number value is multiplied (e.g. providing a `_times` to `extractAndEncodeResponse`), **ALL REMAINING DECIMALS WILL BE REMOVED. i.e. THE NUMBER WILL BE FLOORED**. This is because Solidity cannot handle floating point numbers or decimals natively.
 
 ### `bytes32` Behaviour
 
