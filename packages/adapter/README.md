@@ -66,7 +66,9 @@ buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 
 ### processByExtracting
 
-Fetches a single value from an arbitrarily complex object or array using `path`. This uses lodash [get](https://lodash.com/docs/4.17.15#get) under the hood, which works by accessing values by keys or indices separated by `.` values. e.g. `a.3` would fetch the value of the 4th element in the `a` key of an object.
+Fetches a single value from an arbitrarily complex object or array using `path`. This works in exactly the same way as lodash's [get](https://lodash.com/docs/4.17.15#get) function. **Values are accessed by either keys or indices, separated by `.`**
+
+For example, `a.3` would fetch the value of the 4th element (15) from the `a` key of an object has the shape: `{ a: [12, 13, 14, 15] }`.
 
 Some APIs return a single, primitive value like a string, number or boolean - not an object or array. This is still considered valid JSON. When this is the case, leave the `path` argument out to return the entire response.
 
