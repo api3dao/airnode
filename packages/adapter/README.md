@@ -28,13 +28,13 @@ Available functions:
 
 - [buildAndExecuteRequest](#buildAndExecuteRequest)
 
-- [processByExtracting](#processByExtracting)
+- [extractValue](#extractValue)
 
-- [processByCasting](#processByCasting)
+- [castValue](#castValue)
 
-- [processByMultiplying](#processByMultiplying)
+- [multiplyValue](#multiplyValue)
 
-- [processByEncoding](#processByEncoding)
+- [encodeValue](#encodeValue)
 
 - [extractAndEncodeResponse](#extractAndEncodeResponse)
 
@@ -64,7 +64,7 @@ Builds and executes a request in a single call as a convenience function.
 buildAndExecuteRequest(options: Options, config?: Config): AxiosPromise<any>
 ```
 
-### processByExtracting
+### extractValue
 
 Fetches a single value from an arbitrarily complex object or array using `path`. This works in exactly the same way as lodash's [get](https://lodash.com/docs/4.17.15#get) function. **Values are accessed by either keys or indices, separated by `.`**
 
@@ -73,10 +73,10 @@ For example, `a.3` would fetch the value of the 4th element (15) from the `a` ke
 Some APIs return a single, primitive value like a string, number or boolean - not an object or array. This is still considered valid JSON. When this is the case, leave the `path` argument out to return the entire response.
 
 ```ts
-processByExtracting(data: unknown, path?: string): any
+extractValue(data: unknown, path?: string): any
 ```
 
-### processByCasting
+### castValue
 
 **NB: See below for conversion behaviour**
 
@@ -85,27 +85,29 @@ Attempts to cast and normalize an input value based on the `type` argument. An e
 The following options are available for `type`:
 
 1. `bool` converts to boolean
-2. `int256` converts to number
+2. `int256` converts to [BigNumber](https://docs.ethers.io/v5/api/utils/bignumber/)
 3. `bytes32` converts to string
 
 ```ts
-processByCasting(value: unknown, type: ResponseType): string | boolean | number
+castValue(value: unknown, type: ResponseType): string | boolean | BigNumber
 ```
 
-### processByMultiplying
+### multiplyValue
 
 Multiplies the input value by the `times` parameter. Returns the input value as is if `times` is undefined.
 
+**NB: ALL REMAINING DECIMAL PLACES WILL BE REMOVED. i.e. THE NUMBER WILL BE FLOORED**. This is necessary because Solidity cannot natively handle floating point or decimal numbers.
+
 ```ts
-processByMultiplying(value: string | BigNumber, times?: string | BigNumber): string
+multiplyValue(value: string, times?: string): string
 ```
 
-### processByEncoding
+### encodeValue
 
 Encodes the input value to `bytes32` format. Values are padded if necessary to be 32 characters long. Encoding is based on the `type` argument.
 
 ```ts
-processByEncoding(value: ValueType, type: ResponseType): string
+encodeValue(value: ValueType, type: ResponseType): string
 ```
 
 ### extractAndEncodeResponse
@@ -137,7 +139,7 @@ const FALSE_BOOLEAN_VALUES = [
 ];
 
 const values = FALSE_BOOLEAN_VALUES.map(v => {
-  return adapter.processByCasting(v, 'bool');
+  return adapter.castValue(v, 'bool');
 });
 
 console.log(values)
@@ -162,17 +164,17 @@ const ERROR_VALUES = [
 ];
 ```
 
-There are a few special strings & boolean values that are convertable to `int256`:
+There are a few special strings & boolean values that are convertible to `int256`:
 
 ```ts
 const SPECIAL_INT_VALUES = [false, 'false', true, 'true'];
 
-const values = SPECIAL_INT_VALUES.map(v => adapter.processByCasting(v, 'int256'));
+const values = SPECIAL_INT_VALUES.map(v => adapter.castValue(v, 'int256'));
 console.log(values)
 // [0, 0, 1, 1];
 ```
 
-Number strings (and numbers) will attempt to be converted to numbers. The value will also be multiplied by the `times` value if it is present.
+Number strings and numbers will attempt to be converted to [BigNumbers](https://mikemcl.github.io/bignumber.js/). The value will also be multiplied by the `times` value if it is present.
 
 ```ts
 const VALID_INT_VALUES = [
@@ -180,10 +182,12 @@ const VALID_INT_VALUES = [
   7777,
 ];
 
-const values = VALID_INT_VALUES.map(v => adapter.processByCasting(v, 'int256'));
+const values = VALID_INT_VALUES.map(v => adapter.castValue(v, 'int256'));
 console.log(values)
-// [123.456, 7777];
+// [new BigNumber(123.456), new BigNumber(7777)];
 ```
+
+**NB: ALL REMAINING DECIMAL PLACES WILL BE REMOVED. i.e. THE NUMBER WILL BE FLOORED**. This is necessary because Solidity cannot natively handle floating point or decimal numbers.
 
 ### `bytes32` Behaviour
 
@@ -207,7 +211,7 @@ const VALID_BYTES_VALUES = [
   true, // booleans
 ];
 
-const values = VALID_INT_VALUES.map(v => adapter.processByCasting(v, 'bytes32'));
+const values = VALID_INT_VALUES.map(v => adapter.castValue(v, 'bytes32'));
 console.log(values)
 // ["null", "undefined", "", "random string", "1", "777", "true"];
 ```
@@ -237,10 +241,10 @@ const data = {
 };
 
 // Option 1:
-const rawValue = adapter.processByExtracting(data, 'prices.1');
-const value = adapter.processByCasting(rawValue, 'int256');
-const multipledValue = adapter.processByMultiplying(value, '100');
-const encodedValue = adapter.processByEncoding(multipledValue, 'int256');
+const rawValue = adapter.extractValue(data, 'prices.1');
+const value = adapter.castValue(rawValue, 'int256');
+const multipledValue = adapter.multiplyValue(value, '100');
+const encodedValue = adapter.encodeValue(multipledValue, 'int256');
 console.log(encodedValue);
 // '0x000000000000000000000000000000000000000000000000000000000001252b'
 
