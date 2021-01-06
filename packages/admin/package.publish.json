@@ -14,9 +14,5 @@
     "@api3/airnode-abi": "^0.1.0",
     "ethers": "^5.0.24",
     "yargs": "^16.2.0"
-  },
-  "devDependencies": {
-    "@types/node": "^14.14.11",
-    "@types/yargs": "^15.0.11"
   }
 }
