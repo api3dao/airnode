@@ -211,12 +211,12 @@ describe('EVM event logs - group', () => {
     const logsWithMetadata: any = [
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b' },
+        parsedLog: { topic: '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439' },
+        parsedLog: { topic: '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -233,12 +233,12 @@ describe('EVM event logs - group', () => {
       withdrawals: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b' },
+          parsedLog: { topic: '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3' },
           transactionHash: '0x1',
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439' },
+          parsedLog: { topic: '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa' },
           transactionHash: '0x2',
         },
       ],
