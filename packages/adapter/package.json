@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@airnode/ois": "^0.1.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bignumber.js": "^9.0.0"
   }
 }

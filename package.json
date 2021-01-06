@@ -9,6 +9,7 @@
     "build": "lerna run build --stream",
     "build-all": "lerna run build --stream && yarn run build:deployer",
     "build:adapter": "(cd packages/adapter && yarn run build)",
+    "build:admin": "(cd packages/admin && yarn run build)",
     "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
     "build:deployer": "(cd packages/deployer && yarn run _build)",
     "build:node": "(cd packages/node && yarn run build)",
@@ -36,11 +37,13 @@
   "dependencies": {
     "@types/lodash": "^4.14.165",
     "@types/node": "^14.10.2",
+    "@types/yargs": "^15.0.12",
     "ethers": "^5.0.24",
     "lerna": "^3.22.1",
     "lodash": "^4.17.20",
     "rimraf": "^3.0.2",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
