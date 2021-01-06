@@ -48,6 +48,11 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
     parsedLog: airnodeInterface.parseLog(log),
   }));
 
+  console.log('============================================');
+  console.log(rawLogs);
+  console.log(logsWithBlocks.map((l) => l.parsedLog.name));
+  console.log('============================================');
+
   return logsWithBlocks;
 }
 

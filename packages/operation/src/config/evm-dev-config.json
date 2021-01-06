@@ -66,22 +66,6 @@
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" }
       ]
-    },
-    {
-      "requesterId": "bob",
-      "type": "full",
-      "apiProvider": "CurrencyConverterAPI",
-      "endpoint": "convertToUSD",
-      "oisTitle": "currency-converter-ois",
-      "client": "MockAirnodeClient",
-      "fulfillFunctionName": "fulfill",
-      "parameters": []
-    },
-    {
-      "requesterId": "alice",
-      "type": "withdrawal",
-      "apiProvider": "CurrencyConverterAPI",
-      "destination": "alice"
     }
   ]
 }

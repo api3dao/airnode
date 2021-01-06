@@ -33,6 +33,10 @@ async function fetchTemplateGroup(
     return [[log], {}];
   }
 
+  console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+  console.log(rawTemplates);
+  console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+
   const templatesById = templateIds.reduce((acc, templateId, index) => {
     // Templates are always returned in the same order that they
     // are called with
@@ -44,7 +48,7 @@ async function fetchTemplateGroup(
       fulfillFunctionId: rawTemplates.fulfillFunctionIds[index],
       id: templateId,
       providerId: rawTemplates.providerIds[index],
-      requesterIndex: rawTemplates.requesterIndices[index],
+      requesterIndex: rawTemplates.requesterIndices[index].toString(),
     };
     return { ...acc, [templateId]: template };
   }, {});
