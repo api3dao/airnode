@@ -169,15 +169,17 @@ There are currently three types of requests that can be made. You can learn more
 
 `apiProvider` - the name of the API provider
 
-`client` - the name of the client contract
-
 **Short Requests**
+
+`client` - the name of the client contract
 
 `template` - the name of the template
 
 `parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 **Regular Requests**
+
+`client` - the name of the client contract
 
 `template` - the name of the template
 
@@ -187,6 +189,8 @@ There are currently three types of requests that can be made. You can learn more
 
 **Full Requests**
 
+`client` - the name of the client contract
+
 `endpoint` - the name of the endpoint for the specific API provider
 
 `fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would be `fulfill` or similar.
@@ -194,6 +198,10 @@ There are currently three types of requests that can be made. You can learn more
 `oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
 
 `parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
+
+**Withdrawals**
+
+`destination` - the ID of the requester to which the withdrawn funds should be sent. Can also be an address starting with `0x`.
 
 #### Full Example
 
@@ -282,6 +290,12 @@ There are currently three types of requests that can be made. You can learn more
         { "type": "bytes32", "name": "_path", "value": "result" },
         { "type": "bytes32", "name": "_times", "value": "100000" }
       ]
+    },
+    {
+      "requesterId": "alice",
+      "type": "withdrawal",
+      "apiProvider": "CurrencyConverterAPI",
+      "destination": "alice"
     }
   ]
 }

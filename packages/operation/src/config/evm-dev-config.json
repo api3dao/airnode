@@ -83,6 +83,12 @@
         { "type": "bytes32", "name": "_path", "value": "result" },
         { "type": "bytes32", "name": "_times", "value": "100000" }
       ]
+    },
+    {
+      "requesterId": "alice",
+      "type": "withdrawal",
+      "apiProvider": "CurrencyConverterAPI",
+      "destination": "alice"
     }
   ]
 }

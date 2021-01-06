@@ -18,8 +18,8 @@ const ClientRequestFulfilledWithBytes = ethers.utils.id(
 );
 const ClientRequestFailed = ethers.utils.id('ClientRequestFailed(bytes32,bytes32)');
 
-const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,bytes32,bytes32,address)');
-const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,bytes32,bytes32,address,uint256)');
+const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,uint256,bytes32,address,address)');
+const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,uint256,bytes32,address,address,uint256)');
 
 export const Airnode: Contract = {
   ABI: AirnodeArtifact.abi,

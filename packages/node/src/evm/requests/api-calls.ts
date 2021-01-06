@@ -122,8 +122,8 @@ export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsDa
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
-  const [fulfilledLogs, fulfilledRequests] = updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
+  const [fulfilledLogs, apiCallsWithFulfillments] = updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
 
   const logs = [...parameterLogs, ...fulfilledLogs];
-  return [logs, fulfilledRequests];
+  return [logs, apiCallsWithFulfillments];
 }
