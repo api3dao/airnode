@@ -1,4 +1,5 @@
 import * as extraction from './extraction';
+import { ResponseParameters } from '../types';
 
 describe('getRawValue', () => {
   it('returns the data as is if no path is provided', () => {
@@ -50,5 +51,25 @@ describe('extractValue', () => {
     } catch (e) {
       expect(e).toEqual(new Error("Unable to find value from path: 'unknown'"));
     }
+  });
+});
+
+describe('extractAndEncodeValue', () => {
+  it('returns a simple value with the encodedValue', () => {
+    const res = extraction.extractAndEncodeResponse('simplestring', { _type: 'bytes32' });
+    expect(res).toEqual({
+      value: 'simplestring',
+      encodedValue: '0x73696d706c65737472696e670000000000000000000000000000000000000000',
+    });
+  });
+
+  it('extracts and encodes the value from complex objects', () => {
+    const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
+    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
+    const res = extraction.extractAndEncodeResponse(data, parameters);
+    expect(res).toEqual({
+      value: '75051',
+      encodedValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
+    });
   });
 });
