@@ -1,5 +1,5 @@
 {
-  "name": "validator",
+  "name": "@airnode/validator",
   "version": "0.0.0",
   "description": "Verifies that provided specs.json or security.json files are valid Airnode compatible configurations",
   "author": "Drgy <drgonjak@gmail.com>",
