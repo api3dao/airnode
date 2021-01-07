@@ -9,8 +9,8 @@ unfreezeImport(verification, 'verifyApiCallIds');
 
 describe('fetchPendingRequests', () => {
   it('maps and groups requests', async () => {
-    const fullRequest = fixtures.evm.buildFullClientRequest();
-    const withdrawal = fixtures.evm.buildWithdrawalRequest();
+    const fullRequest = fixtures.evm.logs.buildFullClientRequest();
+    const withdrawal = fixtures.evm.logs.buildWithdrawalRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([fullRequest, withdrawal]);
     const state = fixtures.buildEVMProviderState();
@@ -61,7 +61,7 @@ describe('fetchPendingRequests', () => {
   });
 
   it('verifies API calls', async () => {
-    const fullRequest = fixtures.evm.buildFullClientRequest();
+    const fullRequest = fixtures.evm.logs.buildFullClientRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([fullRequest]);
     const verificationSpy = jest.spyOn(verification, 'verifyApiCallIds');
@@ -71,8 +71,8 @@ describe('fetchPendingRequests', () => {
   });
 
   it('blocks API calls linked to withdrawals', async () => {
-    const fullRequest = fixtures.evm.buildFullClientRequest();
-    const withdrawal = fixtures.evm.buildFullClientRequest();
+    const fullRequest = fixtures.evm.logs.buildFullClientRequest();
+    const withdrawal = fixtures.evm.logs.buildFullClientRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([fullRequest, withdrawal]);
     const blockingSpy = jest.spyOn(blocking, 'blockRequestsWithWithdrawals');

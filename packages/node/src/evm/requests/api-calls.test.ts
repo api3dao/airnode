@@ -6,7 +6,7 @@ import { EVMEventLogWithMetadata, RequestErrorCode, RequestStatus } from 'src/ty
 
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {
-    const event = fixtures.evm.buildClientRequest();
+    const event = fixtures.evm.logs.buildClientRequest();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const parsedLog = airnodeInterface.parseLog(event);
     const parsedLogWithMetadata = {
@@ -24,7 +24,7 @@ describe('initialize (ApiCall)', () => {
       fulfillFunctionId: '0xd3bd1464',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5',
+      id: '0xffb6345fd2263fa472b106c16f66e863155a67d25127d6ae7bcc2c01500ab618',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -42,7 +42,7 @@ describe('initialize (ApiCall)', () => {
   });
 
   it('sets the API call type', () => {
-    const event = fixtures.evm.buildClientRequest();
+    const event = fixtures.evm.logs.buildClientRequest();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const parsedLog = airnodeInterface.parseLog(event);
     const base = {
@@ -75,7 +75,7 @@ describe('applyParameters', () => {
   let parsedLogWithMetadata: EVMEventLogWithMetadata;
 
   beforeEach(() => {
-    const event = fixtures.evm.buildShortRequest();
+    const event = fixtures.evm.logs.buildShortClientRequest();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const parsedLog = airnodeInterface.parseLog(event);
     parsedLogWithMetadata = {
@@ -170,7 +170,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 
 describe('mapRequests (ApiCall)', () => {
   it('initializes, applies parameters and returns API call requests', () => {
-    const event = fixtures.evm.buildShortRequest();
+    const event = fixtures.evm.logs.buildShortClientRequest();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const parsedLog = airnodeInterface.parseLog(event);
     const parsedLogWithMetadata = {
@@ -191,7 +191,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: null,
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0xca7a8ca59129647699cc998215b325f8c535bbe5378f42097e408eaafbec2216',
+        id: '0x9d07a8b0d9087984fc84b04643fb17c42bdfda910d68afe64d958590b2ef4070',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
@@ -210,8 +210,8 @@ describe('mapRequests (ApiCall)', () => {
   });
 
   it('updates the status of fulfilled ApiCall requests', () => {
-    const requestEvent = fixtures.evm.buildClientRequest();
-    const fulfillEvent = fixtures.evm.buildClientRequestFulfilled();
+    const requestEvent = fixtures.evm.logs.buildClientRequest();
+    const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const requestLog = airnodeInterface.parseLog(requestEvent);
     const fulfillLog = airnodeInterface.parseLog(fulfillEvent);

@@ -1,9 +1,7 @@
-import * as apiCalls from './api-calls';
+import * as convenience from './convenience';
 import * as logs from './event-logs';
-import * as withdrawals from './withdrawals';
 
 export const evm = {
+  convenience,
   logs,
-  ...apiCalls,
-  ...withdrawals,
 };
