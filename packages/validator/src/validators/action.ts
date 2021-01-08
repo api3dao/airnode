@@ -8,7 +8,9 @@ export function execute(specs: any, template: any, currentPath: string, roots: R
         insertValue(
           parseParamPath(action['__insert']['__target'], currentPath),
           roots.output,
-          action['__insert']['__value']
+          typeof action['__insert']['__value'] === 'string'
+            ? parseParamPath(action['__insert']['__value'], currentPath)
+            : action['__insert']['__value']
         );
         break;
 

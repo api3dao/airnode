@@ -5,6 +5,12 @@
 				"__target": "oisFormat",
 				"__value": "1.0.0"
 			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.servers",
+				"__value": []
+			}
 		}
 	],
 	"info": {
@@ -47,8 +53,57 @@
 		"__objectItem": {
 			"__keyRegexp": "^(get|post)$",
 			"__objectItem": {
+				"__conditions": [
+					{
+						"__if": {
+							"operationId": ".*"
+						},
+						"__then": {
+							"operationId": {
+								"__action": [
+									{
+										"__copy": {
+											"__target": "endpoints[].name"
+										}
+									},
+									{
+										"__insert": {
+											"__target": "endpoints[_].operation.method",
+											"__value": "{{2}}"
+										}
+									},
+									{
+										"__insert": {
+											"__target": "endpoints[_].operation.path",
+											"__value": "{{1}}"
+										}
+									}
+								]
+							}
+						}
+					}
+				],
 				"parameters": {
 					"__arrayItem": {
+						"name": {
+							"__action": [
+								{
+									"__copy": {
+										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.name"
+									}
+								},
+								{
+									"__copy": {
+										"__target": "endpoints[_].parameters[].name"
+									}
+								},
+								{
+									"__copy": {
+										"__target": "endpoints[_].parameters[_].operationParameter.name"
+									}
+								}
+							]
+						},
 						"in": {
 							"__regexp": "^(path|query|header|cookie)$",
 							"__action": [
@@ -56,14 +111,10 @@
 									"__copy": {
 										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.in"
 									}
-								}
-							]
-						},
-						"name": {
-							"__action": [
+								},
 								{
 									"__copy": {
-										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.name"
+										"__target": "endpoints[_].parameters[_].operationParameter.in"
 									}
 								}
 							]

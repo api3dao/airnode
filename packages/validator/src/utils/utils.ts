@@ -117,20 +117,28 @@ export function insertValue(paramPath: string, spec: any, value: any) {
       break;
     }
 
-    if (param.match(/\[[0-9]*\]$/)) {
+    if (param.match(/\[([0-9]*|_)\]$/)) {
       let index = -1;
 
       if (param.match(/\[([0-9]+)\]$/)) {
         index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
       }
 
-      param = param.replace(/\[[0-9]*\]$/, '');
+      if (param.match(/\[_\]$/)) {
+        index = -2;
+      }
+
+      param = param.replace(/\[([0-9]*|_)\]$/, '');
 
       if (!spec[param]) {
         spec[param] = [];
       }
 
       spec = spec[param];
+
+      if (index === -2) {
+        index = spec.length - 1;
+      }
 
       if (index === -1) {
         index = spec.length;

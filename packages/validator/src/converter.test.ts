@@ -42,6 +42,24 @@ const generatedOIS = {
       },
     },
   },
+  endpoints: [
+    {
+      name: 'findPets',
+      operation: {
+        method: 'get',
+        path: '/test',
+      },
+      parameters: [
+        {
+          name: 'limit',
+          operationParameter: {
+            in: 'query',
+            name: 'limit',
+          },
+        },
+      ],
+    },
+  ],
 };
 
 describe('converter', () => {
