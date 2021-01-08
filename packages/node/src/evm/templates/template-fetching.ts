@@ -44,7 +44,7 @@ async function fetchTemplateGroup(
       fulfillFunctionId: rawTemplates.fulfillFunctionIds[index],
       id: templateId,
       providerId: rawTemplates.providerIds[index],
-      requesterIndex: rawTemplates.requesterIndices[index],
+      requesterIndex: rawTemplates.requesterIndices[index].toString(),
     };
     return { ...acc, [templateId]: template };
   }, {});

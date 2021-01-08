@@ -1,70 +1,55 @@
 import { ethers } from 'ethers';
+import * as contracts from '../contracts';
 import * as fixtures from 'test/fixtures';
 import * as apiCalls from './api-calls';
-import { RequestErrorCode, RequestStatus } from 'src/types';
+import { EVMEventLogWithMetadata, RequestErrorCode, RequestStatus } from 'src/types';
 
-describe('initialize ApiCall ClientRequest', () => {
-  it('initializes a new ApiCall request', () => {
-    const logWithMetadata: any = {
-      parsedLog: {
-        args: {
-          providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-          fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          fulfillFunctionId: '0x042f2b65',
-          parameters:
-            '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
-          noRequests: ethers.BigNumber.from('12'),
-          requesterIndex: ethers.BigNumber.from('3'),
-        },
-        topic: '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
-      },
+describe('initialize (ApiCall)', () => {
+  it('builds a new ApiCall request', () => {
+    const event = fixtures.evm.logs.buildClientRequest();
+    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+    const parsedLog = airnodeInterface.parseLog(event);
+    const parsedLogWithMetadata = {
+      parsedLog,
       blockNumber: 10716082,
+      currentBlock: 10716085,
+      ignoreBlockedRequestsAfterBlocks: 20,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
-
-    expect(apiCalls.initialize(logWithMetadata)).toEqual({
-      clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-      designatedWallet: null,
+    expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
+      clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+      designatedWallet: '0x3580C27eDAafdb494973410B794f3F07fFAEa5E5',
       endpointId: null,
-      fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-      fulfillFunctionId: '0x042f2b65',
+      fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+      fulfillFunctionId: '0xd3bd1464',
       encodedParameters:
-        '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
+        '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+      id: '0xffb6345fd2263fa472b106c16f66e863155a67d25127d6ae7bcc2c01500ab618',
       metadata: {
         blockNumber: 10716082,
+        currentBlock: 10716085,
+        ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
       parameters: {},
-      providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-      requestCount: '12',
-      requesterIndex: '3',
+      providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+      requestCount: '1',
+      requesterIndex: '2',
       status: RequestStatus.Pending,
-      templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-      type: 'short',
+      templateId: '0x3576f03d33eb6dd0c6305509117a9501a938aab52bb466a21fe536c1e37511b4',
+      type: 'regular',
     });
   });
 
   it('sets the API call type', () => {
-    const base: any = {
-      parsedLog: {
-        args: {
-          providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          requester: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-          fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          fulfillFunctionId: '0x042f2b65',
-          parameters:
-            '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
-          noRequests: ethers.BigNumber.from('12'),
-        },
-        topic: '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
-      },
+    const event = fixtures.evm.logs.buildClientRequest();
+    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+    const parsedLog = airnodeInterface.parseLog(event);
+    const base = {
+      parsedLog,
       blockNumber: 10716082,
+      currentBlock: 10716085,
+      ignoreBlockedRequestsAfterBlocks: 20,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
     const short = {
@@ -87,94 +72,51 @@ describe('initialize ApiCall ClientRequest', () => {
 });
 
 describe('applyParameters', () => {
-  it('does nothing if encodedParameters is falsey', () => {
-    const logWithMetadata: any = {
-      parsedLog: {
-        args: {
-          providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-          fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          fulfillFunctionId: '0x042f2b65',
-          parameters: '',
-          noRequests: ethers.BigNumber.from('12'),
-        },
-        topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-      },
+  let parsedLogWithMetadata: EVMEventLogWithMetadata;
+
+  beforeEach(() => {
+    const event = fixtures.evm.logs.buildShortClientRequest();
+    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+    const parsedLog = airnodeInterface.parseLog(event);
+    parsedLogWithMetadata = {
+      parsedLog,
       blockNumber: 10716082,
+      currentBlock: 10716085,
+      ignoreBlockedRequestsAfterBlocks: 20,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
+  });
 
-    const initialRequest = apiCalls.initialize(logWithMetadata);
-    expect(initialRequest.parameters).toEqual({});
-
-    const [logs, withParameters] = apiCalls.applyParameters(initialRequest);
+  it('does nothing if encodedParameters is falsey', () => {
+    const request = apiCalls.initialize(parsedLogWithMetadata);
+    expect(request.parameters).toEqual({});
+    const withEncodedParams = { ...request, encodedParameters: '' };
+    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
     expect(logs).toEqual([]);
-    expect(withParameters).toEqual(initialRequest);
+    expect(withDecodedParameters).toEqual(withEncodedParams);
   });
 
   it('decodes and adds the parameters to the request', () => {
-    const logWithMetadata: any = {
-      parsedLog: {
-        args: {
-          providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-          fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          fulfillFunctionId: '0x042f2b65',
-          parameters:
-            '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
-          noRequests: ethers.BigNumber.from('12'),
-        },
-        topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-      },
-      blockNumber: 10716082,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
-    };
-
-    const initialRequest = apiCalls.initialize(logWithMetadata);
-    expect(initialRequest.parameters).toEqual({});
-
-    const [logs, withParameters] = apiCalls.applyParameters(initialRequest);
+    const request = apiCalls.initialize(parsedLogWithMetadata);
+    expect(request.parameters).toEqual({});
+    const [logs, withDecodedParameters] = apiCalls.applyParameters(request);
     expect(logs).toEqual([]);
-    expect(withParameters).toEqual({ ...initialRequest, parameters: { amount: '1000', from: 'ETH' } });
+    expect(withDecodedParameters).toEqual({ ...request, parameters: { from: 'ETH' } });
   });
 
   it('sets the request to errored if the parameters cannot be decoded', () => {
-    const requestId = '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49';
-    const parameters = '0xincorrectparameters';
-    const logWithMetadata: any = {
-      parsedLog: {
-        args: {
-          requestId,
-          parameters,
-          providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-          clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-          fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-          fulfillFunctionId: '0x042f2b65',
-          noRequests: ethers.BigNumber.from('12'),
-        },
-        topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-      },
-      blockNumber: 10716082,
-      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
-    };
-
-    const initialRequest = apiCalls.initialize(logWithMetadata);
-    expect(initialRequest.parameters).toEqual({});
-
-    const [logs, withParameters] = apiCalls.applyParameters(initialRequest);
+    const request = apiCalls.initialize(parsedLogWithMetadata);
+    expect(request.parameters).toEqual({});
+    const withEncodedParams = { ...request, encodedParameters: '0xincorrectparameters' };
+    const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Request ID:${requestId} submitted with invalid parameters: ${parameters}`,
+        message: `Request ID:${request.id} submitted with invalid parameters: 0xincorrectparameters`,
       },
     ]);
-    expect(withParameters).toEqual({
-      ...initialRequest,
+    expect(withDecodedParameters).toEqual({
+      ...withEncodedParams,
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.RequestParameterDecodingFailed,
     });
@@ -182,8 +124,41 @@ describe('applyParameters', () => {
 });
 
 describe('updateFulfilledRequests (ApiCall)', () => {
-  // TODO: get some example events to use here
-  pending('updates requests to be fulfilled if they have a matching log');
+  it('updates the status of fulfilled API calls', () => {
+    const id = '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5';
+    const apiCall = fixtures.requests.createApiCall({ id });
+    const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], [id]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Request ID:${id} (API call) has already been fulfilled`,
+      },
+    ]);
+    expect(requests).toEqual([
+      {
+        id,
+        clientAddress: 'clientAddress',
+        designatedWallet: 'designatedWallet',
+        endpointId: 'endpointId',
+        fulfillAddress: 'fulfillAddress',
+        fulfillFunctionId: 'fulfillFunctionId',
+        encodedParameters: 'encodedParameters',
+        metadata: {
+          blockNumber: 10716082,
+          currentBlock: 10716090,
+          ignoreBlockedRequestsAfterBlocks: 20,
+          transactionHash: 'logTransactionHash',
+        },
+        parameters: { from: 'ETH' },
+        providerId: 'providerId',
+        requestCount: '12',
+        requesterIndex: '3',
+        status: RequestStatus.Fulfilled,
+        templateId: null,
+        type: 'regular',
+      },
+    ]);
+  });
 
   it('returns the request if it is not fulfilled', () => {
     const apiCall = fixtures.requests.createApiCall();
@@ -194,56 +169,77 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 });
 
 describe('mapRequests (ApiCall)', () => {
-  const requestLog: any = {
-    parsedLog: {
-      args: {
-        providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-        requestId: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-        clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-        templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-        fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-        fulfillFunctionId: '0x042f2b65',
-        parameters:
-          '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
-        noRequests: ethers.BigNumber.from('12'),
-      },
-      topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-    },
-    blockNumber: 10716082,
-    transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
-  };
-
-  it('returns API call requests', () => {
-    const [logs, res] = apiCalls.mapRequests([requestLog]);
+  it('initializes, applies parameters and returns API call requests', () => {
+    const event = fixtures.evm.logs.buildShortClientRequest();
+    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+    const parsedLog = airnodeInterface.parseLog(event);
+    const parsedLogWithMetadata = {
+      parsedLog,
+      blockNumber: 10716082,
+      currentBlock: 10716085,
+      ignoreBlockedRequestsAfterBlocks: 20,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+    };
+    const [logs, res] = apiCalls.mapRequests([parsedLogWithMetadata]);
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        clientAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
+        clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         designatedWallet: null,
         endpointId: null,
-        fulfillAddress: '0x8099B3F45A682CDFd4f523871964f561160bD282',
-        fulfillFunctionId: '0x042f2b65',
+        fulfillAddress: null,
+        fulfillFunctionId: null,
         encodedParameters:
-          '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
+          '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+        id: '0x9d07a8b0d9087984fc84b04643fb17c42bdfda910d68afe64d958590b2ef4070',
         metadata: {
           blockNumber: 10716082,
-          transactionHash: '0xb1c9cce6d0f054958cf8542c5cdc6b558c6d628f8e2bac37fca0126c5793f11c',
+          currentBlock: 10716085,
+          ignoreBlockedRequestsAfterBlocks: 20,
+          transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        parameters: {
-          amount: '1000',
-          from: 'ETH',
-        },
-        providerId: '0xa3c071367f90badae4981bd81d1e0a407fe9ad80e35d4c95ffdd4e4f7850280b',
-        id: '0xc5f11c3b573a2084dd4abf946ca52f017e9fc70369cb74662bdbe13177c5bd49',
-        requestCount: '12',
+        parameters: { from: 'ETH' },
+        providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+        requestCount: '0',
         requesterIndex: null,
         status: RequestStatus.Pending,
-        templateId: '0xdeef41f6201160f0a8e737632663ce86327777c9a63450323bafb7fda7ffd05b',
-        type: 'regular',
+        templateId: '0x3576f03d33eb6dd0c6305509117a9501a938aab52bb466a21fe536c1e37511b4',
+        type: 'short',
       },
     ]);
   });
 
-  // TODO: get some example events to use here
-  pending('updates the status of fulfilled ApiCall requests');
+  it('updates the status of fulfilled ApiCall requests', () => {
+    const requestEvent = fixtures.evm.logs.buildClientRequest();
+    const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
+    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+    const requestLog = airnodeInterface.parseLog(requestEvent);
+    const fulfillLog = airnodeInterface.parseLog(fulfillEvent);
+
+    const requestLogWithMetadata = {
+      parsedLog: requestLog,
+      blockNumber: 10716082,
+      currentBlock: 10716085,
+      ignoreBlockedRequestsAfterBlocks: 20,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+    };
+    const fulfillLogWithMetadata = {
+      parsedLog: fulfillLog,
+      blockNumber: 10716084,
+      currentBlock: 10716087,
+      ignoreBlockedRequestsAfterBlocks: 20,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+    };
+
+    const [logs, requests] = apiCalls.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Request ID:${requestLog.args.requestId} (API call) has already been fulfilled`,
+      },
+    ]);
+    expect(requests.length).toEqual(1);
+    expect(requests[0].id).toEqual(requestLog.args.requestId);
+    expect(requests[0].status).toEqual(RequestStatus.Fulfilled);
+  });
 });
