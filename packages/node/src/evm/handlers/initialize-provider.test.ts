@@ -32,7 +32,6 @@ describe('initializeProvider', () => {
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.convenience.getTemplates());
 
     const state = fixtures.buildEVMProviderState();
-    const res = await initializeProvider(state);
-    expect(res!.requests.apiCalls).toEqual([]);
+    await initializeProvider(state);
   });
 });
