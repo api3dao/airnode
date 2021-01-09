@@ -24,7 +24,7 @@ describe('initialize (ApiCall)', () => {
       fulfillFunctionId: '0xd3bd1464',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xffb6345fd2263fa472b106c16f66e863155a67d25127d6ae7bcc2c01500ab618',
+      id: '0xbdf4c66d0d0e5766b52719b0ed1eedce0bde1079c3e99d4859d2797eab55725f',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -36,7 +36,7 @@ describe('initialize (ApiCall)', () => {
       requestCount: '1',
       requesterIndex: '2',
       status: RequestStatus.Pending,
-      templateId: '0x3576f03d33eb6dd0c6305509117a9501a938aab52bb466a21fe536c1e37511b4',
+      templateId: '0x6a1d13c87637e713d2b157ab47f5c6cec6fed736b9556e4d8acb2018dfe73f21',
       type: 'regular',
     });
   });
@@ -191,7 +191,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: null,
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0x9d07a8b0d9087984fc84b04643fb17c42bdfda910d68afe64d958590b2ef4070',
+        id: '0x6d85707808a204b5bda9395f4085f1b7d41169c75d9ae39f955894c4758d2425',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
@@ -203,7 +203,7 @@ describe('mapRequests (ApiCall)', () => {
         requestCount: '0',
         requesterIndex: null,
         status: RequestStatus.Pending,
-        templateId: '0x3576f03d33eb6dd0c6305509117a9501a938aab52bb466a21fe536c1e37511b4',
+        templateId: '0x6a1d13c87637e713d2b157ab47f5c6cec6fed736b9556e4d8acb2018dfe73f21',
         type: 'short',
       },
     ]);

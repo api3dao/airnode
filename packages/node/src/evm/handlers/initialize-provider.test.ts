@@ -2,12 +2,14 @@ import { ethers } from 'ethers';
 import { initializeProvider } from './initialize-provider';
 import * as fixtures from 'test/fixtures';
 
+const checkAuthorizationStatusesMock = jest.fn();
 const getProviderAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
 jest.mock('ethers', () => ({
   ethers: {
     ...jest.requireActual('ethers'),
     Contract: jest.fn().mockImplementation(() => ({
+      checkAuthorizationStatuses: checkAuthorizationStatusesMock,
       getProviderAndBlockNumber: getProviderAndBlockNumberMock,
       getTemplates: getTemplatesMock,
     })),
@@ -30,8 +32,12 @@ describe('initializeProvider', () => {
     });
 
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.convenience.getTemplates());
+    checkAuthorizationStatusesMock.mockResolvedValueOnce([true, true]);
 
     const state = fixtures.buildEVMProviderState();
     await initializeProvider(state);
+    // expect(res?.requests.apiCalls).toEqual([
+    //
+    // ]);
   });
 });
