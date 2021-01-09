@@ -74,7 +74,7 @@ it('processes withdrawals only once', async () => {
   const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
   expect(run2Logs.length).toEqual(8);
 
-  // Balanecs have not changed
+  // Balances have not changed
   const run2Balance = await provider.getBalance(alice!.address);
   expect(run2Balance).toEqual(postWithdrawalBalance);
   const run2DesignatedBalance = await provider.getBalance(designatedAddress);

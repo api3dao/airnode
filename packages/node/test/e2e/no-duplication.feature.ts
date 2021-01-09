@@ -58,6 +58,6 @@ it('does not process requests twice', async () => {
   await handlers.startCoordinator();
 
   // There should be no more logs created
-  const postpostLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
-  expect(postpostLogs.length).toEqual(postinvokeLogs.length);
+  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  expect(run2Logs.length).toEqual(postinvokeLogs.length);
 });
