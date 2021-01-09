@@ -1,6 +1,6 @@
-import { FullRequest } from '@airnode/operation';
+import { FullRequest, Withdrawal } from '@airnode/operation';
 
-export function buildFullRequest(request?: Partial<FullRequest>): FullRequest {
+export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest {
   return {
     requesterId: 'bob',
     type: 'full',
@@ -16,6 +16,16 @@ export function buildFullRequest(request?: Partial<FullRequest>): FullRequest {
       { type: 'bytes32', name: '_path', value: 'result' },
       { type: 'bytes32', name: '_times', value: '100000' },
     ],
-    ...request,
+    ...overrides,
+  };
+}
+
+export function buildWithdrawal(overrides?: Partial<Withdrawal>): Withdrawal {
+  return {
+    requesterId: 'alice',
+    type: 'withdrawal',
+    apiProvider: 'CurrencyConverterAPI',
+    destination: 'alice',
+    ...overrides,
   };
 }

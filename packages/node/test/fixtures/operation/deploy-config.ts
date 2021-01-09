@@ -59,7 +59,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         apiProvider: 'CurrencyConverterAPI',
         template: 'template-1',
         client: 'MockAirnodeClient',
-        parameters: [],
+        parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
       },
       {
         requesterId: 'bob',
@@ -68,7 +68,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         template: 'template-1',
         client: 'MockAirnodeClient',
         fulfillFunctionName: 'fulfill',
-        parameters: [],
+        parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
       },
       {
         requesterId: 'bob',
@@ -78,7 +78,13 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         oisTitle: 'currency-converter-ois',
         client: 'MockAirnodeClient',
         fulfillFunctionName: 'fulfill',
-        parameters: [],
+        parameters: [
+          { type: 'bytes32', name: 'from', value: 'ETH' },
+          { type: 'bytes32', name: 'to', value: 'USD' },
+          { type: 'bytes32', name: '_type', value: 'int256' },
+          { type: 'bytes32', name: '_path', value: 'result' },
+          { type: 'bytes32', name: '_times', value: '100000' },
+        ],
       },
     ],
     ...config,
