@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import * as adapter from '@airnode/adapter';
 import { initializeProvider } from './initialize-provider';
 import * as fixtures from 'test/fixtures';
 
@@ -19,10 +20,16 @@ jest.mock('ethers', () => ({
 describe('initializeProvider', () => {
   it('fetches, maps and authorizes requests', async () => {
     const shortRequest = fixtures.evm.logs.buildShortClientRequest();
-    const fullRequest = fixtures.evm.logs.buildFullClientRequest();
+    const regularRequest = fixtures.evm.logs.buildClientRequest();
     const withdrawal = fixtures.evm.logs.buildWithdrawalRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getLogsSpy.mockResolvedValueOnce([shortRequest, fullRequest, withdrawal]);
+    getLogsSpy.mockResolvedValueOnce([shortRequest, regularRequest, withdrawal]);
+
+    const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
+    executeSpy.mockResolvedValueOnce({
+      data: { prices: ['443.76381', '441.83723'] },
+      status: 200,
+    });
 
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -35,9 +42,68 @@ describe('initializeProvider', () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true, true]);
 
     const state = fixtures.buildEVMProviderState();
-    await initializeProvider(state);
-    // expect(res?.requests.apiCalls).toEqual([
-    //
-    // ]);
+    const res = await initializeProvider(state);
+    expect(res?.requests.apiCalls).toEqual([
+      {
+        clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+        designatedWallet: '0x3580C27eDAafdb494973410B794f3F07fFAEa5E5',
+        encodedParameters:
+          '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+        endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
+        fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+        fulfillFunctionId: '0xd3bd1464',
+        id: '0x6d85707808a204b5bda9395f4085f1b7d41169c75d9ae39f955894c4758d2425',
+        metadata: {
+          blockNumber: 15,
+          currentBlock: 12,
+          ignoreBlockedRequestsAfterBlocks: 20,
+          transactionHash: '0x09268ef53816b82b447d21f951c351669d97ca4597ebf3aac392fbb7236ea260',
+        },
+        parameters: {
+          _path: 'result',
+          _times: '100000',
+          _type: 'int256',
+          from: 'ETH',
+          to: 'USD',
+        },
+        providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+        requestCount: '0',
+        requesterIndex: '2',
+        status: 'Pending',
+        templateId: '0x6a1d13c87637e713d2b157ab47f5c6cec6fed736b9556e4d8acb2018dfe73f21',
+        type: 'short',
+      },
+      {
+        clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+        designatedWallet: '0x3580C27eDAafdb494973410B794f3F07fFAEa5E5',
+        encodedParameters:
+          '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+        endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
+        fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+        fulfillFunctionId: '0xd3bd1464',
+        id: '0xbdf4c66d0d0e5766b52719b0ed1eedce0bde1079c3e99d4859d2797eab55725f',
+        metadata: {
+          blockNumber: 16,
+          currentBlock: 12,
+          ignoreBlockedRequestsAfterBlocks: 20,
+          transactionHash: '0x33187e7e8af331baa11ba964b39d65f3d9127dbcf285a34a4b6f0d5c5d7babd7',
+        },
+        parameters: {
+          _path: 'result',
+          _times: '100000',
+          _type: 'int256',
+          from: 'ETH',
+          to: 'USD',
+        },
+        providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+        requestCount: '1',
+        requesterIndex: '2',
+        status: 'Pending',
+        templateId: '0x6a1d13c87637e713d2b157ab47f5c6cec6fed736b9556e4d8acb2018dfe73f21',
+        type: 'regular',
+      },
+    ]);
   });
+
+  it('does nothing if unable to find or create the provider', async () => {});
 });
