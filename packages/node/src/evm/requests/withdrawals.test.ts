@@ -18,8 +18,8 @@ describe('initialize (Withdrawal)', () => {
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
-      designatedWallet: '0xeadFE69e7D9E1d369D05DF6a88F687129523e16d',
-      destinationAddress: '0xa8b78f8B7Ac12853a847fa07C69283d52FDd47a7',
+      designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
+      destinationAddress: '0x364160Ca5E2d5A0A81A71C999787A09e4C8ae2Dd',
       id: '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124',
       metadata: {
         blockNumber: 10716082,
@@ -27,7 +27,7 @@ describe('initialize (Withdrawal)', () => {
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       requesterIndex: '1',
       status: RequestStatus.Pending,
     });
@@ -87,8 +87,8 @@ describe('mapRequests (Withdrawal)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        designatedWallet: '0xeadFE69e7D9E1d369D05DF6a88F687129523e16d',
-        destinationAddress: '0xa8b78f8B7Ac12853a847fa07C69283d52FDd47a7',
+        designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
+        destinationAddress: '0x364160Ca5E2d5A0A81A71C999787A09e4C8ae2Dd',
         id: '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124',
         metadata: {
           blockNumber: 10716082,
@@ -96,7 +96,7 @@ describe('mapRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requesterIndex: '1',
         status: RequestStatus.Pending,
       },

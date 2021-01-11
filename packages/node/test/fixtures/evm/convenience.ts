@@ -2,10 +2,10 @@ import { ethers } from 'ethers';
 
 export function getTemplates(overrides?: any): any {
   return {
-    providerIds: ['0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9'],
+    providerIds: ['0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
     endpointIds: ['0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e'],
     requesterIndices: [ethers.BigNumber.from('2')],
-    designatedWallets: ['0x3580C27eDAafdb494973410B794f3F07fFAEa5E5'],
+    designatedWallets: ['0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12'],
     fulfillAddresses: ['0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0'],
     fulfillFunctionIds: ['0xd3bd1464'],
     parameters: [
