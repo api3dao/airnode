@@ -192,7 +192,7 @@ There are currently three types of requests that can be made. You can learn more
 {
   "apiProviders": {
     "CurrencyConverterAPI": {
-      "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
+      "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "endpoints": {
         "convertToUSD": {
           "authorizers": ["public"],
@@ -208,7 +208,7 @@ There are currently three types of requests that can be made. You can learn more
           "requester": "bob",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
-            { "type": "bytes32", "name": "_type", "value": "uint256" },
+            { "type": "bytes32", "name": "_type", "value": "int256" },
             { "type": "bytes32", "name": "_path", "value": "result" },
             { "type": "bytes32", "name": "_times", "value": "100000" }
           ]
@@ -269,7 +269,7 @@ There are currently three types of requests that can be made. You can learn more
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" },
         { "type": "bytes32", "name": "to", "value": "USD" },
-        { "type": "bytes32", "name": "_type", "value": "uint256" },
+        { "type": "bytes32", "name": "_type", "value": "int256" },
         { "type": "bytes32", "name": "_path", "value": "result" },
         { "type": "bytes32", "name": "_times", "value": "100000" }
       ]
