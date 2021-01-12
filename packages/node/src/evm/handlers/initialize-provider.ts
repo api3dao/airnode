@@ -23,7 +23,7 @@ async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const requesterIndices = currentState.requests.apiCalls.map((a) => a.requesterIndex!);
+  const requesterIndices = requests.mapUniqueRequesterIndices(currentState.requests);
   const fetchOptions = {
     currentBlock: currentState.currentBlock!,
     masterHDNode: currentState.masterHDNode,

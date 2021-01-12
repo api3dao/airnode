@@ -66,6 +66,24 @@ describe('submitApiCall', () => {
   });
 
   describe('Pending API calls', () => {
+    it('does nothing for API call requests that do not have a nonce', async () => {
+      const provider = new ethers.providers.JsonRpcProvider();
+      const contract = new ethers.Contract('address', ['ABI']);
+      const apiCall = fixtures.requests.createApiCall({ nonce: undefined });
+      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      expect(logs).toEqual([
+        {
+          level: 'ERROR',
+          message: `API call for Request:${apiCall.id} cannot be submitted as it does not have a nonce`,
+        },
+      ]);
+      expect(err).toEqual(null);
+      expect(data).toEqual(null);
+      expect(contract.callStatic.fulfill).not.toHaveBeenCalled();
+      expect(contract.fulfill).not.toHaveBeenCalled();
+      expect(contract.fail).not.toHaveBeenCalled();
+    });
+
     it('successfully tests and submits a fulfill transaction for pending requests', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
       const contract = new ethers.Contract('address', ['ABI']);

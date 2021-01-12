@@ -192,6 +192,14 @@ export async function submitApiCall(
     return [[log], null, null];
   }
 
+  if (!request.nonce) {
+    const log = logger.pend(
+      'ERROR',
+      `API call for Request:${request.id} cannot be submitted as it does not have a nonce`
+    );
+    return [[log], null, null];
+  }
+
   // Should not throw
   const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
   return [submitLogs, submitErr, submitData];

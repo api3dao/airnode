@@ -2,6 +2,27 @@ import { GroupedRequests } from 'src/types';
 import * as fixtures from 'test/fixtures';
 import * as grouping from './grouping';
 
+describe('mapUniqueRequesterIndices', () => {
+  it('returns a unique list of requester indices', () => {
+    const apiCalls = [
+      fixtures.requests.createApiCall({ requesterIndex: '8' }),
+      fixtures.requests.createApiCall({ requesterIndex: '9' }),
+      fixtures.requests.createApiCall({ requesterIndex: '9' }),
+      fixtures.requests.createApiCall({ requesterIndex: '10' }),
+    ];
+    const withdrawals = [
+      fixtures.requests.createWithdrawal({ requesterIndex: '9' }),
+      fixtures.requests.createWithdrawal({ requesterIndex: '12' }),
+    ];
+    const requests: GroupedRequests = {
+      apiCalls: apiCalls,
+      withdrawals: withdrawals,
+    };
+    const res = grouping.mapUniqueRequesterIndices(requests);
+    expect(res).toEqual(['8', '9', '10', '12']);
+  });
+});
+
 describe('groupRequestsByRequesterIndex', () => {
   it('groups all requests by wallet index', () => {
     const apiCalls = [

@@ -134,6 +134,23 @@ describe('submitWithdrawal', () => {
     expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
   });
 
+  it('does nothing if the withdrawal does not have a nonce', async () => {
+    const provider = new ethers.providers.JsonRpcProvider();
+    const contract = new ethers.Contract('address', ['ABI']);
+    const withdrawal = fixtures.requests.createWithdrawal({ nonce: undefined, status: RequestStatus.Pending });
+    const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
+    const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id} cannot be submitted as it does not have a nonce`,
+      },
+    ]);
+    expect(err).toEqual(null);
+    expect(data).toEqual(null);
+    expect(contract.fulfillWithdrawal).not.toHaveBeenCalled();
+  });
+
   it('returns an error if the current balance cannot be fetched', async () => {
     const contract = new ethers.Contract('address', ['ABI']);
     const provider = new ethers.providers.JsonRpcProvider();
