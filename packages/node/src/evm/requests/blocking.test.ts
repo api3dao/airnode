@@ -37,4 +37,21 @@ describe('blockRequestsWithWithdrawals', () => {
     expect(res.withdrawals[0].id).toEqual(withdrawal.id);
     expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });
+
+  it('does not block API calls linked to non-pending withdrawals', () => {
+    const requesterIndex = '123';
+    const apiCall = fixtures.requests.createApiCall({ requesterIndex });
+    const statuses = Object.keys(RequestStatus).filter((status) => RequestStatus[status] !== RequestStatus.Pending);
+    const withdrawals = statuses.map((status) => {
+      return fixtures.requests.createWithdrawal({ status: RequestStatus[status], requesterIndex });
+    });
+    const requests: GroupedRequests = {
+      apiCalls: [apiCall],
+      withdrawals,
+    };
+    const [logs, res] = blocking.blockRequestsWithWithdrawals(requests);
+    expect(logs).toEqual([]);
+    expect(res.apiCalls.length).toEqual(1);
+    expect(res.apiCalls[0].status).toEqual(RequestStatus.Pending);
+  });
 });
