@@ -1,8 +1,8 @@
 import shuffle from 'lodash/shuffle';
 import * as fixtures from 'test/fixtures';
-import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from 'src/types';
 import * as providerState from '../providers/state';
 import * as nonces from './nonces';
+import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from 'src/types';
 
 describe('assign', () => {
   let initialState: ProviderState<EVMProviderState>;
@@ -182,5 +182,44 @@ describe('assign', () => {
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 7 });
     expect(res.apiCalls[1]).toEqual({ ...second, nonce: undefined });
     expect(res.apiCalls[2]).toEqual({ ...third, nonce: 8 });
+  });
+
+  it('does not assign nonces to fulfilled requests', () => {
+    const firstMeta = fixtures.requests.buildMetadata({ blockNumber: 100, transactionHash: '0xa' });
+    const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
+    const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
+
+    const first = fixtures.requests.createWithdrawal({
+      id: '0x1',
+      nonce: undefined,
+      metadata: firstMeta,
+      requesterIndex: '7',
+      status: RequestStatus.Pending,
+    });
+    const second = fixtures.requests.createWithdrawal({
+      id: '0x2',
+      nonce: undefined,
+      metadata: secondMeta,
+      requesterIndex: '7',
+      status: RequestStatus.Fulfilled,
+    });
+    const third = fixtures.requests.createWithdrawal({
+      id: '0x3',
+      nonce: undefined,
+      metadata: thirdMeta,
+      requesterIndex: '7',
+      status: RequestStatus.Pending,
+    });
+
+    const requests: GroupedRequests = {
+      apiCalls: [],
+      withdrawals: shuffle([first, third, second]),
+    };
+    const transactionCountsByRequesterIndex = { 7: 11 };
+    const state = providerState.update(initialState, { requests, transactionCountsByRequesterIndex });
+    const res = nonces.assign(state);
+    expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
+    expect(res.withdrawals[1]).toEqual({ ...second, nonce: undefined });
+    expect(res.withdrawals[2]).toEqual({ ...third, nonce: 12 });
   });
 });
