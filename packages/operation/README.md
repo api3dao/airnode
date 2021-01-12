@@ -209,7 +209,7 @@ There are currently three types of requests that can be made. You can learn more
 {
   "apiProviders": {
     "CurrencyConverterAPI": {
-      "mnemonic": "bracket simple lock network census onion spy real spread pig hawk lonely",
+      "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "endpoints": {
         "convertToUSD": {
           "authorizers": ["public"],

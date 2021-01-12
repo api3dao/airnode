@@ -16,11 +16,14 @@ interface ApiCallsWithLogs {
 }
 
 export function blockRequestsWithWithdrawals(requests: GroupedRequests): LogsData<GroupedRequests> {
-  const withdrawalsByRequesterIndex = fromPairs(requests.withdrawals.map((w) => [w.requesterIndex, w]));
+  const pendingApiCalls = requests.apiCalls.filter((r) => r.status === RequestStatus.Pending);
+  const pendingWithdrawals = requests.withdrawals.filter((r) => r.status === RequestStatus.Pending);
+
+  const withdrawalsByRequesterIndex = fromPairs(pendingWithdrawals.map((w) => [w.requesterIndex, w]));
 
   const initialState: ApiCallsWithLogs = { logs: [], apiCalls: [] };
 
-  const { logs, apiCalls } = requests.apiCalls.reduce((acc, apiCall) => {
+  const { logs, apiCalls } = pendingApiCalls.reduce((acc, apiCall) => {
     const pendingWithdrawal = withdrawalsByRequesterIndex[apiCall.requesterIndex!];
 
     if (pendingWithdrawal) {

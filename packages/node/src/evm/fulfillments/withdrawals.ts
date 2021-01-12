@@ -21,6 +21,14 @@ export async function submitWithdrawal(
     return [[log], null, null];
   }
 
+  if (!request.nonce) {
+    const log = logger.pend(
+      'ERROR',
+      `Withdrawal wallet index:${request.requesterIndex} for Request:${request.id} cannot be submitted as it does not have a nonce`
+    );
+    return [[log], null, null];
+  }
+
   const requesterAddress = wallet.deriveWalletAddressFromIndex(options.masterHDNode, request.requesterIndex!);
   const getBalanceOperation = () => options.provider!.getBalance(requesterAddress);
   const retryableGetBalanceOperation = retryOperation(OPERATION_RETRIES, getBalanceOperation);

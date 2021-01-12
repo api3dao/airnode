@@ -56,6 +56,10 @@ function assignWalletNonces(flatRequests: ClientRequest<AnyRequest>[], transacti
       return { ...acc, requests: [...acc.requests, request] };
     }
 
+    if (request.status === RequestStatus.Fulfilled) {
+      return { ...acc, requests: [...acc.requests, request] };
+    }
+
     if (request.status === RequestStatus.Blocked) {
       const status = blockedOrIgnored(request);
       const assignmentBlocked = status === RequestStatus.Blocked;

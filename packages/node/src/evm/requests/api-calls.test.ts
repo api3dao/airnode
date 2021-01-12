@@ -18,13 +18,13 @@ describe('initialize (ApiCall)', () => {
     };
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
       clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-      designatedWallet: '0x3580C27eDAafdb494973410B794f3F07fFAEa5E5',
+      designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
       endpointId: null,
       fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
       fulfillFunctionId: '0xd3bd1464',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xffb6345fd2263fa472b106c16f66e863155a67d25127d6ae7bcc2c01500ab618',
+      id: '0x42c0d4bc601936a673513a7601df394c1574c9af768dbb28ec3a65f019bafffd',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -32,11 +32,11 @@ describe('initialize (ApiCall)', () => {
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
       parameters: {},
-      providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       requestCount: '1',
       requesterIndex: '2',
       status: RequestStatus.Pending,
-      templateId: '0x3576f03d33eb6dd0c6305509117a9501a938aab52bb466a21fe536c1e37511b4',
+      templateId: '0x9843d3ab43c584e58d82302e196d05efe4466773a61d259b6ecd99bd8baf411b',
       type: 'regular',
     });
   });
@@ -191,7 +191,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: null,
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0x9d07a8b0d9087984fc84b04643fb17c42bdfda910d68afe64d958590b2ef4070',
+        id: '0xb781aa3a3ebcd64f31ab8b71d856385cbf7ccd7bc4beec1f2d3185342727add3',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
@@ -199,11 +199,11 @@ describe('mapRequests (ApiCall)', () => {
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
         parameters: { from: 'ETH' },
-        providerId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '0',
         requesterIndex: null,
         status: RequestStatus.Pending,
-        templateId: '0x3576f03d33eb6dd0c6305509117a9501a938aab52bb466a21fe536c1e37511b4',
+        templateId: '0x9843d3ab43c584e58d82302e196d05efe4466773a61d259b6ecd99bd8baf411b',
         type: 'short',
       },
     ]);
