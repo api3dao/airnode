@@ -19,6 +19,13 @@ jest.mock('ethers', () => ({
 
 describe('initializeProvider', () => {
   it('fetches, maps and authorizes requests', async () => {
+    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      blockNumber: ethers.BigNumber.from('12'),
+      xpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    });
+
     const shortRequest = fixtures.evm.logs.buildShortClientRequest();
     const regularRequest = fixtures.evm.logs.buildClientRequest();
     const withdrawal = fixtures.evm.logs.buildWithdrawalRequest();
@@ -26,16 +33,9 @@ describe('initializeProvider', () => {
     getLogsSpy.mockResolvedValueOnce([shortRequest, regularRequest, withdrawal]);
 
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
-    executeSpy.mockResolvedValueOnce({
+    executeSpy.mockResolvedValue({
       data: { prices: ['443.76381', '441.83723'] },
       status: 200,
-    });
-
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
 
     getTemplatesMock.mockResolvedValueOnce(fixtures.evm.convenience.getTemplates());
@@ -105,5 +105,29 @@ describe('initializeProvider', () => {
     ]);
   });
 
-  it('does nothing if unable to find or create the provider', async () => {});
+  it('does nothing if unable to find or create the provider', async () => {
+    const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
+    getProviderAndBlockNumberMock.mockResolvedValueOnce(null);
+    const state = fixtures.buildEVMProviderState();
+    const res = await initializeProvider(state);
+    expect(res).toEqual(null);
+    expect(getLogsSpy).not.toHaveBeenCalled();
+  });
+
+  it('does nothing if requests cannot be fetched', async () => {
+    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      blockNumber: ethers.BigNumber.from('12'),
+      xpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    });
+
+    const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
+    getLogsSpy.mockRejectedValue(new Error('Server did not respond'));
+
+    const state = fixtures.buildEVMProviderState();
+    const res = await initializeProvider(state);
+    expect(res).toEqual(null);
+    expect(getLogsSpy).toHaveBeenCalledTimes(2);
+  });
 });
