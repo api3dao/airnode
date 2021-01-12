@@ -14,7 +14,6 @@
     "dev:eth-deploy": "ts-node src/scripts/evm-dev-deploy.ts",
     "dev:eth-node": "hardhat node",
     "dev:eth-requests": "ts-node src/scripts/evm-dev-requests.ts",
-    "dev:fund": "ts-node src/scripts/fund-wallet.ts",
     "test": "hardhat test"
   },
   "devDependencies": {
