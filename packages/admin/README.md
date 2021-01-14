@@ -3,9 +3,13 @@
 
 > A package/CLI tool to interact with the Airnode contracts across chains
 
-All commands require you to either provide a `providerUrl` (e.g., `https://ropsten.infura.io/v3/<KEY>`) or a `chain` (e.g., `ropsten`).
-**Using `chain` will use the default ethers.js provider, which may rate-limit you.**
-Furthermore, it may not support the chain you want to use (xDai, Fantom, etc.)
+Almost all commands require you to provide a `providerUrl` such as `https://ropsten.infura.io/v3/<KEY>`, `https://xdai.poanetwork.dev`, etc.
+Currently supported chains are:
+- Ropsten
+- Rinkeby
+- Goerli
+- xDai
+- Fantom
 
 Commands that require `mnemonic` will make an on-chain transaction.
 Make sure that the wallet that is associated with the mnemonic is funded on the target chain.
@@ -29,7 +33,7 @@ Note down your requester index because you will be using it in future interactio
 
 ```sh
 npx @api3/airnode-admin create-requester \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --requesterAdmin 0x5c17cb...
 ```
@@ -41,7 +45,7 @@ The `mnemonic` you provide here has to belong to the previous requester admin.
 
 ```sh
 npx @api3/airnode-admin update-requester-admin \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
   --requesterAdmin 0xe97301...
@@ -53,7 +57,7 @@ Derives the address of the [wallet designated by a provider for a requester](htt
 
 ```sh
 npx @api3/airnode-admin derive-designated-wallet \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --providerId 0xe1e0dd... \
   --requesterIndex 6
 ```
@@ -65,7 +69,7 @@ The `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin endorse-client \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
   --clientAddress 0x2c2e12...
@@ -78,7 +82,7 @@ The `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin unendorse-client \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
   --clientAddress 0x2c2e12...
@@ -91,7 +95,7 @@ See the `/example` directory for an example template file.
 
 ```sh
 npx @api3/airnode-admin create-template \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --templateFilePath ./template.json
 ```
@@ -103,7 +107,7 @@ The `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --providerId 0xe1e0dd... \
   --requesterIndex 6 \
@@ -116,7 +120,7 @@ Checks the status of the withdrawal request with the given ID.
 
 ```sh
 npx @api3/airnode-admin check-withdrawal-request \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --withdrawalRequestId 0x011d1b...
 ```
 
@@ -131,7 +135,7 @@ Airnode will create your provider during [deployment](https://github.com/api3dao
 
 ```sh
 npx @api3/airnode-admin create-provider \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --providerAdmin 0xc2193d...
 ```
@@ -143,7 +147,7 @@ The `mnemonic` you provide here has to belong to the previous provider admin.
 
 ```sh
 npx @api3/airnode-admin update-provider-admin \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --providerId 0xe1e0dd... \
   --providerAdmin 0x60558a...
@@ -167,7 +171,7 @@ See the `/example` directory for an example authorizers file.
 
 ```sh
 npx @api3/airnode-admin update-authorizers \
-  --chain ropsten \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --providerId 0xe1e0dd... \
   --endpointId 0x260558... \
