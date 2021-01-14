@@ -11,6 +11,7 @@ provider:
   stage: ${opt:stage}
   runtime: nodejs12.x
   memorySize: 256
+  logRetentionInDays: 14
   environment: ${file(secrets.json)}
   iamRoleStatements:
     - Effect: 'Allow'
