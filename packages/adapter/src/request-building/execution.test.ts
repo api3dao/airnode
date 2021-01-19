@@ -10,7 +10,7 @@ describe('executeRequest', () => {
   it('executes simple GET requests', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
     const request: Request = {
-      baseUrl: 'https://api.myapi.com',
+      baseUrl: 'http://localhost:5000',
       data: { from: 'ETH', to: 'USD' },
       headers: { api_key: 'supersecret' },
       method: 'get',
@@ -20,7 +20,7 @@ describe('executeRequest', () => {
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
-      url: 'https://api.myapi.com/convert',
+      url: 'http://localhost:5000/convert',
       method: 'get',
       headers: { api_key: 'supersecret' },
       params: { from: 'ETH', to: 'USD' },
@@ -30,7 +30,7 @@ describe('executeRequest', () => {
   it('executes GET requests with config', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
     const request: Request = {
-      baseUrl: 'https://api.myapi.com',
+      baseUrl: 'http://localhost:5000',
       data: { from: 'ETH', to: 'USD' },
       headers: { api_key: 'supersecret' },
       method: 'get',
@@ -40,7 +40,7 @@ describe('executeRequest', () => {
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
-      url: 'https://api.myapi.com/convert',
+      url: 'http://localhost:5000/convert',
       method: 'get',
       headers: { api_key: 'supersecret' },
       params: { from: 'ETH', to: 'USD' },
@@ -51,7 +51,7 @@ describe('executeRequest', () => {
   it('executes simple POST requests', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
     const request: Request = {
-      baseUrl: 'https://api.myapi.com',
+      baseUrl: 'http://localhost:5000',
       data: { from: 'ETH', to: 'USD' },
       headers: { api_key: 'supersecret' },
       method: 'post',
@@ -61,7 +61,7 @@ describe('executeRequest', () => {
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
-      url: 'https://api.myapi.com/convert',
+      url: 'http://localhost:5000/convert',
       method: 'post',
       headers: { api_key: 'supersecret' },
       data: { from: 'ETH', to: 'USD' },
@@ -71,7 +71,7 @@ describe('executeRequest', () => {
   it('executes POST requests with config', async () => {
     responseMock.mockResolvedValueOnce({ value: '10000' });
     const request: Request = {
-      baseUrl: 'https://api.myapi.com',
+      baseUrl: 'http://localhost:5000',
       data: { from: 'ETH', to: 'USD' },
       headers: { api_key: 'supersecret' },
       method: 'post',
@@ -81,7 +81,7 @@ describe('executeRequest', () => {
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
-      url: 'https://api.myapi.com/convert',
+      url: 'http://localhost:5000/convert',
       method: 'post',
       headers: { api_key: 'supersecret' },
       data: { from: 'ETH', to: 'USD' },
@@ -98,7 +98,7 @@ describe('buildAndExecuteRequest', () => {
     expect(res).toEqual({ value: '10000' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
-      url: 'https://api.myapi.com/convert',
+      url: 'http://localhost:5000/convert',
       method: 'get',
       headers: {},
       params: {
@@ -117,7 +117,7 @@ describe('buildAndExecuteRequest', () => {
     expect(res).toEqual({ value: '7777' });
     expect(axios).toBeCalledTimes(1);
     expect(axios).toBeCalledWith({
-      url: 'https://api.myapi.com/convert',
+      url: 'http://localhost:5000/convert',
       method: 'get',
       headers: {},
       params: {

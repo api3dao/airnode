@@ -12,9 +12,11 @@ export async function endorseClients(state: State): Promise<State> {
     for (const requesterId of configClient.endorsers) {
       const requester = state.requestersById[requesterId];
 
-      await Airnode!
+      const tx = await Airnode!
         .connect(requester.signer)
         .updateClientEndorsementStatus(requester.requesterIndex, client.address, true);
+
+      await tx.wait();
     }
   }
 
@@ -46,8 +48,12 @@ export async function createTemplates(state: State): Promise<State> {
         client.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
         encode(configTemplate.parameters)
       );
+      await tx.wait();
 
-      const logs = await state.provider.getLogs({ address: Airnode!.address });
+      const logs = await state.provider.getLogs({
+        fromBlock: 0,
+        address: Airnode!.address,
+      });
       const log = logs.find((log) => log.transactionHash === tx.hash);
       const parsedLog = Airnode!.interface.parseLog(log!);
       const templateId = parsedLog.args.templateId;

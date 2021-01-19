@@ -28,7 +28,13 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
     const requesterAddress = requesterWallet.address;
 
     const tx = await Airnode!.connect(state.deployer).createRequester(requesterAddress);
-    const logs = await state.provider.getLogs({ address: Airnode!.address });
+    await tx.wait();
+
+    const logs = await state.provider.getLogs({
+      fromBlock: 0,
+      address: Airnode!.address,
+    });
+
     const log = logs.find((log) => log.transactionHash === tx.hash);
     const parsedLog = Airnode!.interface.parseLog(log!);
     const requesterIndex = parsedLog.args.requesterIndex;

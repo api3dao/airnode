@@ -41,7 +41,7 @@ describe('spawnNewApiCall', () => {
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Unable to call API endpoint:convertToUsd', error: new Error('Something went wrong') },
+      { level: 'ERROR', message: 'Unable to call API endpoint:convertToUSD', error: new Error('Something went wrong') },
     ]);
     expect(res).toEqual(null);
     expect(invokeMock).toHaveBeenCalledTimes(1);
@@ -81,7 +81,7 @@ describe('spawnNewApiCall', () => {
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
-    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to call API endpoint:convertToUsd' }]);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to call API endpoint:convertToUSD' }]);
     expect(res).toEqual(null);
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(

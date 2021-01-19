@@ -1,0 +1,206 @@
+name: Continuous Build
+
+on: push
+
+jobs:
+  documentation:
+    name: Check documentation
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone airnode
+      uses: actions/checkout@master
+    - name: Check hyperlinks
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+    - name: Slack Notification
+      uses: homoluctus/slatify@master
+      if: failure()
+      with:
+        channel: '#technical'
+        commit: true
+        job_name: 'Airnode - Documentation'
+        token: ${{ secrets.ACCESS_TOKEN }}
+        type: ${{ job.status }}
+        url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  build:
+    name: Build and lint Airnode
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone airnode
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - name: Install Dependencies
+        run: yarn run bootstrap
+      - name: Lint code
+        run: yarn run lint
+      - name: Prepare config
+        run: |
+          cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json
+      - name: Build
+        run: yarn run build
+      - uses: actions/cache@v2
+        id: cache-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+
+  test-adapter:
+    name: Test @airnode/adapter
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn run test:adapter
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: failure()
+        with:
+          channel: '#technical'
+          commit: true
+          job_name: 'Airnode - test @airnode/adapter'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  test-airnode-abi:
+    name: Test @airnode/airnode-abi
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn run test:airnode-abi
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: failure()
+        with:
+          channel: '#technical'
+          commit: true
+          job_name: 'Airnode - test @airnode/airnode-abi'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  test-node:
+    name: Test @airnode/node
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn run test:node
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: failure()
+        with:
+          channel: '#technical'
+          commit: true
+          job_name: 'Airnode - test @airnode/node'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  test-protocol:
+    name: Test @airnode/protocol
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn run test:protocol
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: failure()
+        with:
+          channel: '#technical'
+          commit: true
+          job_name: 'Airnode - test @airnode/protocol'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  unit-tests-pass:
+    name: Unit tests passed
+    runs-on: ubuntu-latest
+    needs: [build, test-adapter, test-airnode-abi, test-node, test-protocol]
+    steps:
+      - run: exit 0
+
+  e2e-tests:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    needs: unit-tests-pass
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - name: Start background services
+        run: yarn run dev:background
+      - run: yarn run test:e2e
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: failure()
+        with:
+          channel: '#technical'
+          commit: true
+          job_name: 'Airnode - E2E tests'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+
+  build-complete:
+    name: All tests passed
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    steps:
+      - run: exit 0
+      - name: Slack Notification
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          channel: '#technical'
+          commit: true
+          job_name: 'Airnode - Continuous Build'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+

@@ -4,9 +4,15 @@ import * as settings from './node-settings';
 
 export function buildConfig(config?: Partial<Config>): Config {
   return {
-    id: 'my-config',
+    id: 'test-config',
     triggers: {
-      request: [{ endpointId: 'endpointId', endpointName: 'endpointName', oisTitle: 'oisTitle' }],
+      request: [
+        {
+          endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
+          endpointName: 'convertToUSD',
+          oisTitle: 'currency-converter-ois',
+        },
+      ],
     },
     ois: [ois.buildOIS()],
     nodeSettings: settings.buildNodeSettings(),
