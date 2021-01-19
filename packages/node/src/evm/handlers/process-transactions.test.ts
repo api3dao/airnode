@@ -7,7 +7,6 @@ const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
-// const getBalanceMock = jest.fn();
 const staticFulfillMock = jest.fn();
 jest.mock('ethers', () => ({
   ethers: {
