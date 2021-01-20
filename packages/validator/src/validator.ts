@@ -129,7 +129,9 @@ export function validateSpecs(
         break;
 
       case '__action':
-        continue;
+        execute(specs, template[key], `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`, roots);
+
+        break;
 
       case '__apiSpecs':
         tmpNonRedundant = {};
@@ -190,10 +192,6 @@ export function validateSpecs(
 
         break;
     }
-  }
-
-  if (Object.keys(template).some((key) => key === '__action')) {
-    execute(specs, template['__action'], `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`, roots);
   }
 
   let valid = true;

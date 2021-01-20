@@ -11,6 +11,30 @@
 				"__target": "apiSpecifications.servers",
 				"__value": []
 			}
+		},
+		{
+			"__insert": {
+				"__target": "endpoints",
+				"__value": []
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.components.security",
+				"__value": {}
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.components.securitySchemes",
+				"__value": {}
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.paths",
+				"__value": {}
+			}
 		}
 	],
 	"info": {
@@ -53,33 +77,29 @@
 		"__objectItem": {
 			"__keyRegexp": "^(get|post)$",
 			"__objectItem": {
-				"__conditions": [
+				"__action": [
 					{
-						"__if": {
-							"operationId": ".*"
-						},
-						"__then": {
-							"operationId": {
-								"__action": [
-									{
-										"__copy": {
-											"__target": "endpoints[].name"
-										}
-									},
-									{
-										"__insert": {
-											"__target": "endpoints[_].operation.method",
-											"__value": "{{2}}"
-										}
-									},
-									{
-										"__insert": {
-											"__target": "endpoints[_].operation.path",
-											"__value": "{{1}}"
-										}
-									}
-								]
-							}
+						"__insert": {
+							"__target": "apiSpecifications.paths.{{1}}.{{2}}.parameters",
+							"__value": []
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[].name",
+							"__value": "{{1}}"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].operation.method",
+							"__value": "{{2}}"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].operation.path",
+							"__value": "{{1}}"
 						}
 					}
 				],
@@ -118,6 +138,27 @@
 									}
 								}
 							]
+						},
+						"schema": {
+							"__conditions": [
+								{
+									"__if": {
+										"default": ".*"
+									},
+									"__then": {
+										"default": {
+											"__action": [
+												{
+													"__copy": {
+														"__target": "endpoints[_].parameters[_].default"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"__ignore": {}
 						},
 						"__ignore": {}
 					}

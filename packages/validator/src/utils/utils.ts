@@ -157,7 +157,7 @@ export function insertValue(paramPath: string, spec: any, value: any) {
       if (typeof spec === 'object' && typeof value === 'object') {
         if (!value.length || !Object.keys(value)) {
           if (spec[param] === undefined) {
-            spec[param] = value;
+            spec[param] = JSON.parse(JSON.stringify(value));
           }
 
           break;
