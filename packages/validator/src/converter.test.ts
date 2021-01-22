@@ -1,4 +1,4 @@
-import { validate } from './validate';
+import { convert } from './converter';
 import { missingParamMessage } from './utils/messages';
 
 const generatedOIS = {
@@ -209,7 +209,7 @@ const generatedOIS = {
 
 describe('converter', () => {
   it('OAS2OIS', () => {
-    expect(validate('exampleSpecs/OAS.specs.json', 'templates/OAS2OIS.json')).toEqual({
+    expect(convert('exampleSpecs/OAS.specs.json', 'templates/OAS2OIS.json')).toEqual({
       valid: false,
       messages: [missingParamMessage('components.securitySchemes')],
       output: generatedOIS,

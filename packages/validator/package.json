@@ -20,7 +20,7 @@
   "scripts": {
     "test": "jest",
     "validate": "ts-node src/validateCmd.ts",
-    "validateConfigSecurity": "ts-node src/validateConfigSecurity.ts"
+    "validateConfigSecurity": "ts-node src/validateConfigSecurityCmd.ts"
   },
   "dependencies": {
     "ts-node": "^9.0.0"

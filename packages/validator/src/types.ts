@@ -12,5 +12,5 @@ export interface Roots {
 export interface Result {
   valid: boolean;
   messages: Log[];
-  output: any;
+  output?: object;
 }

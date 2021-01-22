@@ -1,4 +1,4 @@
-import { validateSpecs } from '../validator';
+import { processSpecs } from '../processor';
 import { isAnyParamValid } from './anyValidator';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
@@ -59,7 +59,7 @@ function validateConditionRegexInKey(
         );
       }
 
-      const result = validateSpecs(
+      const result = processSpecs(
         condition['__rootThen'] ? currentTemplate : currentTemplate[thisName],
         template,
         `${condition['__rootThen'] ? '' : `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`}`,
@@ -170,7 +170,7 @@ function validateConditionRegexInValue(
     return [];
   }
 
-  const result = validateSpecs(
+  const result = processSpecs(
     currentTemplate[thenParamName],
     thenCondition[thenParamName],
     `${currentParamPath}${currentParamPath ? '.' : ''}${thenParamName}`,

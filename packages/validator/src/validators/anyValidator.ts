@@ -1,5 +1,5 @@
 import * as utils from '../utils/utils';
-import { validateSpecs } from '../validator';
+import { processSpecs } from '../processor';
 import { Roots } from '../types';
 
 /**
@@ -32,7 +32,7 @@ export function isAnyParamValid(
         nonRedundantParams.push({});
       }
 
-      const result = validateSpecs(
+      const result = processSpecs(
         specs[paramIndex],
         template,
         paramPath,
@@ -64,7 +64,7 @@ export function isAnyParamValid(
       );
     }
 
-    const result = validateSpecs(specs[paramKey], template, paramPath, nonRedundantParams[paramKey], roots);
+    const result = processSpecs(specs[paramKey], template, paramPath, nonRedundantParams[paramKey], roots);
 
     if (!result.messages.length) {
       return true;

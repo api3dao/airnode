@@ -1,4 +1,4 @@
-import { validateConfigSecurity } from './validate';
+import { validateConfigSecurity } from './validator';
 
 if (process.env.npm_config_config || process.env.npm_config_security) {
   console.log(validateConfigSecurity(process.env.npm_config_config, process.env.npm_config_security));

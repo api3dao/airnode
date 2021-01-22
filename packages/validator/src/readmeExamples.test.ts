@@ -1,4 +1,4 @@
-import { validateJson } from './validate';
+import { validateJson } from './validator';
 import {
   conditionNotMetMessage,
   extraFieldMessage,
