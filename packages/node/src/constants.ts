@@ -1,7 +1,7 @@
 //API calls
 export const API_CALL_TOTAL_TIMEOUT = 29_000;
 export const API_CALL_TIMEOUT = 20_000;
-export const BLOCK_COUNT_HISTORY_LIMIT = 600;
+export const BLOCK_COUNT_HISTORY_LIMIT = 300;
 export const BLOCK_COUNT_IGNORE_LIMIT = 20;
 export const BLOCK_MIN_CONFIRMATIONS = 0;
 export const CONVENIENCE_BATCH_SIZE = 10;

@@ -18,7 +18,7 @@
         },
         "providers": [
           {
-            "blockHistoryLimit": 600,
+            "blockHistoryLimit": 300,
             "minConfirmations": 6,
             "name": "infura-ropsten",
             "url": "https://ropsten.infura.io/v3/<KEY>"
@@ -35,7 +35,7 @@
         },
         "providers": [
           {
-            "blockHistoryLimit": 600,
+            "blockHistoryLimit": 300,
             "minConfirmations": 6,
             "name": "infura-rinkeby",
             "url": "https://rinkeby.infura.io/v3/<KEY>"

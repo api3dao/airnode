@@ -77,7 +77,7 @@ describe('initializeProviders', () => {
         },
         settings: {
           providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-          blockHistoryLimit: 600,
+          blockHistoryLimit: 300,
           chainId: 1,
           chainType: 'evm',
           ignoreBlockedRequestsAfterBlocks: 20,
@@ -110,7 +110,7 @@ describe('initializeProviders', () => {
         },
         settings: {
           providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-          blockHistoryLimit: 600,
+          blockHistoryLimit: 300,
           chainId: 3,
           chainType: 'evm',
           ignoreBlockedRequestsAfterBlocks: 20,

@@ -26,7 +26,7 @@ describe('create', () => {
       },
       settings: {
         providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
-        blockHistoryLimit: 600,
+        blockHistoryLimit: 300,
         chainId: 1337,
         chainType: 'evm',
         ignoreBlockedRequestsAfterBlocks: 20,

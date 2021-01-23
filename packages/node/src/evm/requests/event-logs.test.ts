@@ -49,7 +49,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      blockHistoryLimit: 600,
+      blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
@@ -82,8 +82,8 @@ describe('EVM event logs - fetch', () => {
     ]);
     expect(getLogs).toHaveBeenCalledTimes(1);
     expect(getLogs).toHaveBeenCalledWith({
-      // 10716084 - 600
-      fromBlock: 10715484,
+      // 10716084 - 300
+      fromBlock: 10715784,
       toBlock: 10716084,
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
@@ -99,7 +99,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      blockHistoryLimit: 600,
+      blockHistoryLimit: 30,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
@@ -132,7 +132,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      blockHistoryLimit: 600,
+      blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),

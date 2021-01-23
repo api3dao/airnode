@@ -10,7 +10,7 @@ describe('constants', () => {
 
     expect(constants.API_CALL_TIMEOUT).toEqual(20_000);
     expect(constants.API_CALL_TOTAL_TIMEOUT).toEqual(29_000);
-    expect(constants.BLOCK_COUNT_HISTORY_LIMIT).toEqual(600);
+    expect(constants.BLOCK_COUNT_HISTORY_LIMIT).toEqual(300);
     expect(constants.BLOCK_COUNT_IGNORE_LIMIT).toEqual(20);
     expect(constants.BLOCK_MIN_CONFIRMATIONS).toEqual(0);
     expect(constants.CONVENIENCE_BATCH_SIZE).toEqual(10);
