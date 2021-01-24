@@ -85,6 +85,7 @@ export async function initializeProvider(
   // STEP 4: Fetch and apply templates to API calls
   // =================================================================
   const templateFetchOptions = {
+    airnodeAddress: state3.contracts.Airnode,
     convenienceAddress: state3.contracts.Convenience,
     provider: state3.provider,
   };
