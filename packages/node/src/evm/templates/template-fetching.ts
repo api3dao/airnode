@@ -20,10 +20,7 @@ interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
 }
 
-export async function fetchTemplate(
-  airnode: ethers.Contract,
-  templateId: string
-): Promise<LogsData<ApiCallTemplate | null>> {
+async function fetchTemplate(airnode: ethers.Contract, templateId: string): Promise<LogsData<ApiCallTemplate | null>> {
   const contractCall = () => airnode.getTemplate(templateId) as Promise<any>;
   const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
