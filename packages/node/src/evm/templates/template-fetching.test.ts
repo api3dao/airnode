@@ -270,3 +270,85 @@ describe('fetch (templates)', () => {
     expect(getTemplateMock).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('fetchTemplate', () => {
+  let airnode: ethers.Contract;
+
+  beforeEach(() => {
+    airnode = new ethers.Contract('address', ['ABI']);
+  });
+
+  it('fetches the individual template', async () => {
+    const rawTemplate = {
+      designatedWallet: 'designatedWallet-0',
+      endpointId: 'endpointId-0',
+      fulfillAddress: 'fulfillAddresses-0',
+      fulfillFunctionId: 'fulfillFunctionId-0',
+      parameters: '0x6874656d706c6174656576616c7565',
+      providerId: 'providerId-0',
+      requesterIndex: 'requesterIndex-0',
+    };
+    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+
+    const templateId = 'templateId';
+    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
+    expect(res).toEqual({
+      designatedWallet: 'designatedWallet-0',
+      encodedParameters: '0x6874656d706c6174656576616c7565',
+      endpointId: 'endpointId-0',
+      fulfillAddress: 'fulfillAddresses-0',
+      fulfillFunctionId: 'fulfillFunctionId-0',
+      id: templateId,
+      providerId: 'providerId-0',
+      requesterIndex: 'requesterIndex-0',
+    });
+    expect(getTemplateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries individual template fetches once', async () => {
+    const rawTemplate = {
+      designatedWallet: 'designatedWallet-0',
+      endpointId: 'endpointId-0',
+      fulfillAddress: 'fulfillAddresses-0',
+      fulfillFunctionId: 'fulfillFunctionId-0',
+      parameters: '0x6874656d706c6174656576616c7565',
+      providerId: 'providerId-0',
+      requesterIndex: 'requesterIndex-0',
+    };
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+
+    const templateId = 'templateId';
+    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
+    expect(res).toEqual({
+      designatedWallet: 'designatedWallet-0',
+      encodedParameters: '0x6874656d706c6174656576616c7565',
+      endpointId: 'endpointId-0',
+      fulfillAddress: 'fulfillAddresses-0',
+      fulfillFunctionId: 'fulfillFunctionId-0',
+      id: templateId,
+      providerId: 'providerId-0',
+      requesterIndex: 'requesterIndex-0',
+    });
+    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns nothing after all individual template calls are exhausted', async () => {
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    const templateId = 'templateId';
+    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Failed to fetch API call template:${templateId}`,
+        error: new Error('Server says no'),
+      },
+    ]);
+    expect(res).toEqual(null);
+    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+  });
+});
