@@ -200,5 +200,5 @@ export function processSpecs(
     valid = !messages.some((msg) => msg.level === 'error');
   }
 
-  return { valid, messages, output: specs === roots.specs };
+  return { valid, messages, output: roots.output };
 }

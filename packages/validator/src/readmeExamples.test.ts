@@ -7,6 +7,7 @@ import {
   missingParamMessage,
   sizeExceededMessage,
 } from './utils/messages';
+import { convertJson } from './converter';
 
 describe('readme examples', () => {
   it('basic', () => {
@@ -438,36 +439,223 @@ describe('readme examples', () => {
       valid: false,
       messages: [conditionNotMetMessage('items.anyExample', 'anyExample')],
     });
+  });
 
-    const optionalLevelTemplate = `
-      {
-        "levelExample": {
-          "__regexp": "^true$",
-          "__level": "error"
-        },
-          "__optional": {
-            "optionalExample": {}
+  describe('other', () => {
+    it('optional & level', () => {
+      const optionalLevelTemplate = `
+        {
+          "levelExample": {
+            "__regexp": "^true$",
+            "__level": "error"
+          },
+            "__optional": {
+              "optionalExample": {}
+            }
+        }
+        `;
+
+      const validOptionalLevelSpec = `
+        {
+          "levelExample": "true"
+        }
+        `;
+
+      const invalidOptionalLevelSpec = `
+        {
+          "levelExample": "false",
+          "optionalExample": {}
+        }
+        `;
+
+      expect(validateJson(validOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({
+        valid: false,
+        messages: [formattingMessage('levelExample', true)],
+      });
+    });
+
+    it('ignore', () => {
+      const ignoreTemplate = `
+        {
+          "ignoreExample": {
+            "param": {},
+            "__ignore": {}
           }
-      }
+        }
       `;
 
-    const validOptionalLevelSpec = `
+      const validIgnoreSpec = `
+        {
+          "ignoreExample": {
+            "param": "This is in template",
+            "other": "This is not in template"
+          }
+        }
+      `;
+
+      const invalidIgnoreSpec = `
+        {
+          "ignoreExample": {
+            "param": "This is in template",
+            "other": "This is not in template"
+          },
+          "notIgnored": "This is not in template"
+        }
+      `;
+
+      expect(validateJson(validIgnoreSpec, ignoreTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidIgnoreSpec, ignoreTemplate)).toMatchObject({
+        valid: true,
+        messages: [extraFieldMessage('notIgnored')],
+      });
+    });
+  });
+
+  describe('actions', () => {
+    it('copy', () => {
+      const copyTemplate = `
       {
-        "levelExample": "true"
+        "outerParameter": {
+          "innerParameter": {
+            "__action": [
+              {
+                "__copy": {
+                  "__target": "outerParameter.innerParameter"
+                }
+              },
+              {
+                "__copy": {
+                  "__target": "backup"
+                }
+              }
+            ]
+          }
+        }
       }
       `;
 
-    const invalidOptionalLevelSpec = `
+      const copyInput = `
       {
-        "levelExample": "false",
-        "optionalExample": {}
+        "outerParameter": {
+          "innerParameter": "valueToCopy"
+        }
       }
       `;
 
-    expect(validateJson(validOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({
-      valid: false,
-      messages: [formattingMessage('levelExample', true)],
+      expect(convertJson(copyInput, copyTemplate)).toEqual({
+        valid: true,
+        messages: [],
+        output: {
+          outerParameter: {
+            innerParameter: 'valueToCopy',
+          },
+          backup: 'valueToCopy',
+        },
+      });
+    });
+
+    it('insert', () => {
+      const insertTemplate = `
+      {
+        "outerParameter": {
+          "innerParameter": {
+            "__action": [
+              {
+                "__insert": {
+                  "__target": "outerParameter.innerParameter",
+                  "__value": "inserted"
+                }
+              },
+              {
+                "__insert": {
+                  "__target": "parameter",
+                  "__value": "inserted"
+                }
+              }
+            ]
+          }
+        }
+      }
+      `;
+
+      const insertInput = `
+      {
+        "outerParameter": {
+          "innerParameter": {}
+        }
+      }
+      `;
+
+      expect(convertJson(insertInput, insertTemplate).output).toEqual({
+        outerParameter: {
+          innerParameter: 'inserted',
+        },
+        parameter: 'inserted',
+      });
+    });
+
+    it('target path', () => {
+      const targetTemplate = `
+      {
+        "array": {
+          "__arrayItem": {
+            "__objectItem": {
+              "__action": [
+                {
+                  "__copy": {
+                    "__target": "array[].{{1}}"
+                  }
+                },
+                {
+                  "__insert": {
+                    "__target": "array[_].parameter",
+                    "__value": {}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+      `;
+
+      const targetInput = `
+      {
+        "array": [
+          {
+            "param0": "0"
+          },
+          {
+            "param1": "1"
+          },
+          {
+            "param2": "2"
+          }
+        ]
+      }
+      `;
+
+      expect(convertJson(targetInput, targetTemplate)).toEqual({
+        valid: true,
+        messages: [],
+        output: {
+          array: [
+            {
+              param0: '0',
+              parameter: {},
+            },
+            {
+              param1: '1',
+              parameter: {},
+            },
+            {
+              param2: '2',
+              parameter: {},
+            },
+          ],
+        },
+      });
     });
   });
 });
