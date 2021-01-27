@@ -1,5 +1,5 @@
 {
-	"__action": [
+	"__actions": [
 		{
 			"__insert": {
 				"__target": "oisFormat",
@@ -39,7 +39,7 @@
 	],
 	"info": {
 		"title": {
-			"__action": [
+			"__actions": [
 				{
 					"__copy": {
 						"__target": "title"
@@ -48,7 +48,7 @@
 			]
 		},
 		"version": {
-			"__action": [
+			"__actions": [
 				{
 					"__copy": {
 						"__target": "version"
@@ -62,7 +62,7 @@
 		"__arrayItem": {
 			"url": {
 				"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
-				"__action": [
+				"__actions": [
 					{
 						"__copy": {
 							"__target": "apiSpecifications.servers[0].url"
@@ -77,7 +77,7 @@
 		"__objectItem": {
 			"__keyRegexp": "^(get|post)$",
 			"__objectItem": {
-				"__action": [
+				"__actions": [
 					{
 						"__insert": {
 							"__target": "apiSpecifications.paths.{{1}}.{{2}}.parameters",
@@ -106,7 +106,7 @@
 				"parameters": {
 					"__arrayItem": {
 						"name": {
-							"__action": [
+							"__actions": [
 								{
 									"__copy": {
 										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.name"
@@ -126,7 +126,7 @@
 						},
 						"in": {
 							"__regexp": "^(path|query|header|cookie)$",
-							"__action": [
+							"__actions": [
 								{
 									"__copy": {
 										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.in"
@@ -147,7 +147,7 @@
 									},
 									"__then": {
 										"default": {
-											"__action": [
+											"__actions": [
 												{
 													"__copy": {
 														"__target": "endpoints[_].parameters[_].default"
@@ -183,7 +183,7 @@
 						},
 						"__then": {
 							"type": {
-								"__action": [
+								"__actions": [
 									{
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
@@ -199,7 +199,7 @@
 						},
 						"__then": {
 							"in": {
-								"__action": [
+								"__actions": [
 									{
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
@@ -215,7 +215,7 @@
 						},
 						"__then": {
 							"name": {
-								"__action": [
+								"__actions": [
 									{
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.name"
@@ -238,7 +238,7 @@
 						"__then": {
 							"scheme": {
 								"__regexp": "^(Basic|Bearer)$",
-								"__action": [
+								"__actions": [
 									{
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.scheme"

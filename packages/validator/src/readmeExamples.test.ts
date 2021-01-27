@@ -518,7 +518,7 @@ describe('readme examples', () => {
       {
         "outerParameter": {
           "innerParameter": {
-            "__action": [
+            "__actions": [
               {
                 "__copy": {
                   "__target": "outerParameter.innerParameter"
@@ -560,7 +560,7 @@ describe('readme examples', () => {
       {
         "outerParameter": {
           "innerParameter": {
-            "__action": [
+            "__actions": [
               {
                 "__insert": {
                   "__target": "outerParameter.innerParameter",
@@ -601,7 +601,7 @@ describe('readme examples', () => {
         "array": {
           "__arrayItem": {
             "__objectItem": {
-              "__action": [
+              "__actions": [
                 {
                   "__copy": {
                     "__target": "array[].{{1}}"

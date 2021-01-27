@@ -127,7 +127,7 @@ export function processSpecs(
 
         break;
 
-      case '__action':
+      case '__actions':
         execute(specs, template[key], `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`, roots);
 
         break;
