@@ -1,4 +1,4 @@
-import { validate } from './validator';
+import { validate } from '../validator';
 
 if (process.env.npm_config_specs || process.env.npm_config_template) {
   console.log(validate(process.env.npm_config_specs, process.env.npm_config_template));

@@ -24,6 +24,16 @@ Which can be simplified in the same manner as `validate` command and invoked wit
 npm run validateConfigSecurity exampleSpecs/config.specs.json exampleSpecs/security.specs.json
 ```
 
+Convertor works the same way as validator and can be invoked with the `convert` command, for example:
+```sh
+npm run convert --template="templates/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
+```
+
+Converting OAS to config and security can be invoked without specifying template:
+```sh
+npm run convertOAS "exampleSpecs/OAS.specs.json"
+```
+
 # Output
 
 Validator will print the result into console as a JSON in the following format:
@@ -35,7 +45,7 @@ Validator will print the result into console as a JSON in the following format:
 }
 ```
 
-Convertor will include an extra object `output`, which contains transformed specification if any `__action` was specified.
+Convertor will include an extra object `output`, which contains transformed specification if any `__actions` was specified.
 
 Array `messages` may contain message objects:
 
@@ -686,14 +696,14 @@ If any action is specified in template, object `output` will be returned when pr
 
 ### Copy action
 
-`__copy` object located inside `__action` array of some parameter will copy the value of parameter it is nested in into provided `__target`, which is evaluated as an absolute path.
+`__copy` object located inside `__actions` array of some parameter will copy the value of parameter it is nested in into provided `__target`, which is evaluated as an absolute path.
 
 #### Template
 ```json
 {
 	"outerParameter": {
 		"innerParameter": {
-			"__action": [
+			"__actions": [
 				{
 					"__copy": {
 						"__target": "outerParameter.innerParameter"
@@ -740,7 +750,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 {
 	"outerParameter": {
 		"innerParameter": {
-			"__action": [
+			"__actions": [
 				{
 					"__insert": {
 						"__target": "outerParameter.innerParameter",
@@ -791,7 +801,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 	"array": {
 		"__arrayItem": {
 			"index": {
-				"__action": [
+				"__actions": [
 					{
 						"__copy": {
 							"__target": "array[].{{1}}"

@@ -5,7 +5,7 @@ import { validateRegexp } from './validators/regexpValidator';
 import { validateOptional } from './validators/optionalValidator';
 import { isAnyParamValid } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
-import { execute } from './validators/action';
+import { execute } from './utils/action';
 import fs from 'fs';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
