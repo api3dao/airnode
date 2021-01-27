@@ -1,4 +1,4 @@
-import { convert } from './converter';
+import { convert } from './convertor';
 import { missingParamMessage } from './utils/messages';
 
 const generatedOIS = {
@@ -207,7 +207,7 @@ const generatedOIS = {
   ],
 };
 
-describe('converter', () => {
+describe('convertor', () => {
   it('OAS2OIS', () => {
     expect(convert('exampleSpecs/OAS.specs.json', 'templates/OAS2OIS.json')).toEqual({
       valid: false,

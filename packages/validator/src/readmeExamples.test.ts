@@ -7,7 +7,7 @@ import {
   missingParamMessage,
   sizeExceededMessage,
 } from './utils/messages';
-import { convertJson } from './converter';
+import { convertJson } from './convertor';
 
 describe('readme examples', () => {
   it('basic', () => {
