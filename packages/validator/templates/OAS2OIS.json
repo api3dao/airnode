@@ -101,6 +101,28 @@
 							"__target": "endpoints[_].operation.path",
 							"__value": "{{1}}"
 						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].reservedParameters",
+							"__value": [
+								{
+									"name": "_type"
+								},
+								{
+									"name": "_path"
+								},
+								{
+									"name": "_times"
+								}
+							]
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].fixedOperationParameters",
+							"__value": []
+						}
 					}
 				],
 				"parameters": {

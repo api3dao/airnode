@@ -94,6 +94,18 @@ const generatedOIS = {
         method: 'get',
         path: '/ping',
       },
+      reservedParameters: [
+        {
+          name: '_type',
+        },
+        {
+          name: '_path',
+        },
+        {
+          name: '_times',
+        },
+      ],
+      fixedOperationParameters: [],
     },
     {
       name: '/simple/price',
@@ -101,6 +113,18 @@ const generatedOIS = {
         method: 'get',
         path: '/simple/price',
       },
+      reservedParameters: [
+        {
+          name: '_type',
+        },
+        {
+          name: '_path',
+        },
+        {
+          name: '_times',
+        },
+      ],
+      fixedOperationParameters: [],
       parameters: [
         {
           name: 'ids',
@@ -152,6 +176,18 @@ const generatedOIS = {
         method: 'get',
         path: '/simple/token_price/{id}',
       },
+      reservedParameters: [
+        {
+          name: '_type',
+        },
+        {
+          name: '_path',
+        },
+        {
+          name: '_times',
+        },
+      ],
+      fixedOperationParameters: [],
       parameters: [
         {
           name: 'id',
