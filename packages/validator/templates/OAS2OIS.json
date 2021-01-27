@@ -20,7 +20,7 @@
 		},
 		{
 			"__insert": {
-				"__target": "apiSpecifications.components.security",
+				"__target": "apiSpecifications.security",
 				"__value": {}
 			}
 		},
@@ -245,7 +245,7 @@
 									},
 									{
 										"__insert": {
-											"__target": "apiSpecifications.components.security.{{2}}",
+											"__target": "apiSpecifications.security.{{2}}",
 											"__value": []
 										}
 									}
@@ -268,7 +268,7 @@
 									},
 									{
 										"__insert": {
-											"__target": "apiSpecifications.components.security.{{2}}",
+											"__target": "apiSpecifications.security.{{2}}",
 											"__value": []
 										}
 									}

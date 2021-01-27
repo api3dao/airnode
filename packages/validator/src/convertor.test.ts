@@ -84,8 +84,8 @@ const generatedOIS = {
     },
     components: {
       securitySchemes: {},
-      security: {},
     },
+    security: {},
   },
   endpoints: [
     {
