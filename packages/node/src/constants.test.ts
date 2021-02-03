@@ -18,6 +18,6 @@ describe('constants', () => {
     expect(constants.EVM_PROVIDER_TIMEOUT).toEqual(10_000);
     expect(constants.OPERATION_RETRIES).toEqual(2);
     expect(constants.WORKER_CALL_API_TIMEOUT).toEqual(29_500);
-    expect(constants.WORKER_PROVIDER_INITIALIZATION_TIMEOUT).toEqual(20_000);
+    expect(constants.WORKER_PROVIDER_INITIALIZATION_TIMEOUT).toEqual(19_500);
   });
 });
