@@ -103,7 +103,7 @@ export async function fetch(
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE);
 
-  // Create an instance of earch contract that we can re-use
+  // Create an instance of each contract that we can re-use
   const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
 
