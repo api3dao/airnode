@@ -27,6 +27,16 @@ export function replaceConditionalMatch(match: string, template: any): any {
   const keys = Object.keys(template);
   const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
 
+  if (Array.isArray(template)) {
+    return template.map((value) => {
+      if (typeof value === 'string') {
+        return value.replace(/__match/g, match);
+      }
+
+      return replaceConditionalMatch(match, value);
+    });
+  }
+
   return filteredKeys.reduce((acc, key) => {
     const newKey = key.replace(/__match/g, match);
 
@@ -185,4 +195,51 @@ export function parseParamPath(paramPath: string, path: string): string {
   }
 
   return paramPath;
+}
+
+/**
+ * Returns object located on paramPath in specs
+ * @param paramPath - path to parameter in specs that will be returned
+ * @param specs - specification that will be searched for parameter
+ * @param insertPath - won't return null if paramPath is not in the specs, but insert all missing parameters into specs
+ * @returns object located on paramPath in specs or null if object does not exists in specs
+ */
+export function getSpecsFromPath(paramPath: string, specs: object, insertPath = false) {
+  let paramName = paramPath.split('.')[0];
+
+  const indexMatches = paramName.match(/\[([0-9]+)\]/g);
+
+  if (indexMatches) {
+    paramName = paramName.replace(`[${indexMatches[0]}]`, '');
+  }
+
+  if (!(paramName in specs)) {
+    if (!insertPath) {
+      return null;
+    }
+
+    if (indexMatches) {
+      specs[paramName] = [];
+
+      for (let i = 0; i < parseInt(indexMatches[0]); i++) {
+        specs[paramName].push({});
+      }
+    } else {
+      specs[paramName] = {};
+    }
+  }
+
+  specs = specs[paramName];
+
+  if (indexMatches) {
+    specs = specs[parseInt(indexMatches[0])];
+  }
+
+  paramPath = paramPath.replace(`${paramName}${indexMatches ? `[${indexMatches[0]}]` : ''}`, '').replace('.', '');
+
+  if (!paramPath.length) {
+    return specs;
+  }
+
+  return getSpecsFromPath(paramPath, specs, insertPath);
 }
