@@ -32,11 +32,12 @@ export async function fetchAuthorizationStatus(
   const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, authorized] = await go(retryableContractCall);
-  if (err || !authorized) {
-    const log = logger.pend('ERROR', 'Failed to fetch authorization details', err);
+  if (err || isNil(authorized)) {
+    const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`, err);
     return [[log], null];
   }
-  return [[], authorized];
+  const successLog = logger.pend('INFO', `Fetched authorization status for Request:${apiCall.id}`);
+  return [[successLog], authorized];
 }
 
 async function fetchAuthorizationStatuses(
@@ -75,7 +76,7 @@ async function fetchAuthorizationStatuses(
     });
     const results = await Promise.all(promises);
     const individualLogs = flatMap(results, (v) => v[0]);
-    const authorizationsWithId = results.filter((v) => !isNil(v[1])).map((v) => v[1]);
+    const authorizationsWithId = results.filter((v) => !isNil(v[1].authorized)).map((v) => v[1]);
     const authorizationsById: { [id: string]: boolean } = authorizationsWithId.reduce((acc, status) => {
       return { ...acc, [status.id]: status.authorized };
     }, {});

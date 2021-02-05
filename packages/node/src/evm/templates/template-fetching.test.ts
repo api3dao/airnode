@@ -306,7 +306,7 @@ describe('fetchTemplate', () => {
     expect(getTemplateMock).toHaveBeenCalledTimes(1);
   });
 
-  it('retries individual template fetches once', async () => {
+  it('retries individual template calls once', async () => {
     const rawTemplate = {
       designatedWallet: 'designatedWallet-0',
       endpointId: 'endpointId-0',
