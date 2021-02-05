@@ -612,11 +612,35 @@ describe('readme examples', () => {
                     "__target": "array[_].parameter",
                     "__value": {}
                   }
+                },
+                {
+                  "__insert": {
+                    "__target": "array.__all.inserted",
+                    "__value": {}
+                  }
                 }
               ]
             }
           }
-        }
+        },
+        "all": {
+          "__actions": [
+            {
+              "__copy": {
+                "__target": "all"
+              }
+            }
+          ],
+          "__ignore": {}
+        },
+        "__actions": [
+          {
+            "__insert": {
+              "__target": "all.__all.inserted",
+              "__value": {}
+            }
+          }
+        ]
       }
       `;
 
@@ -632,7 +656,12 @@ describe('readme examples', () => {
           {
             "param2": "2"
           }
-        ]
+        ],
+        "all": {
+          "item1": {},
+          "item2": {},
+          "item3": {}
+        }
       }
       `;
 
@@ -644,16 +673,30 @@ describe('readme examples', () => {
             {
               param0: '0',
               parameter: {},
+              inserted: {},
             },
             {
               param1: '1',
               parameter: {},
+              inserted: {},
             },
             {
               param2: '2',
               parameter: {},
+              inserted: {},
             },
           ],
+          all: {
+            item1: {
+              inserted: {},
+            },
+            item2: {
+              inserted: {},
+            },
+            item3: {
+              inserted: {},
+            },
+          },
         },
       });
     });

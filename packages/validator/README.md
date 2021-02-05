@@ -792,7 +792,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 
 ### Target path
 
-`__target` in actions specifies path to parameter that will be modified, there can be an array in this path, to deal with this path can contain `[]` which will push back new item into the array and use it in the target, or path can use `[_]` which points to last item in the array. Parameter from path where the action is located can be accessed via `{{X}}`, where X is position of the parameter in the path numbered from 0.
+`__target` in actions specifies path to parameter that will be modified, there can be an array in this path, to deal with this path can contain `[]` which will push back new item into the array and use it in the target, or path can use `[_]` which points to last item in the array. Parameter from path where the action is located can be accessed via `{{X}}`, where X is position of the parameter in the path numbered from 0. Target path can also include keyword `__all`, in which the action will be performed on every child of previous element.
 
 #### Template
 
@@ -800,7 +800,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 {
 	"array": {
 		"__arrayItem": {
-			"index": {
+			"__objectItem": {
 				"__actions": [
 					{
 						"__copy": {
@@ -812,11 +812,35 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 							"__target": "array[_].parameter",
 							"__value": {}
 						}
+					},
+					{
+						"__insert": {
+							"__target": "array.__all.inserted",
+							"__value": {}
+						}
 					}
 				]
 			}
 		}
-	}
+	},
+	"all": {
+		"__actions": [
+			{
+				"__copy": {
+					"__target": "all"
+				}
+			}
+		],
+		"__ignore": {}
+	},
+	"__actions": [
+		{
+			"__insert": {
+				"__target": "all.__all.inserted",
+				"__value": {}
+			}
+		}
+	]
 }
 ```
 ---
@@ -834,7 +858,12 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 		{
 			"param2": "2"
 		}
-	]
+	],
+	"all": {
+		"item1": {},
+		"item2": {},
+		"item3": {}
+	}
 }
 ```
 #### Expected output
@@ -844,17 +873,31 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 	"array": [
 		{
 			"param0": "0",
-			"parameter": {}
+			"parameter": {},
+			"inserted": {}
 		},
 		{
 			"param1": "1",
-			"parameter": {}
+			"parameter": {},
+			"inserted": {}
 		},
 		{
 			"param2": "2",
-			"parameter": {}
+			"parameter": {},
+			"inserted": {}
 		}
-	]
+	],
+	"all": {
+		"item1": {
+			"inserted": {}
+		},
+		"item2": {
+			"inserted": {}
+		},
+		"item3": {
+			"inserted": {}
+		}
+	}
 }
 ```
 ---

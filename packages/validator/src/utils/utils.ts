@@ -118,63 +118,82 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
  * @param value - value that will be inserted
  */
 export function insertValue(paramPath: string, spec: any, value: any) {
-  for (let param of paramPath.split('.')) {
-    if (param === '') {
-      for (const key of Object.keys(value)) {
-        spec[key] = JSON.parse(JSON.stringify(value[key]));
-      }
+  let param = paramPath.split('.')[0];
 
-      break;
+  if (param === '') {
+    for (const key of Object.keys(value)) {
+      spec[key] = JSON.parse(JSON.stringify(value[key]));
     }
 
-    if (param.match(/\[([0-9]*|_)\]$/)) {
-      let index = -1;
+    return;
+  }
 
-      if (param.match(/\[([0-9]+)\]$/)) {
-        index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
+  if (param === '__all') {
+    paramPath = paramPath.replace('__all', '').replace('.', '');
+
+    if (Array.isArray(spec)) {
+      spec.forEach((item) => {
+        insertValue(paramPath, item, value);
+      });
+    } else {
+      for (const key in spec) {
+        insertValue(paramPath, spec[key], value);
       }
-
-      if (param.match(/\[_\]$/)) {
-        index = -2;
-      }
-
-      param = param.replace(/\[([0-9]*|_)\]$/, '');
-
-      if (!spec[param]) {
-        spec[param] = [];
-      }
-
-      spec = spec[param];
-
-      if (index === -2) {
-        index = spec.length - 1;
-      }
-
-      if (index === -1) {
-        index = spec.length;
-      }
-
-      if (spec.length <= index) {
-        spec.push({});
-      }
-
-      spec = spec[index];
-
-      continue;
     }
 
-    if (paramPath.endsWith(param)) {
-      spec[param] = JSON.parse(JSON.stringify(value));
+    return;
+  }
 
-      break;
+  if (param.match(/\[([0-9]*|_)\]$/)) {
+    let index = -1;
+
+    if (param.match(/\[([0-9]+)\]$/)) {
+      index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
     }
+
+    if (param.match(/\[_\]$/)) {
+      index = -2;
+    }
+
+    param = param.replace(/\[([0-9]*|_)\]$/, '');
 
     if (!spec[param]) {
-      spec[param] = {};
+      spec[param] = [];
     }
 
     spec = spec[param];
+
+    if (index === -2) {
+      index = spec.length - 1;
+    }
+
+    if (index === -1) {
+      index = spec.length;
+    }
+
+    if (spec.length <= index) {
+      spec.push({});
+    }
+
+    spec = spec[index];
+
+    insertValue(paramPath.replace(paramPath.split('.')[0], '').replace('.', ''), spec, value);
+    return;
   }
+
+  if (paramPath.endsWith(param)) {
+    spec[param] = JSON.parse(JSON.stringify(value));
+
+    return;
+  }
+
+  if (!spec[param]) {
+    spec[param] = {};
+  }
+
+  spec = spec[param];
+
+  insertValue(paramPath.replace(`${param}`, '').replace('.', ''), spec, value);
 }
 
 /**
