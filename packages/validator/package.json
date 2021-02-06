@@ -21,8 +21,7 @@
     "test": "jest",
     "validate": "ts-node src/commands/validateCmd.ts",
     "validateConfigSecurity": "ts-node src/commands/validateConfigSecurityCmd.ts",
-    "convert": "ts-node src/commands/convertCmd.ts",
-    "convertOAS": "ts-node src/commands/convertOAS2OISCmd.ts"
+    "convert": "ts-node src/commands/convertCmd.ts"
   },
   "dependencies": {
     "ts-node": "^9.0.0"
