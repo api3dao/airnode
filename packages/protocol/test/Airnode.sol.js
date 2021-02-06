@@ -261,31 +261,6 @@ describe('fulfill', function () {
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeRequest(
-          airnode,
-          requestTimeAirnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          templateId,
-          providerId,
-          requestTimeRequesterIndex,
-          requestTimeDesignatedWalletAddress,
-          requestTimeFulfillAddress,
-          fulfillFunctionId,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(requestTimeDesignatedWallet)
-            .fulfill(requestId, falseProviderId, statusCode, data, requestTimeFulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
     context('Fulfill address is incorrect', async function () {
       it('reverts', async function () {
         const requestId = await makeRequest(
@@ -407,28 +382,6 @@ describe('fulfill', function () {
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeShortRequest(
-          airnode,
-          airnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          templateId,
-          providerId,
-          requesterIndex,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fulfill(requestId, falseProviderId, statusCode, data, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
     context('Fulfill address is incorrect', async function () {
       it('reverts', async function () {
         const requestId = await makeShortRequest(
@@ -540,31 +493,6 @@ describe('fulfill', function () {
           airnode
             .connect(designatedWallet)
             .fulfill(falseRequestId, providerId, statusCode, data, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeFullRequest(
-          airnode,
-          airnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          providerId,
-          endpointId,
-          requesterIndex,
-          designatedWalletAddress,
-          fulfillAddress,
-          fulfillFunctionId,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fulfill(requestId, falseProviderId, statusCode, data, fulfillAddress, fulfillFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -717,37 +645,6 @@ describe('fulfillBytes', function () {
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeRequest(
-          airnode,
-          requestTimeAirnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          templateId,
-          providerId,
-          requestTimeRequesterIndex,
-          requestTimeDesignatedWalletAddress,
-          requestTimeFulfillAddress,
-          fulfillBytesFunctionId,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(requestTimeDesignatedWallet)
-            .fulfillBytes(
-              requestId,
-              falseProviderId,
-              statusCode,
-              bytesData,
-              requestTimeFulfillAddress,
-              fulfillBytesFunctionId,
-              { gasLimit: 500000 }
-            )
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
     context('Fulfill address is incorrect', async function () {
       it('reverts', async function () {
         const requestId = await makeRequest(
@@ -882,28 +779,6 @@ describe('fulfillBytes', function () {
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeShortRequest(
-          airnode,
-          airnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          templateBytesId,
-          providerId,
-          requesterIndex,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fulfillBytes(requestId, falseProviderId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
     context('Fulfill address is incorrect', async function () {
       it('reverts', async function () {
         const requestId = await makeShortRequest(
@@ -1024,31 +899,6 @@ describe('fulfillBytes', function () {
           airnode
             .connect(designatedWallet)
             .fulfillBytes(falseRequestId, providerId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeFullRequest(
-          airnode,
-          airnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          providerId,
-          endpointId,
-          requesterIndex,
-          designatedWalletAddress,
-          fulfillAddress,
-          fulfillBytesFunctionId,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fulfillBytes(requestId, falseProviderId, statusCode, bytesData, fulfillAddress, fulfillBytesFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -1180,29 +1030,6 @@ describe('fail', function () {
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeRequest(
-          airnode,
-          requestTimeAirnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          templateId,
-          providerId,
-          requestTimeRequesterIndex,
-          requestTimeDesignatedWalletAddress,
-          requestTimeFulfillAddress,
-          fulfillFunctionId,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(requestTimeDesignatedWallet)
-            .fail(requestId, falseProviderId, requestTimeFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
     context('Fulfill address is incorrect', async function () {
       it('reverts', async function () {
         const requestId = await makeRequest(
@@ -1314,26 +1141,6 @@ describe('fail', function () {
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeShortRequest(
-          airnode,
-          airnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          templateId,
-          providerId,
-          requesterIndex,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
     context('Fulfill address is incorrect', async function () {
       it('reverts', async function () {
         const requestId = await makeShortRequest(
@@ -1439,29 +1246,6 @@ describe('fail', function () {
           airnode
             .connect(designatedWallet)
             .fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('Incorrect fulfillment parameters');
-      });
-    });
-    context('Provider ID is incorrect', async function () {
-      it('reverts', async function () {
-        const requestId = await makeFullRequest(
-          airnode,
-          airnodeClient,
-          roles.requesterAdmin,
-          roles.clientUser,
-          providerId,
-          endpointId,
-          requesterIndex,
-          designatedWalletAddress,
-          fulfillAddress,
-          fulfillFunctionId,
-          requestTimeParameters
-        );
-        const falseProviderId = '0x000000000000000000000000000000000000000000000000000000000000dead';
-        await expect(
-          airnode
-            .connect(designatedWallet)
-            .fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
