@@ -75,13 +75,13 @@ async function fetchAuthorizationStatuses(
       return result;
     });
     const results = await Promise.all(promises);
-    const individualLogs = flatMap(results, (v) => v[0]);
-    const authorizationsWithId = results.filter((v) => !isNil(v[1].authorized)).map((v) => v[1]);
+    const allLogs = flatMap(results, (r) => r[0]);
+    const authorizationsWithId = results.filter((r) => !isNil(r[1].authorized)).map((r) => r[1]);
     const authorizationsById: { [id: string]: boolean } = authorizationsWithId.reduce((acc, status) => {
       return { ...acc, [status.id]: status.authorized };
     }, {});
 
-    return [[groupLog, ...individualLogs], authorizationsById];
+    return [[groupLog, ...allLogs], authorizationsById];
   }
 
   // Authorization statuses are returned in the same order that they are requested.
