@@ -14,6 +14,8 @@ function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
     case 'regular':
       return [
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
+        { value: apiCall.clientAddress, type: 'address' },
+        { value: apiCall.providerId, type: 'bytes32' },
         { value: apiCall.templateId, type: 'bytes32' },
         { value: apiCall.encodedParameters, type: 'bytes' },
       ];
@@ -21,6 +23,7 @@ function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
     case 'full':
       return [
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
+        { value: apiCall.clientAddress, type: 'address' },
         { value: apiCall.providerId, type: 'bytes32' },
         { value: apiCall.endpointId, type: 'bytes32' },
         { value: apiCall.encodedParameters, type: 'bytes' },
