@@ -13,7 +13,7 @@ import "./TemplateStore.sol";
 contract Airnode is EndpointStore, TemplateStore, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
-    uint256 private noRequests = 0;
+    mapping(address => uint256) public clientAddressToNoRequests;
 
 
     /// @notice Called by the client to make a regular request. A regular
@@ -48,14 +48,16 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
             "Client not endorsed by requester"
             );
+        uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
+        bytes32 providerId = templates[templateId].providerId;
         requestId = keccak256(abi.encode(
-            noRequests,
+            clientNoRequests,
+            msg.sender,
+            providerId,
             templateId,
             parameters
             ));
-        bytes32 providerId = templates[templateId].providerId;
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
-            providerId,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId
@@ -63,7 +65,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         emit ClientRequestCreated(
             providerId,
             requestId,
-            noRequests,
+            clientNoRequests,
             msg.sender,
             templateId,
             requesterIndex,
@@ -72,7 +74,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             fulfillFunctionId,
             parameters
         );
-        noRequests++;
+        clientAddressToNoRequests[msg.sender]++;
     }
 
     /// @notice Called by the requester to make a short request. A short
@@ -97,13 +99,15 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requesterIndexToClientAddressToEndorsementStatus[template.requesterIndex][msg.sender],
             "Client not endorsed by requester"
             );
+        uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
         requestId = keccak256(abi.encode(
-            noRequests,
+            clientNoRequests,
+            msg.sender,
+            template.providerId,
             templateId,
             parameters
             ));
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
-            template.providerId,
             template.designatedWallet,
             template.fulfillAddress,
             template.fulfillFunctionId
@@ -111,12 +115,12 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         emit ClientShortRequestCreated(
             templates[templateId].providerId,
             requestId,
-            noRequests,
+            clientNoRequests,
             msg.sender,
             templateId,
             parameters
         );
-        noRequests++;
+        clientAddressToNoRequests[msg.sender]++;
     }
 
     /// @notice Called by the requester to make a full request. A full request
@@ -153,14 +157,15 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
             "Client not endorsed by requester"
             );
+        uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
         requestId = keccak256(abi.encode(
-            noRequests,
+            clientNoRequests,
+            msg.sender,
             providerId,
             endpointId,
             parameters
             ));
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
-            providerId,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId
@@ -168,7 +173,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         emit ClientFullRequestCreated(
             providerId,
             requestId,
-            noRequests,
+            clientNoRequests,
             msg.sender,
             endpointId,
             requesterIndex,
@@ -177,7 +182,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             fulfillFunctionId,
             parameters
         );
-        noRequests++;
+        clientAddressToNoRequests[msg.sender]++;
     }
 
     /// @notice Called by the oracle node to fulfill individual requests
@@ -204,7 +209,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            providerId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -251,7 +255,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            providerId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -290,7 +293,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            providerId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -307,19 +309,16 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @dev Reverts unless the incoming fulfillment parameters do not match
     /// the ones provided in the request
     /// @param requestId Request ID
-    /// @param providerId Provider ID from ProviderStore
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     modifier onlyCorrectFulfillmentParameters(
         bytes32 requestId,
-        bytes32 providerId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )
     {
         bytes32 incomingFulfillmentParameters = keccak256(abi.encodePacked(
-            providerId,
             msg.sender,
             fulfillAddress,
             fulfillFunctionId
