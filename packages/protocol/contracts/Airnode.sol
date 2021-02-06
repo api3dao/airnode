@@ -49,15 +49,15 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
             "Client not endorsed by requester"
             );
         uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
-        bytes32 providerId = templates[templateId].providerId;
         requestId = keccak256(abi.encode(
             clientNoRequests,
             msg.sender,
-            providerId,
             templateId,
             parameters
             ));
+        bytes32 providerId = templates[templateId].providerId;
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
+            providerId,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId
@@ -103,11 +103,11 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         requestId = keccak256(abi.encode(
             clientNoRequests,
             msg.sender,
-            template.providerId,
             templateId,
             parameters
             ));
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
+            template.providerId,
             template.designatedWallet,
             template.fulfillAddress,
             template.fulfillFunctionId
@@ -161,11 +161,11 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         requestId = keccak256(abi.encode(
             clientNoRequests,
             msg.sender,
-            providerId,
             endpointId,
             parameters
             ));
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
+            providerId,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId
@@ -209,6 +209,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
+            providerId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -255,6 +256,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
+            providerId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -293,6 +295,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
+            providerId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -309,16 +312,19 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
     /// @dev Reverts unless the incoming fulfillment parameters do not match
     /// the ones provided in the request
     /// @param requestId Request ID
+    /// @param providerId Provider ID from ProviderStore
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     modifier onlyCorrectFulfillmentParameters(
         bytes32 requestId,
+        bytes32 providerId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )
     {
         bytes32 incomingFulfillmentParameters = keccak256(abi.encodePacked(
+            providerId,
             msg.sender,
             fulfillAddress,
             fulfillFunctionId

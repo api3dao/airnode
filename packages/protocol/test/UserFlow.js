@@ -212,11 +212,10 @@ describe('User flow', function () {
     // Verify that the request parameters are not tampered with
     const expectedRequestId = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
-        ['uint256', 'address', 'bytes32', 'bytes32', 'bytes'],
+        ['uint256', 'address', 'bytes32', 'bytes'],
         [
           parsedRequestLog.args.noRequests,
           parsedRequestLog.args.clientAddress,
-          parsedRequestLog.args.providerId,
           parsedRequestLog.args.templateId,
           parsedRequestLog.args.parameters,
         ]

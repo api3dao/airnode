@@ -44,8 +44,8 @@ async function makeRequest(
   );
   const expectedRequestId = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
-      ['uint256', 'address', 'bytes32', 'bytes32', 'bytes'],
-      [log.args.noRequests, requestTimeFulfillAddress, providerId, templateId, requestTimeParameters]
+      ['uint256', 'address', 'bytes32', 'bytes'],
+      [log.args.noRequests, requestTimeFulfillAddress, templateId, requestTimeParameters]
     )
   );
   expect(expectedRequestId).to.equal(log.args.requestId);
@@ -72,8 +72,8 @@ async function makeShortRequest(
   });
   const expectedRequestId = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
-      ['uint256', 'address', 'bytes32', 'bytes32', 'bytes'],
-      [log.args.noRequests, airnodeClient.address, providerId, templateId, requestTimeParameters]
+      ['uint256', 'address', 'bytes32', 'bytes'],
+      [log.args.noRequests, airnodeClient.address, templateId, requestTimeParameters]
     )
   );
   expect(expectedRequestId).to.equal(log.args.requestId);
@@ -122,8 +122,8 @@ async function makeFullRequest(
   );
   const expectedRequestId = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(
-      ['uint256', 'address', 'bytes32', 'bytes32', 'bytes'],
-      [log.args.noRequests, fulfillAddress, providerId, endpointId, requestTimeParameters]
+      ['uint256', 'address', 'bytes32', 'bytes'],
+      [log.args.noRequests, fulfillAddress, endpointId, requestTimeParameters]
     )
   );
   expect(expectedRequestId).to.equal(log.args.requestId);
