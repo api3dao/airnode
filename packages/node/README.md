@@ -141,6 +141,19 @@ yarn run test:watch
 
 End-to-end (E2E) tests test the entire Airnode protocol, from start to finish. This includes (but is not limited to): deploying Airnode, creating the relevant onchain data, making onchain requests, invoking Airnode and testing relevant expected outcomes.
 
+In order to run E2E tests, you will need to have both an Ethereum node and the "dummy" web API running. The simplest way to accomplish this is by running:
+
+```sh
+# Start an Ethereum node and mock API
+yarn run dev:eth-node
+yarn run dev:api
+
+# OR
+
+# Start both an Ethereum node and the "dummy" web API as background processes
+yarn run dev:background
+```
+
 E2E tests are run in parallel and can be run using the following commands:
 
 ```sh
@@ -149,13 +162,6 @@ yarn run test:e2e
 
 # Run a specific E2E test and include Airnode log output. Change the test in package.json
 yarn run test:e2e:debug
-```
-
-In order to run E2E tests, you will need to have both an Ethereum node and the "dummy" web API running. The simplest way to accomplish this is by running:
-
-```sh
-# Start both an Ethereum node and the "dummy" web API as background processes
-yarn run dev:background
 ```
 
 For more information, please refer to the [operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
