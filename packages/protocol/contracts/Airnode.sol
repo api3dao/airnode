@@ -13,7 +13,7 @@ import "./TemplateStore.sol";
 contract Airnode is EndpointStore, TemplateStore, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
-    uint256 private noRequests = 0;
+    uint256 private noRequests = 1;
 
 
     /// @notice Called by the client to make a regular request. A regular

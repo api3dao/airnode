@@ -14,7 +14,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
 
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
-    uint256 private noWithdrawalRequests = 0;
+    uint256 private noWithdrawalRequests = 1;
 
 
     /// @notice Allows the master wallet (m) of the provider to create a
