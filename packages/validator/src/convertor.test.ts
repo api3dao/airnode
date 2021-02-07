@@ -14,7 +14,25 @@ const generatedCS = {
       region: '{FILL}',
       logFormat: '{FILL}',
       chains: [],
-      triggers: {},
+      triggers: {
+        request: [
+          {
+            endpointName: '/ping',
+            oisTitle: 'CoinGecko API V3',
+            endpointId: '{FILL}',
+          },
+          {
+            endpointName: '/simple/price',
+            oisTitle: 'CoinGecko API V3',
+            endpointId: '{FILL}',
+          },
+          {
+            endpointName: '/simple/token_price/{id}',
+            oisTitle: 'CoinGecko API V3',
+            endpointId: '{FILL}',
+          },
+        ],
+      },
       ois: [generatedOIS],
     },
   },

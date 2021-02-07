@@ -13,7 +13,9 @@
 						"region": "{FILL}",
 						"logFormat": "{FILL}",
 						"chains": [],
-						"triggers": {},
+						"triggers": {
+							"request": []
+						},
 						"ois": [{}]
 					}
 				}
@@ -68,15 +70,6 @@
 			}
 		]
 	},
-	"title": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.ois[0].title"
-				}
-			}
-		]
-	},
 	"apiSpecifications": {
 		"__actions": [
 			{
@@ -104,6 +97,38 @@
 			{
 				"__copy": {
 					"__target": "config.nodeSettings.ois[0].endpoints"
+				}
+			}
+		],
+		"__arrayItem": {
+			"name": {
+				"__actions": [
+					{
+						"__copy": {
+							"__target": "config.nodeSettings.triggers.request[].endpointName"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "config.nodeSettings.triggers.request[_].endpointId",
+							"__value": "{FILL}"
+						}
+					}
+				]
+			},
+			"__ignore": {}
+		}
+	},
+	"title": {
+		"__actions": [
+			{
+				"__copy": {
+					"__target": "config.nodeSettings.ois[0].title"
+				}
+			},
+			{
+				"__copy": {
+					"__target": "config.nodeSettings.triggers.request.__all.oisTitle"
 				}
 			}
 		]
