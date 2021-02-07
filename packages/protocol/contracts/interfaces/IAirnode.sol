@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-import "./IEndpointStore.sol";
+import "./IProviderStore.sol";
 import "./ITemplateStore.sol";
 
 
-interface IAirnode is IEndpointStore, ITemplateStore {
+interface IAirnode is IProviderStore, ITemplateStore {
     event ClientRequestCreated(
         bytes32 indexed providerId,
         bytes32 indexed requestId,

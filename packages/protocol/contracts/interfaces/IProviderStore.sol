@@ -8,12 +8,8 @@ interface IProviderStore is IRequesterStore {
     event ProviderCreated(
         bytes32 indexed providerId,
         address admin,
-        string xpub
-        );
-
-    event ProviderUpdated(
-        bytes32 indexed providerId,
-        address admin
+        string xpub,
+        address[] authorizers
         );
 
     event WithdrawalRequested(
@@ -35,17 +31,12 @@ interface IProviderStore is IRequesterStore {
 
     function createProvider(
         address admin,
-        string calldata xpub
+        string calldata xpub,
+        address[] calldata authorizers
         )
         external
         payable
         returns (bytes32 providerId);
-
-    function updateProvider(
-        bytes32 providerId,
-        address admin
-        )
-        external;
 
     function requestWithdrawal(
         bytes32 providerId,
@@ -69,6 +60,7 @@ interface IProviderStore is IRequesterStore {
         view
         returns (
             address admin,
-            string memory xpub
+            string memory xpub,
+            address[] memory authorizers
         );
 }

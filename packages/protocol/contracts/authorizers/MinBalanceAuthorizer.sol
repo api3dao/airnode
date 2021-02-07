@@ -39,7 +39,7 @@ contract MinBalanceAuthorizer is IMinBalanceAuthorizer {
         external
         override
     {
-        (address admin, string memory xpub) = airnode.getProvider(providerId);  // solhint-disable-line
+        (address admin, , ) = airnode.getProvider(providerId);  // solhint-disable-line
         require(msg.sender == admin, "Caller is not provider admin");
         providerIdToMinBalance[providerId] = minBalance;
         emit MinBalanceUpdated(providerId, minBalance);

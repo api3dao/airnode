@@ -6,7 +6,6 @@ const { deriveWalletAddressFromPath } = require('./util');
 
 let airnode;
 let convenience;
-let authorizer;
 let roles;
 
 beforeEach(async () => {
@@ -21,8 +20,6 @@ beforeEach(async () => {
   airnode = await airnodeFactory.deploy();
   const convenienceFactory = await ethers.getContractFactory('Convenience', roles.deployer);
   convenience = await convenienceFactory.deploy(airnode.address);
-  const authorizerFactory = await ethers.getContractFactory('MinBalanceAuthorizer', roles.deployer);
-  authorizer = await authorizerFactory.deploy(airnode.address);
 });
 
 describe('getProviderAndBlockNumber', function () {
@@ -81,10 +78,6 @@ describe('checkAuthorizationStatus', function () {
     let providerXpub, providerId;
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-    const noAuthorizers = 10;
-    await airnode
-      .connect(roles.providerAdmin)
-      .updateEndpointAuthorizers(providerId, endpointId, Array(noAuthorizers).fill(authorizer.address));
     const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
     const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // 91,529 gas
@@ -105,10 +98,6 @@ describe('checkAuthorizationStatuses', function () {
     let providerXpub, providerId;
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-    const noAuthorizers = 10;
-    await airnode
-      .connect(roles.providerAdmin)
-      .updateEndpointAuthorizers(providerId, endpointId, Array(noAuthorizers).fill(authorizer.address));
     const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
     const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // 722,267 gas

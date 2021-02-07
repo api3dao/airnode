@@ -22,6 +22,7 @@ contract Convenience is IConvenience {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
+    /// @return authorizers Authorizer contract addresses
     /// @return blockNumber Block number
     function getProviderAndBlockNumber(bytes32 providerId)
         external
@@ -30,10 +31,11 @@ contract Convenience is IConvenience {
         returns (
             address admin,
             string memory xpub,
+            address[] memory authorizers,
             uint256 blockNumber
         )
     {
-        (admin, xpub) = airnode.getProvider(providerId);
+        (admin, xpub, authorizers) = airnode.getProvider(providerId);
         blockNumber = block.number;
     }
 
@@ -131,7 +133,7 @@ contract Convenience is IConvenience {
         override
         returns(bool status)
     {
-        address[] memory authorizers = airnode.getEndpointAuthorizers(providerId, endpointId);  
+        (, , address[] memory authorizers) = airnode.getProvider(providerId);
         uint256 noAuthorizers = authorizers.length;
         // If no authorizers have been set, deny access by default
         if (noAuthorizers == 0)

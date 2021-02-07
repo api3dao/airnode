@@ -23,7 +23,7 @@ async function createProvider(airnode, providerAdminRole) {
   // Estimate the gas required to create the provider record
   const gasEstimate = await airnode
     .connect(masterWallet)
-    .estimateGas.createProvider(providerAdminRole.address, providerXpub, { value: 1 });
+    .estimateGas.createProvider(providerAdminRole.address, providerXpub, [ethers.constants.AddressZero], { value: 1 });
   const gasLimit = ethers.BigNumber.from(200000);
   expect(gasLimit.gt(gasEstimate)).to.equal(true);
   // Calculate the amount that will be sent back to the provider admin
@@ -38,14 +38,16 @@ async function createProvider(airnode, providerAdminRole) {
   const initialProviderAdminBalance = await waffle.provider.getBalance(providerAdminRole.address);
   const expectedProviderAdminBalance = initialProviderAdminBalance.add(fundsToSend);
   await expect(
-    airnode.connect(masterWallet).createProvider(providerAdminRole.address, providerXpub, {
-      value: fundsToSend,
-      gasLimit: gasLimit,
-      gasPrice: gasPrice,
-    })
+    airnode
+      .connect(masterWallet)
+      .createProvider(providerAdminRole.address, providerXpub, [ethers.constants.AddressZero], {
+        value: fundsToSend,
+        gasLimit: gasLimit,
+        gasPrice: gasPrice,
+      })
   )
     .to.emit(airnode, 'ProviderCreated')
-    .withArgs(expectedProviderId, providerAdminRole.address, providerXpub);
+    .withArgs(expectedProviderId, providerAdminRole.address, providerXpub, []);
   expect(await waffle.provider.getBalance(providerAdminRole.address)).to.equal(expectedProviderAdminBalance);
   return { providerMnemonic, providerXpub, providerId: expectedProviderId };
 }

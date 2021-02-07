@@ -30,33 +30,6 @@ describe('createProvider', function () {
   });
 });
 
-describe('updateProvider', function () {
-  context('If the caller is the provider admin', async function () {
-    it('updates the provider record', async function () {
-      let providerXpub, providerId;
-      ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
-      // Update the provider record
-      await expect(airnode.connect(roles.providerAdmin).updateProvider(providerId, roles.updatedProviderAdmin.address))
-        .to.emit(airnode, 'ProviderUpdated')
-        .withArgs(providerId, roles.updatedProviderAdmin.address);
-      // Check the updated provider record
-      const retrievedProvider = await airnode.getProvider(providerId);
-      expect(retrievedProvider.admin).to.equal(roles.updatedProviderAdmin.address);
-      expect(retrievedProvider.xpub).to.equal(providerXpub);
-    });
-  });
-  context('If the caller is not the provider admin', async function () {
-    it('reverts', async function () {
-      let providerId;
-      ({ providerId } = await createProvider(airnode, roles.providerAdmin));
-      // Attempt to update the provider record
-      await expect(
-        airnode.connect(roles.randomPerson).updateProvider(providerId, roles.updatedProviderAdmin.address)
-      ).to.be.revertedWith('Caller is not provider admin');
-    });
-  });
-});
-
 describe('requestWithdrawal', function () {
   context('If the caller is the requester admin', async function () {
     it('requests withdrawal', async function () {

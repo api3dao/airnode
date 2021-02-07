@@ -2,7 +2,7 @@
 pragma solidity 0.6.12;
 
 import "./interfaces/IAirnode.sol";
-import "./EndpointStore.sol";
+import "./ProviderStore.sol";
 import "./TemplateStore.sol";
 
 
@@ -10,7 +10,7 @@ import "./TemplateStore.sol";
 /// @notice Clients use this contract to make requests that follow a
 /// request-response scheme. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
-contract Airnode is EndpointStore, TemplateStore, IAirnode {
+contract Airnode is ProviderStore, TemplateStore, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
     uint256 private noRequests = 1;
