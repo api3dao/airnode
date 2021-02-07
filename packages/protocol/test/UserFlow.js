@@ -184,7 +184,7 @@ describe('User flow', function () {
       requesterIndex,
       designatedWalletAddress,
       airnodeClient.address,
-      airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
+      airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
       ethers.utils.randomBytes(8)
     );
     // Get the newly created template's ID from the event
