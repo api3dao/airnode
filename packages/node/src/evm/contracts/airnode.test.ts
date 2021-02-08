@@ -23,7 +23,7 @@ describe('Airnode', () => {
 
   it('exposes the contract topics', () => {
     // Make sure all topics are covered
-    expect.assertions(9);
+    expect.assertions(8);
 
     expect(Object.keys(Airnode.topics).sort()).toEqual([
       'ClientFullRequestCreated',

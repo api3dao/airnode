@@ -22,16 +22,13 @@ export async function deployAirnode(config: operation.Config): Promise<operation
   // Create API providers
   const state12 = await operation.createProviders(state11);
 
-  // Authorize endpoints
-  const state13 = await operation.authorizeEndpoints(state12);
-
   // Endorse client contracts
-  const state14 = await operation.endorseClients(state13);
+  const state13 = await operation.endorseClients(state12);
 
   // Create templates
-  const state15 = await operation.createTemplates(state14);
+  const state14 = await operation.createTemplates(state13);
 
-  const deployment = operation.buildSaveableDeployment(state15);
+  const deployment = operation.buildSaveableDeployment(state14);
 
   return deployment;
 }
