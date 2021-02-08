@@ -13,9 +13,6 @@ const ClientFullRequestCreated = ethers.utils.id(
 );
 
 const ClientRequestFulfilled = ethers.utils.id('ClientRequestFulfilled(bytes32,bytes32,uint256,bytes32)');
-const ClientRequestFulfilledWithBytes = ethers.utils.id(
-  'ClientRequestFulfilledWithBytes(bytes32,bytes32,uint256,bytes)'
-);
 const ClientRequestFailed = ethers.utils.id('ClientRequestFailed(bytes32,bytes32)');
 
 const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,uint256,bytes32,address,address)');
@@ -30,7 +27,6 @@ export const Airnode: Contract = {
     ClientFullRequestCreated,
 
     ClientRequestFulfilled,
-    ClientRequestFulfilledWithBytes,
     ClientRequestFailed,
 
     // Withdrawals
