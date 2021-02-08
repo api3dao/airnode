@@ -3,9 +3,9 @@
   "apiProviders": {
     "CurrencyConverterAPI": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
+      "authorizers": ["public"],
       "endpoints": {
         "convertToUSD": {
-          "authorizers": ["public"],
           "oisTitle": "currency-converter-ois"
         }
       },

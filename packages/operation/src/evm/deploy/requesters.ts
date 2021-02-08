@@ -45,7 +45,7 @@ export async function createTemplates(state: State): Promise<State> {
         requester.requesterIndex,
         designatedWallet!.address,
         client.address,
-        client.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
+        client.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
         encode(configTemplate.parameters)
       );
       await tx.wait();

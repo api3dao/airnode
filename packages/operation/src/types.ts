@@ -105,7 +105,6 @@ export interface ConfigClient {
 }
 
 export interface ConfigEndpoint {
-  readonly authorizers: string[];
   readonly oisTitle: string;
 }
 
@@ -119,8 +118,9 @@ export interface ConfigTemplate {
 }
 
 export interface ConfigAPIProvider {
-  readonly mnemonic: string;
+  readonly authorizers: string[];
   readonly endpoints: { readonly [name: string]: ConfigEndpoint };
+  readonly mnemonic: string;
   readonly templates: { readonly [name: string]: ConfigTemplate };
 }
 

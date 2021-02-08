@@ -49,7 +49,7 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
       requesterIndex,
       designatedWallet.address,
       client.address,
-      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes32)`),
+      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
     );
   await tx.wait();
@@ -80,7 +80,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
       requesterIndex,
       designatedWallet.address,
       client.address,
-      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes32)`),
+      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
     );
   await tx.wait();
