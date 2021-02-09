@@ -27,6 +27,7 @@ describe('createProvider', function () {
     const retrievedProvider = await airnode.getProvider(providerId);
     expect(retrievedProvider.admin).to.equal(roles.providerAdmin.address);
     expect(retrievedProvider.xpub).to.equal(providerXpub);
+    expect(retrievedProvider.authorizers).to.deep.equal([ethers.constants.AddressZero]);
   });
 });
 
