@@ -52,7 +52,7 @@ describe('initializeProvider', () => {
         endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
         fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         fulfillFunctionId: '0xd3bd1464',
-        id: '0xb781aa3a3ebcd64f31ab8b71d856385cbf7ccd7bc4beec1f2d3185342727add3',
+        id: '0xacc4444830f9bd249f3140c83deae5e878adc40dc563012bed7e328a8df298c2',
         metadata: {
           blockNumber: 15,
           currentBlock: 12,
@@ -81,7 +81,7 @@ describe('initializeProvider', () => {
         endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
         fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         fulfillFunctionId: '0xd3bd1464',
-        id: '0x42c0d4bc601936a673513a7601df394c1574c9af768dbb28ec3a65f019bafffd',
+        id: '0x2584ee7cea18d64a380c34848a3f632b5cefba1f28660a8c67408f65f8ddbc92',
         metadata: {
           blockNumber: 16,
           currentBlock: 12,
