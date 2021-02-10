@@ -14,7 +14,6 @@ contract ProviderStore is RequesterStore, IProviderStore {
 
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
-    uint256 private noWithdrawalRequests = 0;
 
 
     /// @notice Allows the master wallet (m) of the provider to create a
@@ -92,7 +91,8 @@ contract ProviderStore is RequesterStore, IProviderStore {
     {
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             this,
-            noWithdrawalRequests++
+            requesterIndex,
+            requesterIndexToNoWithdrawalRequests[requesterIndex]++
             ));
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             providerId,
