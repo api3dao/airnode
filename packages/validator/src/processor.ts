@@ -43,7 +43,7 @@ export function processSpecs(
         }
       }
 
-      break;
+      continue;
     }
 
     switch (key) {

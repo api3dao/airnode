@@ -7,9 +7,50 @@
     "__regexp": "^[0-9]+.[0-9]+.[0-9]+$"
   },
   "apiSpecifications": {
-    "__apiSpecs": {}
+    "__apiSpecs": {},
+    "paths": {
+      "__ignore": {},
+      "__conditions": [
+        {
+          "__if": {
+            "__this_name": ".*"
+          },
+          "__rootThen": {
+            "endpoints": {
+              "__any": {
+                "operation": {
+                  "path": {
+                    "__regexp": "__match"
+                  },
+                  "__ignore": {}
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   },
   "endpoints": {
-    "__endpointsSpecs": {}
+    "__endpointsSpecs": {},
+    "__arrayItem": {
+      "__ignore": {},
+      "operation": {
+        "__conditions": [
+          {
+            "__if": {
+              "path": ".*"
+            },
+            "__rootThen": {
+              "apiSpecifications": {
+                "paths": {
+                  "__match": {}
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
   }
 }
