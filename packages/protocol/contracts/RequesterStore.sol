@@ -11,6 +11,7 @@ import "./interfaces/IRequesterStore.sol";
 contract RequesterStore is IRequesterStore {
     mapping(uint256 => address) public requesterIndexToAdmin;
     mapping(uint256 => mapping(address => bool)) public requesterIndexToClientAddressToEndorsementStatus;
+    mapping(address => uint256) public clientAddressToNoRequests;
     uint256 private noRequesters = 1;
 
 
@@ -65,6 +66,12 @@ contract RequesterStore is IRequesterStore {
         override
         onlyRequesterAdmin(requesterIndex)
     {
+        // Initialize the client nonce if it is being endorsed for the first
+        // time for consistent request gas cost
+        if (endorsementStatus && clientAddressToNoRequests[clientAddress] == 0)
+        {
+            clientAddressToNoRequests[clientAddress] = 1;
+        }
         requesterIndexToClientAddressToEndorsementStatus[requesterIndex][clientAddress] = endorsementStatus;
         emit ClientEndorsementStatusUpdated(
             requesterIndex,
