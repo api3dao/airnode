@@ -74,6 +74,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @notice Called by the requester admin to create a request for the
     /// provider to send the funds kept in their designated wallet to
     /// destination
+    /// @dev We do not need to use the withdrawal request parameters in the
+    /// request ID hash to validate them at the node side because all of the
+    /// parameters are used during fulfillment and will get validated on-chain.
     /// @param providerId Provider ID
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that the withdrawal is
@@ -90,9 +93,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
         onlyRequesterAdmin(requesterIndex)
     {
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
-            this,
+            requesterIndexToNoWithdrawalRequests[requesterIndex]++,
             requesterIndex,
-            requesterIndexToNoWithdrawalRequests[requesterIndex]++
+            this
             ));
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             providerId,
