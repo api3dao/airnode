@@ -24,6 +24,11 @@ const validAPISpecification = `{
         }
       ]
     }
+  },
+  "/myPath2": {
+    "get": {
+      "parameters": []
+    }
   }   
 },
 "components": {
@@ -104,6 +109,14 @@ const invalidEndpointSpecification = `[
         }
       }
     ]
+  },
+  {
+    "name": "myPath2",
+    "operation": {
+      "method": "get",
+      "path": "/myPath2"
+    },
+    "parameters": []
   }
 ]`;
 
@@ -991,8 +1004,10 @@ describe('validator', () => {
         conditionNotMetMessage('apiSpecifications.paths./myPath/{myParam}', 'myParam'),
         formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
         missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2'),
+        conditionNotMetMessage('apiSpecifications.paths./myPath/{myParam}', '/myPath/{myParam}'),
         missingParamMessage('endpoints[0].operation.path'),
         formattingMessage('endpoints[0].operation.method'),
+        missingParamMessage('apiSpecifications.paths./myPath2'),
       ],
     });
   });
