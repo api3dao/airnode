@@ -165,8 +165,6 @@ function validateConditionRegexInValue(
     }
   }
 
-  //TODO nonRedundantParams reference - nonRedundantParams might reference object that is not in roots.nonRedundantParams anymore, getParamFromPath needed in utils
-  // same for regexInKey
   if (!keepRedundantParams) {
     // returning nonRedundantParams to original state, since it wasn't used in "then section" of condition
     for (const key in nonRedundantParamsCopy) {
