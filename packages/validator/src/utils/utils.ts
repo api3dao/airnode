@@ -226,7 +226,7 @@ export function parseParamPath(paramPath: string, path: string): string {
 export function getSpecsFromPath(paramPath: string, specs: object, insertPath = false) {
   let paramName = paramPath.split('.')[0];
 
-  const indexMatches = paramName.match(/\[([0-9]+)\]/g);
+  const indexMatches = paramName.match(/(?<=\[)[0-9]+(?=\])/);
 
   if (indexMatches) {
     paramName = paramName.replace(`[${indexMatches[0]}]`, '');
