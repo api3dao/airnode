@@ -27,6 +27,8 @@ contract RequesterStore is IRequesterStore {
     {
         requesterIndex = noRequesters++;
         requesterIndexToAdmin[requesterIndex] = admin;
+        // Initialize the requester nonce during creation for consistent
+        // withdrawal request gas cost
         requesterIndexToNoWithdrawalRequests[requesterIndex] = 1;
         emit RequesterCreated(
             requesterIndex,
