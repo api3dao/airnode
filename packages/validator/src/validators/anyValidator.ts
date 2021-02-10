@@ -5,15 +5,15 @@ import { Roots } from '../types';
 /**
  * Checks if at least one param exists in provided specification conforming the validator specification structure
  * @param specs - specification that is being validated
- * @param specsStruct - validator specification structure, must be on the same level as specs
+ * @param template - must be on the same level as specs
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
- * @param roots - roots of specs and specsStruct
- * @returns true if at least one child of specs satisfies specsStruct, otherwise returns false
+ * @param roots - roots of specs and nonRedundantParams
+ * @returns true if at least one child of specs satisfies template, otherwise returns false
  */
 export function isAnyParamValid(
   specs: any,
-  specsStruct: any,
+  template: any,
   paramPath: string,
   nonRedundantParams: any,
   roots: Roots
@@ -34,7 +34,7 @@ export function isAnyParamValid(
 
       const result = validateSpecs(
         specs[paramIndex],
-        specsStruct,
+        template,
         paramPath,
         nonRedundantParams[nonRedundantParams.length - 1],
         roots
@@ -58,13 +58,13 @@ export function isAnyParamValid(
     } else {
       nonRedundantParams[paramKey] = utils.getEmptyNonRedundantParam(
         paramKey,
-        specsStruct,
+        template,
         nonRedundantParams,
         specs[paramKey]
       );
     }
 
-    const result = validateSpecs(specs[paramKey], specsStruct, paramPath, nonRedundantParams[paramKey], roots);
+    const result = validateSpecs(specs[paramKey], template, paramPath, nonRedundantParams[paramKey], roots);
 
     if (!result.messages.length) {
       return true;

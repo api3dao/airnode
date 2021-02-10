@@ -7,23 +7,24 @@ import { validateOptional } from './validators/optionalValidator';
 import { isAnyParamValid } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
 
-const apiSpecs = JSON.parse(fs.readFileSync('specs/api.json', 'utf8'));
-const oisSpecs = JSON.parse(fs.readFileSync('specs/ois.json', 'utf8'));
-const endpointsSpecs = JSON.parse(fs.readFileSync('specs/endpoints.json', 'utf8'));
+const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
+const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
+const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json', 'utf8'));
+const configSecurityTemplate = JSON.parse(fs.readFileSync('templates/configSecurity.json', 'utf8'));
 
 /**
- * Recursion validating provided specification against validator specification structure
+ * Recursion validating provided specification against template
  * @param specs - specification that is being validated
- * @param specsStruct - validator specification structure
+ * @param template - template the specification is validated against
  * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string in root)
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
- * @param roots - roots of specs and specsStruct
+ * @param roots - roots of specs and nonRedundantParams
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
 export function validateSpecs(
   specs: any,
-  specsStruct: any,
+  template: any,
   paramPath: string,
   nonRedundantParams: any,
   roots: Roots,
@@ -34,33 +35,33 @@ export function validateSpecs(
   let tmpResult: Result = { valid: true, messages: [] };
   let tmpRoots: Roots = { specs: specs, nonRedundantParams: nonRedundantParams };
 
-  for (const key of Object.keys(specsStruct)) {
+  for (const key of Object.keys(template)) {
     switch (key) {
       case '__conditions':
-        for (const condition of specsStruct[key]) {
+        for (const condition of template[key]) {
           messages.push(...validateCondition(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix));
         }
 
         break;
 
       case '__regexp':
-        messages.push(...validateRegexp(specs, specsStruct, paramPath));
+        messages.push(...validateRegexp(specs, template, paramPath));
         break;
 
       case '__keyRegexp':
-        messages.push(...validateRegexp(specs, specsStruct, paramPath, true));
+        messages.push(...validateRegexp(specs, template, paramPath, true));
         break;
 
       case '__maxSize':
-        if (specsStruct[key] < specs.length) {
-          messages.push(logger.error(`${paramPath} must contain ${specsStruct[key]} or less items`));
+        if (template[key] < specs.length) {
+          messages.push(logger.error(`${paramPath} must contain ${template[key]} or less items`));
         }
 
         break;
 
       // validate array
       case '__arrayItem':
-        // nonRedundantParams has to have the same structure as specsStruct
+        // nonRedundantParams has to have the same structure as template
         if (!nonRedundantParams) {
           nonRedundantParams = [];
         }
@@ -70,7 +71,7 @@ export function validateSpecs(
           nonRedundantParams.push({});
           const result = validateSpecs(
             specs[i],
-            specsStruct[key],
+            template[key],
             `${paramPath}[${i}]`,
             nonRedundantParams[i],
             roots,
@@ -81,20 +82,15 @@ export function validateSpecs(
 
         break;
 
-      // in specs can be any parameter, should validate all of them according to whats in the specsStruct
+      // in specs can be any parameter, should validate all of them according to whats in the template
       case '__objectItem':
         for (const item of Object.keys(specs)) {
           // insert empty type of item into nonRedundantParams
-          nonRedundantParams[item] = utils.getEmptyNonRedundantParam(
-            item,
-            specsStruct,
-            nonRedundantParams,
-            specs[item]
-          );
+          nonRedundantParams[item] = utils.getEmptyNonRedundantParam(item, template, nonRedundantParams, specs[item]);
 
           const result = validateSpecs(
             specs[item],
-            specsStruct[key],
+            template[key],
             `${paramPath}${paramPath ? '.' : ''}${item}`,
             nonRedundantParams[item],
             roots,
@@ -106,9 +102,7 @@ export function validateSpecs(
         break;
 
       case '__optional':
-        messages.push(
-          ...validateOptional(specs, specsStruct[key], paramPath, nonRedundantParams, roots, paramPathPrefix)
-        );
+        messages.push(...validateOptional(specs, template[key], paramPath, nonRedundantParams, roots, paramPathPrefix));
 
         break;
 
@@ -117,7 +111,7 @@ export function validateSpecs(
         break;
 
       case '__any':
-        if (!isAnyParamValid(specs, specsStruct[key], paramPath, nonRedundantParams, roots)) {
+        if (!isAnyParamValid(specs, template[key], paramPath, nonRedundantParams, roots)) {
           messages.push(logger.error(`Required conditions not met in ${paramPath}`));
         }
 
@@ -127,7 +121,7 @@ export function validateSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(specs, apiSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = validateSpecs(specs, apiTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -138,7 +132,18 @@ export function validateSpecs(
         tmpNonRedundant = [];
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
 
-        tmpResult = validateSpecs(specs, endpointsSpecs, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = validateSpecs(specs, endpointsTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        messages.push(...tmpResult.messages);
+
+        nonRedundantParams['__noCheck'] = {};
+
+        break;
+
+      case '__oisSpecs':
+        tmpNonRedundant = {};
+        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
+
+        tmpResult = validateSpecs(specs, oisTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -153,15 +158,15 @@ export function validateSpecs(
           continue;
         }
 
-        nonRedundantParams[key] = utils.getEmptyNonRedundantParam(key, specsStruct, nonRedundantParams, specs[key]);
+        nonRedundantParams[key] = utils.getEmptyNonRedundantParam(key, template, nonRedundantParams, specs[key]);
 
-        if (!Object.keys(specsStruct[key]).length) {
+        if (!Object.keys(template[key]).length) {
           continue;
         }
 
         tmpResult = validateSpecs(
           specs[key],
-          specsStruct[key],
+          template[key],
           `${paramPath}${paramPath ? '.' : ''}${key}`,
           nonRedundantParams[key],
           roots,
@@ -193,7 +198,7 @@ export function isApiSpecsValid(specs: string): Result {
 
   try {
     const parsedSpecs = JSON.parse(specs);
-    return validateSpecs(parsedSpecs, apiSpecs, '', nonRedundant, {
+    return validateSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
     });
@@ -212,7 +217,7 @@ export function isEndpointsValid(specs: string): Result {
 
   try {
     const parsedSpecs = JSON.parse(specs);
-    return validateSpecs(parsedSpecs, endpointsSpecs, '', nonRedundant, {
+    return validateSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
     });
@@ -231,8 +236,24 @@ export function isOisValid(specs: string): Result {
 
   try {
     const parsedSpecs = JSON.parse(specs);
-    return validateSpecs(parsedSpecs, oisSpecs, '', nonRedundant, {
+    return validateSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
       specs: parsedSpecs,
+      nonRedundantParams: nonRedundant,
+    });
+  } catch (e) {
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+  }
+}
+
+export function isConfigSecurityValid(configSpecs: string, securitySpecs: string): Result {
+  const nonRedundant = {};
+
+  try {
+    const parsedConfigSpecs = JSON.parse(configSpecs);
+    const parsedSecuritySpecs = JSON.parse(securitySpecs);
+    const specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
+    return validateSpecs(specs, configSecurityTemplate, '', nonRedundant, {
+      specs,
       nonRedundantParams: nonRedundant,
     });
   } catch (e) {
