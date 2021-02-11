@@ -16,7 +16,6 @@ import {
   generateMnemonic,
   deriveProviderId,
   shortenProviderId,
-  waitForEnter,
   deriveMasterWalletAddress,
 } from './util';
 import { verifyMnemonic } from './io';
