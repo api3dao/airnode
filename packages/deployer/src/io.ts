@@ -1,12 +1,6 @@
 import readline from 'readline';
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
+import shuffle from 'lodash/shuffle';
+import ora from 'ora';
 
 function ask(rl, question) {
   return new Promise((resolve) => {
@@ -21,35 +15,32 @@ function clearLine() {
 
 export async function verifyMnemonic(mnemonic) {
   const mnemonics = mnemonic.split(' ');
-  const shuffledIndexedMnemonics = shuffleArray(
+  const shuffledIndexedMnemonics = shuffle(
     mnemonics.map((element, index) => {
       return { mnemonic: element, index: index + 1 };
     })
-  );
+  ).slice(0, 3);
 
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
+  ora().info(
+    'When you press Enter, the mnemonic below will disappear and you will be asked to provide 3 of the words selected at random.\n'
+  );
   console.log(mnemonic);
-  await ask(rl, `press return to start mnemonic verification, the mnemonic will disappear!`);
-  clearLine();
+  await ask(rl, '');
   clearLine();
 
-  let correct = false;
-  while (!correct) {
-    correct = true;
-    for (const indexedMnemonic of shuffledIndexedMnemonics) {
-      const word = await ask(rl, `Enter ${indexedMnemonic.index}-th word:`);
+  for (const indexedMnemonic of shuffledIndexedMnemonics) {
+    const word = await ask(rl, `Enter word #${indexedMnemonic.index}`);
+    clearLine();
+    while (word != indexedMnemonic.mnemonic) {
+      await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over`);
       clearLine();
-      if (word != indexedMnemonic.mnemonic) {
-        correct = false;
-        await ask(rl, `Incorrect ${indexedMnemonic.index}-th word, press return to verification again`);
-        break;
-      }
     }
   }
-  console.log('Mnemonic verification passed');
+  ora().succeed('Mnemonic verified successfully');
   rl.close();
 }
