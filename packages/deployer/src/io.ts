@@ -29,15 +29,14 @@ export async function verifyMnemonic(mnemonic) {
   ora().info(
     'When you press Enter, the mnemonic below will disappear and you will be asked to provide 3 of the words selected at random.\n'
   );
-  console.log(mnemonic);
-  await ask(rl, '');
+  await ask(rl, mnemonic);
   clearLine();
 
   for (const indexedMnemonic of shuffledIndexedMnemonics) {
-    const word = await ask(rl, `Enter word #${indexedMnemonic.index}`);
+    let word = await ask(rl, `Enter word #${indexedMnemonic.index}`);
     clearLine();
     while (word != indexedMnemonic.mnemonic) {
-      await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over`);
+      word = await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over`);
       clearLine();
     }
   }

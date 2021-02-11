@@ -16,9 +16,9 @@ import {
   generateMnemonic,
   deriveProviderId,
   shortenProviderId,
+  waitForEnter,
   deriveMasterWalletAddress,
 } from './util';
-import { verifyMnemonic } from './io';
 
 export async function deployFirstTime(configPath, securityPath, nodeVersion) {
   const configParams = await parseFiles(configPath, securityPath);
@@ -33,7 +33,8 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
   }
 
   ora().warn('Write down the 12 word-mnemonic below on a piece of paper and keep it in a safe place\n');
-  await verifyMnemonic(mnemonic);
+  console.log(mnemonic);
+  await waitForEnter();
   await ssm.addMnemonic(mnemonic, providerIdShort);
 
   const masterWalletAddress = deriveMasterWalletAddress(mnemonic);
