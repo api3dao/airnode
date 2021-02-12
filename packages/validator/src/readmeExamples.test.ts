@@ -196,8 +196,9 @@ describe('readme examples', () => {
     });
   });
 
-  it('conditions', () => {
-    const basicTemplate = `
+  describe('conditions', () => {
+    it('basic', () => {
+      const basicTemplate = `
         {
           "conditionsExample": {
             "value": {},
@@ -227,7 +228,7 @@ describe('readme examples', () => {
         }
       `;
 
-    const validBasicSpec = `
+      const validBasicSpec = `
         {
           "conditionsExample": {
             "value": "one",
@@ -236,7 +237,7 @@ describe('readme examples', () => {
         }
       `;
 
-    const invalidBasicSpec = `
+      const invalidBasicSpec = `
       {
         "conditionsExample": {
           "value": "two",
@@ -245,13 +246,15 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validBasicSpec, basicTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidBasicSpec, basicTemplate)).toMatchObject({
-      valid: false,
-      messages: [missingParamMessage('conditionsExample.two'), extraFieldMessage('conditionsExample.one')],
+      expect(validateJson(validBasicSpec, basicTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidBasicSpec, basicTemplate)).toMatchObject({
+        valid: false,
+        messages: [missingParamMessage('conditionsExample.two'), extraFieldMessage('conditionsExample.one')],
+      });
     });
 
-    const requireTemplate = `
+    it('require', () => {
+      const requireTemplate = `
       {
         "items": {
         "__objectItem": {
@@ -268,7 +271,7 @@ describe('readme examples', () => {
       }
       `;
 
-    const validRequireSpec = `
+      const validRequireSpec = `
       {
         "items": {
           "require0": {},
@@ -285,7 +288,7 @@ describe('readme examples', () => {
       }
       `;
 
-    const invalidRequireSpec = `
+      const invalidRequireSpec = `
       {
         "items": {
             "require0": {},
@@ -300,17 +303,19 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validRequireSpec, requireTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidRequireSpec, requireTemplate)).toMatchObject({
-      valid: false,
-      messages: [
-        missingParamMessage('outer.require0.inner'),
-        missingParamMessage('outer.require5.inner'),
-        extraFieldMessage('outer.require1'),
-      ],
+      expect(validateJson(validRequireSpec, requireTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidRequireSpec, requireTemplate)).toMatchObject({
+        valid: false,
+        messages: [
+          missingParamMessage('outer.require0.inner'),
+          missingParamMessage('outer.require5.inner'),
+          extraFieldMessage('outer.require1'),
+        ],
+      });
     });
 
-    const ifThenMatchesTemplate = `
+    it('regex matches', () => {
+      const ifThenMatchesTemplate = `
       {
         "items": {
           "__objectItem": {
@@ -348,7 +353,7 @@ describe('readme examples', () => {
       }
       `;
 
-    const validIfThenMatchesSpec = `
+      const validIfThenMatchesSpec = `
       {
         "items": {
           "item1": "matchedValue",
@@ -361,7 +366,7 @@ describe('readme examples', () => {
       }
       `;
 
-    const invalidIfThenMatchesSpec = `
+      const invalidIfThenMatchesSpec = `
       {
         "items": {
           "item1": "matchedValue",
@@ -371,13 +376,70 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({
-      valid: false,
-      messages: [missingParamMessage('thenItems.byValue'), conditionNotMetMessage('items.matchedKey', 'matchedKey')],
+      expect(validateJson(validIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({
+        valid: false,
+        messages: [missingParamMessage('thenItems.byValue'), conditionNotMetMessage('items.matchedKey', 'matchedKey')],
+      });
     });
 
-    const anyTemplate = `
+    it('param values', () => {
+      const template = `
+        {
+          "container": {
+            "__conditions": [
+              {
+                "__if": {
+                  "param": ".*"
+                },
+                "__rootThen": {
+                  "[[/used.name]]": {
+                    "__regexp": "^[[param]]$",
+                    "__level": "error"
+                  }
+                }
+              }
+            ]
+          },
+          "used": {
+            "name": {}
+          }
+        }
+      `;
+
+      const validSpec = `
+        {
+          "container": {
+            "param": "value"
+          },
+          "used": {
+            "name": "thenParam"
+          },
+          "thenParam": "value"
+        }
+      `;
+
+      const invalidSpec = `
+        {
+          "container": {
+            "param": "value"
+          },
+          "used": {
+            "name": "thenParam"
+          },
+          "thenParam": "notValue"
+        }
+      `;
+
+      expect(validateJson(validSpec, template)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidSpec, template)).toMatchObject({
+        valid: false,
+        messages: [formattingMessage('thenParam', true)],
+      });
+    });
+
+    it('any', () => {
+      const anyTemplate = `
       {
         "items": {
           "__objectItem": {
@@ -406,7 +468,7 @@ describe('readme examples', () => {
       }
       `;
 
-    const validAnySpec = `
+      const validAnySpec = `
       {
         "items": {
           "anyExample": {}
@@ -421,7 +483,7 @@ describe('readme examples', () => {
       }
       `;
 
-    const invalidAnySpec = `
+      const invalidAnySpec = `
         {
           "items": {
             "anyExample": {}
@@ -434,10 +496,11 @@ describe('readme examples', () => {
         }
       `;
 
-    expect(validateJson(validAnySpec, anyTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidAnySpec, anyTemplate)).toMatchObject({
-      valid: false,
-      messages: [conditionNotMetMessage('items.anyExample', 'anyExample')],
+      expect(validateJson(validAnySpec, anyTemplate)).toMatchObject({ valid: true, messages: [] });
+      expect(validateJson(invalidAnySpec, anyTemplate)).toMatchObject({
+        valid: false,
+        messages: [conditionNotMetMessage('items.anyExample', 'anyExample')],
+      });
     });
   });
 

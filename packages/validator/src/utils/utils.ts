@@ -51,6 +51,63 @@ export function replaceConditionalMatch(match: string, template: any): any {
 }
 
 /**
+ * Replaces paths inside "{{}}" with value of the parameter in the path
+ * @param specs - specification of parameter which is being validated
+ * @param rootSpecs - root of the validated specification
+ * @param template - template in which paths will be replaced
+ */
+export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
+  const ignoredKeys = ['__conditions'];
+  const filteredKeys = Object.keys(template).filter((key) => !ignoredKeys.includes(key));
+
+  const replacePaths = (toReplace: string) => {
+    const matches = toReplace.match(/(?<=\[\[)[^\[\]]+(?=\]\])/);
+
+    if (!matches) {
+      return toReplace;
+    }
+
+    for (let param of matches) {
+      let currentSpecs = specs;
+
+      if (param.startsWith('/')) {
+        param = param.replace('/', '');
+        currentSpecs = rootSpecs;
+      }
+
+      const value = getSpecsFromPath(param, currentSpecs);
+
+      if (value) {
+        toReplace = toReplace.replace(`[[${currentSpecs === rootSpecs ? '/' : ''}${param}]]`, value);
+      }
+    }
+
+    return toReplace;
+  };
+
+  if (Array.isArray(template)) {
+    return template.map((value) => {
+      if (typeof value === 'string') {
+        return replacePaths(value);
+      }
+
+      return replacePathsWithValues(specs, rootSpecs, value);
+    });
+  }
+
+  return filteredKeys.reduce((acc, key) => {
+    const newKey = replacePaths(key);
+
+    if (typeof template[key] === 'string') {
+      return { ...acc, [newKey]: replacePaths(template[key]) };
+    }
+
+    const newValue = replacePathsWithValues(specs, rootSpecs, template[key]);
+    return { ...acc, [newKey]: newValue };
+  }, {});
+}
+
+/**
  * Checks if any extra fields are present
  * @param nonRedundant - object containing all required and optional parameters that are being used
  * @param specs - specification that is being validated

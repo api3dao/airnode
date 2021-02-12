@@ -2,7 +2,6 @@ import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Roots, Log } from '../types';
-import { getSpecsFromPath } from '../utils/utils';
 
 /**
  * Validates "if" condition in which regular expression is matched against the key in specification
@@ -29,7 +28,7 @@ function validateConditionRegexInKey(
   // In case of '__rootThen' validate from root
   const thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
   const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
-  const currentTemplate = condition['__rootThen'] ? roots.specs : specs;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   // check all keys of children for a match with provided regex
@@ -47,7 +46,8 @@ function validateConditionRegexInKey(
     // key matched regex, this means "if section" of the condition is fulfilled so structure in "then section" must be present
     for (const param of matches) {
       const nonRedundantParamsCopy = {};
-      const template = utils.replaceConditionalMatch(param, thenCondition);
+      let template = utils.replaceConditionalMatch(param, thenCondition);
+      template = utils.replacePathsWithValues(specs, roots.specs, template);
 
       // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
       for (const key in currentNonRedundantParams) {
@@ -55,7 +55,7 @@ function validateConditionRegexInKey(
       }
 
       const result = processSpecs(
-        condition['__rootThen'] ? currentTemplate : currentTemplate[thisName],
+        condition['__rootThen'] ? currentSpecs : currentSpecs[thisName],
         template,
         `${condition['__rootThen'] ? '' : `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`}`,
         condition['__rootThen'] ? currentNonRedundantParams : currentNonRedundantParams[thisName],
@@ -75,7 +75,7 @@ function validateConditionRegexInKey(
           }
         }
 
-        nonRedundantParams = getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
+        nonRedundantParams = utils.getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
 
         if (!(thisName in nonRedundantParams)) {
           nonRedundantParams[thisName] = {};
@@ -116,7 +116,7 @@ function validateConditionRegexInValue(
   // In case of '__rootThen' validate from root
   let thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
   const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
-  const currentTemplate = condition['__rootThen'] ? roots.specs : specs;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   if (paramName === '__this') {
@@ -133,6 +133,8 @@ function validateConditionRegexInValue(
     thenCondition = utils.replaceConditionalMatch(specs[paramName], thenCondition);
   }
 
+  thenCondition = utils.replacePathsWithValues(specs, roots.specs, thenCondition);
+
   // parameter value matched regex, "then section" must be checked
   const nonRedundantParamsCopy = {};
 
@@ -141,7 +143,7 @@ function validateConditionRegexInValue(
     nonRedundantParamsCopy[key] = JSON.parse(JSON.stringify(currentNonRedundantParams[key]));
   }
 
-  const result = processSpecs(currentTemplate, thenCondition, `${currentParamPath}`, currentNonRedundantParams, roots);
+  const result = processSpecs(currentSpecs, thenCondition, `${currentParamPath}`, currentNonRedundantParams, roots);
 
   result.messages = result.messages.filter((msg) => {
     return !msg.message.startsWith('Extra field:');
@@ -178,7 +180,7 @@ function validateConditionRegexInValue(
     }
   }
 
-  nonRedundantParams = getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
+  nonRedundantParams = utils.getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
 
   if (!(paramName in nonRedundantParams)) {
     nonRedundantParams[paramName] = {};

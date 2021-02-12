@@ -534,6 +534,72 @@ Regular expressions are often used in `__if` parameter of condition, matched str
 
 This example highlights differences between `__this` and `__this_name` in if/then conditions. First condition matches the value of parameter, if the value is `matchedValue`, parameter `thenItems.byValue` becomes required, since `__match` keyword was replaced with `matchedValue` in the then section. `__this_name` will match `matchedKey` and require `thenItems.byKey` parameter. Notice the different positions of both conditions, `__this` is evaluated for the object the condition is nested in, whereas `__this_name` is evaluated from object the parameter, which key will be evaluated is nested in.
 
+### Parameter values in then condition
+
+Value of any parameter in the specification can accessed by providing relative or absolute path to the parameter. Path can be provided anywhere in format `[[path]]`, in case of absolute path (evaluated from specifiaction root) it is `[[/path]]`.
+
+#### Template
+
+```json
+{
+	"container": {
+		"__conditions": [
+			{
+				"__if": {
+					"param": ".*"
+				},
+				"__rootThen": {
+					"[[/used.name]]": {
+						"__regexp": "^[[param]]$",
+						"__level": "error"
+					}
+				}
+			}
+		]
+	},
+	"used": {
+		"name": {}
+	}
+}
+```
+---
+#### Valid specification
+
+```json
+{
+	"container": {
+		"param": "value"
+	},
+	"used": {
+		"name": "thenParam"
+	},
+	"thenParam": "value"
+}
+```
+---
+#### Invalid specification
+```json
+{
+	"container": {
+		"param": "value"
+	},
+	"used": {
+		"name": "thenParam"
+	},
+	"thenParam": "notValue"
+}
+```
+#### Expected output
+```json
+{
+	"valid": false,
+	"messages": [
+		{ "level": "error", "message": "thenParam is not formatted correctly" }
+	]
+}
+```
+---
+
 ### Any
 
 Section `__then` can contain keyword `__any`, on level where array or object is expected. Validator will check every nested item/object, if none of them satisfies the `__then` section of condition, the specs will be invalid.
