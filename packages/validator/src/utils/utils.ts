@@ -38,7 +38,7 @@ export function replaceConditionalMatch(match: string, template: any): any {
  */
 export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
   const substitute = (toReplace: string) => {
-    const matches = toReplace.match(/(?<=\[\[)[^\[\]]+(?=\]\])/);
+    const matches = toReplace.match(/(?<=\[\[)((?!\[\[.*\]\]).)+(?=\]\])/);
 
     if (!matches) {
       return toReplace;
@@ -63,6 +63,26 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
   };
 
   return recursiveSubstitute(template, substitute, ['__conditions']);
+}
+
+/**
+ * Replace all "{{index}}" occurrences in provided specification with parameter name on "index"
+ * @param specs - parameter indices in this specification will be replaced
+ * @param paramPath - path that will be used to replace "{{index}}" with appropriate parameter names
+ */
+export function replaceParamIndexWithName(specs: any, paramPath: string): any {
+  const substitute = (toReplace: string) => {
+    const parsedPath = paramPath.split('.');
+
+    for (const match of toReplace.match(/\{\{([0-9]+)\}\}/g) || []) {
+      const index = parseInt(match.match('[0-9]+')![0]);
+      toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
+    }
+
+    return toReplace;
+  };
+
+  return recursiveSubstitute(specs, substitute, ['__conditions']);
 }
 
 /**
@@ -244,26 +264,6 @@ export function insertValue(paramPath: string, spec: any, value: any) {
   spec = spec[param];
 
   insertValue(paramPath.replace(`${param}`, '').replace('.', ''), spec, value);
-}
-
-/**
- * Replaces "{{index}}" keywords in paramPath with parameter names from path on "index"
- * @param paramPath - parameters path that can include "{{index}}", which will be replaced
- * @param path - path that will be used to replace "{{index}}" with appropriate parameter names
- */
-export function replaceParamFromIndex(paramPath: string, path: string): string {
-  if (paramPath === '' || path === '') {
-    return paramPath;
-  }
-
-  const parsedPath = path.split('.');
-
-  for (const match of paramPath.match(/\{\{([0-9]+)\}\}/g) || []) {
-    const index = parseInt(match.match('[0-9]+')![0]);
-    paramPath = paramPath.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
-  }
-
-  return paramPath;
 }
 
 /**

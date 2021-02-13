@@ -47,6 +47,7 @@ function validateConditionRegexInKey(
     for (const param of matches) {
       const nonRedundantParamsCopy = {};
       let template = utils.replaceConditionalMatch(param, thenCondition);
+      template = utils.replaceParamIndexWithName(template, paramPath);
       template = utils.replacePathsWithValues(specs, roots.specs, template);
 
       // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
@@ -133,6 +134,7 @@ function validateConditionRegexInValue(
     thenCondition = utils.replaceConditionalMatch(specs[paramName], thenCondition);
   }
 
+  thenCondition = utils.replaceParamIndexWithName(thenCondition, paramPath);
   thenCondition = utils.replacePathsWithValues(specs, roots.specs, thenCondition);
 
   // parameter value matched regex, "then section" must be checked

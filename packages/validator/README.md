@@ -873,6 +873,8 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 
 `__target` in actions specifies path to parameter that will be modified, there can be an array in this path, to deal with this path can contain `[]` which will push back new item into the array and use it in the target, or path can use `[_]` which points to last item in the array. Parameter from path where the action is located can be accessed via `{{X}}`, where X is position of the parameter in the path numbered from 0. Target path can also include keyword `__all`, in which the action will be performed on every child of previous element.
 
+Accessing parameter on index `X` (`{{X}}`) can be used in conditions the same way as in actions.
+
 #### Template
 
 ```json
