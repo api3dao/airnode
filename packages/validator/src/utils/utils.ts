@@ -23,44 +23,21 @@ export function getLastParamName(paramPath: string): string {
  * @returns specs object with replaced "__match" instances
  */
 export function replaceConditionalMatch(match: string, template: any): any {
-  const ignoredKeys = ['__conditions'];
-  const keys = Object.keys(template);
-  const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
+  const substitute = (toReplace: string) => {
+    return toReplace.replace(/__match/g, match);
+  };
 
-  if (Array.isArray(template)) {
-    return template.map((value) => {
-      if (typeof value === 'string') {
-        return value.replace(/__match/g, match);
-      }
-
-      return replaceConditionalMatch(match, value);
-    });
-  }
-
-  return filteredKeys.reduce((acc, key) => {
-    const newKey = key.replace(/__match/g, match);
-
-    if (typeof template[key] === 'string') {
-      const newValue = template[key].replace(/__match/g, match);
-      return { ...acc, [newKey]: newValue };
-    }
-
-    const newValue = replaceConditionalMatch(match, template[key]);
-    return { ...acc, [newKey]: newValue };
-  }, {});
+  return recursiveSubstitute(template, substitute, ['__conditions']);
 }
 
 /**
- * Replaces paths inside "{{}}" with value of the parameter in the path
+ * Replaces paths inside "[[]]" with value of the parameter in the path
  * @param specs - specification of parameter which is being validated
  * @param rootSpecs - root of the validated specification
  * @param template - template in which paths will be replaced
  */
 export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
-  const ignoredKeys = ['__conditions'];
-  const filteredKeys = Object.keys(template).filter((key) => !ignoredKeys.includes(key));
-
-  const replacePaths = (toReplace: string) => {
+  const substitute = (toReplace: string) => {
     const matches = toReplace.match(/(?<=\[\[)[^\[\]]+(?=\]\])/);
 
     if (!matches) {
@@ -85,24 +62,40 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
     return toReplace;
   };
 
-  if (Array.isArray(template)) {
-    return template.map((value) => {
+  return recursiveSubstitute(template, substitute, ['__conditions']);
+}
+
+/**
+ * Calls provided substitute function on every key and string value in specs and replaces it with result of the function
+ * @param specs - keys and string values of provided specification will be replaced with result of substitute function
+ * @param substitute - function will be called with key or string value as a parameter, result of this function will replace original value in specification
+ * @param ignoredKeys - list of keys, which will stop the recursion
+ */
+export function recursiveSubstitute(
+  specs: any,
+  substitute: (value: string) => string,
+  ignoredKeys: string[] = []
+): any {
+  const filteredKeys = Object.keys(specs).filter((key) => !ignoredKeys.includes(key));
+
+  if (Array.isArray(specs)) {
+    return specs.map((value) => {
       if (typeof value === 'string') {
-        return replacePaths(value);
+        return substitute(value);
       }
 
-      return replacePathsWithValues(specs, rootSpecs, value);
+      return recursiveSubstitute(value, substitute, ignoredKeys);
     });
   }
 
   return filteredKeys.reduce((acc, key) => {
-    const newKey = replacePaths(key);
+    const newKey = substitute(key);
 
-    if (typeof template[key] === 'string') {
-      return { ...acc, [newKey]: replacePaths(template[key]) };
+    if (typeof specs[key] === 'string') {
+      return { ...acc, [newKey]: substitute(specs[key]) };
     }
 
-    const newValue = replacePathsWithValues(specs, rootSpecs, template[key]);
+    const newValue = recursiveSubstitute(specs[key], substitute, ignoredKeys);
     return { ...acc, [newKey]: newValue };
   }, {});
 }
@@ -258,7 +251,7 @@ export function insertValue(paramPath: string, spec: any, value: any) {
  * @param paramPath - parameters path that can include "{{index}}", which will be replaced
  * @param path - path that will be used to replace "{{index}}" with appropriate parameter names
  */
-export function parseParamPath(paramPath: string, path: string): string {
+export function replaceParamFromIndex(paramPath: string, path: string): string {
   if (paramPath === '' || path === '') {
     return paramPath;
   }
