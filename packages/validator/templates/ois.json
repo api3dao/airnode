@@ -50,6 +50,34 @@
             }
           }
         ]
+      },
+      "parameters": {
+        "__arrayItem": {
+          "__conditions": [
+            {
+              "__if": {
+                "name": ".*"
+              },
+              "__rootThen": {
+                "apiSpecifications": {
+                  "paths": {
+                    "[[/{{0}}.operation.path]]": {
+                      "__any": {
+                        "parameters": {
+                          "__any": {
+                            "name": {
+                              "__regexp": "^__match$"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
       }
     }
   }

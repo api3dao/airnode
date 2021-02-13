@@ -39,7 +39,7 @@ export function processSpecs(
     if (key === '__ignore') {
       for (const copy of Object.keys(specs)) {
         if (!nonRedundantParams[copy]) {
-          nonRedundantParams[copy] = specs[copy];
+          nonRedundantParams[copy] = JSON.parse(JSON.stringify(specs[copy]));
         }
       }
 
