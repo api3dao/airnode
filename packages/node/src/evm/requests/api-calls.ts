@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as encoding from '../abi-encoding';
 import * as contracts from '../contracts';

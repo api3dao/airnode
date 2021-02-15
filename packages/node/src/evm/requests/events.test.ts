@@ -11,7 +11,7 @@ describe('API call topics', () => {
 
   it('returns API_CALL_FULFILLED_TOPICS', () => {
     expect(events.API_CALL_FULFILLED_TOPICS).toEqual([
-      '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5',
+      '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61',
       '0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad',
     ]);
   });

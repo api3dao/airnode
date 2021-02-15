@@ -24,7 +24,7 @@ describe('initialize (ApiCall)', () => {
       fulfillFunctionId: '0x48a4157c',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xa756992d906f07382eb93a3f62059854abe655e2090beb5d7afaba7c25d7775a',
+      id: '0x7073d6a5530629274041f7766f4c3b94118c8cd2932c8af27b166e1c3cd94e30',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -33,7 +33,7 @@ describe('initialize (ApiCall)', () => {
       },
       parameters: {},
       providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      requestCount: '1',
+      requestCount: '2',
       requesterIndex: '2',
       status: RequestStatus.Pending,
       templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',
@@ -191,7 +191,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: null,
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0x82759fdf70699aba76bcaf9904b9c4314980dbcaafcf1965be07e3e2c988942e',
+        id: '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
@@ -200,7 +200,7 @@ describe('mapRequests (ApiCall)', () => {
         },
         parameters: { from: 'ETH' },
         providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        requestCount: '0',
+        requestCount: '1',
         requesterIndex: null,
         status: RequestStatus.Pending,
         templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',

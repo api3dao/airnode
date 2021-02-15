@@ -171,14 +171,16 @@ describe('EVM event logs - fetch', () => {
 describe('EVM event logs - group', () => {
   it('groups apiCall requests and fulfillments', () => {
     const logsWithMetadata: any = [
+      // Request
       {
         blockNumber: 10716082,
         parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
+      // Fulfillment
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
+        parsedLog: { topic: '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -199,7 +201,7 @@ describe('EVM event logs - group', () => {
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
+          parsedLog: { topic: '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61' },
           transactionHash: '0x2',
         },
       ],

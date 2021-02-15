@@ -26,7 +26,7 @@ describe('fetchPendingRequests', () => {
           endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
           fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
           fulfillFunctionId: '0x48a4157c',
-          id: '0xc39dd141dabdccf45c2ac9e0d0d5058d8d69c2d6e25638b1909d7014e7b6ff1c',
+          id: '0xb49ca9685c0e1edd5e003574498f361192758770c55d8287f5a468e7717b8d9e',
           metadata: {
             blockNumber: 17,
             currentBlock: null,
@@ -41,7 +41,7 @@ describe('fetchPendingRequests', () => {
             to: 'USD',
           },
           providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-          requestCount: '2',
+          requestCount: '3',
           requesterIndex: '2',
           status: 'Pending',
           templateId: null,
@@ -51,8 +51,8 @@ describe('fetchPendingRequests', () => {
       withdrawals: [
         {
           designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-          destinationAddress: '0x364160Ca5E2d5A0A81A71C999787A09e4C8ae2Dd',
-          id: '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124',
+          destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
+          id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
           metadata: {
             blockNumber: 18,
             currentBlock: null,

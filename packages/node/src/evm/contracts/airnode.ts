@@ -12,7 +12,7 @@ const ClientFullRequestCreated = ethers.utils.id(
   'ClientFullRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
 
-const ClientRequestFulfilled = ethers.utils.id('ClientRequestFulfilled(bytes32,bytes32,uint256,bytes32)');
+const ClientRequestFulfilled = ethers.utils.id('ClientRequestFulfilled(bytes32,bytes32,uint256,bytes)');
 const ClientRequestFailed = ethers.utils.id('ClientRequestFailed(bytes32,bytes32)');
 
 const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,uint256,bytes32,address,address)');

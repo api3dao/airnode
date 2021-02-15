@@ -19,8 +19,8 @@ describe('initialize (Withdrawal)', () => {
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
       designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-      destinationAddress: '0x364160Ca5E2d5A0A81A71C999787A09e4C8ae2Dd',
-      id: '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124',
+      destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
+      id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -88,8 +88,8 @@ describe('mapRequests (Withdrawal)', () => {
     expect(res).toEqual([
       {
         designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-        destinationAddress: '0x364160Ca5E2d5A0A81A71C999787A09e4C8ae2Dd',
-        id: '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124',
+        destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
+        id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
