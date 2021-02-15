@@ -63,12 +63,12 @@ export async function initializeProvider(
   const [providerLogs, providerData] = await initialization.findOrCreateProvider(providerFetchOptions);
   logger.logPending(providerLogs, baseLogOptions);
 
-  // Something else has gone wrong
+  // If there is no provider data, something has gone wrong
   if (!providerData) {
     return null;
   }
 
-  // We can't proceed until the provider has been created onchain
+  // If the provider does not yet exist onchain, we can't start processing anything
   if (!initialization.providerExistsOnchain(providerFetchOptions, providerData)) {
     return state1;
   }
