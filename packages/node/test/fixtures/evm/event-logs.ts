@@ -36,7 +36,7 @@ export function buildShortClientRequestFulfilled(overrides?: Partial<Log>): Log 
     topics: [
       '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      '0xb781aa3a3ebcd64f31ab8b71d856385cbf7ccd7bc4beec1f2d3185342727add3',
+      '0xacc4444830f9bd249f3140c83deae5e878adc40dc563012bed7e328a8df298c2',
     ],
     transactionHash: '0xd59041ab433c2d47a1c7663db28cb429726a925d6893b5b47f68c8e38f93063c',
     logIndex: 0,
@@ -78,7 +78,7 @@ export function buildClientRequestFulfilled(overrides?: Partial<Log>): Log {
     topics: [
       '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      '0x42c0d4bc601936a673513a7601df394c1574c9af768dbb28ec3a65f019bafffd',
+      '0x2584ee7cea18d64a380c34848a3f632b5cefba1f28660a8c67408f65f8ddbc92',
     ],
     transactionHash: '0xb5e91680be948547b6959031040b3995348e33538a547859c12e2371cd7848a4',
     logIndex: 0,
@@ -120,7 +120,7 @@ export function buildFullRequestFulfilled(overrides?: Partial<Log>): Log {
     topics: [
       '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      '0xf736744948c715afb3bc1debfbcbca73e92e52dd45203cefbe466baf94e94f57',
+      '0x4ed688a94872653841989a796d1d38b10ee89d9c88aab0f712d98fad8d2a896d',
     ],
     transactionHash: '0xf731d66caaaf31565716d7a6f626def0584b8e3771a07739ddf3f676b5ec93da',
     logIndex: 0,
