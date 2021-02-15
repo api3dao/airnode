@@ -44,13 +44,6 @@ export function providerExistsOnchain(options: ProviderExistsOptions, onchainDat
   const configAuthorizers = options.authorizers;
   const currentXpub = wallet.getExtendedPublicKey(options.masterHDNode);
 
-  console.log('==============================');
-  console.log(onchainData);
-  console.log(configAdmin === onchainData.providerAdmin);
-  console.log(isEqual(configAuthorizers, onchainData.authorizers));
-  console.log(currentXpub === onchainData.xpub);
-  console.log('==============================');
-
   return (
     configAdmin === onchainData.providerAdmin &&
     isEqual(configAuthorizers, onchainData.authorizers) &&
