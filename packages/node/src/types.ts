@@ -97,13 +97,14 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly providerAdminForRecordCreation?: string;
+  readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
+  readonly providerAdmin?: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -295,12 +296,13 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
+  readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: number;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerAdminForRecordCreation?: string;
+  readonly providerAdmin?: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

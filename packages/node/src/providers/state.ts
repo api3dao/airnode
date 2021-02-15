@@ -21,7 +21,7 @@ export function buildEVMState(
   const provider = evm.buildEVMProvider(chainProvider.url, chain.id);
 
   const providerSettings: ProviderSettings = {
-    providerAdminForRecordCreation: chain.providerAdminForRecordCreation,
+    authorizers: chain.authorizers,
     // The number of blocks to look back for events to process
     blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,
     chainId: chain.id,
@@ -31,6 +31,7 @@ export function buildEVMState(
     logFormat: config.nodeSettings.logFormat,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
     name: chainProvider.name,
+    providerAdmin: chain.providerAdmin,
     providerId: evm.getProviderId(masterHDNode),
     providerIdShort: evm.getProviderIdShort(masterHDNode),
     region: config.nodeSettings.region,

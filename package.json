@@ -41,7 +41,8 @@
     "test:e2e:debug": "(cd packages/node && yarn run test:e2e:debug)",
     "test:protocol": "(cd packages/protocol && yarn run test)",
     "test:node": "(cd packages/node && yarn run test)",
-    "test:node:watch": "(cd packages/node && yarn run test:watch)"
+    "test:node:watch": "(cd packages/node && yarn run test:watch)",
+    "test:node:watch:debug": "(cd packages/node && yarn run test:watch:debug)"
   },
   "dependencies": {
     "@types/lodash": "^4.14.165",

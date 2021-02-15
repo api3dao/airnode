@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as encoding from '../abi-encoding';
 import * as contracts from '../contracts';
@@ -31,6 +32,10 @@ function getApiCallType(topic: string): ApiCallType {
 export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequest<ApiCall> {
   const { parsedLog } = logWithMetadata;
 
+  // Request counts start at 1 instead of 0 as it is more expensive to go from 0 ->
+  // than it is to go from 1 onwards
+  const requestCount = parsedLog.args.noRequests.sub(1);
+
   const request: ClientRequest<ApiCall> = {
     clientAddress: parsedLog.args.clientAddress,
     designatedWallet: parsedLog.args.designatedWallet || null,
@@ -48,7 +53,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     // Parameters are decoded separately
     parameters: {},
     providerId: parsedLog.args.providerId,
-    requestCount: parsedLog.args.noRequests.toString(),
+    requestCount: requestCount.toString(),
     requesterIndex: parsedLog.args.requesterIndex?.toString() || null,
     status: RequestStatus.Pending,
     templateId: parsedLog.args.templateId || null,

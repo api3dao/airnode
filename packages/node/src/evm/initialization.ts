@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import isEqual from 'lodash/isEqual';
 import { Airnode, Convenience } from './contracts';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
@@ -7,12 +8,19 @@ import * as wallet from './wallet';
 import { LogsData } from '../types';
 import { OPERATION_RETRIES } from '../constants';
 
+interface ProviderExistsOptions {
+  authorizers: string[];
+  masterHDNode: ethers.utils.HDNode;
+  providerAdmin?: string;
+}
+
 interface BaseFetchOptions {
-  providerAdminForRecordCreation?: string;
   airnodeAddress: string;
+  authorizers: string[];
   convenienceAddress: string;
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
+  providerAdmin?: string;
 }
 
 interface FindOptions extends BaseFetchOptions {
@@ -20,21 +28,26 @@ interface FindOptions extends BaseFetchOptions {
 }
 
 interface CreateOptions extends BaseFetchOptions {
-  providerAdminForRecordCreation: string;
-  airnodeAddress: string;
-  masterHDNode: ethers.utils.HDNode;
-  provider: ethers.providers.JsonRpcProvider;
+  providerAdmin: string;
   xpub: string;
 }
 
-interface ProviderWithBlockNumber {
-  providerAdminForRecordCreation: string;
+interface ProviderData {
+  authorizers: string[];
   blockNumber: number;
-  providerExists: boolean;
+  providerAdmin: string;
   xpub: string;
 }
 
-export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData<ProviderWithBlockNumber | null>> {
+export function providerExistsOnchain(options: ProviderExistsOptions, onchainData: ProviderData): boolean {
+  const configAdmin = options.providerAdmin;
+  const configAuthorizers = options.authorizers;
+  const currentXpub = wallet.getExtendedPublicKey(options.masterHDNode);
+
+  return configAdmin === onchainData.providerAdmin && isEqual(configAuthorizers, onchainData.authorizers) && currentXpub === onchainData.xpub;
+}
+
+export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<LogsData<ProviderData | null>> {
   const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
   const operation = () => convenience.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
   const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
@@ -47,18 +60,18 @@ export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData
     return [[fetchLog, errLog], null];
   }
 
-  const data: ProviderWithBlockNumber = {
-    providerAdminForRecordCreation: res.admin,
+  const data: ProviderData = {
+    authorizers: res.authorizers,
     // Converting this BigNumber to a JS number should not throw as the current block number
     // should always be a valid number
     blockNumber: res.blockNumber.toNumber(),
-    providerExists: !!res.xpub && res.xpub !== '',
+    providerAdmin: res.admin,
     xpub: res.xpub,
   };
 
   const blockLog = logger.pend('INFO', `Current block:${res.blockNumber}`);
 
-  if (!data.providerExists) {
+  if (!providerExistsOnchain(fetchOptions, data)) {
     const providerLog = logger.pend('INFO', 'Provider not found');
     const logs = [fetchLog, blockLog, providerLog];
     return [logs, data];
@@ -71,7 +84,7 @@ export async function findWithBlock(fetchOptions: FindOptions): Promise<LogsData
 }
 
 export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | null>> {
-  const log1 = logger.pend('INFO', `Creating provider with address:${options.providerAdminForRecordCreation}...`);
+  const log1 = logger.pend('INFO', `Creating provider with address:${options.providerAdmin}...`);
 
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
   const connectedWallet = masterWallet.connect(options.provider);
@@ -81,7 +94,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.createProvider(options.providerAdminForRecordCreation, options.xpub, {
+    airnode.estimateGas.createProvider(options.providerAdmin, options.xpub, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -122,7 +135,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
 
   const createProviderTx = () =>
-    airnode.createProvider(options.providerAdminForRecordCreation, options.xpub, {
+    airnode.createProvider(options.providerAdmin, options.xpub, {
       value: fundsToSend,
       gasLimit,
       gasPrice,
@@ -141,14 +154,12 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   return [[log1, log2, log3, log4, log5, log6, log7, log8], tx];
 }
 
-export async function findOrCreateProviderWithBlock(
-  options: BaseFetchOptions
-): Promise<LogsData<ProviderWithBlockNumber | null>> {
+export async function findOrCreateProvider(options: BaseFetchOptions): Promise<LogsData<ProviderData | null>> {
   const providerId = wallet.getProviderId(options.masterHDNode);
   const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic:${providerId}`);
 
   const fetchOptions = { ...options, providerId };
-  const [providerBlockLogs, providerBlockData] = await findWithBlock(fetchOptions);
+  const [providerBlockLogs, providerBlockData] = await fetchProviderWithData(fetchOptions);
   if (!providerBlockData) {
     const logs = [idLog, ...providerBlockLogs];
     return [logs, null];
@@ -156,15 +167,15 @@ export async function findOrCreateProviderWithBlock(
 
   // If the extended public key was returned as an empty string, it means that the provider does
   // not exist onchain yet
-  if (!providerBlockData.providerExists) {
-    if (!options.providerAdminForRecordCreation) {
-      const errLog = logger.pend('ERROR', 'Unable to find providerAdminForRecordCreation address');
+  if (!providerExistsOnchain(options, providerBlockData)) {
+    if (!options.providerAdmin) {
+      const errLog = logger.pend('ERROR', 'Unable to find providerAdmin address in config');
       return [[idLog, ...providerBlockLogs, errLog], null];
     }
 
     const createOptions = {
       ...options,
-      providerAdminForRecordCreation: options.providerAdminForRecordCreation,
+      providerAdmin: options.providerAdmin,
       xpub: wallet.getExtendedPublicKey(options.masterHDNode),
     };
     const [createLogs, _createTx] = await create(createOptions);

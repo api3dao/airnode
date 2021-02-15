@@ -10,10 +10,14 @@
       {
         "type": "evm",
         "id": 31337,
+        "providerAdmin": "0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7",
         "contracts": {
           "Airnode": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           "Convenience": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
         },
+        "authorizers": [
+          "0x0000000000000000000000000000000000000000"
+        ],
         "providers": [
           {
             "name": "evm-local",

@@ -8,7 +8,7 @@ type Log = ethers.providers.Log;
 export function buildShortClientRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 15,
-    blockHash: '0x9e98557230d9bae15503947576abf554f1c92ec9d3f8be1718df2b3807b73c14',
+    blockHash: '0xae8e753fdfd8ee6eeeb41fccebf9eee63f29a25e0b55ea4df55dc3e28697ba17',
     transactionIndex: 0,
     removed: false,
     address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
@@ -50,7 +50,7 @@ export function buildShortClientRequestFulfilled(overrides?: Partial<Log>): Log 
 export function buildClientRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 16,
-    blockHash: '0x52dfb8df442427f3108d2d5f624de29f088198369a2e584a485022be6fe4c066',
+    blockHash: '0xdeee0a243310d61d0925f53c3ed055b9f685f3f189d99797663e44aa4c6dcc51',
     transactionIndex: 0,
     removed: false,
     address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
@@ -92,7 +92,7 @@ export function buildClientRequestFulfilled(overrides?: Partial<Log>): Log {
 export function buildFullClientRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 17,
-    blockHash: '0x524366729c4bacb5f2c511b4151cc96272f2d6d6d21186652c3f3b8d411d5b6e',
+    blockHash: '0x684760250aa8007e02a49e1f82e4e59823e6702c1b4a664836133a0d27bfe22b',
     transactionIndex: 0,
     removed: false,
     address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
@@ -134,17 +134,16 @@ export function buildFullRequestFulfilled(overrides?: Partial<Log>): Log {
 export function buildWithdrawalRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 18,
-    blockHash: '0xc9e472cd3c3926653d3684d555a025f9f63ea5677f6d3c932782be08f5678a41',
+    blockHash: '0x6a1cc2c95d739003d023b5ed3174979fed0a26c5ec3b2eec21d4950120abaa90',
     transactionIndex: 0,
     removed: false,
     address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    data:
-      '0x00000000000000000000000034e9a78d63c9ca2148c95e880c6b1f48ae7f121e000000000000000000000000364160ca5e2d5a0a81a71c999787a09e4c8ae2dd',
+    data: '0x00000000000000000000000034e9a78d63c9ca2148c95e880c6b1f48ae7f121e00000000000000000000000041a8979f7094d040358173461edcb91cf0943659',
     topics: [
       '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       '0x0000000000000000000000000000000000000000000000000000000000000001',
-      '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124',
+      '0x5e8ebfa50e778e69264bdc847efd6c474992d0ba91772b41eb52d11737a9eafe'
     ],
     transactionHash: '0xac3aa3683548a631dd7561cfa32d4e003f43bfc061bb40adc9920c9c1d4d6a60',
     logIndex: 0,
