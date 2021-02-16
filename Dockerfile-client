@@ -1,0 +1,23 @@
+FROM node:12.19.0-alpine3.12
+
+ENV NODE_ENV production
+
+RUN apk update \
+    && apk add git
+
+RUN git clone --single-branch --branch pre-alpha https://github.com/api3dao/airnode.git
+WORKDIR /airnode
+
+RUN npm install -g ts-node
+RUN yarn add dotenv
+
+RUN yarn run bootstrap
+RUN yarn run build
+
+RUN echo '*/1 * * * * cd /airnode/packages/node && yarn run dev:invoke' > local-cron
+RUN /usr/bin/crontab /airnode/local-cron 
+
+CMD cp out/config.json /airnode/packages/node/__dev__/config.json | true \
+    && cp out/.env /airnode/packages/node/__dev__/.env | true \
+    && cd /airnode/packages/node \
+    && /usr/sbin/crond -f -l 8
