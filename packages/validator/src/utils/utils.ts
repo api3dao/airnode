@@ -287,20 +287,16 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
       return null;
     }
 
-    if (indexMatches) {
-      specs[paramName] = [];
-
-      for (let i = 0; i < parseInt(indexMatches[0]); i++) {
-        specs[paramName].push({});
-      }
-    } else {
-      specs[paramName] = {};
-    }
+    specs[paramName] = indexMatches ? [] : {};
   }
 
   specs = specs[paramName];
 
-  if (indexMatches) {
+  if (Array.isArray(specs) && indexMatches) {
+    for (let i = specs.length; i <= parseInt(indexMatches[0]); i++) {
+      specs.push({});
+    }
+
     specs = specs[parseInt(indexMatches[0])];
   }
 

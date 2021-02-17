@@ -18,7 +18,7 @@ export function isAnyParamValid(
   nonRedundantParams: any,
   roots: Roots
 ): boolean {
-  if (!specs) {
+  if (!specs || typeof specs !== 'object') {
     return false;
   }
 
