@@ -45,22 +45,25 @@ export function convert(specsPath: string | undefined, templatePath: string | un
  * @returns array of messages and converted specification
  */
 export function convertJson(specs: string, template: string): Result {
+  const nonRedundant = {};
+  const output = {};
+  let parsedTemplate;
+  let parsedSpecs;
+
   try {
-    const nonRedundant = {};
-    const output = {};
-    const parsedTemplate = JSON.parse(template);
-    const parsedSpecs = JSON.parse(specs);
-
-    const result = processSpecs(parsedSpecs, parsedTemplate, '', nonRedundant, {
-      specs: parsedSpecs,
-      nonRedundantParams: nonRedundant,
-      output,
-    });
-
-    return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
+    parsedTemplate = JSON.parse(template);
+    parsedSpecs = JSON.parse(specs);
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
   }
+
+  const result = processSpecs(parsedSpecs, parsedTemplate, '', nonRedundant, {
+    specs: parsedSpecs,
+    nonRedundantParams: nonRedundant,
+    output,
+  });
+
+  return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
 }
 
 /**
