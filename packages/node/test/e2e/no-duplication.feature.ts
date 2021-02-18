@@ -23,7 +23,7 @@ it('does not process requests twice', async () => {
   const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
 
-  expect(preinvokeLogs.length).toEqual(9);
+  expect(preinvokeLogs.length).toEqual(8);
   expect(preinvokeShortRequests.length).toEqual(1);
   expect(preinvokeRegularRequests.length).toEqual(1);
   expect(preinvokeFullRequests.length).toEqual(1);

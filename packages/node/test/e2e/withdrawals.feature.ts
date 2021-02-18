@@ -31,7 +31,7 @@ it('processes withdrawals only once', async () => {
   const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
 
-  expect(preinvokeLogs.length).toEqual(7);
+  expect(preinvokeLogs.length).toEqual(6);
   expect(preinvokeWithdrawals.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
