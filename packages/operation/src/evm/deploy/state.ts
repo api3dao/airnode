@@ -51,7 +51,7 @@ function buildSaveableAPIProvider(state: State, apiProviderName: string): Deploy
   const apiProvider = state.apiProvidersByName[apiProviderName];
 
   return {
-    address: apiProvider.address,
+    masterWalletAddress: apiProvider.masterWalletAddress,
     endpoints,
     templates,
   };

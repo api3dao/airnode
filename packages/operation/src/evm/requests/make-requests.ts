@@ -60,7 +60,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
   const { privateKey, requesterIndex } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
-  const apiProviderAddress = state.deployment.apiProviders[request.apiProvider].address;
+  const apiProviderAddress = state.deployment.apiProviders[request.apiProvider].masterWalletAddress;
   const providerId = deriveProviderId(apiProviderAddress);
   const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
 
@@ -101,7 +101,7 @@ export async function makeWithdrawal(state: State, request: Withdrawal) {
   const { privateKey, requesterIndex } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
-  const apiProviderAddress = state.deployment.apiProviders[request.apiProvider].address;
+  const apiProviderAddress = state.deployment.apiProviders[request.apiProvider].masterWalletAddress;
   const providerId = deriveProviderId(apiProviderAddress);
 
   const { mnemonic } = state.config.apiProviders[request.apiProvider];

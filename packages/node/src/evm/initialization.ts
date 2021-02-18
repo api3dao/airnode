@@ -88,17 +88,19 @@ export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<
 }
 
 export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | null>> {
-  const log1 = logger.pend('INFO', `Creating provider with address:${options.providerAdmin}...`);
+  const { airnodeAddress, authorizers, providerAdmin, xpub } = options;
+
+  const log1 = logger.pend('INFO', `Creating provider with address:${providerAdmin}...`);
 
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
   const connectedWallet = masterWallet.connect(options.provider);
-  const airnode = new ethers.Contract(options.airnodeAddress, Airnode.ABI, connectedWallet);
+  const airnode = new ethers.Contract(airnodeAddress, Airnode.ABI, connectedWallet);
 
   const log2 = logger.pend('INFO', 'Estimating transaction cost for creating provider...');
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.createProvider(options.providerAdmin, options.xpub, {
+    airnode.estimateGas.createProvider(providerAdmin, xpub, authorizers, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -139,7 +141,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
 
   const createProviderTx = () =>
-    airnode.createProvider(options.providerAdmin, options.xpub, {
+    airnode.createProvider(providerAdmin, xpub, authorizers, {
       value: fundsToSend,
       gasLimit,
       gasPrice,

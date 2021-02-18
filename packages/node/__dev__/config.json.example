@@ -10,7 +10,7 @@
       {
         "type": "evm",
         "id": 31337,
-        "providerAdmin": "0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7",
+        "providerAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "contracts": {
           "Airnode": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           "Convenience": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
@@ -30,8 +30,8 @@
   "triggers": {
     "request": [
       {
-        "endpointId": "0x8b4b3591c5b12c65a837459ada36116f755c9a156df205eba211c5789fc48da6",
-        "oisTitle": "coinlayer",
+        "endpointId": "0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e",
+        "oisTitle": "currency-converter-ois",
         "endpointName": "convertToUSD"
       }
     ]
@@ -40,14 +40,14 @@
     {
       "oisFormat": "1.0.0",
       "version": "1.2.3",
-      "title": "coinlayer",
+      "title": "currency-converter-ois",
       "apiSpecifications": {
         "info": {
-          "title": "Coinlayer - Price Conversion"
+          "title": "Currency Converter API"
         },
         "servers": [
           {
-            "url": "https://api.coinlayer.com"
+            "url": "http://localhost:5000"
           }
         ],
         "paths": {
@@ -76,7 +76,7 @@
         },
         "components": {
           "securitySchemes": {
-            "coinlayerSecurityScheme": {
+            "currencyConverterSecurityScheme": {
               "in": "query",
               "type": "apiKey",
               "name": "access_key"
@@ -85,7 +85,7 @@
         },
         "security": [
           {
-            "coinlayerSecurityScheme": []
+            "currencyConverterSecurityScheme": []
           }
         ]
       },

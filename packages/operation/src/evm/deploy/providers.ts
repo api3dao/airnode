@@ -10,7 +10,9 @@ export async function createProviders(state: State): Promise<State> {
 
     const tx = await state.contracts
       .Airnode!.connect(apiProvider.signer)
-      .createProvider(apiProvider.address, apiProvider.xpub, authorizers, { value: ethers.utils.parseEther('1') });
+      .createProvider(configProvider.providerAdmin, apiProvider.xpub, authorizers, {
+        value: ethers.utils.parseEther('1'),
+      });
 
     await tx.wait();
   }

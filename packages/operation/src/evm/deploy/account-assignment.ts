@@ -10,7 +10,7 @@ export async function assignProviderAccounts(state: State): Promise<State> {
     const xpub = deriveExtendedPublicKey(apiProvider.mnemonic);
 
     apiProvidersByName[providerName] = {
-      address: providerWallet.address,
+      masterWalletAddress: providerWallet.address,
       mnemonic: apiProvider.mnemonic,
       signer: providerWallet,
       xpub,
