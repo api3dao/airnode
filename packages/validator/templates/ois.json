@@ -9,7 +9,6 @@
   "apiSpecifications": {
     "__apiSpecs": {},
     "paths": {
-      "__ignore": {},
       "__conditions": [
         {
           "__if": {
@@ -28,7 +27,47 @@
             }
           }
         }
-      ]
+      ],
+      "__objectItem": {
+        "__objectItem": {
+          "parameters": {
+            "__arrayItem": {
+              "__conditions": [
+                {
+                  "__if": {
+                    "name": ".*"
+                  },
+                  "__rootThen": {
+                    "endpoints": {
+                      "__any": {
+                        "__ignore": {},
+                        "operation": {
+                          "path": {
+                            "__regexp": "^{{2}}$"
+                          }
+                        },
+                        "__any": {
+                          "__any": {
+                            "operationParameter": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "__ignore": {}
+            }
+          }
+        }
+      }
     }
   },
   "endpoints": {
@@ -53,20 +92,25 @@
       },
       "parameters": {
         "__arrayItem": {
-          "__conditions": [
-            {
-              "__if": {
-                "name": ".*"
-              },
-              "__rootThen": {
-                "apiSpecifications": {
-                  "paths": {
-                    "[[/{{0}}.operation.path]]": {
-                      "__any": {
-                        "parameters": {
-                          "__any": {
-                            "name": {
-                              "__regexp": "^__match$"
+          "operationParameter": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "apiSpecifications": {
+                    "paths": {
+                      "[[/{{0}}.operation.path]]": {
+                        "__any": {
+                          "parameters": {
+                            "__any": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
+                              }
                             }
                           }
                         }
@@ -75,8 +119,41 @@
                   }
                 }
               }
-            }
-          ]
+            ]
+          }
+        }
+      },
+      "fixedOperationParameters": {
+        "__arrayItem": {
+          "operationParameter": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "apiSpecifications": {
+                    "paths": {
+                      "[[/{{0}}.operation.path]]": {
+                        "__any": {
+                          "parameters": {
+                            "__any": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
         }
       }
     }
