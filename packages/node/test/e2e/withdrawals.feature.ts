@@ -17,10 +17,6 @@ it('processes withdrawals only once', async () => {
 
   const deployment = await e2e.deployAirnode(deployConfig);
 
-  console.log('=================================');
-  console.log(deployment);
-  console.log('=================================');
-
   process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
@@ -68,7 +64,7 @@ it('processes withdrawals only once', async () => {
   const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
 
-  expect(postinvokeLogs.length).toEqual(8);
+  expect(postinvokeLogs.length).toEqual(7);
   expect(postinvokeWithdrawals.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(1);
 
@@ -76,7 +72,7 @@ it('processes withdrawals only once', async () => {
 
   // Withdrawals are not processed twice
   const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
-  expect(run2Logs.length).toEqual(8);
+  expect(run2Logs.length).toEqual(7);
 
   // Balances have not changed
   const run2Balance = await provider.getBalance(alice!.address);
