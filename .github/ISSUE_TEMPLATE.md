@@ -9,8 +9,7 @@ a branch, which commit?
 
 ## Present Behaviour
 
-Describe the present behaviour of the application, with regards to this
-issue.
+Describe the present behaviour of the application, with regards to this issue.
 
 ## Expected Behaviour
 
