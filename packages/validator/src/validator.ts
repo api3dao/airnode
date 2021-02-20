@@ -16,7 +16,7 @@ const configSecurityTemplate = JSON.parse(fs.readFileSync('templates/configSecur
  */
 export function validate(specsPath: string | undefined, templatePath: string | undefined): Result {
   if (!specsPath || !templatePath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
 
   let template, specs;
@@ -24,13 +24,13 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   try {
     template = fs.readFileSync(templatePath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)], output: {} };
+    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
   }
 
   try {
     specs = fs.readFileSync(specsPath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
+    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
   }
 
   return validateJson(specs, template);
