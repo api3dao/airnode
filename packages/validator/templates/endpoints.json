@@ -41,7 +41,27 @@
             "name": {},
             "in": {
               "__regexp": "^(query|header|path|cookie)$"
-            }
+            },
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "{{0}}": {
+                    "fixedOperationParameters": {
+                      "__arrayItem": {
+                        "operationParameter": {
+                          "name": {
+                            "__regexp": "^(?!__match$).*$"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           },
           "__optional": {
             "default": {},
