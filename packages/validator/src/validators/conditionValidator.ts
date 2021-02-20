@@ -45,6 +45,10 @@ function validateConditionRegexInKey(
 
     // key matched regex, this means "if section" of the condition is fulfilled so structure in "then section" must be present
     for (const param of matches) {
+      if (!param.length) {
+        continue;
+      }
+
       const nonRedundantParamsCopy = {};
       let template = utils.replaceConditionalMatch(param, thenCondition);
       template = utils.replaceParamIndexWithName(template, paramPath);

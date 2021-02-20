@@ -7,6 +7,7 @@ import { isAnyParamValid } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
 import { execute } from './utils/action';
 import fs from 'fs';
+import { validateParameter } from './validators/parameterValidator';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
 const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
@@ -147,7 +148,7 @@ export function processSpecs(
         tmpNonRedundant = [];
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, endpointsTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(specs, endpointsTemplate, '', tmpNonRedundant, tmpRoots, paramPath);
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -167,27 +168,9 @@ export function processSpecs(
 
       // key is not a special keyword, but a regular parameter
       default:
-        if (!specs[key]) {
-          messages.push(logger.error(`Missing parameter ${paramPath}${paramPath && key ? '.' : ''}${key}`));
-
-          continue;
-        }
-
-        nonRedundantParams[key] = utils.getEmptyNonRedundantParam(key, template, nonRedundantParams, specs[key]);
-
-        if (!Object.keys(template[key]).length) {
-          continue;
-        }
-
-        tmpResult = processSpecs(
-          specs[key],
-          template[key],
-          `${paramPath}${paramPath ? '.' : ''}${key}`,
-          nonRedundantParams[key],
-          roots,
-          paramPathPrefix
+        messages.push(
+          ...validateParameter(key, specs, template, paramPath, nonRedundantParams, roots, paramPathPrefix)
         );
-        messages.push(...tmpResult.messages);
 
         break;
     }
