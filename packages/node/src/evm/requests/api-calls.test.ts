@@ -210,36 +210,36 @@ describe('mapRequests (ApiCall)', () => {
   });
 
   it('updates the status of fulfilled ApiCall requests', () => {
-    // const requestEvent = fixtures.evm.logs.buildClientRequest();
-    // const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
-    // const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    // const requestLog = airnodeInterface.parseLog(requestEvent);
-    // const fulfillLog = airnodeInterface.parseLog(fulfillEvent);
-    //
-    // const requestLogWithMetadata = {
-    //   parsedLog: requestLog,
-    //   blockNumber: 10716082,
-    //   currentBlock: 10716085,
-    //   ignoreBlockedRequestsAfterBlocks: 20,
-    //   transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
-    // };
-    // const fulfillLogWithMetadata = {
-    //   parsedLog: fulfillLog,
-    //   blockNumber: 10716084,
-    //   currentBlock: 10716087,
-    //   ignoreBlockedRequestsAfterBlocks: 20,
-    //   transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
-    // };
-    //
-    // const [logs, requests] = apiCalls.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);
-    // expect(logs).toEqual([
-    //   {
-    //     level: 'DEBUG',
-    //     message: `Request ID:${requestLog.args.requestId} (API call) has already been fulfilled`,
-    //   },
-    // ]);
-    // expect(requests.length).toEqual(1);
-    // expect(requests[0].id).toEqual(requestLog.args.requestId);
-    // expect(requests[0].status).toEqual(RequestStatus.Fulfilled);
+    const requestEvent = fixtures.evm.logs.buildClientRequest();
+    const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
+    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+    const requestLog = airnodeInterface.parseLog(requestEvent);
+    const fulfillLog = airnodeInterface.parseLog(fulfillEvent);
+
+    const requestLogWithMetadata = {
+      parsedLog: requestLog,
+      blockNumber: 10716082,
+      currentBlock: 10716085,
+      ignoreBlockedRequestsAfterBlocks: 20,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+    };
+    const fulfillLogWithMetadata = {
+      parsedLog: fulfillLog,
+      blockNumber: 10716084,
+      currentBlock: 10716087,
+      ignoreBlockedRequestsAfterBlocks: 20,
+      transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
+    };
+
+    const [logs, requests] = apiCalls.mapRequests([requestLogWithMetadata, fulfillLogWithMetadata]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Request ID:${requestLog.args.requestId} (API call) has already been fulfilled`,
+      },
+    ]);
+    expect(requests.length).toEqual(1);
+    expect(requests[0].id).toEqual(requestLog.args.requestId);
+    expect(requests[0].status).toEqual(RequestStatus.Fulfilled);
   });
 });
