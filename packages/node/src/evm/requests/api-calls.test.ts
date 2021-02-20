@@ -125,39 +125,39 @@ describe('applyParameters', () => {
 
 describe('updateFulfilledRequests (ApiCall)', () => {
   it('updates the status of fulfilled API calls', () => {
-    // const id = '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5';
-    // const apiCall = fixtures.requests.createApiCall({ id });
-    // const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], [id]);
-    // expect(logs).toEqual([
-    //   {
-    //     level: 'DEBUG',
-    //     message: `Request ID:${id} (API call) has already been fulfilled`,
-    //   },
-    // ]);
-    // expect(requests).toEqual([
-    //   {
-    //     id,
-    //     clientAddress: 'clientAddress',
-    //     designatedWallet: 'designatedWallet',
-    //     endpointId: 'endpointId',
-    //     fulfillAddress: 'fulfillAddress',
-    //     fulfillFunctionId: 'fulfillFunctionId',
-    //     encodedParameters: 'encodedParameters',
-    //     metadata: {
-    //       blockNumber: 10716082,
-    //       currentBlock: 10716090,
-    //       ignoreBlockedRequestsAfterBlocks: 20,
-    //       transactionHash: 'logTransactionHash',
-    //     },
-    //     parameters: { from: 'ETH' },
-    //     providerId: 'providerId',
-    //     requestCount: '12',
-    //     requesterIndex: '3',
-    //     status: RequestStatus.Fulfilled,
-    //     templateId: null,
-    //     type: 'regular',
-    //   },
-    // ]);
+    const id = '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5';
+    const apiCall = fixtures.requests.createApiCall({ id });
+    const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], [id]);
+    expect(logs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Request ID:${id} (API call) has already been fulfilled`,
+      },
+    ]);
+    expect(requests).toEqual([
+      {
+        id,
+        clientAddress: 'clientAddress',
+        designatedWallet: 'designatedWallet',
+        endpointId: 'endpointId',
+        fulfillAddress: 'fulfillAddress',
+        fulfillFunctionId: 'fulfillFunctionId',
+        encodedParameters: 'encodedParameters',
+        metadata: {
+          blockNumber: 10716082,
+          currentBlock: 10716090,
+          ignoreBlockedRequestsAfterBlocks: 20,
+          transactionHash: 'logTransactionHash',
+        },
+        parameters: { from: 'ETH' },
+        providerId: 'providerId',
+        requestCount: '12',
+        requesterIndex: '3',
+        status: RequestStatus.Fulfilled,
+        templateId: null,
+        type: 'regular',
+      },
+    ]);
   });
 
   it('returns the request if it is not fulfilled', () => {
