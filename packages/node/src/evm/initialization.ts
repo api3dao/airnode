@@ -11,7 +11,7 @@ import { OPERATION_RETRIES } from '../constants';
 interface ProviderExistsOptions {
   authorizers: string[];
   masterHDNode: ethers.utils.HDNode;
-  providerAdmin?: string;
+  providerAdmin: string;
 }
 
 interface BaseFetchOptions {
@@ -20,7 +20,7 @@ interface BaseFetchOptions {
   convenienceAddress: string;
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
-  providerAdmin?: string;
+  providerAdmin: string;
 }
 
 interface FindOptions extends BaseFetchOptions {

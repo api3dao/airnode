@@ -104,7 +104,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerAdmin?: string;
+  readonly providerAdmin: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -302,7 +302,7 @@ export interface ChainConfig {
   readonly id: number;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerAdmin?: string;
+  readonly providerAdmin: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }
