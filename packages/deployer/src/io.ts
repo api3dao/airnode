@@ -33,7 +33,7 @@ export async function verifyMnemonic(mnemonic) {
   clearLine();
 
   for (const indexedMnemonic of shuffledIndexedMnemonics) {
-    let word = await ask(rl, `Enter word #${indexedMnemonic.index}`);
+    let word = await ask(rl, `Enter word #${indexedMnemonic.index}: `);
     clearLine();
     while (word != indexedMnemonic.mnemonic) {
       word = await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over`);
