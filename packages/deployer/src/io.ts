@@ -36,7 +36,7 @@ export async function verifyMnemonic(mnemonic) {
     let word = await ask(rl, `Enter word #${indexedMnemonic.index}: `);
     clearLine();
     while (word != indexedMnemonic.mnemonic) {
-      word = await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over`);
+      word = await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over: `);
       clearLine();
     }
   }
