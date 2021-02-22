@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 import { Convenience } from '../contracts';
 import * as logger from '../../logger';
 import { go, retryOperation } from '../../utils/promise-utils';
@@ -12,6 +13,31 @@ interface FetchOptions {
   convenienceAddress: string;
   providerId: string;
   provider: ethers.providers.JsonRpcProvider;
+}
+
+export async function fetchAuthorizationStatus(
+  convenience: ethers.Contract,
+  providerId: string,
+  apiCall: ClientRequest<ApiCall>
+): Promise<LogsData<boolean | null>> {
+  const contractCall = () =>
+    convenience.checkAuthorizationStatus(
+      providerId,
+      apiCall.id,
+      apiCall.endpointId,
+      apiCall.requesterIndex,
+      apiCall.designatedWallet,
+      apiCall.clientAddress
+    ) as Promise<boolean>;
+  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
+
+  const [err, authorized] = await go(retryableContractCall);
+  if (err || isNil(authorized)) {
+    const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`, err);
+    return [[log], null];
+  }
+  const successLog = logger.pend('INFO', `Fetched authorization status for Request:${apiCall.id}`);
+  return [[successLog], authorized];
 }
 
 async function fetchAuthorizationStatuses(
@@ -39,16 +65,31 @@ async function fetchAuthorizationStatuses(
 
   const [err, data] = await go(retryableContractCall);
   if (err || !data) {
-    const log = logger.pend('ERROR', 'Failed to fetch authorization details', err);
-    return [[log], null];
+    const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', err);
+
+    // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
+    const promises: Promise<LogsData<{ id: string; authorized: boolean | null }>>[] = apiCalls.map(async (apiCall) => {
+      const [logs, authorized] = await fetchAuthorizationStatus(convenience, providerId, apiCall);
+      const data = { id: apiCall.id, authorized };
+      const result: LogsData<{ id: string; authorized: boolean | null }> = [logs, data];
+      return result;
+    });
+    const results = await Promise.all(promises);
+    const allLogs = flatMap(results, (r) => r[0]);
+    const authorizationsWithId = results.filter((r) => !isNil(r[1].authorized)).map((r) => r[1]);
+    const authorizationsById: { [id: string]: boolean } = authorizationsWithId.reduce((acc, status) => {
+      return { ...acc, [status.id]: status.authorized };
+    }, {});
+
+    return [[groupLog, ...allLogs], authorizationsById];
   }
 
   // Authorization statuses are returned in the same order that they are requested.
-  const authorizations = apiCalls.reduce((acc, apiCall, index) => {
+  const authorizationsById = apiCalls.reduce((acc, apiCall, index) => {
     return { ...acc, [apiCall.id]: data[index] };
   }, {});
 
-  return [[], authorizations];
+  return [[], authorizationsById];
 }
 
 export async function fetch(

@@ -1,3 +1,4 @@
+const checkAuthorizationStatusMock = jest.fn();
 const checkAuthorizationStatusesMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
@@ -5,6 +6,7 @@ jest.mock('ethers', () => {
     ethers: {
       ...original,
       Contract: jest.fn().mockImplementation(() => ({
+        checkAuthorizationStatus: checkAuthorizationStatusMock,
         checkAuthorizationStatuses: checkAuthorizationStatusesMock,
       })),
     },
@@ -94,25 +96,101 @@ describe('fetch (authorizations)', () => {
   it('retries once on failure', async () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
-
     const apiCalls = [fixtures.requests.createApiCall({ id: '0xapiCallId' })];
-
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({ '0xapiCallId': true });
   });
 
-  it('retries a maximum of two times', async () => {
+  it('fetches individual authorization statuses if the group cannot be fetched', async () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
-    checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
-    const apiCalls = [fixtures.requests.createApiCall()];
+    checkAuthorizationStatusMock.mockResolvedValueOnce(true);
 
-    const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
+    const apiCall = fixtures.requests.createApiCall();
+    const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
-      { level: 'ERROR', message: 'Failed to fetch authorization details', error: new Error('Server says no') },
+      { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
+      { level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` },
+    ]);
+    expect(res).toEqual({ [apiCall.id]: true });
+  });
+
+  it('retries individual authorization calls once', async () => {
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
+    checkAuthorizationStatusMock.mockResolvedValueOnce(false);
+
+    const apiCall = fixtures.requests.createApiCall();
+    const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
+      { level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` },
+    ]);
+    expect(res).toEqual({ [apiCall.id]: false });
+  });
+
+  it('returns nothing after all individual authorization calls are exhausted', async () => {
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+    checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
+    checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
+
+    const apiCall = fixtures.requests.createApiCall();
+    const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
+      {
+        level: 'ERROR',
+        message: `Failed to fetch authorization details for Request:${apiCall.id}`,
+        error: new Error('Server still says no'),
+      },
     ]);
     expect(res).toEqual({});
+  });
+});
+
+describe('fetchAuthorizationStatus', () => {
+  const providerId = '0xproviderId';
+  let convenience: ethers.Contract;
+
+  beforeEach(() => {
+    convenience = new ethers.Contract('address', ['ABI']);
+  });
+
+  it('fetches individual authorization statuses if the group cannot be fetched', async () => {
+    checkAuthorizationStatusMock.mockResolvedValueOnce(true);
+    const apiCall = fixtures.requests.createApiCall();
+    const [logs, res] = await authorization.fetchAuthorizationStatus(convenience, providerId, apiCall);
+    expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
+    expect(res).toEqual(true);
+  });
+
+  it('retries individual authorization calls once', async () => {
+    checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
+    checkAuthorizationStatusMock.mockResolvedValueOnce(false);
+    const apiCall = fixtures.requests.createApiCall();
+    const [logs, res] = await authorization.fetchAuthorizationStatus(convenience, providerId, apiCall);
+    expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
+    expect(res).toEqual(false);
+  });
+
+  it('returns nothing after all individual authorization calls are exhausted', async () => {
+    checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
+    checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
+    const apiCall = fixtures.requests.createApiCall();
+    const [logs, res] = await authorization.fetchAuthorizationStatus(convenience, providerId, apiCall);
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Failed to fetch authorization details for Request:${apiCall.id}`,
+        error: new Error('Server still says no'),
+      },
+    ]);
+    expect(res).toEqual(null);
   });
 });
