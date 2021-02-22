@@ -210,6 +210,12 @@
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
 										}
+									},
+									{
+										"__insert": {
+											"__target": "apiSpecifications.security.{{2}}",
+											"__value": []
+										}
 									}
 								]
 							}
@@ -242,12 +248,6 @@
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.name"
 										}
-									},
-									{
-										"__insert": {
-											"__target": "apiSpecifications.security.{{2}}",
-											"__value": []
-										}
 									}
 								]
 							}
@@ -264,12 +264,6 @@
 									{
 										"__copy": {
 											"__target": "apiSpecifications.components.securitySchemes.{{2}}.scheme"
-										}
-									},
-									{
-										"__insert": {
-											"__target": "apiSpecifications.security.{{2}}",
-											"__value": []
 										}
 									}
 								]
