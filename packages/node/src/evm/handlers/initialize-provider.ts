@@ -68,8 +68,9 @@ export async function initializeProvider(
     return null;
   }
 
-  // If the provider does not yet exist onchain, we can't start processing anything
-  if (!initialization.providerExistsOnchain(providerFetchOptions, providerData)) {
+  // If the provider does not yet exist onchain then we can't start processing anything.
+  // This is to be expected for new Airnode deployments and is not an error case
+  if (providerData.xpub === '') {
     return state1;
   }
 

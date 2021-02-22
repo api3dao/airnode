@@ -18,6 +18,39 @@ import { ethers } from 'ethers';
 import * as wallet from './wallet';
 import * as initialization from './initialization';
 
+describe('providerDetailsMatch', () => {
+  const options = {
+    authorizers: [ethers.constants.AddressZero],
+    masterHDNode: wallet.getMasterHDNode(),
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+  };
+
+  const validData = {
+    authorizers: [ethers.constants.AddressZero],
+    blockNumber: 12,
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    xpub:
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+  };
+
+  it('is true if the provider onchain data matches the expected data', () => {
+    const res = initialization.providerDetailsMatch(options, validData);
+    expect(res).toEqual(true);
+  });
+
+  it('is false if the provider admin does not exist', () => {
+    const invalidData = { ...validData, providerAdmin: '' };
+    const res = initialization.providerDetailsMatch(options, invalidData);
+    expect(res).toEqual(false);
+  });
+
+  it('is false if the authorizers do not match', () => {
+    const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
+    const res = initialization.providerDetailsMatch(options, invalidData);
+    expect(res).toEqual(false);
+  });
+});
+
 describe('providerExistsOnchain', () => {
   const options = {
     authorizers: [ethers.constants.AddressZero],
@@ -178,9 +211,48 @@ describe('create', () => {
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-    xpub:
+    currentXpub:
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    onchainData: {
+      authorizers: [ethers.constants.AddressZero],
+      blockNumber: 12,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      xpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    },
   };
+
+  it('warns the user if there are insufficient funds to update the provider', async () => {
+    options.onchainData.authorizers = ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'];
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+    balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    const [logs, res] = await initialization.create(options);
+    expect(logs).toEqual([
+      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      { level: 'INFO', message: 'Estimated gas limit: 70000' },
+      { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+      {
+        level: 'WARN',
+        message: 'Unable to update onchain provider record as the master wallet does not have sufficient funds',
+      },
+      {
+        level: 'WARN',
+        message: 'Current balance: 0.000000000000001 ETH. Estimated transaction cost: 0.00000000007 ETH',
+      },
+      {
+        level: 'WARN',
+        message:
+          'Any updates to "providerAdmin" or "authorizers" will not take affect until the provider has been updated',
+      },
+    ]);
+    expect(res).toEqual({});
+    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+    expect(createProviderMock).not.toHaveBeenCalled();
+  });
 
   it('creates the provider and returns the transaction', async () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
@@ -346,37 +418,6 @@ describe('findOrCreateProvider', () => {
       ['0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
       ['0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
     ]);
-  });
-
-  it('returns null if attemping creating the provider without providerAdmin', async () => {
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub: '',
-    });
-    const [logs, res] = await initialization.findOrCreateProvider({
-      ...options,
-      providerAdmin: undefined,
-    });
-    expect(logs).toEqual([
-      {
-        level: 'DEBUG',
-        message:
-          'Computed provider ID from mnemonic:0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      },
-      { level: 'INFO', message: 'Fetching current block and provider admin details...' },
-      { level: 'INFO', message: 'Current block:12' },
-      { level: 'INFO', message: 'Provider not found' },
-      { level: 'ERROR', message: 'Unable to find providerAdmin address in config' },
-    ]);
-    expect(res).toEqual(null);
-    expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
-    expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
-      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
-    );
-    expect(estimateCreateProviderMock).not.toHaveBeenCalled();
-    expect(createProviderMock).not.toHaveBeenCalled();
   });
 
   it('creates a provider if xpub if empty and returns the transaction', async () => {

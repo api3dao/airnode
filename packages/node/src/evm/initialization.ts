@@ -27,11 +27,6 @@ interface FindOptions extends BaseFetchOptions {
   providerId: string;
 }
 
-interface CreateOptions extends BaseFetchOptions {
-  providerAdmin: string;
-  xpub: string;
-}
-
 interface ProviderData {
   authorizers: string[];
   blockNumber: number;
@@ -39,16 +34,20 @@ interface ProviderData {
   xpub: string;
 }
 
-export function providerExistsOnchain(options: ProviderExistsOptions, onchainData: ProviderData): boolean {
+interface CreateOptions extends BaseFetchOptions {
+  currentXpub: string;
+  onchainData: ProviderData;
+}
+
+export function providerDetailsMatch(options: ProviderExistsOptions, onchainData: ProviderData): boolean {
   const configAdmin = options.providerAdmin;
   const configAuthorizers = options.authorizers;
-  const currentXpub = wallet.getExtendedPublicKey(options.masterHDNode);
+  return configAdmin === onchainData.providerAdmin && isEqual(configAuthorizers, onchainData.authorizers);
+}
 
-  return (
-    configAdmin === onchainData.providerAdmin &&
-    isEqual(configAuthorizers, onchainData.authorizers) &&
-    currentXpub === onchainData.xpub
-  );
+export function providerExistsOnchain(options: ProviderExistsOptions, onchainData: ProviderData): boolean {
+  const currentXpub = wallet.getExtendedPublicKey(options.masterHDNode);
+  return providerDetailsMatch(options, onchainData) && currentXpub === onchainData.xpub;
 }
 
 export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<LogsData<ProviderData | null>> {
@@ -87,8 +86,8 @@ export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<
   return [logs, data];
 }
 
-export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | null>> {
-  const { airnodeAddress, authorizers, providerAdmin, xpub } = options;
+export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | {} | null>> {
+  const { airnodeAddress, authorizers, currentXpub, onchainData, providerAdmin } = options;
 
   const log1 = logger.pend('INFO', `Creating provider with address:${providerAdmin}...`);
 
@@ -100,7 +99,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.createProvider(providerAdmin, xpub, authorizers, {
+    airnode.estimateGas.createProvider(providerAdmin, currentXpub, authorizers, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -136,12 +135,35 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Send the entire balance less than transaction cost
   const txCost = gasLimit.mul(gasPrice);
+
+  // NOTE: it's possible that the master wallet does not have sufficient funds
+  // to create a new onchain provider - if one already exists for the given
+  // mnemonic/extended public key. Airnode can still serve requests, but any changes to fields
+  // such as "authorizers" or "providerAdmin" will not be applied.
+  if (
+    txCost.gt(masterWalletBalance) &&
+    onchainData.xpub !== '' &&
+    currentXpub === onchainData.xpub &&
+    !providerDetailsMatch(options, onchainData)
+  ) {
+    const masterBal = ethers.utils.formatEther(masterWalletBalance);
+    const ethTxCost = ethers.utils.formatEther(txCost);
+    const warningMsg = 'Unable to update onchain provider record as the master wallet does not have sufficient funds';
+    const balanceMsg = `Current balance: ${masterBal} ETH. Estimated transaction cost: ${ethTxCost} ETH`;
+    const updatesMsg =
+      'Any updates to "providerAdmin" or "authorizers" will not take affect until the provider has been updated';
+    const warnLog = logger.pend('WARN', warningMsg);
+    const balanceLog = logger.pend('WARN', balanceMsg);
+    const updatesLog = logger.pend('WARN', updatesMsg);
+    return [[log1, log2, log3, log4, warnLog, balanceLog, updatesLog], {}];
+  }
+
   const fundsToSend = masterWalletBalance.sub(txCost);
 
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
 
   const createProviderTx = () =>
-    airnode.createProvider(providerAdmin, xpub, authorizers, {
+    airnode.createProvider(providerAdmin, currentXpub, authorizers, {
       value: fundsToSend,
       gasLimit,
       gasPrice,
@@ -174,17 +196,13 @@ export async function findOrCreateProvider(options: BaseFetchOptions): Promise<L
   // If the extended public key was returned as an empty string, it means that the provider does
   // not exist onchain yet
   if (!providerExistsOnchain(options, providerBlockData)) {
-    if (!options.providerAdmin) {
-      const errLog = logger.pend('ERROR', 'Unable to find providerAdmin address in config');
-      return [[idLog, ...providerBlockLogs, errLog], null];
-    }
-
     const createOptions = {
       ...options,
+      currentXpub: wallet.getExtendedPublicKey(options.masterHDNode),
       providerAdmin: options.providerAdmin,
-      xpub: wallet.getExtendedPublicKey(options.masterHDNode),
+      onchainData: providerBlockData,
     };
-    const [createLogs, _createTx] = await create(createOptions);
+    const [createLogs, _createRes] = await create(createOptions);
     const logs = [idLog, ...providerBlockLogs, ...createLogs];
     return [logs, providerBlockData];
   }
