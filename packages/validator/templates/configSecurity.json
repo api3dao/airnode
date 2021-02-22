@@ -51,15 +51,15 @@
               }
             }
           },
+          "contracts": {
+            "__keyRegexp": "^(Airnode|Convenience)$",
+            "__objectItem": {
+              "__regexp": "^0x[a-fA-F0-9]{40}$"
+            }
+          },
           "__optional": {
             "providerAdminForRecordCreation": {
               "__regexp": "^0x[a-fA-F0-9]{40}$"
-            },
-            "contracts": {
-              "__keyRegexp": "^(Airnode|Convenience)$",
-              "__objectItem": {
-                "__regexp": "^0x[a-fA-F0-9]{40}$"
-              }
             }
           }
         }
