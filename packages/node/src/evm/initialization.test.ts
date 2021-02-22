@@ -222,38 +222,6 @@ describe('create', () => {
     },
   };
 
-  it('warns the user if there are insufficient funds to update the provider', async () => {
-    options.onchainData.authorizers = ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'];
-    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
-    gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
-    const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
-    balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
-    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await initialization.create(options);
-    expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
-      { level: 'INFO', message: 'Estimated gas limit: 70000' },
-      { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
-      {
-        level: 'WARN',
-        message: 'Unable to update onchain provider record as the master wallet does not have sufficient funds',
-      },
-      {
-        level: 'WARN',
-        message: 'Current balance: 0.000000000000001 ETH. Estimated transaction cost: 0.00000000007 ETH',
-      },
-      {
-        level: 'WARN',
-        message:
-          'Any updates to "providerAdmin" or "authorizers" will not take affect until the provider has been updated',
-      },
-    ]);
-    expect(res).toEqual({});
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).not.toHaveBeenCalled();
-  });
-
   it('creates the provider and returns the transaction', async () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
@@ -382,6 +350,105 @@ describe('create', () => {
         gasLimit: ethers.BigNumber.from(70_000),
       }
     );
+  });
+
+  describe('insufficient funds in the master wallet', () => {
+    it('warns the user if the onchain provider would be updated', async () => {
+      options.onchainData.authorizers = ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'];
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      const [logs, res] = await initialization.create(options);
+      expect(logs).toEqual([
+        { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+        { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+        { level: 'INFO', message: 'Estimated gas limit: 70000' },
+        { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+        {
+          level: 'WARN',
+          message: 'Unable to update onchain provider record as the master wallet does not have sufficient funds',
+        },
+        {
+          level: 'WARN',
+          message: 'Current balance: 0.000000000000001 ETH. Estimated transaction cost: 0.00000000007 ETH',
+        },
+        {
+          level: 'WARN',
+          message:
+            'Any updates to "providerAdmin" or "authorizers" will not take affect until the provider has been updated',
+        },
+      ]);
+      expect(res).toEqual({});
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).not.toHaveBeenCalled();
+    });
+
+    it('does not warn if there is no onchain provider but fails to create the provider', async () => {
+      options.onchainData.xpub = '';
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.create(options);
+      expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
+      expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
+        {
+          level: 'ERROR',
+          message: 'Unable to submit create provider transaction',
+          error: new Error('Insufficient funds'),
+        },
+      ]);
+      expect(res).toEqual(null);
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not warn if the onchain xpub is different', async () => {
+      options.onchainData.xpub = '0xanotherxpub';
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.create(options);
+      expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
+      expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
+        {
+          level: 'ERROR',
+          message: 'Unable to submit create provider transaction',
+          error: new Error('Insufficient funds'),
+        },
+      ]);
+      expect(res).toEqual(null);
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not warn if the provider details match', async () => {
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.create(options);
+      expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
+      expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
+        {
+          level: 'ERROR',
+          message: 'Unable to submit create provider transaction',
+          error: new Error('Insufficient funds'),
+        },
+      ]);
+      expect(res).toEqual(null);
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).toHaveBeenCalledTimes(2);
+    });
   });
 });
 
