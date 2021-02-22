@@ -52,8 +52,10 @@
             }
           },
           "contracts": {
-            "__keyRegexp": "^(Airnode|Convenience)$",
-            "__objectItem": {
+            "Airnode": {
+              "__regexp": "^0x[a-fA-F0-9]{40}$"
+            },
+            "Convenience": {
               "__regexp": "^0x[a-fA-F0-9]{40}$"
             }
           },
