@@ -190,96 +190,94 @@
 		}
 	},
 	"components": {
-		"schemas": {
-			"securitySchemes": {
-				"__objectItem": {
-					"type": {
-						"__regexp": "^(apiKey|http)$"
-					},
-					"in": {
-						"__regexp": "^(query|header|cookie)$"
-					},
-					"__conditions": [
-						{
-							"__if": {
-								"type": "^(apiKey|http)$"
-							},
-							"__then": {
-								"type": {
-									"__actions": [
-										{
-											"__copy": {
-												"__target": "apiSpecifications.components.securitySchemes.{{3}}.type"
-											}
-										}
-									]
-								}
-							}
+		"securitySchemes": {
+			"__objectItem": {
+				"type": {
+					"__regexp": "^(apiKey|http)$"
+				},
+				"in": {
+					"__regexp": "^(query|header|cookie)$"
+				},
+				"__conditions": [
+					{
+						"__if": {
+							"type": "^(apiKey|http)$"
 						},
-						{
-							"__if": {
-								"in": "^(query|header|cookie)$"
-							},
-							"__then": {
-								"in": {
-									"__actions": [
-										{
-											"__copy": {
-												"__target": "apiSpecifications.components.securitySchemes.{{3}}.in"
-											}
+						"__then": {
+							"type": {
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
 										}
-									]
-								}
-							}
-						},
-						{
-							"__if": {
-								"type": "^apiKey$"
-							},
-							"__then": {
-								"name": {
-									"__actions": [
-										{
-											"__copy": {
-												"__target": "apiSpecifications.components.securitySchemes.{{3}}.name"
-											}
-										},
-										{
-											"__insert": {
-												"__target": "apiSpecifications.security.{{3}}",
-												"__value": []
-											}
-										}
-									]
-								}
-							}
-						},
-						{
-							"__if": {
-								"type": "^http$"
-							},
-							"__then": {
-								"scheme": {
-									"__regexp": "^(Basic|Bearer)$",
-									"__actions": [
-										{
-											"__copy": {
-												"__target": "apiSpecifications.components.securitySchemes.{{3}}.scheme"
-											}
-										},
-										{
-											"__insert": {
-												"__target": "apiSpecifications.security.{{3}}",
-												"__value": []
-											}
-										}
-									]
-								}
+									}
+								]
 							}
 						}
-					],
-					"__ignore": {}
-				}
+					},
+					{
+						"__if": {
+							"in": "^(query|header|cookie)$"
+						},
+						"__then": {
+							"in": {
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"type": "^apiKey$"
+						},
+						"__then": {
+							"name": {
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.name"
+										}
+									},
+									{
+										"__insert": {
+											"__target": "apiSpecifications.security.{{2}}",
+											"__value": []
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"type": "^http$"
+						},
+						"__then": {
+							"scheme": {
+								"__regexp": "^(Basic|Bearer)$",
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.scheme"
+										}
+									},
+									{
+										"__insert": {
+											"__target": "apiSpecifications.security.{{2}}",
+											"__value": []
+										}
+									}
+								]
+							}
+						}
+					}
+				],
+				"__ignore": {}
 			}
 		},
 		"__ignore": {}

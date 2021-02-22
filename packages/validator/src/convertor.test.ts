@@ -54,8 +54,8 @@ describe('convertor', () => {
     expect(convert('exampleSpecs/OAS.specs.json', 'templates/OAS2OIS.json')).toEqual({
       valid: false,
       messages: [
-        formattingMessage('components.schemas.securitySchemes.petstore_auth.type'),
-        missingParamMessage('components.schemas.securitySchemes.petstore_auth.in'),
+        formattingMessage('components.securitySchemes.petstore_auth.type'),
+        missingParamMessage('components.securitySchemes.petstore_auth.in'),
       ],
       output: generatedOIS,
     });
