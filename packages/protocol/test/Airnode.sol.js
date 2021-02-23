@@ -21,7 +21,6 @@ let fulfillAddress;
 let fulfillFunctionId;
 let parameters;
 let templateId;
-let templateBytesId;
 
 let requestTimeRequesterIndex;
 let requestTimeDesignatedWalletAddress;
@@ -63,16 +62,6 @@ beforeEach(async () => {
   );
   parameters = ethers.utils.randomBytes(8);
   templateId = await createTemplate(
-    airnode,
-    providerId,
-    endpointId,
-    requesterIndex,
-    designatedWalletAddress,
-    fulfillAddress,
-    fulfillFunctionId,
-    parameters
-  );
-  templateBytesId = await createTemplate(
     airnode,
     providerId,
     endpointId,
