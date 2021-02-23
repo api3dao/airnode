@@ -5,9 +5,6 @@ import { Contract } from './types';
 const ClientRequestCreated = ethers.utils.id(
   'ClientRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
-const ClientShortRequestCreated = ethers.utils.id(
-  'ClientShortRequestCreated(bytes32,bytes32,uint256,address,bytes32,bytes)'
-);
 const ClientFullRequestCreated = ethers.utils.id(
   'ClientFullRequestCreated(bytes32,bytes32,uint256,address,bytes32,uint256,address,address,bytes4,bytes)'
 );
@@ -23,7 +20,6 @@ export const Airnode: Contract = {
   topics: {
     // API calls
     ClientRequestCreated,
-    ClientShortRequestCreated,
     ClientFullRequestCreated,
 
     ClientRequestFulfilled,

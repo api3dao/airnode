@@ -56,14 +56,6 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     requests: [
       {
         requesterId: 'bob',
-        type: 'short',
-        apiProvider: 'CurrencyConverterAPI',
-        template: 'template-1',
-        client: 'MockAirnodeClient',
-        parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
-      },
-      {
-        requesterId: 'bob',
         type: 'regular',
         apiProvider: 'CurrencyConverterAPI',
         template: 'template-1',

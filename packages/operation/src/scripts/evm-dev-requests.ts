@@ -1,16 +1,11 @@
 import * as requests from '../evm/requests';
 import * as io from '../evm/io';
-import { FullRequest, RegularRequest, RequestsState as State, RequestType, ShortRequest, Withdrawal } from '../types';
+import { FullRequest, RegularRequest, RequestsState as State, RequestType, Withdrawal } from '../types';
 
-type AnyRequest = ShortRequest | RegularRequest | FullRequest | Withdrawal;
+type AnyRequest = RegularRequest | FullRequest | Withdrawal;
 
 async function makeRequest(state: State, request: AnyRequest, index: number) {
   switch (request.type as RequestType) {
-    case 'short':
-      await requests.makeShortRequest(state, request as ShortRequest);
-      console.log(`--> Request #${index} made (short)`);
-      break;
-
     case 'regular':
       await requests.makeRegularRequest(state, request as RegularRequest);
       console.log(`--> Request #${index} made (regular)`);

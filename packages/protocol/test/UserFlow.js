@@ -53,9 +53,16 @@ describe('User flow', function () {
     // The requester creates the template which keeps the request parameters
     const templateId = await createTemplate(providerId, endpointId, requesterIndex, designatedWalletAddress);
     // Someone calls the client contract, which triggers a short request
-    await airnodeClient.makeShortRequest(templateId, ethers.utils.randomBytes(16));
+    await airnodeClient.makeRequest(
+      templateId,
+      requesterIndex,
+      designatedWalletAddress,
+      airnodeClient.address,
+      airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
+      ethers.utils.randomBytes(16)
+    );
     // The Airnode fulfills the short request
-    await fulfillShortRequest(providerId, providerMnemonic, providerXpub);
+    await fulfillRequest(providerId, providerMnemonic, providerXpub);
     // We got our response!
     const airnodeClientLogs = await waffle.provider.getLogs({
       address: airnodeClient.address,
@@ -195,7 +202,7 @@ describe('User flow', function () {
     return parsedLog.args.templateId;
   }
 
-  async function fulfillShortRequest(providerId, providerMnemonic, providerXpub) {
+  async function fulfillRequest(providerId, providerMnemonic, providerXpub) {
     // The provider node can get all events that concern it with a single call.
     const providerLogs = await waffle.provider.getLogs({
       address: airnode.address,
@@ -205,7 +212,7 @@ describe('User flow', function () {
     const parsedProviderLogs = providerLogs.map((providerLog) => airnode.interface.parseLog(providerLog));
     // Although that's super cool, we're only interested in the short request events here
     const parsedRequestLog = parsedProviderLogs.filter(
-      (parsedProviderLog) => parsedProviderLog.name == 'ClientShortRequestCreated'
+      (parsedProviderLog) => parsedProviderLog.name == 'ClientRequestCreated'
     )[0];
 
     // Verify that the request parameters are not tampered with
