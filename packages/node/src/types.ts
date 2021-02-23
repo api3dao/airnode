@@ -58,7 +58,7 @@ export type ClientRequest<T extends {}> = T & {
   readonly status: RequestStatus;
 };
 
-export type ApiCallType = 'short' | 'regular' | 'full';
+export type ApiCallType = 'regular' | 'full';
 
 export interface ApiCall {
   readonly clientAddress: string;

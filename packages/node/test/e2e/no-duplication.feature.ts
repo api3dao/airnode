@@ -18,13 +18,11 @@ it('does not process requests twice', async () => {
 
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
 
-  const preinvokeShortRequests = preinvokeLogs.filter((log) => log.name === 'ClientShortRequestCreated');
   const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
   const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
 
-  expect(preinvokeLogs.length).toEqual(8);
-  expect(preinvokeShortRequests.length).toEqual(1);
+  expect(preinvokeLogs.length).toEqual(7);
   expect(preinvokeRegularRequests.length).toEqual(1);
   expect(preinvokeFullRequests.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
@@ -38,16 +36,14 @@ it('does not process requests twice', async () => {
 
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
 
-  const postinvokeShortRequests = postinvokeLogs.filter((log) => log.name === 'ClientShortRequestCreated');
   const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
   const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
 
-  expect(postinvokeLogs.length).toEqual(11);
-  expect(postinvokeShortRequests.length).toEqual(1);
+  expect(postinvokeLogs.length).toEqual(9);
   expect(postinvokeRegularRequests.length).toEqual(1);
   expect(postinvokeFullRequests.length).toEqual(1);
-  expect(postinvokeFulfillments.length).toEqual(3);
+  expect(postinvokeFulfillments.length).toEqual(2);
 
   // Check each fulfillment is linked to a request
   postinvokeFulfillments.forEach((fulfillment) => {

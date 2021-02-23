@@ -11,7 +11,6 @@ describe('Airnode', () => {
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ClientShortRequestCreated',
       'ProviderCreated',
       'RequesterCreated',
       'RequesterUpdated',
@@ -23,14 +22,13 @@ describe('Airnode', () => {
 
   it('exposes the contract topics', () => {
     // Make sure all topics are covered
-    expect.assertions(8);
+    expect.assertions(7);
 
     expect(Object.keys(Airnode.topics).sort()).toEqual([
       'ClientFullRequestCreated',
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ClientShortRequestCreated',
       'WithdrawalFulfilled',
       'WithdrawalRequested',
     ]);
@@ -38,9 +36,6 @@ describe('Airnode', () => {
     // API calls
     expect(Airnode.topics.ClientRequestCreated).toEqual(
       '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b'
-    );
-    expect(Airnode.topics.ClientShortRequestCreated).toEqual(
-      '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6'
     );
     expect(Airnode.topics.ClientFullRequestCreated).toEqual(
       '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44'

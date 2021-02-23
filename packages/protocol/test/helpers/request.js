@@ -52,34 +52,6 @@ async function makeRequest(
   return expectedRequestId;
 }
 
-async function makeShortRequest(
-  airnode,
-  airnodeClient,
-  requesterAdminRole,
-  clientUserRole,
-  templateId,
-  providerId,
-  requesterIndex,
-  requestTimeParameters
-) {
-  await airnode.connect(requesterAdminRole).updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
-  const tx = await airnodeClient.connect(clientUserRole).makeShortRequest(templateId, requestTimeParameters);
-  const log = await verifyLog(airnode, tx, 'ClientShortRequestCreated(bytes32,bytes32,uint256,address,bytes32,bytes)', {
-    providerId,
-    clientAddress: airnodeClient.address,
-    templateId,
-    parameters: ethers.utils.hexlify(requestTimeParameters),
-  });
-  const expectedRequestId = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(
-      ['uint256', 'address', 'bytes32', 'bytes'],
-      [log.args.noRequests, airnodeClient.address, templateId, requestTimeParameters]
-    )
-  );
-  expect(expectedRequestId).to.equal(log.args.requestId);
-  return expectedRequestId;
-}
-
 async function makeFullRequest(
   airnode,
   airnodeClient,
@@ -132,6 +104,5 @@ async function makeFullRequest(
 
 module.exports = {
   makeRequest: makeRequest,
-  makeShortRequest: makeShortRequest,
   makeFullRequest: makeFullRequest,
 };

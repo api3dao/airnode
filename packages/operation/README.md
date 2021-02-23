@@ -165,17 +165,9 @@ There are currently three types of requests that can be made. You can learn more
 
 `requesterId` - the ID for the requester making
 
-`type` - "short", "regular" or "full"
+`type` - "regular" or "full"
 
 `apiProvider` - the name of the API provider
-
-**Short Requests**
-
-`client` - the name of the client contract
-
-`template` - the name of the template
-
-`parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 **Regular Requests**
 
@@ -254,16 +246,6 @@ There are currently three types of requests that can be made. You can learn more
     }
   ],
   "requests": [
-    {
-      "requesterId": "bob",
-      "type": "short",
-      "apiProvider": "CurrencyConverterAPI",
-      "template": "template-1",
-      "client": "MockAirnodeClient",
-      "parameters": [
-        { "type": "bytes32", "name": "from", "value": "ETH" }
-      ]
-    },
     {
       "requesterId": "bob",
       "type": "regular",

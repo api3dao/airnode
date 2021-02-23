@@ -134,18 +134,12 @@ export interface ConfigRequester {
   readonly apiProviders: { readonly [name: string]: ConfigRequesterAPIProvider };
 }
 
-export type RequestType = 'short' | 'regular' | 'full' | 'withdrawal';
+export type RequestType = 'regular' | 'full' | 'withdrawal';
 
 export interface Request {
   readonly apiProvider: string;
   readonly requesterId: string;
   readonly type: RequestType;
-}
-
-export interface ShortRequest extends Request {
-  readonly client: string;
-  readonly parameters: InputParameter[];
-  readonly template: string;
 }
 
 export interface RegularRequest extends Request {
@@ -173,5 +167,5 @@ export interface Config {
   readonly clients: { readonly [name: string]: ConfigClient };
   readonly deployerIndex: number;
   readonly requesters: ConfigRequester[];
-  readonly requests: Array<ShortRequest | RegularRequest | FullRequest | Withdrawal>;
+  readonly requests: Array<RegularRequest | FullRequest | Withdrawal>;
 }

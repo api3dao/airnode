@@ -45,9 +45,9 @@ describe('startCoordinator', () => {
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
 
-    const shortRequest = fixtures.evm.logs.buildShortClientRequest();
+    const regularRequest = fixtures.evm.logs.buildClientRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getLogsSpy.mockResolvedValueOnce([shortRequest]);
+    getLogsSpy.mockResolvedValueOnce([regularRequest]);
 
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValue({
@@ -80,7 +80,7 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(contract.fulfill).toHaveBeenCalledTimes(1);
     expect(contract.fulfill).toHaveBeenCalledWith(
-      '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
+      '0x7073d6a5530629274041f7766f4c3b94118c8cd2932c8af27b166e1c3cd94e30',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       ethers.BigNumber.from('0'),
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',

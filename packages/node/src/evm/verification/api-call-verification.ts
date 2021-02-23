@@ -10,7 +10,6 @@ interface ValidatedField {
 
 function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
   switch (apiCall.type) {
-    case 'short':
     case 'regular':
       return [
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },

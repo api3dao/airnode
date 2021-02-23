@@ -18,8 +18,7 @@ contract Airnode is ProviderStore, TemplateStore, IAirnode {
     /// @notice Called by the client to make a regular request. A regular
     /// request refers to a template for the requester-agnostic parameters, but
     /// requires the client to provide the requester-specific parameters.
-    /// @dev This is the recommended way of making a request in most cases. Use
-    /// makeShortRequest() if gas efficiency is critical.
+    /// @dev This is the recommended way of making a request in most cases
     /// @param templateId Template ID from TemplateStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -76,57 +75,10 @@ contract Airnode is ProviderStore, TemplateStore, IAirnode {
         clientAddressToNoRequests[msg.sender]++;
     }
 
-    /// @notice Called by the requester to make a short request. A short
-    /// request refers to a template, which the provider will use to get both
-    /// requester-agnostic and requester-specific parameters
-    /// @dev Use this if gas efficiency is critical
-    /// @param templateId Template ID from TemplateStore
-    /// @param parameters Dynamic request parameters (i.e., parameters that are
-    /// determined at runtime, unlike the static parameters stored in the
-    /// template)
-    /// @return requestId Request ID
-    function makeShortRequest(
-        bytes32 templateId,
-        bytes calldata parameters
-        )
-        external
-        override
-        returns (bytes32 requestId)
-    {
-        Template storage template = templates[templateId];
-        require(
-            requesterIndexToClientAddressToEndorsementStatus[template.requesterIndex][msg.sender],
-            "Client not endorsed by requester"
-            );
-        uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
-        requestId = keccak256(abi.encode(
-            clientNoRequests,
-            msg.sender,
-            templateId,
-            parameters
-            ));
-        requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
-            template.providerId,
-            template.designatedWallet,
-            template.fulfillAddress,
-            template.fulfillFunctionId
-            ));
-        emit ClientShortRequestCreated(
-            templates[templateId].providerId,
-            requestId,
-            clientNoRequests,
-            msg.sender,
-            templateId,
-            parameters
-        );
-        clientAddressToNoRequests[msg.sender]++;
-    }
-
     /// @notice Called by the requester to make a full request. A full request
     /// does not refer to a template, meaning that it passes all the parameters
     /// in the request. It does not require a template to be created
-    /// beforehand, which provides extra flexibility compared to makeRequest()
-    /// and makeShortRequest().
+    /// beforehand, which provides extra flexibility compared to makeRequest().
     /// @dev This is the least gas efficient way of making a request. Do not
     /// use it unless you have a good reason.
     /// @param providerId Provider ID from ProviderStore
@@ -185,7 +137,7 @@ contract Airnode is ProviderStore, TemplateStore, IAirnode {
     }
 
     /// @notice Called by the oracle node to fulfill individual requests
-    /// (including regular, short and full requests)
+    /// (including regular and full requests)
     /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param statusCode Status code of the fulfillment

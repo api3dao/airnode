@@ -27,11 +27,11 @@ describe('initializeProvider', () => {
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
 
-    const shortRequest = fixtures.evm.logs.buildShortClientRequest();
+    const fullRequest = fixtures.evm.logs.buildFullClientRequest();
     const regularRequest = fixtures.evm.logs.buildClientRequest();
     const withdrawal = fixtures.evm.logs.buildWithdrawalRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getLogsSpy.mockResolvedValueOnce([shortRequest, regularRequest, withdrawal]);
+    getLogsSpy.mockResolvedValueOnce([fullRequest, regularRequest, withdrawal]);
 
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValue({
@@ -49,16 +49,16 @@ describe('initializeProvider', () => {
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
         encodedParameters:
-          '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+          '0x316262626262000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000746f00000000000000000000000000000000000000000000000000000000000055534400000000000000000000000000000000000000000000000000000000005f74797065000000000000000000000000000000000000000000000000000000696e7432353600000000000000000000000000000000000000000000000000005f70617468000000000000000000000000000000000000000000000000000000726573756c7400000000000000000000000000000000000000000000000000005f74696d657300000000000000000000000000000000000000000000000000003130303030300000000000000000000000000000000000000000000000000000',
         endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
         fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         fulfillFunctionId: '0x48a4157c',
-        id: '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
+        id: '0xb49ca9685c0e1edd5e003574498f361192758770c55d8287f5a468e7717b8d9e',
         metadata: {
-          blockNumber: 15,
+          blockNumber: 17,
           currentBlock: 12,
           ignoreBlockedRequestsAfterBlocks: 20,
-          transactionHash: '0x09268ef53816b82b447d21f951c351669d97ca4597ebf3aac392fbb7236ea260',
+          transactionHash: '0xed554fbbb2971fb2af7f5c800b586de239d806a31785252eb957ac1a9cf72468',
         },
         parameters: {
           _path: 'result',
@@ -68,11 +68,11 @@ describe('initializeProvider', () => {
           to: 'USD',
         },
         providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        requestCount: '1',
+        requestCount: '3',
         requesterIndex: '2',
         status: 'Pending',
-        templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',
-        type: 'short',
+        templateId: null,
+        type: 'full',
       },
       {
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',

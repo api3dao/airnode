@@ -52,20 +52,15 @@ describe('initialize (ApiCall)', () => {
       ignoreBlockedRequestsAfterBlocks: 20,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
-    const short = {
-      ...base,
-      parsedLog: { ...base.parsedLog, topic: '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6' },
-    };
     const regular = {
       ...base,
-      parsedLog: { ...short.parsedLog, topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+      parsedLog: { ...base.parsedLog, topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
     };
     const full = {
       ...base,
-      parsedLog: { ...short.parsedLog, topic: '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44' },
+      parsedLog: { ...base.parsedLog, topic: '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44' },
     };
 
-    expect(apiCalls.initialize(short).type).toEqual('short');
     expect(apiCalls.initialize(regular).type).toEqual('regular');
     expect(apiCalls.initialize(full).type).toEqual('full');
   });
@@ -75,7 +70,7 @@ describe('applyParameters', () => {
   let parsedLogWithMetadata: EVMEventLogWithMetadata;
 
   beforeEach(() => {
-    const event = fixtures.evm.logs.buildShortClientRequest();
+    const event = fixtures.evm.logs.buildClientRequest();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const parsedLog = airnodeInterface.parseLog(event);
     parsedLogWithMetadata = {
@@ -170,7 +165,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 
 describe('mapRequests (ApiCall)', () => {
   it('initializes, applies parameters and returns API call requests', () => {
-    const event = fixtures.evm.logs.buildShortClientRequest();
+    const event = fixtures.evm.logs.buildClientRequest();
     const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
     const parsedLog = airnodeInterface.parseLog(event);
     const parsedLogWithMetadata = {
@@ -185,13 +180,13 @@ describe('mapRequests (ApiCall)', () => {
     expect(res).toEqual([
       {
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-        designatedWallet: null,
+        designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
         endpointId: null,
-        fulfillAddress: null,
-        fulfillFunctionId: null,
+        fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+        fulfillFunctionId: '0x48a4157c',
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
+        id: '0x7073d6a5530629274041f7766f4c3b94118c8cd2932c8af27b166e1c3cd94e30',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
@@ -200,11 +195,11 @@ describe('mapRequests (ApiCall)', () => {
         },
         parameters: { from: 'ETH' },
         providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        requestCount: '1',
-        requesterIndex: null,
+        requestCount: '2',
+        requesterIndex: '2',
         status: RequestStatus.Pending,
         templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',
-        type: 'short',
+        type: 'regular',
       },
     ]);
   });

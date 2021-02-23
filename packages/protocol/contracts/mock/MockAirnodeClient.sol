@@ -53,24 +53,6 @@ contract MockAirnodeClient is AirnodeClient {
     }
 
     /// @notice A wrapper for the respective method at Airnode.sol for testing
-    /// @param templateId Template ID from TemplateStore
-    /// @param parameters Dynamic request parameters (i.e., parameters that are
-    /// determined at runtime, unlike the static parameters stored in the
-    /// template)
-    function makeShortRequest(
-        bytes32 templateId,
-        bytes calldata parameters
-        )
-        external
-    {
-        bytes32 requestId = airnode.makeShortRequest(
-            templateId,
-            parameters
-            );
-        incomingFulfillments[requestId] = true;
-    }
-
-    /// @notice A wrapper for the respective method at Airnode.sol for testing
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterIndex Requester index from RequesterStore

@@ -18,8 +18,6 @@ function getApiCallType(topic: string): ApiCallType {
   switch (topic) {
     case topics.ClientRequestCreated:
       return 'regular';
-    case topics.ClientShortRequestCreated:
-      return 'short';
     case topics.ClientFullRequestCreated:
       return 'full';
     // This should never be reached

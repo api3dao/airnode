@@ -3,49 +3,6 @@ import { ethers } from 'ethers';
 type Log = ethers.providers.Log;
 
 // =================================================================
-// Short requests
-// =================================================================
-export function buildShortClientRequest(overrides?: Partial<Log>): Log {
-  return {
-    blockNumber: 15,
-    blockHash: '0xc51ca2e63dd0c30a438afa832ae0c096317faba17e7df05269755f3c2fc9497e',
-    transactionIndex: 0,
-    removed: false,
-    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    data:
-      '0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000009fe46736679d2d9a65f0992f2272de9f3c7fa6e0e315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-    topics: [
-      '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
-      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
-    ],
-    transactionHash: '0x09268ef53816b82b447d21f951c351669d97ca4597ebf3aac392fbb7236ea260',
-    logIndex: 0,
-    ...overrides,
-  };
-}
-
-export function buildShortClientRequestFulfilled(overrides?: Partial<Log>): Log {
-  return {
-    blockNumber: 19,
-    blockHash: '0x557ee59d6835d42f8a25d083414d848e4713c4b6ff4e8942db1d9b1c9b6a0ea5',
-    transactionIndex: 0,
-    removed: false,
-    address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    data:
-      '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000043',
-    topics: [
-      '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61',
-      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
-    ],
-    transactionHash: '0xd59041ab433c2d47a1c7663db28cb429726a925d6893b5b47f68c8e38f93063c',
-    logIndex: 0,
-    ...overrides,
-  };
-}
-
-// =================================================================
 // Regular requests
 // =================================================================
 export function buildClientRequest(overrides?: Partial<Log>): Log {

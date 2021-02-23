@@ -3,7 +3,6 @@ import * as contracts from '../contracts';
 
 export const API_CALL_REQUEST_TOPICS = [
   contracts.Airnode.topics.ClientRequestCreated,
-  contracts.Airnode.topics.ClientShortRequestCreated,
   contracts.Airnode.topics.ClientFullRequestCreated,
 ];
 

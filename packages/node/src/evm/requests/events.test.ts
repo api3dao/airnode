@@ -4,7 +4,6 @@ describe('API call topics', () => {
   it('returns API_CALL_REQUEST_TOPICS', () => {
     expect(events.API_CALL_REQUEST_TOPICS).toEqual([
       '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-      '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
       '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44',
     ]);
   });

@@ -19,15 +19,6 @@ interface IAirnode is IProviderStore, ITemplateStore {
         bytes parameters
         );
 
-    event ClientShortRequestCreated(
-        bytes32 indexed providerId,
-        bytes32 indexed requestId,
-        uint256 noRequests,
-        address clientAddress,
-        bytes32 templateId,
-        bytes parameters
-        );
-
     event ClientFullRequestCreated(
         bytes32 indexed providerId,
         bytes32 indexed requestId,
@@ -59,13 +50,6 @@ interface IAirnode is IProviderStore, ITemplateStore {
         address designatedWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
-        bytes calldata parameters
-        )
-        external
-        returns (bytes32 requestId);
-
-    function makeShortRequest(
-        bytes32 templateId,
         bytes calldata parameters
         )
         external

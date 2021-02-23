@@ -12,13 +12,12 @@ import "./interfaces/ITemplateStore.sol";
 /// @dev A template is composed of two groups of parameters. The first group is
 /// requester-agnostic (providerId, endpointInd, parameters), while the second
 /// group is requester-specific (requesterIndex, designatedWallet, fulfillAddress,
-/// fulfillFunctionId). Short requests refer to a template and use both of
-/// these groups of parameters. Regular requests refer to a template, but only
+/// fulfillFunctionId). Regular requests refer to a template, but only
 /// use the requester-agnostic parameters of it, and require the client to
-/// provide the requester-specific parameters. In addition, both regular and
-/// short requests can overwrite parameters encoded in the parameters field of
+/// provide the requester-specific parameters. In addition, regular requests can
+///  overwrite parameters encoded in the parameters field of
 /// the template at request-time. See Airnode.sol for more information
-/// (specifically makeShortRequest() and makeRequest()).
+/// (specifically makeRequest()).
 contract TemplateStore is ITemplateStore {
     struct Template {
         bytes32 providerId;
