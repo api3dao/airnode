@@ -8,14 +8,15 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
-      providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
+      authorizers: [ethers.constants.AddressZero],
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       id: 1337,
-      type: 'evm',
+      providerAdmin: '0xproviderAdmin',
       providers: [chainProvider],
+      type: 'evm',
     };
     const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
@@ -25,7 +26,8 @@ describe('create', () => {
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       settings: {
-        providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
+        authorizers: [ethers.constants.AddressZero],
+        providerAdmin: '0xproviderAdmin',
         blockHistoryLimit: 300,
         chainId: 1337,
         chainType: 'evm',
@@ -59,16 +61,17 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
+      authorizers: [ethers.constants.AddressZero],
       blockHistoryLimit: 150,
-      minConfirmations: 3,
-      providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       id: 1337,
-      type: 'evm',
+      minConfirmations: 3,
       providers: [chainProvider],
+      providerAdmin: '0xproviderAdmin',
+      type: 'evm',
     };
     const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
@@ -78,7 +81,8 @@ describe('create', () => {
         Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       settings: {
-        providerAdminForRecordCreation: '0xproviderAdminForRecordCreation',
+        authorizers: [ethers.constants.AddressZero],
+        providerAdmin: '0xproviderAdmin',
         blockHistoryLimit: 150,
         chainId: 1337,
         chainType: 'evm',

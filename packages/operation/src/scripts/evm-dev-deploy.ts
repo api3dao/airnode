@@ -26,22 +26,19 @@ async function run() {
   console.log('--> Creating API providers...');
   const state12 = await deploy.createProviders(state11);
 
-  console.log('--> Authorizing endpoints...');
-  const state13 = await deploy.authorizeEndpoints(state12);
-
   console.log('--> Endorsing client contracts...');
-  const state14 = await deploy.endorseClients(state13);
+  const state13 = await deploy.endorseClients(state12);
 
   console.log('--> Creating templates...');
-  const state15 = await deploy.createTemplates(state14);
+  const state14 = await deploy.createTemplates(state13);
 
   console.log('--> Deployment successful!');
 
   console.log('--> Saving deployment...');
-  io.saveDeployment(state15);
+  io.saveDeployment(state14);
   console.log('--> Deployment saved!');
 
-  return state15;
+  return state14;
 }
 
 run();

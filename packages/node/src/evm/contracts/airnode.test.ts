@@ -11,11 +11,8 @@ describe('Airnode', () => {
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ClientRequestFulfilledWithBytes',
       'ClientShortRequestCreated',
-      'EndpointUpdated',
       'ProviderCreated',
-      'ProviderUpdated',
       'RequesterCreated',
       'RequesterUpdated',
       'TemplateCreated',
@@ -26,14 +23,13 @@ describe('Airnode', () => {
 
   it('exposes the contract topics', () => {
     // Make sure all topics are covered
-    expect.assertions(9);
+    expect.assertions(8);
 
     expect(Object.keys(Airnode.topics).sort()).toEqual([
       'ClientFullRequestCreated',
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ClientRequestFulfilledWithBytes',
       'ClientShortRequestCreated',
       'WithdrawalFulfilled',
       'WithdrawalRequested',
@@ -51,10 +47,7 @@ describe('Airnode', () => {
     );
 
     expect(Airnode.topics.ClientRequestFulfilled).toEqual(
-      '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5'
-    );
-    expect(Airnode.topics.ClientRequestFulfilledWithBytes).toEqual(
-      '0x0ebeb9b9b5c4baf915e7541c7e0919dd1a58eb06ee596035a50d08d20b9219de'
+      '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61'
     );
     expect(Airnode.topics.ClientRequestFailed).toEqual(
       '0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad'

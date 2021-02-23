@@ -9,7 +9,6 @@ export const API_CALL_REQUEST_TOPICS = [
 
 export const API_CALL_FULFILLED_TOPICS = [
   contracts.Airnode.topics.ClientRequestFulfilled,
-  contracts.Airnode.topics.ClientRequestFulfilledWithBytes,
   contracts.Airnode.topics.ClientRequestFailed,
 ];
 

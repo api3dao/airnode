@@ -39,6 +39,7 @@ describe('startCoordinator', () => {
 
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
@@ -79,12 +80,12 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(contract.fulfill).toHaveBeenCalledTimes(1);
     expect(contract.fulfill).toHaveBeenCalledWith(
-      '0xacc4444830f9bd249f3140c83deae5e878adc40dc563012bed7e328a8df298c2',
+      '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       ethers.BigNumber.from('0'),
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
       '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-      '0xd3bd1464',
+      '0x48a4157c',
       { gasLimit: 500_000, gasPrice, nonce: 212 }
     );
   });
@@ -95,6 +96,7 @@ describe('startCoordinator', () => {
 
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',

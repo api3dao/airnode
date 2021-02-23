@@ -44,7 +44,7 @@ export interface RequesterAccount {
 }
 
 export interface APIProvider {
-  readonly address: string;
+  readonly masterWalletAddress: string;
   readonly mnemonic: string;
   readonly signer: ethers.providers.JsonRpcSigner | ethers.Wallet;
   readonly xpub: string;
@@ -68,7 +68,7 @@ export interface DeployedTemplate {
 }
 
 export interface DeployedAPIProvider {
-  readonly address: string;
+  readonly masterWalletAddress: string;
   readonly endpoints: { [name: string]: DeployedEndpoint };
   readonly templates: { [name: string]: DeployedTemplate };
 }
@@ -105,7 +105,6 @@ export interface ConfigClient {
 }
 
 export interface ConfigEndpoint {
-  readonly authorizers: string[];
   readonly oisTitle: string;
 }
 
@@ -119,8 +118,10 @@ export interface ConfigTemplate {
 }
 
 export interface ConfigAPIProvider {
-  readonly mnemonic: string;
+  readonly authorizers: string[];
   readonly endpoints: { readonly [name: string]: ConfigEndpoint };
+  readonly mnemonic: string;
+  readonly providerAdmin: string;
   readonly templates: { readonly [name: string]: ConfigTemplate };
 }
 

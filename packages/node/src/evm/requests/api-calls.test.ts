@@ -21,10 +21,10 @@ describe('initialize (ApiCall)', () => {
       designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
       endpointId: null,
       fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-      fulfillFunctionId: '0xd3bd1464',
+      fulfillFunctionId: '0x48a4157c',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0x2584ee7cea18d64a380c34848a3f632b5cefba1f28660a8c67408f65f8ddbc92',
+      id: '0x7073d6a5530629274041f7766f4c3b94118c8cd2932c8af27b166e1c3cd94e30',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -33,10 +33,10 @@ describe('initialize (ApiCall)', () => {
       },
       parameters: {},
       providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      requestCount: '1',
+      requestCount: '2',
       requesterIndex: '2',
       status: RequestStatus.Pending,
-      templateId: '0x9843d3ab43c584e58d82302e196d05efe4466773a61d259b6ecd99bd8baf411b',
+      templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',
       type: 'regular',
     });
   });
@@ -191,7 +191,7 @@ describe('mapRequests (ApiCall)', () => {
         fulfillFunctionId: null,
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0xacc4444830f9bd249f3140c83deae5e878adc40dc563012bed7e328a8df298c2',
+        id: '0x00521e2c0d72ebe2c47a07e79262dcca197ef5308e8d6873e8233821231421d1',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
@@ -200,10 +200,10 @@ describe('mapRequests (ApiCall)', () => {
         },
         parameters: { from: 'ETH' },
         providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        requestCount: '0',
+        requestCount: '1',
         requesterIndex: null,
         status: RequestStatus.Pending,
-        templateId: '0x9843d3ab43c584e58d82302e196d05efe4466773a61d259b6ecd99bd8baf411b',
+        templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',
         type: 'short',
       },
     ]);

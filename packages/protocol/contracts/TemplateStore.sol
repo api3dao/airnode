@@ -124,12 +124,13 @@ contract TemplateStore is ITemplateStore {
             bytes memory parameters
         )
     {
-        providerId = templates[templateId].providerId;
-        endpointId = templates[templateId].endpointId;
-        requesterIndex = templates[templateId].requesterIndex;
-        designatedWallet = templates[templateId].designatedWallet;
-        fulfillAddress = templates[templateId].fulfillAddress;
-        fulfillFunctionId = templates[templateId].fulfillFunctionId;
-        parameters = templates[templateId].parameters;
+        Template storage template = templates[templateId];
+        providerId = template.providerId;
+        endpointId = template.endpointId;
+        requesterIndex = template.requesterIndex;
+        designatedWallet = template.designatedWallet;
+        fulfillAddress = template.fulfillAddress;
+        fulfillFunctionId = template.fulfillFunctionId;
+        parameters = template.parameters;
     }
 }

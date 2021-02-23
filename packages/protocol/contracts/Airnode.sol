@@ -2,7 +2,7 @@
 pragma solidity 0.6.12;
 
 import "./interfaces/IAirnode.sol";
-import "./EndpointStore.sol";
+import "./ProviderStore.sol";
 import "./TemplateStore.sol";
 
 
@@ -10,7 +10,7 @@ import "./TemplateStore.sol";
 /// @notice Clients use this contract to make requests that follow a
 /// request-response scheme. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
-contract Airnode is EndpointStore, TemplateStore, IAirnode {
+contract Airnode is ProviderStore, TemplateStore, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
 
@@ -200,53 +200,6 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         bytes32 requestId,
         bytes32 providerId,
         uint256 statusCode,
-        bytes32 data,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId
-        )
-        external
-        override
-        onlyCorrectFulfillmentParameters(
-            requestId,
-            providerId,
-            fulfillAddress,
-            fulfillFunctionId
-            )
-        returns(
-            bool callSuccess,
-            bytes memory callData
-        )
-    {
-        delete requestIdToFulfillmentParameters[requestId];
-        emit ClientRequestFulfilled(
-            providerId,
-            requestId,
-            statusCode,
-            data
-            );
-        (callSuccess, callData) = fulfillAddress.call(  // solhint-disable-line
-            abi.encodeWithSelector(fulfillFunctionId, requestId, statusCode, data)
-            );
-    }
-
-    /// @notice Called by the oracle node to fulfill individual requests
-    /// (including regular, short and full requests) with a bytes type response
-    /// @dev The oracle uses this method to fulfill if the requester has
-    /// specifically asked for a bytes type response
-    /// @param requestId Request ID
-    /// @param providerId Provider ID from ProviderStore
-    /// @param statusCode Status code of the fulfillment
-    /// @param data Fulfillment data of type bytes
-    /// @param fulfillAddress Address that will be called to fulfill
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
-    /// @return callSuccess If the fulfillment call succeeded
-    /// @return callData Data returned by the fulfillment call (if there is
-    /// any)
-    function fulfillBytes(
-        bytes32 requestId,
-        bytes32 providerId,
-        uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
         bytes4 fulfillFunctionId
@@ -265,7 +218,7 @@ contract Airnode is EndpointStore, TemplateStore, IAirnode {
         )
     {
         delete requestIdToFulfillmentParameters[requestId];
-        emit ClientRequestFulfilledWithBytes(
+        emit ClientRequestFulfilled(
             providerId,
             requestId,
             statusCode,

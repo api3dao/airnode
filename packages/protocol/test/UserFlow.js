@@ -40,11 +40,6 @@ describe('User flow', function () {
     // endpointId is the hash of the endpoint name from OIS
     // Note that the provider didn't need to make a transaction to create it
     const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-    // However, the provider makes a transaction to update the endpoint's authorizers as [0x0],
-    // which means "allow everyone in"
-    await airnode
-      .connect(roles.providerAdmin)
-      .updateEndpointAuthorizers(providerId, endpointId, [ethers.constants.AddressZero]);
     // Create the on-chain requester record
     const requesterIndex = await createRequester();
     // The requester can fund their designated wallet
@@ -131,7 +126,9 @@ describe('User flow', function () {
     // Gas cost is 160,076
     const estimatedGasCost = await airnode
       .connect(masterWallet)
-      .estimateGas.createProvider(roles.providerAdmin.address, providerXpub, { value: 1 });
+      .estimateGas.createProvider(roles.providerAdmin.address, providerXpub, [ethers.constants.AddressZero], {
+        value: 1,
+      });
     // Overestimate a bit
     const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
@@ -140,11 +137,13 @@ describe('User flow', function () {
     const fundsToSend = masterWalletBalance.sub(txCost);
     // Create the provider and send the rest of the master wallet balance along with
     // this transaction. Provider admin will receive these funds.
-    await airnode.connect(masterWallet).createProvider(roles.providerAdmin.address, providerXpub, {
-      value: fundsToSend,
-      gasLimit: gasLimit,
-      gasPrice: gasPrice,
-    });
+    await airnode
+      .connect(masterWallet)
+      .createProvider(roles.providerAdmin.address, providerXpub, [ethers.constants.AddressZero], {
+        value: fundsToSend,
+        gasLimit: gasLimit,
+        gasPrice: gasPrice,
+      });
 
     // The Airnode goes back to sleep
     // The next time it wakes up, it checks if its provider record exists on-chain.
@@ -185,7 +184,7 @@ describe('User flow', function () {
       requesterIndex,
       designatedWalletAddress,
       airnodeClient.address,
-      airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
+      airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
       ethers.utils.randomBytes(8)
     );
     // Get the newly created template's ID from the event

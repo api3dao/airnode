@@ -17,7 +17,8 @@
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
     "test:e2e:debug": "jest \"withdrawals.feature\" --selectProjects e2e",
     "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
-    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit"
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
+    "test:watch:debug": "jest \"initialize.test\" --selectProjects unit --watch"
   },
   "dependencies": {
     "@airnode/adapter": "^0.1.0",

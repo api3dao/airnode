@@ -10,6 +10,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     struct Provider {
         address admin;
         string xpub;
+        address[] authorizers;
         }
 
     mapping(bytes32 => Provider) internal providers;
@@ -26,10 +27,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// more privileged than the provider admin account.
     /// @param admin Provider admin
     /// @param xpub Master public key of the provider node
+    /// @param authorizers Authorizer contract addresses
     /// @return providerId Provider ID
     function createProvider(
         address admin,
-        string calldata xpub
+        string calldata xpub,
+        address[] calldata authorizers
         )
         external
         payable
@@ -39,36 +42,20 @@ contract ProviderStore is RequesterStore, IProviderStore {
         providerId = keccak256(abi.encode(msg.sender));
         providers[providerId] = Provider({
             admin: admin,
-            xpub: xpub
+            xpub: xpub,
+            authorizers: authorizers
             });
         emit ProviderCreated(
             providerId,
             admin,
-            xpub
+            xpub,
+            authorizers
             );
         if (msg.value > 0)
         {
             (bool success, ) = admin.call{ value: msg.value }("");  // solhint-disable-line
             require(success, "Transfer failed");
         }
-    }
-
-    /// @notice Updates the provider
-    /// @param providerId Provider ID
-    /// @param admin Provider admin
-    function updateProvider(
-        bytes32 providerId,
-        address admin
-        )
-        external
-        override
-        onlyProviderAdmin(providerId)
-    {
-        providers[providerId].admin = admin;
-        emit ProviderUpdated(
-            providerId,
-            admin
-            );
     }
 
     /// @notice Called by the requester admin to create a request for the
@@ -157,27 +144,20 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
+    /// @return authorizers Authorizer contract addresses
     function getProvider(bytes32 providerId)
         external
         view
         override
         returns (
             address admin,
-            string memory xpub
+            string memory xpub,
+            address[] memory authorizers
         )
     {
-        admin = providers[providerId].admin;
-        xpub = providers[providerId].xpub;
-    }
-
-    /// @dev Reverts if the caller is not the provider admin
-    /// @param providerId Provider ID
-    modifier onlyProviderAdmin(bytes32 providerId)
-    {
-        require(
-            msg.sender == providers[providerId].admin,
-            "Caller is not provider admin"
-            );
-        _;
+        Provider storage provider = providers[providerId];
+        admin = provider.admin;
+        xpub = provider.xpub;
+        authorizers = provider.authorizers;
     }
 }

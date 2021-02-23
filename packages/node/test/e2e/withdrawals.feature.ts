@@ -31,7 +31,7 @@ it('processes withdrawals only once', async () => {
   const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
 
-  expect(preinvokeLogs.length).toEqual(7);
+  expect(preinvokeLogs.length).toEqual(6);
   expect(preinvokeWithdrawals.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
@@ -64,7 +64,7 @@ it('processes withdrawals only once', async () => {
   const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
 
-  expect(postinvokeLogs.length).toEqual(8);
+  expect(postinvokeLogs.length).toEqual(7);
   expect(postinvokeWithdrawals.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(1);
 
@@ -72,7 +72,7 @@ it('processes withdrawals only once', async () => {
 
   // Withdrawals are not processed twice
   const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
-  expect(run2Logs.length).toEqual(8);
+  expect(run2Logs.length).toEqual(7);
 
   // Balances have not changed
   const run2Balance = await provider.getBalance(alice!.address);

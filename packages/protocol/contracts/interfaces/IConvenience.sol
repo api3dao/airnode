@@ -12,6 +12,7 @@ interface IConvenience {
         returns (
             address admin,
             string memory xpub,
+            address[] memory authorizers,
             uint256 blockNumber
         );
 

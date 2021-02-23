@@ -22,6 +22,7 @@ contract Convenience is IConvenience {
     /// @param providerId Provider ID
     /// @return admin Provider admin
     /// @return xpub Master public key of the provider node
+    /// @return authorizers Authorizer contract addresses
     /// @return blockNumber Block number
     function getProviderAndBlockNumber(bytes32 providerId)
         external
@@ -30,10 +31,11 @@ contract Convenience is IConvenience {
         returns (
             address admin,
             string memory xpub,
+            address[] memory authorizers,
             uint256 blockNumber
         )
     {
-        (admin, xpub) = airnode.getProvider(providerId);
+        (admin, xpub, authorizers) = airnode.getProvider(providerId);
         blockNumber = block.number;
     }
 
@@ -86,31 +88,16 @@ contract Convenience is IConvenience {
         }
     }
 
-    /// @notice Uses the authorizer contracts of an endpoint of a provider to
-    /// decide if a client contract is authorized to call the endpoint. Once an
-    /// oracle node receives a request, it calls this method to determine if it
-    /// should respond. Similarly, third parties can use this method to
-    /// determine if a client contract is authorized to call an endpoint.
-    /// @dev Authorizer contracts are not trusted, so this method should only
-    /// be called off-chain.
+    /// @notice Uses the authorizer contracts of of a provider to decide if a
+    /// request is authorized. Once an oracle node receives a request, it calls
+    /// this method to determine if it should respond. Similarly, third parties
+    /// can use this method to determine if a particular request would be
+    /// authorized.
+    /// @dev This method is meant to be called off-chain.
     /// The elements of the authorizer array are either addresses of Authorizer
     /// contracts with the interface defined in IAuthorizer or 0.
-    /// Say we have authorizer contracts X, Y, Z, T, and our authorizer
-    /// array is [X, Y, 0, Z, T]. This means that the requester should satisfy
-    /// (X AND Y) OR (Z AND T) to be considered authorized. In other words,
-    /// consequent authorizer contracts need to verify authorization
-    /// simultaneously, while 0 represents the start of an independent
-    /// authorization policy. From a logical standpoint, consequent authorizers
-    /// get ANDed while 0 acts as an OR gate, providing great flexibility in
-    /// forming an authorization policy out of simple building blocks. We could
-    /// also define a NOT gate here to achieve a full set of universal logic
-    /// gates, but that does not make much sense in this context because
-    /// authorizers tend to check for positive conditions (have paid, is
-    /// whitelisted, etc.) and we would not need policies that require these to
-    /// be false.
-    /// Note that authorizers should not start or end with 0, and 0s should
-    /// not be used consecutively (e.g., [X, Y, 0, 0, Z, T]).
-    /// [] returns false (deny everyone), [0] returns true (accept everyone).
+    /// [] returns false (deny everything), [0] returns true (accept
+    /// everything).
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param endpointId Endpoint ID from EndpointStore
@@ -131,52 +118,35 @@ contract Convenience is IConvenience {
         override
         returns(bool status)
     {
-        address[] memory authorizers = airnode.getEndpointAuthorizers(providerId, endpointId);  
-        uint256 noAuthorizers = authorizers.length;
-        // If no authorizers have been set, deny access by default
-        if (noAuthorizers == 0)
-        {
-            return false;
-        }
-        // authorizedByAll will remain true as long as none of the authorizers
-        // in a group reports that the client is unauthorized
-        bool authorizedByAll = true;
+        (, , address[] memory authorizerAddresses) = airnode.getProvider(providerId);
+        uint256 noAuthorizers = authorizerAddresses.length;
         for (uint256 ind = 0; ind < noAuthorizers; ind++)
         {
-            address authorizerAddress = authorizers[ind];
-            if (authorizerAddress == address(0)) {
-                // If we have reached a 0 without getting any unauthorized
-                // reports, we can return true
-                if (authorizedByAll) {
-                    return true;
-                }
-                // Otherwise, reset authorizedByAll and start checking the next
-                // group
-                authorizedByAll = true;
+            address authorizerAddress = authorizerAddresses[ind];
+            if (authorizerAddress == address(0))
+            {
+                return true;
             }
-            // We only need to check the next authorizer if we have a good track
-            // record for this group
-            else if (authorizedByAll) {
-                IAuthorizer authorizer = IAuthorizer(authorizerAddress);
-                // Set authorizedByAll to false if we got an unauthorized report.
-                // This means that we will not be able to return a true from
-                // this group of authorizers.
-                if (!authorizer.checkIfAuthorized(
-                    requestId, providerId, endpointId, requesterIndex, designatedWallet, clientAddress
-                    )) {
-                    authorizedByAll = false;
-                }
+            IAuthorizer authorizer = IAuthorizer(authorizerAddresses[ind]);
+            if (authorizer.checkIfAuthorized(
+                requestId,
+                providerId,
+                endpointId,
+                requesterIndex,
+                designatedWallet,
+                clientAddress
+                ))
+            {
+                return true;
             }
         }
-        // Finally, if we have reached the end of the authorizers (i.e., we
-        // are at the last element of the last group), just return the current
-        // authorizedByAll, which will only be true if all authorizers from the
-        // last group have returned true.
-        return authorizedByAll;
+        return false;
     }
 
     /// @notice A convenience function to make multiple authorization status
     /// checks with a single call
+    /// @dev If this reverts, the user should use checkAuthorizationStatus() to
+    /// do the checks individually
     /// @param providerId Provider ID from ProviderStore
     /// @param requestIds Request IDs
     /// @param endpointIds Endpoint IDs from EndpointStore

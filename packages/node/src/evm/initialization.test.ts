@@ -16,26 +16,100 @@ jest.mock('ethers', () => ({
 
 import { ethers } from 'ethers';
 import * as wallet from './wallet';
-import * as providers from './providers';
+import * as initialization from './initialization';
 
-describe('findWithBlock', () => {
+describe('providerDetailsMatch', () => {
   const options = {
-    providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    authorizers: [ethers.constants.AddressZero],
+    masterHDNode: wallet.getMasterHDNode(),
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+  };
+
+  const validData = {
+    authorizers: [ethers.constants.AddressZero],
+    blockNumber: 12,
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    xpub:
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+  };
+
+  it('is true if the provider onchain data matches the expected data', () => {
+    const res = initialization.providerDetailsMatch(options, validData);
+    expect(res).toEqual(true);
+  });
+
+  it('is false if the provider admin does not exist', () => {
+    const invalidData = { ...validData, providerAdmin: '' };
+    const res = initialization.providerDetailsMatch(options, invalidData);
+    expect(res).toEqual(false);
+  });
+
+  it('is false if the authorizers do not match', () => {
+    const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
+    const res = initialization.providerDetailsMatch(options, invalidData);
+    expect(res).toEqual(false);
+  });
+});
+
+describe('providerExistsOnchain', () => {
+  const options = {
+    authorizers: [ethers.constants.AddressZero],
+    masterHDNode: wallet.getMasterHDNode(),
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+  };
+
+  const validData = {
+    authorizers: [ethers.constants.AddressZero],
+    blockNumber: 12,
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    xpub:
+      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+  };
+
+  it('is true if the provider onchain data matches the expected data', () => {
+    const res = initialization.providerExistsOnchain(options, validData);
+    expect(res).toEqual(true);
+  });
+
+  it('is false if the provider admin does not exist', () => {
+    const invalidData = { ...validData, providerAdmin: '' };
+    const res = initialization.providerExistsOnchain(options, invalidData);
+    expect(res).toEqual(false);
+  });
+
+  it('is false if the authorizers do not match', () => {
+    const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
+    const res = initialization.providerExistsOnchain(options, invalidData);
+    expect(res).toEqual(false);
+  });
+
+  it('is false if the extended public key does not match', () => {
+    const invalidData = { ...validData, xpub: '' };
+    const res = initialization.providerExistsOnchain(options, invalidData);
+    expect(res).toEqual(false);
+  });
+});
+
+describe('fetchProviderWithData', () => {
+  const options = {
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+    authorizers: [ethers.constants.AddressZero],
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     providerId: '0xproviderId',
   };
 
   it('returns the admin address, xpub and current block number', async () => {
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await providers.findWithBlock(options);
+    const [logs, res] = await initialization.fetchProviderWithData(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -47,9 +121,9 @@ describe('findWithBlock', () => {
       },
     ]);
     expect(res).toEqual({
-      providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      providerExists: true,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
@@ -60,19 +134,20 @@ describe('findWithBlock', () => {
   it('checks that the extended public key exists', async () => {
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub: '',
     });
-    const [logs, res] = await providers.findWithBlock(options);
+    const [logs, res] = await initialization.fetchProviderWithData(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
       { level: 'INFO', message: 'Provider not found' },
     ]);
     expect(res).toEqual({
-      providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      providerExists: false,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       xpub: '',
     });
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
@@ -83,11 +158,12 @@ describe('findWithBlock', () => {
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await providers.findWithBlock(options);
+    const [logs, res] = await initialization.fetchProviderWithData(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -99,9 +175,9 @@ describe('findWithBlock', () => {
       },
     ]);
     expect(res).toEqual({
-      providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      providerExists: true,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
@@ -112,7 +188,7 @@ describe('findWithBlock', () => {
   it('returns null if the retries are exhausted', async () => {
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
-    const [logs, res] = await providers.findWithBlock(options);
+    const [logs, res] = await initialization.fetchProviderWithData(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       {
@@ -129,13 +205,21 @@ describe('findWithBlock', () => {
 
 describe('create', () => {
   const options = {
-    providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+    authorizers: [ethers.constants.AddressZero],
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
-    xpub:
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    currentXpub:
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    onchainData: {
+      authorizers: [ethers.constants.AddressZero],
+      blockNumber: 12,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      xpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    },
   };
 
   it('creates the provider and returns the transaction', async () => {
@@ -145,7 +229,7 @@ describe('create', () => {
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await providers.create(options);
+    const [logs, res] = await initialization.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
       { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
@@ -165,6 +249,7 @@ describe('create', () => {
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      [ethers.constants.AddressZero],
       {
         // 250_000_000 - ((50_000 + 20_000) * 1000)
         value: ethers.BigNumber.from(180_000_000),
@@ -177,7 +262,7 @@ describe('create', () => {
   it('returns null if the gas limit estimate fails', async () => {
     estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
     estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
-    const [logs, res] = await providers.create(options);
+    const [logs, res] = await initialization.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
       { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
@@ -197,7 +282,7 @@ describe('create', () => {
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await providers.create(options);
+    const [logs, res] = await initialization.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
       { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
@@ -216,7 +301,7 @@ describe('create', () => {
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await providers.create(options);
+    const [logs, res] = await initialization.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
       { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
@@ -237,7 +322,7 @@ describe('create', () => {
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
     createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
-    const [logs, res] = await providers.create(options);
+    const [logs, res] = await initialization.create(options);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
       { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
@@ -257,6 +342,7 @@ describe('create', () => {
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      [ethers.constants.AddressZero],
       {
         // 250_000_000 - ((50_000 + 20_000) * 1000)
         value: ethers.BigNumber.from(180_000_000),
@@ -265,21 +351,121 @@ describe('create', () => {
       }
     );
   });
+
+  describe('insufficient funds in the master wallet', () => {
+    it('warns the user if the onchain provider would be updated', async () => {
+      options.onchainData.authorizers = ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'];
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      const [logs, res] = await initialization.create(options);
+      expect(logs).toEqual([
+        { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
+        { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+        { level: 'INFO', message: 'Estimated gas limit: 70000' },
+        { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
+        {
+          level: 'WARN',
+          message: 'Unable to update onchain provider record as the master wallet does not have sufficient funds',
+        },
+        {
+          level: 'WARN',
+          message: 'Current balance: 0.000000000000001 ETH. Estimated transaction cost: 0.00000000007 ETH',
+        },
+        {
+          level: 'WARN',
+          message:
+            'Any updates to "providerAdmin" or "authorizers" will not take affect until the provider has been updated',
+        },
+      ]);
+      expect(res).toEqual({});
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).not.toHaveBeenCalled();
+    });
+
+    it('does not warn if there is no onchain provider but fails to create the provider', async () => {
+      options.onchainData.xpub = '';
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.create(options);
+      expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
+      expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
+        {
+          level: 'ERROR',
+          message: 'Unable to submit create provider transaction',
+          error: new Error('Insufficient funds'),
+        },
+      ]);
+      expect(res).toEqual(null);
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not warn if the onchain xpub is different', async () => {
+      options.onchainData.xpub = '0xanotherxpub';
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.create(options);
+      expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
+      expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
+        {
+          level: 'ERROR',
+          message: 'Unable to submit create provider transaction',
+          error: new Error('Insufficient funds'),
+        },
+      ]);
+      expect(res).toEqual(null);
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not warn if the provider details match', async () => {
+      const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+      gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
+      const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
+      balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
+      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.create(options);
+      expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
+      expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
+        {
+          level: 'ERROR',
+          message: 'Unable to submit create provider transaction',
+          error: new Error('Insufficient funds'),
+        },
+      ]);
+      expect(res).toEqual(null);
+      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
+      expect(createProviderMock).toHaveBeenCalledTimes(2);
+    });
+  });
 });
 
-describe('findOrCreateProviderWithBlock', () => {
+describe('findOrCreateProvider', () => {
   const options = {
-    providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+    authorizers: [ethers.constants.AddressZero],
     convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
   };
 
   it('returns null if it fails to get the provider and block data', async () => {
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
-    const [logs, res] = await providers.findOrCreateProviderWithBlock(options);
+    const [logs, res] = await initialization.findOrCreateProvider(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -301,39 +487,10 @@ describe('findOrCreateProviderWithBlock', () => {
     ]);
   });
 
-  it('returns null if attemping creating the provider without providerAdminForRecordCreation', async () => {
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub: '',
-    });
-    const [logs, res] = await providers.findOrCreateProviderWithBlock({
-      ...options,
-      providerAdminForRecordCreation: undefined,
-    });
-    expect(logs).toEqual([
-      {
-        level: 'DEBUG',
-        message:
-          'Computed provider ID from mnemonic:0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      },
-      { level: 'INFO', message: 'Fetching current block and provider admin details...' },
-      { level: 'INFO', message: 'Current block:12' },
-      { level: 'INFO', message: 'Provider not found' },
-      { level: 'ERROR', message: 'Unable to find providerAdminForRecordCreation address' },
-    ]);
-    expect(res).toEqual(null);
-    expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
-    expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
-      '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
-    );
-    expect(estimateCreateProviderMock).not.toHaveBeenCalled();
-    expect(createProviderMock).not.toHaveBeenCalled();
-  });
-
   it('creates a provider if xpub if empty and returns the transaction', async () => {
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub: '',
     });
@@ -343,7 +500,7 @@ describe('findOrCreateProviderWithBlock', () => {
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await providers.findOrCreateProviderWithBlock(options);
+    const [logs, res] = await initialization.findOrCreateProvider(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -366,9 +523,9 @@ describe('findOrCreateProviderWithBlock', () => {
       },
     ]);
     expect(res).toEqual({
-      providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      providerExists: false,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       xpub: '',
     });
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledTimes(1);
@@ -380,6 +537,7 @@ describe('findOrCreateProviderWithBlock', () => {
     expect(createProviderMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      [ethers.constants.AddressZero],
       {
         // 250_000_000 - ((50_000 + 20_000) * 1000)
         value: ethers.BigNumber.from(180_000_000),
@@ -392,11 +550,12 @@ describe('findOrCreateProviderWithBlock', () => {
   it('returns the provider data and block if the provider already exists', async () => {
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await providers.findOrCreateProviderWithBlock(options);
+    const [logs, res] = await initialization.findOrCreateProvider(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -414,9 +573,9 @@ describe('findOrCreateProviderWithBlock', () => {
       { level: 'DEBUG', message: 'Skipping provider creation as the provider exists' },
     ]);
     expect(res).toEqual({
-      providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      providerExists: true,
+      providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });

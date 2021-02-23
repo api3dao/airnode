@@ -11,11 +11,12 @@ export interface Contracts {
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
   return {
-    providerAdminForRecordCreation: '0xC6E0c48092a37CF30733c4D64A72fd46eFECc3d5',
+    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
       Airnode: contracts.Airnode,
       Convenience: contracts.Convenience,
     },
+    authorizers: [ethers.constants.AddressZero],
     id: 31337,
     type: 'evm',
     providers: [{ name: 'evm-local', url: 'http://127.0.0.1:8545/' }],

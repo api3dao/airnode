@@ -1,7 +1,7 @@
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
+import * as initialization from '../initialization';
 import * as logger from '../../logger';
-import * as providers from '../providers';
 import { fetchPendingRequests } from './fetch-pending-requests';
 import * as requests from '../../requests';
 import * as state from '../../providers/state';
@@ -53,20 +53,28 @@ export async function initializeProvider(
   // STEP 2: Get current block number and find or create the provider
   // =================================================================
   const providerFetchOptions = {
-    providerAdminForRecordCreation: state1.settings.providerAdminForRecordCreation,
     airnodeAddress: state1.contracts.Airnode,
+    authorizers: state1.settings.authorizers,
     convenienceAddress: state1.contracts.Convenience,
     masterHDNode: state1.masterHDNode,
     provider: state1.provider,
+    providerAdmin: state1.settings.providerAdmin,
   };
-  const [providerLogs, providerBlockData] = await providers.findOrCreateProviderWithBlock(providerFetchOptions);
+  const [providerLogs, providerData] = await initialization.findOrCreateProvider(providerFetchOptions);
   logger.logPending(providerLogs, baseLogOptions);
 
-  // We can't proceed until the provider has been created onchain
-  if (!providerBlockData || !providerBlockData.providerExists) {
+  // If there is no provider data, something has gone wrong
+  if (!providerData) {
     return null;
   }
-  const state2 = state.update(state1, { currentBlock: providerBlockData.blockNumber });
+
+  // If the provider does not yet exist onchain then we can't start processing anything.
+  // This is to be expected for new Airnode deployments and is not an error case
+  if (providerData.xpub === '') {
+    return state1;
+  }
+
+  const state2 = state.update(state1, { currentBlock: providerData.blockNumber });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers

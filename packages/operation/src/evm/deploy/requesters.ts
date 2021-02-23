@@ -30,7 +30,7 @@ export async function createTemplates(state: State): Promise<State> {
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
     const apiProvider = state.apiProvidersByName[apiProviderName];
     const configApiProvider = state.config.apiProviders[apiProviderName];
-    const providerId = deriveProviderId(apiProvider.address);
+    const providerId = deriveProviderId(apiProvider.masterWalletAddress);
 
     for (const templateName of Object.keys(configApiProvider.templates)) {
       const configTemplate = configApiProvider.templates[templateName];
@@ -45,7 +45,7 @@ export async function createTemplates(state: State): Promise<State> {
         requester.requesterIndex,
         designatedWallet!.address,
         client.address,
-        client.interface.getSighash('fulfill(bytes32,uint256,bytes32)'),
+        client.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
         encode(configTemplate.parameters)
       );
       await tx.wait();

@@ -1,6 +1,7 @@
 require('@nomiclabs/hardhat-waffle');
 require('solidity-coverage');
 require('hardhat-deploy');
+require('hardhat-gas-reporter');
 
 const fs = require('fs');
 let credentials = require('./credentials.example.json');
@@ -9,6 +10,11 @@ if (fs.existsSync('./credentials.json')) {
 }
 
 module.exports = {
+  gasReporter: {
+    enabled: process.env.REPORT_GAS ? true : false,
+    outputFile: 'gas_report',
+    noColors: true,
+  },
   networks: {
     mainnet: {
       url: credentials.mainnet.providerUrl || '',

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-import "./IEndpointStore.sol";
+import "./IProviderStore.sol";
 import "./ITemplateStore.sol";
 
 
-interface IAirnode is IEndpointStore, ITemplateStore {
+interface IAirnode is IProviderStore, ITemplateStore {
     event ClientRequestCreated(
         bytes32 indexed providerId,
         bytes32 indexed requestId,
@@ -42,13 +42,6 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         );
 
     event ClientRequestFulfilled(
-        bytes32 indexed providerId,
-        bytes32 indexed requestId,
-        uint256 statusCode,
-        bytes32 data
-        );
-
-    event ClientRequestFulfilledWithBytes(
         bytes32 indexed providerId,
         bytes32 indexed requestId,
         uint256 statusCode,
@@ -91,20 +84,6 @@ interface IAirnode is IEndpointStore, ITemplateStore {
         returns (bytes32 requestId);
 
     function fulfill(
-        bytes32 requestId,
-        bytes32 providerId,
-        uint256 statusCode,
-        bytes32 data,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId
-        )
-        external
-        returns(
-            bool callSuccess,
-            bytes memory callData
-        );
-
-    function fulfillBytes(
         bytes32 requestId,
         bytes32 providerId,
         uint256 statusCode,
