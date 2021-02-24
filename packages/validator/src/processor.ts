@@ -16,7 +16,7 @@ const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json',
  * Recursion validating provided specification against template
  * @param specs - specification that is being validated
  * @param template - template the specification is validated against
- * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string in root)
+ * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string is root)
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param roots - roots of specs and nonRedundantParams
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
