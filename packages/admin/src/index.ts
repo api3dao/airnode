@@ -55,15 +55,7 @@ export async function createTemplate(airnode, template) {
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  const receipt = await airnode.createTemplate(
-    template.providerId,
-    template.endpointId,
-    template.requesterIndex,
-    template.designatedWallet,
-    template.fulfillAddress,
-    template.fulfillFunctionId,
-    encodedParameters
-  );
+  const receipt = await airnode.createTemplate(template.providerId, template.endpointId, encodedParameters);
   return new Promise((resolve) =>
     airnode.provider.once(receipt.hash, (tx) => {
       const parsedLog = airnode.interface.parseLog(tx.logs[0]);

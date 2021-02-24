@@ -110,10 +110,7 @@ export interface ConfigEndpoint {
 
 export interface ConfigTemplate {
   readonly endpoint: string;
-  readonly fulfillClient: string;
-  readonly fulfillFunctionName: string;
   readonly oisTitle: string;
-  readonly requester: string;
   readonly parameters: InputParameter[];
 }
 

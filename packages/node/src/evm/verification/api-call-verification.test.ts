@@ -24,9 +24,9 @@ describe('verifyApiCallIds', () => {
     const apiCall = fixtures.requests.createApiCall({
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
-      id: '0x8dc1d7fe6e5d68f429e536c7c7efedcc081b142bb0ad5fced130a33a12f2aa46',
+      id: '0x564ea6249a5ade738e037320153a7052043f5268afcc5340f9d2b8f4cc29ccc1',
       requestCount: '0',
-      templateId: '0x101c36202b92b358adda664515ea920f76b1edcf5f1285ab0c845f54638b45aa',
+      templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
       type: 'regular',
     });
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
@@ -56,10 +56,10 @@ describe('verifyApiCallIds', () => {
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       id: '0xinvalid',
       requestCount: '0',
-      templateId: '0x101c36202b92b358adda664515ea920f76b1edcf5f1285ab0c845f54638b45aa',
+      templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
       type: 'regular',
     });
-    const expectedId = '0x8dc1d7fe6e5d68f429e536c7c7efedcc081b142bb0ad5fced130a33a12f2aa46';
+    const expectedId = '0x564ea6249a5ade738e037320153a7052043f5268afcc5340f9d2b8f4cc29ccc1';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });

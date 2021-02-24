@@ -36,38 +36,17 @@ describe('getProviderAndBlockNumber', function () {
 
 describe('getTemplates', function () {
   it('returns templates', async function () {
-    let providerXpub, providerId;
-    ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
+    const provider = await createProvider(airnode, roles.providerAdmin);
+    const providerId = provider.providerId;
     const endpointId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], ['convertToUsd']));
-    const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
-    const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
-    const fulfillAddress = '0x0000000000000000000000000000000000000123';
-    const fulfillFunctionId = ethers.utils.hexDataSlice(
-      ethers.utils.keccak256(ethers.utils.toUtf8Bytes('myFunction(bytes32,uint256,bytes32)')),
-      0,
-      4
-    );
     const parameters = ethers.utils.randomBytes(32);
-    const templateId = await createTemplate(
-      airnode,
-      providerId,
-      endpointId,
-      requesterIndex,
-      designatedWallet,
-      fulfillAddress,
-      fulfillFunctionId,
-      parameters
-    );
+    const templateId = await createTemplate(airnode, providerId, endpointId, parameters);
     // 196,593 gas
     const noTemplates = 10;
     const templates = await convenience.getTemplates(Array(noTemplates).fill(templateId));
     for (var ind = 0; ind < noTemplates; ind++) {
       expect(templates.providerIds[ind]).to.equal(providerId);
       expect(templates.endpointIds[ind]).to.equal(endpointId);
-      expect(templates.requesterIndices[ind]).to.equal(requesterIndex);
-      expect(templates.designatedWallets[ind]).to.equal(designatedWallet);
-      expect(templates.fulfillAddresses[ind]).to.equal(fulfillAddress);
-      expect(templates.fulfillFunctionIds[ind]).to.equal(fulfillFunctionId);
       expect(templates.parameters[ind]).to.equal(ethers.utils.hexlify(parameters));
     }
   });

@@ -44,12 +44,6 @@ contract Convenience is IConvenience {
     /// @param templateIds Request template IDs
     /// @return providerIds Provider IDs from ProviderStore
     /// @return endpointIds Endpoint IDs from EndpointStore
-    /// @return requesterIndices Requester indices from RequesterStore
-    /// @return designatedWallets Designated wallets that are requested to
-    /// fulfill the request
-    /// @return fulfillAddresses Addresses that will be called to fulfill
-    /// @return fulfillFunctionIds Signatures of the functions that will be
-    /// called to fulfill
     /// @return parameters Array of static request parameters (i.e., parameters
     /// that will not change between requests, unlike the dynamic parameters
     /// determined at runtime)
@@ -60,29 +54,17 @@ contract Convenience is IConvenience {
         returns (
             bytes32[] memory providerIds,
             bytes32[] memory endpointIds,
-            uint256[] memory requesterIndices,
-            address[] memory designatedWallets,
-            address[] memory fulfillAddresses,
-            bytes4[] memory fulfillFunctionIds,
             bytes[] memory parameters
         )
     {
         providerIds = new bytes32[](templateIds.length);
         endpointIds = new bytes32[](templateIds.length);
-        requesterIndices = new uint256[](templateIds.length);
-        designatedWallets = new address[](templateIds.length);
-        fulfillAddresses = new address[](templateIds.length);
-        fulfillFunctionIds = new bytes4[](templateIds.length);
         parameters = new bytes[](templateIds.length);
         for (uint256 ind = 0; ind < templateIds.length; ind++)
         {
             (
                 providerIds[ind],
                 endpointIds[ind],
-                requesterIndices[ind],
-                designatedWallets[ind],
-                fulfillAddresses[ind],
-                fulfillFunctionIds[ind],
                 parameters[ind]
                 ) = airnode.getTemplate(templateIds[ind]);
         }

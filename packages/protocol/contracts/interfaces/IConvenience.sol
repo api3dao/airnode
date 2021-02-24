@@ -22,10 +22,6 @@ interface IConvenience {
         returns (
             bytes32[] memory providerIds,
             bytes32[] memory endpointIds,
-            uint256[] memory requesterIndices,
-            address[] memory designatedWallets,
-            address[] memory fulfillAddresses,
-            bytes4[] memory fulfillFunctionIds,
             bytes[] memory parameters
         );
 

@@ -51,7 +51,7 @@ describe('User flow', function () {
       .connect(roles.requesterAdmin)
       .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
     // The requester creates the template which keeps the request parameters
-    const templateId = await createTemplate(providerId, endpointId, requesterIndex, designatedWalletAddress);
+    const templateId = await createTemplate(providerId, endpointId);
     // Someone calls the client contract, which triggers a short request
     await airnodeClient.makeRequest(
       templateId,
@@ -182,18 +182,10 @@ describe('User flow', function () {
     return designatedWalletAddress;
   }
 
-  async function createTemplate(providerId, endpointId, requesterIndex, designatedWalletAddress) {
+  async function createTemplate(providerId, endpointId) {
     // Note that we are not connecting to the contract as requesterAdmin.
     // That's because it doesn't matter who creates the template.
-    const tx = await airnode.createTemplate(
-      providerId,
-      endpointId,
-      requesterIndex,
-      designatedWalletAddress,
-      airnodeClient.address,
-      airnodeClient.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
-      ethers.utils.randomBytes(8)
-    );
+    const tx = await airnode.createTemplate(providerId, endpointId, ethers.utils.randomBytes(8));
     // Get the newly created template's ID from the event
     const log = (await waffle.provider.getLogs({ address: airnode.address })).filter(
       (log) => log.transactionHash === tx.hash
@@ -234,32 +226,24 @@ describe('User flow', function () {
     // Verify that the template parameters are not tampered with
     const expectedTemplateId = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
-        ['bytes32', 'bytes32', 'uint256', 'address', 'address', 'bytes4', 'bytes'],
-        [
-          template.providerId,
-          template.endpointId,
-          template.requesterIndex,
-          template.designatedWallet,
-          template.fulfillAddress,
-          template.fulfillFunctionId,
-          template.parameters,
-        ]
+        ['bytes32', 'bytes32', 'bytes'],
+        [template.providerId, template.endpointId, template.parameters]
       )
     );
     expect(parsedRequestLog.args.templateId).to.equal(expectedTemplateId);
     // Verify that the designated wallet is correct
     const expectedDesignatedWallet = await deriveWalletAddressFromPath(
       providerXpub,
-      `m/0/${template.requesterIndex.toString()}`
+      `m/0/${parsedRequestLog.args.requesterIndex.toString()}`
     );
-    expect(template.designatedWallet).to.equal(expectedDesignatedWallet);
+    expect(parsedRequestLog.args.designatedWallet).to.equal(expectedDesignatedWallet);
     // Check authorization status
     const authorizationStatus = await convenience.checkAuthorizationStatus(
       providerId,
       parsedRequestLog.args.requestId,
       template.endpointId,
-      template.requesterIndex,
-      template.designatedWallet,
+      parsedRequestLog.args.requesterIndex,
+      parsedRequestLog.args.designatedWallet,
       parsedRequestLog.args.clientAddress
     );
     expect(authorizationStatus).to.equal(true);
@@ -269,14 +253,17 @@ describe('User flow', function () {
     // parsedRequestLog.args.parameters, insert these to correct fields and make the
     // API call. After it gets the response, it processes it according to the reserved
     // parameters (_path, _times, _type) and fulfills the request with the outcome.
-    const designatedWallet = await deriveWalletFromPath(providerMnemonic, `m/0/${template.requesterIndex.toString()}`);
+    const designatedWallet = await deriveWalletFromPath(
+      providerMnemonic,
+      `m/0/${parsedRequestLog.args.requesterIndex.toString()}`
+    );
     await airnode.connect(designatedWallet).fulfill(
       parsedRequestLog.args.requestId,
       providerId,
       ethers.BigNumber.from(0), // 0 as the statusCode = success
       ethers.utils.formatBytes32String('Hello!'),
-      template.fulfillAddress,
-      template.fulfillFunctionId,
+      parsedRequestLog.args.fulfillAddress,
+      parsedRequestLog.args.fulfillFunctionId,
       {
         // 500000 is a safe value and we can allow the requester to set this
         // with a _gasLimit reserved parameter (for example, if they want to run
