@@ -3,7 +3,7 @@ import * as logger from './utils/logger';
 import { validateCondition } from './validators/conditionValidator';
 import { validateRegexp } from './validators/regexpValidator';
 import { validateOptional } from './validators/optionalValidator';
-import { isAnyParamValid } from './validators/anyValidator';
+import { validateAny } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
 import { execute } from './utils/action';
 import fs from 'fs';
@@ -121,9 +121,7 @@ export function processSpecs(
         break;
 
       case '__any':
-        if (!isAnyParamValid(specs, template[key], paramPath, nonRedundantParams, roots)) {
-          messages.push(logger.error(`Required conditions not met in ${paramPath}`));
-        }
+        messages.push(...validateAny(specs, template[key], paramPath, nonRedundantParams, roots));
 
         break;
 

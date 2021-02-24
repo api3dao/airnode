@@ -1,6 +1,7 @@
 import * as utils from '../utils/utils';
 import { processSpecs } from '../processor';
-import { Roots } from '../types';
+import { Log, Roots } from '../types';
+import * as logger from '../utils/logger';
 
 /**
  * Checks if at least one param exists in provided specification conforming the validator specification structure
@@ -9,17 +10,17 @@ import { Roots } from '../types';
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param roots - roots of specs and nonRedundantParams
- * @returns true if at least one child of specs satisfies template, otherwise returns false
+ * @returns empty array if at least one child of specs satisfies template, otherwise returns array with error message
  */
-export function isAnyParamValid(
+export function validateAny(
   specs: any,
   template: any,
   paramPath: string,
   nonRedundantParams: any,
   roots: Roots
-): boolean {
+): Log[] {
   if (!specs) {
-    return false;
+    return [logger.error(`Required conditions not met in ${paramPath}`)];
   }
 
   if (Array.isArray(specs)) {
@@ -41,13 +42,13 @@ export function isAnyParamValid(
       );
 
       if (!result.messages.length) {
-        return true;
+        return [];
       }
 
       nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
     }
 
-    return false;
+    return [logger.error(`Required conditions not met in ${paramPath}`)];
   }
 
   for (const paramKey of Object.keys(specs)) {
@@ -67,11 +68,11 @@ export function isAnyParamValid(
     const result = processSpecs(specs[paramKey], template, paramPath, nonRedundantParams[paramKey], roots);
 
     if (!result.messages.length) {
-      return true;
+      return [];
     }
 
     nonRedundantParams[paramKey] = nonRedundantParamsCopy;
   }
 
-  return false;
+  return [logger.error(`Required conditions not met in ${paramPath}`)];
 }
