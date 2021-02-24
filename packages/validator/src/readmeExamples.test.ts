@@ -52,8 +52,11 @@ describe('readme examples', () => {
     }
     `;
 
-    expect(validateJson(basicValidInput, basicTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(basicInvalidInput, basicTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(basicValidInput), JSON.parse(basicTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(basicInvalidInput), JSON.parse(basicTemplate))).toMatchObject({
       valid: false,
       messages: [
         missingParamMessage('server.url'),
@@ -87,8 +90,11 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validRegexpInput, regexpTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidRegexpInput, regexpTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(validRegexpInput), JSON.parse(regexpTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(invalidRegexpInput), JSON.parse(regexpTemplate))).toMatchObject({
       valid: false,
       messages: [keyFormattingMessage('invalid', 'invalid'), formattingMessage('invalid')],
     });
@@ -183,8 +189,11 @@ describe('readme examples', () => {
       }
     `;
 
-    expect(validateJson(arraysObjectValidInput, arraysObjectsTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(arraysObjectInvalidInput, arraysObjectsTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(arraysObjectValidInput), JSON.parse(arraysObjectsTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(arraysObjectInvalidInput), JSON.parse(arraysObjectsTemplate))).toMatchObject({
       valid: false,
       messages: [
         sizeExceededMessage('server', 1),
@@ -245,8 +254,11 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validBasicSpec, basicTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidBasicSpec, basicTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(validBasicSpec), JSON.parse(basicTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(invalidBasicSpec), JSON.parse(basicTemplate))).toMatchObject({
       valid: false,
       messages: [missingParamMessage('conditionsExample.two'), extraFieldMessage('conditionsExample.one')],
     });
@@ -300,8 +312,11 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validRequireSpec, requireTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidRequireSpec, requireTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(validRequireSpec), JSON.parse(requireTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(invalidRequireSpec), JSON.parse(requireTemplate))).toMatchObject({
       valid: false,
       messages: [
         missingParamMessage('outer.require0.inner'),
@@ -371,8 +386,11 @@ describe('readme examples', () => {
       }
       `;
 
-    expect(validateJson(validIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidIfThenMatchesSpec, ifThenMatchesTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(validIfThenMatchesSpec), JSON.parse(ifThenMatchesTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(invalidIfThenMatchesSpec), JSON.parse(ifThenMatchesTemplate))).toMatchObject({
       valid: false,
       messages: [missingParamMessage('thenItems.byValue'), conditionNotMetMessage('items.matchedKey', 'matchedKey')],
     });
@@ -434,8 +452,11 @@ describe('readme examples', () => {
         }
       `;
 
-    expect(validateJson(validAnySpec, anyTemplate)).toMatchObject({ valid: true, messages: [] });
-    expect(validateJson(invalidAnySpec, anyTemplate)).toMatchObject({
+    expect(validateJson(JSON.parse(validAnySpec), JSON.parse(anyTemplate))).toMatchObject({
+      valid: true,
+      messages: [],
+    });
+    expect(validateJson(JSON.parse(invalidAnySpec), JSON.parse(anyTemplate))).toMatchObject({
       valid: false,
       messages: [conditionNotMetMessage('items.anyExample', 'anyExample')],
     });
@@ -468,8 +489,11 @@ describe('readme examples', () => {
         }
         `;
 
-      expect(validateJson(validOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({ valid: true, messages: [] });
-      expect(validateJson(invalidOptionalLevelSpec, optionalLevelTemplate)).toMatchObject({
+      expect(validateJson(JSON.parse(validOptionalLevelSpec), JSON.parse(optionalLevelTemplate))).toMatchObject({
+        valid: true,
+        messages: [],
+      });
+      expect(validateJson(JSON.parse(invalidOptionalLevelSpec), JSON.parse(optionalLevelTemplate))).toMatchObject({
         valid: false,
         messages: [formattingMessage('levelExample', true)],
       });
@@ -504,8 +528,11 @@ describe('readme examples', () => {
         }
       `;
 
-      expect(validateJson(validIgnoreSpec, ignoreTemplate)).toMatchObject({ valid: true, messages: [] });
-      expect(validateJson(invalidIgnoreSpec, ignoreTemplate)).toMatchObject({
+      expect(validateJson(JSON.parse(validIgnoreSpec), JSON.parse(ignoreTemplate))).toMatchObject({
+        valid: true,
+        messages: [],
+      });
+      expect(validateJson(JSON.parse(invalidIgnoreSpec), JSON.parse(ignoreTemplate))).toMatchObject({
         valid: true,
         messages: [extraFieldMessage('notIgnored')],
       });
@@ -543,7 +570,7 @@ describe('readme examples', () => {
       }
       `;
 
-      expect(convertJson(copyInput, copyTemplate)).toEqual({
+      expect(convertJson(JSON.parse(copyInput), JSON.parse(copyTemplate))).toEqual({
         valid: true,
         messages: [],
         output: {
@@ -587,7 +614,7 @@ describe('readme examples', () => {
       }
       `;
 
-      expect(convertJson(insertInput, insertTemplate).output).toEqual({
+      expect(convertJson(JSON.parse(insertInput), JSON.parse(insertTemplate)).output).toEqual({
         outerParameter: {
           innerParameter: 'inserted',
         },
@@ -665,7 +692,7 @@ describe('readme examples', () => {
       }
       `;
 
-      expect(convertJson(targetInput, targetTemplate)).toEqual({
+      expect(convertJson(JSON.parse(targetInput), JSON.parse(targetTemplate))).toEqual({
         valid: true,
         messages: [],
         output: {

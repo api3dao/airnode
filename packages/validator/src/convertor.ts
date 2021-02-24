@@ -30,9 +30,21 @@ export function convert(specsPath: string | undefined, templatePath: string | un
   }
 
   try {
+    template = JSON.parse(template);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
+  }
+
+  try {
     specs = fs.readFileSync(specsPath);
   } catch (e) {
     return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
+  }
+
+  try {
+    specs = JSON.parse(specs);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
   }
 
   return convertJson(specs, template);
@@ -44,15 +56,13 @@ export function convert(specsPath: string | undefined, templatePath: string | un
  * @param template - template json
  * @returns array of messages and converted specification
  */
-export function convertJson(specs: string, template: string): Result {
+export function convertJson(specs: object, template: object): Result {
   try {
     const nonRedundant = {};
     const output = {};
-    const parsedTemplate = JSON.parse(template);
-    const parsedSpecs = JSON.parse(specs);
 
-    const result = processSpecs(parsedSpecs, parsedTemplate, '', nonRedundant, {
-      specs: parsedSpecs,
+    const result = processSpecs(specs, template, '', nonRedundant, {
+      specs,
       nonRedundantParams: nonRedundant,
       output,
     });
@@ -85,7 +95,7 @@ export function convertFromTo(from, to, specs): Result {
       case 'configsecurity':
       case 'configandsecurity':
         ois = convert(specs, oas2ois);
-        cs = convertJson(ois.output ? JSON.stringify(ois.output) : '{}', fs.readFileSync(ois2cs).toString());
+        cs = convertJson(ois.output ? ois.output : {}, JSON.parse(fs.readFileSync(ois2cs).toString()));
         return { valid: ois.valid, messages: ois.messages, output: cs.output };
       default:
         return { valid: false, messages: [invalidConversionMessage(from, to)] };
