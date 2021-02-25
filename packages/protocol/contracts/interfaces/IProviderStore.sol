@@ -36,15 +36,6 @@ interface IProviderStore is IRequesterStore {
         external
         returns (bytes32 providerId);
 
-    function createProviderAndForwardFunds(
-        address admin,
-        string calldata xpub,
-        address[] calldata authorizers
-        )
-        external
-        payable
-        returns (bytes32 providerId);
-
     function requestWithdrawal(
         bytes32 providerId,
         uint256 requesterIndex,

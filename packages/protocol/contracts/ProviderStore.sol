@@ -15,6 +15,18 @@ contract ProviderStore is RequesterStore, IProviderStore {
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
+    /// @notice Allows the master wallet (m) of the provider to create a
+    /// provider record on this chain
+    /// @dev This method can also be used to update `admin`, `xpub` and/or
+    /// `authorizers` even if the provider record is already created.
+    /// `admin` is not used in the protocol contracts. It is intended to
+    /// potentially be referred to in authorizer contracts.
+    /// Note that the provider can announce an incorrect `xpub`. However, the
+    /// mismatch between it and the provider ID can be detected off-chain.
+    /// @param admin Provider admin
+    /// @param xpub Master public key of the provider
+    /// @param authorizers Authorizer contract addresses of the provider
+    /// @return providerId Provider ID
     function createProvider(
         address admin,
         string calldata xpub,
@@ -38,46 +50,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
             );
     }
 
-    /// @notice Allows the master wallet (m) of the provider to create a
-    /// provider record on this chain
-    /// @dev The oracle node should calculate their providerId off-chain and
-    /// retrieve its details with a getProvider() call. If the xpub is does not
-    /// match, it should call this method to update the provider record.
-    /// Note that the provider private key can be used to update admin through
-    /// this method. This is allowed on purpose, as the provider private key is
-    /// more privileged than the provider admin account.
-    /// @param admin Provider admin
-    /// @param xpub Master public key of the provider node
-    /// @param authorizers Authorizer contract addresses
-    /// @return providerId Provider ID
-    function createProviderAndForwardFunds(
-        address admin,
-        string calldata xpub,
-        address[] calldata authorizers
-        )
-        external
-        payable
-        override
-        returns (bytes32 providerId)
-    {
-        providerId = createProvider(
-            admin,
-            xpub,
-            authorizers
-            );
-        if (msg.value > 0)
-        {
-            (bool success, ) = admin.call{ value: msg.value }("");  // solhint-disable-line
-            require(success, "Transfer failed");
-        }
-    }
-
     /// @notice Called by the requester admin to create a request for the
-    /// provider to send the funds kept in their designated wallet to
+    /// provider to send the funds kept in their designated wallet to the
     /// destination
     /// @dev We do not need to use the withdrawal request parameters in the
     /// request ID hash to validate them at the node side because all of the
-    /// parameters are used during fulfillment and will get validated on-chain.
+    /// parameters are used during fulfillment and will get validated on-chain
     /// @param providerId Provider ID
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that the withdrawal is
@@ -114,9 +92,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
             );
     }
 
-    /// @notice Called by the designated wallet to fulfill the withdrawal
-    /// request made by the requester
-    /// @dev The oracle node sends the funds through this method to emit an
+    /// @notice Called by the provider's Airnode using the designated wallet to
+    /// fulfill the withdrawal request made by the requester
+    /// @dev The Airnode sends the funds through this method to emit an
     /// event that indicates that the withdrawal request has been fulfilled
     /// @param providerId Provider ID
     /// @param requesterIndex Requester index from RequesterStore
@@ -154,11 +132,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
         require(success, "Transfer failed");
     }
 
-    /// @notice Retrieves provider parameters addressed by the ID
+    /// @notice Retrieves the parameters of the provider addressed by the ID
     /// @param providerId Provider ID
     /// @return admin Provider admin
-    /// @return xpub Master public key of the provider node
-    /// @return authorizers Authorizer contract addresses
+    /// @return xpub Master public key of the provider
+    /// @return authorizers Authorizer contract addresses of the provider
     function getProvider(bytes32 providerId)
         external
         view

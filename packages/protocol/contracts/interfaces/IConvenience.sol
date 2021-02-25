@@ -15,6 +15,15 @@ interface IConvenience {
             uint256 blockNumber
         );
 
+    function createProviderAndForwardFunds(
+        address admin,
+        string calldata xpub,
+        address[] calldata authorizers
+        )
+        external
+        payable
+        returns (bytes32 providerId);
+
     function getTemplates(bytes32[] calldata templateIds)
         external
         view

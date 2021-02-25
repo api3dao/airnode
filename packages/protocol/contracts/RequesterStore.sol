@@ -14,6 +14,16 @@ contract RequesterStore is IRequesterStore {
     mapping(uint256 => uint256) public requesterIndexToNoWithdrawalRequests;
     uint256 private noRequesters = 1;
 
+    /// @dev Reverts if the caller is not the requester admin
+    /// @param requesterIndex Requester index
+    modifier onlyRequesterAdmin(uint256 requesterIndex)
+    {
+        require(
+            msg.sender == requesterIndexToAdmin[requesterIndex],
+            "Caller is not requester admin"
+            );
+        _;
+    }
 
     /// @notice Creates a requester with the given parameters, addressable by
     /// the index it returns
@@ -69,9 +79,8 @@ contract RequesterStore is IRequesterStore {
         override
         onlyRequesterAdmin(requesterIndex)
     {
-        // Initialize the client nonce if it is being endorsed for the first
-        // time for consistent request gas cost
-        if (endorsementStatus && clientAddressToNoRequests[clientAddress] == 0)
+        // Initialize the client nonce for consistent request gas cost
+        if (clientAddressToNoRequests[clientAddress] == 0)
         {
             clientAddressToNoRequests[clientAddress] = 1;
         }
@@ -81,16 +90,5 @@ contract RequesterStore is IRequesterStore {
             clientAddress,
             endorsementStatus
             );
-    }
-
-    /// @dev Reverts if the caller is not the requester admin
-    /// @param requesterIndex Requester index
-    modifier onlyRequesterAdmin(uint256 requesterIndex)
-    {
-        require(
-            msg.sender == requesterIndexToAdmin[requesterIndex],
-            "Caller is not requester admin"
-            );
-        _;
     }
 }

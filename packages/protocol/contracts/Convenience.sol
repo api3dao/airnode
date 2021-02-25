@@ -7,13 +7,15 @@ import "./TemplateStore.sol";
 import "./interfaces/IConvenience.sol";
 import "./authorizers/interfaces/IAuthorizer.sol";
 
+/// @title The contract that keeps the convenience methods that Airnodes use to
+/// make batch calls
 contract Convenience is ProviderStore, TemplateStore, IConvenience {
-    /// @notice A convenience function to retrieve provider parameters and the
-    /// block number with a single call
-    /// @param providerId Provider ID
+    /// @notice A convenience method to retrieve the provider parameters and
+    /// the block number with a single call
+    /// @param providerId Provider ID from ProviderStore
     /// @return admin Provider admin
-    /// @return xpub Master public key of the provider node
-    /// @return authorizers Authorizer contract addresses
+    /// @return xpub Master public key of the provider
+    /// @return authorizers Authorizer contract addresses of the provider
     /// @return blockNumber Block number
     function getProviderAndBlockNumber(bytes32 providerId)
         external
@@ -33,14 +35,43 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
         blockNumber = block.number;
     }
 
-    /// @notice A convenience function to retrieve multiple templates with a
+    /// @notice A convenience method for the Airnode to create a provider
+    /// record and forward the remaining funds in the master wallet to the
+    /// provider admin
+    /// @param admin Provider admin
+    /// @param xpub Master public key of the provider
+    /// @param authorizers Authorizer contract addresses of the provider
+    /// @return providerId Provider ID from ProviderStore
+    function createProviderAndForwardFunds(
+        address admin,
+        string calldata xpub,
+        address[] calldata authorizers
+        )
+        external
+        payable
+        override
+        returns (bytes32 providerId)
+    {
+        providerId = createProvider(
+            admin,
+            xpub,
+            authorizers
+            );
+        if (msg.value > 0)
+        {
+            (bool success, ) = admin.call{ value: msg.value }("");  // solhint-disable-line
+            require(success, "Transfer failed");
+        }
+    }
+
+    /// @notice A convenience method to retrieve multiple templates with a
     /// single call
-    /// @param templateIds Request template IDs
-    /// @return providerIds Provider IDs from ProviderStore
-    /// @return endpointIds Endpoint IDs from EndpointStore
-    /// @return parameters Array of static request parameters (i.e., parameters
-    /// that will not change between requests, unlike the dynamic parameters
-    /// determined at runtime)
+    /// @dev If this reverts, Airnode will use getTemplate() to get the
+    /// templates individually
+    /// @param templateIds Request template IDs from TemplateStore
+    /// @return providerIds Array of provider IDs from ProviderStore
+    /// @return endpointIds Array of endpoint IDs from EndpointStore
+    /// @return parameters Array of request parameters
     function getTemplates(bytes32[] calldata templateIds)
         external
         view
@@ -64,15 +95,17 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
     }
 
     /// @notice Uses the authorizer contracts of of a provider to decide if a
-    /// request is authorized. Once an oracle node receives a request, it calls
+    /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
     /// can use this method to determine if a particular request would be
     /// authorized.
-    /// @dev This method is meant to be called off-chain.
-    /// The elements of the authorizer array are either addresses of Authorizer
-    /// contracts with the interface defined in IAuthorizer or 0.
-    /// [] returns false (deny everything), [0] returns true (accept
-    /// everything).
+    /// @dev This method is meant to be called off-chain by the Airnode to
+    /// decide if it should respond to a request. The requester can also call
+    /// it, yet this function returning true should not be taken as a guarantee
+    /// of the subsequent call request being fulfilled (as the provider may
+    /// update their authorizers in the meantime).
+    /// The provider authorizers being empty means all requests will be denied,
+    /// while any `address(0)` authorizer means all requests will be accepted.
     /// @param providerId Provider ID from ProviderStore
     /// @param requestId Request ID
     /// @param endpointId Endpoint ID from EndpointStore
@@ -120,7 +153,7 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
 
     /// @notice A convenience function to make multiple authorization status
     /// checks with a single call
-    /// @dev If this reverts, the user should use checkAuthorizationStatus() to
+    /// @dev If this reverts, Airnode will use checkAuthorizationStatus() to
     /// do the checks individually
     /// @param providerId Provider ID from ProviderStore
     /// @param requestIds Request IDs

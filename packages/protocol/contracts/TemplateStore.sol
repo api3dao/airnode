@@ -3,11 +3,11 @@ pragma solidity 0.6.12;
 
 import "./interfaces/ITemplateStore.sol";
 
-/// @title The contract where request templates are stored
+/// @title The contract where the request templates are stored
 /// @notice Most requests are repeated many times with the same parameters.
 /// This contract allows the requester to announce their parameters once, then
-/// refer to that announcement when they are making a request, instead of
-/// passing the same parameters repeatedly.
+/// refer to that announcement to make a request instead of passing the same
+/// parameters repeatedly.
 contract TemplateStore is ITemplateStore {
     struct Template {
         bytes32 providerId;
@@ -16,7 +16,6 @@ contract TemplateStore is ITemplateStore {
         }
 
     mapping(bytes32 => Template) internal templates;
-
 
     /// @notice Creates a request template with the given parameters,
     /// addressable by the ID it returns
@@ -31,7 +30,7 @@ contract TemplateStore is ITemplateStore {
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
-    /// at runtime)
+    /// at request-time)
     /// @return templateId Request template ID
     function createTemplate(
         bytes32 providerId,
@@ -60,13 +59,14 @@ contract TemplateStore is ITemplateStore {
           );
     }
 
-    /// @notice Retrieves request parameters addressed by the ID
+    /// @notice Retrieves the parameters of the request template addressed by
+    /// the ID
     /// @param templateId Request template ID
     /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
     /// @return parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
-    /// at runtime)
+    /// at request-time)
     function getTemplate(bytes32 templateId)
         external
         view
