@@ -1,23 +1,16 @@
 import * as fs from 'fs';
 import * as yargs from 'yargs';
-import { ethers } from 'ethers';
 import * as evm from './evm';
 import * as contract from '.';
-
-const supportedChains = ['ropsten', 'rinkeby', 'goerli', 'xdai', 'fantom'];
 
 yargs
   .command(
     'create-requester',
     'Creates a requester and returns its index',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -32,10 +25,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
       const requesterIndex = await contract.createRequester(airnode, args.requesterAdmin);
       console.log(`Requester index: ${requesterIndex}`);
     }
@@ -44,13 +34,9 @@ yargs
     'update-requester-admin',
     'Updates the requester admin',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -70,10 +56,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
       const requesterAdmin = await contract.updateRequesterAdmin(airnode, args.requesterIndex, args.requesterAdmin);
       console.log(`Requester admin: ${requesterAdmin}`);
     }
@@ -82,13 +65,9 @@ yargs
     'derive-designated-wallet',
     'Derives the address of the designated wallet for a provider-requester pair',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       providerId: {
@@ -103,10 +82,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnode(args.chain, args.providerUrl);
+      const airnode = await evm.getAirnode(args.providerUrl);
       const designatedWallet = await contract.deriveDesignatedWallet(airnode, args.providerId, args.requesterIndex);
       console.log(`Designated wallet address: ${designatedWallet}`);
     }
@@ -115,13 +91,9 @@ yargs
     'endorse-client',
     'Endorses a client as a requester admin',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -141,10 +113,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
       const clientAddress = await contract.endorseClient(airnode, args.requesterIndex, args.clientAddress);
       console.log(`Client address: ${clientAddress}`);
     }
@@ -153,13 +122,9 @@ yargs
     'unendorse-client',
     'Unendorses a client as a requester admin',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -179,10 +144,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
       const clientAddress = await contract.unendorseClient(airnode, args.requesterIndex, args.clientAddress);
       console.log(`Client address: ${clientAddress}`);
     }
@@ -191,13 +153,9 @@ yargs
     'create-template',
     'Creates a template and returns its ID',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -212,11 +170,8 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
       const template = JSON.parse(fs.readFileSync(args.templateFilePath).toString());
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
       const templateId = await contract.createTemplate(airnode, template);
       console.log(`Template ID: ${templateId}`);
     }
@@ -225,13 +180,9 @@ yargs
     'request-withdrawal',
     'Requests withdrawal from the designated wallet of a provider as a requester admin',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -256,10 +207,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
       const withdrawalRequestId = await contract.requestWithdrawal(
         airnode,
         args.providerId,
@@ -273,13 +221,9 @@ yargs
     'check-withdrawal-request',
     'Checks the state of the withdrawal request',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       withdrawalRequestId: {
@@ -289,10 +233,7 @@ yargs
       },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnode(args.chain, args.providerUrl);
+      const airnode = await evm.getAirnode(args.providerUrl);
       const withdrawnAmount = await contract.checkWithdrawalRequest(airnode, args.withdrawalRequestId);
       if (withdrawnAmount) {
         console.log(`Withdrawn amount: ${withdrawnAmount}`);
@@ -305,13 +246,9 @@ yargs
     'create-provider',
     'Creates a provider and returns its ID',
     {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
       providerUrl: {
         type: 'string',
+        demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
       mnemonic: {
@@ -324,52 +261,17 @@ yargs
         demandOption: true,
         describe: 'Address of the provider admin',
       },
+      authorizersFilePath: {
+        type: 'string',
+        demandOption: true,
+        describe: 'Path of the authorizers JSON file',
+      },
     },
     async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
-      const providerId = await contract.createProvider(airnode, args.providerAdmin);
+      const authorizers = JSON.parse(fs.readFileSync(args.authorizersFilePath).toString());
+      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
+      const providerId = await contract.createProvider(airnode, args.providerAdmin, authorizers);
       console.log(`Provider ID: ${providerId}`);
-    }
-  )
-  .command(
-    'update-provider-admin',
-    'Updates the provider admin',
-    {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
-      providerUrl: {
-        type: 'string',
-        describe: 'URL of the Ethereum provider',
-      },
-      mnemonic: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Mnemonic of the wallet',
-      },
-      providerId: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Provider ID',
-      },
-      providerAdmin: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Address of the provider admin',
-      },
-    },
-    async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
-      const providerAdmin = await contract.updateProviderAdmin(airnode, args.providerId, args.providerAdmin);
-      console.log(`Provider admin: ${providerAdmin}`);
     }
   )
   .command(
@@ -388,59 +290,8 @@ yargs
       },
     },
     async (args) => {
-      const endpointId = ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(['string'], [`${args.oisTitle}/${args.endpointName}`])
-      );
+      const endpointId = await contract.deriveEndpointId(args.oisTitle, args.endpointName);
       console.log(`Endpoint ID: ${endpointId}`);
-    }
-  )
-  .command(
-    'update-authorizers',
-    'Updates the authorizers of an endpoint belonging to a provider',
-    {
-      chain: {
-        type: 'string',
-        choices: supportedChains,
-        describe: 'Name of the chain',
-      },
-      providerUrl: {
-        type: 'string',
-        describe: 'URL of the Ethereum provider',
-      },
-      mnemonic: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Mnemonic of the wallet',
-      },
-      providerId: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Provider ID',
-      },
-      endpointId: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Endpoint ID',
-      },
-      authorizersFilePath: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Path of the authorizers JSON file',
-      },
-    },
-    async (args) => {
-      if ((!args.chain && !args.providerUrl) || (args.chain && args.providerUrl)) {
-        throw new Error('Provide either chain or providerUrl');
-      }
-      const authorizers = JSON.parse(fs.readFileSync(args.authorizersFilePath).toString());
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.chain, args.providerUrl);
-      const updatedAuthorizers = await contract.updateAuthorizers(
-        airnode,
-        args.providerId,
-        args.endpointId,
-        authorizers
-      );
-      console.log(`Authorizers: ${updatedAuthorizers}`);
     }
   )
   .help().argv;

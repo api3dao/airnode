@@ -129,6 +129,7 @@ npx @api3/airnode-admin check-withdrawal-request \
 ### `create-provider`
 
 Creates a [provider](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns a provider ID.
+See the `/example` directory for an example authorizers file.
 
 **You probably should not be using this.**
 Airnode will create your provider during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md).
@@ -137,20 +138,8 @@ Airnode will create your provider during [deployment](https://github.com/api3dao
 npx @api3/airnode-admin create-provider \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --providerAdmin 0xc2193d...
-```
-
-### `update-provider-admin`
-
-Updates the [provider admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md#provideradmin).
-The `mnemonic` you provide here has to belong to the previous provider admin.
-
-```sh
-npx @api3/airnode-admin update-provider-admin \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --providerId 0xe1e0dd... \
-  --providerAdmin 0x60558a...
+  --providerAdmin 0xc2193d... \
+  --authorizersFilePath ./authorizers.json
 ```
 
 ### `derive-endpoint-id`
@@ -161,19 +150,4 @@ Derives the endpoint ID using the OIS title and the endpoint name using the conv
 npx @api3/airnode-admin derive-endpoint-id \
   --oisTitle "My OIS title..." \
   --endpointName "My endpoint name..."
-```
-
-### `update-authorizers`
-
-Updates the [authorizers](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/authorizer.md) of an [endpoint](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) belonging to a provider.
-The `mnemonic` you provide here has to belong to the provider admin.
-See the `/example` directory for an example authorizers file.
-
-```sh
-npx @api3/airnode-admin update-authorizers \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --providerId 0xe1e0dd... \
-  --endpointId 0x260558... \
-  --authorizersFilePath ./authorizers.json
 ```

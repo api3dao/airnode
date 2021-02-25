@@ -93,12 +93,12 @@ export async function checkWithdrawalRequest(airnode, withdrawalRequestId) {
   return parsedLog.args.amount;
 }
 
-export async function createProvider(airnode, providerAdmin) {
+export async function createProvider(airnode, providerAdmin, authorizers) {
   const hdNode = ethers.utils.HDNode.fromMnemonic(airnode.signer.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
   const masterWallet = ethers.Wallet.fromMnemonic(airnode.signer.mnemonic.phrase, 'm').connect(airnode.provider);
   // Assuming masterWallet has funds to make the transaction below
-  const receipt = await airnode.connect(masterWallet).createProvider(providerAdmin, xpub);
+  const receipt = await airnode.connect(masterWallet).createProviderAndForwardFunds(providerAdmin, xpub, authorizers);
   return new Promise((resolve) =>
     airnode.provider.once(receipt.hash, (tx) => {
       const parsedLog = airnode.interface.parseLog(tx.logs[0]);
@@ -107,22 +107,6 @@ export async function createProvider(airnode, providerAdmin) {
   );
 }
 
-export async function updateProviderAdmin(airnode, providerId, providerAdmin) {
-  const receipt = await airnode.updateProvider(providerId, providerAdmin);
-  return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.admin);
-    })
-  );
-}
-
-export async function updateAuthorizers(airnode, providerId, endpointId, authorizers) {
-  const receipt = await airnode.updateEndpointAuthorizers(providerId, endpointId, authorizers);
-  return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.authorizers);
-    })
-  );
+export async function deriveEndpointId(oisTitle, endpointName) {
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}/${endpointName}`]));
 }
