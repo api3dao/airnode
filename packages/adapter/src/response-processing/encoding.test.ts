@@ -1,40 +1,77 @@
 import { ethers } from 'ethers';
 import * as encoding from './encoding';
 
-describe('convertNumberToBytes32', () => {
+describe('convertUnsignedIntegerToBytes32', () => {
   it('converts positive numbers to bytes32', () => {
-    expect(encoding.convertNumberToBytes32('777')).toEqual(
+    expect(encoding.convertUnsignedIntegerToBytes32('777')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000309'
     );
-    expect(encoding.convertNumberToBytes32('1234567890')).toEqual(
+    expect(encoding.convertUnsignedIntegerToBytes32('1234567890')).toEqual(
+      '0x00000000000000000000000000000000000000000000000000000000499602d2'
+    );
+  });
+
+  it('converts very large numbers to bytes32', () => {
+    expect(
+      encoding.convertUnsignedIntegerToBytes32(
+        '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+      )
+    ).toEqual('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
+  });
+
+  it('converts 0 to bytes32', () => {
+    expect(encoding.convertUnsignedIntegerToBytes32('0')).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000000'
+    );
+  });
+
+  it('throws if attempting to convert a negative number', () => {
+    expect(() => {
+      encoding.convertUnsignedIntegerToBytes32('-777');
+    }).toThrowError();
+  });
+
+  it('throws if attempting to convert a decimal number', () => {
+    expect(() => {
+      encoding.convertUnsignedIntegerToBytes32('12.3');
+    }).toThrowError();
+  });
+});
+
+describe('convertSignedIntegerToBytes32', () => {
+  it('converts positive numbers to bytes32', () => {
+    expect(encoding.convertSignedIntegerToBytes32('777')).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000309'
+    );
+    expect(encoding.convertSignedIntegerToBytes32('1234567890')).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000499602d2'
     );
   });
 
   it('converts negative numbers to bytes32', () => {
-    expect(encoding.convertNumberToBytes32('-777')).toEqual(
+    expect(encoding.convertSignedIntegerToBytes32('-777')).toEqual(
       '0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcf7'
     );
-    expect(encoding.convertNumberToBytes32('-1234567890')).toEqual(
+    expect(encoding.convertSignedIntegerToBytes32('-1234567890')).toEqual(
       '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffb669fd2e'
     );
   });
 
   it('converts very large numbers to bytes32', () => {
-    expect(encoding.convertNumberToBytes32('12839712893719823718973198273537864783642')).toEqual(
+    expect(encoding.convertSignedIntegerToBytes32('12839712893719823718973198273537864783642')).toEqual(
       '0x00000000000000000000000000000025bb86c101e22b4eda9326a6e67b9e571a'
     );
   });
 
   it('converts 0 to bytes32', () => {
-    expect(encoding.convertNumberToBytes32('0')).toEqual(
+    expect(encoding.convertSignedIntegerToBytes32('0')).toEqual(
       '0x0000000000000000000000000000000000000000000000000000000000000000'
     );
   });
 
   it('throws if attempting to convert a decimal number', () => {
     expect(() => {
-      encoding.convertNumberToBytes32('12.3');
+      encoding.convertSignedIntegerToBytes32('12.3');
     }).toThrowError();
   });
 });

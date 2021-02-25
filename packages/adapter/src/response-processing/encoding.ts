@@ -1,7 +1,11 @@
 import { ethers } from 'ethers';
 import { ResponseType, ValueType } from '../types';
 
-export function convertNumberToBytes32(value: string) {
+export function convertUnsignedIntegerToBytes32(value: string) {
+  return ethers.utils.defaultAbiCoder.encode(['uint256'], [value]);
+}
+
+export function convertSignedIntegerToBytes32(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['int256'], [value]);
 }
 
@@ -21,8 +25,11 @@ export function convertBoolToBytes32(value: boolean) {
 
 export function encodeValue(value: ValueType, type: ResponseType) {
   switch (type) {
+    case 'uint256':
+      return convertUnsignedIntegerToBytes32(value as string);
+
     case 'int256':
-      return convertNumberToBytes32(value as string);
+      return convertSignedIntegerToBytes32(value as string);
 
     case 'bool':
       return convertBoolToBytes32(value as boolean);

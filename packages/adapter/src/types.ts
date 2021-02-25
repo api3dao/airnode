@@ -41,7 +41,7 @@ export interface Config {
 
 export type ValueType = string | BigNumber | boolean;
 
-export type ResponseType = 'int256' | 'bool' | 'bytes32';
+export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32';
 
 export interface ResponseParameters {
   _path?: string;

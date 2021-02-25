@@ -38,6 +38,68 @@ describe('castValue', () => {
     });
   });
 
+  describe('casting uint256 values', () => {
+    it('throws an error for invalid numbers', () => {
+      expect(() => casting.castValue(undefined, 'uint256')).toThrowError(
+        new Error("Unable to convert: 'undefined' to uint256")
+      );
+      expect(() => casting.castValue(null, 'uint256')).toThrowError(new Error("Unable to convert: 'null' to uint256"));
+      expect(() => casting.castValue(NaN, 'uint256')).toThrowError(new Error("Unable to convert: 'null' to uint256"));
+      expect(() => casting.castValue(Infinity, 'uint256')).toThrowError(
+        new Error("Unable to convert: 'null' to uint256")
+      );
+      expect(() => casting.castValue('', 'uint256')).toThrowError(new Error('Unable to convert: \'""\' to uint256'));
+      expect(() => casting.castValue('123.123.123', 'uint256')).toThrowError(
+        new Error('Unable to convert: \'"123.123.123"\' to uint256')
+      );
+    });
+
+    it('throws an error for unknown strings', () => {
+      expect(() => casting.castValue('', 'uint256')).toThrowError(new Error('Unable to convert: \'""\' to uint256'));
+      expect(() => casting.castValue('unknown', 'uint256')).toThrowError(
+        new Error('Unable to convert: \'"unknown"\' to uint256')
+      );
+    });
+
+    it('throws an error for complex values', () => {
+      // Arrays
+      expect(() => casting.castValue([], 'uint256')).toThrowError(new Error("Unable to convert: '[]' to uint256"));
+      expect(() => casting.castValue(['unknown'], 'uint256')).toThrowError(
+        new Error('Unable to convert: \'["unknown"]\' to uint256')
+      );
+      expect(() => casting.castValue([{ a: 1 }], 'uint256')).toThrowError(
+        new Error('Unable to convert: \'[{"a":1}]\' to uint256')
+      );
+
+      // Objects
+      expect(() => casting.castValue({}, 'uint256')).toThrowError(new Error("Unable to convert: '{}' to uint256"));
+      expect(() => casting.castValue({ a: 1 }, 'uint256')).toThrowError(
+        new Error('Unable to convert: \'{"a":1}\' to uint256')
+      );
+    });
+
+    it('casts boolean-like values to either 1 or 0', () => {
+      const zero = new BigNumber(0);
+      expect(casting.castValue(false, 'uint256')).toEqual(zero);
+      expect(casting.castValue('false', 'uint256')).toEqual(zero);
+
+      const one = new BigNumber(1);
+      expect(casting.castValue(true, 'uint256')).toEqual(one);
+      expect(casting.castValue('true', 'uint256')).toEqual(one);
+    });
+
+    it('casts number-like values to BigNumbers', () => {
+      expect(casting.castValue(0, 'uint256')).toEqual(new BigNumber(0));
+      expect(casting.castValue('0', 'uint256')).toEqual(new BigNumber(0));
+      expect(casting.castValue('777.789', 'uint256')).toEqual(new BigNumber('777.789'));
+      expect(casting.castValue(777, 'uint256')).toEqual(new BigNumber(777));
+      expect(casting.castValue(777.777, 'uint256')).toEqual(new BigNumber('777.777'));
+      expect(casting.castValue(Number.MAX_SAFE_INTEGER.toString() + '1000', 'uint256')).toEqual(
+        new BigNumber('90071992547409911000')
+      );
+    });
+  });
+
   describe('casting int256 values', () => {
     it('throws an error for invalid numbers', () => {
       expect(() => casting.castValue(undefined, 'int256')).toThrowError(

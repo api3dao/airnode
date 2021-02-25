@@ -39,9 +39,9 @@ export function extractAndEncodeResponse(data: unknown, parameters: ResponsePara
   const rawValue = extractValue(data, parameters._path);
   const value = casting.castValue(rawValue, parameters._type);
 
-  if (parameters._type === 'int256' && value instanceof BigNumber) {
+  if ((parameters._type === 'uint256' || parameters._type === 'int256') && value instanceof BigNumber) {
     const multipledValue = casting.multiplyValue(value, parameters._times);
-    const encodedValue = encoding.encodeValue(multipledValue.toString(), 'int256');
+    const encodedValue = encoding.encodeValue(multipledValue.toString(), parameters._type);
     return { value: multipledValue, encodedValue };
   }
 
