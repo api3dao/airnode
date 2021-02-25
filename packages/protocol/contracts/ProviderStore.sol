@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-import "./interfaces/IProviderStore.sol";
 import "./RequesterStore.sol";
-
+import "./interfaces/IProviderStore.sol";
 
 /// @title The contract where the providers are stored
 contract ProviderStore is RequesterStore, IProviderStore {

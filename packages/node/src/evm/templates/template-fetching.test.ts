@@ -23,7 +23,6 @@ describe('fetch (templates)', () => {
   beforeEach(() => {
     fetchOptions = {
       airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
-      convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
   });

@@ -245,8 +245,7 @@ const invalidConfigSpecification = `
           }
         ],
         "contracts": {
-          "Airnod": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
-          "Convenience": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9"
+          "Airnode": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9"
         }
       }
     ]

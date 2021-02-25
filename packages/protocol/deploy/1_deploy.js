@@ -6,10 +6,4 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
     from: accounts[0],
   });
   log(`Deployed Airnode at ${airnode.address}`);
-
-  const convenience = await deploy('Convenience', {
-    args: [airnode.address],
-    from: accounts[0],
-  });
-  log(`Deployed Convenience at ${convenience.address}`);
 };

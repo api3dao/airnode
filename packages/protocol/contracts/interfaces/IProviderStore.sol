@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 
 import "./IRequesterStore.sol";
 
-
 interface IProviderStore is IRequesterStore {
     event ProviderCreated(
         bytes32 indexed providerId,

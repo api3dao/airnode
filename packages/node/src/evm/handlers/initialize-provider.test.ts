@@ -39,7 +39,7 @@ describe('initializeProvider', () => {
       status: 200,
     });
 
-    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.convenience.getTemplates());
+    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnode.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true, true]);
 
     const state = fixtures.buildEVMProviderState();

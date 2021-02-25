@@ -3,7 +3,6 @@ const { expect } = require('chai');
 
 describe('User flow', function () {
   let airnode;
-  let convenience;
   let airnodeClient;
   let roles;
 
@@ -17,8 +16,6 @@ describe('User flow', function () {
 
     const airnodeFactory = await ethers.getContractFactory('Airnode');
     airnode = await airnodeFactory.deploy();
-    const convenienceFactory = await ethers.getContractFactory('Convenience');
-    convenience = await convenienceFactory.deploy(airnode.address);
     const airnodeClientFactory = await ethers.getContractFactory('MockAirnodeClient', roles.deployer);
     airnodeClient = await airnodeClientFactory.deploy(airnode.address);
   });
@@ -238,7 +235,7 @@ describe('User flow', function () {
     );
     expect(parsedRequestLog.args.designatedWallet).to.equal(expectedDesignatedWallet);
     // Check authorization status
-    const authorizationStatus = await convenience.checkAuthorizationStatus(
+    const authorizationStatus = await airnode.checkAuthorizationStatus(
       providerId,
       parsedRequestLog.args.requestId,
       template.endpointId,

@@ -6,13 +6,12 @@ import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
-import { Airnode, Convenience } from '../contracts';
+import { Airnode } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
 import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 export interface FetchOptions {
   airnodeAddress: string;
-  convenienceAddress: string;
   provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -46,10 +45,9 @@ export async function fetchTemplate(
 
 async function fetchTemplateGroup(
   airnode: ethers.Contract,
-  convenience: ethers.Contract,
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
-  const contractCall = () => convenience.getTemplates(templateIds) as Promise<any>;
+  const contractCall = () => airnode.getTemplates(templateIds) as Promise<any>;
   const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, rawTemplates] = await go(retryableContractCall);
@@ -95,12 +93,11 @@ export async function fetch(
   // Requests are made for up to 10 templates at a time
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE);
 
-  // Create an instance of each contract that we can re-use
+  // Create an instance of the contract that we can re-use
   const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
-  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
-  const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(airnode, convenience, ids));
+  const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(airnode, ids));
 
   const templateResponses = await Promise.all(promises);
   const templateResponseLogs = flatMap(templateResponses, (t) => t[0]);

@@ -11,7 +11,6 @@ export interface DeployState {
   readonly config: Config;
   readonly contracts: {
     readonly Airnode?: ethers.Contract;
-    readonly Convenience?: ethers.Contract;
   };
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;
@@ -23,7 +22,6 @@ export interface RequestsState {
   readonly config: Config;
   readonly contracts: {
     readonly Airnode: ethers.Contract;
-    readonly Convenience: ethers.Contract;
   };
   readonly deployment: Deployment;
   readonly deployer: ethers.providers.JsonRpcSigner;
@@ -92,7 +90,6 @@ export interface Deployment {
   readonly clients: { readonly [name: string]: string };
   readonly contracts: {
     readonly Airnode: string;
-    readonly Convenience: string;
   };
   readonly requesters: DeployedRequester[];
 }

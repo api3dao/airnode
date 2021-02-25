@@ -13,8 +13,7 @@
         "type": "evm",
         "id": 3,
         "contracts": {
-          "Airnode": "0xF8d32C3e53F7DA6e7CB82323f2cAB2159776b832",
-          "Convenience": "0x1552cF617711D6Da04E0EDC9e5C26eBbA08625ac"
+          "Airnode": "0xF8d32C3e53F7DA6e7CB82323f2cAB2159776b832"
         },
         "providers": [
           {
@@ -30,8 +29,7 @@
         "type": "evm",
         "id": 4,
         "contracts": {
-          "Airnode": "0xF9C39ec11055508BddA0Bc2a0234aBbbC09a3DeC",
-          "Convenience": "0xC9fb36DfAE95AD52E32ad48CCe9A1A169EfFaC6E"
+          "Airnode": "0xF9C39ec11055508BddA0Bc2a0234aBbbC09a3DeC"
         },
         "providers": [
           {

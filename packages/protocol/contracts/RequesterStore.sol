@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 
 import "./interfaces/IRequesterStore.sol";
 
-
 /// @title The contract where the requesters are stored
 /// @notice This contract is used by requesters to manage their endorsemenets.
 /// A requester endorsing a client means that the client can request their

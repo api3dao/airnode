@@ -1,6 +1,37 @@
 import { Airnode } from './airnode';
 
 describe('Airnode', () => {
+  it('exposes the contract ABI function', () => {
+    const functions = Airnode.ABI.filter((fn: any) => fn.type === 'function')
+      .map((fn: any) => fn.name)
+      .sort();
+
+    expect(functions).toEqual([
+      'checkAuthorizationStatus',
+      'checkAuthorizationStatuses',
+      'clientAddressToNoRequests',
+      'createProvider',
+      'createRequester',
+      'createTemplate',
+      'fail',
+      'fulfill',
+      'fulfillWithdrawal',
+      'getProvider',
+      'getProviderAndBlockNumber',
+      'getTemplate',
+      'getTemplates',
+      'makeFullRequest',
+      'makeRequest',
+      'requestWithIdHasFailed',
+      'requestWithdrawal',
+      'requesterIndexToAdmin',
+      'requesterIndexToClientAddressToEndorsementStatus',
+      'requesterIndexToNoWithdrawalRequests',
+      'updateClientEndorsementStatus',
+      'updateRequesterAdmin',
+    ]);
+  });
+
   it('exposes the contract ABI events', () => {
     const events = Airnode.ABI.filter((fn: any) => fn.type === 'event')
       .map((fn: any) => fn.name)

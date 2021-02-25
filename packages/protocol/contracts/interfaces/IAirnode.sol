@@ -4,7 +4,6 @@ pragma solidity 0.6.12;
 import "./IProviderStore.sol";
 import "./ITemplateStore.sol";
 
-
 interface IAirnode is IProviderStore, ITemplateStore {
     event ClientRequestCreated(
         bytes32 indexed providerId,
