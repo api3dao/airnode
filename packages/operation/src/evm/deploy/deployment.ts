@@ -1,4 +1,4 @@
-import { AirnodeArtifact, ConvenienceArtifact, authorizers, mocks } from '@airnode/protocol';
+import { AirnodeArtifact, authorizers, mocks } from '@airnode/protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 
@@ -7,13 +7,6 @@ export async function deployAirnode(state: State): Promise<State> {
   const airnode = await Airnode.deploy();
   await airnode.deployed();
   return { ...state, contracts: { ...state.contracts, Airnode: airnode } };
-}
-
-export async function deployConvenience(state: State): Promise<State> {
-  const Convenience = new ethers.ContractFactory(ConvenienceArtifact.abi, ConvenienceArtifact.bytecode, state.deployer);
-  const convenience = await Convenience.deploy(state.contracts.Airnode!.address);
-  await convenience.deployed();
-  return { ...state, contracts: { ...state.contracts, Convenience: convenience } };
 }
 
 export async function deployClients(state: State): Promise<State> {

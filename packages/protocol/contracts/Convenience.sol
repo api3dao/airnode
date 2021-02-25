@@ -2,21 +2,12 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "./ProviderStore.sol";
+import "./TemplateStore.sol";
 import "./interfaces/IConvenience.sol";
 import "./authorizers/interfaces/IAuthorizer.sol";
-import "./interfaces/IAirnode.sol";
 
-
-contract Convenience is IConvenience {
-    IAirnode public airnode;
-
-
-    constructor (address _airnode)
-        public
-    {
-        airnode = IAirnode(_airnode);
-    }
-
+contract Convenience is ProviderStore, TemplateStore, IConvenience {
     /// @notice A convenience function to retrieve provider parameters and the
     /// block number with a single call
     /// @param providerId Provider ID
@@ -35,7 +26,10 @@ contract Convenience is IConvenience {
             uint256 blockNumber
         )
     {
-        (admin, xpub, authorizers) = airnode.getProvider(providerId);
+        Provider storage provider = providers[providerId];
+        admin = provider.admin;
+        xpub = provider.xpub;
+        authorizers = provider.authorizers;
         blockNumber = block.number;
     }
 
@@ -62,11 +56,10 @@ contract Convenience is IConvenience {
         parameters = new bytes[](templateIds.length);
         for (uint256 ind = 0; ind < templateIds.length; ind++)
         {
-            (
-                providerIds[ind],
-                endpointIds[ind],
-                parameters[ind]
-                ) = airnode.getTemplate(templateIds[ind]);
+            Template storage template = templates[templateIds[ind]];
+            providerIds[ind] = template.providerId;
+            endpointIds[ind] = template.endpointId;
+            parameters[ind] = template.parameters;
         }
     }
 
@@ -100,7 +93,7 @@ contract Convenience is IConvenience {
         override
         returns(bool status)
     {
-        (, , address[] memory authorizerAddresses) = airnode.getProvider(providerId);
+        address[] memory authorizerAddresses = providers[providerId].authorizers;
         uint256 noAuthorizers = authorizerAddresses.length;
         for (uint256 ind = 0; ind < noAuthorizers; ind++)
         {
@@ -109,7 +102,7 @@ contract Convenience is IConvenience {
             {
                 return true;
             }
-            IAuthorizer authorizer = IAuthorizer(authorizerAddresses[ind]);
+            IAuthorizer authorizer = IAuthorizer(authorizerAddress);
             if (authorizer.checkIfAuthorized(
                 requestId,
                 providerId,

@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
+pragma experimental ABIEncoderV2;
 
+import "./Convenience.sol";
 import "./interfaces/IAirnode.sol";
-import "./ProviderStore.sol";
-import "./TemplateStore.sol";
-
 
 /// @title The contract used to make and fulfill requests
 /// @notice Clients use this contract to make requests that follow a
 /// request-response scheme. In addition, it inherits from contracts that keep
 /// records of providers, requesters, endpoints, etc.
-contract Airnode is ProviderStore, TemplateStore, IAirnode {
+contract Airnode is Convenience, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
-
 
     /// @notice Called by the client to make a regular request. A regular
     /// request refers to a template for the requester-agnostic parameters, but

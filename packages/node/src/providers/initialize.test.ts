@@ -29,7 +29,6 @@ const chains: ChainConfig[] = [
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
-      Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
     },
     id: 1,
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -40,7 +39,6 @@ const chains: ChainConfig[] = [
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       Airnode: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
-      Convenience: '0xa8025cA7d22825a663abdCf2a504a33c8F17C41a',
     },
     id: 3,
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -79,7 +77,6 @@ describe('initializeProviders', () => {
       {
         contracts: {
           Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
-          Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
         },
         settings: {
           authorizers: [ethers.constants.AddressZero],
@@ -113,7 +110,6 @@ describe('initializeProviders', () => {
       {
         contracts: {
           Airnode: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
-          Convenience: '0xa8025cA7d22825a663abdCf2a504a33c8F17C41a',
         },
         settings: {
           authorizers: [ethers.constants.AddressZero],

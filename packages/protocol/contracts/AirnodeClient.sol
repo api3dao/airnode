@@ -4,7 +4,6 @@ pragma solidity 0.6.12;
 import "./interfaces/IAirnodeClient.sol";
 import "./interfaces/IAirnode.sol";
 
-
 /// @title The contract to be inherited from to use Airnode to make requests
 contract AirnodeClient is IAirnodeClient {
     IAirnode public airnode;

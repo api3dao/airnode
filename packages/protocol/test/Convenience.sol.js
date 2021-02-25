@@ -5,7 +5,6 @@ const { createRequester } = require('./helpers/requester');
 const { deriveWalletAddressFromPath } = require('./util');
 
 let airnode;
-let convenience;
 let roles;
 
 beforeEach(async () => {
@@ -18,8 +17,6 @@ beforeEach(async () => {
   };
   const airnodeFactory = await ethers.getContractFactory('Airnode', roles.deployer);
   airnode = await airnodeFactory.deploy();
-  const convenienceFactory = await ethers.getContractFactory('Convenience', roles.deployer);
-  convenience = await convenienceFactory.deploy(airnode.address);
 });
 
 describe('getProviderAndBlockNumber', function () {
@@ -27,7 +24,7 @@ describe('getProviderAndBlockNumber', function () {
     let providerXpub, providerId;
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));
     // 34,175 gas
-    const returnedValues = await convenience.getProviderAndBlockNumber(providerId);
+    const returnedValues = await airnode.getProviderAndBlockNumber(providerId);
     expect(returnedValues.admin).to.equal(roles.providerAdmin.address);
     expect(returnedValues.xpub).to.equal(providerXpub);
     expect(returnedValues.blockNumber).to.equal(await waffle.provider.getBlockNumber());
@@ -43,7 +40,7 @@ describe('getTemplates', function () {
     const templateId = await createTemplate(airnode, providerId, endpointId, parameters);
     // 196,593 gas
     const noTemplates = 10;
-    const templates = await convenience.getTemplates(Array(noTemplates).fill(templateId));
+    const templates = await airnode.getTemplates(Array(noTemplates).fill(templateId));
     for (var ind = 0; ind < noTemplates; ind++) {
       expect(templates.providerIds[ind]).to.equal(providerId);
       expect(templates.endpointIds[ind]).to.equal(endpointId);
@@ -60,7 +57,7 @@ describe('checkAuthorizationStatus', function () {
     const requesterIndex = await createRequester(airnode, roles.requesterAdmin);
     const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // 91,529 gas
-    const authorizationStatus = await convenience.checkAuthorizationStatus(
+    const authorizationStatus = await airnode.checkAuthorizationStatus(
       providerId,
       ethers.constants.HashZero,
       endpointId,
@@ -81,7 +78,7 @@ describe('checkAuthorizationStatuses', function () {
     const designatedWallet = deriveWalletAddressFromPath(providerXpub, `m/0/${requesterIndex.toString()}`);
     // 722,267 gas
     const noRequests = 10;
-    const authorizationStatuses = await convenience.checkAuthorizationStatuses(
+    const authorizationStatuses = await airnode.checkAuthorizationStatuses(
       providerId,
       Array(noRequests).fill(ethers.constants.HashZero),
       Array(noRequests).fill(endpointId),

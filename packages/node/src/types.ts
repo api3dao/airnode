@@ -139,7 +139,6 @@ export interface CoordinatorState {
 // ===========================================
 export interface EVMContracts {
   readonly Airnode: string;
-  readonly Convenience: string;
 }
 
 export interface EVMProviderState {
@@ -283,7 +282,6 @@ export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
   readonly Airnode: string;
-  readonly Convenience: string;
 }
 
 export interface ChainProvider {

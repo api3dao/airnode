@@ -94,7 +94,6 @@ describe('fetchProviderWithData', () => {
   const options = {
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
-    convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -207,7 +206,6 @@ describe('create', () => {
   const options = {
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
-    convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -456,7 +454,6 @@ describe('findOrCreateProvider', () => {
   const options = {
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
-    convenienceAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',

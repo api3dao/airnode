@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AirnodeArtifact, ConvenienceArtifact } from '@airnode/protocol';
+import { AirnodeArtifact } from '@airnode/protocol';
 import { Config, Deployment, RequestsState as State } from '../../types';
 
 export function buildRequestsState(config: Config, deployment: Deployment): State {
@@ -7,13 +7,11 @@ export function buildRequestsState(config: Config, deployment: Deployment): Stat
   const deployer = provider.getSigner(config.deployerIndex);
 
   const Airnode = new ethers.Contract(deployment.contracts.Airnode, AirnodeArtifact.abi, provider);
-  const Convenience = new ethers.Contract(deployment.contracts.Convenience, ConvenienceArtifact.abi, provider);
 
   return {
     config,
     contracts: {
       Airnode,
-      Convenience,
     },
     deployment,
     deployer,

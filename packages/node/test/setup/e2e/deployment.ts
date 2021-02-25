@@ -5,30 +5,29 @@ export async function deployAirnode(config: operation.Config): Promise<operation
 
   // Deploy contracts
   const state2 = await operation.deployAirnode(state1);
-  const state3 = await operation.deployConvenience(state2);
-  const state4 = await operation.deployClients(state3);
-  const state5 = await operation.deployAuthorizers(state4);
+  const state3 = await operation.deployClients(state2);
+  const state4 = await operation.deployAuthorizers(state3);
 
   // Assign wallets
-  const state6 = await operation.assignProviderAccounts(state5);
-  const state7 = await operation.assignRequesterAccounts(state6);
-  const state8 = await operation.assignDesignatedWallets(state7);
+  const state5 = await operation.assignProviderAccounts(state4);
+  const state6 = await operation.assignRequesterAccounts(state5);
+  const state7 = await operation.assignDesignatedWallets(state6);
 
   // Fund wallets
-  const state9 = await operation.fundProviderAccounts(state8);
-  const state10 = await operation.fundRequesterAccounts(state9);
-  const state11 = await operation.fundDesignatedWallets(state10);
+  const state8 = await operation.fundProviderAccounts(state7);
+  const state9 = await operation.fundRequesterAccounts(state8);
+  const state10 = await operation.fundDesignatedWallets(state9);
 
   // Create API providers
-  const state12 = await operation.createProviders(state11);
+  const state11 = await operation.createProviders(state10);
 
   // Endorse client contracts
-  const state13 = await operation.endorseClients(state12);
+  const state12 = await operation.endorseClients(state11);
 
   // Create templates
-  const state14 = await operation.createTemplates(state13);
+  const state13 = await operation.createTemplates(state12);
 
-  const deployment = operation.buildSaveableDeployment(state14);
+  const deployment = operation.buildSaveableDeployment(state13);
 
   return deployment;
 }

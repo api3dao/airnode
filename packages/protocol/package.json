@@ -13,9 +13,8 @@
     "test": "hardhat test",
     "test:gas": "REPORT_GAS=TRUE hardhat test",
     "test:coverage": "hardhat coverage",
-    "flatten": "yarn run flatten:airnode && yarn run flatten:convenience && yarn run flatten:delete-license-lines",
+    "flatten": "yarn run flatten:airnode && yarn run flatten:delete-license-lines",
     "flatten:airnode": "hardhat flatten contracts/Airnode.sol > Airnode.flat.sol && yarn run flatten:delete-license-lines",
-    "flatten:convenience": "hardhat flatten contracts/Convenience.sol > Convenience.flat.sol && yarn run flatten:delete-license-lines",
     "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol"
   },
   "dependencies": {

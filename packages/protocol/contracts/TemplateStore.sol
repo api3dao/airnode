@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 
 import "./interfaces/ITemplateStore.sol";
 
-
 /// @title The contract where request templates are stored
 /// @notice Most requests are repeated many times with the same parameters.
 /// This contract allows the requester to announce their parameters once, then

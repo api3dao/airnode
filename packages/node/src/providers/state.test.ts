@@ -11,7 +11,6 @@ describe('create', () => {
       authorizers: [ethers.constants.AddressZero],
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
-        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       id: 1337,
       providerAdmin: '0xproviderAdmin',
@@ -23,7 +22,6 @@ describe('create', () => {
     expect(res).toEqual({
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
-        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       settings: {
         authorizers: [ethers.constants.AddressZero],
@@ -65,7 +63,6 @@ describe('create', () => {
       blockHistoryLimit: 150,
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
-        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       id: 1337,
       minConfirmations: 3,
@@ -78,7 +75,6 @@ describe('create', () => {
     expect(res).toEqual({
       contracts: {
         Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
-        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
       },
       settings: {
         authorizers: [ethers.constants.AddressZero],

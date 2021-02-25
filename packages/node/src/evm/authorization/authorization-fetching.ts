@@ -3,25 +3,25 @@ import chunk from 'lodash/chunk';
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import { Convenience } from '../contracts';
+import { Airnode } from '../contracts';
 import * as logger from '../../logger';
 import { go, retryOperation } from '../../utils/promise-utils';
 import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../types';
 import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 interface FetchOptions {
-  convenienceAddress: string;
+  airnodeAddress: string;
   providerId: string;
   provider: ethers.providers.JsonRpcProvider;
 }
 
 export async function fetchAuthorizationStatus(
-  convenience: ethers.Contract,
+  airnode: ethers.Contract,
   providerId: string,
   apiCall: ClientRequest<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = () =>
-    convenience.checkAuthorizationStatus(
+    airnode.checkAuthorizationStatus(
       providerId,
       apiCall.id,
       apiCall.endpointId,
@@ -41,7 +41,7 @@ export async function fetchAuthorizationStatus(
 }
 
 async function fetchAuthorizationStatuses(
-  convenience: ethers.Contract,
+  airnode: ethers.Contract,
   providerId: string,
   apiCalls: ClientRequest<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
@@ -53,7 +53,7 @@ async function fetchAuthorizationStatuses(
   const clientAddresses = apiCalls.map((a) => a.clientAddress);
 
   const contractCall = () =>
-    convenience.checkAuthorizationStatuses(
+    airnode.checkAuthorizationStatuses(
       providerId,
       requestIds,
       endpointIds,
@@ -69,7 +69,7 @@ async function fetchAuthorizationStatuses(
 
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
     const promises: Promise<LogsData<{ id: string; authorized: boolean | null }>>[] = apiCalls.map(async (apiCall) => {
-      const [logs, authorized] = await fetchAuthorizationStatus(convenience, providerId, apiCall);
+      const [logs, authorized] = await fetchAuthorizationStatus(airnode, providerId, apiCall);
       const data = { id: apiCall.id, authorized };
       const result: LogsData<{ id: string; authorized: boolean | null }> = [logs, data];
       return result;
@@ -109,10 +109,10 @@ export async function fetch(
   const groupedPairs = chunk(pendingApiCalls, CONVENIENCE_BATCH_SIZE);
 
   // Create an instance of the contract that we can re-use
-  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
+  const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
 
   // Fetch all authorization statuses in parallel
-  const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(convenience, fetchOptions.providerId, pairs));
+  const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(airnode, fetchOptions.providerId, pairs));
 
   const responses = await Promise.all(promises);
   const responseLogs = flatMap(responses, (r) => r[0]);

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
-import { Airnode, Convenience } from './contracts';
+import { Airnode } from './contracts';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as utils from './utils';
@@ -17,7 +17,6 @@ interface ProviderExistsOptions {
 interface BaseFetchOptions {
   airnodeAddress: string;
   authorizers: string[];
-  convenienceAddress: string;
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
   providerAdmin: string;
@@ -51,8 +50,8 @@ export function providerExistsOnchain(options: ProviderExistsOptions, onchainDat
 }
 
 export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<LogsData<ProviderData | null>> {
-  const convenience = new ethers.Contract(fetchOptions.convenienceAddress, Convenience.ABI, fetchOptions.provider);
-  const operation = () => convenience.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
+  const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
+  const operation = () => airnode.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
   const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and provider admin details...');

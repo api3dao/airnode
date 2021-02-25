@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import "./IAirnode.sol";
 
-
 interface IConvenience {
     function getProviderAndBlockNumber(bytes32 providerId)
         external

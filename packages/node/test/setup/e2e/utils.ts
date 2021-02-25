@@ -6,7 +6,6 @@ import { ChainConfig } from '../../../src/types';
 
 export interface Contracts {
   readonly Airnode: string;
-  readonly Convenience: string;
 }
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
@@ -14,7 +13,6 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
       Airnode: contracts.Airnode,
-      Convenience: contracts.Convenience,
     },
     authorizers: [ethers.constants.AddressZero],
     id: 31337,
