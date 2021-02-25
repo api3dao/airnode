@@ -108,5 +108,5 @@ export async function createProvider(airnode, providerAdmin, authorizers) {
 }
 
 export async function deriveEndpointId(oisTitle, endpointName) {
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}/${endpointName}`]));
+  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
 }
