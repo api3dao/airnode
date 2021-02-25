@@ -82,7 +82,7 @@ describe('initializeProvider', () => {
         endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
         fulfillAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         fulfillFunctionId: '0x48a4157c',
-        id: '0x7073d6a5530629274041f7766f4c3b94118c8cd2932c8af27b166e1c3cd94e30',
+        id: '0xe2347d69997f674902398ea1b43239ed8f4fcf81a1baa7a904e37f15e0c85e7e',
         metadata: {
           blockNumber: 16,
           currentBlock: 12,
@@ -100,7 +100,7 @@ describe('initializeProvider', () => {
         requestCount: '2',
         requesterIndex: '2',
         status: 'Pending',
-        templateId: '0xe315dcd8305800ebdf4c188fa85c602387d36df23de6927d28820d695a3c0deb',
+        templateId: '0x537522dde3d2d4fb409b9c278d0b08de85f5aea7339efd23c5a8d7316242d2db',
         type: 'regular',
       },
     ]);

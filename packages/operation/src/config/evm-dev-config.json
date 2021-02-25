@@ -14,9 +14,6 @@
         "template-1": {
           "endpoint": "convertToUSD",
           "oisTitle": "currency-converter-ois",
-          "fulfillClient": "MockAirnodeClient",
-          "fulfillFunctionName": "fulfill",
-          "requester": "bob",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
             { "type": "bytes32", "name": "_type", "value": "int256" },

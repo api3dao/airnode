@@ -61,16 +61,7 @@ beforeEach(async () => {
     4
   );
   parameters = ethers.utils.randomBytes(8);
-  templateId = await createTemplate(
-    airnode,
-    providerId,
-    endpointId,
-    requesterIndex,
-    designatedWalletAddress,
-    fulfillAddress,
-    fulfillFunctionId,
-    parameters
-  );
+  templateId = await createTemplate(airnode, providerId, endpointId, parameters);
 
   requestTimeRequesterIndex = await createRequester(airnode, roles.requesterAdmin);
   requestTimeDesignatedWalletAddress = deriveWalletAddressFromPath(

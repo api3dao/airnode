@@ -67,7 +67,7 @@ export interface ApiCall {
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
-  readonly providerId: string;
+  readonly providerId: string | null;
   readonly requestCount: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
@@ -75,14 +75,10 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
-  readonly designatedWallet: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
-  readonly fulfillAddress: string;
-  readonly fulfillFunctionId: string;
   readonly id: string;
   readonly providerId: string;
-  readonly requesterIndex: string;
 }
 
 export interface Withdrawal {

@@ -90,15 +90,28 @@ export async function initializeProvider(
   const state3 = state.update(state2, { requests: groupedRequests });
 
   // =================================================================
-  // STEP 4: Fetch and apply templates to API calls
+  // STEP 4: Validate API calls
+  // =================================================================
+  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+    state3.requests.apiCalls,
+    state3.masterHDNode
+  );
+  logger.logPending(verifyLogs, baseLogOptions);
+
+  const state4 = state.update(state3, {
+    requests: { ...state3.requests, apiCalls: verifiedApiCalls },
+  });
+
+  // =================================================================
+  // STEP 5: Fetch and apply templates to API calls
   // =================================================================
   const templateFetchOptions = {
-    airnodeAddress: state3.contracts.Airnode,
-    convenienceAddress: state3.contracts.Convenience,
-    provider: state3.provider,
+    airnodeAddress: state4.contracts.Airnode,
+    convenienceAddress: state4.contracts.Convenience,
+    provider: state4.provider,
   };
   // This should not throw
-  const [templFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
+  const [templFetchLogs, templatesById] = await templates.fetch(state4.requests.apiCalls, templateFetchOptions);
   logger.logPending(templFetchLogs, baseLogOptions);
 
   const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(apiCalls, templatesById);
@@ -110,21 +123,8 @@ export async function initializeProvider(
   );
   logger.logPending(templApplicationLogs, baseLogOptions);
 
-  const state4 = state.update(state3, {
-    requests: { ...state3.requests, apiCalls: templatedApiCalls },
-  });
-
-  // =================================================================
-  // STEP 5: Validate API calls now that all template fields are present
-  // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
-    state4.requests.apiCalls,
-    state4.masterHDNode
-  );
-  logger.logPending(verifyLogs, baseLogOptions);
-
   const state5 = state.update(state4, {
-    requests: { ...state4.requests, apiCalls: verifiedApiCalls },
+    requests: { ...state4.requests, apiCalls: templatedApiCalls },
   });
 
   // =================================================================

@@ -34,20 +34,9 @@ export async function createTemplates(state: State): Promise<State> {
 
     for (const templateName of Object.keys(configApiProvider.templates)) {
       const configTemplate = configApiProvider.templates[templateName];
-      const client = state.clientsByName[configTemplate.fulfillClient];
-      const requester = state.requestersById[configTemplate.requester];
-      const designatedWallet = requester.designatedWallets.find((w) => w.apiProviderName === apiProviderName);
       const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
 
-      const tx = await Airnode!.createTemplate(
-        providerId,
-        endpointId,
-        requester.requesterIndex,
-        designatedWallet!.address,
-        client.address,
-        client.interface.getSighash('fulfill(bytes32,uint256,bytes)'),
-        encode(configTemplate.parameters)
-      );
+      const tx = await Airnode!.createTemplate(providerId, endpointId, encode(configTemplate.parameters));
       await tx.wait();
 
       const logs = await state.provider.getLogs({
