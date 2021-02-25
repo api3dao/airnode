@@ -98,7 +98,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.createProvider(providerAdmin, currentXpub, authorizers, {
+    airnode.estimateGas.createProviderAndForwardFunds(providerAdmin, currentXpub, authorizers, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -162,7 +162,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
 
   const createProviderTx = () =>
-    airnode.createProvider(providerAdmin, currentXpub, authorizers, {
+    airnode.createProviderAndForwardFunds(providerAdmin, currentXpub, authorizers, {
       value: fundsToSend,
       gasLimit,
       gasPrice,

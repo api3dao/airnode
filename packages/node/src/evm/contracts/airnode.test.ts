@@ -11,6 +11,7 @@ describe('Airnode', () => {
       'checkAuthorizationStatuses',
       'clientAddressToNoRequests',
       'createProvider',
+      'createProviderAndForwardFunds',
       'createRequester',
       'createTemplate',
       'fail',

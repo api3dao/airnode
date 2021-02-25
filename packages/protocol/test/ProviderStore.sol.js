@@ -19,7 +19,7 @@ beforeEach(async () => {
   airnode = await airnodeFactory.deploy();
 });
 
-describe('createProvider', function () {
+describe('createProviderAndForwardFunds', function () {
   it('creates a provider record', async function () {
     let providerXpub, providerId;
     ({ providerXpub, providerId } = await createProvider(airnode, roles.providerAdmin));

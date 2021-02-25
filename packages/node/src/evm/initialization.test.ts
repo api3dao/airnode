@@ -5,9 +5,9 @@ jest.mock('ethers', () => ({
   ethers: {
     ...jest.requireActual('ethers'),
     Contract: jest.fn().mockImplementation(() => ({
-      createProvider: createProviderMock,
+      createProviderAndForwardFunds: createProviderMock,
       estimateGas: {
-        createProvider: estimateCreateProviderMock,
+        createProviderAndForwardFunds: estimateCreateProviderMock,
       },
       getProviderAndBlockNumber: getProviderAndBlockNumberMock,
     })),

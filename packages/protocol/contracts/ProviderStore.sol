@@ -15,6 +15,28 @@ contract ProviderStore is RequesterStore, IProviderStore {
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
+    function createProvider(
+        address admin,
+        string calldata xpub,
+        address[] calldata authorizers
+        )
+        public
+        override
+        returns (bytes32 providerId)
+    {
+        providerId = keccak256(abi.encode(msg.sender));
+        providers[providerId] = Provider({
+            admin: admin,
+            xpub: xpub,
+            authorizers: authorizers
+            });
+        emit ProviderCreated(
+            providerId,
+            admin,
+            xpub,
+            authorizers
+            );
+    }
 
     /// @notice Allows the master wallet (m) of the provider to create a
     /// provider record on this chain
@@ -28,7 +50,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param xpub Master public key of the provider node
     /// @param authorizers Authorizer contract addresses
     /// @return providerId Provider ID
-    function createProvider(
+    function createProviderAndForwardFunds(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
@@ -38,14 +60,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         override
         returns (bytes32 providerId)
     {
-        providerId = keccak256(abi.encode(msg.sender));
-        providers[providerId] = Provider({
-            admin: admin,
-            xpub: xpub,
-            authorizers: authorizers
-            });
-        emit ProviderCreated(
-            providerId,
+        providerId = createProvider(
             admin,
             xpub,
             authorizers

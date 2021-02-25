@@ -34,6 +34,14 @@ interface IProviderStore is IRequesterStore {
         address[] calldata authorizers
         )
         external
+        returns (bytes32 providerId);
+
+    function createProviderAndForwardFunds(
+        address admin,
+        string calldata xpub,
+        address[] calldata authorizers
+        )
+        external
         payable
         returns (bytes32 providerId);
 

@@ -130,9 +130,14 @@ describe('User flow', function () {
     // Gas cost is 160,076
     const estimatedGasCost = await airnode
       .connect(masterWallet)
-      .estimateGas.createProvider(roles.providerAdmin.address, providerXpub, [ethers.constants.AddressZero], {
-        value: 1,
-      });
+      .estimateGas.createProviderAndForwardFunds(
+        roles.providerAdmin.address,
+        providerXpub,
+        [ethers.constants.AddressZero],
+        {
+          value: 1,
+        }
+      );
     // Overestimate a bit
     const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20000));
     const gasPrice = await waffle.provider.getGasPrice();
@@ -143,7 +148,7 @@ describe('User flow', function () {
     // this transaction. Provider admin will receive these funds.
     await airnode
       .connect(masterWallet)
-      .createProvider(roles.providerAdmin.address, providerXpub, [ethers.constants.AddressZero], {
+      .createProviderAndForwardFunds(roles.providerAdmin.address, providerXpub, [ethers.constants.AddressZero], {
         value: fundsToSend,
         gasLimit: gasLimit,
         gasPrice: gasPrice,
