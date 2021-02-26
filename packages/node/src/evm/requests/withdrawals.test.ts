@@ -37,7 +37,7 @@ describe('initialize (Withdrawal)', () => {
 describe('updateFulfilledRequests (Withdrawal)', () => {
   it('updates the status of fulfilled withdrawals', () => {
     const id = '0x5104cbd15362576f8591d30ab8a9bf7cd46359da50888732394444660717f124';
-    const withdrawal = fixtures.requests.createWithdrawal({ id });
+    const withdrawal = fixtures.requests.buildWithdrawal({ id });
     const [logs, requests] = withdrawals.updateFulfilledRequests([withdrawal], [id]);
     expect(logs).toEqual([
       {
@@ -64,7 +64,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
   });
 
   it('returns the request as is if it is not fulfilled', () => {
-    const withdrawal = fixtures.requests.createWithdrawal();
+    const withdrawal = fixtures.requests.buildWithdrawal();
     const [logs, requests] = withdrawals.updateFulfilledRequests([withdrawal], ['0xunknownid']);
     expect(logs).toEqual([]);
     expect(requests).toEqual([withdrawal]);

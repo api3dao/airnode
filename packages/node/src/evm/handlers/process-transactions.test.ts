@@ -43,7 +43,7 @@ describe('processTransactions', () => {
     });
 
     const apiCall = fixtures.requests.buildSubmittableApiCall({ requesterIndex: '4' });
-    const withdrawal = fixtures.requests.createWithdrawal({ requesterIndex: '5' });
+    const withdrawal = fixtures.requests.buildWithdrawal({ requesterIndex: '5' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],

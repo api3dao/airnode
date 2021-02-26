@@ -41,7 +41,7 @@ describe('submit', () => {
         fixtures.requests.buildApiCall({ id: '0x1', nonce: 10, requesterIndex: '6' }),
         fixtures.requests.buildApiCall({ id: '0x2', nonce: 11, requesterIndex: '7' }),
       ],
-      withdrawals: [fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3, requesterIndex: '8' })],
+      withdrawals: [fixtures.requests.buildWithdrawal({ id: '0x5', nonce: 3, requesterIndex: '8' })],
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
@@ -91,7 +91,7 @@ describe('submit', () => {
   });
 
   it('returns error responses for withdrawals', async () => {
-    const withdrawal = fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3 });
+    const withdrawal = fixtures.requests.buildWithdrawal({ id: '0x5', nonce: 3 });
     const requests: GroupedRequests = {
       apiCalls: [],
       withdrawals: [withdrawal],

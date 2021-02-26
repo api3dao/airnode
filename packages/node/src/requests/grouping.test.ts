@@ -11,8 +11,8 @@ describe('mapUniqueRequesterIndices', () => {
       fixtures.requests.buildApiCall({ requesterIndex: '10' }),
     ];
     const withdrawals = [
-      fixtures.requests.createWithdrawal({ requesterIndex: '9' }),
-      fixtures.requests.createWithdrawal({ requesterIndex: '12' }),
+      fixtures.requests.buildWithdrawal({ requesterIndex: '9' }),
+      fixtures.requests.buildWithdrawal({ requesterIndex: '12' }),
     ];
     const requests: GroupedRequests = {
       apiCalls: apiCalls,
@@ -32,8 +32,8 @@ describe('groupRequestsByRequesterIndex', () => {
       fixtures.requests.buildApiCall({ requesterIndex: '10' }),
     ];
     const withdrawals = [
-      fixtures.requests.createWithdrawal({ requesterIndex: '9' }),
-      fixtures.requests.createWithdrawal({ requesterIndex: '12' }),
+      fixtures.requests.buildWithdrawal({ requesterIndex: '9' }),
+      fixtures.requests.buildWithdrawal({ requesterIndex: '12' }),
     ];
     const requests: GroupedRequests = {
       apiCalls: apiCalls,

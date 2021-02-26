@@ -25,7 +25,7 @@ describe('verifyDesignatedWallets', () => {
       });
 
       it(`returns withdrawals that have status: ${status}`, () => {
-        const withdrawal = fixtures.requests.createWithdrawal({
+        const withdrawal = fixtures.requests.buildWithdrawal({
           designatedWallet: '0xinvalid',
           status: RequestStatus[status],
         });

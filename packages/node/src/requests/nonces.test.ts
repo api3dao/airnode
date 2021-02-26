@@ -52,19 +52,19 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
-    const first = fixtures.requests.createWithdrawal({
+    const first = fixtures.requests.buildWithdrawal({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
       requesterIndex: '7',
     });
-    const second = fixtures.requests.createWithdrawal({
+    const second = fixtures.requests.buildWithdrawal({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       requesterIndex: '7',
     });
-    const third = fixtures.requests.createWithdrawal({
+    const third = fixtures.requests.buildWithdrawal({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
@@ -189,21 +189,21 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
-    const first = fixtures.requests.createWithdrawal({
+    const first = fixtures.requests.buildWithdrawal({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
       requesterIndex: '7',
       status: RequestStatus.Pending,
     });
-    const second = fixtures.requests.createWithdrawal({
+    const second = fixtures.requests.buildWithdrawal({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       requesterIndex: '7',
       status: RequestStatus.Fulfilled,
     });
-    const third = fixtures.requests.createWithdrawal({
+    const third = fixtures.requests.buildWithdrawal({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,

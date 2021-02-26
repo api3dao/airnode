@@ -34,7 +34,7 @@ describe('submitWithdrawal', () => {
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xsuccessful' });
     const gasPrice = ethers.BigNumber.from(1000);
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
@@ -66,7 +66,7 @@ describe('submitWithdrawal', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const contract = new ethers.Contract('address', ['ABI']);
     const gasPrice = ethers.BigNumber.from('1000');
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Fulfilled });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Fulfilled });
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, {
       gasPrice,
       masterHDNode,
@@ -89,8 +89,8 @@ describe('submitWithdrawal', () => {
     const gasPrice = ethers.BigNumber.from(1000);
     // NOTE: a withdrawal should not be able to become "errored" or "blocked", but this
     // is just in case that changes
-    const blocked = fixtures.requests.createWithdrawal({ status: RequestStatus.Blocked });
-    const errored = fixtures.requests.createWithdrawal({ status: RequestStatus.Errored });
+    const blocked = fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked });
+    const errored = fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored });
 
     const blockedRes = await withdrawals.submitWithdrawal(contract, blocked, { gasPrice, masterHDNode, provider });
     const erroredRes = await withdrawals.submitWithdrawal(contract, errored, { gasPrice, masterHDNode, provider });
@@ -119,7 +119,7 @@ describe('submitWithdrawal', () => {
     const contract = new ethers.Contract('address', ['ABI']);
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
@@ -137,7 +137,7 @@ describe('submitWithdrawal', () => {
   it('does nothing if the withdrawal does not have a nonce', async () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const contract = new ethers.Contract('address', ['ABI']);
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: undefined, status: RequestStatus.Pending });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: undefined, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
@@ -156,7 +156,7 @@ describe('submitWithdrawal', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     (provider.getBalance as jest.Mock).mockRejectedValueOnce(new Error('Could not fetch balance'));
     (provider.getBalance as jest.Mock).mockRejectedValueOnce(new Error('Could not fetch balance'));
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
@@ -177,7 +177,7 @@ describe('submitWithdrawal', () => {
     (provider.getBalance as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
     (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([
@@ -200,7 +200,7 @@ describe('submitWithdrawal', () => {
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
     contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Could not submit withdrawal'));
     const gasPrice = ethers.BigNumber.from(1000);
-    const withdrawal = fixtures.requests.createWithdrawal({ nonce: 5, status: RequestStatus.Pending });
+    const withdrawal = fixtures.requests.buildWithdrawal({ nonce: 5, status: RequestStatus.Pending });
     const options = { gasPrice: ethers.BigNumber.from(1000), masterHDNode, provider };
     const [logs, err, data] = await withdrawals.submitWithdrawal(contract, withdrawal, options);
     expect(logs).toEqual([

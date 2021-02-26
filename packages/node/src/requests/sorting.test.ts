@@ -32,10 +32,10 @@ describe('sortGroupedRequests', () => {
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0x3' });
     const fourthMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0x4' });
 
-    const first = fixtures.requests.createWithdrawal({ metadata: firstMeta });
-    const second = fixtures.requests.createWithdrawal({ metadata: secondMeta });
-    const third = fixtures.requests.createWithdrawal({ metadata: thirdMeta });
-    const fourth = fixtures.requests.createWithdrawal({ metadata: fourthMeta });
+    const first = fixtures.requests.buildWithdrawal({ metadata: firstMeta });
+    const second = fixtures.requests.buildWithdrawal({ metadata: secondMeta });
+    const third = fixtures.requests.buildWithdrawal({ metadata: thirdMeta });
+    const fourth = fixtures.requests.buildWithdrawal({ metadata: fourthMeta });
 
     const requests = {
       apiCalls: [],

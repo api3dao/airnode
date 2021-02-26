@@ -37,14 +37,14 @@ describe('filterActionableApiCalls', () => {
 describe('filterActionableWithdrawals', () => {
   it('returns actionable withdrawals', () => {
     const withdrawals = [
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Pending }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Errored }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Ignored }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Blocked }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Fulfilled }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Pending }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Ignored }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Fulfilled }),
     ];
     expect(request.filterActionableWithdrawals(withdrawals)).toEqual([
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Pending }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Pending }),
     ]);
   });
 });
@@ -76,16 +76,16 @@ describe('hasActionableApiCalls', () => {
 
 describe('hasActionableWithdrawals', () => {
   it('returns true if pending withdrawals are present', () => {
-    const withdrawals = [fixtures.requests.createWithdrawal({ status: RequestStatus.Pending })];
+    const withdrawals = [fixtures.requests.buildWithdrawal({ status: RequestStatus.Pending })];
     expect(request.hasActionableWithdrawals(withdrawals)).toEqual(true);
   });
 
   it('returns false if there are no pending withdrawals', () => {
     const withdrawals = [
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Errored }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Ignored }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Blocked }),
-      fixtures.requests.createWithdrawal({ status: RequestStatus.Fulfilled }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Ignored }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
+      fixtures.requests.buildWithdrawal({ status: RequestStatus.Fulfilled }),
     ];
     expect(request.hasActionableWithdrawals(withdrawals)).toEqual(false);
   });
@@ -120,10 +120,10 @@ describe('hasNoActionableRequests', () => {
         fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled }),
       ],
       withdrawals: [
-        fixtures.requests.createWithdrawal({ status: RequestStatus.Errored }),
-        fixtures.requests.createWithdrawal({ status: RequestStatus.Ignored }),
-        fixtures.requests.createWithdrawal({ status: RequestStatus.Blocked }),
-        fixtures.requests.createWithdrawal({ status: RequestStatus.Fulfilled }),
+        fixtures.requests.buildWithdrawal({ status: RequestStatus.Errored }),
+        fixtures.requests.buildWithdrawal({ status: RequestStatus.Ignored }),
+        fixtures.requests.buildWithdrawal({ status: RequestStatus.Blocked }),
+        fixtures.requests.buildWithdrawal({ status: RequestStatus.Fulfilled }),
       ],
     };
     expect(request.hasNoActionableRequests(requests)).toEqual(true);
