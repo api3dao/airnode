@@ -5,10 +5,10 @@ import * as grouping from './grouping';
 describe('mapUniqueRequesterIndices', () => {
   it('returns a unique list of requester indices', () => {
     const apiCalls = [
-      fixtures.requests.createApiCall({ requesterIndex: '8' }),
-      fixtures.requests.createApiCall({ requesterIndex: '9' }),
-      fixtures.requests.createApiCall({ requesterIndex: '9' }),
-      fixtures.requests.createApiCall({ requesterIndex: '10' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '8' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '10' }),
     ];
     const withdrawals = [
       fixtures.requests.createWithdrawal({ requesterIndex: '9' }),
@@ -26,10 +26,10 @@ describe('mapUniqueRequesterIndices', () => {
 describe('groupRequestsByRequesterIndex', () => {
   it('groups all requests by wallet index', () => {
     const apiCalls = [
-      fixtures.requests.createApiCall({ requesterIndex: '8' }),
-      fixtures.requests.createApiCall({ requesterIndex: '9' }),
-      fixtures.requests.createApiCall({ requesterIndex: '9' }),
-      fixtures.requests.createApiCall({ requesterIndex: '10' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '8' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
+      fixtures.requests.buildApiCall({ requesterIndex: '10' }),
     ];
     const withdrawals = [
       fixtures.requests.createWithdrawal({ requesterIndex: '9' }),

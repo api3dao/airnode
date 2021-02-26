@@ -38,8 +38,8 @@ describe('submit', () => {
   it('submits transactions for multiple wallets and returns the transactions', async () => {
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.createApiCall({ id: '0x1', nonce: 10, requesterIndex: '6' }),
-        fixtures.requests.createApiCall({ id: '0x2', nonce: 11, requesterIndex: '7' }),
+        fixtures.requests.buildApiCall({ id: '0x1', nonce: 10, requesterIndex: '6' }),
+        fixtures.requests.buildApiCall({ id: '0x2', nonce: 11, requesterIndex: '7' }),
       ],
       withdrawals: [fixtures.requests.createWithdrawal({ id: '0x5', nonce: 3, requesterIndex: '8' })],
     };
@@ -72,7 +72,7 @@ describe('submit', () => {
   });
 
   it('returns error responses for API calls', async () => {
-    const apiCall = fixtures.requests.createApiCall({ id: '0x1', nonce: 5, responseValue: '0xresponse' });
+    const apiCall = fixtures.requests.buildApiCall({ id: '0x1', nonce: 5, responseValue: '0xresponse' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],

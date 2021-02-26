@@ -4,7 +4,7 @@ import * as blocking from './blocking';
 
 describe('blockRequestsWithWithdrawals', () => {
   it('blocks API calls with pending withdrawals from the same wallet index', () => {
-    const apiCall = fixtures.requests.createApiCall({ requesterIndex: '123' });
+    const apiCall = fixtures.requests.buildApiCall({ requesterIndex: '123' });
     const withdrawal = fixtures.requests.createWithdrawal({ requesterIndex: '123' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
@@ -22,7 +22,7 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
-    const apiCall = fixtures.requests.createApiCall({ requesterIndex: '123' });
+    const apiCall = fixtures.requests.buildApiCall({ requesterIndex: '123' });
     const withdrawal = fixtures.requests.createWithdrawal({ requesterIndex: '456' });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
@@ -40,7 +40,7 @@ describe('blockRequestsWithWithdrawals', () => {
 
   it('does not block API calls linked to non-pending withdrawals', () => {
     const requesterIndex = '123';
-    const apiCall = fixtures.requests.createApiCall({ requesterIndex });
+    const apiCall = fixtures.requests.buildApiCall({ requesterIndex });
     const statuses = Object.keys(RequestStatus).filter((status) => RequestStatus[status] !== RequestStatus.Pending);
     const withdrawals = statuses.map((status) => {
       return fixtures.requests.createWithdrawal({ status: RequestStatus[status], requesterIndex });

@@ -44,7 +44,7 @@ describe('fetch (templates)', () => {
     getTemplatesMock.mockResolvedValueOnce(secondRawTemplates);
 
     const apiCalls = Array.from(Array(19).keys()).map((n) => {
-      return fixtures.requests.createApiCall({
+      return fixtures.requests.buildApiCall({
         id: `${n}`,
         templateId: `templateId-${n}`,
       });
@@ -71,7 +71,7 @@ describe('fetch (templates)', () => {
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
@@ -92,8 +92,8 @@ describe('fetch (templates)', () => {
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
-    const apiCallDup = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const apiCallDup = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall, apiCallDup], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
@@ -110,7 +110,7 @@ describe('fetch (templates)', () => {
   });
 
   it('ignores API calls without a template ID', async () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: null });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: null });
     const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});
@@ -126,7 +126,7 @@ describe('fetch (templates)', () => {
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
@@ -151,7 +151,7 @@ describe('fetch (templates)', () => {
     };
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
@@ -181,7 +181,7 @@ describe('fetch (templates)', () => {
     getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
@@ -206,7 +206,7 @@ describe('fetch (templates)', () => {
     getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
     getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
 
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },

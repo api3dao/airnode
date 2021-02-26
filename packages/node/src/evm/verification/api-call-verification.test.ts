@@ -7,7 +7,7 @@ describe('verifyApiCallIds', () => {
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.createApiCall({ status: RequestStatus[status] });
+        const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus[status] });
         const [logs, res] = verification.verifyApiCallIds([apiCall]);
         expect(logs).toEqual([
           {
@@ -21,7 +21,7 @@ describe('verifyApiCallIds', () => {
   });
 
   it('does nothing where regular API calls have a valid request ID', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       id: '0xb0729685481ddfcff68a68a56cc78e2cb40e7eb484d3415b64c8195b66c31f62',
@@ -35,7 +35,7 @@ describe('verifyApiCallIds', () => {
   });
 
   it('does nothing where full API calls have a valid request ID', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
@@ -51,7 +51,7 @@ describe('verifyApiCallIds', () => {
   });
 
   it('ignores regular API calls with invalid IDs', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       id: '0xinvalid',
@@ -66,7 +66,7 @@ describe('verifyApiCallIds', () => {
   });
 
   it('ignores full API calls with invalid IDs', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',

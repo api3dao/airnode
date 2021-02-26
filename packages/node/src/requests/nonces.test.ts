@@ -16,19 +16,19 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
-    const first = fixtures.requests.createApiCall({
+    const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
       requesterIndex: '5',
     });
-    const second = fixtures.requests.createApiCall({
+    const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       requesterIndex: '5',
     });
-    const third = fixtures.requests.createApiCall({
+    const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
@@ -86,9 +86,9 @@ describe('assign', () => {
   it('does not share nonces between requesters', () => {
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.createApiCall({ id: '0x1', requesterIndex: '7', nonce: undefined }),
-        fixtures.requests.createApiCall({ id: '0x2', requesterIndex: '8', nonce: undefined }),
-        fixtures.requests.createApiCall({ id: '0x3', requesterIndex: '9', nonce: undefined }),
+        fixtures.requests.buildApiCall({ id: '0x1', requesterIndex: '7', nonce: undefined }),
+        fixtures.requests.buildApiCall({ id: '0x2', requesterIndex: '8', nonce: undefined }),
+        fixtures.requests.buildApiCall({ id: '0x3', requesterIndex: '9', nonce: undefined }),
       ],
       withdrawals: [],
     };
@@ -107,20 +107,20 @@ describe('assign', () => {
     const thirdMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xc' });
 
     // The second request is blocked
-    const first = fixtures.requests.createApiCall({
+    const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
       requesterIndex: '3',
     });
-    const second = fixtures.requests.createApiCall({
+    const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       status: RequestStatus.Blocked,
       requesterIndex: '3',
     });
-    const third = fixtures.requests.createApiCall({
+    const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
@@ -149,20 +149,20 @@ describe('assign', () => {
     const thirdMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xc' });
 
     // The second request is blocked
-    const first = fixtures.requests.createApiCall({
+    const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
       requesterIndex: '3',
     });
-    const second = fixtures.requests.createApiCall({
+    const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       requesterIndex: '3',
       status: RequestStatus.Blocked,
     });
-    const third = fixtures.requests.createApiCall({
+    const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,

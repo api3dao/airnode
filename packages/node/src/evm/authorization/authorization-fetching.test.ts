@@ -30,7 +30,7 @@ describe('fetch (authorizations)', () => {
   });
 
   it('returns an empty object if there are no pending API calls', async () => {
-    const apiCalls = [fixtures.requests.createApiCall({ status: RequestStatus.Blocked })];
+    const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })];
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});
@@ -41,7 +41,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(9).fill(true));
 
     const apiCalls = Array.from(Array(19).keys()).map((n) => {
-      return fixtures.requests.createApiCall({
+      return fixtures.requests.buildApiCall({
         id: `${n}`,
         endpointId: `endpointId-${n}`,
         clientAddress: `clientAddress-${n}`,
@@ -79,9 +79,9 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true, false, true]);
 
     const apiCalls = [
-      fixtures.requests.createApiCall({ id: '0xapiCallId-0' }),
-      fixtures.requests.createApiCall({ id: '0xapiCallId-1' }),
-      fixtures.requests.createApiCall({ id: '0xapiCallId-2' }),
+      fixtures.requests.buildApiCall({ id: '0xapiCallId-0' }),
+      fixtures.requests.buildApiCall({ id: '0xapiCallId-1' }),
+      fixtures.requests.buildApiCall({ id: '0xapiCallId-2' }),
     ];
 
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
@@ -96,7 +96,7 @@ describe('fetch (authorizations)', () => {
   it('retries once on failure', async () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
-    const apiCalls = [fixtures.requests.createApiCall({ id: '0xapiCallId' })];
+    const apiCalls = [fixtures.requests.buildApiCall({ id: '0xapiCallId' })];
     const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({ '0xapiCallId': true });
@@ -108,7 +108,7 @@ describe('fetch (authorizations)', () => {
 
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
 
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
@@ -124,7 +124,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
 
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
@@ -140,7 +140,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
 
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
@@ -164,7 +164,7 @@ describe('fetchAuthorizationStatus', () => {
 
   it('fetches individual authorization statuses if the group cannot be fetched', async () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(airnode, providerId, apiCall);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(true);
@@ -173,7 +173,7 @@ describe('fetchAuthorizationStatus', () => {
   it('retries individual authorization calls once', async () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(airnode, providerId, apiCall);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(false);
@@ -182,7 +182,7 @@ describe('fetchAuthorizationStatus', () => {
   it('returns nothing after all individual authorization calls are exhausted', async () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(airnode, providerId, apiCall);
     expect(logs).toEqual([
       {

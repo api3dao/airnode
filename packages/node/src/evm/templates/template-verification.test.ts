@@ -13,7 +13,7 @@ describe('verify', () => {
   const TEMPLATE_ID = '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b';
 
   it('returns API calls not linked to templates', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: null });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: null });
     const [logs, res] = verification.verify([apiCall], {});
     expect(logs).toEqual([]);
     expect(res).toEqual([apiCall]);
@@ -22,7 +22,7 @@ describe('verify', () => {
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.createApiCall({ templateId: TEMPLATE_ID, status: RequestStatus[status] });
+        const apiCall = fixtures.requests.buildApiCall({ templateId: TEMPLATE_ID, status: RequestStatus[status] });
         const [logs, res] = verification.verify([apiCall], {});
         expect(logs).toEqual([
           {
@@ -36,7 +36,7 @@ describe('verify', () => {
   });
 
   it('ignores API calls where the template cannot be found', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: TEMPLATE_ID });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: TEMPLATE_ID });
     const [logs, res] = verification.verify([apiCall], {});
     expect(logs).toEqual([
       { level: 'ERROR', message: `Ignoring Request:${apiCall.id} as the template could not be found for verification` },
@@ -45,10 +45,10 @@ describe('verify', () => {
   });
 
   it('does nothing where API calls are linked to a valid templated', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
     });
-    const template = fixtures.requests.createApiCallTemplate({
+    const template = fixtures.requests.buildApiCallTemplate({
       encodedParameters: '0x6466726f6d63455448',
       endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
       id: TEMPLATE_ID,
@@ -63,11 +63,11 @@ describe('verify', () => {
   });
 
   describe('invalid fields', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
     });
 
-    const validTemplate = fixtures.requests.createApiCallTemplate({
+    const validTemplate = fixtures.requests.buildApiCallTemplate({
       encodedParameters: '0x6466726f6d63455448',
       endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
       id: TEMPLATE_ID,

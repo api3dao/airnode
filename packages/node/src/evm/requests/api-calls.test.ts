@@ -121,7 +121,7 @@ describe('applyParameters', () => {
 describe('updateFulfilledRequests (ApiCall)', () => {
   it('updates the status of fulfilled API calls', () => {
     const id = '0xca83cf24dc881ae41b79ee66ed11f7f09d235bd801891b1223a3cceb753ec3d5';
-    const apiCall = fixtures.requests.createApiCall({ id });
+    const apiCall = fixtures.requests.buildApiCall({ id });
     const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], [id]);
     expect(logs).toEqual([
       {
@@ -156,7 +156,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
   });
 
   it('returns the request if it is not fulfilled', () => {
-    const apiCall = fixtures.requests.createApiCall();
+    const apiCall = fixtures.requests.buildApiCall();
     const [logs, requests] = apiCalls.updateFulfilledRequests([apiCall], []);
     expect(logs).toEqual([]);
     expect(requests).toEqual([apiCall]);

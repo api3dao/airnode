@@ -1,6 +1,6 @@
 import { ApiCallTemplate } from '../../../src/types';
 
-export function createApiCallTemplate(params?: Partial<ApiCallTemplate>): ApiCallTemplate {
+export function buildApiCallTemplate(params?: Partial<ApiCallTemplate>): ApiCallTemplate {
   // These fields have invalid values on purpose to allow for easier reading. When necessary,
   // they can be overridden with valid values
   return {

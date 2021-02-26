@@ -4,14 +4,14 @@ import * as application from './template-application';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: null });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: null });
     const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], {});
     expect(logs).toEqual([{ level: 'DEBUG', message: `Request:${apiCall.id} is not linked to a template` }]);
     expect(res).toEqual([apiCall]);
   });
 
   it('merges the template into the API call', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       templateId: 'templateId-0',
       providerId: null,
       endpointId: null,
@@ -40,7 +40,7 @@ describe('mergeApiCallsWithTemplates', () => {
   });
 
   it('merges template and API call parameters', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       templateId: 'templateId-0',
       parameters: {
         to: 'USD',
@@ -69,7 +69,7 @@ describe('mergeApiCallsWithTemplates', () => {
   });
 
   it('overwrites template parameters with request parameters with the same name', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       templateId: 'templateId-0',
       parameters: { from: 'BTC', amount: '5000' },
     });
@@ -90,7 +90,7 @@ describe('mergeApiCallsWithTemplates', () => {
   });
 
   it('blocks API calls where the template cannot be found', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], {});
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to fetch template ID:templateId-0 for Request ID:apiCallId' },
@@ -100,7 +100,7 @@ describe('mergeApiCallsWithTemplates', () => {
   });
 
   it('invalidates API calls with invalid template parameters', () => {
-    const apiCall = fixtures.requests.createApiCall({ templateId: 'templateId-0' });
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {

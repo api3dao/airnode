@@ -9,10 +9,10 @@ describe('sortGroupedRequests', () => {
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0x3' });
     const fourthMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0x4' });
 
-    const first = fixtures.requests.createApiCall({ metadata: firstMeta });
-    const second = fixtures.requests.createApiCall({ metadata: secondMeta });
-    const third = fixtures.requests.createApiCall({ metadata: thirdMeta });
-    const fourth = fixtures.requests.createApiCall({ metadata: fourthMeta });
+    const first = fixtures.requests.buildApiCall({ metadata: firstMeta });
+    const second = fixtures.requests.buildApiCall({ metadata: secondMeta });
+    const third = fixtures.requests.buildApiCall({ metadata: thirdMeta });
+    const fourth = fixtures.requests.buildApiCall({ metadata: fourthMeta });
 
     const requests = {
       apiCalls: shuffle([third, second, fourth, first]),
