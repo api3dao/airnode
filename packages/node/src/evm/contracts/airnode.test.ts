@@ -28,7 +28,7 @@ describe('Airnode', () => {
       'requesterIndexToAdmin',
       'requesterIndexToClientAddressToEndorsementStatus',
       'requesterIndexToNoWithdrawalRequests',
-      'updateClientEndorsementStatus',
+      'setClientEndorsementStatus',
       'updateRequesterAdmin',
     ]);
   });
@@ -38,7 +38,7 @@ describe('Airnode', () => {
       .map((fn: any) => fn.name)
       .sort();
     expect(events).toEqual([
-      'ClientEndorsementStatusUpdated',
+      'ClientEndorsementStatusSet',
       'ClientFullRequestCreated',
       'ClientRequestCreated',
       'ClientRequestFailed',

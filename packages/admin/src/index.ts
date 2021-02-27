@@ -29,7 +29,7 @@ export async function deriveDesignatedWallet(airnode, providerId, requesterIndex
 }
 
 export async function endorseClient(airnode, requesterIndex, clientAddress) {
-  const receipt = await airnode.updateClientEndorsementStatus(requesterIndex, clientAddress, true);
+  const receipt = await airnode.setClientEndorsementStatus(requesterIndex, clientAddress, true);
   return new Promise((resolve) =>
     airnode.provider.once(receipt.hash, (tx) => {
       const parsedLog = airnode.interface.parseLog(tx.logs[0]);
@@ -39,7 +39,7 @@ export async function endorseClient(airnode, requesterIndex, clientAddress) {
 }
 
 export async function unendorseClient(airnode, requesterIndex, clientAddress) {
-  const receipt = await airnode.updateClientEndorsementStatus(requesterIndex, clientAddress, false);
+  const receipt = await airnode.setClientEndorsementStatus(requesterIndex, clientAddress, false);
   return new Promise((resolve) =>
     airnode.provider.once(receipt.hash, (tx) => {
       const parsedLog = airnode.interface.parseLog(tx.logs[0]);

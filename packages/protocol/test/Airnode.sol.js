@@ -59,7 +59,7 @@ describe('makeRequest', function () {
       // Have the requester endorse the client
       await airnode
         .connect(roles.requesterAdmin)
-        .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+        .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
       // Calculate the expected request ID
       const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
       const requestId = ethers.utils.keccak256(
@@ -120,7 +120,7 @@ describe('makeFullRequest', function () {
       // Have the requester endorse the client
       await airnode
         .connect(roles.requesterAdmin)
-        .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+        .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
       // Calculate the expected request ID
       const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
       const requestId = ethers.utils.keccak256(
@@ -184,7 +184,7 @@ describe('fulfill', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -221,7 +221,7 @@ describe('fulfill', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -284,7 +284,7 @@ describe('fulfill', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -320,7 +320,7 @@ describe('fulfill', function () {
           // Have the requester endorse the client
           await airnode
             .connect(roles.requesterAdmin)
-            .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+            .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
           // Calculate the expected request ID
           const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
           const requestId = ethers.utils.keccak256(
@@ -358,7 +358,7 @@ describe('fulfill', function () {
           // Have the requester endorse the client
           await airnode
             .connect(roles.requesterAdmin)
-            .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+            .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
           // Calculate the expected request ID
           const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
           const requestId = ethers.utils.keccak256(
@@ -422,7 +422,7 @@ describe('fulfill', function () {
           // Have the requester endorse the client
           await airnode
             .connect(roles.requesterAdmin)
-            .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+            .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
           // Calculate the expected request ID
           const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
           const requestId = ethers.utils.keccak256(
@@ -464,7 +464,7 @@ describe('fail', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -499,7 +499,7 @@ describe('fail', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -554,7 +554,7 @@ describe('fail', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -589,7 +589,7 @@ describe('fail', function () {
         // Have the requester endorse the client
         await airnode
           .connect(roles.requesterAdmin)
-          .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+          .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
         const requestId = ethers.utils.keccak256(
@@ -624,7 +624,7 @@ describe('fail', function () {
           // Have the requester endorse the client
           await airnode
             .connect(roles.requesterAdmin)
-            .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+            .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
           // Calculate the expected request ID
           const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
           const requestId = ethers.utils.keccak256(
@@ -679,7 +679,7 @@ describe('fail', function () {
             // Have the requester endorse the client
             await airnode
               .connect(roles.requesterAdmin)
-              .updateClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
+              .setClientEndorsementStatus(requesterIndex, airnodeClient.address, true);
             // Calculate the expected request ID
             const clientRequestNonce = await airnode.clientAddressToNoRequests(airnodeClient.address);
             const requestId = ethers.utils.keccak256(

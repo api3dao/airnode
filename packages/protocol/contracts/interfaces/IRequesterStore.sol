@@ -12,7 +12,7 @@ interface IRequesterStore {
         address admin
         );
 
-    event ClientEndorsementStatusUpdated(
+    event ClientEndorsementStatusSet(
         uint256 indexed requesterIndex,
         address indexed clientAddress,
         bool endorsementStatus
@@ -28,7 +28,7 @@ interface IRequesterStore {
         )
         external;
 
-    function updateClientEndorsementStatus(
+    function setClientEndorsementStatus(
         uint256 requesterIndex,
         address clientAddress,
         bool endorsementStatus

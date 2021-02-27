@@ -14,7 +14,7 @@ export async function endorseClients(state: State): Promise<State> {
 
       const tx = await Airnode!
         .connect(requester.signer)
-        .updateClientEndorsementStatus(requester.requesterIndex, client.address, true);
+        .setClientEndorsementStatus(requester.requesterIndex, client.address, true);
 
       await tx.wait();
     }

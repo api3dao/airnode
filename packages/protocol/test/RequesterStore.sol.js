@@ -66,9 +66,9 @@ describe('updateRequesterAdmin', function () {
   });
 });
 
-describe('updateClientEndorsementStatus', function () {
+describe('setClientEndorsementStatus', function () {
   context('Caller is requester admin', async function () {
-    it('updates the client endorsement status and initializes the client request nonce', async function () {
+    it('sets the client endorsement status and initializes the client request nonce', async function () {
       // Create the requester
       await airnode.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
       // Verify that the client is initially not endorsed
@@ -79,11 +79,9 @@ describe('updateClientEndorsementStatus', function () {
       expect(await airnode.clientAddressToNoRequests(roles.client.address)).to.equal(0);
       // Endorse the client
       await expect(
-        airnode
-          .connect(roles.requesterAdmin1)
-          .updateClientEndorsementStatus(requesterIndex1, roles.client.address, true)
+        airnode.connect(roles.requesterAdmin1).setClientEndorsementStatus(requesterIndex1, roles.client.address, true)
       )
-        .to.emit(airnode, 'ClientEndorsementStatusUpdated')
+        .to.emit(airnode, 'ClientEndorsementStatusSet')
         .withArgs(requesterIndex1, roles.client.address, true);
       // Verify that the client is endorsed
       expect(
@@ -93,11 +91,9 @@ describe('updateClientEndorsementStatus', function () {
       expect(await airnode.clientAddressToNoRequests(roles.client.address)).to.equal(1);
       // Disendorse the client
       await expect(
-        airnode
-          .connect(roles.requesterAdmin1)
-          .updateClientEndorsementStatus(requesterIndex1, roles.client.address, false)
+        airnode.connect(roles.requesterAdmin1).setClientEndorsementStatus(requesterIndex1, roles.client.address, false)
       )
-        .to.emit(airnode, 'ClientEndorsementStatusUpdated')
+        .to.emit(airnode, 'ClientEndorsementStatusSet')
         .withArgs(requesterIndex1, roles.client.address, false);
       // Verify that the client is disendorsed
       expect(
@@ -111,7 +107,7 @@ describe('updateClientEndorsementStatus', function () {
       await airnode.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
       // Attempt to endorse the client
       await expect(
-        airnode.connect(roles.randomPerson).updateClientEndorsementStatus(requesterIndex1, roles.client.address, true)
+        airnode.connect(roles.randomPerson).setClientEndorsementStatus(requesterIndex1, roles.client.address, true)
       ).to.be.revertedWith('Caller is not requester admin');
     });
   });
