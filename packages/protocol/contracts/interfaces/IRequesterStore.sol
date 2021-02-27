@@ -22,7 +22,7 @@ interface IRequesterStore {
         external
         returns (uint256 requesterIndex);
 
-    function updateRequesterAdmin(
+    function setRequesterAdmin(
         uint256 requesterIndex,
         address admin
         )

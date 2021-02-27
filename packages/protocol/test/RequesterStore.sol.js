@@ -37,16 +37,14 @@ describe('createRequester', function () {
   });
 });
 
-describe('updateRequesterAdmin', function () {
+describe('setRequesterAdmin', function () {
   context('Caller is requester admin', async function () {
-    it('updates the requester admin', async function () {
+    it('sets the requester admin', async function () {
       // Create the requester
       await airnode.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
       // Update the requester admin
       await expect(
-        airnode
-          .connect(roles.requesterAdmin1)
-          .updateRequesterAdmin(requesterIndex1, roles.updatedRequesterAdmin1.address)
+        airnode.connect(roles.requesterAdmin1).setRequesterAdmin(requesterIndex1, roles.updatedRequesterAdmin1.address)
       )
         .to.emit(airnode, 'RequesterUpdated')
         .withArgs(requesterIndex1, roles.updatedRequesterAdmin1.address);
@@ -60,7 +58,7 @@ describe('updateRequesterAdmin', function () {
       await airnode.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
       // Attempt to update the requester admin
       await expect(
-        airnode.connect(roles.randomPerson).updateRequesterAdmin(requesterIndex1, roles.updatedRequesterAdmin1.address)
+        airnode.connect(roles.randomPerson).setRequesterAdmin(requesterIndex1, roles.updatedRequesterAdmin1.address)
       ).to.be.revertedWith('Caller is not requester admin');
     });
   });

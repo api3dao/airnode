@@ -29,7 +29,7 @@ describe('Airnode', () => {
       'requesterIndexToClientAddressToEndorsementStatus',
       'requesterIndexToNoWithdrawalRequests',
       'setClientEndorsementStatus',
-      'updateRequesterAdmin',
+      'setRequesterAdmin',
     ]);
   });
 

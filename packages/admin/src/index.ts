@@ -11,8 +11,8 @@ export async function createRequester(airnode, requesterAdmin) {
   );
 }
 
-export async function updateRequesterAdmin(airnode, requesterIndex, requesterAdmin) {
-  const receipt = await airnode.updateRequesterAdmin(requesterIndex, requesterAdmin);
+export async function setRequesterAdmin(airnode, requesterIndex, requesterAdmin) {
+  const receipt = await airnode.setRequesterAdmin(requesterIndex, requesterAdmin);
   return new Promise((resolve) =>
     airnode.provider.once(receipt.hash, (tx) => {
       const parsedLog = airnode.interface.parseLog(tx.logs[0]);

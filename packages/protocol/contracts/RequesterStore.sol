@@ -45,10 +45,10 @@ contract RequesterStore is IRequesterStore {
             );
     }
 
-    /// @notice Updates the requester admin
+    /// @notice Sets the requester admin
     /// @param requesterIndex Requester index
     /// @param admin Requester admin
-    function updateRequesterAdmin(
+    function setRequesterAdmin(
         uint256 requesterIndex,
         address admin
         )

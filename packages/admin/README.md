@@ -38,13 +38,13 @@ npx @api3/airnode-admin create-requester \
   --requesterAdmin 0x5c17cb...
 ```
 
-### `update-requester-admin`
+### `set-requester-admin`
 
-Updates the [requester admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md#requesteradmin).
+Sets the [requester admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md#requesteradmin).
 The `mnemonic` you provide here has to belong to the previous requester admin.
 
 ```sh
-npx @api3/airnode-admin update-requester-admin \
+npx @api3/airnode-admin set-requester-admin \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \

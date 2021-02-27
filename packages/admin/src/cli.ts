@@ -31,8 +31,8 @@ yargs
     }
   )
   .command(
-    'update-requester-admin',
-    'Updates the requester admin',
+    'set-requester-admin',
+    'Sets the requester admin',
     {
       providerUrl: {
         type: 'string',
@@ -57,7 +57,7 @@ yargs
     },
     async (args) => {
       const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const requesterAdmin = await contract.updateRequesterAdmin(airnode, args.requesterIndex, args.requesterAdmin);
+      const requesterAdmin = await contract.setRequesterAdmin(airnode, args.requesterIndex, args.requesterAdmin);
       console.log(`Requester admin: ${requesterAdmin}`);
     }
   )
