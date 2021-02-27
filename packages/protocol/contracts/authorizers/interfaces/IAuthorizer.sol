@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-
 interface IAuthorizer {
     function checkIfAuthorized(
         bytes32 requestId,

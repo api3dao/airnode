@@ -1,6 +1,6 @@
 module.exports = {
   mocha: {
-    grep: 'User flow',
+    grep: 'Mock',
     invert: true,
   },
 };

@@ -34,6 +34,7 @@ interface IProviderStore is IRequesterStore {
         address[] calldata authorizers
         )
         external
+        payable
         returns (bytes32 providerId);
 
     function requestWithdrawal(
@@ -52,6 +53,18 @@ interface IProviderStore is IRequesterStore {
         )
         external
         payable;
+
+    function checkAuthorizationStatus(
+        bytes32 providerId,
+        bytes32 requestId,
+        bytes32 endpointId,
+        uint256 requesterIndex,
+        address designatedWallet,
+        address clientAddress
+        )
+        external
+        view
+        returns(bool status);
 
     function getProvider(bytes32 providerId)
         external

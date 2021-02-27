@@ -5,36 +5,10 @@ pragma experimental ABIEncoderV2;
 import "./ProviderStore.sol";
 import "./TemplateStore.sol";
 import "./interfaces/IConvenience.sol";
-import "./authorizers/interfaces/IAuthorizer.sol";
 
 /// @title The contract that keeps the convenience methods that Airnodes use to
 /// make batch calls
 contract Convenience is ProviderStore, TemplateStore, IConvenience {
-    /// @notice A convenience method to retrieve the provider parameters and
-    /// the block number with a single call
-    /// @param providerId Provider ID from ProviderStore
-    /// @return admin Provider admin
-    /// @return xpub Master public key of the provider
-    /// @return authorizers Authorizer contract addresses of the provider
-    /// @return blockNumber Block number
-    function getProviderAndBlockNumber(bytes32 providerId)
-        external
-        view
-        override
-        returns (
-            address admin,
-            string memory xpub,
-            address[] memory authorizers,
-            uint256 blockNumber
-        )
-    {
-        Provider storage provider = providers[providerId];
-        admin = provider.admin;
-        xpub = provider.xpub;
-        authorizers = provider.authorizers;
-        blockNumber = block.number;
-    }
-
     /// @notice A convenience method for the Airnode to create a provider
     /// record and forward the remaining funds in the master wallet to the
     /// provider admin
@@ -62,6 +36,31 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
             (bool success, ) = admin.call{ value: msg.value }("");  // solhint-disable-line
             require(success, "Transfer failed");
         }
+    }
+
+    /// @notice A convenience method to retrieve the provider parameters and
+    /// the block number with a single call
+    /// @param providerId Provider ID from ProviderStore
+    /// @return admin Provider admin
+    /// @return xpub Master public key of the provider
+    /// @return authorizers Authorizer contract addresses of the provider
+    /// @return blockNumber Block number
+    function getProviderAndBlockNumber(bytes32 providerId)
+        external
+        view
+        override
+        returns (
+            address admin,
+            string memory xpub,
+            address[] memory authorizers,
+            uint256 blockNumber
+        )
+    {
+        Provider storage provider = providers[providerId];
+        admin = provider.admin;
+        xpub = provider.xpub;
+        authorizers = provider.authorizers;
+        blockNumber = block.number;
     }
 
     /// @notice A convenience method to retrieve multiple templates with a
@@ -92,63 +91,6 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
             endpointIds[ind] = template.endpointId;
             parameters[ind] = template.parameters;
         }
-    }
-
-    /// @notice Uses the authorizer contracts of of a provider to decide if a
-    /// request is authorized. Once an Airnode receives a request, it calls
-    /// this method to determine if it should respond. Similarly, third parties
-    /// can use this method to determine if a particular request would be
-    /// authorized.
-    /// @dev This method is meant to be called off-chain by the Airnode to
-    /// decide if it should respond to a request. The requester can also call
-    /// it, yet this function returning true should not be taken as a guarantee
-    /// of the subsequent call request being fulfilled (as the provider may
-    /// update their authorizers in the meantime).
-    /// The provider authorizers being empty means all requests will be denied,
-    /// while any `address(0)` authorizer means all requests will be accepted.
-    /// @param providerId Provider ID from ProviderStore
-    /// @param requestId Request ID
-    /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterIndex Requester index from RequesterStore
-    /// @param designatedWallet Designated wallet
-    /// @param clientAddress Client address
-    /// @return status Authorization status of the request
-    function checkAuthorizationStatus(
-        bytes32 providerId,
-        bytes32 requestId,
-        bytes32 endpointId,
-        uint256 requesterIndex,
-        address designatedWallet,
-        address clientAddress
-        )
-        public
-        view
-        override
-        returns(bool status)
-    {
-        address[] memory authorizerAddresses = providers[providerId].authorizers;
-        uint256 noAuthorizers = authorizerAddresses.length;
-        for (uint256 ind = 0; ind < noAuthorizers; ind++)
-        {
-            address authorizerAddress = authorizerAddresses[ind];
-            if (authorizerAddress == address(0))
-            {
-                return true;
-            }
-            IAuthorizer authorizer = IAuthorizer(authorizerAddress);
-            if (authorizer.checkIfAuthorized(
-                requestId,
-                providerId,
-                endpointId,
-                requesterIndex,
-                designatedWallet,
-                clientAddress
-                ))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /// @notice A convenience function to make multiple authorization status

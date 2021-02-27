@@ -6,3 +6,4 @@
 credentials.json
 *.flat.sol
 coverage.json
+gas_report
