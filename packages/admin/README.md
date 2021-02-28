@@ -38,13 +38,13 @@ npx @api3/airnode-admin create-requester \
   --requesterAdmin 0x5c17cb...
 ```
 
-### `update-requester-admin`
+### `set-requester-admin`
 
-Updates the [requester admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md#requesteradmin).
+Sets the [requester admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md#requesteradmin).
 The `mnemonic` you provide here has to belong to the previous requester admin.
 
 ```sh
-npx @api3/airnode-admin update-requester-admin \
+npx @api3/airnode-admin set-requester-admin \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
@@ -126,31 +126,20 @@ npx @api3/airnode-admin check-withdrawal-request \
 
 ## Provider commands
 
-### `create-provider`
+### `set-provider-parameters`
 
-Creates a [provider](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns a provider ID.
+Sets the parameters of a [provider](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns the provider ID.
+See the `/example` directory for an example authorizers file.
 
 **You probably should not be using this.**
-Airnode will create your provider during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md).
+Airnode will set your provider parameters during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md) if necessary.
 
 ```sh
-npx @api3/airnode-admin create-provider \
+npx @api3/airnode-admin set-provider-parameters \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --providerAdmin 0xc2193d...
-```
-
-### `update-provider-admin`
-
-Updates the [provider admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md#provideradmin).
-The `mnemonic` you provide here has to belong to the previous provider admin.
-
-```sh
-npx @api3/airnode-admin update-provider-admin \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --providerId 0xe1e0dd... \
-  --providerAdmin 0x60558a...
+  --providerAdmin 0xc2193d... \
+  --authorizersFilePath ./authorizers.json
 ```
 
 ### `derive-endpoint-id`
@@ -161,19 +150,4 @@ Derives the endpoint ID using the OIS title and the endpoint name using the conv
 npx @api3/airnode-admin derive-endpoint-id \
   --oisTitle "My OIS title..." \
   --endpointName "My endpoint name..."
-```
-
-### `update-authorizers`
-
-Updates the [authorizers](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/authorizer.md) of an [endpoint](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) belonging to a provider.
-The `mnemonic` you provide here has to belong to the provider admin.
-See the `/example` directory for an example authorizers file.
-
-```sh
-npx @api3/airnode-admin update-authorizers \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --providerId 0xe1e0dd... \
-  --endpointId 0x260558... \
-  --authorizersFilePath ./authorizers.json
 ```

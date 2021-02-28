@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 
 import "../AirnodeClient.sol";
 
-
 /// @title A mock Airnode client contract
 contract MockAirnodeClient is AirnodeClient {
     event RequestFulfilled(

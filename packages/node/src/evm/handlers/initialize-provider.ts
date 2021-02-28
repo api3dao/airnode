@@ -50,7 +50,7 @@ export async function initializeProvider(
   const state1 = state.refresh(initialState);
 
   // =================================================================
-  // STEP 2: Get current block number and find or create the provider
+  // STEP 2: Get current block number, and verify or set provider parameters
   // =================================================================
   const providerFetchOptions = {
     airnodeAddress: state1.contracts.Airnode,
@@ -59,7 +59,7 @@ export async function initializeProvider(
     provider: state1.provider,
     providerAdmin: state1.settings.providerAdmin,
   };
-  const [providerLogs, providerData] = await initialization.findOrCreateProvider(providerFetchOptions);
+  const [providerLogs, providerData] = await initialization.verifyOrSetProviderParameters(providerFetchOptions);
   logger.logPending(providerLogs, baseLogOptions);
 
   // If there is no provider data, something has gone wrong

@@ -15,7 +15,7 @@ describe('aggregate (API calls)', () => {
   });
 
   it('groups calls if they have the exact same attributes', () => {
-    const endpointId = '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e';
+    const endpointId = '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb';
     const apiCalls = [
       fixtures.requests.buildApiCall({ endpointId }),
       fixtures.requests.buildApiCall({ endpointId }),
@@ -24,7 +24,7 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
-        endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
+        endpointId: '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
         oisTitle: 'currency-converter-ois',
@@ -35,7 +35,7 @@ describe('aggregate (API calls)', () => {
   });
 
   it('groups calls if they have they different attributes unrelated to the API call', () => {
-    const endpointId = '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e';
+    const endpointId = '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb';
     const apiCalls = [
       fixtures.requests.buildApiCall({ endpointId, fulfillAddress: '0x123' }),
       fixtures.requests.buildApiCall({ endpointId, fulfillAddress: '0x456' }),
@@ -43,7 +43,7 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
-        endpointId: '0xac2e948e29db14b568a3cbaeedc66c0f9b5c5312f6b562784889e8cbd6a6dd9e',
+        endpointId: '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
         oisTitle: 'currency-converter-ois',

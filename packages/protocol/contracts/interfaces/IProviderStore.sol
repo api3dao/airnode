@@ -4,7 +4,7 @@ pragma solidity 0.6.12;
 import "./IRequesterStore.sol";
 
 interface IProviderStore is IRequesterStore {
-    event ProviderCreated(
+    event ProviderParametersSet(
         bytes32 indexed providerId,
         address admin,
         string xpub,
@@ -28,7 +28,7 @@ interface IProviderStore is IRequesterStore {
         uint256 amount
         );
 
-    function createProvider(
+    function setProviderParameters(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
@@ -53,6 +53,18 @@ interface IProviderStore is IRequesterStore {
         )
         external
         payable;
+
+    function checkAuthorizationStatus(
+        bytes32 providerId,
+        bytes32 requestId,
+        bytes32 endpointId,
+        uint256 requesterIndex,
+        address designatedWallet,
+        address clientAddress
+        )
+        external
+        view
+        returns(bool status);
 
     function getProvider(bytes32 providerId)
         external

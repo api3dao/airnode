@@ -22,8 +22,8 @@ async function run() {
   const state9 = await deploy.fundRequesterAccounts(state8);
   const state10 = await deploy.fundDesignatedWallets(state9);
 
-  console.log('--> Creating API providers...');
-  const state11 = await deploy.createProviders(state10);
+  console.log('--> Setting API provider parameters...');
+  const state11 = await deploy.setProviderParameters(state10);
 
   console.log('--> Endorsing client contracts...');
   const state12 = await deploy.endorseClients(state11);

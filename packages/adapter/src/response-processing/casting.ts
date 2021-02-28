@@ -62,6 +62,7 @@ function castBytes32(value: any): string {
 
 export function castValue(value: unknown, type: ResponseType): ValueType {
   switch (type) {
+    case 'uint256':
     case 'int256':
       return castNumber(value, type);
 

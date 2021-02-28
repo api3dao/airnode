@@ -10,7 +10,6 @@ describe('Airnode', () => {
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
       'clientAddressToNoRequests',
-      'createProvider',
       'createRequester',
       'createTemplate',
       'fail',
@@ -27,8 +26,10 @@ describe('Airnode', () => {
       'requesterIndexToAdmin',
       'requesterIndexToClientAddressToEndorsementStatus',
       'requesterIndexToNoWithdrawalRequests',
-      'updateClientEndorsementStatus',
-      'updateRequesterAdmin',
+      'setClientEndorsementStatus',
+      'setProviderParameters',
+      'setProviderParametersAndForwardFunds',
+      'setRequesterAdmin',
     ]);
   });
 
@@ -37,12 +38,12 @@ describe('Airnode', () => {
       .map((fn: any) => fn.name)
       .sort();
     expect(events).toEqual([
-      'ClientEndorsementStatusUpdated',
+      'ClientEndorsementStatusSet',
       'ClientFullRequestCreated',
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ProviderCreated',
+      'ProviderParametersSet',
       'RequesterCreated',
       'RequesterUpdated',
       'TemplateCreated',

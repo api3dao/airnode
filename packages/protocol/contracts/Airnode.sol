@@ -6,17 +6,44 @@ import "./Convenience.sol";
 import "./interfaces/IAirnode.sol";
 
 /// @title The contract used to make and fulfill requests
-/// @notice Clients use this contract to make requests that follow a
-/// request-response scheme. In addition, it inherits from contracts that keep
-/// records of providers, requesters, endpoints, etc.
+/// @notice Clients use this contract to make requests and Airnodes use it to
+/// fulfill them. In addition, it inherits from the contracts that keep records
+/// or providers, requesters and templates. It also includes some convenience
+/// methods that Airnodes use to reduce the number of calls they make to
+/// blockchain providers.
 contract Airnode is Convenience, IAirnode {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
 
+    /// @dev Reverts if the incoming fulfillment parameters do not match the
+    /// ones provided in the request
+    /// @param requestId Request ID
+    /// @param providerId Provider ID from ProviderStore
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    modifier onlyCorrectFulfillmentParameters(
+        bytes32 requestId,
+        bytes32 providerId,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
+        )
+    {
+        bytes32 incomingFulfillmentParameters = keccak256(abi.encodePacked(
+            providerId,
+            msg.sender,
+            fulfillAddress,
+            fulfillFunctionId
+            ));
+        require(
+            incomingFulfillmentParameters == requestIdToFulfillmentParameters[requestId],
+            "Incorrect fulfillment parameters"
+            );
+        _;
+    }
+
     /// @notice Called by the client to make a regular request. A regular
-    /// request refers to a template for the requester-agnostic parameters, but
-    /// requires the client to provide the requester-specific parameters.
-    /// @dev This is the recommended way of making a request in most cases
+    /// request refers to a template for the provider, endpoint and parameters.
     /// @param templateId Template ID from TemplateStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -24,9 +51,8 @@ contract Airnode is Convenience, IAirnode {
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param parameters Dynamic request parameters (i.e., parameters that are
-    /// determined at runtime, unlike the static parameters stored in the
-    /// template)
+    /// @param parameters Parameters provided by the client in addition to the
+    /// parameters in the template.
     /// @return requestId Request ID
     function makeRequest(
         bytes32 templateId,
@@ -73,12 +99,9 @@ contract Airnode is Convenience, IAirnode {
         clientAddressToNoRequests[msg.sender]++;
     }
 
-    /// @notice Called by the requester to make a full request. A full request
-    /// does not refer to a template, meaning that it passes all the parameters
-    /// in the request. It does not require a template to be created
-    /// beforehand, which provides extra flexibility compared to makeRequest().
-    /// @dev This is the least gas efficient way of making a request. Do not
-    /// use it unless you have a good reason.
+    /// @notice Called by the client to make a full request. A full request
+    /// provides all of its parameters as arguments and does not refer to a
+    /// template.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterIndex Requester index from RequesterStore
@@ -134,8 +157,12 @@ contract Airnode is Convenience, IAirnode {
         clientAddressToNoRequests[msg.sender]++;
     }
 
-    /// @notice Called by the oracle node to fulfill individual requests
-    /// (including regular and full requests)
+    /// @notice Called by Airnode to fulfill the request (regular or full)
+    /// @dev `statusCode` being zero indicates a successful fulfillment, while
+    /// non-zero values indicate error (the meanings of these values are
+    /// implementation-dependent).
+    /// The data is ABI-encoded as a `bytes` type, with its format depending on
+    /// the request specifications.
     /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param statusCode Status code of the fulfillment
@@ -179,9 +206,9 @@ contract Airnode is Convenience, IAirnode {
             );
     }
 
-    /// @notice Called by the oracle node if a request cannot be fulfilled
-    /// @dev The oracle should fall back to this if a request cannot be
-    /// fulfilled because fulfill() reverts
+    /// @notice Called by Airnode if the request cannot be fulfilled
+    /// @dev Airnode should fall back to this if a request cannot be fulfilled
+    /// because fulfill() reverts
     /// @param requestId Request ID
     /// @param providerId Provider ID from ProviderStore
     /// @param fulfillAddress Address that will be called to fulfill
@@ -209,32 +236,5 @@ contract Airnode is Convenience, IAirnode {
             providerId,
             requestId
             );
-    }
-
-    /// @dev Reverts unless the incoming fulfillment parameters do not match
-    /// the ones provided in the request
-    /// @param requestId Request ID
-    /// @param providerId Provider ID from ProviderStore
-    /// @param fulfillAddress Address that will be called to fulfill
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
-    modifier onlyCorrectFulfillmentParameters(
-        bytes32 requestId,
-        bytes32 providerId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId
-        )
-    {
-        bytes32 incomingFulfillmentParameters = keccak256(abi.encodePacked(
-            providerId,
-            msg.sender,
-            fulfillAddress,
-            fulfillFunctionId
-            ));
-        require(
-            incomingFulfillmentParameters == requestIdToFulfillmentParameters[requestId],
-            "Incorrect fulfillment parameters"
-            );
-        _;
     }
 }

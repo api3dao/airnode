@@ -8,6 +8,17 @@ import "./interfaces/IAirnode.sol";
 contract AirnodeClient is IAirnodeClient {
     IAirnode public airnode;
 
+    /// @dev Reverts if the caller is not the Airnode contract
+    /// Use it as a modifier for fulfill and error callback methods
+    modifier onlyAirnode()
+    {
+        require(
+            msg.sender == address(airnode),
+            "Caller not the Airnode contract"
+            );
+        _;
+    }
+
     /// @dev Airnode address is set at deployment. If you need to be able to
     /// update it, you will have to implement that functionality (and probably
     /// put it behind onlyOwner).
@@ -27,16 +38,5 @@ contract AirnodeClient is IAirnodeClient {
         returns(address _airnodeAddress)
     {
         _airnodeAddress = address(airnode);
-    }
-
-    /// @dev Reverts if the caller is not the Airnode contract
-    /// Use it as a modifier for fulfill and error callback methods
-    modifier onlyAirnode()
-    {
-        require(
-            msg.sender == address(airnode),
-            "Caller not the Airnode contract"
-            );
-        _;
     }
 }

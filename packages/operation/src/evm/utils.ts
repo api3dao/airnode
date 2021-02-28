@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 
 export function deriveEndpointId(oisTitle: string, endpointName: string): string {
   const { keccak256, defaultAbiCoder } = ethers.utils;
-  return keccak256(defaultAbiCoder.encode(['string'], [`${oisTitle}/${endpointName}`]));
+  return keccak256(defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
 }
 
 export function deriveExtendedPublicKey(mnemonic: string): string {
