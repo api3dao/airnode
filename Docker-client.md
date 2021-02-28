@@ -10,6 +10,7 @@ mv Dockerfile Dockerfile-deployer && \
 ```
 
 2. Ensure that your `.env` file looks like [`.env.example`](https://github.com/api3dao/airnode/blob/pre-alpha/packages/node/__dev__/.env.example) and is the current working directory.
+Also, **do not** use quotations around your mnemonic or other variables.
 
 3. Also ensure that [`config.json`](https://github.com/api3dao/airnode/blob/pre-alpha/packages/node/__dev__/config.json.example) is also in the current working directory.
 Note that `nodeSettings.cloudProvider` should be `local`.
