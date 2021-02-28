@@ -106,7 +106,7 @@ describe('initializeProvider', () => {
     ]);
   });
 
-  it('does nothing if unable to find or create the provider', async () => {
+  it('does nothing if unable to verify or set provider parameters', async () => {
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getProviderAndBlockNumberMock.mockResolvedValueOnce(null);
     const state = fixtures.buildEVMProviderState();
@@ -133,7 +133,7 @@ describe('initializeProvider', () => {
     expect(getLogsSpy).toHaveBeenCalledTimes(2);
   });
 
-  it('does nothing if unable to find or create the provider', async () => {
+  it('does nothing if unable to verify or set provider parameters', async () => {
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getProviderAndBlockNumberMock.mockResolvedValueOnce(null);
     const state = fixtures.buildEVMProviderState();

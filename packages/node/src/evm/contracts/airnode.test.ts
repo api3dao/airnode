@@ -10,8 +10,6 @@ describe('Airnode', () => {
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
       'clientAddressToNoRequests',
-      'createProvider',
-      'createProviderAndForwardFunds',
       'createRequester',
       'createTemplate',
       'fail',
@@ -29,6 +27,8 @@ describe('Airnode', () => {
       'requesterIndexToClientAddressToEndorsementStatus',
       'requesterIndexToNoWithdrawalRequests',
       'setClientEndorsementStatus',
+      'setProviderParameters',
+      'setProviderParametersAndForwardFunds',
       'setRequesterAdmin',
     ]);
   });
@@ -43,7 +43,7 @@ describe('Airnode', () => {
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ProviderCreated',
+      'ProviderParametersSet',
       'RequesterCreated',
       'RequesterUpdated',
       'TemplateCreated',

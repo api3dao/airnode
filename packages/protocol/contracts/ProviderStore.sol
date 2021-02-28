@@ -16,21 +16,21 @@ contract ProviderStore is RequesterStore, IProviderStore {
     mapping(bytes32 => Provider) internal providers;
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
-    /// @notice Allows the master wallet (m) of the provider to create a
-    /// provider record on this chain
+    /// @notice Allows the master wallet (m) of the provider to set its
+    /// parameters on this chain
     /// @dev This method can also be used to update `admin`, `xpub` and/or
-    /// `authorizers` even if the provider record is already created.
+    /// `authorizers`.
     /// `admin` is not used in the protocol contracts. It is intended to
     /// potentially be referred to in authorizer contracts.
     /// Note that the provider can announce an incorrect `xpub`. However, the
-    /// mismatch between it and the provider ID can be detected off-chain.
+    /// mismatch between it and the providerId can be detected off-chain.
     /// This needs to be payable to be callable by
-    /// createProviderAndForwardFunds().
+    /// setProviderParametersAndForwardFunds().
     /// @param admin Provider admin
     /// @param xpub Master public key of the provider
     /// @param authorizers Authorizer contract addresses of the provider
     /// @return providerId Provider ID
-    function createProvider(
+    function setProviderParameters(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
@@ -46,7 +46,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             xpub: xpub,
             authorizers: authorizers
             });
-        emit ProviderCreated(
+        emit ProviderParametersSet(
             providerId,
             admin,
             xpub,

@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import "./IAirnode.sol";
 
 interface IConvenience {
-    function createProviderAndForwardFunds(
+    function setProviderParametersAndForwardFunds(
         address admin,
         string calldata xpub,
         address[] calldata authorizers

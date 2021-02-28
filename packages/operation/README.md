@@ -71,7 +71,7 @@ After starting an Ethereum development node, you can deploy the Airnode contract
 yarn run dev:eth-deploy
 ```
 
-Along with simply deploying the Airnode contracts, the above command will also create API providers onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
+Along with simply deploying the Airnode contracts, the above command will also set API provider parameters onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
 
 Running this command will build and save a "deployment" file in a `./deployments` folder. This file contains the addresses for the relevant accounts and contracts that are created. This is necessary as subsequent scripts do not have context of what these addresses and contracts are. You do not need to edit this file yourself.
 

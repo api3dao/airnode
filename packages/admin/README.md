@@ -126,16 +126,16 @@ npx @api3/airnode-admin check-withdrawal-request \
 
 ## Provider commands
 
-### `create-provider`
+### `set-provider-parameters`
 
-Creates a [provider](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns a provider ID.
+Sets the parameters of a [provider](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns the provider ID.
 See the `/example` directory for an example authorizers file.
 
 **You probably should not be using this.**
-Airnode will create your provider during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md).
+Airnode will set your provider parameters during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md) if necessary.
 
 ```sh
-npx @api3/airnode-admin create-provider \
+npx @api3/airnode-admin set-provider-parameters \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --providerAdmin 0xc2193d... \

@@ -243,8 +243,8 @@ yargs
     }
   )
   .command(
-    'create-provider',
-    'Creates a provider and returns its ID',
+    'set-provider-parameters',
+    'Sets the parameters of a provider and returns its ID',
     {
       providerUrl: {
         type: 'string',
@@ -270,7 +270,7 @@ yargs
     async (args) => {
       const authorizers = JSON.parse(fs.readFileSync(args.authorizersFilePath).toString());
       const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const providerId = await contract.createProvider(airnode, args.providerAdmin, authorizers);
+      const providerId = await contract.setProviderParameters(airnode, args.providerAdmin, authorizers);
       console.log(`Provider ID: ${providerId}`);
     }
   )

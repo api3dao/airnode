@@ -4,7 +4,7 @@ pragma solidity 0.6.12;
 import "./IRequesterStore.sol";
 
 interface IProviderStore is IRequesterStore {
-    event ProviderCreated(
+    event ProviderParametersSet(
         bytes32 indexed providerId,
         address admin,
         string xpub,
@@ -28,7 +28,7 @@ interface IProviderStore is IRequesterStore {
         uint256 amount
         );
 
-    function createProvider(
+    function setProviderParameters(
         address admin,
         string calldata xpub,
         address[] calldata authorizers

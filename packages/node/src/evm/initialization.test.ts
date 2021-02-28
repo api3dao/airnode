@@ -1,13 +1,13 @@
 const getProviderAndBlockNumberMock = jest.fn();
-const createProviderMock = jest.fn();
-const estimateCreateProviderMock = jest.fn();
+const setProviderParametersMock = jest.fn();
+const estimateSetProviderParametersMock = jest.fn();
 jest.mock('ethers', () => ({
   ethers: {
     ...jest.requireActual('ethers'),
     Contract: jest.fn().mockImplementation(() => ({
-      createProviderAndForwardFunds: createProviderMock,
+      setProviderParametersAndForwardFunds: setProviderParametersMock,
       estimateGas: {
-        createProviderAndForwardFunds: estimateCreateProviderMock,
+        setProviderParametersAndForwardFunds: estimateSetProviderParametersMock,
       },
       getProviderAndBlockNumber: getProviderAndBlockNumberMock,
     })),
@@ -202,7 +202,7 @@ describe('fetchProviderWithData', () => {
   });
 });
 
-describe('create', () => {
+describe('setProviderParameters', () => {
   const options = {
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
@@ -220,31 +220,34 @@ describe('create', () => {
     },
   };
 
-  it('creates the provider and returns the transaction', async () => {
+  it('sets the provider parameters and returns the transaction', async () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
-    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await initialization.create(options);
+    estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    setProviderParametersMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
+    const [logs, res] = await initialization.setProviderParameters(options);
     expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'INFO',
+        message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+      },
+      { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
       { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
       { level: 'INFO', message: 'Master wallet balance: 0.00000000025 ETH' },
-      { level: 'INFO', message: 'Submitting create provider transaction...' },
-      { level: 'INFO', message: 'Create provider transaction submitted:0xsuccessful' },
+      { level: 'INFO', message: 'Submitting set provider parameters transaction...' },
+      { level: 'INFO', message: 'Set provider parameters transaction submitted:0xsuccessful' },
       {
         level: 'INFO',
-        message: 'Airnode will not process requests until the create provider transaction has been confirmed',
+        message: 'Airnode will not process requests until the set provider parameters transaction has been confirmed',
       },
     ]);
     expect(res).toEqual({ hash: '0xsuccessful' });
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).toHaveBeenCalledWith(
+    expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       [ethers.constants.AddressZero],
@@ -258,12 +261,15 @@ describe('create', () => {
   });
 
   it('returns null if the gas limit estimate fails', async () => {
-    estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
-    estimateCreateProviderMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
-    const [logs, res] = await initialization.create(options);
+    estimateSetProviderParametersMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
+    estimateSetProviderParametersMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
+    const [logs, res] = await initialization.setProviderParameters(options);
     expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'INFO',
+        message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+      },
+      { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
       {
         level: 'ERROR',
         message: 'Unable to estimate transaction cost',
@@ -271,25 +277,28 @@ describe('create', () => {
       },
     ]);
     expect(res).toEqual(null);
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(2);
-    expect(createProviderMock).not.toHaveBeenCalled();
+    expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(2);
+    expect(setProviderParametersMock).not.toHaveBeenCalled();
   });
 
   it('returns null if the gas price cannot be fetched', async () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
-    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await initialization.create(options);
+    estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    const [logs, res] = await initialization.setProviderParameters(options);
     expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'INFO',
+        message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+      },
+      { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
       { level: 'ERROR', message: 'Unable to fetch gas price', error: new Error('Failed to fetch gas price') },
     ]);
     expect(res).toEqual(null);
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).not.toHaveBeenCalled();
+    expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).not.toHaveBeenCalled();
   });
 
   it('returns null if the master wallet balance cannot be fetched', async () => {
@@ -298,46 +307,52 @@ describe('create', () => {
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
-    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await initialization.create(options);
+    estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    const [logs, res] = await initialization.setProviderParameters(options);
     expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'INFO',
+        message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+      },
+      { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
       { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
       { level: 'ERROR', message: 'Unable to fetch master wallet balance', error: new Error('Failed to fetch balance') },
     ]);
     expect(res).toEqual(null);
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).not.toHaveBeenCalled();
+    expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).not.toHaveBeenCalled();
   });
 
-  it('returns null if the create provider transaction fails to submit', async () => {
+  it('returns null if the set provider parameters transaction fails to submit', async () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
-    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
-    createProviderMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
-    const [logs, res] = await initialization.create(options);
+    estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    setProviderParametersMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
+    setProviderParametersMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
+    const [logs, res] = await initialization.setProviderParameters(options);
     expect(logs).toEqual([
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'INFO',
+        message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+      },
+      { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
       { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
       { level: 'INFO', message: 'Master wallet balance: 0.00000000025 ETH' },
-      { level: 'INFO', message: 'Submitting create provider transaction...' },
+      { level: 'INFO', message: 'Submitting set provider parameters transaction...' },
       {
         level: 'ERROR',
-        message: 'Unable to submit create provider transaction',
+        message: 'Unable to submit set provider parameters transaction',
         error: new Error('Failed to submit tx'),
       },
     ]);
     expect(res).toEqual(null);
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).toHaveBeenCalledTimes(2);
-    expect(createProviderMock).toHaveBeenCalledWith(
+    expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).toHaveBeenCalledTimes(2);
+    expect(setProviderParametersMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       [ethers.constants.AddressZero],
@@ -357,11 +372,14 @@ describe('create', () => {
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
-      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-      const [logs, res] = await initialization.create(options);
+      estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      const [logs, res] = await initialization.setProviderParameters(options);
       expect(logs).toEqual([
-        { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-        { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+        {
+          level: 'INFO',
+          message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+        },
+        { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
         { level: 'INFO', message: 'Estimated gas limit: 70000' },
         { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
         {
@@ -379,30 +397,30 @@ describe('create', () => {
         },
       ]);
       expect(res).toEqual({});
-      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-      expect(createProviderMock).not.toHaveBeenCalled();
+      expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+      expect(setProviderParametersMock).not.toHaveBeenCalled();
     });
 
-    it('does not warn if there is no onchain provider but fails to create the provider', async () => {
+    it('does not warn if there is no onchain provider but fails to set the provider parameters', async () => {
       options.onchainData.xpub = '';
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
-      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
-      const [logs, res] = await initialization.create(options);
+      estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      setProviderParametersMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.setProviderParameters(options);
       expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
       expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
         {
           level: 'ERROR',
-          message: 'Unable to submit create provider transaction',
+          message: 'Unable to submit set provider parameters transaction',
           error: new Error('Insufficient funds'),
         },
       ]);
       expect(res).toEqual(null);
-      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-      expect(createProviderMock).toHaveBeenCalledTimes(2);
+      expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+      expect(setProviderParametersMock).toHaveBeenCalledTimes(2);
     });
 
     it('does not warn if the onchain xpub is different', async () => {
@@ -411,20 +429,20 @@ describe('create', () => {
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
-      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
-      const [logs, res] = await initialization.create(options);
+      estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      setProviderParametersMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.setProviderParameters(options);
       expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
       expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
         {
           level: 'ERROR',
-          message: 'Unable to submit create provider transaction',
+          message: 'Unable to submit set provider parameters transaction',
           error: new Error('Insufficient funds'),
         },
       ]);
       expect(res).toEqual(null);
-      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-      expect(createProviderMock).toHaveBeenCalledTimes(2);
+      expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+      expect(setProviderParametersMock).toHaveBeenCalledTimes(2);
     });
 
     it('does not warn if the provider details match', async () => {
@@ -432,25 +450,25 @@ describe('create', () => {
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
-      estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-      createProviderMock.mockRejectedValue(new Error('Insufficient funds'));
-      const [logs, res] = await initialization.create(options);
+      estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+      setProviderParametersMock.mockRejectedValue(new Error('Insufficient funds'));
+      const [logs, res] = await initialization.setProviderParameters(options);
       expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
       expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
         {
           level: 'ERROR',
-          message: 'Unable to submit create provider transaction',
+          message: 'Unable to submit set provider parameters transaction',
           error: new Error('Insufficient funds'),
         },
       ]);
       expect(res).toEqual(null);
-      expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-      expect(createProviderMock).toHaveBeenCalledTimes(2);
+      expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+      expect(setProviderParametersMock).toHaveBeenCalledTimes(2);
     });
   });
 });
 
-describe('findOrCreateProvider', () => {
+describe('verifyOrSetProviderParameters', () => {
   const options = {
     airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
@@ -462,7 +480,7 @@ describe('findOrCreateProvider', () => {
   it('returns null if it fails to get the provider and block data', async () => {
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getProviderAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
-    const [logs, res] = await initialization.findOrCreateProvider(options);
+    const [logs, res] = await initialization.verifyOrSetProviderParameters(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -484,7 +502,7 @@ describe('findOrCreateProvider', () => {
     ]);
   });
 
-  it('creates a provider if xpub if empty and returns the transaction', async () => {
+  it('sets the provider parameters if xpub if empty and returns the transaction', async () => {
     getProviderAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
@@ -495,9 +513,9 @@ describe('findOrCreateProvider', () => {
     gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
-    estimateCreateProviderMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    createProviderMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await initialization.findOrCreateProvider(options);
+    estimateSetProviderParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    setProviderParametersMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
+    const [logs, res] = await initialization.verifyOrSetProviderParameters(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -507,16 +525,19 @@ describe('findOrCreateProvider', () => {
       { level: 'INFO', message: 'Fetching current block and provider admin details...' },
       { level: 'INFO', message: 'Current block:12' },
       { level: 'INFO', message: 'Provider not found' },
-      { level: 'INFO', message: 'Creating provider with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...' },
-      { level: 'INFO', message: 'Estimating transaction cost for creating provider...' },
+      {
+        level: 'INFO',
+        message: 'Setting provider parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+      },
+      { level: 'INFO', message: 'Estimating transaction cost for setting provider parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
       { level: 'INFO', message: 'Gas price set to 0.000001 Gwei' },
       { level: 'INFO', message: 'Master wallet balance: 0.00000000025 ETH' },
-      { level: 'INFO', message: 'Submitting create provider transaction...' },
-      { level: 'INFO', message: 'Create provider transaction submitted:0xsuccessful' },
+      { level: 'INFO', message: 'Submitting set provider parameters transaction...' },
+      { level: 'INFO', message: 'Set provider parameters transaction submitted:0xsuccessful' },
       {
         level: 'INFO',
-        message: 'Airnode will not process requests until the create provider transaction has been confirmed',
+        message: 'Airnode will not process requests until the set provider parameters transaction has been confirmed',
       },
     ]);
     expect(res).toEqual({
@@ -529,9 +550,9 @@ describe('findOrCreateProvider', () => {
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
     );
-    expect(estimateCreateProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).toHaveBeenCalledTimes(1);
-    expect(createProviderMock).toHaveBeenCalledWith(
+    expect(estimateSetProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).toHaveBeenCalledTimes(1);
+    expect(setProviderParametersMock).toHaveBeenCalledWith(
       '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       [ethers.constants.AddressZero],
@@ -552,7 +573,7 @@ describe('findOrCreateProvider', () => {
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await initialization.findOrCreateProvider(options);
+    const [logs, res] = await initialization.verifyOrSetProviderParameters(options);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -580,6 +601,6 @@ describe('findOrCreateProvider', () => {
     expect(getProviderAndBlockNumberMock).toHaveBeenCalledWith(
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'
     );
-    expect(createProviderMock).not.toHaveBeenCalled();
+    expect(setProviderParametersMock).not.toHaveBeenCalled();
   });
 });

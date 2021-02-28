@@ -25,25 +25,25 @@ beforeEach(async () => {
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
   providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
   designatedWallet = ethers.Wallet.fromMnemonic(providerMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
-  // Fund the provider master wallet for it to be able to create the provider
+  // Fund the provider master wallet for it to be able to set the provider parameters
   await roles.providerAdmin.sendTransaction({
     to: masterWallet.address,
     value: ethers.utils.parseEther('1'),
   });
 });
 
-describe('createProviderAndForwardFunds', function () {
+describe('setProviderParametersAndForwardFunds', function () {
   context('Called with non-zero value', async function () {
     context('Provider admin is payable', async function () {
-      it('creates provider and forwards funds', async function () {
+      it('sets the provider parameters and forwards funds', async function () {
         // Generate random addresses as the authorizer contracts
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Estimate the gas required to create the provider record
+        // Estimate the gas required to set the provider parameters
         const gasEstimate = await airnode
           .connect(masterWallet)
-          .estimateGas.createProviderAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
+          .estimateGas.setProviderParametersAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
             value: 1,
           });
         // Calculate the amount that will be sent forwarded to the provider admin
@@ -51,19 +51,19 @@ describe('createProviderAndForwardFunds', function () {
         const txCost = gasEstimate.mul(gasPrice);
         const masterWalletBalance = await waffle.provider.getBalance(masterWallet.address);
         const fundsToSend = masterWalletBalance.sub(txCost);
-        // Create the provider
+        // Set the provider paramters
         const initialProviderAdminBalance = await waffle.provider.getBalance(roles.providerAdmin.address);
         const expectedProviderAdminBalance = initialProviderAdminBalance.add(fundsToSend);
         await expect(
           airnode
             .connect(masterWallet)
-            .createProviderAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
+            .setProviderParametersAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
               value: fundsToSend,
               gasLimit: gasEstimate,
               gasPrice: gasPrice,
             })
         )
-          .to.emit(airnode, 'ProviderCreated')
+          .to.emit(airnode, 'ProviderParametersSet')
           .withArgs(providerId, roles.providerAdmin.address, providerXpub, authorizers);
         expect(await waffle.provider.getBalance(roles.providerAdmin.address)).to.equal(expectedProviderAdminBalance);
       });
@@ -74,30 +74,34 @@ describe('createProviderAndForwardFunds', function () {
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Attempt to create the provider and forward the funds (using airnode as it has no default payable method)
+        // Attempt to set the provider parameters and forward the funds (using airnode as it has no default payable method)
         await expect(
-          airnode.connect(masterWallet).createProviderAndForwardFunds(airnode.address, providerXpub, authorizers, {
-            value: 1,
-            gasLimit: 500000,
-          })
+          airnode
+            .connect(masterWallet)
+            .setProviderParametersAndForwardFunds(airnode.address, providerXpub, authorizers, {
+              value: 1,
+              gasLimit: 500000,
+            })
         ).to.be.revertedWith('Transfer failed');
       });
     });
   });
   context('Called with zero value', async function () {
-    it('creates provider', async function () {
+    it('sets provider parameters', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Create the provider
+      // Set the provider parameters
       const initialProviderAdminBalance = await waffle.provider.getBalance(roles.providerAdmin.address);
       await expect(
         airnode
           .connect(masterWallet)
-          .createProviderAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 })
+          .setProviderParametersAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
+            gasLimit: 500000,
+          })
       )
-        .to.emit(airnode, 'ProviderCreated')
+        .to.emit(airnode, 'ProviderParametersSet')
         .withArgs(providerId, roles.providerAdmin.address, providerXpub, authorizers);
       expect(await waffle.provider.getBalance(roles.providerAdmin.address)).to.equal(initialProviderAdminBalance);
     });
@@ -110,10 +114,10 @@ describe('getProviderAndBlockNumber', function () {
     const authorizers = Array.from({ length: 5 }, () =>
       ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
     );
-    // Create the provider
+    // Set provider parameters
     await airnode
       .connect(masterWallet)
-      .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+      .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
     // Get the provider and verify its fields
     const providerAndBlockNumber = await airnode.getProviderAndBlockNumber(providerId);
     expect(providerAndBlockNumber.admin).to.equal(roles.providerAdmin.address);
@@ -159,10 +163,10 @@ describe('checkAuthorizationStatuses', function () {
   context('Parameter lengths are equal', async function () {
     it('returns authorization statuses', async function () {
       const authorizers = [ethers.constants.AddressZero];
-      // Create the provider
+      // Set provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization statuses
       const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
@@ -185,10 +189,10 @@ describe('checkAuthorizationStatuses', function () {
   context('Parameter lengths are not equal', async function () {
     it('reverts', async function () {
       const authorizers = [ethers.constants.AddressZero];
-      // Create the provider
+      // Set provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization statuses
       const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));

@@ -93,12 +93,14 @@ export async function checkWithdrawalRequest(airnode, withdrawalRequestId) {
   return parsedLog.args.amount;
 }
 
-export async function createProvider(airnode, providerAdmin, authorizers) {
+export async function setProviderParameters(airnode, providerAdmin, authorizers) {
   const hdNode = ethers.utils.HDNode.fromMnemonic(airnode.signer.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
   const masterWallet = ethers.Wallet.fromMnemonic(airnode.signer.mnemonic.phrase, 'm').connect(airnode.provider);
   // Assuming masterWallet has funds to make the transaction below
-  const receipt = await airnode.connect(masterWallet).createProviderAndForwardFunds(providerAdmin, xpub, authorizers);
+  const receipt = await airnode
+    .connect(masterWallet)
+    .setProviderParametersAndForwardFunds(providerAdmin, xpub, authorizers);
   return new Promise((resolve) =>
     airnode.provider.once(receipt.hash, (tx) => {
       const parsedLog = airnode.interface.parseLog(tx.logs[0]);

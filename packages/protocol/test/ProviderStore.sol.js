@@ -33,7 +33,7 @@ beforeEach(async () => {
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
   providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
   designatedWallet = ethers.Wallet.fromMnemonic(providerMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
-  // Fund the provider master wallet for it to be able to create the provider
+  // Fund the provider master wallet for it to be able to set the provider parameters
   await roles.providerAdmin.sendTransaction({
     to: masterWallet.address,
     value: ethers.utils.parseEther('1'),
@@ -45,19 +45,19 @@ beforeEach(async () => {
   });
 });
 
-describe('createProvider', function () {
-  it('creates provider', async function () {
+describe('setProviderParameters', function () {
+  it('sets provider parameters', async function () {
     // Generate random addresses as the authorizer contracts
     const authorizers = Array.from({ length: 5 }, () =>
       ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
     );
-    // Create the provider
+    // Set the provider parameters
     await expect(
       airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 })
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 })
     )
-      .to.emit(airnode, 'ProviderCreated')
+      .to.emit(airnode, 'ProviderParametersSet')
       .withArgs(providerId, roles.providerAdmin.address, providerXpub, authorizers);
   });
 });
@@ -69,10 +69,10 @@ describe('requestWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
@@ -102,10 +102,10 @@ describe('requestWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Atttempt to request withdrawal
       await expect(
         airnode
@@ -124,10 +124,10 @@ describe('fulfillWithdrawal', function () {
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Create the provider
+        // Set the provider parameters
         await airnode
           .connect(masterWallet)
-          .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+          .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
         // Derive the expected withdrawal request ID
         const withdrawalRequestId = ethers.utils.keccak256(
           ethers.utils.solidityPack(
@@ -187,10 +187,10 @@ describe('fulfillWithdrawal', function () {
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Create the provider
+        // Set the provider parameters
         await airnode
           .connect(masterWallet)
-          .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+          .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
         // Derive the expected withdrawal request ID
         const withdrawalRequestId = ethers.utils.keccak256(
           ethers.utils.solidityPack(
@@ -220,10 +220,10 @@ describe('fulfillWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
@@ -285,10 +285,10 @@ describe('fulfillWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
@@ -317,10 +317,10 @@ describe('checkAuthorizationStatus', function () {
   context('authorizers array is empty', async function () {
     it('returns false', async function () {
       const authorizers = [];
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
         await airnode.checkAuthorizationStatus(
@@ -337,10 +337,10 @@ describe('checkAuthorizationStatus', function () {
   context('All authorizers return false', async function () {
     it('returns false', async function () {
       const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysFalse.address, authorizerAlwaysFalse.address];
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
         await airnode.checkAuthorizationStatus(
@@ -357,10 +357,10 @@ describe('checkAuthorizationStatus', function () {
   context('authorizers array contains a zero address', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, ethers.constants.AddressZero];
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
         await airnode.checkAuthorizationStatus(
@@ -377,10 +377,10 @@ describe('checkAuthorizationStatus', function () {
   context('At least one of the authorizers returns true', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysTrue.address, authorizerAlwaysFalse.address];
-      // Create the provider
+      // Set the provider parameters
       await airnode
         .connect(masterWallet)
-        .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
         await airnode.checkAuthorizationStatus(
@@ -402,10 +402,10 @@ describe('getProvider', function () {
     const authorizers = Array.from({ length: 5 }, () =>
       ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
     );
-    // Create the provider
+    // Set the provider parameters
     await airnode
       .connect(masterWallet)
-      .createProvider(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+      .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
     // Get the provider and verify its fields
     const provider = await airnode.getProvider(providerId);
     expect(provider.admin).to.equal(roles.providerAdmin.address);

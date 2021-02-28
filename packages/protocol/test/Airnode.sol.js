@@ -34,7 +34,7 @@ beforeEach(async () => {
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
   providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
   designatedWallet = ethers.Wallet.fromMnemonic(providerMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
-  // Fund the provider master wallet for it to be able to create the provider
+  // Fund the provider master wallet for it to be able to set the provider parameters
   await roles.providerAdmin.sendTransaction({
     to: masterWallet.address,
     value: ethers.utils.parseEther('1'),

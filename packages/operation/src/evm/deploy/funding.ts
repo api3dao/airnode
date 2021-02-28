@@ -4,7 +4,7 @@ import { DeployState as State } from '../../types';
 export async function fundProviderAccounts(state: State): Promise<State> {
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
     const apiProvider = state.apiProvidersByName[apiProviderName];
-    // Ensure that the API provider address has enough ETH to create the onchain provider
+    // Ensure that the API provider address has enough ETH to set the onchain provider parameters
     const tx = await state.deployer.sendTransaction({
       to: apiProvider.masterWalletAddress,
       value: ethers.utils.parseEther('5'),

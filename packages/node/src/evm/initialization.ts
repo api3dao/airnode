@@ -22,7 +22,7 @@ interface BaseFetchOptions {
   providerAdmin: string;
 }
 
-interface FindOptions extends BaseFetchOptions {
+interface VerifyOptions extends BaseFetchOptions {
   providerId: string;
 }
 
@@ -33,7 +33,7 @@ interface ProviderData {
   xpub: string;
 }
 
-interface CreateOptions extends BaseFetchOptions {
+interface SetProviderParametersOptions extends BaseFetchOptions {
   currentXpub: string;
   onchainData: ProviderData;
 }
@@ -49,7 +49,7 @@ export function providerExistsOnchain(options: ProviderExistsOptions, onchainDat
   return providerDetailsMatch(options, onchainData) && currentXpub === onchainData.xpub;
 }
 
-export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<LogsData<ProviderData | null>> {
+export async function fetchProviderWithData(fetchOptions: VerifyOptions): Promise<LogsData<ProviderData | null>> {
   const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
   const operation = () => airnode.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
   const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
@@ -85,20 +85,22 @@ export async function fetchProviderWithData(fetchOptions: FindOptions): Promise<
   return [logs, data];
 }
 
-export async function create(options: CreateOptions): Promise<LogsData<ethers.Transaction | {} | null>> {
+export async function setProviderParameters(
+  options: SetProviderParametersOptions
+): Promise<LogsData<ethers.Transaction | {} | null>> {
   const { airnodeAddress, authorizers, currentXpub, onchainData, providerAdmin } = options;
 
-  const log1 = logger.pend('INFO', `Creating provider with address:${providerAdmin}...`);
+  const log1 = logger.pend('INFO', `Setting provider parameters with address:${providerAdmin}...`);
 
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
   const connectedWallet = masterWallet.connect(options.provider);
   const airnode = new ethers.Contract(airnodeAddress, Airnode.ABI, connectedWallet);
 
-  const log2 = logger.pend('INFO', 'Estimating transaction cost for creating provider...');
+  const log2 = logger.pend('INFO', 'Estimating transaction cost for setting provider parameters...');
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.createProviderAndForwardFunds(providerAdmin, currentXpub, authorizers, {
+    airnode.estimateGas.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -136,7 +138,7 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const txCost = gasLimit.mul(gasPrice);
 
   // NOTE: it's possible that the master wallet does not have sufficient funds
-  // to create a new onchain provider - if one already exists for the given
+  // to set the provider parameters - yet they may have been set before with the correct
   // mnemonic/extended public key. Airnode can still serve requests, but any changes to fields
   // such as "authorizers" or "providerAdmin" will not be applied.
   if (
@@ -159,29 +161,29 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
 
   const fundsToSend = masterWalletBalance.sub(txCost);
 
-  const log6 = logger.pend('INFO', 'Submitting create provider transaction...');
+  const log6 = logger.pend('INFO', 'Submitting set provider parameters transaction...');
 
-  const createProviderTx = () =>
-    airnode.createProviderAndForwardFunds(providerAdmin, currentXpub, authorizers, {
+  const setProviderParametersTx = () =>
+    airnode.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
       value: fundsToSend,
       gasLimit,
       gasPrice,
     }) as Promise<any>;
-  const retryableCreateProviderTx = retryOperation(OPERATION_RETRIES, createProviderTx);
-  const [txErr, tx] = await go(retryableCreateProviderTx);
+  const retryableSetProviderParametersTx = retryOperation(OPERATION_RETRIES, setProviderParametersTx);
+  const [txErr, tx] = await go(retryableSetProviderParametersTx);
   if (txErr || !tx) {
-    const errLog = logger.pend('ERROR', 'Unable to submit create provider transaction', txErr);
+    const errLog = logger.pend('ERROR', 'Unable to submit set provider parameters transaction', txErr);
     return [[log1, log2, log3, log4, log5, log6, errLog], null];
   }
-  const log7 = logger.pend('INFO', `Create provider transaction submitted:${tx.hash}`);
+  const log7 = logger.pend('INFO', `Set provider parameters transaction submitted:${tx.hash}`);
   const log8 = logger.pend(
     'INFO',
-    'Airnode will not process requests until the create provider transaction has been confirmed'
+    'Airnode will not process requests until the set provider parameters transaction has been confirmed'
   );
   return [[log1, log2, log3, log4, log5, log6, log7, log8], tx];
 }
 
-export async function findOrCreateProvider(options: BaseFetchOptions): Promise<LogsData<ProviderData | null>> {
+export async function verifyOrSetProviderParameters(options: BaseFetchOptions): Promise<LogsData<ProviderData | null>> {
   const providerId = wallet.getProviderId(options.masterHDNode);
   const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic:${providerId}`);
 
@@ -195,14 +197,16 @@ export async function findOrCreateProvider(options: BaseFetchOptions): Promise<L
   // If the extended public key was returned as an empty string, it means that the provider does
   // not exist onchain yet
   if (!providerExistsOnchain(options, providerBlockData)) {
-    const createOptions = {
+    const setProviderParametersOptions = {
       ...options,
       currentXpub: wallet.getExtendedPublicKey(options.masterHDNode),
       providerAdmin: options.providerAdmin,
       onchainData: providerBlockData,
     };
-    const [createLogs, _createRes] = await create(createOptions);
-    const logs = [idLog, ...providerBlockLogs, ...createLogs];
+    const [setProviderParametersLogs, _setProviderParametersRes] = await setProviderParameters(
+      setProviderParametersOptions
+    );
+    const logs = [idLog, ...providerBlockLogs, ...setProviderParametersLogs];
     return [logs, providerBlockData];
   }
 

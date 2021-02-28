@@ -18,8 +18,8 @@ export async function deployAirnode(config: operation.Config): Promise<operation
   const state9 = await operation.fundRequesterAccounts(state8);
   const state10 = await operation.fundDesignatedWallets(state9);
 
-  // Create API providers
-  const state11 = await operation.createProviders(state10);
+  // Set API provider parameters
+  const state11 = await operation.setProviderParameters(state10);
 
   // Endorse client contracts
   const state12 = await operation.endorseClients(state11);

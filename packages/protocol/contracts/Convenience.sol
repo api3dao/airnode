@@ -9,14 +9,14 @@ import "./interfaces/IConvenience.sol";
 /// @title The contract that keeps the convenience methods that Airnodes use to
 /// make batch calls
 contract Convenience is ProviderStore, TemplateStore, IConvenience {
-    /// @notice A convenience method for the Airnode to create a provider
-    /// record and forward the remaining funds in the master wallet to the
-    /// provider admin
+    /// @notice A convenience method for the Airnode to set provider parameters
+    /// and forward the remaining funds in the master wallet to the provider
+    /// admin
     /// @param admin Provider admin
     /// @param xpub Master public key of the provider
     /// @param authorizers Authorizer contract addresses of the provider
     /// @return providerId Provider ID from ProviderStore
-    function createProviderAndForwardFunds(
+    function setProviderParametersAndForwardFunds(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
@@ -26,7 +26,7 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
         override
         returns (bytes32 providerId)
     {
-        providerId = createProvider(
+        providerId = setProviderParameters(
             admin,
             xpub,
             authorizers

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 
-export async function createProviders(state: State): Promise<State> {
+export async function setProviderParameters(state: State): Promise<State> {
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
     const configProvider = state.config.apiProviders[apiProviderName];
     const apiProvider = state.apiProvidersByName[apiProviderName];
@@ -10,7 +10,7 @@ export async function createProviders(state: State): Promise<State> {
 
     const tx = await state.contracts
       .Airnode!.connect(apiProvider.signer)
-      .createProviderAndForwardFunds(configProvider.providerAdmin, apiProvider.xpub, authorizers, {
+      .setProviderParametersAndForwardFunds(configProvider.providerAdmin, apiProvider.xpub, authorizers, {
         value: ethers.utils.parseEther('1'),
       });
 
