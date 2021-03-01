@@ -27,6 +27,7 @@ function applyTemplate(
     endpointId: request.endpointId || template.endpointId,
     fulfillAddress: request.fulfillAddress || template.fulfillAddress,
     fulfillFunctionId: request.fulfillFunctionId || template.fulfillFunctionId,
+    providerId: request.providerId || template.providerId,
     requesterIndex: request.requesterIndex || template.requesterIndex,
     // NOTE: the spread operator is case sensitive, meaning that you can
     // have 2 (or more) parameters with the same value, but different cases.
