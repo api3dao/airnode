@@ -6,9 +6,11 @@ export interface Log {
 export interface Roots {
   specs: any;
   nonRedundantParams: any;
+  output: any;
 }
 
 export interface Result {
   valid: boolean;
   messages: Log[];
+  output?: object;
 }

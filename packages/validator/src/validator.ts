@@ -1,11 +1,7 @@
 import fs from 'fs';
-import * as utils from './utils/utils';
 import * as logger from './utils/logger';
-import { validateCondition } from './validators/conditionValidator';
-import { validateRegexp } from './validators/regexpValidator';
-import { validateOptional } from './validators/optionalValidator';
-import { isAnyParamValid } from './validators/anyValidator';
-import { Log, Result, Roots } from './types';
+import { Result } from './types';
+import { processSpecs } from './processor';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
 const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
@@ -13,179 +9,108 @@ const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json',
 const configSecurityTemplate = JSON.parse(fs.readFileSync('templates/configSecurity.json', 'utf8'));
 
 /**
- * Recursion validating provided specification against template
- * @param specs - specification that is being validated
- * @param template - template the specification is validated against
- * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string in root)
- * @param nonRedundantParams - object containing all required and optional parameters that are being used
- * @param roots - roots of specs and nonRedundantParams
- * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
- * @returns errors and warnings that occurred in validation of provided specification
+ * Validates specification from provided file according to template file
+ * @param specsPath - specification file to validate, root must be an object (not an array)
+ * @param templatePath - template json file
+ * @returns array of error and warning messages
  */
-export function validateSpecs(
-  specs: any,
-  template: any,
-  paramPath: string,
-  nonRedundantParams: any,
-  roots: Roots,
-  paramPathPrefix = ''
-): Result {
-  const messages: Log[] = [];
-  let tmpNonRedundant: {} | [] = [];
-  let tmpResult: Result = { valid: true, messages: [] };
-  let tmpRoots: Roots = { specs: specs, nonRedundantParams: nonRedundantParams };
-
-  for (const key of Object.keys(template)) {
-    switch (key) {
-      case '__conditions':
-        for (const condition of template[key]) {
-          messages.push(...validateCondition(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix));
-        }
-
-        break;
-
-      case '__regexp':
-        messages.push(...validateRegexp(specs, template, paramPath));
-        break;
-
-      case '__keyRegexp':
-        messages.push(...validateRegexp(specs, template, paramPath, true));
-        break;
-
-      case '__maxSize':
-        if (template[key] < specs.length) {
-          messages.push(logger.error(`${paramPath} must contain ${template[key]} or less items`));
-        }
-
-        break;
-
-      // validate array
-      case '__arrayItem':
-        // nonRedundantParams has to have the same structure as template
-        if (!nonRedundantParams) {
-          nonRedundantParams = [];
-        }
-
-        // validate each item in specs
-        for (let i = 0; i < specs.length; i++) {
-          nonRedundantParams.push({});
-          const result = validateSpecs(
-            specs[i],
-            template[key],
-            `${paramPath}[${i}]`,
-            nonRedundantParams[i],
-            roots,
-            paramPathPrefix
-          );
-          messages.push(...result.messages);
-        }
-
-        break;
-
-      // in specs can be any parameter, should validate all of them according to whats in the template
-      case '__objectItem':
-        for (const item of Object.keys(specs)) {
-          // insert empty type of item into nonRedundantParams
-          nonRedundantParams[item] = utils.getEmptyNonRedundantParam(item, template, nonRedundantParams, specs[item]);
-
-          const result = validateSpecs(
-            specs[item],
-            template[key],
-            `${paramPath}${paramPath ? '.' : ''}${item}`,
-            nonRedundantParams[item],
-            roots,
-            paramPathPrefix
-          );
-          messages.push(...result.messages);
-        }
-
-        break;
-
-      case '__optional':
-        messages.push(...validateOptional(specs, template[key], paramPath, nonRedundantParams, roots, paramPathPrefix));
-
-        break;
-
-      // determines level of message for single parameter, currently used only in regexp validation
-      case '__level':
-        break;
-
-      case '__any':
-        if (!isAnyParamValid(specs, template[key], paramPath, nonRedundantParams, roots)) {
-          messages.push(logger.error(`Required conditions not met in ${paramPath}`));
-        }
-
-        break;
-
-      case '__apiSpecs':
-        tmpNonRedundant = {};
-        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
-
-        tmpResult = validateSpecs(specs, apiTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
-        messages.push(...tmpResult.messages);
-
-        nonRedundantParams['__noCheck'] = {};
-
-        break;
-
-      case '__endpointsSpecs':
-        tmpNonRedundant = [];
-        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
-
-        tmpResult = validateSpecs(specs, endpointsTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
-        messages.push(...tmpResult.messages);
-
-        nonRedundantParams['__noCheck'] = {};
-
-        break;
-
-      case '__oisSpecs':
-        tmpNonRedundant = {};
-        tmpRoots = { specs, nonRedundantParams: tmpNonRedundant };
-
-        tmpResult = validateSpecs(specs, oisTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
-        messages.push(...tmpResult.messages);
-
-        nonRedundantParams['__noCheck'] = {};
-
-        break;
-
-      // key is not a special keyword, but a regular parameter
-      default:
-        if (!specs[key]) {
-          messages.push(logger.error(`Missing parameter ${paramPath}${paramPath && key ? '.' : ''}${key}`));
-
-          continue;
-        }
-
-        nonRedundantParams[key] = utils.getEmptyNonRedundantParam(key, template, nonRedundantParams, specs[key]);
-
-        if (!Object.keys(template[key]).length) {
-          continue;
-        }
-
-        tmpResult = validateSpecs(
-          specs[key],
-          template[key],
-          `${paramPath}${paramPath ? '.' : ''}${key}`,
-          nonRedundantParams[key],
-          roots,
-          paramPathPrefix
-        );
-        messages.push(...tmpResult.messages);
-
-        break;
-    }
+export function validate(specsPath: string | undefined, templatePath: string | undefined): Result {
+  if (!specsPath || !templatePath) {
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
   }
 
-  let valid = true;
+  let template, specs;
 
-  if (specs === roots.specs) {
-    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, paramPath));
-    valid = !messages.some((msg) => msg.level === 'error');
+  try {
+    template = fs.readFileSync(templatePath);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)], output: {} };
   }
 
-  return { valid, messages };
+  try {
+    template = JSON.parse(template);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
+  }
+
+  try {
+    specs = fs.readFileSync(specsPath);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
+  }
+
+  try {
+    specs = JSON.parse(specs);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
+  }
+
+  return validateJson(specs, template);
+}
+
+/**
+ * Validates specification from provided string according to string containing template structure
+ * @param specs - specification to validate, root must be an object (not an array)
+ * @param template - template json
+ * @returns array of error and warning messages
+ */
+export function validateJson(specs: object, template: object): Result {
+  try {
+    const nonRedundant = {};
+
+    return processSpecs(specs, template, '', nonRedundant, {
+      specs,
+      nonRedundantParams: nonRedundant,
+      output: {},
+    });
+  } catch (e) {
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+  }
+}
+
+/**
+ * Validates config and security
+ * @param configPath - path to config json file
+ * @param securityPath - path to security json file
+ * @returns array of error and warning messages
+ */
+export function validateConfigSecurity(configPath: string | undefined, securityPath: string | undefined): Result {
+  if (!configPath || !securityPath) {
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
+  }
+
+  let config, security;
+
+  try {
+    config = fs.readFileSync(configPath);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${configPath}`)] };
+  }
+
+  try {
+    security = fs.readFileSync(securityPath);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${securityPath}`)] };
+  }
+
+  return isConfigSecurityValid(config, security);
+}
+
+export function isConfigSecurityValid(config: string, security: string): Result {
+  const nonRedundant = {};
+
+  try {
+    const parsedConfigSpecs = JSON.parse(config);
+    const parsedSecuritySpecs = JSON.parse(security);
+    const specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
+    return processSpecs(specs, configSecurityTemplate, '', nonRedundant, {
+      specs,
+      nonRedundantParams: nonRedundant,
+      output: {},
+    });
+  } catch (e) {
+    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
+  }
 }
 
 /**
@@ -198,9 +123,10 @@ export function isApiSpecsValid(specs: string): Result {
 
   try {
     const parsedSpecs = JSON.parse(specs);
-    return validateSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
+    return processSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
+      output: {},
     });
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
@@ -217,9 +143,10 @@ export function isEndpointsValid(specs: string): Result {
 
   try {
     const parsedSpecs = JSON.parse(specs);
-    return validateSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
+    return processSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
+      output: {},
     });
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
@@ -236,25 +163,10 @@ export function isOisValid(specs: string): Result {
 
   try {
     const parsedSpecs = JSON.parse(specs);
-    return validateSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
+    return processSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
       specs: parsedSpecs,
       nonRedundantParams: nonRedundant,
-    });
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
-}
-
-export function isConfigSecurityValid(configSpecs: string, securitySpecs: string): Result {
-  const nonRedundant = {};
-
-  try {
-    const parsedConfigSpecs = JSON.parse(configSpecs);
-    const parsedSecuritySpecs = JSON.parse(securitySpecs);
-    const specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
-    return validateSpecs(specs, configSecurityTemplate, '', nonRedundant, {
-      specs,
-      nonRedundantParams: nonRedundant,
+      output: {},
     });
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };

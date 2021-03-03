@@ -1,0 +1,280 @@
+{
+	"__actions": [
+		{
+			"__insert": {
+				"__target": "oisFormat",
+				"__value": "1.0.0"
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.servers",
+				"__value": []
+			}
+		},
+		{
+			"__insert": {
+				"__target": "endpoints",
+				"__value": []
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.security",
+				"__value": {}
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.components.securitySchemes",
+				"__value": {}
+			}
+		},
+		{
+			"__insert": {
+				"__target": "apiSpecifications.paths",
+				"__value": {}
+			}
+		}
+	],
+	"info": {
+		"title": {
+			"__actions": [
+				{
+					"__copy": {
+						"__target": "title"
+					}
+				}
+			]
+		},
+		"version": {
+			"__actions": [
+				{
+					"__copy": {
+						"__target": "version"
+					}
+				}
+			]
+		},
+		"__ignore": {}
+	},
+	"servers": {
+		"__arrayItem": {
+			"url": {
+				"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
+				"__actions": [
+					{
+						"__copy": {
+							"__target": "apiSpecifications.servers[0].url"
+						}
+					}
+				]
+			}
+		}
+	},
+	"paths": {
+		"__keyRegexp": "^\\/[^\\s'\"\\\\]+$",
+		"__objectItem": {
+			"__keyRegexp": "^(get|post)$",
+			"__objectItem": {
+				"__actions": [
+					{
+						"__insert": {
+							"__target": "apiSpecifications.paths.{{1}}.{{2}}.parameters",
+							"__value": []
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[].name",
+							"__value": "{{1}}"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].operation.method",
+							"__value": "{{2}}"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].operation.path",
+							"__value": "{{1}}"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].reservedParameters",
+							"__value": [
+								{
+									"name": "_type"
+								},
+								{
+									"name": "_path"
+								},
+								{
+									"name": "_times"
+								}
+							]
+						}
+					},
+					{
+						"__insert": {
+							"__target": "endpoints[_].fixedOperationParameters",
+							"__value": []
+						}
+					}
+				],
+				"parameters": {
+					"__arrayItem": {
+						"name": {
+							"__actions": [
+								{
+									"__copy": {
+										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.name"
+									}
+								},
+								{
+									"__copy": {
+										"__target": "endpoints[_].parameters[].name"
+									}
+								},
+								{
+									"__copy": {
+										"__target": "endpoints[_].parameters[_].operationParameter.name"
+									}
+								}
+							]
+						},
+						"in": {
+							"__regexp": "^(path|query|header|cookie)$",
+							"__actions": [
+								{
+									"__copy": {
+										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.in"
+									}
+								},
+								{
+									"__copy": {
+										"__target": "endpoints[_].parameters[_].operationParameter.in"
+									}
+								}
+							]
+						},
+						"schema": {
+							"__conditions": [
+								{
+									"__if": {
+										"default": ".*"
+									},
+									"__then": {
+										"default": {
+											"__actions": [
+												{
+													"__copy": {
+														"__target": "endpoints[_].parameters[_].default"
+													}
+												}
+											]
+										}
+									}
+								}
+							],
+							"__ignore": {}
+						},
+						"__ignore": {}
+					}
+				},
+				"__ignore": {}
+			}
+		}
+	},
+	"components": {
+		"securitySchemes": {
+			"__objectItem": {
+				"type": {
+					"__regexp": "^(apiKey|http)$"
+				},
+				"in": {
+					"__regexp": "^(query|header|cookie)$"
+				},
+				"__conditions": [
+					{
+						"__if": {
+							"type": "^(apiKey|http)$"
+						},
+						"__then": {
+							"type": {
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
+										}
+									},
+									{
+										"__insert": {
+											"__target": "apiSpecifications.security.{{2}}",
+											"__value": []
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"in": "^(query|header|cookie)$"
+						},
+						"__then": {
+							"in": {
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"type": "^apiKey$"
+						},
+						"__then": {
+							"name": {
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.name"
+										}
+									}
+								]
+							}
+						}
+					},
+					{
+						"__if": {
+							"type": "^http$"
+						},
+						"__then": {
+							"scheme": {
+								"__regexp": "^(Basic|Bearer)$",
+								"__actions": [
+									{
+										"__copy": {
+											"__target": "apiSpecifications.components.securitySchemes.{{2}}.scheme"
+										}
+									}
+								]
+							}
+						}
+					}
+				],
+				"__ignore": {}
+			}
+		},
+		"__ignore": {}
+	},
+	"__ignore": {}
+}

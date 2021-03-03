@@ -1,6 +1,6 @@
 # `@airnode/validator`
 
-A tool capable of determining if provided OIS or `config.json` and `security.json` are valid or not.
+Tool used for json specifications processing, can be configured to validate a specification or transform a specification to different format.
 
 # Usage
 
@@ -24,6 +24,29 @@ Which can be simplified in the same manner as `validate` command and invoked wit
 npm run validateConfigSecurity exampleSpecs/config.specs.json exampleSpecs/security.specs.json
 ```
 
+Convertor works the same way as validator and can be invoked with the `convert` command, for example:
+```sh
+npm run convert --template="templates/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
+```
+
+Conversions can be invoked without providing any template, specifying which format provided specification is in and to which format it should be converted into, is enough:
+```sh
+npm run convert --from="OAS" --to="ConfigAndSecurity" --specs="exampleSpecs/OAS.specs.json"
+```
+
+From/to formats are case-insensitive, these are valid conversions:
+
+| From | To |
+| ----- | -----|
+| oas | ois |
+| oas | cs / ConfigSecurity / ConfigAndSecurity |
+| ois | cs / ConfigSecurity / ConfigAndSecurity |
+
+Another example of `convert` command:
+```sh
+npm run convert oas cs "exampleSpecs/OAS.specs.json"
+```
+
 # Output
 
 Validator will print the result into console as a JSON in the following format:
@@ -34,7 +57,11 @@ Validator will print the result into console as a JSON in the following format:
     messages: array
 }
 ```
-Where array `messages` may contain message objects:
+
+Convertor will include an extra object `output`, which contains transformed specification if any `__actions` was specified.
+
+Array `messages` may contain message objects:
+
 ```
 {
     level: 'error' | 'warning',
@@ -44,7 +71,7 @@ Where array `messages` may contain message objects:
 
 If provided specification is valid, parameter `valid` will be set to `true`, however parameter `messages` may still contain messages, but only with `level` set to `warning`. In case `valid` is `false`, there will be always one or more error messages.
 
-# Validator templates
+# Templates
 
 To make modifications to OIS format as simple as possible, validator uses JSON templates which define a valid format of specification.
 
@@ -630,3 +657,263 @@ Sometimes a warning, should be considered an error and vice versa, the level of 
 ---
 
 In invalid specification the level of formatting message is error, which results in the whole specification to be not valid, normally the formatting message is only a warning. Also in valid specification there is no message about missing parameter `optionalExample` and in invalid specification there is no `extra parameter` message, which means validator doesn't care if `optionalExample` is or is not in the specification.
+
+## Ignore
+
+If keyword `__ignore` is present, parameters that are not specified in the template on the same level will be ignored, no error or warning messages will be printed.
+
+#### Template
+```json
+{
+	"ignoreExample": {
+		"param": {},
+		"__ignore": {}
+	}
+}
+```
+---
+#### Valid specification
+```json
+{
+	"ignoreExample": {
+		"param": "This is in template",
+		"other": "This is not in template"
+	}
+}
+```
+---
+#### Invalid specification
+```json
+{
+	"ignoreExample": {
+		"param": "This is in template",
+		"other": "This is not in template"
+	},
+	"notIgnored": "This is not in template"
+}
+```
+#### Expected output
+```json
+{
+	"valid": true,
+	"messages": [
+		{ "level": "warning", "message": "Extra field: notIgnored" }
+	]
+}
+```
+---
+
+## Actions
+
+If any action is specified in template, object `output` will be returned when processing a specification. This object is at first empty, by inserting or copying parameters from specification it can construct desired specification.
+
+### Copy action
+
+`__copy` object located inside `__actions` array of some parameter will copy the value of parameter it is nested in into provided `__target`, which is evaluated as an absolute path.
+
+#### Template
+```json
+{
+	"outerParameter": {
+		"innerParameter": {
+			"__actions": [
+				{
+					"__copy": {
+						"__target": "outerParameter.innerParameter"
+					}
+				},
+				{
+					"__copy": {
+						"__target": "backup"
+					}
+				}
+			]
+		}
+	}
+}
+```
+---
+#### Input
+
+```json
+{
+	"outerParameter": {
+		"innerParameter": "valueToCopy"
+	}
+}
+```
+#### Expected output
+```json
+{
+	"outerParameter": {
+		"innerParameter": "valueToCopy"
+	},
+	"backup": "valueToCopy"
+}
+```
+---
+
+### Insert action
+
+Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value of parameter, but inserts value provided in `__target`
+
+#### Template
+
+```json
+{
+	"outerParameter": {
+		"innerParameter": {
+			"__actions": [
+				{
+					"__insert": {
+						"__target": "outerParameter.innerParameter",
+						"__value": "inserted"
+					}
+				},
+				{
+					"__insert": {
+						"__target": "parameter",
+						"__value": "inserted"
+					}
+				}
+			]
+		}
+	}
+}
+```
+---
+#### Input
+
+```json
+{
+	"outerParameter": {
+		"innerParameter": {}
+	}
+}
+```
+#### Expected output
+
+```json
+{
+	"outerParameter": {
+		"innerParameter": "inserted"
+	},
+	"parameter": "inserted"
+}
+```
+---
+
+### Target path
+
+`__target` in actions specifies path to parameter that will be modified, there can be an array in this path, to deal with this path can contain `[]` which will push back new item into the array and use it in the target, or path can use `[_]` which points to last item in the array. Parameter from path where the action is located can be accessed via `{{X}}`, where X is position of the parameter in the path numbered from 0. Target path can also include keyword `__all`, in which the action will be performed on every child of previous element.
+
+#### Template
+
+```json
+{
+	"array": {
+		"__arrayItem": {
+			"__objectItem": {
+				"__actions": [
+					{
+						"__copy": {
+							"__target": "array[].{{1}}"
+						}
+					},
+					{
+						"__insert": {
+							"__target": "array[_].parameter",
+							"__value": {}
+						}
+					},
+					{
+						"__insert": {
+							"__target": "array.__all.inserted",
+							"__value": {}
+						}
+					}
+				]
+			}
+		}
+	},
+	"all": {
+		"__actions": [
+			{
+				"__copy": {
+					"__target": "all"
+				}
+			}
+		],
+		"__ignore": {}
+	},
+	"__actions": [
+		{
+			"__insert": {
+				"__target": "all.__all.inserted",
+				"__value": {}
+			}
+		}
+	]
+}
+```
+---
+##### Input
+
+```json
+{
+	"array": [
+		{
+			"param0": "0"
+		},
+		{
+			"param1": "1"
+		},
+		{
+			"param2": "2"
+		}
+	],
+	"all": {
+		"item1": {},
+		"item2": {},
+		"item3": {}
+	}
+}
+```
+#### Expected output
+
+```json
+{
+	"array": [
+		{
+			"param0": "0",
+			"parameter": {},
+			"inserted": {}
+		},
+		{
+			"param1": "1",
+			"parameter": {},
+			"inserted": {}
+		},
+		{
+			"param2": "2",
+			"parameter": {},
+			"inserted": {}
+		}
+	],
+	"all": {
+		"item1": {
+			"inserted": {}
+		},
+		"item2": {
+			"inserted": {}
+		},
+		"item3": {
+			"inserted": {}
+		}
+	}
+}
+```
+---
+`__actions` are performed sequentially, per array element, so first the path `array[].{{1}}` is expanded to: `array[].param0`, `array[].param1`, and `array[].param2`, respectively, so their values get "copied" back to their original positions. For a given `array` object, `array[_]` points to its last element; in our example: `array[].param0`, `array[].param1`, and `array[].param2`, respectively. So `parameter` gets inserted after each of these elements. Finally, the insert target `array.__all.inserted` inserts an `inserted` element at the end of each `array` object.
+
+Similarily, in the `all` array, the elements are copied into their original positions via `"__target": "all"`, and an element `inserted` is inserted into each of these elements via `"__target": "all.__all.inserted"`.

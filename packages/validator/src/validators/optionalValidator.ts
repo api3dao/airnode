@@ -1,5 +1,5 @@
 import * as utils from '../utils/utils';
-import { validateSpecs } from '../validator';
+import { processSpecs } from '../processor';
 import { Roots, Log } from '../types';
 
 /**
@@ -28,7 +28,7 @@ export function validateOptional(
       if (item === optionalItem) {
         nonRedundantParams[item] = utils.getEmptyNonRedundantParam(item, template, nonRedundantParams, specs[item]);
 
-        const result = validateSpecs(
+        const result = processSpecs(
           specs[item],
           template[item],
           `${paramPath}${paramPath ? '.' : ''}${item}`,

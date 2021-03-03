@@ -27,6 +27,16 @@ export function replaceConditionalMatch(match: string, template: any): any {
   const keys = Object.keys(template);
   const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
 
+  if (Array.isArray(template)) {
+    return template.map((value) => {
+      if (typeof value === 'string') {
+        return value.replace(/__match/g, match);
+      }
+
+      return replaceConditionalMatch(match, value);
+    });
+  }
+
   return filteredKeys.reduce((acc, key) => {
     const newKey = key.replace(/__match/g, match);
 
@@ -56,7 +66,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
     const messages: { level: 'warning' | 'error'; message: string }[] = [];
 
     for (let i = 0; i < specs.length; i++) {
-      if (nonRedundant[i]) {
+      if (nonRedundant[i] !== undefined) {
         messages.push(...warnExtraFields(nonRedundant[i], specs[i], `${paramPath}[${i}]`));
       }
     }
@@ -65,7 +75,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }
 
   return Object.keys(specs).reduce((acc, key) => {
-    if (nonRedundant[key]) {
+    if (nonRedundant[key] !== undefined) {
       return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], `${paramPath}${paramPath ? '.' : ''}${key}`)];
     }
 
@@ -99,4 +109,156 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
   }
 
   return {};
+}
+
+/**
+ * Inserts value into specification inside specified parameter, creates missing parameters in parameter if they don't exist and merges parameter with value if both of them are objects
+ * @param paramPath - full path to parameter
+ * @param spec - specification that will be modified
+ * @param value - value that will be inserted
+ */
+export function insertValue(paramPath: string, spec: any, value: any) {
+  let param = paramPath.split('.')[0];
+
+  if (param === '') {
+    for (const key of Object.keys(value)) {
+      spec[key] = JSON.parse(JSON.stringify(value[key]));
+    }
+
+    return;
+  }
+
+  if (param === '__all') {
+    paramPath = paramPath.replace('__all', '').replace('.', '');
+
+    if (Array.isArray(spec)) {
+      spec.forEach((item) => {
+        insertValue(paramPath, item, value);
+      });
+    } else {
+      for (const key in spec) {
+        insertValue(paramPath, spec[key], value);
+      }
+    }
+
+    return;
+  }
+
+  if (param.match(/\[([0-9]*|_)\]$/)) {
+    let index = -1;
+
+    if (param.match(/\[([0-9]+)\]$/)) {
+      index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
+    }
+
+    if (param.match(/\[_\]$/)) {
+      index = -2;
+    }
+
+    param = param.replace(/\[([0-9]*|_)\]$/, '');
+
+    if (!spec[param]) {
+      spec[param] = [];
+    }
+
+    spec = spec[param];
+
+    if (index === -2) {
+      index = spec.length - 1;
+    }
+
+    if (index === -1) {
+      index = spec.length;
+    }
+
+    if (spec.length <= index) {
+      spec.push({});
+    }
+
+    spec = spec[index];
+
+    insertValue(paramPath.replace(paramPath.split('.')[0], '').replace('.', ''), spec, value);
+    return;
+  }
+
+  if (paramPath.endsWith(param)) {
+    spec[param] = JSON.parse(JSON.stringify(value));
+
+    return;
+  }
+
+  if (!spec[param]) {
+    spec[param] = {};
+  }
+
+  spec = spec[param];
+
+  insertValue(paramPath.replace(`${param}`, '').replace('.', ''), spec, value);
+}
+
+/**
+ * Replaces "{{index}}" keywords in paramPath with parameter names from path on "index"
+ * @param paramPath - parameters path that can include "{{index}}", which will be replaced
+ * @param path - path that will be used to replace "{{index}}" with appropriate parameter names
+ */
+export function parseParamPath(paramPath: string, path: string): string {
+  if (paramPath === '' || path === '') {
+    return paramPath;
+  }
+
+  const parsedPath = path.split('.');
+
+  for (const match of paramPath.match(/\{\{([0-9]+)\}\}/g) || []) {
+    const index = parseInt(match.match('[0-9]+')![0]);
+    paramPath = paramPath.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
+  }
+
+  return paramPath;
+}
+
+/**
+ * Returns object located on paramPath in specs
+ * @param paramPath - path to parameter in specs that will be returned
+ * @param specs - specification that will be searched for parameter
+ * @param insertPath - won't return null if paramPath is not in the specs, but insert all missing parameters into specs
+ * @returns object located on paramPath in specs or null if object does not exists in specs
+ */
+export function getSpecsFromPath(paramPath: string, specs: object, insertPath = false) {
+  let paramName = paramPath.split('.')[0];
+
+  const indexMatches = paramName.match(/(?<=\[)[0-9]+(?=\])/);
+
+  if (indexMatches) {
+    paramName = paramName.replace(`[${indexMatches[0]}]`, '');
+  }
+
+  if (!(paramName in specs)) {
+    if (!insertPath) {
+      return null;
+    }
+
+    if (indexMatches) {
+      specs[paramName] = [];
+
+      for (let i = 0; i < parseInt(indexMatches[0]); i++) {
+        specs[paramName].push({});
+      }
+    } else {
+      specs[paramName] = {};
+    }
+  }
+
+  specs = specs[paramName];
+
+  if (indexMatches) {
+    specs = specs[parseInt(indexMatches[0])];
+  }
+
+  paramPath = paramPath.replace(`${paramName}${indexMatches ? `[${indexMatches[0]}]` : ''}`, '').replace('.', '');
+
+  if (!paramPath.length) {
+    return specs;
+  }
+
+  return getSpecsFromPath(paramPath, specs, insertPath);
 }
