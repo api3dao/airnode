@@ -914,3 +914,6 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 }
 ```
 ---
+`__actions` are performed sequentially, per array element, so first the path `array[].{{1}}` is expanded to: `array[].param0`, `array[].param1`, and `array[].param2`, respectively, so their values get "copied" back to their original positions. For a given `array` object, `array[_]` points to its last element; in our example: `array[].param0`, `array[].param1`, and `array[].param2`, respectively. So `parameter` gets inserted after each of these elements. Finally, the insert target `array.__all.inserted` inserts an `inserted` element at the end of each `array` object.
+
+Similarily, in the `all` array, the elements are copied into their original positions via `"__target": "all"`, and an element `inserted` is inserted into each of these elements via `"__target": "all.__all.inserted"`.
