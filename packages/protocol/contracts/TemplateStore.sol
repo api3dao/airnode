@@ -3,35 +3,19 @@ pragma solidity 0.6.12;
 
 import "./interfaces/ITemplateStore.sol";
 
-
-/// @title The contract where request templates are stored
+/// @title The contract where the request templates are stored
 /// @notice Most requests are repeated many times with the same parameters.
 /// This contract allows the requester to announce their parameters once, then
-/// refer to that announcement when they are making a request, instead of
-/// passing the same parameters repeatedly.
-/// @dev A template is composed of two groups of parameters. The first group is
-/// requester-agnostic (providerId, endpointInd, parameters), while the second
-/// group is requester-specific (requesterIndex, designatedWallet, fulfillAddress,
-/// fulfillFunctionId). Short requests refer to a template and use both of
-/// these groups of parameters. Regular requests refer to a template, but only
-/// use the requester-agnostic parameters of it, and require the client to
-/// provide the requester-specific parameters. In addition, both regular and
-/// short requests can overwrite parameters encoded in the parameters field of
-/// the template at request-time. See Airnode.sol for more information
-/// (specifically makeShortRequest() and makeRequest()).
+/// refer to that announcement to make a request instead of passing the same
+/// parameters repeatedly.
 contract TemplateStore is ITemplateStore {
     struct Template {
         bytes32 providerId;
         bytes32 endpointId;
-        uint256 requesterIndex;
-        address designatedWallet;
-        address fulfillAddress;
-        bytes4 fulfillFunctionId;
         bytes parameters;
         }
 
     mapping(bytes32 => Template) internal templates;
-
 
     /// @notice Creates a request template with the given parameters,
     /// addressable by the ID it returns
@@ -44,23 +28,13 @@ contract TemplateStore is ITemplateStore {
     /// ID.
     /// @param providerId Provider ID from ProviderStore
     /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requesterIndex Requester index from RequesterStore
-    /// @param designatedWallet Designated wallet that is requested to fulfill
-    /// the request
-    /// @param fulfillAddress Address that will be called to fulfill
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
     /// @param parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
-    /// at runtime)
+    /// at request-time)
     /// @return templateId Request template ID
     function createTemplate(
         bytes32 providerId,
         bytes32 endpointId,
-        uint256 requesterIndex,
-        address designatedWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
         bytes calldata parameters
         )
         external
@@ -70,46 +44,29 @@ contract TemplateStore is ITemplateStore {
         templateId = keccak256(abi.encode(
             providerId,
             endpointId,
-            requesterIndex,
-            designatedWallet,
-            fulfillAddress,
-            fulfillFunctionId,
             parameters
             ));
         templates[templateId] = Template({
             providerId: providerId,
             endpointId: endpointId,
-            requesterIndex: requesterIndex,
-            designatedWallet: designatedWallet,
-            fulfillAddress: fulfillAddress,
-            fulfillFunctionId: fulfillFunctionId,
             parameters: parameters
         });
         emit TemplateCreated(
           templateId,
           providerId,
           endpointId,
-          requesterIndex,
-          designatedWallet,
-          fulfillAddress,
-          fulfillFunctionId,
           parameters
           );
     }
 
-    /// @notice Retrieves request parameters addressed by the ID
+    /// @notice Retrieves the parameters of the request template addressed by
+    /// the ID
     /// @param templateId Request template ID
     /// @return providerId Provider ID from ProviderStore
     /// @return endpointId Endpoint ID from EndpointStore
-    /// @return requesterIndex Requester index from RequesterStore
-    /// @return designatedWallet Designated wallet that is requested to fulfill
-    /// the request
-    /// @return fulfillAddress Address that will be called to fulfill
-    /// @return fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
     /// @return parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
-    /// at runtime)
+    /// at request-time)
     function getTemplate(bytes32 templateId)
         external
         view
@@ -117,19 +74,12 @@ contract TemplateStore is ITemplateStore {
         returns (
             bytes32 providerId,
             bytes32 endpointId,
-            uint256 requesterIndex,
-            address designatedWallet,
-            address fulfillAddress,
-            bytes4 fulfillFunctionId,
             bytes memory parameters
         )
     {
-        providerId = templates[templateId].providerId;
-        endpointId = templates[templateId].endpointId;
-        requesterIndex = templates[templateId].requesterIndex;
-        designatedWallet = templates[templateId].designatedWallet;
-        fulfillAddress = templates[templateId].fulfillAddress;
-        fulfillFunctionId = templates[templateId].fulfillFunctionId;
-        parameters = templates[templateId].parameters;
+        Template storage template = templates[templateId];
+        providerId = template.providerId;
+        endpointId = template.endpointId;
+        parameters = template.parameters;
     }
 }

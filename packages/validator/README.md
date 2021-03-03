@@ -1,4 +1,4 @@
-# `validator`
+# `@airnode/validator`
 
 Tool used for json specifications processing, can be configured to validate a specification or transform a specification to different format.
 
@@ -9,7 +9,7 @@ The validator can be run as an NPM script, by providing the paths to the JSON fi
 npm run validate --template="[templateFile]" --specs="[specsFile]"
 ```
 
-In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`. Try it out using the example specification:
+In case specifications file is provided first, the command can be simplified to: `npm run validate [templateFile] [specsFile]`. Try it out using the example specification:
 ```sh
 npm run validate templates/ois.json exampleSpecs/ois.specs.json
 ```

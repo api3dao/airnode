@@ -1,4 +1,5 @@
-# @airnode/protocol
+# Monorepo version: `@airnode/protocol`
+# Stand-alone version: `@api3/airnode-protocol`
 
 > The contracts that implement the Airnode protocol
 

@@ -11,6 +11,7 @@
 # Test files
 coverage/
 coverage.json
+gas_report
 
 # Alternative package.json files for publishing
 # Will be removed in the future

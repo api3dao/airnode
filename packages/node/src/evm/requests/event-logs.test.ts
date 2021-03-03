@@ -49,7 +49,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      blockHistoryLimit: 600,
+      blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
@@ -82,8 +82,8 @@ describe('EVM event logs - fetch', () => {
     ]);
     expect(getLogs).toHaveBeenCalledTimes(1);
     expect(getLogs).toHaveBeenCalledWith({
-      // 10716084 - 600
-      fromBlock: 10715484,
+      // 10716084 - 300
+      fromBlock: 10715784,
       toBlock: 10716084,
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       topics: [null, '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb'],
@@ -99,7 +99,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      blockHistoryLimit: 600,
+      blockHistoryLimit: 30,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
@@ -132,7 +132,7 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
-      blockHistoryLimit: 600,
+      blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
@@ -171,14 +171,16 @@ describe('EVM event logs - fetch', () => {
 describe('EVM event logs - group', () => {
   it('groups apiCall requests and fulfillments', () => {
     const logsWithMetadata: any = [
+      // Request
       {
         blockNumber: 10716082,
         parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
         transactionHash: '0x1',
       },
+      // Fulfillment
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
+        parsedLog: { topic: '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -199,7 +201,7 @@ describe('EVM event logs - group', () => {
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5' },
+          parsedLog: { topic: '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61' },
           transactionHash: '0x2',
         },
       ],
@@ -211,12 +213,12 @@ describe('EVM event logs - group', () => {
     const logsWithMetadata: any = [
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b' },
+        parsedLog: { topic: '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439' },
+        parsedLog: { topic: '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -233,12 +235,12 @@ describe('EVM event logs - group', () => {
       withdrawals: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b' },
+          parsedLog: { topic: '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3' },
           transactionHash: '0x1',
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439' },
+          parsedLog: { topic: '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa' },
           transactionHash: '0x2',
         },
       ],

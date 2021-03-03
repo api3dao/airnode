@@ -1,55 +1,37 @@
 {
   "id": "e08f5610-5772-4986-92fb-c8aef5aee6a0",
   "nodeSettings": {
-    "providerIdShort": "9e5a89d",
-    "nodeVersion": "0.1.0",
     "cloudProvider": "aws",
-    "stage": "dev",
-    "region": "us-east-1",
     "logFormat": "plain",
+    "nodeVersion": "1.0.0",
+    "region": "us-east-1",
+    "stage": "dev",
     "chains": [
       {
-        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "type": "evm",
-        "id": 3,
+        "id": 31337,
+        "providerAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
         "contracts": {
-          "Airnode": "0xF8d32C3e53F7DA6e7CB82323f2cAB2159776b832",
-          "Convenience": "0x1552cF617711D6Da04E0EDC9e5C26eBbA08625ac"
+          "Airnode": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         },
+        "authorizers": [
+          "0x0000000000000000000000000000000000000000"
+        ],
         "providers": [
           {
-            "blockHistoryLimit": 600,
-            "minConfirmations": 6,
-            "name": "infura-ropsten",
-            "url": "https://ropsten.infura.io/v3/<KEY>"
-          }
-        ]
-      },
-      {
-        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-        "type": "evm",
-        "id": 4,
-        "contracts": {
-          "Airnode": "0xF9C39ec11055508BddA0Bc2a0234aBbbC09a3DeC",
-          "Convenience": "0xC9fb36DfAE95AD52E32ad48CCe9A1A169EfFaC6E"
-        },
-        "providers": [
-          {
-            "blockHistoryLimit": 600,
-            "minConfirmations": 6,
-            "name": "infura-rinkeby",
-            "url": "https://rinkeby.infura.io/v3/<KEY>"
+            "name": "evm-local",
+            "url": "http://127.0.0.1:8545/"
           }
         ]
       }
     ]
   },
   "triggers": {
-    "requests": [
+    "request": [
       {
-        "endpointId": "0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05",
-        "oisTitle": "coinlayer",
-        "endpointName": "convertToUsd"
+        "endpointId": "0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb",
+        "oisTitle": "currency-converter-ois",
+        "endpointName": "convertToUSD"
       }
     ]
   },
@@ -57,14 +39,14 @@
     {
       "oisFormat": "1.0.0",
       "version": "1.2.3",
-      "title": "coinlayer",
+      "title": "currency-converter-ois",
       "apiSpecifications": {
         "info": {
-          "title": "Coinlayer - Price Conversion"
+          "title": "Currency Converter API"
         },
         "servers": [
           {
-            "url": "https://api.coinlayer.com"
+            "url": "http://localhost:5000"
           }
         ],
         "paths": {
@@ -93,7 +75,7 @@
         },
         "components": {
           "securitySchemes": {
-            "coinlayerSecurityScheme": {
+            "currencyConverterSecurityScheme": {
               "in": "query",
               "type": "apiKey",
               "name": "access_key"
@@ -102,13 +84,13 @@
         },
         "security": [
           {
-            "coinlayerSecurityScheme": []
+            "currencyConverterSecurityScheme": []
           }
         ]
       },
       "endpoints": [
         {
-          "name": "convertToUsd",
+          "name": "convertToUSD",
           "operation": {
             "method": "get",
             "path": "/convert"

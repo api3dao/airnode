@@ -1,3 +1,4 @@
+const getTemplateMock = jest.fn();
 const getTemplatesMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
@@ -5,6 +6,7 @@ jest.mock('ethers', () => {
     ethers: {
       ...original,
       Contract: jest.fn().mockImplementation(() => ({
+        getTemplate: getTemplateMock,
         getTemplates: getTemplatesMock,
       })),
     },
@@ -16,41 +18,33 @@ import * as fixtures from 'test/fixtures';
 import * as templates from './template-fetching';
 
 describe('fetch (templates)', () => {
-  let fetchOptions: any;
+  let fetchOptions: templates.FetchOptions;
 
   beforeEach(() => {
     fetchOptions = {
-      address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+      airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
   });
 
   it('fetches templates in groups of 10', async () => {
     const firstRawTemplates = {
-      designatedWallets: Array.from(Array(10).keys()).map((n) => `designatedWallet-${n}`),
       endpointIds: Array.from(Array(10).keys()).map((n) => `endpointId-${n}`),
-      fulfillAddresses: Array.from(Array(10).keys()).map((n) => `fulfillAddress-${n}`),
-      fulfillFunctionIds: Array.from(Array(10).keys()).map((n) => `fulfillFunctionId-${n}`),
       parameters: Array.from(Array(10).keys()).map(() => '0x6874656d706c6174656576616c7565'),
       providerIds: Array.from(Array(10).keys()).map((n) => `providerId-${n}`),
-      requesterIndices: Array.from(Array(10).keys()).map((n) => `requesterIndex-${n}`),
     };
 
     const secondRawTemplates = {
-      designatedWallets: Array.from(Array(10).keys()).map((n) => `designatedWallet-${n + 10}`),
       endpointIds: Array.from(Array(9).keys()).map((n) => `endpointId-${n + 10}`),
-      fulfillAddresses: Array.from(Array(9).keys()).map((n) => `fulfillAddress-${n + 10}`),
-      fulfillFunctionIds: Array.from(Array(9).keys()).map((n) => `fulfillFunctionId-${n + 10}`),
       parameters: Array.from(Array(9).keys()).map(() => '0x6874656d706c6174656576616c7565'),
       providerIds: Array.from(Array(9).keys()).map((n) => `providerId-${n + 10}`),
-      requesterIndices: Array.from(Array(10).keys()).map((n) => `requesterIndex-${n + 10}`),
     };
 
     getTemplatesMock.mockResolvedValueOnce(firstRawTemplates);
     getTemplatesMock.mockResolvedValueOnce(secondRawTemplates);
 
     const apiCalls = Array.from(Array(19).keys()).map((n) => {
-      return fixtures.requests.createApiCall({
+      return fixtures.requests.buildApiCall({
         id: `${n}`,
         templateId: `templateId-${n}`,
       });
@@ -71,63 +65,43 @@ describe('fetch (templates)', () => {
 
   it('returns all template attributes', async () => {
     const rawTemplates = {
-      designatedWallets: ['designatedWallet-0'],
       endpointIds: ['endpointId-0'],
-      fulfillAddresses: ['fulfillAddresses-0'],
-      fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
       providerIds: ['providerId-0'],
-      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-
-    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
-        designatedWallet: 'designatedWallet-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         endpointId: 'endpointId-0',
         providerId: 'providerId-0',
-        fulfillAddress: 'fulfillAddresses-0',
-        fulfillFunctionId: 'fulfillFunctionId-0',
         id: 'templateId-0',
-        requesterIndex: 'requesterIndex-0',
       },
     });
   });
 
   it('filters out duplicate template IDs', async () => {
     const rawTemplates = {
-      designatedWallets: ['designatedWallet-0'],
       endpointIds: ['endpointId-0'],
-      fulfillAddresses: ['fulfillAddresses-0'],
-      fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
       providerIds: ['providerId-0'],
-      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [
-      fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
-      fixtures.requests.createApiCall({ templateId: 'templateId-0' }),
-    ];
-
-    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const apiCallDup = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = await templates.fetch([apiCall, apiCallDup], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
-        designatedWallet: 'designatedWallet-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         endpointId: 'endpointId-0',
-        fulfillAddress: 'fulfillAddresses-0',
-        fulfillFunctionId: 'fulfillFunctionId-0',
         id: 'templateId-0',
         providerId: 'providerId-0',
-        requesterIndex: 'requesterIndex-0',
       },
     });
 
@@ -136,8 +110,8 @@ describe('fetch (templates)', () => {
   });
 
   it('ignores API calls without a template ID', async () => {
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: null })];
-    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
+    const apiCall = fixtures.requests.buildApiCall({ templateId: null });
+    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});
     expect(getTemplatesMock).not.toHaveBeenCalled();
@@ -145,58 +119,171 @@ describe('fetch (templates)', () => {
 
   it('retries once on failure', async () => {
     const rawTemplates = {
-      designatedWallets: ['designatedWallet-0'],
       endpointIds: ['endpointId-0'],
-      fulfillAddresses: ['fulfillAddresses-0'],
-      fulfillFunctionIds: ['fulfillFunctionId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
       providerIds: ['providerId-0'],
-      requesterIndices: ['requesterIndex-0'],
     };
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-
-    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
-        designatedWallet: 'designatedWallet-0',
         encodedParameters: '0x6874656d706c6174656576616c7565',
         endpointId: 'endpointId-0',
-        fulfillAddress: 'fulfillAddresses-0',
-        fulfillFunctionId: 'fulfillFunctionId-0',
         id: 'templateId-0',
         providerId: 'providerId-0',
-        requesterIndex: 'requesterIndex-0',
       },
     });
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
   });
 
-  it('retries a maximum of two times', async () => {
-    const rawTemplates = {
-      designatedWallets: ['designatedWallet-0'],
-      endpointIds: ['endpointId-0'],
-      providerIds: ['providerId-0'],
-      fulfillAddresses: ['fulfillAddresses-0'],
-      fulfillFunctionIds: ['fulfillFunctionId-0'],
-      parameters: ['0x6874656d706c6174656576616c7565'],
-      requesterIndices: ['requesterIndex-0'],
+  it('fetches templates individually if the template group cannot be fetched', async () => {
+    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    const rawTemplate = {
+      endpointId: 'endpointId-0',
+      parameters: '0x6874656d706c6174656576616c7565',
+      providerId: 'providerId-0',
     };
-    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
-    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
-    // This shouldn't be reached
-    getTemplatesMock.mockResolvedValueOnce(rawTemplates);
+    getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
-    const apiCalls = [fixtures.requests.createApiCall({ templateId: 'templateId-0' })];
-
-    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
+      { level: 'INFO', message: `Fetched API call template:${apiCall.templateId}` },
+    ]);
+    expect(res).toEqual({
+      'templateId-0': {
+        encodedParameters: '0x6874656d706c6174656576616c7565',
+        endpointId: 'endpointId-0',
+        id: 'templateId-0',
+        providerId: 'providerId-0',
+      },
+    });
+    expect(getTemplatesMock).toHaveBeenCalledTimes(2);
+    expect(getTemplateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries individual template calls once', async () => {
+    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    const rawTemplate = {
+      endpointId: 'endpointId-0',
+      parameters: '0x6874656d706c6174656576616c7565',
+      providerId: 'providerId-0',
+    };
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
+      { level: 'INFO', message: `Fetched API call template:${apiCall.templateId}` },
+    ]);
+    expect(res).toEqual({
+      'templateId-0': {
+        encodedParameters: '0x6874656d706c6174656576616c7565',
+        endpointId: 'endpointId-0',
+        id: 'templateId-0',
+        providerId: 'providerId-0',
+      },
+    });
+    expect(getTemplatesMock).toHaveBeenCalledTimes(2);
+    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns nothing after all template calls are exhausted', async () => {
+    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
+    getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
+
+    const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
+    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    expect(logs).toEqual([
+      { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
+      {
+        level: 'ERROR',
+        message: `Failed to fetch API call template:${apiCall.templateId}`,
+        error: new Error('Still no'),
+      },
     ]);
     expect(res).toEqual({});
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
+    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('fetchTemplate', () => {
+  let airnode: ethers.Contract;
+
+  beforeEach(() => {
+    airnode = new ethers.Contract('address', ['ABI']);
+  });
+
+  it('fetches the individual template', async () => {
+    const rawTemplate = {
+      endpointId: 'endpointId-0',
+      parameters: '0x6874656d706c6174656576616c7565',
+      providerId: 'providerId-0',
+    };
+    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+
+    const templateId = 'templateId';
+    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
+    expect(res).toEqual({
+      encodedParameters: '0x6874656d706c6174656576616c7565',
+      endpointId: 'endpointId-0',
+      id: templateId,
+      providerId: 'providerId-0',
+    });
+    expect(getTemplateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries individual template calls once', async () => {
+    const rawTemplate = {
+      endpointId: 'endpointId-0',
+      parameters: '0x6874656d706c6174656576616c7565',
+      providerId: 'providerId-0',
+    };
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+
+    const templateId = 'templateId';
+    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
+    expect(res).toEqual({
+      encodedParameters: '0x6874656d706c6174656576616c7565',
+      endpointId: 'endpointId-0',
+      id: templateId,
+      providerId: 'providerId-0',
+    });
+    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns nothing after all individual template calls are exhausted', async () => {
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+
+    const templateId = 'templateId';
+    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    expect(logs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Failed to fetch API call template:${templateId}`,
+        error: new Error('Server says no'),
+      },
+    ]);
+    expect(res).toEqual(null);
+    expect(getTemplateMock).toHaveBeenCalledTimes(2);
   });
 });

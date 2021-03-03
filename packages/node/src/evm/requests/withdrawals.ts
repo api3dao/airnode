@@ -17,7 +17,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       transactionHash: logWithMetadata.transactionHash,
     },
-    requesterIndex: parsedLog.args.requesterIndex,
+    requesterIndex: parsedLog.args.requesterIndex.toString(),
   };
 
   return request;
@@ -25,24 +25,22 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
 
 export function updateFulfilledRequests(
   withdrawals: ClientRequest<Withdrawal>[],
-  fulfillmentLogs: EVMEventLogWithMetadata[]
+  fulfilledRequestIds: string[]
 ): LogsData<ClientRequest<Withdrawal>[]> {
-  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawRequestId);
-
   const { logs, requests } = withdrawals.reduce(
     (acc, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
-        const log = logger.pend('DEBUG', `WithdrawalRequest ID:${withdrawal.id} has already been fulfilled`);
+        const log = logger.pend('DEBUG', `Request ID:${withdrawal.id} (withdrawal) has already been fulfilled`);
         const fulfilledWithdrawal = { ...withdrawal, status: RequestStatus.Fulfilled };
 
         return {
           ...acc,
           logs: [...acc.logs, log],
-          request: [...acc.requests, fulfilledWithdrawal],
+          requests: [...acc.requests, fulfilledWithdrawal],
         };
       }
 
-      return acc;
+      return { ...acc, requests: [...acc.requests, withdrawal] };
     },
     { logs: [], requests: [] }
   );
@@ -59,7 +57,8 @@ export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsDa
   const withdrawalRequests = requestLogs.map((log) => initialize(log));
 
   // Update the status of requests that have already been fulfilled
-  const [fulfilledLogs, fulfilledWithdrawals] = updateFulfilledRequests(withdrawalRequests, fulfillmentLogs);
+  const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawalRequestId);
+  const [fulfilledLogs, withdrawalsWithFulfillments] = updateFulfilledRequests(withdrawalRequests, fulfilledRequestIds);
 
-  return [fulfilledLogs, fulfilledWithdrawals];
+  return [fulfilledLogs, withdrawalsWithFulfillments];
 }

@@ -1,0 +1,16 @@
+node_modules
+dist
+
+# Hardhat files
+cache
+artifacts
+
+# Typescript files for contracts
+typechain
+
+# Script output files
+deployments
+
+# Ignore log files
+logs
+*.log

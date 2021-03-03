@@ -7,7 +7,7 @@ import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
 describe('disaggregate - ClientRequests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
     const requests: GroupedRequests = {
-      apiCalls: [fixtures.requests.createApiCall()],
+      apiCalls: [fixtures.requests.buildApiCall()],
       withdrawals: [],
     };
 
@@ -43,11 +43,11 @@ describe('disaggregate - ClientRequests', () => {
 
   it('does not update the request if the parameters are different', () => {
     const requests0: GroupedRequests = {
-      apiCalls: [fixtures.requests.createApiCall({ id: 'ethCall', parameters: { from: 'ETH' } })],
+      apiCalls: [fixtures.requests.buildApiCall({ id: 'ethCall', parameters: { from: 'ETH' } })],
       withdrawals: [],
     };
     const requests1: GroupedRequests = {
-      apiCalls: [fixtures.requests.createApiCall({ id: 'btcCall', parameters: { from: 'BTC' } })],
+      apiCalls: [fixtures.requests.buildApiCall({ id: 'btcCall', parameters: { from: 'BTC' } })],
       withdrawals: [],
     };
 

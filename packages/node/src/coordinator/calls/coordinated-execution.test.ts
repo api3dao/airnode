@@ -42,7 +42,7 @@ describe('callApis', () => {
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('INFO');
-    expect(logs[0].message).toContain('API call to Endpoint:convertToUsd responded successfully in ');
+    expect(logs[0].message).toContain('API call to Endpoint:convertToUSD responded successfully in ');
     expect(logs[1]).toEqual({ level: 'INFO', message: 'Received 1 successful API call(s)' });
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 errored API call(s)' });
     expect(res).toEqual([
@@ -72,7 +72,7 @@ describe('callApis', () => {
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
-    expect(logs[0].message).toContain('API call to Endpoint:convertToUsd errored after ');
+    expect(logs[0].message).toContain('API call to Endpoint:convertToUSD errored after ');
     expect(logs[0].message).toContain(`with error code:${RequestErrorCode.ResponseValueNotFound}`);
     expect(logs[1]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
@@ -98,7 +98,7 @@ describe('callApis', () => {
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs.length).toEqual(3);
     expect(logs[0].level).toEqual('ERROR');
-    expect(logs[0].message).toContain('API call to Endpoint:convertToUsd errored after ');
+    expect(logs[0].message).toContain('API call to Endpoint:convertToUSD errored after ');
     expect(logs[0].message).toContain(`with error code:${RequestErrorCode.ApiCallFailed}`);
     expect(logs[1]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
@@ -121,11 +121,11 @@ describe('callApis', () => {
     expect(logs.length).toEqual(4);
     expect(logs[0]).toEqual({
       level: 'ERROR',
-      message: 'Unable to call API endpoint:convertToUsd',
+      message: 'Unable to call API endpoint:convertToUSD',
       error: new Error('Worker crashed'),
     });
     expect(logs[1].level).toEqual('ERROR');
-    expect(logs[1].message).toContain('API call to Endpoint:convertToUsd failed after ');
+    expect(logs[1].message).toContain('API call to Endpoint:convertToUSD failed after ');
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([

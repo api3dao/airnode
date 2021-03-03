@@ -1,4 +1,8 @@
+import BigNumber from 'bignumber.js';
 import isUndefined from 'lodash/isUndefined';
+import * as casting from './casting';
+import * as encoding from './encoding';
+import { ResponseParameters } from '../types';
 
 export function getRawValue(data: any, path?: string, defaultValue?: any) {
   // Some APIs return a simple value not in an object or array, like
@@ -29,4 +33,18 @@ export function extractValue(data: unknown, path?: string) {
   }
 
   return rawValue;
+}
+
+export function extractAndEncodeResponse(data: unknown, parameters: ResponseParameters) {
+  const rawValue = extractValue(data, parameters._path);
+  const value = casting.castValue(rawValue, parameters._type);
+
+  if ((parameters._type === 'uint256' || parameters._type === 'int256') && value instanceof BigNumber) {
+    const multipledValue = casting.multiplyValue(value, parameters._times);
+    const encodedValue = encoding.encodeValue(multipledValue.toString(), parameters._type);
+    return { value: multipledValue, encodedValue };
+  }
+
+  const encodedValue = encoding.encodeValue(value, parameters._type);
+  return { value, encodedValue };
 }

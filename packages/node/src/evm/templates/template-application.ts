@@ -22,12 +22,9 @@ function applyTemplate(
 ): ClientRequest<ApiCall> {
   return {
     ...request,
-    // NOTE: template attributes can be overwritten by the request attributes
-    designatedWallet: request.designatedWallet || template.designatedWallet,
+    // providerId and endpointId will either be request or a template attribute
+    providerId: request.providerId || template.providerId,
     endpointId: request.endpointId || template.endpointId,
-    fulfillAddress: request.fulfillAddress || template.fulfillAddress,
-    fulfillFunctionId: request.fulfillFunctionId || template.fulfillFunctionId,
-    requesterIndex: request.requesterIndex || template.requesterIndex,
     // NOTE: the spread operator is case sensitive, meaning that you can
     // have 2 (or more) parameters with the same value, but different cases.
     // All parameters would then get included. i.e.

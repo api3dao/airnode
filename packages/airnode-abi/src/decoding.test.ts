@@ -2,6 +2,12 @@ import { ethers } from 'ethers';
 import * as decoding from './decoding';
 
 describe('decode', () => {
+  it('decodes empty parameters', () => {
+    // Encoding an empty array gets the below value
+    const res = decoding.decode('0x3100000000000000000000000000000000000000000000000000000000000000');
+    expect(res).toEqual({});
+  });
+
   it('has a special case for 0x', () => {
     const res = decoding.decode('0x');
     expect(res).toEqual({});

@@ -4,7 +4,7 @@ import * as authorization from './authorization-application';
 
 describe('mergeAuthorizations', () => {
   it('does nothing if the API call is already invalid', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       id: '0xapiCallId',
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.RequestParameterDecodingFailed,
@@ -16,7 +16,7 @@ describe('mergeAuthorizations', () => {
   });
 
   it('does nothing if the API call is not pending', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       id: '0xapiCallId',
       status: RequestStatus.Blocked,
       errorCode: RequestErrorCode.TemplateNotFound,
@@ -28,7 +28,7 @@ describe('mergeAuthorizations', () => {
   });
 
   it('blocks the request if it has no endpointId', () => {
-    const apiCall = fixtures.requests.createApiCall({ id: '0xapiCallId', endpointId: null });
+    const apiCall = fixtures.requests.buildApiCall({ id: '0xapiCallId', endpointId: null });
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
     expect(logs).toEqual([{ level: 'ERROR', message: 'No endpoint ID found for Request ID:0xapiCallId' }]);
@@ -36,7 +36,7 @@ describe('mergeAuthorizations', () => {
   });
 
   it('blocks the request if no authorization is found', () => {
-    const apiCall = fixtures.requests.createApiCall({ id: '0xapiCallId' });
+    const apiCall = fixtures.requests.buildApiCall({ id: '0xapiCallId' });
     const [logs, res] = authorization.mergeAuthorizations([apiCall], {});
     expect(logs).toEqual([{ level: 'WARN', message: 'Authorization not found for Request ID:0xapiCallId' }]);
     expect(res).toEqual([
@@ -45,7 +45,7 @@ describe('mergeAuthorizations', () => {
   });
 
   it('returns the validated request if it is authorized', () => {
-    const apiCall = fixtures.requests.createApiCall({ id: '0xapiCallId' });
+    const apiCall = fixtures.requests.buildApiCall({ id: '0xapiCallId' });
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
     expect(logs).toEqual([]);
@@ -53,7 +53,7 @@ describe('mergeAuthorizations', () => {
   });
 
   it('invalidates the request if it is not authorized', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       id: '0xapiCallId',
       clientAddress: '0xclientAddress',
       endpointId: '0xendpointId',

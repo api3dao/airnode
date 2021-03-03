@@ -1,8 +1,9 @@
 /node_modules
 
-#Buidler files
 /cache
 /artifacts
 
 credentials.json
 *.flat.sol
+coverage.json
+gas_report

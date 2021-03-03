@@ -4,15 +4,13 @@ describe('API call topics', () => {
   it('returns API_CALL_REQUEST_TOPICS', () => {
     expect(events.API_CALL_REQUEST_TOPICS).toEqual([
       '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-      '0xfcbcd5adb2d26ecd4ad50e6267e977fd479fcd0a6c82bde8eea85290ab3b46e6',
       '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44',
     ]);
   });
 
   it('returns API_CALL_FULFILLED_TOPICS', () => {
     expect(events.API_CALL_FULFILLED_TOPICS).toEqual([
-      '0x1bdbe9e5d42a025a741fc3582eb3cad4ef61ac742d83cc87e545fbd481b926b5',
-      '0x0ebeb9b9b5c4baf915e7541c7e0919dd1a58eb06ee596035a50d08d20b9219de',
+      '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61',
       '0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad',
     ]);
   });
@@ -21,13 +19,13 @@ describe('API call topics', () => {
 describe('Withdrawal topics', () => {
   it('returns WITHDRAWAL_REQUEST_TOPICS', () => {
     expect(events.WITHDRAWAL_REQUEST_TOPICS).toEqual([
-      '0xd4e56e460d621aa2f11bdd25752d5f87a72d0ebe2cd6cd4809476d4a3169ae2b',
+      '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3',
     ]);
   });
 
   it('returns WITHDRAWAL_FULFILLED_TOPICS', () => {
     expect(events.WITHDRAWAL_FULFILLED_TOPICS).toEqual([
-      '0xe5eb6dd249cfe3ecb285b2064c23288cfcf3a6728f3c45f89811852bb894e439',
+      '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa',
     ]);
   });
 });

@@ -10,7 +10,7 @@ describe('verifyDesignatedWallets', () => {
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.createApiCall({
+        const apiCall = fixtures.requests.buildApiCall({
           designatedWallet: '0xinvalid',
           status: RequestStatus[status],
         });
@@ -25,7 +25,7 @@ describe('verifyDesignatedWallets', () => {
       });
 
       it(`returns withdrawals that have status: ${status}`, () => {
-        const withdrawal = fixtures.requests.createWithdrawal({
+        const withdrawal = fixtures.requests.buildWithdrawal({
           designatedWallet: '0xinvalid',
           status: RequestStatus[status],
         });
@@ -42,7 +42,7 @@ describe('verifyDesignatedWallets', () => {
   });
 
   it('ignores API calls that have no requester index', () => {
-    const apiCall = fixtures.requests.createApiCall({ designatedWallet: '0xinvalid', requesterIndex: null });
+    const apiCall = fixtures.requests.buildApiCall({ designatedWallet: '0xinvalid', requesterIndex: null });
     const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
@@ -54,7 +54,7 @@ describe('verifyDesignatedWallets', () => {
   });
 
   it('ignores API calls where the designated wallet does not match the expected address', () => {
-    const apiCall = fixtures.requests.createApiCall({ designatedWallet: '0xinvalid', requesterIndex: '3' });
+    const apiCall = fixtures.requests.buildApiCall({ designatedWallet: '0xinvalid', requesterIndex: '3' });
     const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
@@ -70,7 +70,7 @@ describe('verifyDesignatedWallets', () => {
   });
 
   it('does nothing if the designated wallet matches the expected wallet', () => {
-    const apiCall = fixtures.requests.createApiCall({
+    const apiCall = fixtures.requests.buildApiCall({
       designatedWallet: '0x2EfDDdd9337999A00f36f28e58F036381B8b1125',
       requesterIndex: '3',
     });

@@ -5,13 +5,16 @@
   "main": "index",
   "scripts": {
     "build": "hardhat compile",
-    "deploy:rinkeby": "hardhat deploy --network rinkeby",
     "deploy:ropsten": "hardhat deploy --network ropsten",
+    "deploy:rinkeby": "hardhat deploy --network rinkeby",
+    "deploy:goerli": "hardhat deploy --network goerli",
+    "deploy:xdai": "hardhat deploy --network xdai",
+    "deploy:fantom": "hardhat deploy --network fantom",
     "test": "hardhat test",
+    "test:gas": "REPORT_GAS=TRUE hardhat test",
     "test:coverage": "hardhat coverage",
-    "flatten": "yarn run flatten:airnode && yarn run flatten:convenience && yarn run flatten:delete-license-lines",
+    "flatten": "yarn run flatten:airnode && yarn run flatten:delete-license-lines",
     "flatten:airnode": "hardhat flatten contracts/Airnode.sol > Airnode.flat.sol && yarn run flatten:delete-license-lines",
-    "flatten:convenience": "hardhat flatten contracts/Convenience.sol > Convenience.flat.sol && yarn run flatten:delete-license-lines",
     "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol"
   },
   "dependencies": {
@@ -22,5 +25,8 @@
     "hardhat": "^2.0.5",
     "hardhat-deploy": "^0.7.0-beta.38",
     "solidity-coverage": "^0.7.13"
+  },
+  "devDependencies": {
+    "hardhat-gas-reporter": "^1.0.4"
   }
 }
