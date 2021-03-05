@@ -1,5 +1,6 @@
 import * as logger from '../utils/logger';
 import { Log } from '../types';
+import { combinePaths } from '../utils/utils';
 
 /**
  * Checks if key or value matches regular expression in template
@@ -15,9 +16,7 @@ export function validateRegexp(specs: any, template: any, paramPath: string, isK
   if (isKeyRegexp) {
     for (const item of Object.keys(specs)) {
       if (!item.match(new RegExp(template['__keyRegexp']))) {
-        messages.push(
-          logger.error(`Key ${item} in ${paramPath}${paramPath ? '.' : ''}${item} is formatted incorrectly`)
-        );
+        messages.push(logger.error(`Key ${item} in ${combinePaths(paramPath, item)} is formatted incorrectly`));
       }
     }
 

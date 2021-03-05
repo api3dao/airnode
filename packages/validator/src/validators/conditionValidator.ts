@@ -2,6 +2,7 @@ import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Roots, Log } from '../types';
+import { combinePaths } from '../utils/utils';
 
 /**
  * Validates "if" condition in which regular expression is matched against the key in specification
@@ -87,7 +88,7 @@ function validateConditionRegexInKey(
         }
 
         messages.push(
-          logger.error(`Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}`)
+          logger.error(`Condition in ${combinePaths(paramPathPrefix, paramPath, thisName)} is not met with ${param}`)
         );
       }
     }
@@ -241,7 +242,7 @@ function validateConditionRequires(
         paramName = requiredPath.substr(0, dotIndex);
       }
 
-      currentDir = `${currentDir}${currentDir ? '.' : ''}${paramName}`;
+      currentDir = combinePaths(currentDir, paramName);
       requiredPath = requiredPath.replace(paramName, '');
 
       if (requiredPath.startsWith('.')) {
@@ -256,13 +257,7 @@ function validateConditionRequires(
       }
 
       if (!workingDir[paramName]) {
-        messages.push(
-          logger.error(
-            `Missing parameter ${paramPathPrefix ? `${paramPathPrefix}.` : ''}${currentDir}${
-              currentDir && requiredPath ? '.' : ''
-            }${requiredPath}`
-          )
-        );
+        messages.push(logger.error(`Missing parameter ${combinePaths(paramPathPrefix, currentDir, requiredPath)}`));
 
         break;
       }
@@ -282,9 +277,10 @@ function validateConditionRequires(
         if (!workingDir[index]) {
           messages.push(
             logger.error(
-              `Array out of bounds, attempted to access element on index ${index} in ${
-                paramPathPrefix ? `${paramPathPrefix}.` : ''
-              }${currentDir}`
+              `Array out of bounds, attempted to access element on index ${index} in ${combinePaths(
+                paramPathPrefix,
+                currentDir
+              )}`
             )
           );
 

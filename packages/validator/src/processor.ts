@@ -8,6 +8,7 @@ import { Log, Result, Roots } from './types';
 import { execute } from './utils/action';
 import fs from 'fs';
 import { validateParameter } from './validators/parameterValidator';
+import { combinePaths } from './utils/utils';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
 const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
@@ -56,16 +57,18 @@ export function processSpecs(
         break;
 
       case '__regexp':
-        messages.push(...validateRegexp(specs, template, paramPath));
+        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath)));
         break;
 
       case '__keyRegexp':
-        messages.push(...validateRegexp(specs, template, paramPath, true));
+        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), true));
         break;
 
       case '__maxSize':
         if (template[key] < specs.length) {
-          messages.push(logger.error(`${paramPath} must contain ${template[key]} or less items`));
+          messages.push(
+            logger.error(`${combinePaths(paramPathPrefix, paramPath)} must contain ${template[key]} or less items`)
+          );
         }
 
         break;
@@ -102,7 +105,7 @@ export function processSpecs(
           const result = processSpecs(
             specs[item],
             template[key],
-            `${paramPath}${paramPath ? '.' : ''}${item}`,
+            `${combinePaths(paramPath, item)}`,
             nonRedundantParams[item],
             roots,
             paramPathPrefix
@@ -123,13 +126,13 @@ export function processSpecs(
 
       case '__any':
         if (!isAnyParamValid(specs, template[key], paramPath, nonRedundantParams, roots)) {
-          messages.push(logger.error(`Required conditions not met in ${paramPath}`));
+          messages.push(logger.error(`Required conditions not met in ${combinePaths(paramPathPrefix, paramPath)}`));
         }
 
         break;
 
       case '__actions':
-        execute(specs, template[key], `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`, roots);
+        execute(specs, template[key], combinePaths(paramPathPrefix, paramPath), roots);
 
         break;
 
@@ -137,7 +140,14 @@ export function processSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, apiTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(
+          specs,
+          apiTemplate,
+          paramPath,
+          tmpNonRedundant,
+          tmpRoots,
+          combinePaths(paramPathPrefix, paramPath)
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -148,7 +158,14 @@ export function processSpecs(
         tmpNonRedundant = [];
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, endpointsTemplate, '', tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(
+          specs,
+          endpointsTemplate,
+          '',
+          tmpNonRedundant,
+          tmpRoots,
+          combinePaths(paramPathPrefix, paramPath)
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -159,7 +176,14 @@ export function processSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, oisTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(
+          specs,
+          oisTemplate,
+          paramPath,
+          tmpNonRedundant,
+          tmpRoots,
+          combinePaths(paramPathPrefix, paramPath)
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -179,7 +203,7 @@ export function processSpecs(
   let valid = true;
 
   if (specs === roots.specs) {
-    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, paramPath));
+    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, combinePaths(paramPathPrefix, paramPath)));
     valid = !messages.some((msg) => msg.level === 'error');
   }
 

@@ -146,14 +146,14 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
 
   return Object.keys(specs).reduce((acc, key) => {
     if (nonRedundant[key] !== undefined) {
-      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], `${paramPath}${paramPath ? '.' : ''}${key}`)];
+      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], combinePaths(paramPath, key))];
     }
 
     if (nonRedundant['__noCheck']) {
       return acc;
     }
 
-    return [...acc, logger.warn(`Extra field: ${paramPath}${paramPath ? '.' : ''}${key}`)];
+    return [...acc, logger.warn(`Extra field: ${combinePaths(paramPath, key)}`)];
   }, []);
 }
 
@@ -307,4 +307,29 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
   }
 
   return getSpecsFromPath(paramPath, specs, insertPath);
+}
+
+/**
+ * Combines provided strings into a valid path
+ * @param path - parameter paths, which will be combined
+ */
+export function combinePaths(...path: string[]): string {
+  let acc = '';
+  let shouldSeparate = false;
+
+  for (let i = 0; i < path.length; i++) {
+    const current = path[i];
+
+    if (current.length) {
+      if (shouldSeparate && !current.match(/^\[[0-9]+\]/)) {
+        acc += '.';
+      }
+
+      shouldSeparate = true;
+    }
+
+    acc += path[i];
+  }
+
+  return acc;
 }
