@@ -5,6 +5,7 @@ import {
   formattingMessage,
   keyFormattingMessage,
   missingParamMessage,
+  requiredConditionNotMetMessage,
   sizeExceededMessage,
 } from './utils/messages';
 
@@ -21,13 +22,22 @@ const validAPISpecification = `{
         {
           "name": "myParameter",
           "in": "query"
+        },
+        {
+          "name": "myParameter2",
+          "in": "header"
         }
       ]
     }
   },
   "/myPath2": {
     "get": {
-      "parameters": []
+      "parameters": [
+        {
+          "name": "myParameter",
+          "in": "query"
+        }
+      ]
     }
   }   
 },
@@ -48,33 +58,47 @@ const validAPISpecification = `{
 const invalidAPISpecification = `{
 "servers": [
     {
-        "url":  "https:/myapi.com/api"
+        "url":  "https://myapi.com/api"
     }
 ],
 "paths": {
-  "/myPath/{myParam}": {
+  "/myPath": {
     "get": {
       "parameters": [
         {
-          "name": "myParam0",
+          "name": "myParameter",
+          "in": "query"
+        },
+        {
+          "name": "myParameter2",
+          "in": "header"
+        }
+      ]
+    }
+  },
+  "/myPath2": {
+    "get": {
+      "parameters": [
+        {
+          "name": "myParameter",
           "in": "query"
         }
       ]
     }
-  }
+  }   
 },
 "components": {
-  "securitySchemes": {
-    "mySecurityScheme": {
-      "type": "invalid",
-      "in": "query"
+    "securitySchemes": {
+      "mySecurityScheme": {
+        "type": "apiKey",
+        "name": "X-MY-API-KEY",
+        "in": "query"
+      }
     }
-  }
 },
 "security": {
-  "mySecurityScheme": [],
-  "mySecurityScheme2": []
-}
+      "mySecurityScheme": []
+        }
 }`;
 
 const validEndpointSpecification = `[
@@ -83,14 +107,57 @@ const validEndpointSpecification = `[
     "operation": {
       "path": "/myPath",
       "method": "get"
-    }
+    },
+    "fixedOperationParameters": [
+      {
+        "operationParameter": {
+          "in": "header",
+          "name": "myParameter2"
+        },
+        "value": "myValue"
+      }
+    ],
+    "reservedParameters": [
+      {
+        "name": "_type",
+        "fixed": "int256"
+      },
+      {
+        "name": "_path",
+        "fixed": "result"
+      },
+      {
+        "name": "_times",
+        "default": "1000000"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "myParameter",
+        "operationParameter": {
+          "in": "query",
+          "name": "myParameter"
+        }
+      }
+    ]
   },
   {
     "name": "two",
     "operation": {
       "path": "/myPath2",
       "method": "post"
-    }
+    },
+    "fixedOperationParameters": [],
+    "reservedParameters": [],
+    "parameters": [
+      {
+        "name": "myParameter",
+        "operationParameter": {
+          "in": "query",
+          "name": "myParameter"
+        }
+      }
+    ]
   }
 ]`;
 
@@ -98,25 +165,36 @@ const invalidEndpointSpecification = `[
   {
     "name": "test",
     "operation": {
-      "method": "undefined"
+      "path": "/myPath",
+      "method": "get"
     },
+    "reservedParameters": [],
     "parameters": [
       {
-        "name": "correct",
+        "name": "myParameter",
         "operationParameter": {
-          "name": "operation",
-          "in": "header"
+          "in": "query",
+          "name": "myParameter"
         }
       }
     ]
   },
   {
-    "name": "myPath2",
+    "name": "two",
     "operation": {
-      "method": "get",
-      "path": "/myPath2"
+      "path": "/notMyPath",
+      "method": "post"
     },
-    "parameters": []
+    "fixedOperationParameters": [],
+    "parameters": [
+      {
+        "name": "myParameter",
+        "operationParameter": {
+          "in": "query",
+          "name": "myParameter"
+        }
+      }
+    ]
   }
 ]`;
 
@@ -909,14 +987,20 @@ describe('validator', () => {
         "operation": {
           "path": "/myPath",
           "method": "get"
-        }
+        }, 
+        "fixedOperationParameters": [],
+        "reservedParameters": [],
+        "parameters": []
       },
       {
         "name": "two",
         "operation": {
           "path": "/myPath2",
           "method": "post"
-        }
+        },
+        "fixedOperationParameters": [],
+        "reservedParameters": [],
+        "parameters": []
       }
     ]`;
     expect(validator.isEndpointsValid(validEndpointSpec)).toMatchObject({
@@ -984,6 +1068,8 @@ describe('validator', () => {
         missingParamMessage('[1].operation'),
         missingParamMessage('[1].fixedOperationParameters[0].operationParameter.name'),
         formattingMessage('[1].fixedOperationParameters[0].operationParameter.in'),
+        missingParamMessage('[1].reservedParameters'),
+        missingParamMessage('[1].parameters'),
         extraFieldMessage('[1].extra'),
       ],
     });
@@ -1000,14 +1086,13 @@ describe('validator', () => {
       messages: [
         formattingMessage('oisFormat'),
         formattingMessage('version'),
-        formattingMessage('apiSpecifications.servers[0].url'),
-        conditionNotMetMessage('apiSpecifications.paths./myPath/{myParam}', 'myParam'),
-        formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
-        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2'),
-        conditionNotMetMessage('apiSpecifications.paths./myPath/{myParam}', '/myPath/{myParam}'),
-        missingParamMessage('endpoints[0].operation.path'),
-        formattingMessage('endpoints[0].operation.method'),
-        missingParamMessage('apiSpecifications.paths./myPath2'),
+        conditionNotMetMessage('apiSpecifications.paths./myPath2', '/myPath2'),
+        requiredConditionNotMetMessage('endpoints'),
+        requiredConditionNotMetMessage('endpoints'),
+        missingParamMessage('endpoints[0].fixedOperationParameters'),
+        missingParamMessage('endpoints[1].reservedParameters'),
+        missingParamMessage('apiSpecifications.paths./notMyPath'),
+        missingParamMessage('apiSpecifications.paths./notMyPath'),
       ],
     });
   });

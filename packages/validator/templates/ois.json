@@ -74,42 +74,44 @@
     "__endpointsSpecs": {},
     "__arrayItem": {
       "__ignore": {},
-      "operation": {
-        "__conditions": [
-          {
-            "__if": {
-              "path": ".*"
-            },
-            "__rootThen": {
-              "apiSpecifications": {
-                "paths": {
-                  "__match": {}
+      "__optional": {
+        "operation": {
+          "__conditions": [
+            {
+              "__if": {
+                "path": ".*"
+              },
+              "__rootThen": {
+                "apiSpecifications": {
+                  "paths": {
+                    "__match": {}
+                  }
                 }
               }
             }
-          }
-        ]
-      },
-      "parameters": {
-        "__arrayItem": {
-          "operationParameter": {
-            "__conditions": [
-              {
-                "__if": {
-                  "name": ".*"
-                },
-                "__rootThen": {
-                  "apiSpecifications": {
-                    "paths": {
-                      "[[/{{0}}.operation.path]]": {
-                        "__any": {
-                          "parameters": {
-                            "__any": {
-                              "name": {
-                                "__regexp": "^__match$"
-                              },
-                              "in": {
-                                "__regexp": "^[[in]]$"
+          ]
+        },
+        "parameters": {
+          "__arrayItem": {
+            "operationParameter": {
+              "__conditions": [
+                {
+                  "__if": {
+                    "name": ".*"
+                  },
+                  "__rootThen": {
+                    "apiSpecifications": {
+                      "paths": {
+                        "[[/{{0}}.operation.path]]": {
+                          "__any": {
+                            "parameters": {
+                              "__any": {
+                                "name": {
+                                  "__regexp": "^__match$"
+                                },
+                                "in": {
+                                  "__regexp": "^[[in]]$"
+                                }
                               }
                             }
                           }
@@ -118,31 +120,31 @@
                     }
                   }
                 }
-              }
-            ]
+              ]
+            }
           }
-        }
-      },
-      "fixedOperationParameters": {
-        "__arrayItem": {
-          "operationParameter": {
-            "__conditions": [
-              {
-                "__if": {
-                  "name": ".*"
-                },
-                "__rootThen": {
-                  "apiSpecifications": {
-                    "paths": {
-                      "[[/{{0}}.operation.path]]": {
-                        "__any": {
-                          "parameters": {
-                            "__any": {
-                              "name": {
-                                "__regexp": "^__match$"
-                              },
-                              "in": {
-                                "__regexp": "^[[in]]$"
+        },
+        "fixedOperationParameters": {
+          "__arrayItem": {
+            "operationParameter": {
+              "__conditions": [
+                {
+                  "__if": {
+                    "name": ".*"
+                  },
+                  "__rootThen": {
+                    "apiSpecifications": {
+                      "paths": {
+                        "[[/{{0}}.operation.path]]": {
+                          "__any": {
+                            "parameters": {
+                              "__any": {
+                                "name": {
+                                  "__regexp": "^__match$"
+                                },
+                                "in": {
+                                  "__regexp": "^[[in]]$"
+                                }
                               }
                             }
                           }
@@ -151,8 +153,8 @@
                     }
                   }
                 }
-              }
-            ]
+              ]
+            }
           }
         }
       }

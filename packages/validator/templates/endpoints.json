@@ -9,68 +9,46 @@
         "__regexp": "^(get|post)$"
       }
     },
-    "__optional": {
-      "fixedOperationParameters": {
-        "__arrayItem": {
-          "operationParameter": {
-            "name": {},
-            "in": {
-              "__regexp": "^(query|header|path|cookie)$"
-            }
-          },
-          "value": {}
-        }
-      },
-      "reservedParameters": {
-        "__arrayItem": {
-          "name": {
-            "__regexp": "^(_type|_path|_times)$"
-          },
-          "__optional": {
-            "fixed": {},
-            "default": {}
+    "fixedOperationParameters": {
+      "__arrayItem": {
+        "operationParameter": {
+          "name": {},
+          "in": {
+            "__regexp": "^(query|header|path|cookie)$"
           }
+        },
+        "value": {}
+      }
+    },
+    "reservedParameters": {
+      "__arrayItem": {
+        "name": {
+          "__regexp": "^(_type|_path|_times)$"
+        },
+        "__optional": {
+          "fixed": {},
+          "default": {}
         }
-      },
-      "parameters": {
-        "__arrayItem": {
-          "name": {
-            "__regexp": "^[^\\s'\"_][^\\s'\"]+$"
-          },
-          "operationParameter": {
-            "name": {},
-            "in": {
-              "__regexp": "^(query|header|path|cookie)$"
-            },
-            "__conditions": [
-              {
-                "__if": {
-                  "name": ".*"
-                },
-                "__rootThen": {
-                  "{{0}}": {
-                    "fixedOperationParameters": {
-                      "__arrayItem": {
-                        "operationParameter": {
-                          "name": {
-                            "__regexp": "^(?!__match$).*$"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          "__optional": {
-            "default": {},
-            "description": {},
-            "required": {},
-            "example": {},
-            "summary": {},
-            "externalDocs": {}
+      }
+    },
+    "parameters": {
+      "__arrayItem": {
+        "name": {
+          "__regexp": "^[^\\s'\"_][^\\s'\"]+$"
+        },
+        "operationParameter": {
+          "name": {},
+          "in": {
+            "__regexp": "^(path|query|header|cookie)$"
           }
+        },
+        "__optional": {
+          "default": {},
+          "description": {},
+          "required": {},
+          "example": {},
+          "summary": {},
+          "externalDocs": {}
         }
       }
     }

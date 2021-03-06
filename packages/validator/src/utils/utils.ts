@@ -145,12 +145,12 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }
 
   return Object.keys(specs).reduce((acc, key) => {
-    if (nonRedundant[key] !== undefined) {
-      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], combinePaths(paramPath, key))];
-    }
-
     if (nonRedundant['__noCheck']) {
       return acc;
+    }
+
+    if (nonRedundant[key] !== undefined) {
+      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], combinePaths(paramPath, key))];
     }
 
     return [...acc, logger.warn(`Extra field: ${combinePaths(paramPath, key)}`)];

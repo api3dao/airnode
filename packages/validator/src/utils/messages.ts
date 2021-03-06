@@ -21,3 +21,7 @@ export function extraFieldMessage(param) {
 export function conditionNotMetMessage(paramPath, param) {
   return { level: 'error', message: `Condition in ${paramPath} is not met with ${param}` };
 }
+
+export function requiredConditionNotMetMessage(paramPath) {
+  return { level: 'error', message: `Required conditions not met in ${paramPath}` };
+}
