@@ -132,7 +132,7 @@ export function processSpecs(
         break;
 
       case '__actions':
-        execute(specs, template[key], combinePaths(paramPathPrefix, paramPath), roots);
+        execute(specs, template[key], paramPath, roots);
 
         break;
 
@@ -143,7 +143,7 @@ export function processSpecs(
         tmpResult = processSpecs(
           specs,
           apiTemplate,
-          paramPath,
+          '',
           tmpNonRedundant,
           tmpRoots,
           combinePaths(paramPathPrefix, paramPath)
@@ -179,7 +179,7 @@ export function processSpecs(
         tmpResult = processSpecs(
           specs,
           oisTemplate,
-          paramPath,
+          '',
           tmpNonRedundant,
           tmpRoots,
           combinePaths(paramPathPrefix, paramPath)
