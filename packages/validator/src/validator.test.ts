@@ -274,7 +274,11 @@ const validConfigSpecification = `
             "blockHistoryLimit": 600,
             "minConfirmations": 6
           }
-        ]
+        ],
+        "contracts": {
+          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
+        }
       },
       {
         "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
@@ -287,7 +291,8 @@ const validConfigSpecification = `
           }
         ],
         "contracts": {
-          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
+          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
         }
       }
     ]
@@ -1114,9 +1119,11 @@ describe('validator', () => {
         formattingMessage('config.nodeSettings.providerIdShort'),
         formattingMessage('config.nodeSettings.cloudProvider'),
         formattingMessage('config.nodeSettings.logFormat'),
+        missingParamMessage('config.nodeSettings.chains[0].contracts'),
         formattingMessage('config.nodeSettings.chains[0].providerAdminForRecordCreation'),
-        keyFormattingMessage('Airnod', 'config.nodeSettings.chains[1].contracts.Airnod'),
+        missingParamMessage('config.nodeSettings.chains[1].contracts.Airnode'),
         formattingMessage('security.id', true),
+        extraFieldMessage('config.nodeSettings.chains[1].contracts.Airnod'),
       ],
     });
   });
