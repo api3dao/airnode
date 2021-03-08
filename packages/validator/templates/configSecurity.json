@@ -10,7 +10,7 @@
         "request": {
           "__arrayItem": {
             "endpointId": {
-              "__regexp": "^0x[a-fA-F0-9]{64}$"
+              "__regexp": "^0x[a-fA-F0-9]{40}$"
             },
             "oisTitle": {},
             "endpointName": {}

@@ -247,11 +247,13 @@ const validConfigSpecification = `
   "id": "abc123",
   "ois": [ ${validOISSpecification} ],
   "triggers": {
-    "request": {
-      "endpointId": "...",
-      "oisTitle": "...",
-      "endpointName": "..."
-    }
+    "request": [
+      {
+        "endpointId": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+        "oisTitle": "...",
+        "endpointName": "..."
+      }
+    ]
   },
   "nodeSettings": {
     "providerIdShort": "9e5a89d",
@@ -262,7 +264,7 @@ const validConfigSpecification = `
     "logFormat": "plain",
     "chains": [
       {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "id": 1,
         "type": "evm",
         "providers": [
@@ -275,7 +277,7 @@ const validConfigSpecification = `
         ]
       },
       {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "id": 3,
         "type": "evm",
         "providers": [
@@ -285,7 +287,7 @@ const validConfigSpecification = `
           }
         ],
         "contracts": {
-          "Airnode": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9"
+          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
         }
       }
     ]
@@ -296,14 +298,8 @@ const validConfigSpecification = `
 const invalidConfigSpecification = `
 {
   "id": "abc123",
-  "ois": [ ${invalidOISSpecification}, ${validOISSpecification} ],
-  "triggers": {
-    "request": {
-      "endpointId": "...",
-      "oisTitle": "...",
-      "endpointName": "..."
-    }
-  },
+  "ois": [ ${invalidOISSpecification} ],
+  "triggers": {},
   "nodeSettings": {
     "providerIdShort": "9e5a89de",
     "nodeVersion": "0.1.0",
@@ -326,7 +322,7 @@ const invalidConfigSpecification = `
         ]
       },
       {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "id": 3,
         "type": "evm",
         "providers": [
@@ -336,8 +332,8 @@ const invalidConfigSpecification = `
           }
         ],
         "contracts": {
-          "Airnod": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
-          "Convenience": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9"
+          "Airnod": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
         }
       }
     ]
@@ -1108,12 +1104,13 @@ describe('validator', () => {
       messages: [
         formattingMessage('config.ois[0].oisFormat'),
         formattingMessage('config.ois[0].version'),
-        formattingMessage('config.ois[0].apiSpecifications.servers[0].url'),
-        conditionNotMetMessage('config.ois[0].apiSpecifications.paths./myPath/{myParam}', 'myParam'),
-        formattingMessage('config.ois[0].apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
-        missingParamMessage('config.ois[0].apiSpecifications.components.securitySchemes.mySecurityScheme2'),
-        missingParamMessage('config.ois[0].endpoints[0].operation.path'),
-        formattingMessage('config.ois[0].endpoints[0].operation.method'),
+        conditionNotMetMessage('config.ois[0].apiSpecifications.paths./myPath2', '/myPath2'),
+        requiredConditionNotMetMessage('config.ois[0].endpoints'),
+        requiredConditionNotMetMessage('config.ois[0].endpoints'),
+        missingParamMessage('config.ois[0].endpoints[0].fixedOperationParameters'),
+        missingParamMessage('config.ois[0].endpoints[1].reservedParameters'),
+        missingParamMessage('config.ois[0].apiSpecifications.paths./notMyPath'),
+        missingParamMessage('config.ois[0].apiSpecifications.paths./notMyPath'),
         formattingMessage('config.nodeSettings.providerIdShort'),
         formattingMessage('config.nodeSettings.cloudProvider'),
         formattingMessage('config.nodeSettings.logFormat'),
