@@ -1,0 +1,1 @@
+yarn run pretty-quick && yarn run lint
