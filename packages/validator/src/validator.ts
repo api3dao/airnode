@@ -28,9 +28,21 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   }
 
   try {
+    template = JSON.parse(template);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${templatePath} is not valid JSON: ${e}`)] };
+  }
+
+  try {
     specs = fs.readFileSync(specsPath);
   } catch (e) {
     return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
+  }
+
+  try {
+    specs = JSON.parse(specs);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
   }
 
   return validateJson(specs, template);
@@ -42,20 +54,11 @@ export function validate(specsPath: string | undefined, templatePath: string | u
  * @param template - template json
  * @returns array of error and warning messages
  */
-export function validateJson(specs: string, template: string): Result {
+export function validateJson(specs: object, template: object): Result {
   const nonRedundant = {};
-  let parsedTemplate;
-  let parsedSpecs;
 
-  try {
-    parsedTemplate = JSON.parse(template);
-    parsedSpecs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
-
-  return processSpecs(parsedSpecs, parsedTemplate, '', nonRedundant, {
-    specs: parsedSpecs,
+  return processSpecs(specs, template, '', nonRedundant, {
+    specs: specs,
     nonRedundantParams: nonRedundant,
     output: {},
   });
