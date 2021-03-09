@@ -3,7 +3,6 @@ pragma solidity 0.6.12;
 
 import "./interfaces/IRequesterStore.sol";
 
-
 /// @title The contract where the requesters are stored
 /// @notice This contract is used by requesters to manage their endorsemenets.
 /// A requester endorsing a client means that the client can request their
@@ -11,8 +10,20 @@ import "./interfaces/IRequesterStore.sol";
 contract RequesterStore is IRequesterStore {
     mapping(uint256 => address) public requesterIndexToAdmin;
     mapping(uint256 => mapping(address => bool)) public requesterIndexToClientAddressToEndorsementStatus;
+    mapping(address => uint256) public clientAddressToNoRequests;
+    mapping(uint256 => uint256) public requesterIndexToNoWithdrawalRequests;
     uint256 private noRequesters = 1;
 
+    /// @dev Reverts if the caller is not the requester admin
+    /// @param requesterIndex Requester index
+    modifier onlyRequesterAdmin(uint256 requesterIndex)
+    {
+        require(
+            msg.sender == requesterIndexToAdmin[requesterIndex],
+            "Caller is not requester admin"
+            );
+        _;
+    }
 
     /// @notice Creates a requester with the given parameters, addressable by
     /// the index it returns
@@ -25,16 +36,19 @@ contract RequesterStore is IRequesterStore {
     {
         requesterIndex = noRequesters++;
         requesterIndexToAdmin[requesterIndex] = admin;
+        // Initialize the requester nonce during creation for consistent
+        // withdrawal request gas cost
+        requesterIndexToNoWithdrawalRequests[requesterIndex] = 1;
         emit RequesterCreated(
             requesterIndex,
             admin
             );
     }
 
-    /// @notice Updates the requester admin
+    /// @notice Sets the requester admin
     /// @param requesterIndex Requester index
     /// @param admin Requester admin
-    function updateRequesterAdmin(
+    function setRequesterAdmin(
         uint256 requesterIndex,
         address admin
         )
@@ -50,13 +64,13 @@ contract RequesterStore is IRequesterStore {
     }
 
     /// @notice Called by the requester admin to endorse a client, i.e., allow
-    /// a client to use its designated wallets
+    /// a client to use its designated wallets, or disendorse them
     /// @dev This is not provider specific, i.e., the requester allows the
     /// client's requests to be fulfilled through its designated wallets across
     /// all providers
     /// @param requesterIndex Requester index
     /// @param clientAddress Client address
-    function updateClientEndorsementStatus(
+    function setClientEndorsementStatus(
         uint256 requesterIndex,
         address clientAddress,
         bool endorsementStatus
@@ -65,22 +79,16 @@ contract RequesterStore is IRequesterStore {
         override
         onlyRequesterAdmin(requesterIndex)
     {
+        // Initialize the client nonce for consistent request gas cost
+        if (clientAddressToNoRequests[clientAddress] == 0)
+        {
+            clientAddressToNoRequests[clientAddress] = 1;
+        }
         requesterIndexToClientAddressToEndorsementStatus[requesterIndex][clientAddress] = endorsementStatus;
-        emit ClientEndorsementStatusUpdated(
+        emit ClientEndorsementStatusSet(
             requesterIndex,
             clientAddress,
             endorsementStatus
             );
-    }
-
-    /// @dev Reverts if the caller is not the requester admin
-    /// @param requesterIndex Requester index
-    modifier onlyRequesterAdmin(uint256 requesterIndex)
-    {
-        require(
-            msg.sender == requesterIndexToAdmin[requesterIndex],
-            "Caller is not requester admin"
-            );
-        _;
     }
 }

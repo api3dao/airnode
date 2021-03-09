@@ -48,10 +48,12 @@ async function checkMasterWalletBalance(provider, masterWalletAddress, chainName
     );
     if (txCost.gt(balance)) {
       ora().warn(
-        `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to create your provider record`
+        `Fund it with at least ${ethers.utils.formatEther(
+          txCost
+        )} ETH for it to be able to set your provider parameters`
       );
     } else {
-      ora().succeed('Master wallet balance is enough to create your provider record');
+      ora().succeed('Master wallet balance is enough to set your provider parameters');
     }
   } catch {
     spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);

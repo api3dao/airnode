@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-
 interface IRequesterStore {
     event RequesterCreated(
         uint256 indexed requesterIndex,
@@ -13,7 +12,7 @@ interface IRequesterStore {
         address admin
         );
 
-    event ClientEndorsementStatusUpdated(
+    event ClientEndorsementStatusSet(
         uint256 indexed requesterIndex,
         address indexed clientAddress,
         bool endorsementStatus
@@ -23,13 +22,13 @@ interface IRequesterStore {
         external
         returns (uint256 requesterIndex);
 
-    function updateRequesterAdmin(
+    function setRequesterAdmin(
         uint256 requesterIndex,
         address admin
         )
         external;
 
-    function updateClientEndorsementStatus(
+    function setClientEndorsementStatus(
         uint256 requesterIndex,
         address clientAddress,
         bool endorsementStatus

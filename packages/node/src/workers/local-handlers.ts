@@ -45,7 +45,7 @@ export async function processProviderRequests({ state: providerState }): Promise
 
   const [err, updatedState] = await go(handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
-    const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
+    const msg = `Failed to process provider requests:${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
     return { ok: false, errorLog };
   }

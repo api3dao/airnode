@@ -33,7 +33,7 @@ export async function callApi(event: any) {
   const [logs, apiCallResponse] = await node.handlers.callApi(config, aggregatedApiCall);
   node.logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
-  return { statusCode: 200, body: JSON.stringify(response) };
+  return { statusCode: 200, body: response };
 }
 
 export async function processProviderRequests(event: any) {

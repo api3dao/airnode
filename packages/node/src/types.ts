@@ -58,7 +58,7 @@ export type ClientRequest<T extends {}> = T & {
   readonly status: RequestStatus;
 };
 
-export type ApiCallType = 'short' | 'regular' | 'full';
+export type ApiCallType = 'regular' | 'full';
 
 export interface ApiCall {
   readonly clientAddress: string;
@@ -67,7 +67,7 @@ export interface ApiCall {
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
-  readonly providerId: string;
+  readonly providerId: string | null;
   readonly requestCount: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
@@ -75,14 +75,10 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
-  readonly designatedWallet: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
-  readonly fulfillAddress: string;
-  readonly fulfillFunctionId: string;
   readonly id: string;
   readonly providerId: string;
-  readonly requesterIndex: string;
 }
 
 export interface Withdrawal {
@@ -97,13 +93,14 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly providerAdminForRecordCreation?: string;
+  readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: number;
   readonly chainType: ChainType;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
+  readonly providerAdmin: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -142,7 +139,6 @@ export interface CoordinatorState {
 // ===========================================
 export interface EVMContracts {
   readonly Airnode: string;
-  readonly Convenience: string;
 }
 
 export interface EVMProviderState {
@@ -236,7 +232,7 @@ export interface RequestTrigger {
 }
 
 export interface Triggers {
-  readonly requests: RequestTrigger[];
+  readonly request: RequestTrigger[];
 }
 
 // ===========================================
@@ -286,7 +282,6 @@ export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
   readonly Airnode: string;
-  readonly Convenience: string;
 }
 
 export interface ChainProvider {
@@ -295,12 +290,13 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
+  readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: number;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerAdminForRecordCreation?: string;
+  readonly providerAdmin: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

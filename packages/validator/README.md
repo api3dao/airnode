@@ -1,4 +1,4 @@
-# `validator`
+# `@airnode/validator`
 
 Tool used for json specifications processing, can be configured to validate a specification or transform a specification to different format.
 
@@ -9,7 +9,7 @@ The validator can be run as an NPM script, by providing the paths to the JSON fi
 npm run validate --template="[templateFile]" --specs="[specsFile]"
 ```
 
-In case specifications file is provided first, the command can be simplified to: `npm run validate [specsFile] [templateFile]`. Try it out using the example specification:
+In case specifications file is provided first, the command can be simplified to: `npm run validate [templateFile] [specsFile]`. Try it out using the example specification:
 ```sh
 npm run validate templates/ois.json exampleSpecs/ois.specs.json
 ```
@@ -982,3 +982,6 @@ Accessing parameter on index `X` (`{{X}}`) can be used in conditions the same wa
 }
 ```
 ---
+`__actions` are performed sequentially, per array element, so first the path `array[].{{1}}` is expanded to: `array[].param0`, `array[].param1`, and `array[].param2`, respectively, so their values get "copied" back to their original positions. For a given `array` object, `array[_]` points to its last element; in our example: `array[].param0`, `array[].param1`, and `array[].param2`, respectively. So `parameter` gets inserted after each of these elements. Finally, the insert target `array.__all.inserted` inserts an `inserted` element at the end of each `array` object.
+
+Similarily, in the `all` array, the elements are copied into their original positions via `"__target": "all"`, and an element `inserted` is inserted into each of these elements via `"__target": "all.__all.inserted"`.

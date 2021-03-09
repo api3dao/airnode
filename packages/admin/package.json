@@ -1,0 +1,16 @@
+{
+  "name": "@airnode/admin",
+  "license": "MIT",
+  "version": "0.1.0",
+  "bin": "./cli-wrapper.js",
+  "main": "dist/index",
+  "scripts": {
+    "build": "yarn run clean && yarn run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@airnode/protocol": "^0.1.0",
+    "@airnode/airnode-abi": "^0.1.0"
+  }
+}

@@ -9,5 +9,5 @@ export function buildEVMProvider(url: string, chainId: number) {
   const network = NETWORKS[chainId] || null;
 
   // Ethers only let's us configure the timeout when creating a provider
-  return new ethers.providers.JsonRpcProvider({ url, timeout: EVM_PROVIDER_TIMEOUT }, network);
+  return new ethers.providers.StaticJsonRpcProvider({ url, timeout: EVM_PROVIDER_TIMEOUT }, network);
 }

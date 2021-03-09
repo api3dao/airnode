@@ -1,3 +1,4 @@
+import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
 import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
@@ -17,6 +18,14 @@ export async function submitWithdrawal(
     const log = logger.pend(
       logStatus,
       `Withdrawal wallet index:${request.requesterIndex} for Request:${request.id} not actioned as it has status:${request.status}`
+    );
+    return [[log], null, null];
+  }
+
+  if (isNil(request.nonce)) {
+    const log = logger.pend(
+      'ERROR',
+      `Withdrawal wallet index:${request.requesterIndex} for Request:${request.id} cannot be submitted as it does not have a nonce`
     );
     return [[log], null, null];
   }

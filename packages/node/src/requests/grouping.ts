@@ -6,6 +6,12 @@ export interface RequestsByRequesterIndex {
   [requesterIndex: string]: GroupedRequests;
 }
 
+export function mapUniqueRequesterIndices(requests: GroupedRequests): string[] {
+  const apiCallIndices = requests.apiCalls.map((r) => r.requesterIndex!);
+  const withdrawalIndices = requests.withdrawals.map((r) => r.requesterIndex!);
+  return uniq([...apiCallIndices, ...withdrawalIndices]);
+}
+
 export function groupRequestsByRequesterIndex(requests: GroupedRequests): RequestsByRequesterIndex {
   const apiCalls = requests.apiCalls.filter((a) => !!a.requesterIndex);
   const withdrawals = requests.withdrawals.filter((w) => !!w.requesterIndex);
@@ -13,10 +19,7 @@ export function groupRequestsByRequesterIndex(requests: GroupedRequests): Reques
   const apiCallsByRequesterIndex = groupBy(apiCalls, 'requesterIndex');
   const withdrawalsByRequesterIndex = groupBy(withdrawals, 'requesterIndex');
 
-  const uniqueRequesterIndices = uniq([
-    ...apiCalls.map((a) => a.requesterIndex),
-    ...withdrawals.map((w) => w.requesterIndex),
-  ]);
+  const uniqueRequesterIndices = mapUniqueRequesterIndices(requests);
 
   const groupedRequests = uniqueRequesterIndices.reduce((acc, requesterIndex) => {
     const requests = {

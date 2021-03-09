@@ -34,7 +34,7 @@ For the following redeployments, mnemonic deployment must not be repeated.
 Note down the displayed mnemonic.
 Keep the outputted receipt file, or send it to API3 if you are an API3 provider.
 
-1. Fund the master wallet address with the displayed amount to create your provider record.
+1. Fund the master wallet address with the displayed amount to set your provider parameters.
 This will be done for you if you are an API3 provider.
 
 1. Use the `redeploy` command when you need to update your node.

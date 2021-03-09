@@ -62,6 +62,7 @@ function castBytes32(value: any): string {
 
 export function castValue(value: unknown, type: ResponseType): ValueType {
   switch (type) {
+    case 'uint256':
     case 'int256':
       return castNumber(value, type);
 
@@ -90,7 +91,6 @@ export function bigNumberToString(value: BigNumber): string {
 }
 
 export function floorStringifiedNumber(value: string): string {
-  // TODO: Document this behaviour
   // Ethers BigNumber can't handle decimals so we convert to a string and if
   // there are still any remaining decimals, remove them (floor the result)
   return value.split('.')[0];

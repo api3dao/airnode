@@ -18,8 +18,6 @@ function getApiCallType(topic: string): ApiCallType {
   switch (topic) {
     case topics.ClientRequestCreated:
       return 'regular';
-    case topics.ClientShortRequestCreated:
-      return 'short';
     case topics.ClientFullRequestCreated:
       return 'full';
     // This should never be reached
@@ -37,8 +35,8 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
     endpointId: parsedLog.args.endpointId || null,
-    fulfillAddress: parsedLog.args.fulfillAddress,
-    fulfillFunctionId: parsedLog.args.fulfillFunctionId,
+    fulfillAddress: parsedLog.args.fulfillAddress || null,
+    fulfillFunctionId: parsedLog.args.fulfillFunctionId || null,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
@@ -88,7 +86,7 @@ export function updateFulfilledRequests(
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
-        const log = logger.pend('DEBUG', `Request ID:${apiCall.id} has already been fulfilled`);
+        const log = logger.pend('DEBUG', `Request ID:${apiCall.id} (API call) has already been fulfilled`);
 
         const fulfilledApiCall = { ...apiCall, status: RequestStatus.Fulfilled };
 
@@ -122,8 +120,8 @@ export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsDa
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.requestId);
-  const [fulfilledLogs, fulfilledRequests] = updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
+  const [fulfilledLogs, apiCallsWithFulfillments] = updateFulfilledRequests(parameterizedRequests, fulfilledRequestIds);
 
   const logs = [...parameterLogs, ...fulfilledLogs];
-  return [logs, fulfilledRequests];
+  return [logs, apiCallsWithFulfillments];
 }

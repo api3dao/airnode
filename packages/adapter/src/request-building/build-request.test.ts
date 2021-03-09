@@ -6,7 +6,7 @@ describe('buildingRequest', () => {
     const options = fixtures.buildRequestOptions();
     const res = build.buildRequest(options);
     expect(res).toEqual({
-      baseUrl: 'https://api.myapi.com',
+      baseUrl: 'http://localhost:5000',
       data: {
         access_key: 'super-secret-key',
         amount: '1',
@@ -26,7 +26,7 @@ describe('buildingRequest', () => {
     try {
       build.buildRequest(options);
     } catch (e) {
-      expect(e).toEqual(new Error("Endpoint: 'convertToUsd' not found in the OIS."));
+      expect(e).toEqual(new Error("Endpoint: 'convertToUSD' not found in the OIS."));
     }
   });
 });

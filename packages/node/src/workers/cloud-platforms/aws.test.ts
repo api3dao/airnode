@@ -14,7 +14,9 @@ describe('spawn', () => {
   it('derives the function name, invokes and returns the response', async () => {
     const lambda = new AWS.Lambda();
     const invoke = lambda.invoke as jest.Mock;
-    invoke.mockImplementationOnce((params, callback) => callback(null, { value: 7777 }));
+    invoke.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ value: 7777 }) }) })
+    );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const parameters = {
       ...workerOpts,

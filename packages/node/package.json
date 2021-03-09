@@ -13,17 +13,21 @@
     "compile": "tsc -p tsconfig.build.json",
     "dev:invoke": "(cd __dev__ && ts-node invoke.ts)",
     "prepublishOnly": "yarn run build",
-    "test": "SILENCE_LOGGER=true jest --coverage",
-    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
+    "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
+    "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
+    "test:e2e:debug": "jest \"withdrawals.feature\" --selectProjects e2e",
+    "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
+    "test:watch:debug": "jest \"initialize.test\" --selectProjects unit --watch"
   },
   "dependencies": {
     "@airnode/adapter": "^0.1.0",
     "@airnode/airnode-abi": "^0.1.0",
     "@airnode/ois": "^0.1.0",
+    "@airnode/operation": "^0.1.0",
     "@airnode/protocol": "^0.1.0",
     "@types/bluebird": "^3.5.32",
     "aws-sdk": "^2.753.0",
-    "axios": "^0.19.2",
     "bluebird": "^3.7.2",
     "date-fns": "^2.16.1"
   },

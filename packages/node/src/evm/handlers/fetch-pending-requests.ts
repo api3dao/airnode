@@ -45,8 +45,8 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
 
   // Block any requests that cannot be processed
   // 1. API calls related to a wallet with a pending withdrawal cannot be processed
-  const [blockedLogs, blockedRequests] = blocking.blockRequestsWithWithdrawals(groupedRequests);
-  logger.logPending(blockedLogs, baseLogOptions);
+  const [blockLogs, updatedRequests] = blocking.blockRequestsWithWithdrawals(groupedRequests);
+  logger.logPending(blockLogs, baseLogOptions);
 
-  return blockedRequests;
+  return updatedRequests;
 }

@@ -1,7 +1,7 @@
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
+import * as initialization from '../initialization';
 import * as logger from '../../logger';
-import * as providers from '../providers';
 import { fetchPendingRequests } from './fetch-pending-requests';
 import * as requests from '../../requests';
 import * as state from '../../providers/state';
@@ -14,7 +14,7 @@ type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions = {
-    convenienceAddress: currentState.contracts.Convenience,
+    airnodeAddress: currentState.contracts.Airnode,
     provider: currentState.provider,
     providerId: currentState.settings.providerId,
   };
@@ -23,7 +23,7 @@ async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const requesterIndices = currentState.requests.apiCalls.map((a) => a.requesterIndex!);
+  const requesterIndices = requests.mapUniqueRequesterIndices(currentState.requests);
   const fetchOptions = {
     currentBlock: currentState.currentBlock!,
     masterHDNode: currentState.masterHDNode,
@@ -50,23 +50,30 @@ export async function initializeProvider(
   const state1 = state.refresh(initialState);
 
   // =================================================================
-  // STEP 2: Get current block number and find or create the provider
+  // STEP 2: Get current block number, and verify or set provider parameters
   // =================================================================
   const providerFetchOptions = {
-    providerAdminForRecordCreation: state1.settings.providerAdminForRecordCreation,
     airnodeAddress: state1.contracts.Airnode,
-    convenienceAddress: state1.contracts.Convenience,
+    authorizers: state1.settings.authorizers,
     masterHDNode: state1.masterHDNode,
     provider: state1.provider,
+    providerAdmin: state1.settings.providerAdmin,
   };
-  const [providerLogs, providerBlockData] = await providers.findOrCreateProviderWithBlock(providerFetchOptions);
+  const [providerLogs, providerData] = await initialization.verifyOrSetProviderParameters(providerFetchOptions);
   logger.logPending(providerLogs, baseLogOptions);
 
-  // We can't proceed until the provider has been created onchain
-  if (!providerBlockData || !providerBlockData.providerExists) {
+  // If there is no provider data, something has gone wrong
+  if (!providerData) {
     return null;
   }
-  const state2 = state.update(state1, { currentBlock: providerBlockData.blockNumber });
+
+  // If the provider does not yet exist onchain then we can't start processing anything.
+  // This is to be expected for new Airnode deployments and is not an error case
+  if (providerData.xpub === '') {
+    return state1;
+  }
+
+  const state2 = state.update(state1, { currentBlock: providerData.blockNumber });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
@@ -82,14 +89,27 @@ export async function initializeProvider(
   const state3 = state.update(state2, { requests: groupedRequests });
 
   // =================================================================
-  // STEP 4: Fetch and apply templates to API calls
+  // STEP 4: Validate API calls
+  // =================================================================
+  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+    state3.requests.apiCalls,
+    state3.masterHDNode
+  );
+  logger.logPending(verifyLogs, baseLogOptions);
+
+  const state4 = state.update(state3, {
+    requests: { ...state3.requests, apiCalls: verifiedApiCalls },
+  });
+
+  // =================================================================
+  // STEP 5: Fetch and apply templates to API calls
   // =================================================================
   const templateFetchOptions = {
-    convenienceAddress: state3.contracts.Convenience,
-    provider: state3.provider,
+    airnodeAddress: state4.contracts.Airnode,
+    provider: state4.provider,
   };
   // This should not throw
-  const [templFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
+  const [templFetchLogs, templatesById] = await templates.fetch(state4.requests.apiCalls, templateFetchOptions);
   logger.logPending(templFetchLogs, baseLogOptions);
 
   const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(apiCalls, templatesById);
@@ -101,21 +121,8 @@ export async function initializeProvider(
   );
   logger.logPending(templApplicationLogs, baseLogOptions);
 
-  const state4 = state.update(state3, {
-    requests: { ...state3.requests, apiCalls: templatedApiCalls },
-  });
-
-  // =================================================================
-  // STEP 5: Validate API calls now that all template fields are present
-  // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
-    state4.requests.apiCalls,
-    state4.masterHDNode
-  );
-  logger.logPending(verifyLogs, baseLogOptions);
-
   const state5 = state.update(state4, {
-    requests: { ...state4.requests, apiCalls: verifiedApiCalls },
+    requests: { ...state4.requests, apiCalls: templatedApiCalls },
   });
 
   // =================================================================

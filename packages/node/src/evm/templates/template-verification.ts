@@ -7,22 +7,11 @@ interface ApiCallTemplatesById {
   [id: string]: ApiCallTemplate;
 }
 
-export const TEMPLATE_VALIDATION_FIELDS = [
-  'providerId',
-  'endpointId',
-  'requesterIndex',
-  'designatedWallet',
-  'fulfillAddress',
-  'fulfillFunctionId',
-  'encodedParameters',
-];
+export const TEMPLATE_VALIDATION_FIELDS = ['providerId', 'endpointId', 'encodedParameters'];
 
 export function getExpectedTemplateId(template: ApiCallTemplate): string {
   const templateValues = TEMPLATE_VALIDATION_FIELDS.map((f) => template[f]);
-  const encodedValues = ethers.utils.defaultAbiCoder.encode(
-    ['bytes32', 'bytes32', 'uint256', 'address', 'address', 'bytes4', 'bytes'],
-    templateValues
-  );
+  const encodedValues = ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], templateValues);
   return ethers.utils.keccak256(encodedValues);
 }
 
