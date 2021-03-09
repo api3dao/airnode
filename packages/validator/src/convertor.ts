@@ -83,20 +83,13 @@ export function convertFromTo(from, to, specs): Result {
   let ois: Result = { valid: true, messages: [], output: {} };
   let cs: Result = { valid: true, messages: [], output: {} };
 
-  if (from === 'oas') {
-    switch (to) {
-      case 'ois':
-        return convert(specs, oas2ois);
-      case 'cs':
-      case 'configsecurity':
-      case 'configandsecurity':
-        ois = convert(specs, oas2ois);
-        cs = convertJson(ois.output ? ois.output : {}, JSON.parse(fs.readFileSync(ois2cs).toString()));
-        return { valid: ois.valid, messages: ois.messages, output: cs.output };
-      default:
-        return { valid: false, messages: [invalidConversionMessage(from, to)] };
-    }
-  } else if (from === 'ois' && (to === 'cs' || to === 'configsecurity' || to === 'configandsecurity')) {
+  if (from === 'oas' && to === 'ois') {
+    return convert(specs, oas2ois);
+  } else if (from === 'oas' && to.match(/^(cs|configsecurity|configandsecurity)$/)) {
+    ois = convert(specs, oas2ois);
+    cs = convertJson(ois.output ? ois.output : {}, JSON.parse(fs.readFileSync(ois2cs).toString()));
+    return { valid: ois.valid, messages: ois.messages, output: cs.output };
+  } else if (from === 'ois' && to.match(/^(cs|configsecurity|configandsecurity)$/)) {
     return convert(specs, ois2cs);
   }
 
