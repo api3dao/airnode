@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.2;
 
 import "../AirnodeClient.sol";
 
@@ -15,7 +15,6 @@ contract MockAirnodeClient is AirnodeClient {
 
     /// @param airnodeAddress Airnode contract address
     constructor (address airnodeAddress)
-        public
         AirnodeClient(airnodeAddress)
     {}  // solhint-disable-line
 

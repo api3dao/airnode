@@ -19,7 +19,7 @@ beforeEach(async () => {
 
 describe('constructor', function () {
   it('initializes with the correct parameter', async function () {
-    expect(await airnodeClient.airnodeAddress()).to.equal(roles.airnode.address);
+    expect(await airnodeClient.airnode()).to.equal(roles.airnode.address);
   });
 });
 
