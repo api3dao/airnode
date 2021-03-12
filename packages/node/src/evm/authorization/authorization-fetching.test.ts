@@ -156,16 +156,16 @@ describe('fetch (authorizations)', () => {
 
 describe('fetchAuthorizationStatus', () => {
   const providerId = '0xproviderId';
-  let airnode: ethers.Contract;
+  let airnodeRrp: ethers.Contract;
 
   beforeEach(() => {
-    airnode = new ethers.Contract('address', ['ABI']);
+    airnodeRrp = new ethers.Contract('address', ['ABI']);
   });
 
   it('fetches individual authorization statuses if the group cannot be fetched', async () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(airnode, providerId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, providerId, apiCall);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(true);
   });
@@ -174,7 +174,7 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(airnode, providerId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, providerId, apiCall);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(false);
   });
@@ -183,7 +183,7 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(airnode, providerId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, providerId, apiCall);
     expect(logs).toEqual([
       {
         level: 'ERROR',

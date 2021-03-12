@@ -20,23 +20,23 @@ export async function assignProviderAccounts(state: State): Promise<State> {
 }
 
 export async function assignRequesterAccounts(state: State): Promise<State> {
-  const { Airnode } = state.contracts;
+  const { AirnodeRrp } = state.contracts;
 
   const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
     const requesterWallet = ethers.Wallet.createRandom().connect(state.provider);
     const requesterAddress = requesterWallet.address;
 
-    const tx = await Airnode!.connect(state.deployer).createRequester(requesterAddress);
+    const tx = await AirnodeRrp!.connect(state.deployer).createRequester(requesterAddress);
     await tx.wait();
 
     const logs = await state.provider.getLogs({
       fromBlock: 0,
-      address: Airnode!.address,
+      address: AirnodeRrp!.address,
     });
 
     const log = logs.find((log) => log.transactionHash === tx.hash);
-    const parsedLog = Airnode!.interface.parseLog(log!);
+    const parsedLog = AirnodeRrp!.interface.parseLog(log!);
     const requesterIndex = parsedLog.args.requesterIndex;
 
     requestersById[configRequester.id] = {

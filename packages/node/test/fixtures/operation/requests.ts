@@ -7,7 +7,7 @@ export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest 
     apiProvider: 'CurrencyConverterAPI',
     endpoint: 'convertToUSD',
     oisTitle: 'currency-converter-ois',
-    client: 'MockAirnodeClient',
+    client: 'MockAirnodeRrpClient',
     fulfillFunctionName: 'fulfill',
     parameters: [
       { type: 'bytes32', name: 'from', value: 'ETH' },

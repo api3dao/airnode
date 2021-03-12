@@ -9,7 +9,7 @@ export async function setProviderParameters(state: State): Promise<State> {
     const authorizers = configProvider.authorizers.map((a) => state.authorizersByName[a]);
 
     const tx = await state.contracts
-      .Airnode!.connect(apiProvider.signer)
+      .AirnodeRrp!.connect(apiProvider.signer)
       .setProviderParametersAndForwardFunds(configProvider.providerAdmin, apiProvider.xpub, authorizers, {
         value: ethers.utils.parseEther('1'),
       });

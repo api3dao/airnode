@@ -1,83 +1,83 @@
 import { ethers } from 'ethers';
 import * as airnodeAbi from '@airnode/airnode-abi';
 
-export async function createRequester(airnode, requesterAdmin) {
-  const receipt = await airnode.createRequester(requesterAdmin);
+export async function createRequester(airnodeRrp, requesterAdmin) {
+  const receipt = await airnodeRrp.createRequester(requesterAdmin);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.requesterIndex.toString());
     })
   );
 }
 
-export async function setRequesterAdmin(airnode, requesterIndex, requesterAdmin) {
-  const receipt = await airnode.setRequesterAdmin(requesterIndex, requesterAdmin);
+export async function setRequesterAdmin(airnodeRrp, requesterIndex, requesterAdmin) {
+  const receipt = await airnodeRrp.setRequesterAdmin(requesterIndex, requesterAdmin);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.admin);
     })
   );
 }
 
-export async function deriveDesignatedWallet(airnode, providerId, requesterIndex) {
-  const provider = await airnode.getProvider(providerId);
+export async function deriveDesignatedWallet(airnodeRrp, providerId, requesterIndex) {
+  const provider = await airnodeRrp.getProvider(providerId);
   const hdNode = ethers.utils.HDNode.fromExtendedKey(provider.xpub);
   const designatedWalletNode = hdNode.derivePath(`m/0/${requesterIndex}`);
   return designatedWalletNode.address;
 }
 
-export async function endorseClient(airnode, requesterIndex, clientAddress) {
-  const receipt = await airnode.setClientEndorsementStatus(requesterIndex, clientAddress, true);
+export async function endorseClient(airnodeRrp, requesterIndex, clientAddress) {
+  const receipt = await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, true);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.clientAddress);
     })
   );
 }
 
-export async function unendorseClient(airnode, requesterIndex, clientAddress) {
-  const receipt = await airnode.setClientEndorsementStatus(requesterIndex, clientAddress, false);
+export async function unendorseClient(airnodeRrp, requesterIndex, clientAddress) {
+  const receipt = await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, false);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.clientAddress);
     })
   );
 }
 
-export async function createTemplate(airnode, template) {
+export async function createTemplate(airnodeRrp, template) {
   let encodedParameters;
   if (typeof template.parameters == 'string') {
     encodedParameters = template.parameters;
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  const receipt = await airnode.createTemplate(template.providerId, template.endpointId, encodedParameters);
+  const receipt = await airnodeRrp.createTemplate(template.providerId, template.endpointId, encodedParameters);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.templateId);
     })
   );
 }
 
-export async function requestWithdrawal(airnode, providerId, requesterIndex, destination) {
-  const designatedWalletAddress = deriveDesignatedWallet(airnode, providerId, requesterIndex);
-  const receipt = await airnode.requestWithdrawal(providerId, requesterIndex, designatedWalletAddress, destination);
+export async function requestWithdrawal(airnodeRrp, providerId, requesterIndex, destination) {
+  const designatedWalletAddress = deriveDesignatedWallet(airnodeRrp, providerId, requesterIndex);
+  const receipt = await airnodeRrp.requestWithdrawal(providerId, requesterIndex, designatedWalletAddress, destination);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.withdrawalRequestId);
     })
   );
 }
 
-export async function checkWithdrawalRequest(airnode, withdrawalRequestId) {
-  const logs = await airnode.provider.getLogs({
-    address: airnode.address,
+export async function checkWithdrawalRequest(airnodeRrp, withdrawalRequestId) {
+  const logs = await airnodeRrp.provider.getLogs({
+    address: airnodeRrp.address,
     fromBlock: 0,
     topics: [
       ethers.utils.id('WithdrawalFulfilled(bytes32,uint256,bytes32,address,address,uint256)'),
@@ -89,21 +89,21 @@ export async function checkWithdrawalRequest(airnode, withdrawalRequestId) {
   if (logs.length === 0) {
     return undefined;
   }
-  const parsedLog = airnode.interface.parseLog(logs[0]);
+  const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
   return parsedLog.args.amount;
 }
 
-export async function setProviderParameters(airnode, providerAdmin, authorizers) {
-  const hdNode = ethers.utils.HDNode.fromMnemonic(airnode.signer.mnemonic.phrase);
+export async function setProviderParameters(airnodeRrp, providerAdmin, authorizers) {
+  const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeRrp.signer.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
-  const masterWallet = ethers.Wallet.fromMnemonic(airnode.signer.mnemonic.phrase, 'm').connect(airnode.provider);
+  const masterWallet = ethers.Wallet.fromMnemonic(airnodeRrp.signer.mnemonic.phrase, 'm').connect(airnodeRrp.provider);
   // Assuming masterWallet has funds to make the transaction below
-  const receipt = await airnode
+  const receipt = await airnodeRrp
     .connect(masterWallet)
     .setProviderParametersAndForwardFunds(providerAdmin, xpub, authorizers);
   return new Promise((resolve) =>
-    airnode.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnode.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(receipt.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
       resolve(parsedLog.args.providerId.toString());
     })
   );

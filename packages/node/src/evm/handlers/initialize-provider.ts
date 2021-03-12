@@ -14,7 +14,7 @@ type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions = {
-    airnodeAddress: currentState.contracts.Airnode,
+    airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
     providerId: currentState.settings.providerId,
   };
@@ -53,7 +53,7 @@ export async function initializeProvider(
   // STEP 2: Get current block number, and verify or set provider parameters
   // =================================================================
   const providerFetchOptions = {
-    airnodeAddress: state1.contracts.Airnode,
+    airnodeRrpAddress: state1.contracts.AirnodeRrp,
     authorizers: state1.settings.authorizers,
     masterHDNode: state1.masterHDNode,
     provider: state1.provider,
@@ -105,7 +105,7 @@ export async function initializeProvider(
   // STEP 5: Fetch and apply templates to API calls
   // =================================================================
   const templateFetchOptions = {
-    airnodeAddress: state4.contracts.Airnode,
+    airnodeRrpAddress: state4.contracts.AirnodeRrp,
     provider: state4.provider,
   };
   // This should not throw

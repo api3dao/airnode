@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AirnodeArtifact } from '@airnode/protocol';
+import { AirnodeRrpArtifact } from '@airnode/protocol';
 import { Contract } from './types';
 
 const ClientRequestCreated = ethers.utils.id(
@@ -15,8 +15,8 @@ const ClientRequestFailed = ethers.utils.id('ClientRequestFailed(bytes32,bytes32
 const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,uint256,bytes32,address,address)');
 const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,uint256,bytes32,address,address,uint256)');
 
-export const Airnode: Contract = {
-  ABI: AirnodeArtifact.abi,
+export const AirnodeRrp: Contract = {
+  ABI: AirnodeRrpArtifact.abi,
   topics: {
     // API calls
     ClientRequestCreated,

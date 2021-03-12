@@ -25,8 +25,8 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const requesterIndex = await contract.createRequester(airnode, args.requesterAdmin);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
+      const requesterIndex = await contract.createRequester(airnodeRrp, args.requesterAdmin);
       console.log(`Requester index: ${requesterIndex}`);
     }
   )
@@ -56,8 +56,8 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const requesterAdmin = await contract.setRequesterAdmin(airnode, args.requesterIndex, args.requesterAdmin);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
+      const requesterAdmin = await contract.setRequesterAdmin(airnodeRrp, args.requesterIndex, args.requesterAdmin);
       console.log(`Requester admin: ${requesterAdmin}`);
     }
   )
@@ -82,8 +82,8 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnode(args.providerUrl);
-      const designatedWallet = await contract.deriveDesignatedWallet(airnode, args.providerId, args.requesterIndex);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl);
+      const designatedWallet = await contract.deriveDesignatedWallet(airnodeRrp, args.providerId, args.requesterIndex);
       console.log(`Designated wallet address: ${designatedWallet}`);
     }
   )
@@ -113,8 +113,8 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const clientAddress = await contract.endorseClient(airnode, args.requesterIndex, args.clientAddress);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
+      const clientAddress = await contract.endorseClient(airnodeRrp, args.requesterIndex, args.clientAddress);
       console.log(`Client address: ${clientAddress}`);
     }
   )
@@ -144,8 +144,8 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const clientAddress = await contract.unendorseClient(airnode, args.requesterIndex, args.clientAddress);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
+      const clientAddress = await contract.unendorseClient(airnodeRrp, args.requesterIndex, args.clientAddress);
       console.log(`Client address: ${clientAddress}`);
     }
   )
@@ -171,8 +171,8 @@ yargs
     },
     async (args) => {
       const template = JSON.parse(fs.readFileSync(args.templateFilePath).toString());
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const templateId = await contract.createTemplate(airnode, template);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
+      const templateId = await contract.createTemplate(airnodeRrp, template);
       console.log(`Template ID: ${templateId}`);
     }
   )
@@ -207,9 +207,9 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
       const withdrawalRequestId = await contract.requestWithdrawal(
-        airnode,
+        airnodeRrp,
         args.providerId,
         args.requesterIndex,
         args.destination
@@ -233,8 +233,8 @@ yargs
       },
     },
     async (args) => {
-      const airnode = await evm.getAirnode(args.providerUrl);
-      const withdrawnAmount = await contract.checkWithdrawalRequest(airnode, args.withdrawalRequestId);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl);
+      const withdrawnAmount = await contract.checkWithdrawalRequest(airnodeRrp, args.withdrawalRequestId);
       if (withdrawnAmount) {
         console.log(`Withdrawn amount: ${withdrawnAmount}`);
       } else {
@@ -269,8 +269,8 @@ yargs
     },
     async (args) => {
       const authorizers = JSON.parse(fs.readFileSync(args.authorizersFilePath).toString());
-      const airnode = await evm.getAirnodeWithSigner(args.mnemonic, args.providerUrl);
-      const providerId = await contract.setProviderParameters(airnode, args.providerAdmin, authorizers);
+      const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
+      const providerId = await contract.setProviderParameters(airnodeRrp, args.providerAdmin, authorizers);
       console.log(`Provider ID: ${providerId}`);
     }
   )

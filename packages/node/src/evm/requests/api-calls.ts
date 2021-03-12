@@ -14,7 +14,7 @@ import {
 } from '../../types';
 
 function getApiCallType(topic: string): ApiCallType {
-  const { topics } = contracts.Airnode;
+  const { topics } = contracts.AirnodeRrp;
   switch (topic) {
     case topics.ClientRequestCreated:
       return 'regular';

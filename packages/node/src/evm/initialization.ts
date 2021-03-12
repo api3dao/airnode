@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
-import { Airnode } from './contracts';
+import { AirnodeRrp } from './contracts';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as utils from './utils';
@@ -15,7 +15,7 @@ interface ProviderExistsOptions {
 }
 
 interface BaseFetchOptions {
-  airnodeAddress: string;
+  airnodeRrpAddress: string;
   authorizers: string[];
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
@@ -50,8 +50,8 @@ export function providerExistsOnchain(options: ProviderExistsOptions, onchainDat
 }
 
 export async function fetchProviderWithData(fetchOptions: VerifyOptions): Promise<LogsData<ProviderData | null>> {
-  const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
-  const operation = () => airnode.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
+  const airnodeRrp = new ethers.Contract(fetchOptions.airnodeRrpAddress, AirnodeRrp.ABI, fetchOptions.provider);
+  const operation = () => airnodeRrp.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
   const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and provider admin details...');
@@ -88,19 +88,19 @@ export async function fetchProviderWithData(fetchOptions: VerifyOptions): Promis
 export async function setProviderParameters(
   options: SetProviderParametersOptions
 ): Promise<LogsData<ethers.Transaction | {} | null>> {
-  const { airnodeAddress, authorizers, currentXpub, onchainData, providerAdmin } = options;
+  const { airnodeRrpAddress, authorizers, currentXpub, onchainData, providerAdmin } = options;
 
   const log1 = logger.pend('INFO', `Setting provider parameters with address:${providerAdmin}...`);
 
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
   const connectedWallet = masterWallet.connect(options.provider);
-  const airnode = new ethers.Contract(airnodeAddress, Airnode.ABI, connectedWallet);
+  const airnodeRrp = new ethers.Contract(airnodeRrpAddress, AirnodeRrp.ABI, connectedWallet);
 
   const log2 = logger.pend('INFO', 'Estimating transaction cost for setting provider parameters...');
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
+    airnodeRrp.estimateGas.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -164,7 +164,7 @@ export async function setProviderParameters(
   const log6 = logger.pend('INFO', 'Submitting set provider parameters transaction...');
 
   const setProviderParametersTx = () =>
-    airnode.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
+    airnodeRrp.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
       value: fundsToSend,
       gasLimit,
       gasPrice,

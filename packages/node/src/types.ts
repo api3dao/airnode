@@ -138,7 +138,7 @@ export interface CoordinatorState {
 // EVM specific
 // ===========================================
 export interface EVMContracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export interface EVMProviderState {
@@ -281,7 +281,7 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export interface ChainProvider {

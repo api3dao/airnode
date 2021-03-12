@@ -8,7 +8,7 @@ async function run() {
   const state1 = deploy.buildDeployState(config);
 
   console.log('--> Deploying contracts...');
-  const state2 = await deploy.deployAirnode(state1);
+  const state2 = await deploy.deployAirnodeRrp(state1);
   const state3 = await deploy.deployClients(state2);
   const state4 = await deploy.deployAuthorizers(state3);
 

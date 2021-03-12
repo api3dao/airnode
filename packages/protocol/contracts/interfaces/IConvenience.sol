@@ -2,7 +2,7 @@
 pragma solidity 0.8.2;
 pragma experimental ABIEncoderV2;
 
-import "./IAirnode.sol";
+import "./IAirnodeRrp.sol";
 
 interface IConvenience {
     function setProviderParametersAndForwardFunds(

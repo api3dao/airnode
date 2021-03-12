@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
-import "../interfaces/IAirnode.sol";
+import "../interfaces/IAirnodeRrp.sol";
 import "./interfaces/ISelfAuthorizer.sol";
 
 /// @title Authorizer contract where each provider is their own admin
@@ -15,7 +15,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
         uint256 maxWhitelistExtension;
         }
 
-    IAirnode public airnode;
+    IAirnodeRrp public airnodeRrp;
     uint256 public immutable authorizerType = 2;
     mapping(bytes32 => mapping(address => Admin)) public providerIdToAdmins;
     mapping(bytes32 => mapping(address => uint256)) public providerIdToClientAddressToWhitelistExpiration;
@@ -25,7 +25,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
     /// @param providerId Provider ID from `ProviderStore.sol`
     modifier onlyProviderAdmin(bytes32 providerId)
     {
-        (address providerAdmin, , ) = airnode.getProvider(providerId);
+        (address providerAdmin, , ) = airnodeRrp.getProvider(providerId);
         require(
             msg.sender == providerAdmin,
             "Caller is not provider admin"
@@ -64,10 +64,10 @@ contract SelfAuthorizer is ISelfAuthorizer {
         _;
     }
 
-    /// @param _airnode Airnode contract address
-    constructor (address _airnode)
+    /// @param _airnodeRrp Airnode RRP contract address
+    constructor (address _airnodeRrp)
     {
-        airnode = IAirnode(_airnode);
+        airnodeRrp = IAirnodeRrp(_airnodeRrp);
     }
 
     /// @notice Called by the provider admin to set the adminship parameters

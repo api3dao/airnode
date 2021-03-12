@@ -4,7 +4,7 @@ pragma solidity 0.8.2;
 import "./IProviderStore.sol";
 import "./ITemplateStore.sol";
 
-interface IAirnode is IProviderStore, ITemplateStore {
+interface IAirnodeRrp is IProviderStore, ITemplateStore {
     event ClientRequestCreated(
         bytes32 indexed providerId,
         bytes32 indexed requestId,

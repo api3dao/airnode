@@ -59,7 +59,7 @@ function buildSaveableAPIProvider(state: State, apiProviderName: string): Deploy
 
 export function buildSaveableDeployment(state: State): Deployment {
   const contracts = {
-    Airnode: state.contracts.Airnode!.address,
+    AirnodeRrp: state.contracts.AirnodeRrp!.address,
   };
 
   const clientNames = Object.keys(state.clientsByName);

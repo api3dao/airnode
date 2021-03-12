@@ -2,7 +2,7 @@
 pragma solidity 0.8.2;
 
 import "./Convenience.sol";
-import "./interfaces/IAirnode.sol";
+import "./interfaces/IAirnodeRrp.sol";
 
 /// @title The contract used to make and fulfill requests
 /// @notice Clients use this contract to make requests and Airnodes use it to
@@ -10,7 +10,7 @@ import "./interfaces/IAirnode.sol";
 /// or providers, requesters and templates. It also includes some convenience
 /// methods that Airnodes use to reduce the number of calls they make to
 /// blockchain providers.
-contract Airnode is Convenience, IAirnode {
+contract AirnodeRrp is Convenience, IAirnodeRrp {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
 

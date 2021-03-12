@@ -22,7 +22,7 @@ describe('fetch (templates)', () => {
 
   beforeEach(() => {
     fetchOptions = {
-      airnodeAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+      airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
   });
@@ -223,10 +223,10 @@ describe('fetch (templates)', () => {
 });
 
 describe('fetchTemplate', () => {
-  let airnode: ethers.Contract;
+  let airnodeRrp: ethers.Contract;
 
   beforeEach(() => {
-    airnode = new ethers.Contract('address', ['ABI']);
+    airnodeRrp = new ethers.Contract('address', ['ABI']);
   });
 
   it('fetches the individual template', async () => {
@@ -238,7 +238,7 @@ describe('fetchTemplate', () => {
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
     const templateId = 'templateId';
-    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    const [logs, res] = await templates.fetchTemplate(airnodeRrp, templateId);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
     expect(res).toEqual({
       encodedParameters: '0x6874656d706c6174656576616c7565',
@@ -259,7 +259,7 @@ describe('fetchTemplate', () => {
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
     const templateId = 'templateId';
-    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    const [logs, res] = await templates.fetchTemplate(airnodeRrp, templateId);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
     expect(res).toEqual({
       encodedParameters: '0x6874656d706c6174656576616c7565',
@@ -275,7 +275,7 @@ describe('fetchTemplate', () => {
     getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
 
     const templateId = 'templateId';
-    const [logs, res] = await templates.fetchTemplate(airnode, templateId);
+    const [logs, res] = await templates.fetchTemplate(airnodeRrp, templateId);
     expect(logs).toEqual([
       {
         level: 'ERROR',

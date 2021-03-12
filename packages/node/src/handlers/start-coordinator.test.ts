@@ -55,7 +55,7 @@ describe('startCoordinator', () => {
       status: 200,
     });
 
-    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnode.getTemplates());
+    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
     const gasPrice = ethers.BigNumber.from(1000);
@@ -105,7 +105,7 @@ describe('startCoordinator', () => {
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([]);
 
-    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnode.getTemplates());
+    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');

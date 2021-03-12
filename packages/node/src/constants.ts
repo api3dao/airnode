@@ -4,7 +4,7 @@ export const API_CALL_TOTAL_TIMEOUT = 29_000;
 // The maximum time an API call has before it is timed out (and retried).
 export const API_CALL_TIMEOUT = 20_000;
 
-// The number of past blocks to lookup when fetching Airnode events.
+// The number of past blocks to lookup when fetching Airnode RRP events.
 export const BLOCK_COUNT_HISTORY_LIMIT = 300;
 
 // Certain events cause requests to be "blocked" (e.g. the template cannot be fetched)

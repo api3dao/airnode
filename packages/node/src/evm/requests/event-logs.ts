@@ -39,13 +39,13 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
   const rawLogs = await retryableOperation;
 
   // If the provider returns a bad response, mapping logs could also throw
-  const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+  const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
     ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
     transactionHash: log.transactionHash,
-    parsedLog: airnodeInterface.parseLog(log),
+    parsedLog: airnodeRrpInterface.parseLog(log),
   }));
 
   return logsWithBlocks;

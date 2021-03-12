@@ -2,7 +2,7 @@ const { expect } = require('chai');
 
 let roles;
 let selfAuthorizer;
-let airnode;
+let airnodeRrp;
 let providerId;
 const requesterIndex = 123;
 const adminMaxWhitelistExtension = 100;
@@ -20,18 +20,18 @@ beforeEach(async () => {
     client: accounts[4],
     randomPerson: accounts[9],
   };
-  const airnodeFactory = await ethers.getContractFactory('Airnode', roles.deployer);
-  airnode = await airnodeFactory.deploy();
+  const airnodeRrpFactory = await ethers.getContractFactory('AirnodeRrp', roles.deployer);
+  airnodeRrp = await airnodeRrpFactory.deploy();
   const selfAuthorizerFactory = await ethers.getContractFactory('SelfAuthorizer', roles.deployer);
-  selfAuthorizer = await selfAuthorizerFactory.deploy(airnode.address);
-  providerId = await airnode.connect(roles.providerMasterWallet).callStatic.createProvider(roles.providerAdmin.address, 'xpub...');
-  await airnode.connect(roles.providerMasterWallet).createProvider(roles.providerAdmin.address, 'xpub...');
+  selfAuthorizer = await selfAuthorizerFactory.deploy(airnodeRrp.address);
+  providerId = await airnodeRrp.connect(roles.providerMasterWallet).callStatic.createProvider(roles.providerAdmin.address, 'xpub...');
+  await airnodeRrp.connect(roles.providerMasterWallet).createProvider(roles.providerAdmin.address, 'xpub...');
 });
 
 describe("constructor", function () {
   it("initializes correctly", async function () {
     expect(await selfAuthorizer.authorizerType()).to.equal(2);
-    expect(await selfAuthorizer.airnode()).to.equal(airnode.address);
+    expect(await selfAuthorizer.airnodeRrp()).to.equal(airnodeRrp.address);
   });
 });
 

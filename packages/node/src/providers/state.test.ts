@@ -10,7 +10,7 @@ describe('create', () => {
     const chainConfig: ChainConfig = {
       authorizers: [ethers.constants.AddressZero],
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       id: 1337,
       providerAdmin: '0xproviderAdmin',
@@ -21,7 +21,7 @@ describe('create', () => {
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
         authorizers: [ethers.constants.AddressZero],
@@ -62,7 +62,7 @@ describe('create', () => {
       authorizers: [ethers.constants.AddressZero],
       blockHistoryLimit: 150,
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       id: 1337,
       minConfirmations: 3,
@@ -74,7 +74,7 @@ describe('create', () => {
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
         authorizers: [ethers.constants.AddressZero],

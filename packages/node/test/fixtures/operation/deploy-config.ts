@@ -34,7 +34,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       public: '0x0000000000000000000000000000000000000000',
     },
     clients: {
-      MockAirnodeClient: { endorsers: ['bob'] },
+      MockAirnodeRrpClient: { endorsers: ['bob'] },
     },
     requesters: [
       {
@@ -56,7 +56,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         type: 'regular',
         apiProvider: 'CurrencyConverterAPI',
         template: 'template-1',
-        client: 'MockAirnodeClient',
+        client: 'MockAirnodeRrpClient',
         fulfillFunctionName: 'fulfill',
         parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
       },
@@ -66,7 +66,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         apiProvider: 'CurrencyConverterAPI',
         endpoint: 'convertToUSD',
         oisTitle: 'currency-converter-ois',
-        client: 'MockAirnodeClient',
+        client: 'MockAirnodeRrpClient',
         fulfillFunctionName: 'fulfill',
         parameters: [
           { type: 'bytes32', name: 'from', value: 'ETH' },

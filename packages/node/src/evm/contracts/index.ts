@@ -1,3 +1,3 @@
-import { Airnode } from './airnode';
+import { AirnodeRrp } from './airnodeRrp';
 
-export { Airnode };
+export { AirnodeRrp };

@@ -3,7 +3,7 @@ import { deriveEndpointId, deriveProviderId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 
 export async function endorseClients(state: State): Promise<State> {
-  const { Airnode } = state.contracts;
+  const { AirnodeRrp } = state.contracts;
 
   for (const clientName of Object.keys(state.config.clients)) {
     const configClient = state.config.clients[clientName];
@@ -12,7 +12,7 @@ export async function endorseClients(state: State): Promise<State> {
     for (const requesterId of configClient.endorsers) {
       const requester = state.requestersById[requesterId];
 
-      const tx = await Airnode!
+      const tx = await AirnodeRrp!
         .connect(requester.signer)
         .setClientEndorsementStatus(requester.requesterIndex, client.address, true);
 
@@ -24,7 +24,7 @@ export async function endorseClients(state: State): Promise<State> {
 }
 
 export async function createTemplates(state: State): Promise<State> {
-  const { Airnode } = state.contracts;
+  const { AirnodeRrp } = state.contracts;
 
   const templatesByName: { [name: string]: Template } = {};
   for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
@@ -36,15 +36,15 @@ export async function createTemplates(state: State): Promise<State> {
       const configTemplate = configApiProvider.templates[templateName];
       const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
 
-      const tx = await Airnode!.createTemplate(providerId, endpointId, encode(configTemplate.parameters));
+      const tx = await AirnodeRrp!.createTemplate(providerId, endpointId, encode(configTemplate.parameters));
       await tx.wait();
 
       const logs = await state.provider.getLogs({
         fromBlock: 0,
-        address: Airnode!.address,
+        address: AirnodeRrp!.address,
       });
       const log = logs.find((log) => log.transactionHash === tx.hash);
-      const parsedLog = Airnode!.interface.parseLog(log!);
+      const parsedLog = AirnodeRrp!.interface.parseLog(log!);
       const templateId = parsedLog.args.templateId;
 
       templatesByName[`${apiProviderName}-${templateName}`] = {

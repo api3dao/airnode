@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-let airnode;
+let airnodeRrp;
 let roles;
 const requesterIndex = 1;
 let providerXpub, providerId, masterWallet, designatedWallet;
@@ -13,10 +13,10 @@ beforeEach(async () => {
     requesterAdmin: accounts[2],
     randomPerson: accounts[9],
   };
-  const airnodeFactory = await ethers.getContractFactory('Airnode', roles.deployer);
-  airnode = await airnodeFactory.deploy();
+  const airnodeRrpFactory = await ethers.getContractFactory('AirnodeRrp', roles.deployer);
+  airnodeRrp = await airnodeRrpFactory.deploy();
   // Create the requester
-  await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
+  await airnodeRrp.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
   // Generate the provider private key and derive the related parameters
   const providerWallet = ethers.Wallet.createRandom();
   const providerMnemonic = providerWallet.mnemonic.phrase;
@@ -41,7 +41,7 @@ describe('setProviderParametersAndForwardFunds', function () {
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
         // Estimate the gas required to set the provider parameters
-        const gasEstimate = await airnode
+        const gasEstimate = await airnodeRrp
           .connect(masterWallet)
           .estimateGas.setProviderParametersAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
             value: 1,
@@ -55,7 +55,7 @@ describe('setProviderParametersAndForwardFunds', function () {
         const initialProviderAdminBalance = await waffle.provider.getBalance(roles.providerAdmin.address);
         const expectedProviderAdminBalance = initialProviderAdminBalance.add(fundsToSend);
         await expect(
-          airnode
+          airnodeRrp
             .connect(masterWallet)
             .setProviderParametersAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
               value: fundsToSend,
@@ -63,7 +63,7 @@ describe('setProviderParametersAndForwardFunds', function () {
               gasPrice: gasPrice,
             })
         )
-          .to.emit(airnode, 'ProviderParametersSet')
+          .to.emit(airnodeRrp, 'ProviderParametersSet')
           .withArgs(providerId, roles.providerAdmin.address, providerXpub, authorizers);
         expect(await waffle.provider.getBalance(roles.providerAdmin.address)).to.equal(expectedProviderAdminBalance);
       });
@@ -74,11 +74,11 @@ describe('setProviderParametersAndForwardFunds', function () {
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Attempt to set the provider parameters and forward the funds (using airnode as it has no default payable method)
+        // Attempt to set the provider parameters and forward the funds (using Airnode RRP as it has no default payable method)
         await expect(
-          airnode
+          airnodeRrp
             .connect(masterWallet)
-            .setProviderParametersAndForwardFunds(airnode.address, providerXpub, authorizers, {
+            .setProviderParametersAndForwardFunds(airnodeRrp.address, providerXpub, authorizers, {
               value: 1,
               gasLimit: 500000,
             })
@@ -95,13 +95,13 @@ describe('setProviderParametersAndForwardFunds', function () {
       // Set the provider parameters
       const initialProviderAdminBalance = await waffle.provider.getBalance(roles.providerAdmin.address);
       await expect(
-        airnode
+        airnodeRrp
           .connect(masterWallet)
           .setProviderParametersAndForwardFunds(roles.providerAdmin.address, providerXpub, authorizers, {
             gasLimit: 500000,
           })
       )
-        .to.emit(airnode, 'ProviderParametersSet')
+        .to.emit(airnodeRrp, 'ProviderParametersSet')
         .withArgs(providerId, roles.providerAdmin.address, providerXpub, authorizers);
       expect(await waffle.provider.getBalance(roles.providerAdmin.address)).to.equal(initialProviderAdminBalance);
     });
@@ -115,11 +115,11 @@ describe('getProviderAndBlockNumber', function () {
       ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
     );
     // Set provider parameters
-    await airnode
+    await airnodeRrp
       .connect(masterWallet)
       .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
     // Get the provider and verify its fields
-    const providerAndBlockNumber = await airnode.getProviderAndBlockNumber(providerId);
+    const providerAndBlockNumber = await airnodeRrp.getProviderAndBlockNumber(providerId);
     expect(providerAndBlockNumber.admin).to.equal(roles.providerAdmin.address);
     expect(providerAndBlockNumber.xpub).to.equal(providerXpub);
     expect(providerAndBlockNumber.authorizers).to.deep.equal(authorizers);
@@ -144,10 +144,10 @@ describe('getTemplates', function () {
           )
         )
       );
-      await airnode.createTemplate(providerIds[i], endpointIds[i], parameters[i]);
+      await airnodeRrp.createTemplate(providerIds[i], endpointIds[i], parameters[i]);
     }
     // Get the templates and verify them
-    const templates = await airnode.getTemplates(templateIds);
+    const templates = await airnodeRrp.getTemplates(templateIds);
     expect(templates.providerIds.length).to.equal(noTemplates);
     expect(templates.endpointIds.length).to.equal(noTemplates);
     expect(templates.parameters.length).to.equal(noTemplates);
@@ -164,7 +164,7 @@ describe('checkAuthorizationStatuses', function () {
     it('returns authorization statuses', async function () {
       const authorizers = [ethers.constants.AddressZero];
       // Set provider parameters
-      await airnode
+      await airnodeRrp
         .connect(masterWallet)
         .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization statuses
@@ -173,7 +173,7 @@ describe('checkAuthorizationStatuses', function () {
       const requesterIndex = 1;
       const clientAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
       const noRequests = 10;
-      const authorizationStatuses = await airnode.checkAuthorizationStatuses(
+      const authorizationStatuses = await airnodeRrp.checkAuthorizationStatuses(
         providerId,
         Array(noRequests).fill(requestId),
         Array(noRequests).fill(endpointId),
@@ -190,7 +190,7 @@ describe('checkAuthorizationStatuses', function () {
     it('reverts', async function () {
       const authorizers = [ethers.constants.AddressZero];
       // Set provider parameters
-      await airnode
+      await airnodeRrp
         .connect(masterWallet)
         .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
       // Check authorization statuses
@@ -200,7 +200,7 @@ describe('checkAuthorizationStatuses', function () {
       const clientAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
       const noRequests = 10;
       await expect(
-        airnode.checkAuthorizationStatuses(
+        airnodeRrp.checkAuthorizationStatuses(
           providerId,
           Array(noRequests - 1).fill(requestId),
           Array(noRequests).fill(endpointId),

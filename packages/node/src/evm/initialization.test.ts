@@ -92,7 +92,7 @@ describe('providerExistsOnchain', () => {
 
 describe('fetchProviderWithData', () => {
   const options = {
-    airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+    airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
@@ -204,7 +204,7 @@ describe('fetchProviderWithData', () => {
 
 describe('setProviderParameters', () => {
   const options = {
-    airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+    airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),
@@ -470,7 +470,7 @@ describe('setProviderParameters', () => {
 
 describe('verifyOrSetProviderParameters', () => {
   const options = {
-    airnodeAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+    airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
     masterHDNode: wallet.getMasterHDNode(),
     provider: new ethers.providers.JsonRpcProvider(),

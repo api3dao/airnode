@@ -41,7 +41,7 @@ yarn run dev:eth-node
 # OR to start as a background process
 yarn run dev:eth-node:background
 
-# Deploy Airnode with API providers, templates, requesters etc. This creates a "deployment" file in a deployments/ folder.
+# Deploy Airnode RRP with API providers, templates, requesters etc. This creates a "deployment" file in a deployments/ folder.
 yarn run dev:eth-deploy
 
 # Make requests for Airnode to action
@@ -59,19 +59,19 @@ Start an Ethereum development node by running:
 yarn run dev:eth-node
 ```
 
-By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your `config.json` when running the Airnode node.
+By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your `config.json` when running the Airnode.
 
 This development node uses [Hardhat](https://hardhat.org/) behind the scenes. It creates no contracts by itself and only pre-funds a (configurable) number of accounts/addresses.
 
 ### Deploying Airnode
 
-After starting an Ethereum development node, you can deploy the Airnode contracts to it by running:
+After starting an Ethereum development node, you can deploy the Airnode RRP contracts to it by running:
 
 ```sh
 yarn run dev:eth-deploy
 ```
 
-Along with simply deploying the Airnode contracts, the above command will also set API provider parameters onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
+Along with simply deploying the Airnode RRP contracts, the above command will also set API provider parameters onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
 
 Running this command will build and save a "deployment" file in a `./deployments` folder. This file contains the addresses for the relevant accounts and contracts that are created. This is necessary as subsequent scripts do not have context of what these addresses and contracts are. You do not need to edit this file yourself.
 
@@ -220,7 +220,7 @@ There are currently three types of requests that can be made. You can learn more
     "public": "0x0000000000000000000000000000000000000000"
   },
   "clients": {
-    "MockAirnodeClient": { "endorsers": ["bob"] }
+    "MockAirnodeRrpClient": { "endorsers": ["bob"] }
   },
   "requesters": [
     {
@@ -242,7 +242,7 @@ There are currently three types of requests that can be made. You can learn more
       "type": "regular",
       "apiProvider": "CurrencyConverterAPI",
       "template": "template-1",
-      "client": "MockAirnodeClient",
+      "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" }
@@ -254,7 +254,7 @@ There are currently three types of requests that can be made. You can learn more
       "apiProvider": "CurrencyConverterAPI",
       "endpoint": "convertToUSD",
       "oisTitle": "currency-converter-api",
-      "client": "MockAirnodeClient",
+      "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" },

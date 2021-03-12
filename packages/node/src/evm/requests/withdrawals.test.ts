@@ -7,8 +7,8 @@ import { RequestStatus } from 'src/types';
 describe('initialize (Withdrawal)', () => {
   it('builds a withdrawal request', () => {
     const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const parseLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -74,8 +74,8 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
 describe('mapRequests (Withdrawal)', () => {
   it('initializes and returns withdrawal requests', () => {
     const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -106,9 +106,9 @@ describe('mapRequests (Withdrawal)', () => {
   it('updates the status of fulfilled withdrawal requests', () => {
     const requestEvent = fixtures.evm.logs.buildWithdrawalRequest();
     const fulfillEvent = fixtures.evm.logs.buildWithdrawalFulfilled();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const requestLog = airnodeInterface.parseLog(requestEvent);
-    const fulfillLog = airnodeInterface.parseLog(fulfillEvent);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const requestLog = airnodeRrpInterface.parseLog(requestEvent);
+    const fulfillLog = airnodeRrpInterface.parseLog(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,

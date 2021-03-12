@@ -1,10 +1,10 @@
 import * as operation from '@airnode/operation';
 
-export async function deployAirnode(config: operation.Config): Promise<operation.Deployment> {
+export async function deployAirnodeRrp(config: operation.Config): Promise<operation.Deployment> {
   const state1 = operation.buildDeployState(config);
 
   // Deploy contracts
-  const state2 = await operation.deployAirnode(state1);
+  const state2 = await operation.deployAirnodeRrp(state1);
   const state3 = await operation.deployClients(state2);
   const state4 = await operation.deployAuthorizers(state3);
 

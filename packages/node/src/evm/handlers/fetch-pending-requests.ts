@@ -16,7 +16,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
   };
 
   const fetchOptions = {
-    address: state.contracts.Airnode,
+    address: state.contracts.AirnodeRrp,
     blockHistoryLimit: state.settings.blockHistoryLimit,
     currentBlock: state.currentBlock!,
     ignoreBlockedRequestsAfterBlocks: state.settings.ignoreBlockedRequestsAfterBlocks,
