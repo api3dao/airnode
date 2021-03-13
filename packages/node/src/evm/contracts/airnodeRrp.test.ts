@@ -15,8 +15,8 @@ describe('AirnodeRrp', () => {
       'fail',
       'fulfill',
       'fulfillWithdrawal',
-      'getProvider',
-      'getProviderAndBlockNumber',
+      'getAirnodeParameters',
+      'getAirnodeParametersAndBlockNumber',
       'getTemplate',
       'getTemplates',
       'makeFullRequest',
@@ -26,9 +26,9 @@ describe('AirnodeRrp', () => {
       'requesterIndexToAdmin',
       'requesterIndexToClientAddressToEndorsementStatus',
       'requesterIndexToNoWithdrawalRequests',
+      'setAirnodeParameters',
+      'setAirnodeParametersAndForwardFunds',
       'setClientEndorsementStatus',
-      'setProviderParameters',
-      'setProviderParametersAndForwardFunds',
       'setRequesterAdmin',
     ]);
   });
@@ -38,12 +38,12 @@ describe('AirnodeRrp', () => {
       .map((fn: any) => fn.name)
       .sort();
     expect(events).toEqual([
+      'AirnodeParametersSet',
       'ClientEndorsementStatusSet',
       'ClientFullRequestCreated',
       'ClientRequestCreated',
       'ClientRequestFailed',
       'ClientRequestFulfilled',
-      'ProviderParametersSet',
       'RequesterCreated',
       'RequesterUpdated',
       'TemplateCreated',

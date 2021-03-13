@@ -53,12 +53,12 @@ npx @api3/airnode-admin set-requester-admin \
 
 ### `derive-designated-wallet`
 
-Derives the address of the [wallet designated by a provider for a requester](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md).
+Derives the address of the [wallet designated by an Airnode for a requester](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md).
 
 ```sh
 npx @api3/airnode-admin derive-designated-wallet \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --providerId 0xe1e0dd... \
+  --airnodeId 0xe1e0dd... \
   --requesterIndex 6
 ```
 
@@ -102,14 +102,14 @@ npx @api3/airnode-admin create-template \
 
 ### `request-withdrawal`
 
-Requests a [withdrawal](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md#withdrawals) from the wallet designated by a provider for a requester, and returns the request ID.
+Requests a [withdrawal](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md#withdrawals) from the wallet designated by an Airnode for a requester, and returns the request ID.
 The `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --providerId 0xe1e0dd... \
+  --airnodeId 0xe1e0dd... \
   --requesterIndex 6 \
   --destination 0x98aaba...
 ```
@@ -124,21 +124,21 @@ npx @api3/airnode-admin check-withdrawal-request \
   --withdrawalRequestId 0x011d1b...
 ```
 
-## Provider commands
+## Airnode commands
 
-### `set-provider-parameters`
+### `set-airnode-parameters`
 
-Sets the parameters of a [provider](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns the provider ID.
+Sets the parameters of an [Airnode](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns the Airnode ID.
 See the `/example` directory for an example authorizers file.
 
 **You probably should not be using this.**
-Airnode will set your provider parameters during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md) if necessary.
+Airnode will set its own parameters during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md) if necessary.
 
 ```sh
-npx @api3/airnode-admin set-provider-parameters \
+npx @api3/airnode-admin set-airnode-parameters \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --providerAdmin 0xc2193d... \
+  --airnodeAdmin 0xc2193d... \
   --authorizersFilePath ./authorizers.json
 ```
 

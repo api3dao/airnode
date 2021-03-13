@@ -21,7 +21,7 @@ export function parseFiles(configPath, securityPath) {
     cloudProvider: config.nodeSettings.cloudProvider,
     configId: config.id,
     nodeVersion: config.nodeSettings.nodeVersion,
-    providerIdShort: config.nodeSettings.providerIdShort,
+    airnodeIdShort: config.nodeSettings.airnodeIdShort,
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
   };
@@ -38,14 +38,14 @@ export function parseReceipt(receiptFilename) {
 
 export function checkConfigParameters(configParams, nodeVersion, command) {
   if (command === 'deploy-first-time') {
-    if (configParams.providerIdShort) {
-      ora().fail('Found providerIdShort under nodeSettings in config.json');
-      throw new Error('config.json must not include providerIdShort when using the command "deploy-first-time"');
+    if (configParams.airnodeIdShort) {
+      ora().fail('Found airnodeIdShort under nodeSettings in config.json');
+      throw new Error('config.json must not include airnodeIdShort when using the command "deploy-first-time"');
     }
   } else if (command === 'redeploy') {
-    if (!configParams.providerIdShort) {
-      ora().fail('Could not find providerIdShort under nodeSettings in config.json');
-      throw new Error('config.json must include providerIdShort while using the command "redeploy"');
+    if (!configParams.airnodeIdShort) {
+      ora().fail('Could not find airnodeIdShort under nodeSettings in config.json');
+      throw new Error('config.json must include airnodeIdShort while using the command "redeploy"');
     }
   }
   if (configParams.cloudProvider !== 'aws') {
@@ -60,10 +60,10 @@ export function checkConfigParameters(configParams, nodeVersion, command) {
   }
 }
 
-export function generateServerlessSecretsFile(providerIdShort, apiCredentials) {
+export function generateServerlessSecretsFile(airnodeIdShort, apiCredentials) {
   const secrets = {};
   // The mnemonic will be fetched from AWS SSM
-  secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${providerIdShort}/masterKeyMnemonic~true\}`;
+  secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${airnodeIdShort}/masterKeyMnemonic~true\}`;
   secrets['LOG_LEVEL'] = 'debug';
   for (const oisTitle in apiCredentials) {
     for (const securityScheme of apiCredentials[oisTitle]) {

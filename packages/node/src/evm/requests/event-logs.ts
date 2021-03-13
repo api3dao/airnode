@@ -11,7 +11,7 @@ interface FetchOptions {
   currentBlock: number;
   ignoreBlockedRequestsAfterBlocks: number;
   provider: ethers.providers.JsonRpcProvider;
-  providerId: string;
+  airnodeId: string;
 }
 
 interface GroupedLogs {
@@ -29,7 +29,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
-    topics: [null, options.providerId],
+    topics: [null, options.airnodeId],
   };
 
   const operation = () => options.provider.getLogs(filter);

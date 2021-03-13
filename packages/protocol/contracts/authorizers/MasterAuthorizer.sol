@@ -5,7 +5,7 @@ import "./interfaces/IMasterAuthorizer.sol";
 
 /// @title Authorizer contract with a master admin
 /// @notice This contract assumes that there is a master admin who can be
-/// trusted with whitelisting clients and requesters for specific providers.
+/// trusted with whitelisting clients and requesters for specific Airnodes.
 /// In the API3 context, this would be the API3 DAO. However, requiring a DAO
 /// to vote on every whitelisting and blacklisting action is not scalable. As
 /// a solution, the master admin (i.e., the API3 DAO) appoints addresses as
@@ -28,9 +28,9 @@ contract MasterAuthorizer is IMasterAuthorizer {
     address public masterAdmin;
     mapping(address => Admin) public admins;
     mapping(bytes32 => mapping(address => uint256)) public
-        providerIdToClientAddressToWhitelistExpiration;
+        airnodeIdToClientAddressToWhitelistExpiration;
     mapping(bytes32 => mapping(uint256 => uint256)) public
-        providerIdToRequesterIndexToWhitelistExpiration;
+        airnodeIdToRequesterIndexToWhitelistExpiration;
 
     /// @dev Reverts if the caller is not the master admin
     modifier onlyMasterAdmin()
@@ -140,12 +140,12 @@ contract MasterAuthorizer is IMasterAuthorizer {
     }
 
     /// @notice Called by the admin to extend the whitelisting of a client
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param clientAddress Client address
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// client will expire
     function extendClientWhitelisting(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address clientAddress,
         uint256 whitelistExpiration
         )
@@ -155,12 +155,12 @@ contract MasterAuthorizer is IMasterAuthorizer {
         onlyValidExpiration(whitelistExpiration)
     {
         require(
-            whitelistExpiration > providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress],
+            whitelistExpiration > airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress],
             "Expiration does not extend"
             );
-        providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress] = whitelistExpiration;
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = whitelistExpiration;
         emit ClientWhitelistingExtended(
-            providerId,
+            airnodeId,
             clientAddress,
             whitelistExpiration,
             msg.sender
@@ -168,12 +168,12 @@ contract MasterAuthorizer is IMasterAuthorizer {
     }
 
     /// @notice Called by the admin to extend the whitelisting of a requester
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param requesterIndex Requester index from `RequesterStore.sol`
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// requester will expire
     function extendRequesterWhitelisting(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         uint256 whitelistExpiration
         )
@@ -183,12 +183,12 @@ contract MasterAuthorizer is IMasterAuthorizer {
         onlyValidExpiration(whitelistExpiration)
     {
         require(
-            whitelistExpiration > providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex],
+            whitelistExpiration > airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex],
             "Expiration does not extend"
             );
-        providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex] = whitelistExpiration;
+        airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex] = whitelistExpiration;
         emit RequesterWhitelistingExtended(
-            providerId,
+            airnodeId,
             requesterIndex,
             whitelistExpiration,
             msg.sender
@@ -199,12 +199,12 @@ contract MasterAuthorizer is IMasterAuthorizer {
     /// time of the client
     /// @dev Note that the master admin can use this method to set the client's
     /// `whitelistExpiration` to `0`, effectively blacklisting them
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param clientAddress Client address
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// client will expire
     function setClientWhitelistExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address clientAddress,
         uint256 whitelistExpiration
         )
@@ -212,9 +212,9 @@ contract MasterAuthorizer is IMasterAuthorizer {
         override
         onlyMasterAdmin
     {
-        providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress] = whitelistExpiration;
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = whitelistExpiration;
         emit ClientWhitelistExpirationSet(
-            providerId,
+            airnodeId,
             clientAddress,
             whitelistExpiration
             );
@@ -224,12 +224,12 @@ contract MasterAuthorizer is IMasterAuthorizer {
     /// time of the requester
     /// @dev Note that the master admin can use this method to set the
     /// requester's `whitelistExpiration` to `0`, effectively blacklisting them
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param requesterIndex Requester index from `RequesterStore.sol`
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// requester will expire
     function setRequesterWhitelistExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         uint256 whitelistExpiration
         )
@@ -237,9 +237,9 @@ contract MasterAuthorizer is IMasterAuthorizer {
         override
         onlyMasterAdmin
     {
-        providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex] = whitelistExpiration;
+        airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex] = whitelistExpiration;
         emit RequesterWhitelistExpirationSet(
-            providerId,
+            airnodeId,
             requesterIndex,
             whitelistExpiration
             );
@@ -254,7 +254,7 @@ contract MasterAuthorizer is IMasterAuthorizer {
     /// has enough funds to fulfill the request. However, that is not a
     /// condition that can be checked deterministically.
     /// @param requestId Request ID
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param endpointId Endpoint ID
     /// @param requesterIndex Requester index from `RequesterStore.sol`
     /// @param designatedWallet Designated wallet
@@ -262,7 +262,7 @@ contract MasterAuthorizer is IMasterAuthorizer {
     /// @return status Authorization status of the request
     function checkIfAuthorized(
         bytes32 requestId,        // solhint-disable-line
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,       // solhint-disable-line
         uint256 requesterIndex,
         address designatedWallet,
@@ -274,7 +274,7 @@ contract MasterAuthorizer is IMasterAuthorizer {
         returns (bool status)
     {
         return designatedWallet.balance != 0
-            && (providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress] > block.timestamp
-            || providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex] > block.timestamp);
+            && (airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp
+            || airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex] > block.timestamp);
     }
 }

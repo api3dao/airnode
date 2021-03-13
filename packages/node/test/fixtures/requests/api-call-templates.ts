@@ -7,7 +7,7 @@ export function buildApiCallTemplate(params?: Partial<ApiCallTemplate>): ApiCall
     encodedParameters: '0x6874656d706c6174656576616c7565',
     endpointId: 'endpointId',
     id: 'templateId',
-    providerId: 'providerId',
+    airnodeId: 'airnodeId',
     ...params,
   };
 }

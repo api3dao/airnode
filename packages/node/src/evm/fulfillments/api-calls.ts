@@ -55,7 +55,7 @@ async function testFulfill(
   const operation = () =>
     airnodeRrp.callStatic.fulfill(
       request.id,
-      request.providerId,
+      request.airnodeId,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -90,7 +90,7 @@ async function submitFulfill(
   const tx = () =>
     airnodeRrp.fulfill(
       request.id,
-      request.providerId,
+      request.airnodeId,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -162,7 +162,7 @@ async function submitFail(
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = () =>
-    airnodeRrp.fail(request.id, request.providerId, request.fulfillAddress, request.fulfillFunctionId, {
+    airnodeRrp.fail(request.id, request.airnodeId, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
       gasPrice: options.gasPrice,
       nonce: request.nonce!,

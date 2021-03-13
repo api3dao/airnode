@@ -8,34 +8,34 @@ export async function applyTerraformWorkaround(region) {
   await exec(`sed -i -- "s=<UPDATE_REGION>=${region}=g" ./terraform/variables.tf`);
 }
 
-export async function deleteStateFiles(providerIdShort) {
-  await exec(`rm -f ./terraform/state/${providerIdShort}*`);
+export async function deleteStateFiles(airnodeIdShort) {
+  await exec(`rm -f ./terraform/state/${airnodeIdShort}*`);
 }
 
-export async function apply(providerIdShort, mnemonic) {
+export async function apply(airnodeIdShort, mnemonic) {
   await exec(
-    `cd terraform && terraform apply -auto-approve -state ./state/${providerIdShort} -var="providerId=${providerIdShort}" -var="mnemonic=${mnemonic}" -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
+    `cd terraform && terraform apply -auto-approve -state ./state/${airnodeIdShort} -var="airnodeId=${airnodeIdShort}" -var="mnemonic=${mnemonic}" -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
   );
 }
 
-export async function destroy(providerIdShort) {
+export async function destroy(airnodeIdShort) {
   await exec(
-    `cd terraform && terraform destroy -auto-approve -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
+    `cd terraform && terraform destroy -auto-approve -state ./state/${airnodeIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
   );
 }
 
-export async function import_(providerIdShort) {
+export async function import_(airnodeIdShort) {
   await exec(
-    `cd terraform && terraform import -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${providerIdShort}/masterKeyMnemonic`
+    `cd terraform && terraform import -state ./state/${airnodeIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY" aws_ssm_parameter.masterKeyMnemonic /airnode/${airnodeIdShort}/masterKeyMnemonic`
   );
 }
 
-export async function refresh(providerIdShort) {
+export async function refresh(airnodeIdShort) {
   await exec(
-    `cd terraform && terraform refresh -state ./state/${providerIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
+    `cd terraform && terraform refresh -state ./state/${airnodeIdShort} -var="aws_access_key_id=$AWS_ACCESS_KEY_ID" -var="aws_secret_key=$AWS_SECRET_KEY"`
   );
 }
 
-export async function output(providerIdShort) {
-  return await exec(`cd terraform && terraform output -state ./state/${providerIdShort} -json`);
+export async function output(airnodeIdShort) {
+  return await exec(`cd terraform && terraform output -state ./state/${airnodeIdShort} -json`);
 }

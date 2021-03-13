@@ -2,35 +2,35 @@
 pragma solidity 0.8.2;
 
 import "./RequesterStore.sol";
-import "./interfaces/IProviderStore.sol";
+import "./interfaces/IAirnodeParameterStore.sol";
 import "./authorizers/interfaces/IAuthorizer.sol";
 
-/// @title The contract where the providers are stored
-contract ProviderStore is RequesterStore, IProviderStore {
-    struct Provider {
+/// @title The contract where the Airnode parameters are stored
+contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
+    struct AirnodeParameter {
         address admin;
         string xpub;
         address[] authorizers;
         }
 
-    mapping(bytes32 => Provider) internal providers;
+    mapping(bytes32 => AirnodeParameter) internal airnodeParameters;
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
-    /// @notice Allows the master wallet (m) of the provider to set its
+    /// @notice Allows the master wallet (m) of the Airnode to set its
     /// parameters on this chain
     /// @dev This method can also be used to update `admin`, `xpub` and/or
     /// `authorizers`.
     /// `admin` is not used in the protocol contracts. It is intended to
     /// potentially be referred to in authorizer contracts.
-    /// Note that the provider can announce an incorrect `xpub`. However, the
-    /// mismatch between it and the providerId can be detected off-chain.
+    /// Note that the Airnode can announce an incorrect `xpub`. However, the
+    /// mismatch between it and the airnodeId can be detected off-chain.
     /// This needs to be payable to be callable by
-    /// setProviderParametersAndForwardFunds().
-    /// @param admin Provider admin
-    /// @param xpub Master public key of the provider
-    /// @param authorizers Authorizer contract addresses of the provider
-    /// @return providerId Provider ID
-    function setProviderParameters(
+    /// setAirnodeParametersAndForwardFunds().
+    /// @param admin Airnode admin
+    /// @param xpub Master public key of the Airnode
+    /// @param authorizers Authorizer contract addresses of the Airnode
+    /// @return airnodeId Airnode ID
+    function setAirnodeParameters(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
@@ -38,16 +38,16 @@ contract ProviderStore is RequesterStore, IProviderStore {
         public
         payable
         override
-        returns (bytes32 providerId)
+        returns (bytes32 airnodeId)
     {
-        providerId = keccak256(abi.encode(msg.sender));
-        providers[providerId] = Provider({
+        airnodeId = keccak256(abi.encode(msg.sender));
+        airnodeParameters[airnodeId] = AirnodeParameter({
             admin: admin,
             xpub: xpub,
             authorizers: authorizers
             });
-        emit ProviderParametersSet(
-            providerId,
+        emit AirnodeParametersSet(
+            airnodeId,
             admin,
             xpub,
             authorizers
@@ -55,18 +55,18 @@ contract ProviderStore is RequesterStore, IProviderStore {
     }
 
     /// @notice Called by the requester admin to create a request for the
-    /// provider to send the funds kept in their designated wallet to the
+    /// Airnode to send the funds kept in their designated wallet to the
     /// destination
     /// @dev We do not need to use the withdrawal request parameters in the
     /// request ID hash to validate them at the node side because all of the
     /// parameters are used during fulfillment and will get validated on-chain
-    /// @param providerId Provider ID
+    /// @param airnodeId Airnode ID
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that the withdrawal is
     /// requested from
     /// @param destination Withdrawal destination
     function requestWithdrawal(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         address designatedWallet,
         address destination
@@ -81,14 +81,14 @@ contract ProviderStore is RequesterStore, IProviderStore {
             address(this)
             ));
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
-            providerId,
+            airnodeId,
             requesterIndex,
             designatedWallet,
             destination
             ));
         withdrawalRequestIdToParameters[withdrawalRequestId] = withdrawalParameters;
         emit WithdrawalRequested(
-            providerId,
+            airnodeId,
             requesterIndex,
             withdrawalRequestId,
             designatedWallet,
@@ -96,16 +96,16 @@ contract ProviderStore is RequesterStore, IProviderStore {
             );
     }
 
-    /// @notice Called by the provider's Airnode using the designated wallet to
+    /// @notice Called by the Airnode using the designated wallet to
     /// fulfill the withdrawal request made by the requester
     /// @dev The Airnode sends the funds through this method to emit an
     /// event that indicates that the withdrawal request has been fulfilled
-    /// @param providerId Provider ID
+    /// @param airnodeId Airnode ID
     /// @param requesterIndex Requester index from RequesterStore
     /// @param destination Withdrawal destination
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         address destination
         )
@@ -114,7 +114,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         override
     {
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
-            providerId,
+            airnodeId,
             requesterIndex,
             msg.sender,
             destination
@@ -125,7 +125,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             );
         delete withdrawalRequestIdToParameters[withdrawalRequestId];
         emit WithdrawalFulfilled(
-            providerId,
+            airnodeId,
             requesterIndex,
             withdrawalRequestId,
             msg.sender,
@@ -136,7 +136,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         require(success, "Transfer failed");
     }
 
-    /// @notice Uses the authorizer contracts of of a provider to decide if a
+    /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
     /// can use this method to determine if a particular request would be
@@ -144,11 +144,11 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @dev This method is meant to be called off-chain by the Airnode to
     /// decide if it should respond to a request. The requester can also call
     /// it, yet this function returning true should not be taken as a guarantee
-    /// of the subsequent call request being fulfilled (as the provider may
-    /// update their authorizers in the meantime).
-    /// The provider authorizers being empty means all requests will be denied,
+    /// of the subsequent call request being fulfilled (as the Airnode may
+    /// update its authorizers in the meantime).
+    /// The Airnode authorizers being empty means all requests will be denied,
     /// while any `address(0)` authorizer means all requests will be accepted.
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param requestId Request ID
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterIndex Requester index from RequesterStore
@@ -156,7 +156,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
     /// @param clientAddress Client address
     /// @return status Authorization status of the request
     function checkAuthorizationStatus(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 requestId,
         bytes32 endpointId,
         uint256 requesterIndex,
@@ -168,7 +168,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
         override
         returns(bool status)
     {
-        address[] memory authorizerAddresses = providers[providerId].authorizers;
+        address[] memory authorizerAddresses = airnodeParameters[airnodeId].authorizers;
         uint256 noAuthorizers = authorizerAddresses.length;
         for (uint256 ind = 0; ind < noAuthorizers; ind++)
         {
@@ -180,7 +180,7 @@ contract ProviderStore is RequesterStore, IProviderStore {
             IAuthorizer authorizer = IAuthorizer(authorizerAddress);
             if (authorizer.checkIfAuthorized(
                 requestId,
-                providerId,
+                airnodeId,
                 endpointId,
                 requesterIndex,
                 designatedWallet,
@@ -193,12 +193,12 @@ contract ProviderStore is RequesterStore, IProviderStore {
         return false;
     }
 
-    /// @notice Retrieves the parameters of the provider addressed by the ID
-    /// @param providerId Provider ID
-    /// @return admin Provider admin
-    /// @return xpub Master public key of the provider
-    /// @return authorizers Authorizer contract addresses of the provider
-    function getProvider(bytes32 providerId)
+    /// @notice Retrieves the parameters of the Airnode addressed by the ID
+    /// @param airnodeId Airnode ID
+    /// @return admin Airnode admin
+    /// @return xpub Master public key of the Airnode
+    /// @return authorizers Authorizer contract addresses of the Airnode
+    function getAirnodeParameters(bytes32 airnodeId)
         external
         view
         override
@@ -208,9 +208,9 @@ contract ProviderStore is RequesterStore, IProviderStore {
             address[] memory authorizers
         )
     {
-        Provider storage provider = providers[providerId];
-        admin = provider.admin;
-        xpub = provider.xpub;
-        authorizers = provider.authorizers;
+        AirnodeParameter storage airnodeParameter = airnodeParameters[airnodeId];
+        admin = airnodeParameter.admin;
+        xpub = airnodeParameter.xpub;
+        authorizers = airnodeParameter.authorizers;
     }
 }

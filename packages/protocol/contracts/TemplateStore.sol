@@ -10,7 +10,7 @@ import "./interfaces/ITemplateStore.sol";
 /// parameters repeatedly.
 contract TemplateStore is ITemplateStore {
     struct Template {
-        bytes32 providerId;
+        bytes32 airnodeId;
         bytes32 endpointId;
         bytes parameters;
         }
@@ -26,14 +26,14 @@ contract TemplateStore is ITemplateStore {
     /// template ID, (3) after you query a template with its ID, you can verify
     /// its integrity by applying the hash and comparing the result with the
     /// ID.
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
     /// at request-time)
     /// @return templateId Request template ID
     function createTemplate(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         bytes calldata parameters
         )
@@ -42,18 +42,18 @@ contract TemplateStore is ITemplateStore {
         returns (bytes32 templateId)
     {
         templateId = keccak256(abi.encode(
-            providerId,
+            airnodeId,
             endpointId,
             parameters
             ));
         templates[templateId] = Template({
-            providerId: providerId,
+            airnodeId: airnodeId,
             endpointId: endpointId,
             parameters: parameters
         });
         emit TemplateCreated(
           templateId,
-          providerId,
+          airnodeId,
           endpointId,
           parameters
           );
@@ -62,7 +62,7 @@ contract TemplateStore is ITemplateStore {
     /// @notice Retrieves the parameters of the request template addressed by
     /// the ID
     /// @param templateId Request template ID
-    /// @return providerId Provider ID from ProviderStore
+    /// @return airnodeId Airnode ID from AirnodeParameterStore
     /// @return endpointId Endpoint ID from EndpointStore
     /// @return parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
@@ -72,13 +72,13 @@ contract TemplateStore is ITemplateStore {
         view
         override
         returns (
-            bytes32 providerId,
+            bytes32 airnodeId,
             bytes32 endpointId,
             bytes memory parameters
         )
     {
         Template storage template = templates[templateId];
-        providerId = template.providerId;
+        airnodeId = template.airnodeId;
         endpointId = template.endpointId;
         parameters = template.parameters;
     }

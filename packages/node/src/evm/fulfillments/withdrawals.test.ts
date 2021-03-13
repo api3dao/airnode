@@ -49,7 +49,7 @@ describe('submitWithdrawal', () => {
     expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
     expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.providerId,
+      withdrawal.airnodeId,
       withdrawal.requesterIndex,
       withdrawal.destinationAddress,
       {
@@ -220,7 +220,7 @@ describe('submitWithdrawal', () => {
     expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(2);
     expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.providerId,
+      withdrawal.airnodeId,
       withdrawal.requesterIndex,
       withdrawal.destinationAddress,
       {

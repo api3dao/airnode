@@ -9,7 +9,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     designatedWallet: parsedLog.args.designatedWallet,
     id: parsedLog.args.withdrawalRequestId,
     status: RequestStatus.Pending,
-    providerId: parsedLog.args.providerId,
+    airnodeId: parsedLog.args.airnodeId,
     destinationAddress: parsedLog.args.destination,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,

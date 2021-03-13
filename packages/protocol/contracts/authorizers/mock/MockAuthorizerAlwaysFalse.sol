@@ -7,7 +7,7 @@ import "../interfaces/IAuthorizer.sol";
 contract MockAuthorizerAlwaysFalse is IAuthorizer {
     function checkIfAuthorized(
         bytes32 requestId, // solhint-disable-line
-        bytes32 providerId, // solhint-disable-line
+        bytes32 airnodeId, // solhint-disable-line
         bytes32 endpointId, // solhint-disable-line
         uint256 requesterIndex, // solhint-disable-line
         address designatedWallet, // solhint-disable-line

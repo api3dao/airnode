@@ -53,7 +53,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
 
     /// @notice A wrapper for the respective method at AirnodeRrp.sol for
     /// testing
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -63,7 +63,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
     /// to fulfill
     /// @param parameters All request parameters
     function makeFullRequest(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         uint256 requesterIndex,
         address designatedWallet,
@@ -74,7 +74,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
         external
     {
         bytes32 requestId = airnodeRrp.makeFullRequest(
-            providerId,
+            airnodeId,
             endpointId,
             requesterIndex,
             designatedWallet,
@@ -88,8 +88,8 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
     /// @notice A method to be called back by the respective method at
     /// AirnodeRrp.sol for testing
     /// @param requestId Request ID
-    /// @param statusCode Status code returned by the provider
-    /// @param data Data returned by the provider
+    /// @param statusCode Status code returned by the Airnode
+    /// @param data Data returned by the Airnode
     function fulfill(
         bytes32 requestId,
         uint256 statusCode,

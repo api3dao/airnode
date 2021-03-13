@@ -8,8 +8,8 @@ export function create(config: Config): CoordinatorState {
 
   const settings: CoordinatorSettings = {
     logFormat: config.nodeSettings.logFormat,
-    providerId: wallet.getProviderId(masterHDNode),
-    providerIdShort: wallet.getProviderIdShort(masterHDNode),
+    airnodeId: wallet.getAirnodeId(masterHDNode),
+    airnodeIdShort: wallet.getAirnodeIdShort(masterHDNode),
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
   };

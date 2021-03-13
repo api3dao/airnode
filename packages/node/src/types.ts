@@ -67,7 +67,7 @@ export interface ApiCall {
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
-  readonly providerId: string | null;
+  readonly airnodeId: string | null;
   readonly requestCount: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
@@ -78,12 +78,12 @@ export interface ApiCallTemplate {
   readonly encodedParameters: string;
   readonly endpointId: string;
   readonly id: string;
-  readonly providerId: string;
+  readonly airnodeId: string;
 }
 
 export interface Withdrawal {
   readonly destinationAddress: string;
-  readonly providerId: string;
+  readonly airnodeId: string;
   readonly requesterIndex: string;
 }
 
@@ -100,7 +100,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerAdmin: string;
+  readonly airnodeAdmin: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -119,8 +119,8 @@ export interface AggregatedApiCallsById {
 }
 
 export interface CoordinatorSettings {
-  readonly providerId: string;
-  readonly providerIdShort: string;
+  readonly airnodeId: string;
+  readonly airnodeIdShort: string;
   readonly logFormat: LogFormat;
   readonly region: string;
   readonly stage: string;
@@ -184,7 +184,7 @@ export interface AggregatedApiCall {
 // ===========================================
 export interface WorkerOptions {
   cloudProvider: NodeCloudProvider;
-  providerIdShort: string;
+  airnodeIdShort: string;
   region: string;
   stage: string;
 }
@@ -296,7 +296,7 @@ export interface ChainConfig {
   readonly id: number;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerAdmin: string;
+  readonly airnodeAdmin: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }
@@ -308,7 +308,7 @@ export interface NodeSettings {
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly nodeVersion: string;
-  readonly providerIdShort?: string;
+  readonly airnodeIdShort?: string;
   readonly region: string;
   readonly stage: string;
 }

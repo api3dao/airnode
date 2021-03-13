@@ -3,7 +3,7 @@ const { expect } = require('chai');
 let airnodeRrp, airnodeRrpClient;
 let roles;
 const requesterIndex = 1;
-let providerId, masterWallet, designatedWallet;
+let airnodeId, masterWallet, designatedWallet;
 const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
 let templateId;
@@ -16,7 +16,7 @@ beforeEach(async () => {
   const accounts = await ethers.getSigners();
   roles = {
     deployer: accounts[0],
-    providerAdmin: accounts[1],
+    airnodeAdmin: accounts[1],
     requesterAdmin: accounts[2],
     clientUser: accounts[3],
     randomPerson: accounts[9],
@@ -27,15 +27,15 @@ beforeEach(async () => {
   airnodeRrpClient = await airnodeRrpClientFactory.deploy(airnodeRrp.address);
   // Create the requester
   await airnodeRrp.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
-  // Generate the provider private key and derive the related parameters
-  const providerWallet = ethers.Wallet.createRandom();
-  const providerMnemonic = providerWallet.mnemonic.phrase;
-  const hdNode = ethers.utils.HDNode.fromMnemonic(providerMnemonic);
+  // Generate the Airnode private key and derive the related parameters
+  const airnodeWallet = ethers.Wallet.createRandom();
+  const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
+  const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
-  providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
-  designatedWallet = ethers.Wallet.fromMnemonic(providerMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
-  // Fund the provider master wallet for it to be able to set the provider parameters
-  await roles.providerAdmin.sendTransaction({
+  airnodeId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
+  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
+  // Fund the Airnode master wallet for it to be able to set the Airnode parameters
+  await roles.airnodeAdmin.sendTransaction({
     to: masterWallet.address,
     value: ethers.utils.parseEther('1'),
   });
@@ -45,9 +45,9 @@ beforeEach(async () => {
     value: ethers.utils.parseEther('1'),
   });
   // Create the template
-  await airnodeRrp.createTemplate(providerId, endpointId, templateParameters);
+  await airnodeRrp.createTemplate(airnodeId, endpointId, templateParameters);
   templateId = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [providerId, endpointId, templateParameters])
+    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId, templateParameters])
   );
   fulfillAddress = airnodeRrpClient.address;
   fulfillFunctionId = airnodeRrpClient.interface.getSighash('fulfill');
@@ -83,7 +83,7 @@ describe('makeRequest', function () {
       )
         .to.emit(airnodeRrp, 'ClientRequestCreated')
         .withArgs(
-          providerId,
+          airnodeId,
           requestId,
           clientRequestNonce,
           airnodeRrpClient.address,
@@ -134,7 +134,7 @@ describe('makeFullRequest', function () {
         airnodeRrpClient
           .connect(roles.clientUser)
           .makeFullRequest(
-            providerId,
+            airnodeId,
             endpointId,
             requesterIndex,
             designatedWallet.address,
@@ -145,7 +145,7 @@ describe('makeFullRequest', function () {
       )
         .to.emit(airnodeRrp, 'ClientFullRequestCreated')
         .withArgs(
-          providerId,
+          airnodeId,
           requestId,
           clientRequestNonce,
           airnodeRrpClient.address,
@@ -164,7 +164,7 @@ describe('makeFullRequest', function () {
         airnodeRrpClient
           .connect(roles.clientUser)
           .makeFullRequest(
-            providerId,
+            airnodeId,
             endpointId,
             requesterIndex,
             designatedWallet.address,
@@ -208,12 +208,12 @@ describe('fulfill', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
               gasLimit: 500000,
             })
         )
           .to.emit(airnodeRrp, 'ClientRequestFulfilled')
-          .withArgs(providerId, requestId, fulfillStatusCode, fulfillData);
+          .withArgs(airnodeId, requestId, fulfillStatusCode, fulfillData);
       });
     });
     context('Fulfillment parameters are incorrect', async function () {
@@ -246,16 +246,16 @@ describe('fulfill', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fulfill(falseRequestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+            .fulfill(falseRequestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
         // Attempt to fulfill the request
-        const falseProviderId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+        const falseairnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fulfill(requestId, falseProviderId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+            .fulfill(requestId, falseairnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -264,7 +264,7 @@ describe('fulfill', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, falseFulfillAddress, fulfillFunctionId, {
+            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, falseFulfillAddress, fulfillFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -273,7 +273,7 @@ describe('fulfill', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, falseFulfillFunctionId, {
+            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, falseFulfillFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -308,7 +308,7 @@ describe('fulfill', function () {
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
-            .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
               gasLimit: 500000,
             })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -333,7 +333,7 @@ describe('fulfill', function () {
           await airnodeRrpClient
             .connect(roles.clientUser)
             .makeFullRequest(
-              providerId,
+              airnodeId,
               endpointId,
               requesterIndex,
               designatedWallet.address,
@@ -345,12 +345,12 @@ describe('fulfill', function () {
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+              .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
                 gasLimit: 500000,
               })
           )
             .to.emit(airnodeRrp, 'ClientRequestFulfilled')
-            .withArgs(providerId, requestId, fulfillStatusCode, fulfillData);
+            .withArgs(airnodeId, requestId, fulfillStatusCode, fulfillData);
         });
       });
       context('Fulfillment parameters are incorrect', async function () {
@@ -371,7 +371,7 @@ describe('fulfill', function () {
           await airnodeRrpClient
             .connect(roles.clientUser)
             .makeFullRequest(
-              providerId,
+              airnodeId,
               endpointId,
               requesterIndex,
               designatedWallet.address,
@@ -384,16 +384,16 @@ describe('fulfill', function () {
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fulfill(falseRequestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+              .fulfill(falseRequestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
           // Attempt to fulfill the request
-          const falseProviderId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+          const falseairnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fulfill(requestId, falseProviderId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+              .fulfill(requestId, falseairnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -402,7 +402,7 @@ describe('fulfill', function () {
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, falseFulfillAddress, fulfillFunctionId, {
+              .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, falseFulfillAddress, fulfillFunctionId, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -411,7 +411,7 @@ describe('fulfill', function () {
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, falseFulfillFunctionId, {
+              .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, falseFulfillFunctionId, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -435,7 +435,7 @@ describe('fulfill', function () {
           await airnodeRrpClient
             .connect(roles.clientUser)
             .makeFullRequest(
-              providerId,
+              airnodeId,
               endpointId,
               requesterIndex,
               designatedWallet.address,
@@ -447,7 +447,7 @@ describe('fulfill', function () {
           await expect(
             airnodeRrp
               .connect(roles.randomPerson)
-              .fulfill(requestId, providerId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
+              .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
@@ -488,10 +488,10 @@ describe('fail', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+            .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         )
           .to.emit(airnodeRrp, 'ClientRequestFailed')
-          .withArgs(providerId, requestId);
+          .withArgs(airnodeId, requestId);
       });
     });
     context('Fulfillment parameters are incorrect', async function () {
@@ -524,28 +524,28 @@ describe('fail', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+            .fail(falseRequestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
         // Attempt to fail the fulfillment
-        const falseProviderId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+        const falseairnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+            .fail(requestId, falseairnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
         // Attempt to fail the fulfillment
         const falseFulfillAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fail(requestId, providerId, falseFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+            .fail(requestId, airnodeId, falseFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
         // Attempt to fail the fulfillment
         const falseFulfillFunctionId = ethers.utils.hexlify(ethers.utils.randomBytes(4));
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
+            .fail(requestId, airnodeId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -578,7 +578,7 @@ describe('fail', function () {
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+            .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         ).to.be.revertedWith('Incorrect fulfillment parameters');
       });
     });
@@ -602,7 +602,7 @@ describe('fail', function () {
         await airnodeRrpClient
           .connect(roles.clientUser)
           .makeFullRequest(
-            providerId,
+            airnodeId,
             endpointId,
             requesterIndex,
             designatedWallet.address,
@@ -614,10 +614,10 @@ describe('fail', function () {
         await expect(
           airnodeRrp
             .connect(designatedWallet)
-            .fail(requestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+            .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
         )
           .to.emit(airnodeRrp, 'ClientRequestFailed')
-          .withArgs(providerId, requestId);
+          .withArgs(airnodeId, requestId);
       });
       context('Fulfillment parameters are incorrect', async function () {
         it('reverts', async function () {
@@ -637,7 +637,7 @@ describe('fail', function () {
           await airnodeRrpClient
             .connect(roles.clientUser)
             .makeFullRequest(
-              providerId,
+              airnodeId,
               endpointId,
               requesterIndex,
               designatedWallet.address,
@@ -650,28 +650,28 @@ describe('fail', function () {
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fail(falseRequestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+              .fail(falseRequestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
           // Attempt to fail the fulfillment
-          const falseProviderId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+          const falseairnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fail(requestId, falseProviderId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+              .fail(requestId, falseairnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
           // Attempt to fail the fulfillment
           const falseFulfillAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fail(requestId, providerId, falseFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+              .fail(requestId, airnodeId, falseFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
           // Attempt to fail the fulfillment
           const falseFulfillFunctionId = ethers.utils.hexlify(ethers.utils.randomBytes(4));
           await expect(
             airnodeRrp
               .connect(designatedWallet)
-              .fail(requestId, providerId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
+              .fail(requestId, airnodeId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
           ).to.be.revertedWith('Incorrect fulfillment parameters');
         });
         context('Fulfilling wallet is incorrect', async function () {
@@ -692,7 +692,7 @@ describe('fail', function () {
             await airnodeRrpClient
               .connect(roles.clientUser)
               .makeFullRequest(
-                providerId,
+                airnodeId,
                 endpointId,
                 requesterIndex,
                 designatedWallet.address,
@@ -704,7 +704,7 @@ describe('fail', function () {
             await expect(
               airnodeRrp
                 .connect(roles.randomPerson)
-                .fail(requestId, providerId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
+                .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
             ).to.be.revertedWith('Incorrect fulfillment parameters');
           });
         });

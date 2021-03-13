@@ -46,7 +46,7 @@ export async function submitWithdrawal(
   const estimateTx = () =>
     airnodeRrp.estimateGas.fulfillWithdrawal(
       request.id,
-      request.providerId,
+      request.airnodeId,
       request.requesterIndex,
       request.destinationAddress,
       // We need to send some funds for the gas price calculation to be correct
@@ -94,7 +94,7 @@ export async function submitWithdrawal(
   );
 
   const withdrawalTx = () =>
-    airnodeRrp.fulfillWithdrawal(request.id, request.providerId, request.requesterIndex, request.destinationAddress, {
+    airnodeRrp.fulfillWithdrawal(request.id, request.airnodeId, request.requesterIndex, request.destinationAddress, {
       gasLimit: paddedGasLimit,
       gasPrice: options.gasPrice!,
       nonce: request.nonce!,

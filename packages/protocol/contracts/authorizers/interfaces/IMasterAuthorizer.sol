@@ -15,24 +15,24 @@ interface IMasterAuthorizer is IAuthorizer {
         );
     event AdminshipRenounced(address indexed adminAddress);
     event ClientWhitelistingExtended(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         address indexed clientAddress,
         uint256 whitelistExpiration,
         address indexed adminAddress
         );
     event RequesterWhitelistingExtended(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         uint256 indexed requesterIndex,
         uint256 whitelistExpiration,
         address indexed adminAddress
         );
     event ClientWhitelistExpirationSet(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         address indexed clientAddress,
         uint256 whitelistExpiration
         );
     event RequesterWhitelistExpirationSet(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         uint256 indexed requesterIndex,
         uint256 whitelistExpiration
         );
@@ -51,28 +51,28 @@ interface IMasterAuthorizer is IAuthorizer {
         external;
 
     function extendClientWhitelisting(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address clientAddress,
         uint256 whitelistExpiration
         )
         external;
 
     function extendRequesterWhitelisting(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         uint256 whitelistExpiration
         )
         external;
 
     function setClientWhitelistExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address clientAddress,
         uint256 whitelistExpiration
         )
         external;
 
     function setRequesterWhitelistExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         uint256 whitelistExpiration
         )

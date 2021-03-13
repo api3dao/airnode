@@ -92,12 +92,12 @@ yargs
     'remove-mnemonic',
     'Removes mnemonic deployment',
     {
-      providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
+      airnodeIdShort: { type: 'string', demandOption: true, alias: 'p' },
       region: { type: 'string', demandOption: true, alias: 'r' },
     },
     async (args) => {
       try {
-        await removeMnemonic(args.providerIdShort, args.region);
+        await removeMnemonic(args.airnodeIdShort, args.region);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -108,13 +108,13 @@ yargs
     'remove-airnode',
     'Removes Airnode deployment',
     {
-      providerIdShort: { type: 'string', demandOption: true, alias: 'p' },
+      airnodeIdShort: { type: 'string', demandOption: true, alias: 'p' },
       region: { type: 'string', demandOption: true, alias: 'r' },
       stage: { type: 'string', demandOption: true, alias: 's' },
     },
     async (args) => {
       try {
-        await removeAirnode(args.providerIdShort, args.region, args.stage);
+        await removeAirnode(args.airnodeIdShort, args.region, args.stage);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;

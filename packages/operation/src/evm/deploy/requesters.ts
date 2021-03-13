@@ -1,5 +1,5 @@
 import { encode } from '@airnode/airnode-abi';
-import { deriveEndpointId, deriveProviderId } from '../utils';
+import { deriveEndpointId, deriveairnodeId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 
 export async function endorseClients(state: State): Promise<State> {
@@ -27,16 +27,16 @@ export async function createTemplates(state: State): Promise<State> {
   const { AirnodeRrp } = state.contracts;
 
   const templatesByName: { [name: string]: Template } = {};
-  for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
-    const apiProvider = state.apiProvidersByName[apiProviderName];
-    const configApiProvider = state.config.apiProviders[apiProviderName];
-    const providerId = deriveProviderId(apiProvider.masterWalletAddress);
+  for (const airnodeName of Object.keys(state.airnodesByName)) {
+    const airnode = state.airnodesByName[airnodeName];
+    const configAirnode = state.config.airnodes[airnodeName];
+    const airnodeId = deriveairnodeId(airnode.masterWalletAddress);
 
-    for (const templateName of Object.keys(configApiProvider.templates)) {
-      const configTemplate = configApiProvider.templates[templateName];
+    for (const templateName of Object.keys(configAirnode.templates)) {
+      const configTemplate = configAirnode.templates[templateName];
       const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
 
-      const tx = await AirnodeRrp!.createTemplate(providerId, endpointId, encode(configTemplate.parameters));
+      const tx = await AirnodeRrp!.createTemplate(airnodeId, endpointId, encode(configTemplate.parameters));
       await tx.wait();
 
       const logs = await state.provider.getLogs({
@@ -47,8 +47,8 @@ export async function createTemplates(state: State): Promise<State> {
       const parsedLog = AirnodeRrp!.interface.parseLog(log!);
       const templateId = parsedLog.args.templateId;
 
-      templatesByName[`${apiProviderName}-${templateName}`] = {
-        apiProviderName,
+      templatesByName[`${airnodeName}-${templateName}`] = {
+        airnodeName,
         hash: templateId,
       };
     }

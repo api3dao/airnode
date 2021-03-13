@@ -4,14 +4,14 @@ import { initializeProvider } from './initialize-provider';
 import * as fixtures from 'test/fixtures';
 
 const checkAuthorizationStatusesMock = jest.fn();
-const getProviderAndBlockNumberMock = jest.fn();
+const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
 jest.mock('ethers', () => ({
   ethers: {
     ...jest.requireActual('ethers'),
     Contract: jest.fn().mockImplementation(() => ({
       checkAuthorizationStatuses: checkAuthorizationStatusesMock,
-      getProviderAndBlockNumber: getProviderAndBlockNumberMock,
+      getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
       getTemplates: getTemplatesMock,
     })),
   },
@@ -19,7 +19,7 @@ jest.mock('ethers', () => ({
 
 describe('initializeProvider', () => {
   it('fetches, maps and authorizes requests', async () => {
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
@@ -67,7 +67,7 @@ describe('initializeProvider', () => {
           from: 'ETH',
           to: 'USD',
         },
-        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '3',
         requesterIndex: '2',
         status: 'Pending',
@@ -96,7 +96,7 @@ describe('initializeProvider', () => {
           from: 'ETH',
           to: 'USD',
         },
-        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '2',
         requesterIndex: '2',
         status: 'Pending',
@@ -106,9 +106,9 @@ describe('initializeProvider', () => {
     ]);
   });
 
-  it('does nothing if unable to verify or set provider parameters', async () => {
+  it('does nothing if unable to verify or set Airnode parameters', async () => {
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getProviderAndBlockNumberMock.mockResolvedValueOnce(null);
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce(null);
     const state = fixtures.buildEVMProviderState();
     const res = await initializeProvider(state);
     expect(res).toEqual(null);
@@ -116,7 +116,7 @@ describe('initializeProvider', () => {
   });
 
   it('does nothing if requests cannot be fetched', async () => {
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
@@ -133,9 +133,9 @@ describe('initializeProvider', () => {
     expect(getLogsSpy).toHaveBeenCalledTimes(2);
   });
 
-  it('does nothing if unable to verify or set provider parameters', async () => {
+  it('does nothing if unable to verify or set Airnode parameters', async () => {
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getProviderAndBlockNumberMock.mockResolvedValueOnce(null);
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce(null);
     const state = fixtures.buildEVMProviderState();
     const res = await initializeProvider(state);
     expect(res).toEqual(null);
@@ -143,7 +143,7 @@ describe('initializeProvider', () => {
   });
 
   it('does nothing if requests cannot be fetched', async () => {
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),

@@ -38,7 +38,7 @@ export async function fetchTemplate(
     encodedParameters: rawTemplate.parameters,
     endpointId: rawTemplate.endpointId,
     id: templateId,
-    providerId: rawTemplate.providerId,
+    airnodeId: rawTemplate.airnodeId,
   };
   return [[successLog], template];
 }
@@ -73,7 +73,7 @@ async function fetchTemplateGroup(
       encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
       id: templateId,
-      providerId: rawTemplates.providerIds[index],
+      airnodeId: rawTemplates.airnodeIds[index],
     };
     return { ...acc, [templateId]: template };
   }, {});

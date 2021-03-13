@@ -4,11 +4,11 @@ import { Config } from '@airnode/operation';
 export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
     deployerIndex: 0,
-    apiProviders: {
+    airnodes: {
       CurrencyConverterAPI: {
-        providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
         // We need to create a new mnemonic each time otherwise E2E tests
-        // will share the same API provider wallet
+        // will share the same Airnode wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
         authorizers: ['public'],
         endpoints: {
@@ -39,13 +39,13 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     requesters: [
       {
         id: 'alice',
-        apiProviders: {
+        airnodes: {
           CurrencyConverterAPI: { ethBalance: '2' },
         },
       },
       {
         id: 'bob',
-        apiProviders: {
+        airnodes: {
           CurrencyConverterAPI: { ethBalance: '5' },
         },
       },
@@ -54,7 +54,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         requesterId: 'bob',
         type: 'regular',
-        apiProvider: 'CurrencyConverterAPI',
+        airnode: 'CurrencyConverterAPI',
         template: 'template-1',
         client: 'MockAirnodeRrpClient',
         fulfillFunctionName: 'fulfill',
@@ -63,7 +63,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         requesterId: 'bob',
         type: 'full',
-        apiProvider: 'CurrencyConverterAPI',
+        airnode: 'CurrencyConverterAPI',
         endpoint: 'convertToUSD',
         oisTitle: 'currency-converter-ois',
         client: 'MockAirnodeRrpClient',

@@ -60,7 +60,7 @@ describe('processTransactions', () => {
     expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
     expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.providerId,
+      withdrawal.airnodeId,
       withdrawal.requesterIndex,
       withdrawal.destinationAddress,
       {
@@ -76,7 +76,7 @@ describe('processTransactions', () => {
     expect(contract.fulfill).toHaveBeenCalledTimes(1);
     expect(contract.fulfill).toHaveBeenCalledWith(
       apiCall.id,
-      apiCall.providerId,
+      apiCall.airnodeId,
       ethers.BigNumber.from('0'),
       '0x000000000000000000000000000000000000000000000000000000000001252b',
       apiCall.fulfillAddress,

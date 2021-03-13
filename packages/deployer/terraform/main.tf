@@ -14,7 +14,7 @@ provider "aws" {
 }
 
 resource "aws_ssm_parameter" "masterKeyMnemonic" {
-  name        = "/airnode/${var.providerId}/masterKeyMnemonic"
+  name        = "/airnode/${var.airnodeId}/masterKeyMnemonic"
   type        = "SecureString"
   value       = var.mnemonic
   description = "Mnemonic of the master private key"

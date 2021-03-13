@@ -13,17 +13,17 @@ async function run() {
   const state4 = await deploy.deployAuthorizers(state3);
 
   console.log('--> Assigning wallets...');
-  const state5 = await deploy.assignProviderAccounts(state4);
+  const state5 = await deploy.assignAirnodeAccounts(state4);
   const state6 = await deploy.assignRequesterAccounts(state5);
   const state7 = await deploy.assignDesignatedWallets(state6);
 
   console.log('--> Funding wallets...');
-  const state8 = await deploy.fundProviderAccounts(state7);
+  const state8 = await deploy.fundAirnodeAccounts(state7);
   const state9 = await deploy.fundRequesterAccounts(state8);
   const state10 = await deploy.fundDesignatedWallets(state9);
 
-  console.log('--> Setting API provider parameters...');
-  const state11 = await deploy.setProviderParameters(state10);
+  console.log('--> Setting Airnode parameters...');
+  const state11 = await deploy.setAirnodeParameters(state10);
 
   console.log('--> Endorsing client contracts...');
   const state12 = await deploy.endorseClients(state11);

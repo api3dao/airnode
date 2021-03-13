@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
-import "./IProviderStore.sol";
+import "./IAirnodeParameterStore.sol";
 import "./ITemplateStore.sol";
 
-interface IAirnodeRrp is IProviderStore, ITemplateStore {
+interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
     event ClientRequestCreated(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         bytes32 indexed requestId,
         uint256 noRequests,
         address clientAddress,
@@ -19,7 +19,7 @@ interface IAirnodeRrp is IProviderStore, ITemplateStore {
         );
 
     event ClientFullRequestCreated(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         bytes32 indexed requestId,
         uint256 noRequests,
         address clientAddress,
@@ -32,14 +32,14 @@ interface IAirnodeRrp is IProviderStore, ITemplateStore {
         );
 
     event ClientRequestFulfilled(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         bytes32 indexed requestId,
         uint256 statusCode,
         bytes data
         );
 
     event ClientRequestFailed(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         bytes32 indexed requestId
         );
 
@@ -55,7 +55,7 @@ interface IAirnodeRrp is IProviderStore, ITemplateStore {
         returns (bytes32 requestId);
 
     function makeFullRequest(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         uint256 requesterIndex,
         address designatedWallet,
@@ -68,7 +68,7 @@ interface IAirnodeRrp is IProviderStore, ITemplateStore {
 
     function fulfill(
         bytes32 requestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
@@ -82,7 +82,7 @@ interface IAirnodeRrp is IProviderStore, ITemplateStore {
 
     function fail(
         bytes32 requestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )

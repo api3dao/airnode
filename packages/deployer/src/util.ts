@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as ethers from 'ethers';
 
-export function deriveProviderId(mnemonic) {
+export function deriveairnodeId(mnemonic) {
   return ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(['address'], [deriveMasterWalletAddress(mnemonic)])
   );
@@ -22,11 +22,11 @@ export function generateMnemonic() {
   return masterWallet.mnemonic.phrase;
 }
 
-export function shortenProviderId(providerId) {
-  if (!ethers.utils.isHexString(providerId, 32)) {
-    throw new Error('providerId is not a valid hex string');
+export function shortenairnodeId(airnodeId) {
+  if (!ethers.utils.isHexString(airnodeId, 32)) {
+    throw new Error('airnodeId is not a valid hex string');
   }
-  return providerId.substring(2, 9);
+  return airnodeId.substring(2, 9);
 }
 
 export function writeJSONFile(fileName, object) {

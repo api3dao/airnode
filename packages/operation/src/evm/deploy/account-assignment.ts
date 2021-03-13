@@ -1,22 +1,22 @@
 import { ethers } from 'ethers';
 import { deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
-import { APIProvider, DeployState as State, RequesterAccount } from '../../types';
+import { Airnode, DeployState as State, RequesterAccount } from '../../types';
 
-export async function assignProviderAccounts(state: State): Promise<State> {
-  const apiProvidersByName: { [name: string]: APIProvider } = {};
-  for (const providerName of Object.keys(state.config.apiProviders)) {
-    const apiProvider = state.config.apiProviders[providerName];
-    const providerWallet = deriveWalletFromPath(apiProvider.mnemonic, 'm', state.provider);
-    const xpub = deriveExtendedPublicKey(apiProvider.mnemonic);
+export async function assignAirnodeAccounts(state: State): Promise<State> {
+  const airnodesByName: { [name: string]: Airnode } = {};
+  for (const airnodeName of Object.keys(state.config.airnodes)) {
+    const airnode = state.config.airnodes[airnodeName];
+    const airnodeWallet = deriveWalletFromPath(airnode.mnemonic, 'm', state.provider);
+    const xpub = deriveExtendedPublicKey(airnode.mnemonic);
 
-    apiProvidersByName[providerName] = {
-      masterWalletAddress: providerWallet.address,
-      mnemonic: apiProvider.mnemonic,
-      signer: providerWallet,
+    airnodesByName[airnodeName] = {
+      masterWalletAddress: airnodeWallet.address,
+      mnemonic: airnode.mnemonic,
+      signer: airnodeWallet,
       xpub,
     };
   }
-  return { ...state, apiProvidersByName };
+  return { ...state, airnodesByName };
 }
 
 export async function assignRequesterAccounts(state: State): Promise<State> {
@@ -54,14 +54,14 @@ export async function assignDesignatedWallets(state: State) {
   const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
     const requester = state.requestersById[configRequester.id];
-    const designatedProviderNames = Object.keys(configRequester.apiProviders);
+    const designatedAirnodeNames = Object.keys(configRequester.airnodes);
 
-    const designatedWallets = designatedProviderNames.map((providerName) => {
-      const apiProvider = state.apiProvidersByName[providerName];
-      const wallet = deriveWalletFromPath(apiProvider.mnemonic, `m/0/${requester.requesterIndex}`, state.provider);
+    const designatedWallets = designatedAirnodeNames.map((airnodeName) => {
+      const airnode = state.airnodesByName[airnodeName];
+      const wallet = deriveWalletFromPath(airnode.mnemonic, `m/0/${requester.requesterIndex}`, state.provider);
       return {
         address: wallet.address,
-        apiProviderName: providerName,
+        airnodeName: airnodeName,
         wallet,
       };
     });

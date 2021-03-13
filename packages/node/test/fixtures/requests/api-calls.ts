@@ -16,7 +16,7 @@ export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRe
     encodedParameters: 'encodedParameters',
     metadata,
     parameters: { from: 'ETH' },
-    providerId: 'providerId',
+    airnodeId: 'airnodeId',
     requestCount: '12',
     requesterIndex: '3',
     status: RequestStatus.Pending,

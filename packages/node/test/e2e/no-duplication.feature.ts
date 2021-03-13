@@ -12,7 +12,7 @@ it('does not process requests twice', async () => {
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
   const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAPI.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
 

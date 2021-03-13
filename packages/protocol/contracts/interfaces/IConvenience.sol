@@ -5,16 +5,16 @@ pragma experimental ABIEncoderV2;
 import "./IAirnodeRrp.sol";
 
 interface IConvenience {
-    function setProviderParametersAndForwardFunds(
+    function setAirnodeParametersAndForwardFunds(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
         )
         external
         payable
-        returns (bytes32 providerId);
+        returns (bytes32 airnodeId);
 
-    function getProviderAndBlockNumber(bytes32 providerId)
+    function getAirnodeParametersAndBlockNumber(bytes32 airnodeId)
         external
         view
         returns (
@@ -28,13 +28,13 @@ interface IConvenience {
         external
         view
         returns (
-            bytes32[] memory providerIds,
+            bytes32[] memory airnodeIds,
             bytes32[] memory endpointIds,
             bytes[] memory parameters
         );
 
     function checkAuthorizationStatuses(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32[] calldata requestIds, 
         bytes32[] calldata endpointIds,
         uint256[] calldata requesterIndices,

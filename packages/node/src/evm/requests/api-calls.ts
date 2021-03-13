@@ -45,7 +45,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     },
     // Parameters are decoded separately
     parameters: {},
-    providerId: parsedLog.args.providerId,
+    airnodeId: parsedLog.args.airnodeId,
     requestCount: parsedLog.args.noRequests.toString(),
     requesterIndex: parsedLog.args.requesterIndex?.toString() || null,
     status: RequestStatus.Pending,

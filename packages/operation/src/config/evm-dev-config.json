@@ -1,8 +1,8 @@
 {
   "deployerIndex": 0,
-  "apiProviders": {
+  "airnodes": {
     "CurrencyConverterAPI": {
-      "providerAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
+      "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "authorizers": ["public"],
       "endpoints": {
@@ -33,13 +33,13 @@
   "requesters": [
     {
       "id": "alice",
-      "apiProviders": {
+      "airnodes": {
         "CurrencyConverterAPI": { "ethBalance": "1" }
       }
     },
     {
       "id": "bob",
-      "apiProviders": {
+      "airnodes": {
         "CurrencyConverterAPI": { "ethBalance": "5" }
       }
     }
@@ -48,7 +48,7 @@
     {
       "requesterId": "bob",
       "type": "regular",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnodes": "CurrencyConverterAPI",
       "template": "template-1",
       "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
@@ -59,7 +59,7 @@
     {
       "requesterId": "bob",
       "type": "full",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnodes": "CurrencyConverterAPI",
       "endpoint": "convertToUSD",
       "oisTitle": "currency-converter-ois",
       "client": "MockAirnodeRrpClient",
@@ -75,7 +75,7 @@
     {
       "requesterId": "alice",
       "type": "withdrawal",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnodes": "CurrencyConverterAPI",
       "destination": "alice"
     }
   ]

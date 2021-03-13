@@ -3,16 +3,16 @@ pragma solidity 0.8.2;
 
 import "./IRequesterStore.sol";
 
-interface IProviderStore is IRequesterStore {
-    event ProviderParametersSet(
-        bytes32 indexed providerId,
+interface IAirnodeParameterStore is IRequesterStore {
+    event AirnodeParametersSet(
+        bytes32 indexed airnodeId,
         address admin,
         string xpub,
         address[] authorizers
         );
 
     event WithdrawalRequested(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         uint256 indexed requesterIndex,
         bytes32 indexed withdrawalRequestId,
         address designatedWallet,
@@ -20,7 +20,7 @@ interface IProviderStore is IRequesterStore {
         );
 
     event WithdrawalFulfilled(
-        bytes32 indexed providerId,
+        bytes32 indexed airnodeId,
         uint256 indexed requesterIndex,
         bytes32 indexed withdrawalRequestId,
         address designatedWallet,
@@ -28,17 +28,17 @@ interface IProviderStore is IRequesterStore {
         uint256 amount
         );
 
-    function setProviderParameters(
+    function setAirnodeParameters(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
         )
         external
         payable
-        returns (bytes32 providerId);
+        returns (bytes32 airnodeId);
 
     function requestWithdrawal(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         address designatedWallet,
         address destination
@@ -47,7 +47,7 @@ interface IProviderStore is IRequesterStore {
 
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         address destination
         )
@@ -55,7 +55,7 @@ interface IProviderStore is IRequesterStore {
         payable;
 
     function checkAuthorizationStatus(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 requestId,
         bytes32 endpointId,
         uint256 requesterIndex,
@@ -66,7 +66,7 @@ interface IProviderStore is IRequesterStore {
         view
         returns(bool status);
 
-    function getProvider(bytes32 providerId)
+    function getAirnodeParameters(bytes32 airnodeId)
         external
         view
         returns (

@@ -11,7 +11,7 @@ export function buildWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): Cl
     destinationAddress: 'destinationAddress',
     id: 'withdrawalId',
     metadata,
-    providerId: 'providerId',
+    airnodeId: 'airnodeId',
     requesterIndex: '1',
     status: RequestStatus.Pending,
     ...params,

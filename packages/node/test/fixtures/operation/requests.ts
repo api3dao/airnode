@@ -4,7 +4,7 @@ export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest 
   return {
     requesterId: 'bob',
     type: 'full',
-    apiProvider: 'CurrencyConverterAPI',
+    airnode: 'CurrencyConverterAPI',
     endpoint: 'convertToUSD',
     oisTitle: 'currency-converter-ois',
     client: 'MockAirnodeRrpClient',
@@ -24,7 +24,7 @@ export function buildWithdrawal(overrides?: Partial<Withdrawal>): Withdrawal {
   return {
     requesterId: 'alice',
     type: 'withdrawal',
-    apiProvider: 'CurrencyConverterAPI',
+    airnode: 'CurrencyConverterAPI',
     destination: 'alice',
     ...overrides,
   };

@@ -4,7 +4,7 @@ import {
   Config,
   ConfigRequester,
   DeployState as State,
-  DeployedAPIProvider,
+  DeployedAirnode,
   DeployedEndpoint,
   DeployedTemplate,
   Deployment,
@@ -15,7 +15,7 @@ export function buildDeployState(config: Config): State {
   const deployer = provider.getSigner(config.deployerIndex);
 
   return {
-    apiProvidersByName: {},
+    airnodesByName: {},
     authorizersByName: {},
     clientsByName: {},
     config,
@@ -27,31 +27,31 @@ export function buildDeployState(config: Config): State {
   };
 }
 
-function buildSaveableAPIProvider(state: State, apiProviderName: string): DeployedAPIProvider {
-  const configApiProvider = state.config.apiProviders[apiProviderName];
+function buildSaveableAirnode(state: State, airnodeName: string): DeployedAirnode {
+  const configAirnode = state.config.airnodes[airnodeName];
 
-  const endpointNames = Object.keys(configApiProvider.endpoints);
+  const endpointNames = Object.keys(configAirnode.endpoints);
   const endpoints = endpointNames.reduce((acc: any, name: string) => {
-    const configEndpoint = configApiProvider.endpoints[name];
+    const configEndpoint = configAirnode.endpoints[name];
     const endpointId = deriveEndpointId(configEndpoint.oisTitle, name);
     const data: DeployedEndpoint = { endpointId };
     return { ...acc, [name]: data };
   }, {});
 
-  const templateNames = Object.keys(configApiProvider.templates);
+  const templateNames = Object.keys(configAirnode.templates);
   const templates = templateNames.reduce((acc: any, name: string) => {
-    const key = `${apiProviderName}-${name}`;
-    const configTemplate = configApiProvider.templates[name];
+    const key = `${airnodeName}-${name}`;
+    const configTemplate = configAirnode.templates[name];
     const template = state.templatesByName[key];
     const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
     const data: DeployedTemplate = { endpointId, hash: template.hash };
     return { ...acc, [name]: data };
   }, {});
 
-  const apiProvider = state.apiProvidersByName[apiProviderName];
+  const airnode = state.airnodesByName[airnodeName];
 
   return {
-    masterWalletAddress: apiProvider.masterWalletAddress,
+    masterWalletAddress: airnode.masterWalletAddress,
     endpoints,
     templates,
   };
@@ -79,14 +79,14 @@ export function buildSaveableDeployment(state: State): Deployment {
     return [...acc, data];
   }, []);
 
-  const apiProviderNames = Object.keys(state.apiProvidersByName);
-  const apiProviders = apiProviderNames.reduce((acc: any, name: string) => {
-    const saveableApiProvider = buildSaveableAPIProvider(state, name);
-    return { ...acc, [name]: saveableApiProvider };
+  const airnodeNames = Object.keys(state.airnodesByName);
+  const airnodes = airnodeNames.reduce((acc: any, name: string) => {
+    const saveableAirnode = buildSaveableAirnode(state, name);
+    return { ...acc, [name]: saveableAirnode };
   }, {});
 
   return {
-    apiProviders,
+    airnodes,
     contracts,
     clients,
     requesters,

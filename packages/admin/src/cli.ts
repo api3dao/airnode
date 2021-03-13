@@ -63,17 +63,17 @@ yargs
   )
   .command(
     'derive-designated-wallet',
-    'Derives the address of the designated wallet for a provider-requester pair',
+    'Derives the address of the designated wallet for a airnode-requester pair',
     {
       providerUrl: {
         type: 'string',
         demandOption: true,
         describe: 'URL of the Ethereum provider',
       },
-      providerId: {
+      airnodeId: {
         type: 'string',
         demandOption: true,
-        describe: 'Provider ID',
+        describe: 'Airnode ID',
       },
       requesterIndex: {
         type: 'string',
@@ -83,7 +83,7 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl);
-      const designatedWallet = await contract.deriveDesignatedWallet(airnodeRrp, args.providerId, args.requesterIndex);
+      const designatedWallet = await contract.deriveDesignatedWallet(airnodeRrp, args.airnodeId, args.requesterIndex);
       console.log(`Designated wallet address: ${designatedWallet}`);
     }
   )
@@ -178,7 +178,7 @@ yargs
   )
   .command(
     'request-withdrawal',
-    'Requests withdrawal from the designated wallet of a provider as a requester admin',
+    'Requests withdrawal from the designated wallet of an Airnode as a requester admin',
     {
       providerUrl: {
         type: 'string',
@@ -190,10 +190,10 @@ yargs
         demandOption: true,
         describe: 'Mnemonic of the wallet',
       },
-      providerId: {
+      airnodeId: {
         type: 'string',
         demandOption: true,
-        describe: 'Provider ID',
+        describe: 'Airnode ID',
       },
       requesterIndex: {
         type: 'string',
@@ -210,7 +210,7 @@ yargs
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
       const withdrawalRequestId = await contract.requestWithdrawal(
         airnodeRrp,
-        args.providerId,
+        args.airnodeId,
         args.requesterIndex,
         args.destination
       );
@@ -243,8 +243,8 @@ yargs
     }
   )
   .command(
-    'set-provider-parameters',
-    'Sets the parameters of a provider and returns its ID',
+    'set-airnode-parameters',
+    'Sets the parameters of an Airnode and returns its ID',
     {
       providerUrl: {
         type: 'string',
@@ -256,10 +256,10 @@ yargs
         demandOption: true,
         describe: 'Mnemonic of the wallet',
       },
-      providerAdmin: {
+      airnodeAdmin: {
         type: 'string',
         demandOption: true,
-        describe: 'Address of the provider admin',
+        describe: 'Address of the Airnode admin',
       },
       authorizersFilePath: {
         type: 'string',
@@ -270,8 +270,8 @@ yargs
     async (args) => {
       const authorizers = JSON.parse(fs.readFileSync(args.authorizersFilePath).toString());
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(args.mnemonic, args.providerUrl);
-      const providerId = await contract.setProviderParameters(airnodeRrp, args.providerAdmin, authorizers);
-      console.log(`Provider ID: ${providerId}`);
+      const airnodeId = await contract.setAirnodeParameters(airnodeRrp, args.airnodeAdmin, authorizers);
+      console.log(`Airnode ID: ${airnodeId}`);
     }
   )
   .command(

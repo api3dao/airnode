@@ -66,12 +66,12 @@ Note that you must replace `$RECEIPT_FILENAME` with your value.
 docker run -it --rm \
   --env-file .env \
   --env COMMAND=remove-mnemonic \
-  --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT \
+  --env AIRNODE_ID_SHORT=$AIRNODE_ID_SHORT \
   --env REGION=$REGION \
   api3/airnode:latest
 ```
 
-Note that you must replace `$PROVIDER_ID_SHORT` and `$REGION` with your values.
+Note that you must replace `$AIRNODE_ID_SHORT` and `$REGION` with your values.
 
 ### `remove-airnode`
 
@@ -79,10 +79,10 @@ Note that you must replace `$PROVIDER_ID_SHORT` and `$REGION` with your values.
 docker run -it --rm \
   --env-file .env \
   --env COMMAND=remove-airnode \
-  --env PROVIDER_ID_SHORT=$PROVIDER_ID_SHORT \
+  --env AIRNODE_ID_SHORT=$AIRNODE_ID_SHORT \
   --env REGION=$REGION \
   --env STAGE=$STAGE \
   api3/airnode:latest
 ```
 
-Note that you must replace `$PROVIDER_ID_SHORT`, `$REGION` and `$STAGE` with your values.
+Note that you must replace `$AIRNODE_ID_SHORT`, `$REGION` and `$STAGE` with your values.

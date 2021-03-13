@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
-import "./ProviderStore.sol";
+import "./AirnodeParameterStore.sol";
 import "./TemplateStore.sol";
 import "./interfaces/IConvenience.sol";
 
 /// @title The contract that keeps the convenience methods that Airnodes use to
 /// make batch calls
-contract Convenience is ProviderStore, TemplateStore, IConvenience {
-    /// @notice A convenience method for the Airnode to set provider parameters
-    /// and forward the remaining funds in the master wallet to the provider
+contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
+    /// @notice A convenience method for the Airnode to its parameters
+    /// and forward the remaining funds in the master wallet to the Airnode
     /// admin
-    /// @param admin Provider admin
-    /// @param xpub Master public key of the provider
-    /// @param authorizers Authorizer contract addresses of the provider
-    /// @return providerId Provider ID from ProviderStore
-    function setProviderParametersAndForwardFunds(
+    /// @param admin Airnode admin
+    /// @param xpub Master public key of the Airnode
+    /// @param authorizers Authorizer contract addresses of the Airnode
+    /// @return airnodeId Airnode ID from AirnodeParameterStore
+    function setAirnodeParametersAndForwardFunds(
         address admin,
         string calldata xpub,
         address[] calldata authorizers
@@ -23,9 +23,9 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
         external
         payable
         override
-        returns (bytes32 providerId)
+        returns (bytes32 airnodeId)
     {
-        providerId = setProviderParameters(
+        airnodeId = setAirnodeParameters(
             admin,
             xpub,
             authorizers
@@ -37,14 +37,14 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
         }
     }
 
-    /// @notice A convenience method to retrieve the provider parameters and
+    /// @notice A convenience method to retrieve the Airnode parameters and
     /// the block number with a single call
-    /// @param providerId Provider ID from ProviderStore
-    /// @return admin Provider admin
-    /// @return xpub Master public key of the provider
-    /// @return authorizers Authorizer contract addresses of the provider
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
+    /// @return admin Airnode admin
+    /// @return xpub Master public key of the Airnode
+    /// @return authorizers Authorizer contract addresses of the Airnode
     /// @return blockNumber Block number
-    function getProviderAndBlockNumber(bytes32 providerId)
+    function getAirnodeParametersAndBlockNumber(bytes32 airnodeId)
         external
         view
         override
@@ -55,10 +55,10 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
             uint256 blockNumber
         )
     {
-        Provider storage provider = providers[providerId];
-        admin = provider.admin;
-        xpub = provider.xpub;
-        authorizers = provider.authorizers;
+        AirnodeParameter storage airnodeParameter = airnodeParameters[airnodeId];
+        admin = airnodeParameter.admin;
+        xpub = airnodeParameter.xpub;
+        authorizers = airnodeParameter.authorizers;
         blockNumber = block.number;
     }
 
@@ -67,7 +67,7 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
     /// @dev If this reverts, Airnode will use getTemplate() to get the
     /// templates individually
     /// @param templateIds Request template IDs from TemplateStore
-    /// @return providerIds Array of provider IDs from ProviderStore
+    /// @return airnodeIds Array of Airnode IDs from AirnodeParameterStore
     /// @return endpointIds Array of endpoint IDs from EndpointStore
     /// @return parameters Array of request parameters
     function getTemplates(bytes32[] calldata templateIds)
@@ -75,18 +75,18 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
         view
         override
         returns (
-            bytes32[] memory providerIds,
+            bytes32[] memory airnodeIds,
             bytes32[] memory endpointIds,
             bytes[] memory parameters
         )
     {
-        providerIds = new bytes32[](templateIds.length);
+        airnodeIds = new bytes32[](templateIds.length);
         endpointIds = new bytes32[](templateIds.length);
         parameters = new bytes[](templateIds.length);
         for (uint256 ind = 0; ind < templateIds.length; ind++)
         {
             Template storage template = templates[templateIds[ind]];
-            providerIds[ind] = template.providerId;
+            airnodeIds[ind] = template.airnodeId;
             endpointIds[ind] = template.endpointId;
             parameters[ind] = template.parameters;
         }
@@ -96,7 +96,7 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
     /// checks with a single call
     /// @dev If this reverts, Airnode will use checkAuthorizationStatus() to
     /// do the checks individually
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param requestIds Request IDs
     /// @param endpointIds Endpoint IDs from EndpointStore
     /// @param requesterIndices Requester indices from RequesterStore
@@ -104,7 +104,7 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
     /// @param clientAddresses Client addresses
     /// @return statuses Authorization statuses of the request
     function checkAuthorizationStatuses(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32[] calldata requestIds,
         bytes32[] calldata endpointIds,
         uint256[] calldata requesterIndices,
@@ -127,7 +127,7 @@ contract Convenience is ProviderStore, TemplateStore, IConvenience {
         for (uint256 ind = 0; ind < requestIds.length; ind++)
         {
             statuses[ind] = checkAuthorizationStatus(
-                providerId,
+                airnodeId,
                 requestIds[ind],
                 endpointIds[ind],
                 requesterIndices[ind],
