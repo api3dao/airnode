@@ -1,5 +1,5 @@
 import { encode } from '@airnode/airnode-abi';
-import { deriveEndpointId, deriveairnodeId } from '../utils';
+import { deriveEndpointId, deriveAirnodeId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 
 export async function endorseClients(state: State): Promise<State> {
@@ -30,7 +30,7 @@ export async function createTemplates(state: State): Promise<State> {
   for (const airnodeName of Object.keys(state.airnodesByName)) {
     const airnode = state.airnodesByName[airnodeName];
     const configAirnode = state.config.airnodes[airnodeName];
-    const airnodeId = deriveairnodeId(airnode.masterWalletAddress);
+    const airnodeId = deriveAirnodeId(airnode.masterWalletAddress);
 
     for (const templateName of Object.keys(configAirnode.templates)) {
       const configTemplate = configAirnode.templates[templateName];
