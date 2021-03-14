@@ -51,7 +51,7 @@ describe('setAirnodeParametersAndForwardFunds', function () {
         const txCost = gasEstimate.mul(gasPrice);
         const masterWalletBalance = await waffle.provider.getBalance(masterWallet.address);
         const fundsToSend = masterWalletBalance.sub(txCost);
-        // Set the Airnode paramters
+        // Set the Airnode parameters
         const initialAirnodeAdminBalance = await waffle.provider.getBalance(roles.airnodeAdmin.address);
         const expectedAirnodeAdminBalance = initialAirnodeAdminBalance.add(fundsToSend);
         await expect(

@@ -221,6 +221,6 @@ export async function verifyOrSetAirnodeParameters(
     return [logs, airnodeParametersBlockData];
   }
 
-  const existsLog = logger.pend('DEBUG', `Skipping Airnode parameters creation as the Airnode parameters exist`);
+  const existsLog = logger.pend('DEBUG', `Skipping Airnode parameters setting as the Airnode parameters exist`);
   return [[idLog, ...airnodeParametersBlockLogs, existsLog], airnodeParametersBlockData];
 }

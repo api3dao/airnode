@@ -585,7 +585,7 @@ describe('verifyOrSetAirnodeParameters', () => {
         message:
           'Airnode extended public key:xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
-      { level: 'DEBUG', message: 'Skipping Airnode parameters creation as the Airnode parameters exist' },
+      { level: 'DEBUG', message: 'Skipping Airnode parameters setting as the Airnode parameters exist' },
     ]);
     expect(res).toEqual({
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',

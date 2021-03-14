@@ -109,7 +109,7 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 `airnodes` must have a unique name as the key.
 
-`mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's master wallet. The master wallet address serves as the Airnode admin address. **DO NOT SEND REAL FUNDS TO A WALLET LINKED TO A TEST MNEMONIC**
+`mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's master wallet. The master wallet address also serves as the Airnode admin address. **DO NOT SEND REAL FUNDS TO A WALLET LINKED TO A TEST MNEMONIC**
 
 **Endpoints**
 

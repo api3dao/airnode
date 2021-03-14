@@ -8,7 +8,7 @@ import "./interfaces/IConvenience.sol";
 /// @title The contract that keeps the convenience methods that Airnodes use to
 /// make batch calls
 contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
-    /// @notice A convenience method for the Airnode to its parameters
+    /// @notice A convenience method for the Airnode to set its parameters
     /// and forward the remaining funds in the master wallet to the Airnode
     /// admin
     /// @param admin Airnode admin
