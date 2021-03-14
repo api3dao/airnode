@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 
-export async function fundProviderAccounts(state: State): Promise<State> {
-  for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
-    const apiProvider = state.apiProvidersByName[apiProviderName];
-    // Ensure that the API provider address has enough ETH to set the onchain provider parameters
+export async function fundAirnodeAccounts(state: State): Promise<State> {
+  for (const airnodeName of Object.keys(state.airnodesByName)) {
+    const airnode = state.airnodesByName[airnodeName];
+    // Ensure that the Airnode address has enough ETH to set the onchain Airnode parameters
     const tx = await state.deployer.sendTransaction({
-      to: apiProvider.masterWalletAddress,
+      to: airnode.masterWalletAddress,
       value: ethers.utils.parseEther('5'),
     });
     await tx.wait();
@@ -30,7 +30,7 @@ export async function fundDesignatedWallets(state: State): Promise<State> {
   for (const configRequester of state.config.requesters) {
     const requester = state.requestersById[configRequester.id];
     for (const designatedWallet of requester.designatedWallets) {
-      const ethAmount = configRequester.apiProviders[designatedWallet.apiProviderName].ethBalance;
+      const ethAmount = configRequester.airnodes[designatedWallet.airnodeName].ethBalance;
       const tx = await state.deployer.sendTransaction({
         to: designatedWallet.address,
         value: ethers.utils.parseEther(ethAmount),

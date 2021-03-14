@@ -1,6 +1,6 @@
 import * as ethers from 'ethers';
 import ora from 'ora';
-import { AirnodeArtifact } from '@airnode/protocol';
+import { AirnodeRrpArtifact } from '@airnode/protocol';
 
 const chainIdsToNames = {
   1: 'mainnet',
@@ -11,28 +11,28 @@ const chainIdsToNames = {
   100: 'xdai',
 };
 
-export async function checkProviderRecords(providerId, chains, masterWalletAddress) {
+export async function checkAirnodeParameters(airnodeId, chains, masterWalletAddress) {
   let spinner;
   for (const chain of chains) {
     const chainName = chainIdsToNames[chain.id] || `${chain.id}`;
-    spinner = ora(`Checking provider record on chain: ${chainName}`).start();
+    spinner = ora(`Checking Airnode parameters on chain: ${chainName}`).start();
     try {
       // Use the first provider of the chain in config.json
       const provider = new ethers.providers.JsonRpcProvider(chain.providers[0].url);
-      // chain.contracts.Airnode is a required field
-      const airnode = new ethers.Contract(chain.contracts.Airnode, AirnodeArtifact.abi, provider);
-      const providerRecord = await airnode.getProvider(providerId);
-      if (providerRecord.xpub === '') {
-        spinner.warn(`Provider record not found on chain: ${chainName}`);
+      // chain.contracts.AirnodeRrp is a required field
+      const airnodeRrp = new ethers.Contract(chain.contracts.AirnodeRrp, AirnodeRrpArtifact.abi, provider);
+      const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
+      if (airnodeParameters.xpub === '') {
+        spinner.warn(`Airnode parameters not found on chain: ${chainName}`);
         await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
       } else {
         // Assuming xpub is valid
-        spinner.succeed(`Provider record found on chain: ${chainName}`);
+        spinner.succeed(`Airnode parameters found on chain: ${chainName}`);
       }
     } catch {
       // The provider for the network probably was not available
       // We can also cycle through chain.providers.* here
-      spinner.info(`Skipped checking provider record on chain: ${chainName}`);
+      spinner.info(`Skipped checking Airnode parameters on chain: ${chainName}`);
     }
   }
 }
@@ -48,12 +48,10 @@ async function checkMasterWalletBalance(provider, masterWalletAddress, chainName
     );
     if (txCost.gt(balance)) {
       ora().warn(
-        `Fund it with at least ${ethers.utils.formatEther(
-          txCost
-        )} ETH for it to be able to set your provider parameters`
+        `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to set your Airnode parameters`
       );
     } else {
-      ora().succeed('Master wallet balance is enough to set your provider parameters');
+      ora().succeed('Master wallet balance is enough to set your Airnode parameters');
     }
   } catch {
     spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);

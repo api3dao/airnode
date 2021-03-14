@@ -7,11 +7,11 @@ import { OPERATION_RETRIES } from '../../constants';
 
 interface FetchOptions {
   address: string;
+  airnodeId: string;
   blockHistoryLimit: number;
   currentBlock: number;
   ignoreBlockedRequestsAfterBlocks: number;
   provider: ethers.providers.JsonRpcProvider;
-  providerId: string;
 }
 
 interface GroupedLogs {
@@ -29,7 +29,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
-    topics: [null, options.providerId],
+    topics: [null, options.airnodeId],
   };
 
   const operation = () => options.provider.getLogs(filter);
@@ -39,13 +39,13 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
   const rawLogs = await retryableOperation;
 
   // If the provider returns a bad response, mapping logs could also throw
-  const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
+  const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
     ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
     transactionHash: log.transactionHash,
-    parsedLog: airnodeInterface.parseLog(log),
+    parsedLog: airnodeRrpInterface.parseLog(log),
   }));
 
   return logsWithBlocks;

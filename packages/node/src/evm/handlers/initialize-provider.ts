@@ -14,9 +14,9 @@ type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions = {
-    airnodeAddress: currentState.contracts.Airnode,
+    airnodeId: currentState.settings.airnodeId,
+    airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
-    providerId: currentState.settings.providerId,
   };
   const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
   return { id: 'authorizations', data: res, logs };
@@ -50,30 +50,32 @@ export async function initializeProvider(
   const state1 = state.refresh(initialState);
 
   // =================================================================
-  // STEP 2: Get current block number, and verify or set provider parameters
+  // STEP 2: Get current block number, and verify or set Airnode parameters
   // =================================================================
-  const providerFetchOptions = {
-    airnodeAddress: state1.contracts.Airnode,
+  const airnodeParametersFetchOptions = {
+    airnodeAdmin: state1.settings.airnodeAdmin,
+    airnodeRrpAddress: state1.contracts.AirnodeRrp,
     authorizers: state1.settings.authorizers,
     masterHDNode: state1.masterHDNode,
     provider: state1.provider,
-    providerAdmin: state1.settings.providerAdmin,
   };
-  const [providerLogs, providerData] = await initialization.verifyOrSetProviderParameters(providerFetchOptions);
-  logger.logPending(providerLogs, baseLogOptions);
+  const [airnodeParametersLogs, airnodeParametersData] = await initialization.verifyOrSetAirnodeParameters(
+    airnodeParametersFetchOptions
+  );
+  logger.logPending(airnodeParametersLogs, baseLogOptions);
 
-  // If there is no provider data, something has gone wrong
-  if (!providerData) {
+  // If there is no Airnode parameters data, something has gone wrong
+  if (!airnodeParametersData) {
     return null;
   }
 
-  // If the provider does not yet exist onchain then we can't start processing anything.
+  // If the Airnode parameters do not yet exist onchain then we can't start processing anything.
   // This is to be expected for new Airnode deployments and is not an error case
-  if (providerData.xpub === '') {
+  if (airnodeParametersData.xpub === '') {
     return state1;
   }
 
-  const state2 = state.update(state1, { currentBlock: providerData.blockNumber });
+  const state2 = state.update(state1, { currentBlock: airnodeParametersData.blockNumber });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
@@ -105,7 +107,7 @@ export async function initializeProvider(
   // STEP 5: Fetch and apply templates to API calls
   // =================================================================
   const templateFetchOptions = {
-    airnodeAddress: state4.contracts.Airnode,
+    airnodeRrpAddress: state4.contracts.AirnodeRrp,
     provider: state4.provider,
   };
   // This should not throw

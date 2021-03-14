@@ -2,8 +2,8 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const accounts = await getUnnamedAccounts();
 
-  const airnode = await deploy('Airnode', {
+  const airnodeRrp = await deploy('AirnodeRrp', {
     from: accounts[0],
   });
-  log(`Deployed Airnode at ${airnode.address}`);
+  log(`Deployed Airnode RRP at ${airnodeRrp.address}`);
 };

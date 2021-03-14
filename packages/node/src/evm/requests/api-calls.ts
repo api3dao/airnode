@@ -14,7 +14,7 @@ import {
 } from '../../types';
 
 function getApiCallType(topic: string): ApiCallType {
-  const { topics } = contracts.Airnode;
+  const { topics } = contracts.AirnodeRrp;
   switch (topic) {
     case topics.ClientRequestCreated:
       return 'regular';
@@ -30,6 +30,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<ApiCall> = {
+    airnodeId: parsedLog.args.airnodeId,
     clientAddress: parsedLog.args.clientAddress,
     designatedWallet: parsedLog.args.designatedWallet || null,
     encodedParameters: parsedLog.args.parameters,
@@ -45,7 +46,6 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
     },
     // Parameters are decoded separately
     parameters: {},
-    providerId: parsedLog.args.providerId,
     requestCount: parsedLog.args.noRequests.toString(),
     requesterIndex: parsedLog.args.requesterIndex?.toString() || null,
     status: RequestStatus.Pending,

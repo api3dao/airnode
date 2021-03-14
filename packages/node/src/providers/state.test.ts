@@ -8,12 +8,12 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
+      airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       id: 1337,
-      providerAdmin: '0xproviderAdmin',
       providers: [chainProvider],
       type: 'evm',
     };
@@ -21,11 +21,13 @@ describe('create', () => {
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
+        airnodeAdmin: '0xairnodeAdmin',
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeIdShort: '19255a4',
         authorizers: [ethers.constants.AddressZero],
-        providerAdmin: '0xproviderAdmin',
         blockHistoryLimit: 300,
         chainId: 1337,
         chainType: 'evm',
@@ -33,8 +35,6 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 0,
         name: 'ganache-test',
-        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        providerIdShort: '19255a4',
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',
@@ -59,26 +59,28 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
+      airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       blockHistoryLimit: 150,
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       id: 1337,
       minConfirmations: 3,
       providers: [chainProvider],
-      providerAdmin: '0xproviderAdmin',
       type: 'evm',
     };
     const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
     expect(res).toEqual({
       contracts: {
-        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
+        airnodeAdmin: '0xairnodeAdmin',
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeIdShort: '19255a4',
         authorizers: [ethers.constants.AddressZero],
-        providerAdmin: '0xproviderAdmin',
         blockHistoryLimit: 150,
         chainId: 1337,
         chainType: 'evm',
@@ -86,8 +88,6 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 3,
         name: 'ganache-test',
-        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        providerIdShort: '19255a4',
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',

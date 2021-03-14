@@ -27,9 +27,9 @@ it('sets the correct status code for both successful and failed requests', async
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
-  const deployment = await e2e.deployAirnode(deployConfig);
+  const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAPI.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
 
@@ -40,7 +40,7 @@ it('sets the correct status code for both successful and failed requests', async
 
   await handlers.startCoordinator();
 
-  const logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
   // We need to use the encoded parameters to find out which request is which
   const encodedValidParams = encode(validParameters);

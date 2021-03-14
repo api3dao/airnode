@@ -1,43 +1,43 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
-import "../interfaces/IAirnode.sol";
+import "../interfaces/IAirnodeRrp.sol";
 import "./interfaces/ISelfAuthorizer.sol";
 
-/// @title Authorizer contract where each provider is their own admin
-/// @notice This contract is for when the provider admin will manage access
-/// personally. The provider admin can also appoint admins (either wallets or
+/// @title Authorizer contract where each Airnode is their own admin
+/// @notice This contract is for when the Airnode admin will manage access
+/// personally. The Airnode admin can also appoint admins (either wallets or
 /// contracts) to extend whitelistings up to a limited length. The admins
-/// cannot revoke whitelistings, but the provider admin can.
+/// cannot revoke whitelistings, but the Airnode admin can.
 contract SelfAuthorizer is ISelfAuthorizer {
     struct Admin {
         bool status;
         uint256 maxWhitelistExtension;
         }
 
-    IAirnode public airnode;
+    IAirnodeRrp public airnodeRrp;
     uint256 public immutable authorizerType = 2;
-    mapping(bytes32 => mapping(address => Admin)) public providerIdToAdmins;
-    mapping(bytes32 => mapping(address => uint256)) public providerIdToClientAddressToWhitelistExpiration;
-    mapping(bytes32 => mapping(uint256 => uint256)) public providerIdToRequesterIndexToWhitelistExpiration;
+    mapping(bytes32 => mapping(address => Admin)) public airnodeIdToAdmins;
+    mapping(bytes32 => mapping(address => uint256)) public airnodeIdToClientAddressToWhitelistExpiration;
+    mapping(bytes32 => mapping(uint256 => uint256)) public airnodeIdToRequesterIndexToWhitelistExpiration;
 
-    /// @dev Reverts if the caller is not the provider admin
-    /// @param providerId Provider ID from `ProviderStore.sol`
-    modifier onlyProviderAdmin(bytes32 providerId)
+    /// @dev Reverts if the caller is not the Airnode admin
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
+    modifier onlyAirnodeAdmin(bytes32 airnodeId)
     {
-        (address providerAdmin, , ) = airnode.getProvider(providerId);
+        (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(airnodeId);
         require(
-            msg.sender == providerAdmin,
-            "Caller is not provider admin"
+            msg.sender == airnodeAdmin,
+            "Caller is not Airnode admin"
             );
         _;
     }
 
     /// @dev Reverts if the caller is not an admin
-    modifier onlyAdmin(bytes32 providerId)
+    modifier onlyAdmin(bytes32 airnodeId)
     {
         require(
-            providerIdToAdmins[providerId][msg.sender].status,
+            airnodeIdToAdmins[airnodeId][msg.sender].status,
             "Caller is not an admin"
             );
         _;
@@ -45,11 +45,11 @@ contract SelfAuthorizer is ISelfAuthorizer {
 
     /// @dev Reverts if `whitelistExpiration` is not in the future or is too
     /// far in the future
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param whitelistExpiration Timestamp at which the whitelisting will
     /// expire
     modifier onlyValidExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 whitelistExpiration
         )
     {
@@ -58,41 +58,41 @@ contract SelfAuthorizer is ISelfAuthorizer {
             "Expiration is in past"
             );
         require(
-            whitelistExpiration <= block.timestamp + providerIdToAdmins[providerId][msg.sender].maxWhitelistExtension,
+            whitelistExpiration <= block.timestamp + airnodeIdToAdmins[airnodeId][msg.sender].maxWhitelistExtension,
             "Expiration exceeds admin limit"
             );
         _;
     }
 
-    /// @param _airnode Airnode contract address
-    constructor (address _airnode)
+    /// @param _airnodeRrp Airnode RRP contract address
+    constructor (address _airnodeRrp)
     {
-        airnode = IAirnode(_airnode);
+        airnodeRrp = IAirnodeRrp(_airnodeRrp);
     }
 
-    /// @notice Called by the provider admin to set the adminship parameters
+    /// @notice Called by the Airnode admin to set the adminship parameters
     /// of an address
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param adminAddress Address whose adminship parameters will be set
     /// @param status Adminship status
     /// @param maxWhitelistExtension Amount that the respective admin can
     /// extend the whitelistings for
     function setAdminParameters(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address adminAddress,
         bool status,
         uint256 maxWhitelistExtension
         )
         external
         override
-        onlyProviderAdmin(providerId)
+        onlyAirnodeAdmin(airnodeId)
     {
-        providerIdToAdmins[providerId][adminAddress] = Admin(
+        airnodeIdToAdmins[airnodeId][adminAddress] = Admin(
             status,
             maxWhitelistExtension
             );
         emit AdminParametersSet(
-            providerId,
+            airnodeId,
             adminAddress,
             status,
             maxWhitelistExtension
@@ -100,44 +100,44 @@ contract SelfAuthorizer is ISelfAuthorizer {
     }
 
     /// @notice Called by the admin to renounce their adminship
-    /// @param providerId Provider ID from `ProviderStore.sol`
-    function renounceAdminship(bytes32 providerId)
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
+    function renounceAdminship(bytes32 airnodeId)
         external
         override
-        onlyAdmin(providerId)
+        onlyAdmin(airnodeId)
     {
-        providerIdToAdmins[providerId][msg.sender].status = false;
+        airnodeIdToAdmins[airnodeId][msg.sender].status = false;
         emit AdminshipRenounced(
-            providerId,
+            airnodeId,
             msg.sender
             );
     }
 
     /// @notice Called by the admin to extend the whitelisting of a client
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param clientAddress Client address
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// client will expire
     function extendClientWhitelisting(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address clientAddress,
         uint256 whitelistExpiration
         )
         external
         override
-        onlyAdmin(providerId)
+        onlyAdmin(airnodeId)
         onlyValidExpiration(
-            providerId,
+            airnodeId,
             whitelistExpiration
             )
     {
         require(
-            whitelistExpiration > providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress],
+            whitelistExpiration > airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress],
             "Expiration does not extend"
             );
-        providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress] = whitelistExpiration;
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = whitelistExpiration;
         emit ClientWhitelistingExtended(
-            providerId,
+            airnodeId,
             clientAddress,
             whitelistExpiration,
             msg.sender
@@ -145,81 +145,81 @@ contract SelfAuthorizer is ISelfAuthorizer {
     }
 
     /// @notice Called by the admin to extend the whitelisting of a requester
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param requesterIndex Requester index from `RequesterStore.sol`
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// requester will expire
     function extendRequesterWhitelisting(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         uint256 whitelistExpiration
         )
         external
         override
-        onlyAdmin(providerId)
+        onlyAdmin(airnodeId)
         onlyValidExpiration(
-            providerId,
+            airnodeId,
             whitelistExpiration
             )
     {
         require(
-            whitelistExpiration > providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex],
+            whitelistExpiration > airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex],
             "Expiration does not extend"
             );
-        providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex] = whitelistExpiration;
+        airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex] = whitelistExpiration;
         emit RequesterWhitelistingExtended(
-            providerId,
+            airnodeId,
             requesterIndex,
             whitelistExpiration,
             msg.sender
             );
     }
 
-    /// @notice Called by the provider admin to set the whitelisting expiration
+    /// @notice Called by the Airnode admin to set the whitelisting expiration
     /// time of the client
-    /// @dev Note that the provider admin can use this method to set the
+    /// @dev Note that the Airnode admin can use this method to set the
     /// client's `whitelistExpiration` to `0`, effectively blacklisting them
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param clientAddress Client address
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// client will expire
     function setClientWhitelistExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         address clientAddress,
         uint256 whitelistExpiration
         )
         external
         override
-        onlyProviderAdmin(providerId)
+        onlyAirnodeAdmin(airnodeId)
     {
-        providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress] = whitelistExpiration;
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = whitelistExpiration;
         emit ClientWhitelistExpirationSet(
-            providerId,
+            airnodeId,
             clientAddress,
             whitelistExpiration
             );
     }
 
-    /// @notice Called by the provider admin to set the whitelisting expiration
+    /// @notice Called by the Airnode admin to set the whitelisting expiration
     /// time of the requester
-    /// @dev Note that the provider admin can use this method to set the
+    /// @dev Note that the Airnode admin can use this method to set the
     /// requester's `whitelistExpiration` to `0`, effectively blacklisting them
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param requesterIndex Requester index from `RequesterStore.sol`
     /// @param whitelistExpiration Timestamp at which the whitelisting of the
     /// requester will expire
     function setRequesterWhitelistExpiration(
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 requesterIndex,
         uint256 whitelistExpiration
         )
         external
         override
-        onlyProviderAdmin(providerId)
+        onlyAirnodeAdmin(airnodeId)
     {
-        providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex] = whitelistExpiration;
+        airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex] = whitelistExpiration;
         emit RequesterWhitelistExpirationSet(
-            providerId,
+            airnodeId,
             requesterIndex,
             whitelistExpiration
             );
@@ -234,7 +234,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
     /// `designatedWallet` has enough funds to fulfill the request. However,
     /// that is not a condition that can be checked deterministically.
     /// @param requestId Request ID
-    /// @param providerId Provider ID from `ProviderStore.sol`
+    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param endpointId Endpoint ID
     /// @param requesterIndex Requester index from `RequesterStore.sol`
     /// @param designatedWallet Designated wallet
@@ -242,7 +242,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
     /// @return status Authorization status of the request
     function checkIfAuthorized(
         bytes32 requestId,        // solhint-disable-line
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,       // solhint-disable-line
         uint256 requesterIndex,
         address designatedWallet,
@@ -254,7 +254,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
         returns (bool status)
     {
         return designatedWallet.balance != 0
-            && (providerIdToClientAddressToWhitelistExpiration[providerId][clientAddress] > block.timestamp
-            || providerIdToRequesterIndexToWhitelistExpiration[providerId][requesterIndex] > block.timestamp);
+            && (airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp
+            || airnodeIdToRequesterIndexToWhitelistExpiration[airnodeId][requesterIndex] > block.timestamp);
     }
 }

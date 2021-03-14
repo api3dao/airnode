@@ -10,13 +10,13 @@ it('does not process requests twice', async () => {
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
-  const deployment = await e2e.deployAirnode(deployConfig);
+  const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAPI.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
 
-  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
   const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
   const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
@@ -34,7 +34,7 @@ it('does not process requests twice', async () => {
 
   await handlers.startCoordinator();
 
-  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
   const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
   const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
@@ -54,6 +54,6 @@ it('does not process requests twice', async () => {
   await handlers.startCoordinator();
 
   // There should be no more logs created
-  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
   expect(run2Logs.length).toEqual(postinvokeLogs.length);
 });

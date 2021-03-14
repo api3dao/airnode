@@ -1,31 +1,31 @@
 const { expect } = require('chai');
 
-let airnode;
-const providerId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+let airnodeRrp;
+const airnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const parameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
 const templateId = ethers.utils.keccak256(
-  ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [providerId, endpointId, parameters])
+  ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId, parameters])
 );
 
 beforeEach(async () => {
-  const airnodeFactory = await ethers.getContractFactory('Airnode');
-  airnode = await airnodeFactory.deploy();
+  const airnodeRrpFactory = await ethers.getContractFactory('AirnodeRrp');
+  airnodeRrp = await airnodeRrpFactory.deploy();
 });
 
 describe('createTemplate', function () {
   it('creates template', async function () {
-    await expect(airnode.createTemplate(providerId, endpointId, parameters))
-      .to.emit(airnode, 'TemplateCreated')
-      .withArgs(templateId, providerId, endpointId, parameters);
+    await expect(airnodeRrp.createTemplate(airnodeId, endpointId, parameters))
+      .to.emit(airnodeRrp, 'TemplateCreated')
+      .withArgs(templateId, airnodeId, endpointId, parameters);
   });
 });
 
 describe('getTemplate', function () {
   it('gets template', async function () {
-    await airnode.createTemplate(providerId, endpointId, parameters);
-    const template = await airnode.getTemplate(templateId);
-    expect(template.providerId).to.equal(providerId);
+    await airnodeRrp.createTemplate(airnodeId, endpointId, parameters);
+    const template = await airnodeRrp.getTemplate(templateId);
+    expect(template.airnodeId).to.equal(airnodeId);
     expect(template.endpointId).to.equal(endpointId);
     expect(template.parameters).to.equal(parameters);
   });

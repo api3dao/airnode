@@ -1,7 +1,7 @@
-import * as airnode from './airnode';
+import * as airnodeRrp from './airnodeRrp';
 import * as logs from './event-logs';
 
 export const evm = {
-  airnode,
+  airnodeRrp,
   logs,
 };

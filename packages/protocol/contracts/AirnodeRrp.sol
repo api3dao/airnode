@@ -2,34 +2,34 @@
 pragma solidity 0.8.2;
 
 import "./Convenience.sol";
-import "./interfaces/IAirnode.sol";
+import "./interfaces/IAirnodeRrp.sol";
 
 /// @title The contract used to make and fulfill requests
 /// @notice Clients use this contract to make requests and Airnodes use it to
 /// fulfill them. In addition, it inherits from the contracts that keep records
-/// or providers, requesters and templates. It also includes some convenience
+/// or Airnodes, requesters and templates. It also includes some convenience
 /// methods that Airnodes use to reduce the number of calls they make to
 /// blockchain providers.
-contract Airnode is Convenience, IAirnode {
+contract AirnodeRrp is Convenience, IAirnodeRrp {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
 
     /// @dev Reverts if the incoming fulfillment parameters do not match the
     /// ones provided in the request
     /// @param requestId Request ID
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     modifier onlyCorrectFulfillmentParameters(
         bytes32 requestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )
     {
         bytes32 incomingFulfillmentParameters = keccak256(abi.encodePacked(
-            providerId,
+            airnodeId,
             msg.sender,
             fulfillAddress,
             fulfillFunctionId
@@ -42,7 +42,7 @@ contract Airnode is Convenience, IAirnode {
     }
 
     /// @notice Called by the client to make a regular request. A regular
-    /// request refers to a template for the provider, endpoint and parameters.
+    /// request refers to a template for the Airnode, endpoint and parameters.
     /// @param templateId Template ID from TemplateStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -76,15 +76,15 @@ contract Airnode is Convenience, IAirnode {
             templateId,
             parameters
             ));
-        bytes32 providerId = templates[templateId].providerId;
+        bytes32 airnodeId = templates[templateId].airnodeId;
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
-            providerId,
+            airnodeId,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId
             ));
         emit ClientRequestCreated(
-            providerId,
+            airnodeId,
             requestId,
             clientNoRequests,
             msg.sender,
@@ -101,7 +101,7 @@ contract Airnode is Convenience, IAirnode {
     /// @notice Called by the client to make a full request. A full request
     /// provides all of its parameters as arguments and does not refer to a
     /// template.
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -112,7 +112,7 @@ contract Airnode is Convenience, IAirnode {
     /// @param parameters All request parameters
     /// @return requestId Request ID
     function makeFullRequest(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         uint256 requesterIndex,
         address designatedWallet,
@@ -136,13 +136,13 @@ contract Airnode is Convenience, IAirnode {
             parameters
             ));
         requestIdToFulfillmentParameters[requestId] = keccak256(abi.encodePacked(
-            providerId,
+            airnodeId,
             designatedWallet,
             fulfillAddress,
             fulfillFunctionId
             ));
         emit ClientFullRequestCreated(
-            providerId,
+            airnodeId,
             requestId,
             clientNoRequests,
             msg.sender,
@@ -163,7 +163,7 @@ contract Airnode is Convenience, IAirnode {
     /// The data is ABI-encoded as a `bytes` type, with its format depending on
     /// the request specifications.
     /// @param requestId Request ID
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
@@ -174,7 +174,7 @@ contract Airnode is Convenience, IAirnode {
     /// any)
     function fulfill(
         bytes32 requestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
@@ -184,7 +184,7 @@ contract Airnode is Convenience, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            providerId,
+            airnodeId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -195,7 +195,7 @@ contract Airnode is Convenience, IAirnode {
     {
         delete requestIdToFulfillmentParameters[requestId];
         emit ClientRequestFulfilled(
-            providerId,
+            airnodeId,
             requestId,
             statusCode,
             data
@@ -209,13 +209,13 @@ contract Airnode is Convenience, IAirnode {
     /// @dev Airnode should fall back to this if a request cannot be fulfilled
     /// because fulfill() reverts
     /// @param requestId Request ID
-    /// @param providerId Provider ID from ProviderStore
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     function fail(
         bytes32 requestId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         address fulfillAddress,
         bytes4 fulfillFunctionId
         )
@@ -223,7 +223,7 @@ contract Airnode is Convenience, IAirnode {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            providerId,
+            airnodeId,
             fulfillAddress,
             fulfillFunctionId
             )
@@ -232,7 +232,7 @@ contract Airnode is Convenience, IAirnode {
         // Failure is recorded so that it can be checked externally
         requestWithIdHasFailed[requestId] = true;
         emit ClientRequestFailed(
-            providerId,
+            airnodeId,
             requestId
             );
     }

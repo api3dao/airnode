@@ -100,7 +100,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -110,7 +110,7 @@ describe('submitApiCall', () => {
       expect(contract.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -142,7 +142,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -152,7 +152,7 @@ describe('submitApiCall', () => {
       expect(contract.fulfill).toHaveBeenCalledTimes(2);
       expect(contract.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -178,7 +178,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -189,7 +189,7 @@ describe('submitApiCall', () => {
       expect(contract.fail).toHaveBeenCalledTimes(1);
       expect(contract.fail).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -214,7 +214,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -253,7 +253,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(2);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -264,7 +264,7 @@ describe('submitApiCall', () => {
       expect(contract.fail).toHaveBeenCalledTimes(2);
       expect(contract.fail).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -299,7 +299,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -309,7 +309,7 @@ describe('submitApiCall', () => {
       expect(contract.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -342,7 +342,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -353,7 +353,7 @@ describe('submitApiCall', () => {
       expect(contract.fail).toHaveBeenCalledTimes(1);
       expect(contract.fail).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -392,7 +392,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -402,7 +402,7 @@ describe('submitApiCall', () => {
       expect(contract.fulfill).toHaveBeenCalledTimes(2);
       expect(contract.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -437,7 +437,7 @@ describe('submitApiCall', () => {
       expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
       expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.providerId,
+        apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,

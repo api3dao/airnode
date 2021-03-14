@@ -1,18 +1,18 @@
 import orderBy from 'lodash/orderBy';
 import fs from 'fs';
 import { ethers } from 'ethers';
-import { Airnode } from '../../../src/evm/contracts';
+import { AirnodeRrp } from '../../../src/evm/contracts';
 import { ChainConfig } from '../../../src/types';
 
 export interface Contracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
   return {
-    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
-      Airnode: contracts.Airnode,
+      AirnodeRrp: contracts.AirnodeRrp,
     },
     authorizers: [ethers.constants.AddressZero],
     id: 31337,
@@ -26,16 +26,16 @@ export function buildProvider() {
 }
 
 export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, address: string) {
-  const airnodeInterface = new ethers.utils.Interface(Airnode.ABI);
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrp.ABI);
   const filter: ethers.providers.Filter = {
     fromBlock: 0,
     address,
   };
   const rawLogs = await provider.getLogs(filter);
-  return rawLogs.map((log) => airnodeInterface.parseLog(log));
+  return rawLogs.map((log) => airnodeRrpInterface.parseLog(log));
 }
 
-// We want to use a separate account each time we deploy Airnode. These accounts
+// We want to use a separate account each time we deploy RRP. These accounts
 // are assigned based on the feature file's index in the folder.
 export function getDeployerIndex(fullFilePath: string) {
   const features = orderBy(

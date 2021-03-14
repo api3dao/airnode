@@ -24,8 +24,8 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 
-  const { Airnode } = state.contracts;
-  const AirnodeABI = contracts.Airnode.ABI;
+  const { AirnodeRrp } = state.contracts;
+  const AirnodeRrpAbi = contracts.AirnodeRrp.ABI;
 
   const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
 
@@ -35,7 +35,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     const requests = requestsByRequesterIndex[index];
     const signingWallet = wallet.deriveSigningWalletFromIndex(state.masterHDNode, index);
     const signer = signingWallet.connect(state.provider);
-    const contract = new ethers.Contract(Airnode, AirnodeABI, signer);
+    const contract = new ethers.Contract(AirnodeRrp, AirnodeRrpAbi, signer);
 
     const txOptions: TransactionOptions = {
       gasPrice: state.gasPrice!,

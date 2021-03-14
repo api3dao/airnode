@@ -2,7 +2,7 @@ const { expect } = require('chai');
 
 let roles;
 let masterAuthorizer;
-const providerId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+const airnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const requesterIndex = 123;
 const adminMaxWhitelistExtension = 100;
 const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
@@ -126,20 +126,20 @@ describe('extendClientWhitelisting', function () {
             await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
             const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
             await expect(
-              masterAuthorizer.connect(roles.admin).extendClientWhitelisting(providerId, roles.client.address, now + adminMaxWhitelistExtension / 2)
+              masterAuthorizer.connect(roles.admin).extendClientWhitelisting(airnodeId, roles.client.address, now + adminMaxWhitelistExtension / 2)
             )
               .to.emit(masterAuthorizer, "ClientWhitelistingExtended")
-              .withArgs(providerId, roles.client.address, now + adminMaxWhitelistExtension / 2, roles.admin.address);
-            expect(await masterAuthorizer.providerIdToClientAddressToWhitelistExpiration(providerId, roles.client.address)).to.equal(now + adminMaxWhitelistExtension / 2);
+              .withArgs(airnodeId, roles.client.address, now + adminMaxWhitelistExtension / 2, roles.admin.address);
+            expect(await masterAuthorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)).to.equal(now + adminMaxWhitelistExtension / 2);
           });
         });
         context('Expiration does not extend whitelisting', async function () {
           it('reverts', async function () {
             await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
             const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
-            await masterAuthorizer.connect(roles.admin).extendClientWhitelisting(providerId, roles.client.address, now + adminMaxWhitelistExtension / 2);
+            await masterAuthorizer.connect(roles.admin).extendClientWhitelisting(airnodeId, roles.client.address, now + adminMaxWhitelistExtension / 2);
             await expect(
-              masterAuthorizer.connect(roles.admin).extendClientWhitelisting(providerId, roles.client.address, now + adminMaxWhitelistExtension / 2)
+              masterAuthorizer.connect(roles.admin).extendClientWhitelisting(airnodeId, roles.client.address, now + adminMaxWhitelistExtension / 2)
             ).to.be.revertedWith("Expiration does not extend");
           });
         });
@@ -149,7 +149,7 @@ describe('extendClientWhitelisting', function () {
           await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
           const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
           await expect(
-            masterAuthorizer.connect(roles.admin).extendClientWhitelisting(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2)
+            masterAuthorizer.connect(roles.admin).extendClientWhitelisting(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2)
           ).to.be.revertedWith("Expiration exceeds admin limit");
         });
       });
@@ -159,7 +159,7 @@ describe('extendClientWhitelisting', function () {
         await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
         const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
         await expect(
-          masterAuthorizer.connect(roles.admin).extendClientWhitelisting(providerId, roles.client.address, now - adminMaxWhitelistExtension)
+          masterAuthorizer.connect(roles.admin).extendClientWhitelisting(airnodeId, roles.client.address, now - adminMaxWhitelistExtension)
         ).to.be.revertedWith("Expiration is in past");
       });
     });
@@ -168,7 +168,7 @@ describe('extendClientWhitelisting', function () {
     it('reverts', async function () {
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
       await expect(
-        masterAuthorizer.connect(roles.admin).extendClientWhitelisting(providerId, roles.client.address, now + adminMaxWhitelistExtension / 2)
+        masterAuthorizer.connect(roles.admin).extendClientWhitelisting(airnodeId, roles.client.address, now + adminMaxWhitelistExtension / 2)
       ).to.be.revertedWith("Caller is not an admin");
     });
   });
@@ -183,20 +183,20 @@ describe('extendRequesterWhitelisting', function () {
             await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
             const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
             await expect(
-              masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(providerId, requesterIndex, now + adminMaxWhitelistExtension / 2)
+              masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(airnodeId, requesterIndex, now + adminMaxWhitelistExtension / 2)
             )
               .to.emit(masterAuthorizer, "RequesterWhitelistingExtended")
-              .withArgs(providerId, requesterIndex, now + adminMaxWhitelistExtension / 2, roles.admin.address);
-            expect(await masterAuthorizer.providerIdToRequesterIndexToWhitelistExpiration(providerId, requesterIndex)).to.equal(now + adminMaxWhitelistExtension / 2);
+              .withArgs(airnodeId, requesterIndex, now + adminMaxWhitelistExtension / 2, roles.admin.address);
+            expect(await masterAuthorizer.airnodeIdToRequesterIndexToWhitelistExpiration(airnodeId, requesterIndex)).to.equal(now + adminMaxWhitelistExtension / 2);
           });
         });
         context('Expiration does not extend whitelisting', async function () {
           it('reverts', async function () {
             await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
             const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
-            await masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(providerId, requesterIndex, now + adminMaxWhitelistExtension / 2);
+            await masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(airnodeId, requesterIndex, now + adminMaxWhitelistExtension / 2);
             await expect(
-              masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(providerId, requesterIndex, now + adminMaxWhitelistExtension / 2)
+              masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(airnodeId, requesterIndex, now + adminMaxWhitelistExtension / 2)
             ).to.be.revertedWith("Expiration does not extend");
           });
         });
@@ -206,7 +206,7 @@ describe('extendRequesterWhitelisting', function () {
           await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
           const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
           await expect(
-            masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2)
+            masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2)
           ).to.be.revertedWith("Expiration exceeds admin limit");
         });
       });
@@ -216,7 +216,7 @@ describe('extendRequesterWhitelisting', function () {
         await masterAuthorizer.connect(roles.masterAdmin).setAdminParameters(roles.admin.address, true, adminMaxWhitelistExtension);
         const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
         await expect(
-          masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(providerId, requesterIndex, now - adminMaxWhitelistExtension)
+          masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(airnodeId, requesterIndex, now - adminMaxWhitelistExtension)
         ).to.be.revertedWith("Expiration is in past");
       });
     });
@@ -225,7 +225,7 @@ describe('extendRequesterWhitelisting', function () {
     it('reverts', async function () {
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
       await expect(
-        masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(providerId, requesterIndex, now + adminMaxWhitelistExtension / 2)
+        masterAuthorizer.connect(roles.admin).extendRequesterWhitelisting(airnodeId, requesterIndex, now + adminMaxWhitelistExtension / 2)
       ).to.be.revertedWith("Caller is not an admin");
     });
   });
@@ -236,17 +236,17 @@ describe('setClientWhitelistExpiration', function () {
     it('sets client whitelist expiration', async function () {
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
       await expect(
-        masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2)
+        masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2)
       )
         .to.emit(masterAuthorizer, "ClientWhitelistExpirationSet")
-        .withArgs(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2);
+        .withArgs(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2);
     });
   });
   context('Caller is not the master admin', async function () {
     it('reverts', async function () {
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
       await expect(
-        masterAuthorizer.connect(roles.randomPerson).setClientWhitelistExpiration(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2)
+        masterAuthorizer.connect(roles.randomPerson).setClientWhitelistExpiration(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2)
       ).to.be.revertedWith("Caller is not master admin");
     });
   });
@@ -257,17 +257,17 @@ describe('setRequesterWhitelistExpiration', function () {
     it('sets requester whitelist expiration', async function () {
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
       await expect(
-        masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2)
+        masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2)
       )
         .to.emit(masterAuthorizer, "RequesterWhitelistExpirationSet")
-        .withArgs(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2);
+        .withArgs(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2);
     });
   });
   context('Caller is not the master admin', async function () {
     it('reverts', async function () {
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
       await expect(
-        masterAuthorizer.connect(roles.randomPerson).setRequesterWhitelistExpiration(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2)
+        masterAuthorizer.connect(roles.randomPerson).setRequesterWhitelistExpiration(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2)
       ).to.be.revertedWith("Caller is not master admin");
     });
   });
@@ -284,9 +284,9 @@ describe('checkIfAuthorized', function () {
             value: 1,
           });
           const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
-          await masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2);
-          await masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2);
-          expect(await masterAuthorizer.checkIfAuthorized(requestId, providerId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(true);
+          await masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2);
+          await masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2);
+          expect(await masterAuthorizer.checkIfAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(true);
         });
       });
       context('Requester is not whitelisted', async function () {
@@ -297,8 +297,8 @@ describe('checkIfAuthorized', function () {
             value: 1,
           });
           const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
-          await masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2);
-          expect(await masterAuthorizer.checkIfAuthorized(requestId, providerId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(true);
+          await masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2);
+          expect(await masterAuthorizer.checkIfAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(true);
         });
       });
     });
@@ -311,8 +311,8 @@ describe('checkIfAuthorized', function () {
             value: 1,
           });
           const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
-          await masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2);
-          expect(await masterAuthorizer.checkIfAuthorized(requestId, providerId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(true);
+          await masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2);
+          expect(await masterAuthorizer.checkIfAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(true);
         });
       });
       context('Requester is not whitelisted', async function () {
@@ -322,7 +322,7 @@ describe('checkIfAuthorized', function () {
             to: designatedWallet.address,
             value: 1,
           });
-          expect(await masterAuthorizer.checkIfAuthorized(requestId, providerId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(false);
+          expect(await masterAuthorizer.checkIfAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(false);
         });
       });
     });
@@ -331,9 +331,9 @@ describe('checkIfAuthorized', function () {
     it('returns false', async function () {
       const designatedWallet = ethers.Wallet.createRandom();
       const now = (await waffle.provider.getBlock(await waffle.provider.getBlockNumber())).timestamp;
-      await masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(providerId, roles.client.address, now + adminMaxWhitelistExtension * 2);
-      await masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(providerId, requesterIndex, now + adminMaxWhitelistExtension * 2);
-      expect(await masterAuthorizer.checkIfAuthorized(requestId, providerId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(false);
+      await masterAuthorizer.connect(roles.masterAdmin).setClientWhitelistExpiration(airnodeId, roles.client.address, now + adminMaxWhitelistExtension * 2);
+      await masterAuthorizer.connect(roles.masterAdmin).setRequesterWhitelistExpiration(airnodeId, requesterIndex, now + adminMaxWhitelistExtension * 2);
+      expect(await masterAuthorizer.checkIfAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet.address, roles.client.address)).to.equal(false);
     });
   });
 });

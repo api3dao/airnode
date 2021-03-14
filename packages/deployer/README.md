@@ -32,14 +32,14 @@ For the following redeployments, mnemonic deployment must not be repeated.
 
 1. Use the `deploy-first-time` for your first deployment.
 Note down the displayed mnemonic.
-Keep the outputted receipt file, or send it to API3 if you are an API3 provider.
+Keep the outputted receipt file, or send it to API3 if you are an API3 partner.
 
-1. Fund the master wallet address with the displayed amount to set your provider parameters.
-This will be done for you if you are an API3 provider.
+1. Fund the master wallet address with the displayed amount to set your Airnode parameters.
+This will be done for you if you are an API3 partner.
 
 1. Use the `redeploy` command when you need to update your node.
-Note that your `providerIdShort` from your receipt file must be inserted into the `nodeSettings.providerIdShort` field of your `config.json` file.
-This will be done for you if you are an API3 provider.
+Note that your `airnodeIdShort` from your receipt file must be inserted into the `nodeSettings.airnodeIdShort` field of your `config.json` file.
+This will be done for you if you are an API3 partner.
 
 ## Commands
 
@@ -55,7 +55,7 @@ test -f .env && export $(egrep -v '^#' .env | xargs)
 Then, using `config.json` and `security.json`, deploys the serverless functions that implement Airnode.
 Outputs a receipt file.
 
-Your `config.json` file **must not** include a `nodeSettings.providerIdShort` field or this command will error.
+Your `config.json` file **must not** include a `nodeSettings.airnodeIdShort` field or this command will error.
 
 `--configPath, -c` (required): Path to the `config.json` file
 
@@ -66,7 +66,7 @@ Your `config.json` file **must not** include a `nodeSettings.providerIdShort` fi
 > Using `config.json` and `security.json`, deploys the serverless functions that implement Airnode.
 Outputs a receipt file.
 
-Your `config.json` file **must** include a `nodeSettings.providerIdShort` field or this command will error.
+Your `config.json` file **must** include a `nodeSettings.airnodeIdShort` field or this command will error.
 
 `--configPath, -c` (required): Path to the `config.json` file
 
@@ -100,7 +100,7 @@ Otherwise, you will not be able to `redeploy` your other associated deployments.
 The user does not need to use this command between redeployments.
 It should only be used when the user wants to remove Airnode completely.
 
-`--providerIdShort, -p` (required): `providerIdShort` from the receipt outputted at deployment
+`--airnodeIdShort, -p` (required): `airnodeIdShort` from the receipt outputted at deployment
 
 `--region, -r` (required): Region that the mnemonic to be removed is deployed at
 
@@ -111,7 +111,7 @@ It should only be used when the user wants to remove Airnode completely.
 The user does not need to use this command between redeployments.
 It should only be used when the user wants to remove Airnode completely.
 
-`--providerIdShort, -p` (required): `providerIdShort` from the receipt outputted at deployment
+`--airnodeIdShort, -p` (required): `airnodeIdShort` from the receipt outputted at deployment
 
 `--region, -r` (required): Region that the Airnode to be removed is deployed at
 

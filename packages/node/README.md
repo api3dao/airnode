@@ -139,7 +139,7 @@ yarn run test:watch
 
 ### E2E tests
 
-End-to-end (E2E) tests test the entire Airnode protocol, from start to finish. This includes (but is not limited to): deploying Airnode, creating the relevant onchain data, making onchain requests, invoking Airnode and testing relevant expected outcomes.
+End-to-end (E2E) tests test the entire Airnode request–response protocol, from start to finish. This includes (but is not limited to): deploying Airnode RRP, creating the relevant onchain data, making onchain requests, invoking Airnode and testing relevant expected outcomes.
 
 In order to run E2E tests, you will need to have both an Ethereum node and the "dummy" web API running. The simplest way to accomplish this is by running:
 

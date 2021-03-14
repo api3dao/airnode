@@ -19,6 +19,7 @@ describe('fetchPendingRequests', () => {
     expect(res).toEqual({
       apiCalls: [
         {
+          airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
           designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
           encodedParameters:
@@ -40,7 +41,6 @@ describe('fetchPendingRequests', () => {
             from: 'ETH',
             to: 'USD',
           },
-          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           requestCount: '3',
           requesterIndex: '2',
           status: 'Pending',
@@ -50,6 +50,7 @@ describe('fetchPendingRequests', () => {
       ],
       withdrawals: [
         {
+          airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
           destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
           id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
@@ -59,7 +60,6 @@ describe('fetchPendingRequests', () => {
             ignoreBlockedRequestsAfterBlocks: 20,
             transactionHash: '0xac3aa3683548a631dd7561cfa32d4e003f43bfc061bb40adc9920c9c1d4d6a60',
           },
-          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           requesterIndex: '1',
           status: 'Pending',
         },

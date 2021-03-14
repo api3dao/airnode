@@ -1,9 +1,9 @@
 import { encode } from '@airnode/airnode-abi';
-import { deriveEndpointId, deriveProviderId } from '../utils';
+import { deriveEndpointId, deriveAirnodeId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 
 export async function endorseClients(state: State): Promise<State> {
-  const { Airnode } = state.contracts;
+  const { AirnodeRrp } = state.contracts;
 
   for (const clientName of Object.keys(state.config.clients)) {
     const configClient = state.config.clients[clientName];
@@ -12,7 +12,7 @@ export async function endorseClients(state: State): Promise<State> {
     for (const requesterId of configClient.endorsers) {
       const requester = state.requestersById[requesterId];
 
-      const tx = await Airnode!
+      const tx = await AirnodeRrp!
         .connect(requester.signer)
         .setClientEndorsementStatus(requester.requesterIndex, client.address, true);
 
@@ -24,31 +24,31 @@ export async function endorseClients(state: State): Promise<State> {
 }
 
 export async function createTemplates(state: State): Promise<State> {
-  const { Airnode } = state.contracts;
+  const { AirnodeRrp } = state.contracts;
 
   const templatesByName: { [name: string]: Template } = {};
-  for (const apiProviderName of Object.keys(state.apiProvidersByName)) {
-    const apiProvider = state.apiProvidersByName[apiProviderName];
-    const configApiProvider = state.config.apiProviders[apiProviderName];
-    const providerId = deriveProviderId(apiProvider.masterWalletAddress);
+  for (const airnodeName of Object.keys(state.airnodesByName)) {
+    const airnode = state.airnodesByName[airnodeName];
+    const configAirnode = state.config.airnodes[airnodeName];
+    const airnodeId = deriveAirnodeId(airnode.masterWalletAddress);
 
-    for (const templateName of Object.keys(configApiProvider.templates)) {
-      const configTemplate = configApiProvider.templates[templateName];
+    for (const templateName of Object.keys(configAirnode.templates)) {
+      const configTemplate = configAirnode.templates[templateName];
       const endpointId = deriveEndpointId(configTemplate.oisTitle, configTemplate.endpoint);
 
-      const tx = await Airnode!.createTemplate(providerId, endpointId, encode(configTemplate.parameters));
+      const tx = await AirnodeRrp!.createTemplate(airnodeId, endpointId, encode(configTemplate.parameters));
       await tx.wait();
 
       const logs = await state.provider.getLogs({
         fromBlock: 0,
-        address: Airnode!.address,
+        address: AirnodeRrp!.address,
       });
       const log = logs.find((log) => log.transactionHash === tx.hash);
-      const parsedLog = Airnode!.interface.parseLog(log!);
+      const parsedLog = AirnodeRrp!.interface.parseLog(log!);
       const templateId = parsedLog.args.templateId;
 
-      templatesByName[`${apiProviderName}-${templateName}`] = {
-        apiProviderName,
+      templatesByName[`${airnodeName}-${templateName}`] = {
+        airnodeName,
         hash: templateId,
       };
     }

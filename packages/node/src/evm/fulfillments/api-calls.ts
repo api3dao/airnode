@@ -41,7 +41,7 @@ type SubmitResponse = ethers.Transaction | null;
 // Fulfillments
 // =================================================================
 async function testFulfill(
-  airnode: ethers.Contract,
+  airnodeRrp: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
@@ -53,9 +53,9 @@ async function testFulfill(
   );
 
   const operation = () =>
-    airnode.callStatic.fulfill(
+    airnodeRrp.callStatic.fulfill(
       request.id,
-      request.providerId,
+      request.airnodeId,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -76,7 +76,7 @@ async function testFulfill(
 }
 
 async function submitFulfill(
-  airnode: ethers.Contract,
+  airnodeRrp: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
@@ -88,9 +88,9 @@ async function submitFulfill(
   );
 
   const tx = () =>
-    airnode.fulfill(
+    airnodeRrp.fulfill(
       request.id,
-      request.providerId,
+      request.airnodeId,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -115,12 +115,12 @@ async function submitFulfill(
 }
 
 async function testAndSubmitFulfill(
-  airnode: ethers.Contract,
+  airnodeRrp: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   // Should not throw
-  const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
+  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest = {
@@ -128,13 +128,13 @@ async function testAndSubmitFulfill(
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.FulfillTransactionFailed,
     };
-    const [submitLogs, submitErr, submitData] = await submitFail(airnode, updatedRequest, options);
+    const [submitLogs, submitErr, submitData] = await submitFail(airnodeRrp, updatedRequest, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
 
   // We expect the transaction to be successful if submitted
   if (testData?.callSuccess) {
-    const [submitLogs, submitErr, submitData] = await submitFulfill(airnode, request, options);
+    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, options);
 
     // The transaction was submitted successfully
     if (submitData) {
@@ -155,14 +155,14 @@ async function testAndSubmitFulfill(
 // Failures
 // =================================================================
 async function submitFail(
-  airnode: ethers.Contract,
+  airnodeRrp: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = () =>
-    airnode.fail(request.id, request.providerId, request.fulfillAddress, request.fulfillFunctionId, {
+    airnodeRrp.fail(request.id, request.airnodeId, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
       gasPrice: options.gasPrice,
       nonce: request.nonce!,
@@ -180,7 +180,7 @@ async function submitFail(
 // Main functions
 // =================================================================
 export async function submitApiCall(
-  airnode: ethers.Contract,
+  airnodeRrp: ethers.Contract,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
@@ -202,6 +202,6 @@ export async function submitApiCall(
   }
 
   // Should not throw
-  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
+  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnodeRrp, request, options);
   return [submitLogs, submitErr, submitData];
 }

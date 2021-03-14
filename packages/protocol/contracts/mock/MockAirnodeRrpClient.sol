@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
-import "../AirnodeClient.sol";
+import "../AirnodeRrpClient.sol";
 
-/// @title A mock Airnode client contract
-contract MockAirnodeClient is AirnodeClient {
+/// @title A mock Airnode RRP client contract
+contract MockAirnodeRrpClient is AirnodeRrpClient {
     event RequestFulfilled(
         bytes32 requestId,
         uint256 statusCode,
@@ -13,12 +13,13 @@ contract MockAirnodeClient is AirnodeClient {
 
     mapping(bytes32 => bool) private incomingFulfillments;
 
-    /// @param airnodeAddress Airnode contract address
-    constructor (address airnodeAddress)
-        AirnodeClient(airnodeAddress)
+    /// @param airnodeRrpAddress Airnode RRP contract address
+    constructor (address airnodeRrpAddress)
+        AirnodeRrpClient(airnodeRrpAddress)
     {}  // solhint-disable-line
 
-    /// @notice A wrapper for the respective method at Airnode.sol for testing
+    /// @notice A wrapper for the respective method at AirnodeRrp.sol for
+    /// testing
     /// @param templateId Template ID from TemplateStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -39,7 +40,7 @@ contract MockAirnodeClient is AirnodeClient {
         )
         external
     {
-        bytes32 requestId = airnode.makeRequest(
+        bytes32 requestId = airnodeRrp.makeRequest(
             templateId,
             requesterIndex,
             designatedWallet,
@@ -50,8 +51,9 @@ contract MockAirnodeClient is AirnodeClient {
         incomingFulfillments[requestId] = true;
     }
 
-    /// @notice A wrapper for the respective method at Airnode.sol for testing
-    /// @param providerId Provider ID from ProviderStore
+    /// @notice A wrapper for the respective method at AirnodeRrp.sol for
+    /// testing
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
     /// @param endpointId Endpoint ID from EndpointStore
     /// @param requesterIndex Requester index from RequesterStore
     /// @param designatedWallet Designated wallet that is requested to fulfill
@@ -61,7 +63,7 @@ contract MockAirnodeClient is AirnodeClient {
     /// to fulfill
     /// @param parameters All request parameters
     function makeFullRequest(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         uint256 requesterIndex,
         address designatedWallet,
@@ -71,8 +73,8 @@ contract MockAirnodeClient is AirnodeClient {
         )
         external
     {
-        bytes32 requestId = airnode.makeFullRequest(
-            providerId,
+        bytes32 requestId = airnodeRrp.makeFullRequest(
+            airnodeId,
             endpointId,
             requesterIndex,
             designatedWallet,
@@ -84,17 +86,17 @@ contract MockAirnodeClient is AirnodeClient {
     }
 
     /// @notice A method to be called back by the respective method at
-    /// Airnode.sol for testing
+    /// AirnodeRrp.sol for testing
     /// @param requestId Request ID
-    /// @param statusCode Status code returned by the provider
-    /// @param data Data returned by the provider
+    /// @param statusCode Status code returned by the Airnode
+    /// @param data Data returned by the Airnode
     function fulfill(
         bytes32 requestId,
         uint256 statusCode,
         bytes calldata data
         )
         external
-        onlyAirnode()
+        onlyAirnodeRrp()
     {
         require(incomingFulfillments[requestId], "No such request made");
         delete incomingFulfillments[requestId];

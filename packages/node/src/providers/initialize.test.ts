@@ -1,11 +1,11 @@
-const getProviderAndBlockNumberMock = jest.fn();
+const getAirnodeParametersAndBlockNumberMock = jest.fn();
 jest.mock('ethers', () => {
   const original = jest.requireActual('ethers');
   return {
     ethers: {
       ...original,
       Contract: jest.fn().mockImplementation(() => ({
-        getProviderAndBlockNumber: getProviderAndBlockNumberMock,
+        getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
       })),
     },
   };
@@ -26,22 +26,22 @@ import * as providers from './initialize';
 
 const chains: ChainConfig[] = [
   {
+    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
-      Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+      AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
     },
     id: 1,
-    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     providers: [{ name: 'infura-mainnet', url: 'https://mainnet.infura.io/v3/<key>' }],
     type: 'evm',
   },
   {
+    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
-      Airnode: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
+      AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
     },
     id: 3,
-    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     providers: [{ name: 'infura-ropsten', url: 'https://ropsten.infura.io/v3/<key>' }],
     type: 'evm',
   },
@@ -53,14 +53,14 @@ describe('initializeProviders', () => {
     const config = fixtures.buildConfig({ nodeSettings });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const contract = new ethers.Contract('address', ['ABI']);
-    contract.getProviderAndBlockNumber.mockResolvedValueOnce({
+    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from(123456),
       xpub:
         'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    contract.getProviderAndBlockNumber.mockResolvedValueOnce({
+    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from(987654),
@@ -76,11 +76,13 @@ describe('initializeProviders', () => {
     expect(res).toEqual([
       {
         contracts: {
-          Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+          AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },
         settings: {
+          airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+          airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+          airnodeIdShort: '19255a4',
           authorizers: [ethers.constants.AddressZero],
-          providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
           blockHistoryLimit: 300,
           chainId: 1,
           chainType: 'evm',
@@ -88,8 +90,6 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           minConfirmations: 0,
           name: 'infura-mainnet',
-          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-          providerIdShort: '19255a4',
           region: 'us-east-1',
           stage: 'test',
           url: 'https://mainnet.infura.io/v3/<key>',
@@ -109,11 +109,13 @@ describe('initializeProviders', () => {
       },
       {
         contracts: {
-          Airnode: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
+          AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
         },
         settings: {
+          airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+          airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+          airnodeIdShort: '19255a4',
           authorizers: [ethers.constants.AddressZero],
-          providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
           blockHistoryLimit: 300,
           chainId: 3,
           chainType: 'evm',
@@ -121,8 +123,6 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           minConfirmations: 0,
           name: 'infura-ropsten',
-          providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-          providerIdShort: '19255a4',
           region: 'us-east-1',
           stage: 'test',
           url: 'https://ropsten.infura.io/v3/<key>',

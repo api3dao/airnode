@@ -65,9 +65,9 @@ contract RequesterStore is IRequesterStore {
 
     /// @notice Called by the requester admin to endorse a client, i.e., allow
     /// a client to use its designated wallets, or disendorse them
-    /// @dev This is not provider specific, i.e., the requester allows the
+    /// @dev This is not Airnode-specific, i.e., the requester allows the
     /// client's requests to be fulfilled through its designated wallets across
-    /// all providers
+    /// all Airnodes
     /// @param requesterIndex Requester index
     /// @param clientAddress Client address
     function setClientEndorsementStatus(

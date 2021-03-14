@@ -1,9 +1,9 @@
 const { expect } = require('chai');
 
-let airnode, authorizerAlwaysTrue, authorizerAlwaysFalse;
+let airnodeRrp, authorizerAlwaysTrue, authorizerAlwaysFalse;
 let roles;
 const requesterIndex = 1;
-let providerXpub, providerId, masterWallet, designatedWallet;
+let airnodeXpub, airnodeId, masterWallet, designatedWallet;
 const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const clientAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
@@ -12,29 +12,29 @@ beforeEach(async () => {
   const accounts = await ethers.getSigners();
   roles = {
     deployer: accounts[0],
-    providerAdmin: accounts[1],
-    updatedProviderAdmin: accounts[2],
+    airnodeAdmin: accounts[1],
+    updatedAirnodeAdmin: accounts[2],
     requesterAdmin: accounts[3],
     randomPerson: accounts[9],
   };
-  const airnodeFactory = await ethers.getContractFactory('Airnode', roles.deployer);
-  airnode = await airnodeFactory.deploy();
+  const airnodeRrpFactory = await ethers.getContractFactory('AirnodeRrp', roles.deployer);
+  airnodeRrp = await airnodeRrpFactory.deploy();
   const mockAuthorizerAlwaysTrueFactory = await ethers.getContractFactory('MockAuthorizerAlwaysTrue', roles.deployer);
   authorizerAlwaysTrue = await mockAuthorizerAlwaysTrueFactory.deploy();
   const mockAuthorizerAlwaysFalseFactory = await ethers.getContractFactory('MockAuthorizerAlwaysFalse', roles.deployer);
   authorizerAlwaysFalse = await mockAuthorizerAlwaysFalseFactory.deploy();
   // Create the requester
-  await airnode.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
-  // Generate the provider private key and derive the related parameters
-  const providerWallet = ethers.Wallet.createRandom();
-  const providerMnemonic = providerWallet.mnemonic.phrase;
-  const hdNode = ethers.utils.HDNode.fromMnemonic(providerMnemonic);
-  providerXpub = hdNode.neuter().extendedKey;
+  await airnodeRrp.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
+  // Generate the Airnode private key and derive the related parameters
+  const airnodeWallet = ethers.Wallet.createRandom();
+  const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
+  const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
+  airnodeXpub = hdNode.neuter().extendedKey;
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
-  providerId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
-  designatedWallet = ethers.Wallet.fromMnemonic(providerMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
-  // Fund the provider master wallet for it to be able to set the provider parameters
-  await roles.providerAdmin.sendTransaction({
+  airnodeId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
+  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
+  // Fund the Airnode master wallet for it to be able to set the Airnode parameters
+  await roles.airnodeAdmin.sendTransaction({
     to: masterWallet.address,
     value: ethers.utils.parseEther('1'),
   });
@@ -45,20 +45,20 @@ beforeEach(async () => {
   });
 });
 
-describe('setProviderParameters', function () {
-  it('sets provider parameters', async function () {
+describe('setAirnodeParameters', function () {
+  it('sets Airnode parameters', async function () {
     // Generate random addresses as the authorizer contracts
     const authorizers = Array.from({ length: 5 }, () =>
       ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
     );
-    // Set the provider parameters
+    // Set the Airnode parameters
     await expect(
-      airnode
+      airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 })
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 })
     )
-      .to.emit(airnode, 'ProviderParametersSet')
-      .withArgs(providerId, roles.providerAdmin.address, providerXpub, authorizers);
+      .to.emit(airnodeRrp, 'AirnodeParametersSet')
+      .withArgs(airnodeId, roles.airnodeAdmin.address, airnodeXpub, authorizers);
   });
 });
 
@@ -69,26 +69,26 @@ describe('requestWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ['uint256', 'uint256', 'address'],
-          [await airnode.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnode.address]
+          [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
         )
       );
       // Request withdrawal
       await expect(
-        airnode
+        airnodeRrp
           .connect(roles.requesterAdmin)
-          .requestWithdrawal(providerId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address)
+          .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address)
       )
-        .to.emit(airnode, 'WithdrawalRequested')
+        .to.emit(airnodeRrp, 'WithdrawalRequested')
         .withArgs(
-          providerId,
+          airnodeId,
           requesterIndex,
           withdrawalRequestId,
           designatedWallet.address,
@@ -102,15 +102,15 @@ describe('requestWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Atttempt to request withdrawal
       await expect(
-        airnode
+        airnodeRrp
           .connect(roles.randomPerson)
-          .requestWithdrawal(providerId, requesterIndex, designatedWallet.address, roles.randomPerson.address)
+          .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, roles.randomPerson.address)
       ).to.be.revertedWith('Caller is not requester admin');
     });
   });
@@ -124,34 +124,28 @@ describe('fulfillWithdrawal', function () {
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Set the provider parameters
-        await airnode
+        // Set the Airnode parameters
+        await airnodeRrp
           .connect(masterWallet)
-          .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+          .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
         // Derive the expected withdrawal request ID
         const withdrawalRequestId = ethers.utils.keccak256(
           ethers.utils.solidityPack(
             ['uint256', 'uint256', 'address'],
-            [await airnode.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnode.address]
+            [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
           )
         );
         // Request withdrawal
-        await airnode
+        await airnodeRrp
           .connect(roles.requesterAdmin)
-          .requestWithdrawal(providerId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address);
+          .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address);
         // Estimate the gas required to fulfill the withdrawal request
-        const gasEstimate = await airnode
+        const gasEstimate = await airnodeRrp
           .connect(designatedWallet)
-          .estimateGas.fulfillWithdrawal(
-            withdrawalRequestId,
-            providerId,
-            requesterIndex,
-            roles.requesterAdmin.address,
-            {
-              value: 1,
-              gasLimit: 500000,
-            }
-          );
+          .estimateGas.fulfillWithdrawal(withdrawalRequestId, airnodeId, requesterIndex, roles.requesterAdmin.address, {
+            value: 1,
+            gasLimit: 500000,
+          });
         // Calculate the amount that will be sent back to the requester admin
         const gasPrice = await waffle.provider.getGasPrice();
         const txCost = gasEstimate.mul(gasPrice);
@@ -161,17 +155,17 @@ describe('fulfillWithdrawal', function () {
         const initialRequesterAdminBalance = await waffle.provider.getBalance(roles.requesterAdmin.address);
         const expectedRequesterAdminBalance = initialRequesterAdminBalance.add(fundsToSend);
         await expect(
-          airnode
+          airnodeRrp
             .connect(designatedWallet)
-            .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, roles.requesterAdmin.address, {
+            .fulfillWithdrawal(withdrawalRequestId, airnodeId, requesterIndex, roles.requesterAdmin.address, {
               value: fundsToSend,
               gasLimit: gasEstimate,
               gasPrice: gasPrice,
             })
         )
-          .to.emit(airnode, 'WithdrawalFulfilled')
+          .to.emit(airnodeRrp, 'WithdrawalFulfilled')
           .withArgs(
-            providerId,
+            airnodeId,
             requesterIndex,
             withdrawalRequestId,
             designatedWallet.address,
@@ -187,26 +181,26 @@ describe('fulfillWithdrawal', function () {
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
         );
-        // Set the provider parameters
-        await airnode
+        // Set the Airnode parameters
+        await airnodeRrp
           .connect(masterWallet)
-          .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+          .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
         // Derive the expected withdrawal request ID
         const withdrawalRequestId = ethers.utils.keccak256(
           ethers.utils.solidityPack(
             ['uint256', 'uint256', 'address'],
-            [await airnode.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnode.address]
+            [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
           )
         );
-        // Request withdrawal (using airnode as it has no default payable method)
-        await airnode
+        // Request withdrawal (using Airnode RRP as it has no default payable method)
+        await airnodeRrp
           .connect(roles.requesterAdmin)
-          .requestWithdrawal(providerId, requesterIndex, designatedWallet.address, airnode.address);
+          .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, airnodeRrp.address);
         // Attempt to fulfill the withdrawal request
         await expect(
-          airnode
+          airnodeRrp
             .connect(designatedWallet)
-            .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, airnode.address, {
+            .fulfillWithdrawal(withdrawalRequestId, airnodeId, requesterIndex, airnodeRrp.address, {
               value: 1,
               gasLimit: 500000,
             })
@@ -220,33 +214,33 @@ describe('fulfillWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ['uint256', 'uint256', 'address'],
-          [await airnode.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnode.address]
+          [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
         )
       );
       // Request withdrawal
-      await airnode
+      await airnodeRrp
         .connect(roles.requesterAdmin)
-        .requestWithdrawal(providerId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address);
+        .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address);
       // Attempt to fulfill the withdrawal request
       await expect(
-        airnode
+        airnodeRrp
           .connect(designatedWallet)
-          .fulfillWithdrawal(ethers.constants.HashZero, providerId, requesterIndex, roles.requesterAdmin.address, {
+          .fulfillWithdrawal(ethers.constants.HashZero, airnodeId, requesterIndex, roles.requesterAdmin.address, {
             value: 1,
             gasLimit: 500000,
           })
       ).to.be.revertedWith('No such withdrawal request');
       // Attempt to fulfill the withdrawal request
       await expect(
-        airnode
+        airnodeRrp
           .connect(designatedWallet)
           .fulfillWithdrawal(
             withdrawalRequestId,
@@ -261,18 +255,18 @@ describe('fulfillWithdrawal', function () {
       ).to.be.revertedWith('No such withdrawal request');
       // Attempt to fulfill the withdrawal request
       await expect(
-        airnode
+        airnodeRrp
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, ethers.constants.Zero, roles.requesterAdmin.address, {
+          .fulfillWithdrawal(withdrawalRequestId, airnodeId, ethers.constants.Zero, roles.requesterAdmin.address, {
             value: 1,
             gasLimit: 500000,
           })
       ).to.be.revertedWith('No such withdrawal request');
       // Attempt to fulfill the withdrawal request
       await expect(
-        airnode
+        airnodeRrp
           .connect(designatedWallet)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, ethers.constants.AddressZero, {
+          .fulfillWithdrawal(withdrawalRequestId, airnodeId, requesterIndex, ethers.constants.AddressZero, {
             value: 1,
             gasLimit: 500000,
           })
@@ -285,26 +279,26 @@ describe('fulfillWithdrawal', function () {
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
       );
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ['uint256', 'uint256', 'address'],
-          [await airnode.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnode.address]
+          [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
         )
       );
       // Request withdrawal
-      await airnode
+      await airnodeRrp
         .connect(roles.requesterAdmin)
-        .requestWithdrawal(providerId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address);
+        .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, roles.requesterAdmin.address);
       // Attempt to fulfill the withdrawal request
       await expect(
-        airnode
+        airnodeRrp
           .connect(roles.randomPerson)
-          .fulfillWithdrawal(withdrawalRequestId, providerId, requesterIndex, roles.requesterAdmin.address, {
+          .fulfillWithdrawal(withdrawalRequestId, airnodeId, requesterIndex, roles.requesterAdmin.address, {
             value: 1,
             gasLimit: 500000,
           })
@@ -317,14 +311,14 @@ describe('checkAuthorizationStatus', function () {
   context('authorizers array is empty', async function () {
     it('returns false', async function () {
       const authorizers = [];
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
-        await airnode.checkAuthorizationStatus(
-          providerId,
+        await airnodeRrp.checkAuthorizationStatus(
+          airnodeId,
           requestId,
           endpointId,
           requesterIndex,
@@ -337,14 +331,14 @@ describe('checkAuthorizationStatus', function () {
   context('All authorizers return false', async function () {
     it('returns false', async function () {
       const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysFalse.address, authorizerAlwaysFalse.address];
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
-        await airnode.checkAuthorizationStatus(
-          providerId,
+        await airnodeRrp.checkAuthorizationStatus(
+          airnodeId,
           requestId,
           endpointId,
           requesterIndex,
@@ -357,14 +351,14 @@ describe('checkAuthorizationStatus', function () {
   context('authorizers array contains a zero address', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, ethers.constants.AddressZero];
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
-        await airnode.checkAuthorizationStatus(
-          providerId,
+        await airnodeRrp.checkAuthorizationStatus(
+          airnodeId,
           requestId,
           endpointId,
           requesterIndex,
@@ -377,14 +371,14 @@ describe('checkAuthorizationStatus', function () {
   context('At least one of the authorizers returns true', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysTrue.address, authorizerAlwaysFalse.address];
-      // Set the provider parameters
-      await airnode
+      // Set the Airnode parameters
+      await airnodeRrp
         .connect(masterWallet)
-        .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
+        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
       // Check authorization status
       expect(
-        await airnode.checkAuthorizationStatus(
-          providerId,
+        await airnodeRrp.checkAuthorizationStatus(
+          airnodeId,
           requestId,
           endpointId,
           requesterIndex,
@@ -396,20 +390,20 @@ describe('checkAuthorizationStatus', function () {
   });
 });
 
-describe('getProvider', function () {
-  it('gets provider', async function () {
+describe('getAirnodeParameters', function () {
+  it('gets Airnode parameters', async function () {
     // Generate random addresses as the authorizer contracts
     const authorizers = Array.from({ length: 5 }, () =>
       ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
     );
-    // Set the provider parameters
-    await airnode
+    // Set the Airnode parameters
+    await airnodeRrp
       .connect(masterWallet)
-      .setProviderParameters(roles.providerAdmin.address, providerXpub, authorizers, { gasLimit: 500000 });
-    // Get the provider and verify its fields
-    const provider = await airnode.getProvider(providerId);
-    expect(provider.admin).to.equal(roles.providerAdmin.address);
-    expect(provider.xpub).to.equal(providerXpub);
-    expect(provider.authorizers).to.deep.equal(authorizers);
+      .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
+    // Get the Airnode paremeters and verify its fields
+    const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
+    expect(airnodeParameters.admin).to.equal(roles.airnodeAdmin.address);
+    expect(airnodeParameters.xpub).to.equal(airnodeXpub);
+    expect(airnodeParameters.authorizers).to.deep.equal(authorizers);
   });
 });

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
-import { Airnode } from './contracts';
+import { AirnodeRrp } from './contracts';
 import { go, retryOperation } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as utils from './utils';
@@ -8,99 +8,107 @@ import * as wallet from './wallet';
 import { LogsData } from '../types';
 import { OPERATION_RETRIES } from '../constants';
 
-interface ProviderExistsOptions {
+interface AirnodeParametersExistOptions {
+  airnodeAdmin: string;
   authorizers: string[];
   masterHDNode: ethers.utils.HDNode;
-  providerAdmin: string;
 }
 
 interface BaseFetchOptions {
-  airnodeAddress: string;
+  airnodeAdmin: string;
+  airnodeRrpAddress: string;
   authorizers: string[];
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
-  providerAdmin: string;
 }
 
 interface VerifyOptions extends BaseFetchOptions {
-  providerId: string;
+  airnodeId: string;
 }
 
-interface ProviderData {
+interface AirnodeParametersData {
+  airnodeAdmin: string;
   authorizers: string[];
   blockNumber: number;
-  providerAdmin: string;
   xpub: string;
 }
 
-interface SetProviderParametersOptions extends BaseFetchOptions {
+interface SetAirnodeParametersOptions extends BaseFetchOptions {
   currentXpub: string;
-  onchainData: ProviderData;
+  onchainData: AirnodeParametersData;
 }
 
-export function providerDetailsMatch(options: ProviderExistsOptions, onchainData: ProviderData): boolean {
-  const configAdmin = options.providerAdmin;
+export function airnodeParametersMatch(
+  options: AirnodeParametersExistOptions,
+  onchainData: AirnodeParametersData
+): boolean {
+  const configAdmin = options.airnodeAdmin;
   const configAuthorizers = options.authorizers;
-  return configAdmin === onchainData.providerAdmin && isEqual(configAuthorizers, onchainData.authorizers);
+  return configAdmin === onchainData.airnodeAdmin && isEqual(configAuthorizers, onchainData.authorizers);
 }
 
-export function providerExistsOnchain(options: ProviderExistsOptions, onchainData: ProviderData): boolean {
+export function airnodeParametersExistOnchain(
+  options: AirnodeParametersExistOptions,
+  onchainData: AirnodeParametersData
+): boolean {
   const currentXpub = wallet.getExtendedPublicKey(options.masterHDNode);
-  return providerDetailsMatch(options, onchainData) && currentXpub === onchainData.xpub;
+  return airnodeParametersMatch(options, onchainData) && currentXpub === onchainData.xpub;
 }
 
-export async function fetchProviderWithData(fetchOptions: VerifyOptions): Promise<LogsData<ProviderData | null>> {
-  const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
-  const operation = () => airnode.getProviderAndBlockNumber(fetchOptions.providerId) as Promise<any>;
+export async function fetchAirnodeParametersWithData(
+  fetchOptions: VerifyOptions
+): Promise<LogsData<AirnodeParametersData | null>> {
+  const airnodeRrp = new ethers.Contract(fetchOptions.airnodeRrpAddress, AirnodeRrp.ABI, fetchOptions.provider);
+  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId) as Promise<any>;
   const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
-  const fetchLog = logger.pend('INFO', 'Fetching current block and provider admin details...');
+  const fetchLog = logger.pend('INFO', 'Fetching current block and Airnode parameters...');
 
   const [err, res] = await go(retryableOperation);
   if (err || !res) {
-    const errLog = logger.pend('ERROR', 'Unable to fetch current block and provider admin details', err);
+    const errLog = logger.pend('ERROR', 'Unable to fetch current block and Airnode parameters', err);
     return [[fetchLog, errLog], null];
   }
 
-  const data: ProviderData = {
+  const data: AirnodeParametersData = {
+    airnodeAdmin: res.admin,
     authorizers: res.authorizers,
     // Converting this BigNumber to a JS number should not throw as the current block number
     // should always be a valid number
     blockNumber: res.blockNumber.toNumber(),
-    providerAdmin: res.admin,
     xpub: res.xpub,
   };
 
   const blockLog = logger.pend('INFO', `Current block:${res.blockNumber}`);
 
-  if (!providerExistsOnchain(fetchOptions, data)) {
-    const providerLog = logger.pend('INFO', 'Provider not found');
-    const logs = [fetchLog, blockLog, providerLog];
+  if (!airnodeParametersExistOnchain(fetchOptions, data)) {
+    const airnodeParametersLog = logger.pend('INFO', 'Airnode parameters not found');
+    const logs = [fetchLog, blockLog, airnodeParametersLog];
     return [logs, data];
   }
 
   const addressLog = logger.pend('INFO', `Admin address:${res.admin}`);
-  const xpubLog = logger.pend('INFO', `Provider extended public key:${res.xpub}`);
+  const xpubLog = logger.pend('INFO', `Airnode extended public key:${res.xpub}`);
   const logs = [fetchLog, blockLog, addressLog, xpubLog];
   return [logs, data];
 }
 
-export async function setProviderParameters(
-  options: SetProviderParametersOptions
+export async function setAirnodeParameters(
+  options: SetAirnodeParametersOptions
 ): Promise<LogsData<ethers.Transaction | {} | null>> {
-  const { airnodeAddress, authorizers, currentXpub, onchainData, providerAdmin } = options;
-
-  const log1 = logger.pend('INFO', `Setting provider parameters with address:${providerAdmin}...`);
-
+  const { airnodeRrpAddress, authorizers, currentXpub, onchainData, airnodeAdmin } = options;
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
-  const connectedWallet = masterWallet.connect(options.provider);
-  const airnode = new ethers.Contract(airnodeAddress, Airnode.ABI, connectedWallet);
 
-  const log2 = logger.pend('INFO', 'Estimating transaction cost for setting provider parameters...');
+  const log1 = logger.pend('INFO', `Setting Airnode parameters with address:${masterWallet.address}...`);
+
+  const connectedWallet = masterWallet.connect(options.provider);
+  const airnodeRrp = new ethers.Contract(airnodeRrpAddress, AirnodeRrp.ABI, connectedWallet);
+
+  const log2 = logger.pend('INFO', 'Estimating transaction cost for setting Airnode parameters...');
 
   // Gas cost is 160,076
   const gasEstimateOp = () =>
-    airnode.estimateGas.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
+    airnodeRrp.estimateGas.setAirnodeParametersAndForwardFunds(airnodeAdmin, currentXpub, authorizers, {
       gasLimit: 300_000,
       value: 1,
     });
@@ -138,21 +146,22 @@ export async function setProviderParameters(
   const txCost = gasLimit.mul(gasPrice);
 
   // NOTE: it's possible that the master wallet does not have sufficient funds
-  // to set the provider parameters - yet they may have been set before with the correct
+  // to set the Airnode parameters - yet they may have been set before with the correct
   // mnemonic/extended public key. Airnode can still serve requests, but any changes to fields
-  // such as "authorizers" or "providerAdmin" will not be applied.
+  // such as "authorizers" or "airnodeAdmin" will not be applied.
   if (
     txCost.gt(masterWalletBalance) &&
     onchainData.xpub !== '' &&
     currentXpub === onchainData.xpub &&
-    !providerDetailsMatch(options, onchainData)
+    !airnodeParametersMatch(options, onchainData)
   ) {
     const masterBal = ethers.utils.formatEther(masterWalletBalance);
     const ethTxCost = ethers.utils.formatEther(txCost);
-    const warningMsg = 'Unable to update onchain provider record as the master wallet does not have sufficient funds';
+    const warningMsg =
+      'Unable to update onchain Airnode parameters as the master wallet does not have sufficient funds';
     const balanceMsg = `Current balance: ${masterBal} ETH. Estimated transaction cost: ${ethTxCost} ETH`;
     const updatesMsg =
-      'Any updates to "providerAdmin" or "authorizers" will not take affect until the provider has been updated';
+      'Any updates to "airnodeAdmin" or "authorizers" will not take affect until the Airnode parameters have been updated';
     const warnLog = logger.pend('WARN', warningMsg);
     const balanceLog = logger.pend('WARN', balanceMsg);
     const updatesLog = logger.pend('WARN', updatesMsg);
@@ -161,55 +170,57 @@ export async function setProviderParameters(
 
   const fundsToSend = masterWalletBalance.sub(txCost);
 
-  const log6 = logger.pend('INFO', 'Submitting set provider parameters transaction...');
+  const log6 = logger.pend('INFO', 'Submitting set Airnode parameters transaction...');
 
-  const setProviderParametersTx = () =>
-    airnode.setProviderParametersAndForwardFunds(providerAdmin, currentXpub, authorizers, {
+  const setAirnodeParametersTx = () =>
+    airnodeRrp.setAirnodeParametersAndForwardFunds(airnodeAdmin, currentXpub, authorizers, {
       value: fundsToSend,
       gasLimit,
       gasPrice,
     }) as Promise<any>;
-  const retryableSetProviderParametersTx = retryOperation(OPERATION_RETRIES, setProviderParametersTx);
-  const [txErr, tx] = await go(retryableSetProviderParametersTx);
+  const retryableSetAirnodeParametersTx = retryOperation(OPERATION_RETRIES, setAirnodeParametersTx);
+  const [txErr, tx] = await go(retryableSetAirnodeParametersTx);
   if (txErr || !tx) {
-    const errLog = logger.pend('ERROR', 'Unable to submit set provider parameters transaction', txErr);
+    const errLog = logger.pend('ERROR', 'Unable to submit set Airnode parameters transaction', txErr);
     return [[log1, log2, log3, log4, log5, log6, errLog], null];
   }
-  const log7 = logger.pend('INFO', `Set provider parameters transaction submitted:${tx.hash}`);
+  const log7 = logger.pend('INFO', `Set Airnode parameters transaction submitted:${tx.hash}`);
   const log8 = logger.pend(
     'INFO',
-    'Airnode will not process requests until the set provider parameters transaction has been confirmed'
+    'Airnode will not process requests until the set Airnode parameters transaction has been confirmed'
   );
   return [[log1, log2, log3, log4, log5, log6, log7, log8], tx];
 }
 
-export async function verifyOrSetProviderParameters(options: BaseFetchOptions): Promise<LogsData<ProviderData | null>> {
-  const providerId = wallet.getProviderId(options.masterHDNode);
-  const idLog = logger.pend('DEBUG', `Computed provider ID from mnemonic:${providerId}`);
+export async function verifyOrSetAirnodeParameters(
+  options: BaseFetchOptions
+): Promise<LogsData<AirnodeParametersData | null>> {
+  const airnodeId = wallet.getAirnodeId(options.masterHDNode);
+  const idLog = logger.pend('DEBUG', `Computed Airnode ID from mnemonic:${airnodeId}`);
 
-  const fetchOptions = { ...options, providerId };
-  const [providerBlockLogs, providerBlockData] = await fetchProviderWithData(fetchOptions);
-  if (!providerBlockData) {
-    const logs = [idLog, ...providerBlockLogs];
+  const fetchOptions = { ...options, airnodeId };
+  const [airnodeParametersBlockLogs, airnodeParametersBlockData] = await fetchAirnodeParametersWithData(fetchOptions);
+  if (!airnodeParametersBlockData) {
+    const logs = [idLog, ...airnodeParametersBlockLogs];
     return [logs, null];
   }
 
-  // If the extended public key was returned as an empty string, it means that the provider does
+  // If the extended public key was returned as an empty string, it means that the Airnode paramters do
   // not exist onchain yet
-  if (!providerExistsOnchain(options, providerBlockData)) {
-    const setProviderParametersOptions = {
+  if (!airnodeParametersExistOnchain(options, airnodeParametersBlockData)) {
+    const setAirnodeParametersOptions = {
       ...options,
+      airnodeAdmin: options.airnodeAdmin,
       currentXpub: wallet.getExtendedPublicKey(options.masterHDNode),
-      providerAdmin: options.providerAdmin,
-      onchainData: providerBlockData,
+      onchainData: airnodeParametersBlockData,
     };
-    const [setProviderParametersLogs, _setProviderParametersRes] = await setProviderParameters(
-      setProviderParametersOptions
+    const [setAirnodeParametersLogs, _setAirnodeParametersRes] = await setAirnodeParameters(
+      setAirnodeParametersOptions
     );
-    const logs = [idLog, ...providerBlockLogs, ...setProviderParametersLogs];
-    return [logs, providerBlockData];
+    const logs = [idLog, ...airnodeParametersBlockLogs, ...setAirnodeParametersLogs];
+    return [logs, airnodeParametersBlockData];
   }
 
-  const existsLog = logger.pend('DEBUG', `Skipping provider creation as the provider exists`);
-  return [[idLog, ...providerBlockLogs, existsLog], providerBlockData];
+  const existsLog = logger.pend('DEBUG', `Skipping Airnode parameters setting as the Airnode parameters exist`);
+  return [[idLog, ...airnodeParametersBlockLogs, existsLog], airnodeParametersBlockData];
 }

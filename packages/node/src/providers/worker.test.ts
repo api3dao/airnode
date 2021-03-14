@@ -19,7 +19,7 @@ describe('spawnNewProvider', () => {
       cloudProvider: 'aws',
       functionName: 'initializeProvider',
       payload: { state },
-      providerIdShort: '19255a4',
+      airnodeIdShort: '19255a4',
       region: 'us-east-1',
       stage: 'test',
     });
@@ -39,7 +39,7 @@ describe('spawnProviderRequestProcessor', () => {
       cloudProvider: 'aws',
       functionName: 'processProviderRequests',
       payload: { state },
-      providerIdShort: '19255a4',
+      airnodeIdShort: '19255a4',
       region: 'us-east-1',
       stage: 'test',
     });

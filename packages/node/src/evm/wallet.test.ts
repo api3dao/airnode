@@ -18,10 +18,10 @@ describe('getWallet', () => {
   });
 });
 
-describe('getProviderId', () => {
-  it('returns the providerId from the mnemonic', () => {
+describe('getAirnodeId', () => {
+  it('returns the airnodeId from the mnemonic', () => {
     const masterHDNode = wallet.getMasterHDNode();
-    const res = wallet.getProviderId(masterHDNode);
+    const res = wallet.getAirnodeId(masterHDNode);
     expect(res).toEqual('0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb');
   });
 });

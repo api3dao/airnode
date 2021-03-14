@@ -22,7 +22,7 @@ It houses the following packages:
 
 [**operation**:](https://github.com/api3dao/airnode/tree/master/packages/operation) Development and testing utilities for the core parts of Airnode
 
-[**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement the Airnode protocol (the request-response version)
+[**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement Airnode RRP (request–response protocol)
 
 ## Instructions
 

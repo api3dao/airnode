@@ -1,7 +1,7 @@
 {
   "name": "@api3/airnode-protocol",
   "version": "0.1.0",
-  "description": "Contracts that implement the Airnode protocol",
+  "description": "Contracts that implement the Airnode protocols",
   "license": "MIT",
   "main": "index",
   "scripts": {

@@ -61,13 +61,13 @@ export type ClientRequest<T extends {}> = T & {
 export type ApiCallType = 'regular' | 'full';
 
 export interface ApiCall {
+  readonly airnodeId: string | null;
   readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
-  readonly providerId: string | null;
   readonly requestCount: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
@@ -75,15 +75,15 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
+  readonly airnodeId: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
   readonly id: string;
-  readonly providerId: string;
 }
 
 export interface Withdrawal {
+  readonly airnodeId: string;
   readonly destinationAddress: string;
-  readonly providerId: string;
   readonly requesterIndex: string;
 }
 
@@ -93,6 +93,7 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
+  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: number;
@@ -100,7 +101,6 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerAdmin: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -119,8 +119,8 @@ export interface AggregatedApiCallsById {
 }
 
 export interface CoordinatorSettings {
-  readonly providerId: string;
-  readonly providerIdShort: string;
+  readonly airnodeId: string;
+  readonly airnodeIdShort: string;
   readonly logFormat: LogFormat;
   readonly region: string;
   readonly stage: string;
@@ -138,7 +138,7 @@ export interface CoordinatorState {
 // EVM specific
 // ===========================================
 export interface EVMContracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export interface EVMProviderState {
@@ -184,7 +184,7 @@ export interface AggregatedApiCall {
 // ===========================================
 export interface WorkerOptions {
   cloudProvider: NodeCloudProvider;
-  providerIdShort: string;
+  airnodeIdShort: string;
   region: string;
   stage: string;
 }
@@ -281,7 +281,7 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export interface ChainProvider {
@@ -290,13 +290,13 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
+  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: number;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerAdmin: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }
@@ -308,7 +308,7 @@ export interface NodeSettings {
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly nodeVersion: string;
-  readonly providerIdShort?: string;
+  readonly airnodeIdShort?: string;
   readonly region: string;
   readonly stage: string;
 }

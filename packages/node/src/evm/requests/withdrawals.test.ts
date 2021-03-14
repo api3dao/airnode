@@ -7,8 +7,8 @@ import { RequestStatus } from 'src/types';
 describe('initialize (Withdrawal)', () => {
   it('builds a withdrawal request', () => {
     const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const parseLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -18,6 +18,7 @@ describe('initialize (Withdrawal)', () => {
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
       destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
       id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
@@ -27,7 +28,6 @@ describe('initialize (Withdrawal)', () => {
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       requesterIndex: '1',
       status: RequestStatus.Pending,
     });
@@ -47,6 +47,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
     ]);
     expect(requests).toEqual([
       {
+        airnodeId: 'airnodeId',
         designatedWallet: 'designatedWallet',
         destinationAddress: 'destinationAddress',
         id,
@@ -56,7 +57,6 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: 'logTransactionHash',
         },
-        providerId: 'providerId',
         requesterIndex: '1',
         status: RequestStatus.Fulfilled,
       },
@@ -74,8 +74,8 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
 describe('mapRequests (Withdrawal)', () => {
   it('initializes and returns withdrawal requests', () => {
     const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -87,6 +87,7 @@ describe('mapRequests (Withdrawal)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
         destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
         id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
@@ -96,7 +97,6 @@ describe('mapRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requesterIndex: '1',
         status: RequestStatus.Pending,
       },
@@ -106,9 +106,9 @@ describe('mapRequests (Withdrawal)', () => {
   it('updates the status of fulfilled withdrawal requests', () => {
     const requestEvent = fixtures.evm.logs.buildWithdrawalRequest();
     const fulfillEvent = fixtures.evm.logs.buildWithdrawalFulfilled();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const requestLog = airnodeInterface.parseLog(requestEvent);
-    const fulfillLog = airnodeInterface.parseLog(fulfillEvent);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const requestLog = airnodeRrpInterface.parseLog(requestEvent);
+    const fulfillLog = airnodeRrpInterface.parseLog(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,

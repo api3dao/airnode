@@ -6,11 +6,10 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<Withdrawal> = {
+    airnodeId: parsedLog.args.airnodeId,
     designatedWallet: parsedLog.args.designatedWallet,
-    id: parsedLog.args.withdrawalRequestId,
-    status: RequestStatus.Pending,
-    providerId: parsedLog.args.providerId,
     destinationAddress: parsedLog.args.destination,
+    id: parsedLog.args.withdrawalRequestId,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
@@ -18,6 +17,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
       transactionHash: logWithMetadata.transactionHash,
     },
     requesterIndex: parsedLog.args.requesterIndex.toString(),
+    status: RequestStatus.Pending,
   };
 
   return request;

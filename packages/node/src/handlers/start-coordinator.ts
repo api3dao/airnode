@@ -22,7 +22,7 @@ export async function startCoordinator(config: Config) {
 
   const workerOpts: WorkerOptions = {
     cloudProvider: config.nodeSettings.cloudProvider,
-    providerIdShort: state1.settings.providerIdShort,
+    airnodeIdShort: state1.settings.airnodeIdShort,
     stage: config.nodeSettings.stage,
     region: config.nodeSettings.region,
   };

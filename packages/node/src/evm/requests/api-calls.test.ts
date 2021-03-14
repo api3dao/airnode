@@ -7,8 +7,8 @@ import { EVMEventLogWithMetadata, RequestErrorCode, RequestStatus } from 'src/ty
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -17,6 +17,7 @@ describe('initialize (ApiCall)', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
       designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
       endpointId: null,
@@ -32,7 +33,6 @@ describe('initialize (ApiCall)', () => {
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
       parameters: {},
-      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       requestCount: '2',
       requesterIndex: '2',
       status: RequestStatus.Pending,
@@ -43,8 +43,8 @@ describe('initialize (ApiCall)', () => {
 
   it('sets the API call type', () => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const base = {
       parsedLog,
       blockNumber: 10716082,
@@ -71,8 +71,8 @@ describe('applyParameters', () => {
 
   beforeEach(() => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -132,6 +132,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
     expect(requests).toEqual([
       {
         id,
+        airnodeId: 'airnodeId',
         clientAddress: 'clientAddress',
         designatedWallet: 'designatedWallet',
         endpointId: 'endpointId',
@@ -145,7 +146,6 @@ describe('updateFulfilledRequests (ApiCall)', () => {
           transactionHash: 'logTransactionHash',
         },
         parameters: { from: 'ETH' },
-        providerId: 'providerId',
         requestCount: '12',
         requesterIndex: '3',
         status: RequestStatus.Fulfilled,
@@ -166,8 +166,8 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 describe('mapRequests (ApiCall)', () => {
   it('initializes, applies parameters and returns API call requests', () => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const parsedLog = airnodeInterface.parseLog(event);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const parsedLog = airnodeRrpInterface.parseLog(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -179,6 +179,7 @@ describe('mapRequests (ApiCall)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
         endpointId: null,
@@ -194,7 +195,6 @@ describe('mapRequests (ApiCall)', () => {
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
         parameters: { from: 'ETH' },
-        providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '2',
         requesterIndex: '2',
         status: RequestStatus.Pending,
@@ -207,9 +207,9 @@ describe('mapRequests (ApiCall)', () => {
   it('updates the status of fulfilled ApiCall requests', () => {
     const requestEvent = fixtures.evm.logs.buildClientRequest();
     const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
-    const airnodeInterface = new ethers.utils.Interface(contracts.Airnode.ABI);
-    const requestLog = airnodeInterface.parseLog(requestEvent);
-    const fulfillLog = airnodeInterface.parseLog(fulfillEvent);
+    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const requestLog = airnodeRrpInterface.parseLog(requestEvent);
+    const fulfillLog = airnodeRrpInterface.parseLog(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,

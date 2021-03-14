@@ -9,7 +9,7 @@ import { OPERATION_RETRIES } from '../../constants';
 type SubmitResponse = ethers.Transaction | null;
 
 export async function submitWithdrawal(
-  airnode: ethers.Contract,
+  airnodeRrp: ethers.Contract,
   request: ClientRequest<Withdrawal>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
@@ -44,9 +44,9 @@ export async function submitWithdrawal(
   }
 
   const estimateTx = () =>
-    airnode.estimateGas.fulfillWithdrawal(
+    airnodeRrp.estimateGas.fulfillWithdrawal(
       request.id,
-      request.providerId,
+      request.airnodeId,
       request.requesterIndex,
       request.destinationAddress,
       // We need to send some funds for the gas price calculation to be correct
@@ -94,7 +94,7 @@ export async function submitWithdrawal(
   );
 
   const withdrawalTx = () =>
-    airnode.fulfillWithdrawal(request.id, request.providerId, request.requesterIndex, request.destinationAddress, {
+    airnodeRrp.fulfillWithdrawal(request.id, request.airnodeId, request.requesterIndex, request.destinationAddress, {
       gasLimit: paddedGasLimit,
       gasPrice: options.gasPrice!,
       nonce: request.nonce!,

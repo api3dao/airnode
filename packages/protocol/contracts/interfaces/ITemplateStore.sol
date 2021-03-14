@@ -4,13 +4,13 @@ pragma solidity 0.8.2;
 interface ITemplateStore {
     event TemplateCreated(
         bytes32 indexed templateId,
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         bytes parameters
         );
 
     function createTemplate(
-        bytes32 providerId,
+        bytes32 airnodeId,
         bytes32 endpointId,
         bytes calldata parameters
         )
@@ -21,7 +21,7 @@ interface ITemplateStore {
         external
         view
         returns (
-            bytes32 providerId,
+            bytes32 airnodeId,
             bytes32 endpointId,
             bytes memory parameters
         );

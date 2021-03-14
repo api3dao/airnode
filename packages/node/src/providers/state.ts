@@ -21,6 +21,9 @@ export function buildEVMState(
   const provider = evm.buildEVMProvider(chainProvider.url, chain.id);
 
   const providerSettings: ProviderSettings = {
+    airnodeAdmin: chain.airnodeAdmin,
+    airnodeId: evm.getAirnodeId(masterHDNode),
+    airnodeIdShort: evm.getAirnodeIdShort(masterHDNode),
     authorizers: chain.authorizers,
     // The number of blocks to look back for events to process
     blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,
@@ -31,9 +34,6 @@ export function buildEVMState(
     logFormat: config.nodeSettings.logFormat,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
     name: chainProvider.name,
-    providerAdmin: chain.providerAdmin,
-    providerId: evm.getProviderId(masterHDNode),
-    providerIdShort: evm.getProviderIdShort(masterHDNode),
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
     url: chainProvider.url,
