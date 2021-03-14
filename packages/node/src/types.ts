@@ -61,13 +61,13 @@ export type ClientRequest<T extends {}> = T & {
 export type ApiCallType = 'regular' | 'full';
 
 export interface ApiCall {
+  readonly airnodeId: string | null;
   readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
   readonly fulfillAddress: string | null;
   readonly fulfillFunctionId: string | null;
   readonly parameters: ApiCallParameters;
-  readonly airnodeId: string | null;
   readonly requestCount: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
@@ -75,15 +75,15 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
+  readonly airnodeId: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
   readonly id: string;
-  readonly airnodeId: string;
 }
 
 export interface Withdrawal {
-  readonly destinationAddress: string;
   readonly airnodeId: string;
+  readonly destinationAddress: string;
   readonly requesterIndex: string;
 }
 
@@ -93,6 +93,7 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
+  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: number;
@@ -100,7 +101,6 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly airnodeAdmin: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -290,13 +290,13 @@ export interface ChainProvider {
 }
 
 export interface ChainConfig {
+  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
   readonly id: number;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly airnodeAdmin: string;
   readonly providers: ChainProvider[];
   readonly type: ChainType;
 }

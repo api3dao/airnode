@@ -18,6 +18,7 @@ describe('initialize (Withdrawal)', () => {
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
       destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
       id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
@@ -27,7 +28,6 @@ describe('initialize (Withdrawal)', () => {
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       requesterIndex: '1',
       status: RequestStatus.Pending,
     });
@@ -47,6 +47,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
     ]);
     expect(requests).toEqual([
       {
+        airnodeId: 'airnodeId',
         designatedWallet: 'designatedWallet',
         destinationAddress: 'destinationAddress',
         id,
@@ -56,7 +57,6 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: 'logTransactionHash',
         },
-        airnodeId: 'airnodeId',
         requesterIndex: '1',
         status: RequestStatus.Fulfilled,
       },
@@ -87,6 +87,7 @@ describe('mapRequests (Withdrawal)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
         destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
         id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
@@ -96,7 +97,6 @@ describe('mapRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requesterIndex: '1',
         status: RequestStatus.Pending,
       },

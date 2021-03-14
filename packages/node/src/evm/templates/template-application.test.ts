@@ -12,25 +12,25 @@ describe('mergeApiCallsWithTemplates', () => {
 
   it('merges the template into the API call', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      templateId: 'templateId-0',
       airnodeId: null,
       endpointId: null,
       parameters: {},
+      templateId: 'templateId-0',
     });
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        airnodeId: 'templateAirnodeId-0',
         encodedParameters:
           '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         endpointId: 'templateEndpointId-0',
         id: 'templateId-0',
-        airnodeId: 'templateairnodeId-0',
       },
     };
 
     const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], templatesById);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Template ID:templateId-0 applied to Request:${apiCall.id}` }]);
-    expect(res[0].airnodeId).toEqual('templateairnodeId-0');
+    expect(res[0].airnodeId).toEqual('templateAirnodeId-0');
     expect(res[0].endpointId).toEqual('templateEndpointId-0');
     // These fields are not overwritten
     expect(res[0].fulfillAddress).toEqual('fulfillAddress');
@@ -50,11 +50,11 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        airnodeId: 'templateAirnodeId-0',
         endpointId: 'templateEndpointId-0',
         encodedParameters:
           '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         id: 'templateId-0',
-        airnodeId: 'templateairnodeId-0',
       },
     };
 
@@ -76,11 +76,11 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        airnodeId: 'templateAirnodeId-0',
         endpointId: 'templateEndpointId-0',
         encodedParameters:
           '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         id: 'templateId-0',
-        airnodeId: 'templateairnodeId-0',
       },
     };
 
@@ -104,10 +104,10 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { [id: string]: ApiCallTemplate } = {
       'templateId-0': {
+        airnodeId: 'templateAirnodeId-0',
         endpointId: 'templateEndpointId-0',
         encodedParameters: 'invalid-parameters',
         id: 'templateId-0',
-        airnodeId: 'templateairnodeId-0',
       },
     };
 

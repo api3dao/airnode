@@ -36,11 +36,11 @@ describe('verifyApiCallIds', () => {
 
   it('does nothing where full API calls have a valid request ID', () => {
     const apiCall = fixtures.requests.buildApiCall({
+      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
       id: '0xf872062fc4ca8f4aa5ee49232a875001818be9614a0d57b065e3e0f07ed021b1',
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       requestCount: '0',
       templateId: null,
       type: 'full',
@@ -67,11 +67,11 @@ describe('verifyApiCallIds', () => {
 
   it('ignores full API calls with invalid IDs', () => {
     const apiCall = fixtures.requests.buildApiCall({
+      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
       id: '0xinvalid',
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       requestCount: '0',
       templateId: null,
       type: 'full',

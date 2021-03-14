@@ -9,17 +9,17 @@ import { LogsData } from '../types';
 import { OPERATION_RETRIES } from '../constants';
 
 interface AirnodeParametersExistOptions {
+  airnodeAdmin: string;
   authorizers: string[];
   masterHDNode: ethers.utils.HDNode;
-  airnodeAdmin: string;
 }
 
 interface BaseFetchOptions {
+  airnodeAdmin: string;
   airnodeRrpAddress: string;
   authorizers: string[];
   masterHDNode: ethers.utils.HDNode;
   provider: ethers.providers.JsonRpcProvider;
-  airnodeAdmin: string;
 }
 
 interface VerifyOptions extends BaseFetchOptions {
@@ -27,9 +27,9 @@ interface VerifyOptions extends BaseFetchOptions {
 }
 
 interface AirnodeParametersData {
+  airnodeAdmin: string;
   authorizers: string[];
   blockNumber: number;
-  airnodeAdmin: string;
   xpub: string;
 }
 
@@ -71,11 +71,11 @@ export async function fetchAirnodeParametersWithData(
   }
 
   const data: AirnodeParametersData = {
+    airnodeAdmin: res.admin,
     authorizers: res.authorizers,
     // Converting this BigNumber to a JS number should not throw as the current block number
     // should always be a valid number
     blockNumber: res.blockNumber.toNumber(),
-    airnodeAdmin: res.admin,
     xpub: res.xpub,
   };
 
@@ -210,8 +210,8 @@ export async function verifyOrSetAirnodeParameters(
   if (!airnodeParametersExistOnchain(options, airnodeParametersBlockData)) {
     const setAirnodeParametersOptions = {
       ...options,
-      currentXpub: wallet.getExtendedPublicKey(options.masterHDNode),
       airnodeAdmin: options.airnodeAdmin,
+      currentXpub: wallet.getExtendedPublicKey(options.masterHDNode),
       onchainData: airnodeParametersBlockData,
     };
     const [setAirnodeParametersLogs, _setAirnodeParametersRes] = await setAirnodeParameters(

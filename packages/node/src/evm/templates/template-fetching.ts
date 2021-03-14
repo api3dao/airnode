@@ -35,10 +35,10 @@ export async function fetchTemplate(
   const successLog = logger.pend('INFO', `Fetched API call template:${templateId}`);
 
   const template: ApiCallTemplate = {
+    airnodeId: rawTemplate.airnodeId,
     encodedParameters: rawTemplate.parameters,
     endpointId: rawTemplate.endpointId,
     id: templateId,
-    airnodeId: rawTemplate.airnodeId,
   };
   return [[successLog], template];
 }
@@ -70,10 +70,10 @@ async function fetchTemplateGroup(
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
+      airnodeId: rawTemplates.airnodeIds[index],
       encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
       id: templateId,
-      airnodeId: rawTemplates.airnodeIds[index],
     };
     return { ...acc, [templateId]: template };
   }, {});

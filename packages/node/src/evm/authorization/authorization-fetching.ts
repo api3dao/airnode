@@ -10,8 +10,8 @@ import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStat
 import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 interface FetchOptions {
-  airnodeRrpAddress: string;
   airnodeId: string;
+  airnodeRrpAddress: string;
   provider: ethers.providers.JsonRpcProvider;
 }
 

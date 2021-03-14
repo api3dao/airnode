@@ -7,9 +7,9 @@ export function create(config: Config): CoordinatorState {
   const masterHDNode = wallet.getMasterHDNode();
 
   const settings: CoordinatorSettings = {
-    logFormat: config.nodeSettings.logFormat,
     airnodeId: wallet.getAirnodeId(masterHDNode),
     airnodeIdShort: wallet.getAirnodeIdShort(masterHDNode),
+    logFormat: config.nodeSettings.logFormat,
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
   };

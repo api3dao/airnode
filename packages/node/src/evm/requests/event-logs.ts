@@ -7,11 +7,11 @@ import { OPERATION_RETRIES } from '../../constants';
 
 interface FetchOptions {
   address: string;
+  airnodeId: string;
   blockHistoryLimit: number;
   currentBlock: number;
   ignoreBlockedRequestsAfterBlocks: number;
   provider: ethers.providers.JsonRpcProvider;
-  airnodeId: string;
 }
 
 interface GroupedLogs {

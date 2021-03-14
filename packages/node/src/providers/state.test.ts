@@ -8,12 +8,12 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
+      airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       id: 1337,
-      airnodeAdmin: '0xairnodeAdmin',
       providers: [chainProvider],
       type: 'evm',
     };
@@ -24,8 +24,10 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
-        authorizers: [ethers.constants.AddressZero],
         airnodeAdmin: '0xairnodeAdmin',
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeIdShort: '19255a4',
+        authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 300,
         chainId: 1337,
         chainType: 'evm',
@@ -33,8 +35,6 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 0,
         name: 'ganache-test',
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        airnodeIdShort: '19255a4',
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',
@@ -59,6 +59,7 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
     const chainConfig: ChainConfig = {
+      airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       blockHistoryLimit: 150,
       contracts: {
@@ -67,7 +68,6 @@ describe('create', () => {
       id: 1337,
       minConfirmations: 3,
       providers: [chainProvider],
-      airnodeAdmin: '0xairnodeAdmin',
       type: 'evm',
     };
     const config = fixtures.buildConfig();
@@ -77,8 +77,10 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
-        authorizers: [ethers.constants.AddressZero],
         airnodeAdmin: '0xairnodeAdmin',
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeIdShort: '19255a4',
+        authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 150,
         chainId: 1337,
         chainType: 'evm',
@@ -86,8 +88,6 @@ describe('create', () => {
         logFormat: 'plain',
         minConfirmations: 3,
         name: 'ganache-test',
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        airnodeIdShort: '19255a4',
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',

@@ -46,6 +46,7 @@ describe('initializeProvider', () => {
     const res = await initializeProvider(state);
     expect(res?.requests.apiCalls).toEqual([
       {
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
         encodedParameters:
@@ -67,7 +68,6 @@ describe('initializeProvider', () => {
           from: 'ETH',
           to: 'USD',
         },
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '3',
         requesterIndex: '2',
         status: 'Pending',
@@ -75,6 +75,7 @@ describe('initializeProvider', () => {
         type: 'full',
       },
       {
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
         encodedParameters:
@@ -96,7 +97,6 @@ describe('initializeProvider', () => {
           from: 'ETH',
           to: 'USD',
         },
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '2',
         requesterIndex: '2',
         status: 'Pending',

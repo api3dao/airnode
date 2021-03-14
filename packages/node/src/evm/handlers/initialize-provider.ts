@@ -14,9 +14,9 @@ type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions = {
+    airnodeId: currentState.settings.airnodeId,
     airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
-    airnodeId: currentState.settings.airnodeId,
   };
   const [logs, res] = await authorizations.fetch(currentState.requests.apiCalls, fetchOptions);
   return { id: 'authorizations', data: res, logs };
@@ -53,11 +53,11 @@ export async function initializeProvider(
   // STEP 2: Get current block number, and verify or set Airnode parameters
   // =================================================================
   const airnodeParametersFetchOptions = {
+    airnodeAdmin: state1.settings.airnodeAdmin,
     airnodeRrpAddress: state1.contracts.AirnodeRrp,
     authorizers: state1.settings.authorizers,
     masterHDNode: state1.masterHDNode,
     provider: state1.provider,
-    airnodeAdmin: state1.settings.airnodeAdmin,
   };
   const [airnodeParametersLogs, airnodeParametersData] = await initialization.verifyOrSetAirnodeParameters(
     airnodeParametersFetchOptions

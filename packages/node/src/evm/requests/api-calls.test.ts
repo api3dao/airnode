@@ -17,6 +17,7 @@ describe('initialize (ApiCall)', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
       designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
       endpointId: null,
@@ -32,7 +33,6 @@ describe('initialize (ApiCall)', () => {
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
       parameters: {},
-      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       requestCount: '2',
       requesterIndex: '2',
       status: RequestStatus.Pending,
@@ -132,6 +132,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
     expect(requests).toEqual([
       {
         id,
+        airnodeId: 'airnodeId',
         clientAddress: 'clientAddress',
         designatedWallet: 'designatedWallet',
         endpointId: 'endpointId',
@@ -145,7 +146,6 @@ describe('updateFulfilledRequests (ApiCall)', () => {
           transactionHash: 'logTransactionHash',
         },
         parameters: { from: 'ETH' },
-        airnodeId: 'airnodeId',
         requestCount: '12',
         requesterIndex: '3',
         status: RequestStatus.Fulfilled,
@@ -179,6 +179,7 @@ describe('mapRequests (ApiCall)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
+        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         clientAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
         designatedWallet: '0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12',
         endpointId: null,
@@ -194,7 +195,6 @@ describe('mapRequests (ApiCall)', () => {
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
         parameters: { from: 'ETH' },
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         requestCount: '2',
         requesterIndex: '2',
         status: RequestStatus.Pending,

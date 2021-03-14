@@ -24,8 +24,8 @@ describe('fetch (authorizations)', () => {
   beforeEach(() => {
     fetchOptions = {
       address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
-      provider: new ethers.providers.JsonRpcProvider(),
       airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      provider: new ethers.providers.JsonRpcProvider(),
     };
   });
 
