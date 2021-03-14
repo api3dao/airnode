@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as ethers from 'ethers';
 
-export function deriveairnodeId(mnemonic) {
+export function deriveAirnodeId(mnemonic) {
   return ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(['address'], [deriveMasterWalletAddress(mnemonic)])
   );
@@ -22,7 +22,7 @@ export function generateMnemonic() {
   return masterWallet.mnemonic.phrase;
 }
 
-export function shortenairnodeId(airnodeId) {
+export function shortenAirnodeId(airnodeId) {
   if (!ethers.utils.isHexString(airnodeId, 32)) {
     throw new Error('airnodeId is not a valid hex string');
   }

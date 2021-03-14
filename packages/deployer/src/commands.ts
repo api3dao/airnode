@@ -14,8 +14,8 @@ import {
   writeJSONFile,
   deriveXpub,
   generateMnemonic,
-  deriveairnodeId,
-  shortenairnodeId,
+  deriveAirnodeId,
+  shortenAirnodeId,
   deriveMasterWalletAddress,
 } from './util';
 import { verifyMnemonic } from './io';
@@ -26,9 +26,9 @@ export async function deployFirstTime(configPath, securityPath, nodeVersion) {
   await applyTerraformWorkaround(configParams.region);
 
   const mnemonic = generateMnemonic();
-  const airnodeId = deriveairnodeId(mnemonic);
-  const airnodeIdShort = shortenairnodeId(airnodeId);
-  if (await ssm.checkIfairnodeIdShortExists(airnodeIdShort)) {
+  const airnodeId = deriveAirnodeId(mnemonic);
+  const airnodeIdShort = shortenAirnodeId(airnodeId);
+  if (await ssm.checkIfAirnodeIdShortExists(airnodeIdShort)) {
     throw new Error('Randomly generated airnodeIdShort is already used at SSM. This should not have happened.');
   }
 
@@ -68,13 +68,13 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
   checkConfigParameters(configParams, nodeVersion, 'redeploy');
   await applyTerraformWorkaround(configParams.region);
 
-  if (!(await ssm.checkIfairnodeIdShortExists(configParams.airnodeIdShort))) {
+  if (!(await ssm.checkIfAirnodeIdShortExists(configParams.airnodeIdShort))) {
     throw new Error(
       'The mnemonic must be stored at AWS SSM under the name airnodeIdShort while using the command "redeploy"'
     );
   }
   const mnemonic = await ssm.fetchMnemonic(configParams.airnodeIdShort);
-  const airnodeId = deriveairnodeId(mnemonic);
+  const airnodeId = deriveAirnodeId(mnemonic);
 
   const masterWalletAddress = deriveMasterWalletAddress(mnemonic);
   await checkAirnodeParameters(airnodeId, configParams.chains, masterWalletAddress);
@@ -105,9 +105,9 @@ export async function redeploy(configPath, securityPath, nodeVersion) {
 
 export async function deployMnemonic(mnemonic, region) {
   await applyTerraformWorkaround(region);
-  const airnodeId = deriveairnodeId(mnemonic);
-  const airnodeIdShort = shortenairnodeId(airnodeId);
-  if (await ssm.checkIfairnodeIdShortExists(airnodeIdShort)) {
+  const airnodeId = deriveAirnodeId(mnemonic);
+  const airnodeIdShort = shortenAirnodeId(airnodeId);
+  if (await ssm.checkIfAirnodeIdShortExists(airnodeIdShort)) {
     throw new Error('A mnemonic with matching airnodeIdShort is already deployed.');
   }
   await ssm.addMnemonic(mnemonic, airnodeIdShort);
@@ -122,7 +122,7 @@ export async function removeWithReceipt(receiptFilename) {
 
 export async function removeMnemonic(airnodeIdShort, region) {
   await applyTerraformWorkaround(region);
-  if (!(await ssm.checkIfairnodeIdShortExists(airnodeIdShort))) {
+  if (!(await ssm.checkIfAirnodeIdShortExists(airnodeIdShort))) {
     throw new Error('No mnemonic with this airnodeIdShort exists at AWS SSM');
   }
   await ssm.removeMnemonic(airnodeIdShort);

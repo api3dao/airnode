@@ -1,7 +1,7 @@
 import ora from 'ora';
 import * as terraform from './terraform';
 
-export async function checkIfairnodeIdShortExists(airnodeIdShort) {
+export async function checkIfAirnodeIdShortExists(airnodeIdShort) {
   await terraform.deleteStateFiles(airnodeIdShort);
   const spinner = ora(`Checking if ${airnodeIdShort} exists as airnodeIdShort at AWS SSM`).start();
   try {
