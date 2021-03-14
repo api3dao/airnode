@@ -2,7 +2,47 @@
   "config": {
     "ois": {
       "__arrayItem": {
-        "__oisSpecs": {}
+        "__oisSpecs": {},
+        "apiSpecifications": {
+          "security": {
+            "__conditions": [
+              {
+                "__if": {
+                  "__this_name": ".*"
+                },
+                "__rootThen": {
+                  "security": {
+                    "apiCredentials": {
+                      "[[/config.{{1}}.title]]": {
+                        "__any": {
+                          "securitySchemeName": {
+                            "__regexp": "^__match$"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "title": {
+          "__conditions": [
+            {
+              "__if": {
+                "__this": ".*"
+              },
+              "__rootThen": {
+                "security": {
+                  "apiCredentials": {
+                    "__match": {}
+                  }
+                }
+              }
+            }
+          ]
+        }
       }
     },
     "triggers": {
@@ -86,13 +126,49 @@
     }
   },
   "security": {
-    "__any": {
-      "__keyRegexp": "^(?!id).*$",
-      "__objectItem": {
-        "__arrayItem": {
-          "securitySchemeName": {},
-          "value": {}
+    "apiCredentials": {
+      "__conditions": [
+        {
+          "__if": {
+            "__this_name": ".*"
+          },
+          "__rootThen": {
+            "config": {
+              "ois": {
+                "__any": {
+                  "title": {
+                    "__regexp": "^__match$"
+                  }
+                }
+              }
+            }
+          }
         }
+      ],
+      "__arrayItem": {
+        "__conditions": [
+          {
+            "__if": {
+              "securitySchemeName": ".*"
+            },
+            "__rootThen": {
+              "config": {
+                "ois": {
+                  "__any": {
+                    "title": {
+                      "__regexp": "^{{2}}$"
+                    },
+                    "security": {
+                      "__match": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "securitySchemeName": {},
+        "value": {}
       }
     },
     "id": {}
