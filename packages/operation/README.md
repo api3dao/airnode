@@ -240,7 +240,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "bob",
       "type": "regular",
-      "airnodes": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAPI",
       "template": "template-1",
       "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
@@ -251,7 +251,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "bob",
       "type": "full",
-      "airnodes": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAPI",
       "endpoint": "convertToUSD",
       "oisTitle": "currency-converter-api",
       "client": "MockAirnodeRrpClient",
@@ -267,7 +267,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "alice",
       "type": "withdrawal",
-      "airnodes": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAPI",
       "destination": "alice"
     }
   ]

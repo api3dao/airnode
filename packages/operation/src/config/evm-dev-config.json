@@ -48,7 +48,7 @@
     {
       "requesterId": "bob",
       "type": "regular",
-      "airnodes": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAPI",
       "template": "template-1",
       "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
@@ -59,7 +59,7 @@
     {
       "requesterId": "bob",
       "type": "full",
-      "airnodes": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAPI",
       "endpoint": "convertToUSD",
       "oisTitle": "currency-converter-ois",
       "client": "MockAirnodeRrpClient",
@@ -75,7 +75,7 @@
     {
       "requesterId": "alice",
       "type": "withdrawal",
-      "airnodes": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAPI",
       "destination": "alice"
     }
   ]
