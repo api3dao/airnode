@@ -97,10 +97,10 @@ export async function setAirnodeParameters(
   options: SetAirnodeParametersOptions
 ): Promise<LogsData<ethers.Transaction | {} | null>> {
   const { airnodeRrpAddress, authorizers, currentXpub, onchainData, airnodeAdmin } = options;
-
-  const log1 = logger.pend('INFO', `Setting Airnode parameters with address:${airnodeAdmin}...`);
-
   const masterWallet = wallet.getWallet(options.masterHDNode.privateKey);
+
+  const log1 = logger.pend('INFO', `Setting Airnode parameters with address:${masterWallet.address}...`);
+
   const connectedWallet = masterWallet.connect(options.provider);
   const airnodeRrp = new ethers.Contract(airnodeRrpAddress, AirnodeRrp.ABI, connectedWallet);
 

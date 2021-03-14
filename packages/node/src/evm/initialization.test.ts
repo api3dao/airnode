@@ -267,7 +267,7 @@ describe('setAirnodeParameters', () => {
     expect(logs).toEqual([
       {
         level: 'INFO',
-        message: 'Setting Airnode parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+        message: 'Setting Airnode parameters with address:0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7...',
       },
       { level: 'INFO', message: 'Estimating transaction cost for setting Airnode parameters...' },
       {
@@ -290,7 +290,7 @@ describe('setAirnodeParameters', () => {
     expect(logs).toEqual([
       {
         level: 'INFO',
-        message: 'Setting Airnode parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+        message: 'Setting Airnode parameters with address:0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7...',
       },
       { level: 'INFO', message: 'Estimating transaction cost for setting Airnode parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
@@ -312,7 +312,7 @@ describe('setAirnodeParameters', () => {
     expect(logs).toEqual([
       {
         level: 'INFO',
-        message: 'Setting Airnode parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+        message: 'Setting Airnode parameters with address:0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7...',
       },
       { level: 'INFO', message: 'Estimating transaction cost for setting Airnode parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
@@ -336,7 +336,7 @@ describe('setAirnodeParameters', () => {
     expect(logs).toEqual([
       {
         level: 'INFO',
-        message: 'Setting Airnode parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+        message: 'Setting Airnode parameters with address:0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7...',
       },
       { level: 'INFO', message: 'Estimating transaction cost for setting Airnode parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
@@ -377,7 +377,7 @@ describe('setAirnodeParameters', () => {
       expect(logs).toEqual([
         {
           level: 'INFO',
-          message: 'Setting Airnode parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+          message: 'Setting Airnode parameters with address:0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7...',
         },
         { level: 'INFO', message: 'Estimating transaction cost for setting Airnode parameters...' },
         { level: 'INFO', message: 'Estimated gas limit: 70000' },
@@ -501,7 +501,7 @@ describe('verifyOrSetAirnodeParameters', () => {
     ]);
   });
 
-  it('sets the Airnode parameters if xpub if empty and returns the transaction', async () => {
+  it('sets the Airnode parameters if xpub is empty and returns the transaction', async () => {
     getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
@@ -525,7 +525,7 @@ describe('verifyOrSetAirnodeParameters', () => {
       { level: 'INFO', message: 'Airnode parameters not found' },
       {
         level: 'INFO',
-        message: 'Setting Airnode parameters with address:0x5e0051B74bb4006480A1b548af9F1F0e0954F410...',
+        message: 'Setting Airnode parameters with address:0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7...',
       },
       { level: 'INFO', message: 'Estimating transaction cost for setting Airnode parameters...' },
       { level: 'INFO', message: 'Estimated gas limit: 70000' },
