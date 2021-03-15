@@ -41,9 +41,6 @@
       "version": "1.2.3",
       "title": "currency-converter-ois",
       "apiSpecifications": {
-        "info": {
-          "title": "Currency Converter API"
-        },
         "servers": [
           {
             "url": "http://localhost:5000"
