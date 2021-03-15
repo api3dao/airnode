@@ -58,7 +58,7 @@ export function verifyDesignatedWallets<T>(
   return [logs, verifiedRequests];
 }
 
-export function verifyTriggers<T>(
+export function verifyTriggers(
   requests: ClientRequest<ApiCall>[],
   config: Config
 ): LogsData<ClientRequest<ApiCall>[]> {
