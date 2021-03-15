@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
 import * as initialization from '../initialization';
@@ -99,8 +100,14 @@ export async function initializeProvider(
   );
   logger.logPending(verifyLogs, baseLogOptions);
 
+  const [verifyTriggersLogs, verifiedApiCallsForTriggers] = verification.verifyTriggers(
+    verifiedApiCalls,
+    state3.config!
+  );
+  logger.logPending(verifyTriggersLogs, baseLogOptions);
+
   const state4 = state.update(state3, {
-    requests: { ...state3.requests, apiCalls: verifiedApiCalls },
+    requests: { ...state3.requests, apiCalls: verifiedApiCallsForTriggers },
   });
 
   // =================================================================
@@ -114,7 +121,7 @@ export async function initializeProvider(
   const [templFetchLogs, templatesById] = await templates.fetch(state4.requests.apiCalls, templateFetchOptions);
   logger.logPending(templFetchLogs, baseLogOptions);
 
-  const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(apiCalls, templatesById);
+  const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(state4.requests.apiCalls, templatesById);
   logger.logPending(templVerificationLogs, baseLogOptions);
 
   const [templApplicationLogs, templatedApiCalls] = templates.mergeApiCallsWithTemplates(

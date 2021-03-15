@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, Config, ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 export function verifyDesignatedWallets<T>(
   requests: ClientRequest<T>[],
@@ -50,6 +50,44 @@ export function verifyDesignatedWallets<T>(
       'DEBUG',
       `Request ID:${request.id} is linked to a valid designated wallet:${request.designatedWallet}`
     );
+    return [[log], request];
+  });
+
+  const logs = flatMap(logsWithVerifiedRequests, (r) => r[0]);
+  const verifiedRequests = flatMap(logsWithVerifiedRequests, (r) => r[1]);
+  return [logs, verifiedRequests];
+}
+
+export function verifyTriggers<T>(
+  requests: ClientRequest<ApiCall>[],
+  config: Config
+): LogsData<ClientRequest<ApiCall>[]> {
+  const logsWithVerifiedRequests: LogsData<ClientRequest<ApiCall>>[] = requests.map((request) => {
+    if (request.status !== RequestStatus.Pending) {
+      const log = logger.pend(
+        'DEBUG',
+        `Triggers verification skipped for Request:${request.id} as it has status:${request.status}`
+      );
+      return [[log], request];
+    }
+
+    // Check Triggers' endpointId validity/presence
+    const trigger = config.triggers.request.find((t) => t.endpointId === request.endpointId);
+    if (!trigger) {
+      // No valid endpointId was found in the config for this request
+      const log = logger.pend(
+        'ERROR',
+        `Ignoring Request:${request.id} as no valid endpointId exists for triggers in Config`
+      );
+      const updatedRequest = {
+        ...request,
+        status: RequestStatus.Errored,
+        errorCode: RequestErrorCode.UnknownEndpoint,
+      };
+      return [[log], updatedRequest];
+    }
+
+    const log = logger.pend('DEBUG', `Request ID:${request.id} is linked to a valid endpointId:${request.endpointId}`);
     return [[log], request];
   });
 

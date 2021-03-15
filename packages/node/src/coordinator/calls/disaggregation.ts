@@ -26,7 +26,7 @@ function updateApiCallResponse(
   const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
 
   // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
-  if (!aggregatedApiCall) {
+  if (!aggregatedApiCall && apiCall.status === RequestStatus.Pending) {
     const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
     const updatedCall = {
       ...apiCall,
@@ -34,6 +34,21 @@ function updateApiCallResponse(
       errorCode: RequestErrorCode.NoMatchingAggregatedCall,
     };
     return [[log], updatedCall];
+  }
+
+  if (apiCall.status !== RequestStatus.Pending) {
+    let log = logger.pend('INFO', `Request:${apiCall.id} is not Pending`);
+    switch (apiCall.status) {
+      case RequestStatus.Ignored:
+        log = logger.pend('INFO', `Request:${apiCall.id} is Ignored`);
+        break;
+      case RequestStatus.Errored:
+        log = logger.pend('INFO', `Request:${apiCall.id} is Errored`);
+        break;
+      default:
+        break;
+    }
+    return [[log], apiCall];
   }
 
   // Add the error to the ApiCall
