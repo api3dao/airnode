@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
 import * as initialization from '../initialization';
@@ -92,36 +91,17 @@ export async function initializeProvider(
   const state3 = state.update(state2, { requests: groupedRequests });
 
   // =================================================================
-  // STEP 4: Validate API calls
-  // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
-    state3.requests.apiCalls,
-    state3.masterHDNode
-  );
-  logger.logPending(verifyLogs, baseLogOptions);
-
-  const [verifyTriggersLogs, verifiedApiCallsForTriggers] = verification.verifyTriggers(
-    verifiedApiCalls,
-    state3.config!
-  );
-  logger.logPending(verifyTriggersLogs, baseLogOptions);
-
-  const state4 = state.update(state3, {
-    requests: { ...state3.requests, apiCalls: verifiedApiCallsForTriggers },
-  });
-
-  // =================================================================
-  // STEP 5: Fetch and apply templates to API calls
+  // STEP 4: Fetch and apply templates to API calls
   // =================================================================
   const templateFetchOptions = {
-    airnodeRrpAddress: state4.contracts.AirnodeRrp,
-    provider: state4.provider,
+    airnodeRrpAddress: state3.contracts.AirnodeRrp,
+    provider: state3.provider,
   };
   // This should not throw
-  const [templFetchLogs, templatesById] = await templates.fetch(state4.requests.apiCalls, templateFetchOptions);
+  const [templFetchLogs, templatesById] = await templates.fetch(state3.requests.apiCalls, templateFetchOptions);
   logger.logPending(templFetchLogs, baseLogOptions);
 
-  const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(state4.requests.apiCalls, templatesById);
+  const [templVerificationLogs, templVerifiedApiCalls] = templates.verify(state3.requests.apiCalls, templatesById);
   logger.logPending(templVerificationLogs, baseLogOptions);
 
   const [templApplicationLogs, templatedApiCalls] = templates.mergeApiCallsWithTemplates(
@@ -130,8 +110,27 @@ export async function initializeProvider(
   );
   logger.logPending(templApplicationLogs, baseLogOptions);
 
+  const state4 = state.update(state3, {
+    requests: { ...state3.requests, apiCalls: templatedApiCalls },
+  });
+
+  // =================================================================
+  // STEP 5: Validate API calls
+  // =================================================================
+  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+    state4.requests.apiCalls,
+    state4.masterHDNode
+  );
+  logger.logPending(verifyLogs, baseLogOptions);
+
+  const [verifyTriggersLogs, verifiedApiCallsForTriggers] = verification.verifyTriggers(
+    verifiedApiCalls,
+    state4.config!
+  );
+  logger.logPending(verifyTriggersLogs, baseLogOptions);
+
   const state5 = state.update(state4, {
-    requests: { ...state4.requests, apiCalls: templatedApiCalls },
+    requests: { ...state3.requests, apiCalls: verifiedApiCallsForTriggers },
   });
 
   // =================================================================
