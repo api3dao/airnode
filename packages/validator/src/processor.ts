@@ -8,6 +8,7 @@ import { Log, Result, Roots } from './types';
 import { execute } from './utils/action';
 import fs from 'fs';
 import { validateParameter } from './validators/parameterValidator';
+import { validateCatch } from './validators/catchValidator';
 import { combinePaths } from './utils/utils';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
@@ -124,6 +125,9 @@ export function processSpecs(
       case '__level':
         break;
 
+      case '__catch':
+        break;
+
       case '__any':
         messages.push(...validateAny(specs, template[key], paramPath, nonRedundantParams, roots));
 
@@ -205,5 +209,9 @@ export function processSpecs(
     valid = !messages.some((msg) => msg.level === 'error');
   }
 
-  return { valid, messages, output: roots.output };
+  return {
+    valid,
+    messages: validateCatch(specs, template, messages, paramPath, paramPathPrefix, roots.specs),
+    output: roots.output,
+  };
 }
