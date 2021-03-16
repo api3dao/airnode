@@ -1,5 +1,6 @@
 import { Log } from '../types';
 import * as utils from '../utils/utils';
+import { combinePaths } from '../utils/utils';
 
 export function validateCatch(
   specs: any,
@@ -19,6 +20,9 @@ export function validateCatch(
   if (typeof specs === 'string') {
     message['message'] = message['message'].replace(/__value/g, specs);
   }
+
+  message['message'] = message['message'].replace(/__fullPath/g, combinePaths(paramPathPrefix, paramPath));
+  message['message'] = message['message'].replace(/__path/g, paramPath);
 
   return [{ message: message['message'], level: message['level'] ? message['level'] : 'error' }];
 }
