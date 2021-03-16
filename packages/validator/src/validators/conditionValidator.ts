@@ -3,6 +3,7 @@ import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Roots, Log } from '../types';
 import { combinePaths } from '../utils/utils';
+import { validateCatch } from './catchValidator';
 
 /**
  * Validates "if" condition in which regular expression is matched against the key in specification
@@ -324,7 +325,7 @@ export function validateCondition(
       ...validateConditionRequires(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix)
     );
 
-    return messages;
+    return validateCatch(specs, condition, messages, paramPath, paramPathPrefix, roots.specs);
   }
 
   // condition is if, then condition
@@ -340,5 +341,5 @@ export function validateCondition(
     );
   }
 
-  return messages;
+  return validateCatch(specs, condition, messages, paramPath, paramPathPrefix, roots.specs);
 }
