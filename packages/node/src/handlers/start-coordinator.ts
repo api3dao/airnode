@@ -46,30 +46,18 @@ export async function startCoordinator(config: Config) {
   }
 
   // =================================================================
-  // STEP 3: Group unique client Requests (for same chain/networkId providers ) and validate
+  // STEP 3: Group unique API calls (for the same chain & networkId)
   // =================================================================
   const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
-  const [validatedAggCallLogs, validatedAggApiCallsById] = calls.validateAggregatedApiCalls(
-    state2.config,
-    aggregatedApiCallsById
-  );
-  logger.logPending(validatedAggCallLogs, baseLogOptions);
-  const state3 = state.update(state2, { aggregatedApiCallsById: validatedAggApiCallsById });
+  const state3 = state.update(state2, { aggregatedApiCallsById });
 
   // =================================================================
   // STEP 4: Execute API calls and save the responses
   // =================================================================
   const aggregateCallIds = Object.keys(state3.aggregatedApiCallsById);
   const flatAggregatedCalls = flatMap(aggregateCallIds, (id) => state3.aggregatedApiCallsById[id]);
-  const pendingAggregatedCalls = flatAggregatedCalls.filter((a) => !a.errorCode);
-  logger.info(`Processing ${pendingAggregatedCalls.length} pending API call(s)...`, baseLogOptions);
-
-  const [callLogs, processedAggregatedApiCalls] = await calls.callApis(
-    pendingAggregatedCalls,
-    baseLogOptions,
-    workerOpts
-  );
+  const [callLogs, processedAggregatedApiCalls] = await calls.callApis(flatAggregatedCalls, baseLogOptions, workerOpts);
   logger.logPending(callLogs, baseLogOptions);
 
   const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');

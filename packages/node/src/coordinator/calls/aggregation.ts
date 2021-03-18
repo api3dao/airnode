@@ -1,16 +1,16 @@
 import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest, Config, RequestStatus } from '../../types';
 
 function createAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
-  const trigger = config.triggers.request.find((t) => t.endpointId === request.endpointId);
+  // The trigger should already be verified to exist at this point
+  const trigger = config.triggers.request.find((t) => t.endpointId === request.endpointId)!;
 
   return {
     id: request.id,
     endpointId: request.endpointId!,
     parameters: request.parameters,
     type: 'request',
-    // If the trigger was not found, the request will be invalidated at validation time
-    endpointName: trigger?.endpointName,
-    oisTitle: trigger?.oisTitle,
+    endpointName: trigger.endpointName,
+    oisTitle: trigger.oisTitle,
   };
 }
 

@@ -115,7 +115,7 @@ export async function initializeProvider(
   });
 
   // =================================================================
-  // STEP 5: Validate API calls
+  // STEP 5: Verify API calls
   // =================================================================
   const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
     state4.requests.apiCalls,
@@ -125,7 +125,8 @@ export async function initializeProvider(
 
   const [verifyTriggersLogs, verifiedApiCallsForTriggers] = verification.verifyTriggers(
     verifiedApiCalls,
-    state4.config!
+    state4.config!.triggers.request,
+    state4.config!.ois
   );
   logger.logPending(verifyTriggersLogs, baseLogOptions);
 
