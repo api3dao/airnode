@@ -18,4 +18,5 @@ RUN echo '*/1 * * * * cd /airnode && yarn run dev:invoke' > local-cron
 RUN /usr/bin/crontab /airnode/local-cron 
 
 CMD cp out/config.json /airnode/packages/node/__dev__/config.json | true \
+    && cp out/.env /airnode/packages/node/__dev__/.env | true \
     && /usr/sbin/crond -f -l 8

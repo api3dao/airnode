@@ -21,7 +21,6 @@ Note that `nodeSettings.cloudProvider` should be `local`.
 
 ```sh
 docker run -it --rm \
-    --env-file .env \
     -v $(pwd):/airnode/out \
     api3/airnode-client:pre-alpha
 ```
