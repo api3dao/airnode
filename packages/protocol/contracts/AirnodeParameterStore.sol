@@ -166,7 +166,7 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
         public
         view
         override
-        returns(bool status)
+        returns (bool status)
     {
         address[] memory authorizerAddresses = airnodeParameters[airnodeId].authorizers;
         uint256 noAuthorizers = authorizerAddresses.length;

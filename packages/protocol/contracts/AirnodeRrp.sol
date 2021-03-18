@@ -188,7 +188,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
             fulfillAddress,
             fulfillFunctionId
             )
-        returns(
+        returns (
             bool callSuccess,
             bytes memory callData
         )

@@ -64,7 +64,7 @@ interface IAirnodeParameterStore is IRequesterStore {
         )
         external
         view
-        returns(bool status);
+        returns (bool status);
 
     function getAirnodeParameters(bytes32 airnodeId)
         external

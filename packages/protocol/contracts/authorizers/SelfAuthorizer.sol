@@ -189,7 +189,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
         external
         view
         override
-        returns(bool)
+        returns (bool)
     {
         return designatedWallet.balance != 0
             && !airnodeIdToClientAddressToBlacklistStatus[airnodeId][clientAddress]

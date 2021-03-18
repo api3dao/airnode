@@ -5,7 +5,7 @@ interface IAuthorizer {
     function authorizerType()
         external
         view
-        returns(uint256);
+        returns (uint256);
 
     function isAuthorized(
         bytes32 requestId,
@@ -17,5 +17,5 @@ interface IAuthorizer {
         )
         external
         view
-        returns(bool);
+        returns (bool);
 }

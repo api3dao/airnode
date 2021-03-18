@@ -193,7 +193,7 @@ contract Api3Authorizer is IApi3Authorizer {
         external
         view
         override
-        returns(bool)
+        returns (bool)
     {
         return designatedWallet.balance != 0
             && !clientAddressToBlacklistStatus[clientAddress]
