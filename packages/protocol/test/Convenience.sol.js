@@ -208,7 +208,7 @@ describe('checkAuthorizationStatuses', function () {
           Array(noRequests).fill(designatedWallet.address),
           Array(noRequests).fill(clientAddress)
         )
-      ).to.be.revertedWith('Parameter lengths must be equal');
+      ).to.be.revertedWith('Unequal parameter lengths');
     });
   });
 });

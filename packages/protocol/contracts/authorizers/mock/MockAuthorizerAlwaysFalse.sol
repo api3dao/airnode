@@ -5,7 +5,9 @@ import "../interfaces/IAuthorizer.sol";
 
 /// @title A mock authorizer that always returns false
 contract MockAuthorizerAlwaysFalse is IAuthorizer {
-    function checkIfAuthorized(
+    uint256 public override immutable authorizerType = 33;
+
+    function isAuthorized(
         bytes32 requestId, // solhint-disable-line
         bytes32 airnodeId, // solhint-disable-line
         bytes32 endpointId, // solhint-disable-line

@@ -75,7 +75,7 @@ interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
         bytes4 fulfillFunctionId
         )
         external
-        returns(
+        returns (
             bool callSuccess,
             bytes memory callData
         );
