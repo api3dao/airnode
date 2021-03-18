@@ -19,7 +19,7 @@ describe('callApis', () => {
     const aggregatedApiCall = fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.Unauthorized });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
-    expect(logs).toEqual([{ level: 'INFO', message: 'No pending API calls to process. Skipping calls...' }]);
+    expect(logs).toEqual([{ level: 'INFO', message: 'No pending API calls to process. Skipping API calls...' }]);
     expect(res).toEqual([aggregatedApiCall]);
     expect(spy).not.toHaveBeenCalled();
   });
