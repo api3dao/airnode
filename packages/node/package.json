@@ -30,8 +30,5 @@
     "aws-sdk": "^2.753.0",
     "bluebird": "^3.7.2",
     "date-fns": "^2.16.1"
-  },
-  "devDependencies": {
-    "@types/bluebird": "^3.5.32"
   }
 }
