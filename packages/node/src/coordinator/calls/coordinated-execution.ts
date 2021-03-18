@@ -58,7 +58,7 @@ export async function callApis(
   const skippedAggregatedCalls = aggregatedApiCalls.filter((a) => a.errorCode);
 
   if (isEmpty(pendingAggregatedCalls)) {
-    const log = logger.pend('INFO', 'No pending API calls to process. Skipping calls...');
+    const log = logger.pend('INFO', 'No pending API calls to process. Skipping API calls...');
     return [[log], skippedAggregatedCalls];
   }
   const processLog = logger.pend('INFO', `Processing ${pendingAggregatedCalls.length} pending API call(s)...`);
