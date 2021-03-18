@@ -3,7 +3,7 @@ pragma solidity 0.8.2;
 
 import "./IAuthorizer.sol";
 
-interface ISelfAuthorizer is IAuthorizer {
+interface IApi3Authorizer is IAuthorizer {
     // Unauthorized (0):  Cannot do anything
     // Admin (1):         Can extend whitelistings
     // Super admin (2):   Can set (i.e., extend or revoke) whitelistings, blacklist
@@ -13,16 +13,14 @@ interface ISelfAuthorizer is IAuthorizer {
         SuperAdmin
         }
 
+    event SetMetaAdmin(address metaAdmin);
+
     event SetAdminStatus(
-        bytes32 indexed airnodeId,
         address indexed admin,
         AdminStatus status
         );
 
-    event RenouncedAdminStatus(
-        bytes32 indexed airnodeId,
-        address indexed admin
-        );
+    event RenouncedAdminStatus(address indexed admin);
 
     event ExtendedWhitelistExpiration(
         bytes32 indexed airnodeId,
@@ -39,20 +37,21 @@ interface ISelfAuthorizer is IAuthorizer {
         );
 
     event SetBlacklistStatus(
-        bytes32 indexed airnodeId,
         address indexed clientAddress,
         bool status,
         address indexed admin
         );
 
+    function setMetaAdmin(address _metaAdmin)
+        external;
+
     function setAdminStatus(
-        bytes32 airnodeId,
         address admin,
         AdminStatus status
         )
         external;
 
-    function renounceAdminStatus(bytes32 airnodeId)
+    function renounceAdminStatus()
         external;
 
     function extendWhitelistExpiration(
@@ -68,9 +67,8 @@ interface ISelfAuthorizer is IAuthorizer {
         uint256 expiration
         )
         external;
-
+  
     function setBlacklistStatus(
-        bytes32 airnodeId,
         address clientAddress,
         bool status
         )

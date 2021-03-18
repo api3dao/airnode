@@ -1,81 +1,91 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
-import "../interfaces/IAirnodeRrp.sol";
-import "./interfaces/ISelfAuthorizer.sol";
+import "./interfaces/IApi3Authorizer.sol";
 
-/// @title Authorizer contract where each Airnode is their own admin
-contract SelfAuthorizer is ISelfAuthorizer {
+/// @title Authorizer contract controlled by the API3 DAO
+contract Api3Authorizer is IApi3Authorizer {
     string private constant ERROR_UNAUTHORIZED                = "Unauthorized";
     string private constant ERROR_ZERO_ADDRESS                = "Zero address";
     string private constant ERROR_EXPIRATION_NOT_EXTENDED     = "Expiration not extended";
 
     /// @dev Authorizer contracts can use `authorizerType` to signal their type
-    uint256 public override immutable authorizerType = 2;
-    IAirnodeRrp public airnodeRrp;
-    mapping(bytes32 => mapping(address => AdminStatus)) public
-        airnodeIdToAdminStatuses;
+    uint256 public override immutable authorizerType = 1;
+    /// @dev Meta admin sets the admin statuses of addresses and has super
+    /// admin privileges
+    address public metaAdmin;
+    mapping(address => AdminStatus) public adminStatuses;
     mapping(bytes32 => mapping(address => uint256)) public
         airnodeIdToClientAddressToWhitelistExpiration;
-    mapping(bytes32 => mapping(address => bool)) public
-        airnodeIdToClientAddressToBlacklistStatus;
+    mapping(address => bool) public clientAddressToBlacklistStatus;
 
-    /// @param _airnodeRrp Airnode RRP contract address
-    constructor (address _airnodeRrp)
+    /// @param _metaAdmin Address that will be set as the meta admin
+    constructor (address _metaAdmin)
     {
         require(
-            _airnodeRrp != address(0),
+            _metaAdmin != address(0),
             ERROR_ZERO_ADDRESS
             );
-        airnodeRrp = IAirnodeRrp(_airnodeRrp);
+        metaAdmin = _metaAdmin;
     }
 
-    /// @notice Called by the Airnode admin to set the admin status of an
-    /// address
-    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
+    /// @notice Called by the meta admin to set the meta admin
+    /// @param _metaAdmin Address that will be set as the meta admin
+    function setMetaAdmin(address _metaAdmin)
+        external
+        override
+    {
+        require(
+            msg.sender == metaAdmin,
+            ERROR_UNAUTHORIZED
+            );
+        require(
+            _metaAdmin != address(0),
+            ERROR_ZERO_ADDRESS
+            );
+        metaAdmin = _metaAdmin;
+        emit SetMetaAdmin(metaAdmin);
+    }
+
+    /// @notice Called by the meta admin to set the admin status of an address
     /// @param admin Address whose admin status will be set
     /// @param status Admin status
     function setAdminStatus(
-        bytes32 airnodeId,
         address admin,
         AdminStatus status
         )
         external
         override
     {
-        (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(airnodeId);
         require(
-            msg.sender == airnodeAdmin,
+            msg.sender == metaAdmin,
             ERROR_UNAUTHORIZED
             );
-        airnodeIdToAdminStatuses[airnodeId][admin] = status;
+        adminStatuses[admin] = status;
         emit SetAdminStatus(
-            airnodeId,
             admin,
             status
             );
     }
 
     /// @notice Called by an admin to renounce their admin status
-    /// @dev To minimize the number of transactions the Airnode admin will have
+    /// @dev To minimize the number of transactions the meta admin will have
     /// to make, the contract is implemented optimistically, i.e., the admins
     /// are expected to renounce their admin status when they are needed to.
-    /// If this is not the case, the Airnode admin can always revoke their
+    /// If this is not the case, the meta admin can always revoke their
     /// adminship.
-    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
-    function renounceAdminStatus(bytes32 airnodeId)
+    /// This method cannot be used by the meta admin to renounce their meta
+    /// adminship.
+    function renounceAdminStatus()
         external
         override
     {
         require(
-            airnodeIdToAdminStatuses[airnodeId][msg.sender] > AdminStatus.Unauthorized,
+            adminStatuses[msg.sender] > AdminStatus.Unauthorized,
             ERROR_UNAUTHORIZED
             );
-        airnodeIdToAdminStatuses[airnodeId][msg.sender] = AdminStatus.Unauthorized;
-        emit RenouncedAdminStatus(
-            airnodeId,
-            msg.sender
-            );
+        adminStatuses[msg.sender] = AdminStatus.Unauthorized;
+        emit RenouncedAdminStatus(msg.sender);
     }
 
     /// @notice Called by an admin to extend the whitelist expiration of a
@@ -92,9 +102,8 @@ contract SelfAuthorizer is ISelfAuthorizer {
         external
         override
     {
-        (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(airnodeId);
         require(
-            airnodeIdToAdminStatuses[airnodeId][msg.sender] >= AdminStatus.Admin || msg.sender == airnodeAdmin,
+            adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin,
             ERROR_UNAUTHORIZED
             );
         require(
@@ -123,9 +132,8 @@ contract SelfAuthorizer is ISelfAuthorizer {
         external
         override
     {
-        (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(airnodeId);
         require(
-            airnodeIdToAdminStatuses[airnodeId][msg.sender] == AdminStatus.SuperAdmin || msg.sender == airnodeAdmin,
+            adminStatuses[msg.sender] == AdminStatus.SuperAdmin || msg.sender == metaAdmin,
             ERROR_UNAUTHORIZED
             );
         airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = expiration;
@@ -138,25 +146,21 @@ contract SelfAuthorizer is ISelfAuthorizer {
     }
 
     /// @notice Called by a super admin to set the blacklist status of a client
-    /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
     /// @param clientAddress Client address
     /// @param status Blacklist status to be set
     function setBlacklistStatus(
-        bytes32 airnodeId,
         address clientAddress,
         bool status
         )
         external
         override
     {
-        (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(airnodeId);
         require(
-            airnodeIdToAdminStatuses[airnodeId][msg.sender] == AdminStatus.SuperAdmin || msg.sender == airnodeAdmin,
+            adminStatuses[msg.sender] == AdminStatus.SuperAdmin || msg.sender == metaAdmin,
             ERROR_UNAUTHORIZED
             );
-        airnodeIdToClientAddressToBlacklistStatus[airnodeId][clientAddress] = status;
+        clientAddressToBlacklistStatus[clientAddress] = status;
         emit SetBlacklistStatus(
-            airnodeId,
             clientAddress,
             status,
             msg.sender
@@ -192,7 +196,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
         returns(bool)
     {
         return designatedWallet.balance != 0
-            && !airnodeIdToClientAddressToBlacklistStatus[airnodeId][clientAddress]
+            && !clientAddressToBlacklistStatus[clientAddress]
             && airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp;
     }
 }

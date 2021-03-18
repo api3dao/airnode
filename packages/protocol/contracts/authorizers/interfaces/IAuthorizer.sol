@@ -2,6 +2,11 @@
 pragma solidity 0.8.2;
 
 interface IAuthorizer {
+    function authorizerType()
+        external
+        view
+        returns(uint256);
+
     function checkIfAuthorized(
         bytes32 requestId,
         bytes32 airnodeId,
@@ -12,5 +17,5 @@ interface IAuthorizer {
         )
         external
         view
-        returns (bool status);
+        returns(bool);
 }
