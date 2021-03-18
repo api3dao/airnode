@@ -178,7 +178,7 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
                 return true;
             }
             IAuthorizer authorizer = IAuthorizer(authorizerAddress);
-            if (authorizer.checkIfAuthorized(
+            if (authorizer.isAuthorized(
                 requestId,
                 airnodeId,
                 endpointId,

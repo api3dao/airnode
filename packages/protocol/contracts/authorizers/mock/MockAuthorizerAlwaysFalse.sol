@@ -7,7 +7,7 @@ import "../interfaces/IAuthorizer.sol";
 contract MockAuthorizerAlwaysFalse is IAuthorizer {
     uint256 public override immutable authorizerType = 33;
 
-    function checkIfAuthorized(
+    function isAuthorized(
         bytes32 requestId, // solhint-disable-line
         bytes32 airnodeId, // solhint-disable-line
         bytes32 endpointId, // solhint-disable-line

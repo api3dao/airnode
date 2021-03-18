@@ -385,7 +385,7 @@ describe('setBlacklistStatus', function () {
   });
 });
 
-describe('checkIfAuthorized', function () {
+describe('isAuthorized', function () {
   context('Designated wallet balance is not zero', function () {
     context('Client is not blacklisted', function () {
       context('Client whitelisting has not expired', function () {
@@ -401,7 +401,7 @@ describe('checkIfAuthorized', function () {
             .connect(roles.airnodeAdmin)
             .setWhitelistExpiration(airnodeId, roles.client.address, expiration);
           expect(
-            await selfAuthorizer.checkIfAuthorized(
+            await selfAuthorizer.isAuthorized(
               requestId,
               airnodeId,
               endpointId,
@@ -420,7 +420,7 @@ describe('checkIfAuthorized', function () {
             value: 1,
           });
           expect(
-            await selfAuthorizer.checkIfAuthorized(
+            await selfAuthorizer.isAuthorized(
               requestId,
               airnodeId,
               endpointId,
@@ -444,7 +444,7 @@ describe('checkIfAuthorized', function () {
         selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistExpiration(airnodeId, roles.client.address, expiration);
         selfAuthorizer.connect(roles.airnodeAdmin).setBlacklistStatus(airnodeId, roles.client.address, true);
         expect(
-          await selfAuthorizer.checkIfAuthorized(
+          await selfAuthorizer.isAuthorized(
             requestId,
             airnodeId,
             endpointId,
@@ -463,7 +463,7 @@ describe('checkIfAuthorized', function () {
       const expiration = now + 100;
       selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistExpiration(airnodeId, roles.client.address, expiration);
       expect(
-        await selfAuthorizer.checkIfAuthorized(
+        await selfAuthorizer.isAuthorized(
           requestId,
           airnodeId,
           endpointId,

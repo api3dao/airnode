@@ -182,7 +182,7 @@ contract Api3Authorizer is IApi3Authorizer {
     /// @param designatedWallet Designated wallet
     /// @param clientAddress Client address
     /// @return Authorization status of the request
-    function checkIfAuthorized(
+    function isAuthorized(
         bytes32 requestId,        // solhint-disable-line
         bytes32 airnodeId,
         bytes32 endpointId,       // solhint-disable-line

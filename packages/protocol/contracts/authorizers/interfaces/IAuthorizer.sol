@@ -7,7 +7,7 @@ interface IAuthorizer {
         view
         returns(uint256);
 
-    function checkIfAuthorized(
+    function isAuthorized(
         bytes32 requestId,
         bytes32 airnodeId,
         bytes32 endpointId,
