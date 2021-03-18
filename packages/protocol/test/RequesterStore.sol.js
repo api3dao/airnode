@@ -54,14 +54,14 @@ describe('setRequesterAdmin', function () {
       expect(await airnodeRrp.requesterIndexToAdmin(requesterIndex1)).to.equal(roles.updatedRequesterAdmin1.address);
     });
   });
-  context('Caller is not requester admin', async function () {
+  context('Caller not requester admin', async function () {
     it('reverts', async function () {
       // Create the requester
       await airnodeRrp.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
       // Attempt to update the requester admin
       await expect(
         airnodeRrp.connect(roles.randomPerson).setRequesterAdmin(requesterIndex1, roles.updatedRequesterAdmin1.address)
-      ).to.be.revertedWith('Caller is not requester admin');
+      ).to.be.revertedWith('Caller not requester admin');
     });
   });
 });
@@ -105,14 +105,14 @@ describe('setClientEndorsementStatus', function () {
       ).to.equal(false);
     });
   });
-  context('Caller is not requester admin', async function () {
+  context('Caller not requester admin', async function () {
     it('reverts', async function () {
       // Create the requester
       await airnodeRrp.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
       // Attempt to endorse the client
       await expect(
         airnodeRrp.connect(roles.randomPerson).setClientEndorsementStatus(requesterIndex1, roles.client.address, true)
-      ).to.be.revertedWith('Caller is not requester admin');
+      ).to.be.revertedWith('Caller not requester admin');
     });
   });
 });

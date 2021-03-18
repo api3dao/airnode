@@ -96,7 +96,7 @@ describe('requestWithdrawal', function () {
         );
     });
   });
-  context('Caller is not requester admin', async function () {
+  context('Caller not requester admin', async function () {
     it('reverts', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
@@ -111,7 +111,7 @@ describe('requestWithdrawal', function () {
         airnodeRrp
           .connect(roles.randomPerson)
           .requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, roles.randomPerson.address)
-      ).to.be.revertedWith('Caller is not requester admin');
+      ).to.be.revertedWith('Caller not requester admin');
     });
   });
 });

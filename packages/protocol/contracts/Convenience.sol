@@ -121,7 +121,7 @@ contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
                 && requestIds.length == requesterIndices.length
                 && requestIds.length == designatedWallets.length
                 && requestIds.length == clientAddresses.length,
-            "Parameter lengths must be equal"
+            "Unequal parameter lengths"
         );
         statuses = new bool[](requestIds.length);
         for (uint256 ind = 0; ind < requestIds.length; ind++)

@@ -47,7 +47,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
             ));
         require(
             incomingFulfillmentParameters == requestIdToFulfillmentParameters[requestId],
-            "Incorrect fulfillment parameters"
+            "No such request"
             );
         _;
     }
