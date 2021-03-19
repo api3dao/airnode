@@ -125,7 +125,7 @@ describe('verifyTriggers', () => {
     expect(res[0]).toEqual({
       ...apiCall,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.UnknownEndpoint,
+      errorCode: RequestErrorCode.UnknownEndpointId,
     });
   });
 

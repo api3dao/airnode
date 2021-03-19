@@ -71,7 +71,7 @@ export function verifyTriggers(
       const updatedApiCall = {
         ...apiCall,
         status: RequestStatus.Errored,
-        errorCode: RequestErrorCode.UnknownEndpoint,
+        errorCode: RequestErrorCode.UnknownEndpointId,
       };
       return [[log], updatedApiCall];
     }
