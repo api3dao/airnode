@@ -14,8 +14,11 @@ RUN yarn add dotenv
 RUN yarn run bootstrap
 RUN yarn run build
 
-RUN echo '*/1 * * * * cd /airnode && yarn run dev:invoke' > local-cron
+RUN echo '*/1 * * * * echo "AirNode Running"' > local-cron
 RUN /usr/bin/crontab /airnode/local-cron 
+
+HEALTHCHECK --interval=1m --timeout=50s --start-period=10s \
+   CMD cd /airnode && yarn run dev:invoke || kill 1
 
 CMD cp out/config.json /airnode/packages/node/__dev__/config.json | true \
     && cp out/.env /airnode/packages/node/__dev__/.env | true \
