@@ -2,7 +2,8 @@ import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Roots, Log } from '../types';
-import { getSpecsFromPath } from '../utils/utils';
+import { combinePaths } from '../utils/utils';
+import { validateCatch } from './catchValidator';
 
 /**
  * Validates "if" condition in which regular expression is matched against the key in specification
@@ -22,14 +23,14 @@ function validateConditionRegexInKey(
   roots: Roots,
   paramPathPrefix: string
 ): Log[] {
-  const messages: Log[] = [];
+  let messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
 
   // In case of '__rootThen' validate from root
   const thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
   const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
-  const currentTemplate = condition['__rootThen'] ? roots.specs : specs;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   // check all keys of children for a match with provided regex
@@ -46,8 +47,14 @@ function validateConditionRegexInKey(
 
     // key matched regex, this means "if section" of the condition is fulfilled so structure in "then section" must be present
     for (const param of matches) {
+      if (!param.length) {
+        continue;
+      }
+
       const nonRedundantParamsCopy = {};
-      const template = utils.replaceConditionalMatch(param, thenCondition);
+      let template = utils.replaceConditionalMatch(param, thenCondition);
+      template = utils.replaceParamIndexWithName(template, paramPath);
+      template = utils.replacePathsWithValues(specs, roots.specs, template);
 
       // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
       for (const key in currentNonRedundantParams) {
@@ -55,7 +62,7 @@ function validateConditionRegexInKey(
       }
 
       const result = processSpecs(
-        condition['__rootThen'] ? currentTemplate : currentTemplate[thisName],
+        condition['__rootThen'] ? currentSpecs : currentSpecs[thisName],
         template,
         `${condition['__rootThen'] ? '' : `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`}`,
         condition['__rootThen'] ? currentNonRedundantParams : currentNonRedundantParams[thisName],
@@ -75,14 +82,22 @@ function validateConditionRegexInKey(
           }
         }
 
-        nonRedundantParams = getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
+        nonRedundantParams = utils.getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
 
         if (!(thisName in nonRedundantParams)) {
           nonRedundantParams[thisName] = {};
         }
 
         messages.push(
-          logger.error(`Condition in ${paramPath}${paramPath ? '.' : ''}${thisName} is not met with ${param}`)
+          logger.error(`Condition in ${combinePaths(paramPathPrefix, paramPath, thisName)} is not met with ${param}`)
+        );
+        messages = validateCatch(
+          specs,
+          utils.replaceConditionalMatch(param, condition),
+          messages,
+          combinePaths(paramPath, thisName),
+          paramPathPrefix,
+          roots.specs
         );
       }
     }
@@ -109,14 +124,14 @@ function validateConditionRegexInValue(
   roots: Roots,
   paramPathPrefix: string
 ): Log[] {
-  const messages: Log[] = [];
+  let messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
 
   // In case of '__rootThen' validate from root
   let thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
   const currentNonRedundantParams = condition['__rootThen'] ? roots.nonRedundantParams : nonRedundantParams;
-  const currentTemplate = condition['__rootThen'] ? roots.specs : specs;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   if (paramName === '__this') {
@@ -133,6 +148,9 @@ function validateConditionRegexInValue(
     thenCondition = utils.replaceConditionalMatch(specs[paramName], thenCondition);
   }
 
+  thenCondition = utils.replaceParamIndexWithName(thenCondition, paramPath);
+  thenCondition = utils.replacePathsWithValues(specs, roots.specs, thenCondition);
+
   // parameter value matched regex, "then section" must be checked
   const nonRedundantParamsCopy = {};
 
@@ -141,7 +159,7 @@ function validateConditionRegexInValue(
     nonRedundantParamsCopy[key] = JSON.parse(JSON.stringify(currentNonRedundantParams[key]));
   }
 
-  const result = processSpecs(currentTemplate, thenCondition, `${currentParamPath}`, currentNonRedundantParams, roots);
+  const result = processSpecs(currentSpecs, thenCondition, `${currentParamPath}`, currentNonRedundantParams, roots);
 
   result.messages = result.messages.filter((msg) => {
     return !msg.message.startsWith('Extra field:');
@@ -152,10 +170,27 @@ function validateConditionRegexInValue(
       nonRedundantParams[paramName] = {};
     }
 
-    return result.messages;
+    return [];
   }
 
-  messages.push(...result.messages);
+  messages.push(
+    logger.error(
+      `Condition in ${combinePaths(
+        paramPathPrefix,
+        paramPath,
+        paramName === '__this' ? '' : paramName
+      )} is not met with ${paramName === '__this' ? utils.getLastParamName(paramPath) : paramName}`
+    )
+  );
+  messages = validateCatch(
+    specs,
+    utils.replaceConditionalMatch(paramName === '__this' ? specs : specs[paramName], condition),
+    messages,
+    utils.combinePaths(paramPath, paramName === '__this' ? '' : paramName),
+    paramPathPrefix,
+    roots.specs
+  );
+
   let keepRedundantParams = true;
 
   // if a parameter from "then section" is missing in specs, this part of specs will be considered as extra params if nothing else requires them
@@ -178,7 +213,7 @@ function validateConditionRegexInValue(
     }
   }
 
-  nonRedundantParams = getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
+  nonRedundantParams = utils.getSpecsFromPath(paramPath, roots.nonRedundantParams, true);
 
   if (!(paramName in nonRedundantParams)) {
     nonRedundantParams[paramName] = {};
@@ -233,7 +268,7 @@ function validateConditionRequires(
         paramName = requiredPath.substr(0, dotIndex);
       }
 
-      currentDir = `${currentDir}${currentDir ? '.' : ''}${paramName}`;
+      currentDir = combinePaths(currentDir, paramName);
       requiredPath = requiredPath.replace(paramName, '');
 
       if (requiredPath.startsWith('.')) {
@@ -248,13 +283,7 @@ function validateConditionRequires(
       }
 
       if (!workingDir[paramName]) {
-        messages.push(
-          logger.error(
-            `Missing parameter ${paramPathPrefix ? `${paramPathPrefix}.` : ''}${currentDir}${
-              currentDir && requiredPath ? '.' : ''
-            }${requiredPath}`
-          )
-        );
+        messages.push(logger.error(`Missing parameter ${combinePaths(paramPathPrefix, currentDir, requiredPath)}`));
 
         break;
       }
@@ -274,9 +303,10 @@ function validateConditionRequires(
         if (!workingDir[index]) {
           messages.push(
             logger.error(
-              `Array out of bounds, attempted to access element on index ${index} in ${
-                paramPathPrefix ? `${paramPathPrefix}.` : ''
-              }${currentDir}`
+              `Array out of bounds, attempted to access element on index ${index} in ${combinePaths(
+                paramPathPrefix,
+                currentDir
+              )}`
             )
           );
 
@@ -320,7 +350,7 @@ export function validateCondition(
       ...validateConditionRequires(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix)
     );
 
-    return messages;
+    return validateCatch(specs, condition, messages, paramPath, paramPathPrefix, roots.specs);
   }
 
   // condition is if, then condition

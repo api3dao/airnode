@@ -23,29 +23,99 @@ export function getLastParamName(paramPath: string): string {
  * @returns specs object with replaced "__match" instances
  */
 export function replaceConditionalMatch(match: string, template: any): any {
-  const ignoredKeys = ['__conditions'];
-  const keys = Object.keys(template);
-  const filteredKeys = keys.filter((key) => !ignoredKeys.includes(key));
+  const substitute = (toReplace: string) => {
+    return toReplace.replace(/__match/g, match);
+  };
 
-  if (Array.isArray(template)) {
-    return template.map((value) => {
-      if (typeof value === 'string') {
-        return value.replace(/__match/g, match);
+  return recursiveSubstitute(template, substitute, ['__conditions']);
+}
+
+/**
+ * Replaces paths inside "[[]]" with value of the parameter in the path
+ * @param specs - specification of parameter which is being validated
+ * @param rootSpecs - root of the validated specification
+ * @param template - template in which paths will be replaced
+ */
+export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
+  const substitute = (toReplace: string) => {
+    const matches = toReplace.match(/(?<=\[\[)((?!\[\[.*\]\]).)+(?=\]\])/);
+
+    if (!matches) {
+      return toReplace;
+    }
+
+    for (let param of matches) {
+      let currentSpecs = specs;
+
+      if (param.startsWith('/')) {
+        param = param.replace('/', '');
+        currentSpecs = rootSpecs;
       }
 
-      return replaceConditionalMatch(match, value);
+      const value = getSpecsFromPath(param, currentSpecs);
+
+      if (value) {
+        toReplace = toReplace.replace(`[[${currentSpecs === rootSpecs ? '/' : ''}${param}]]`, value);
+      }
+    }
+
+    return toReplace;
+  };
+
+  return recursiveSubstitute(template, substitute, ['__conditions']);
+}
+
+/**
+ * Replace all "{{index}}" occurrences in provided specification with parameter name on "index"
+ * @param specs - parameter indices in this specification will be replaced
+ * @param paramPath - path that will be used to replace "{{index}}" with appropriate parameter names
+ */
+export function replaceParamIndexWithName(specs: any, paramPath: string): any {
+  const substitute = (toReplace: string) => {
+    const parsedPath = paramPath.split('.');
+
+    for (const match of toReplace.match(/\{\{([0-9]+)\}\}/g) || []) {
+      const index = parseInt(match.match('[0-9]+')![0]);
+      toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
+    }
+
+    return toReplace;
+  };
+
+  return recursiveSubstitute(specs, substitute, ['__conditions']);
+}
+
+/**
+ * Calls provided substitute function on every key and string value in specs and replaces it with result of the function
+ * @param specs - keys and string values of provided specification will be replaced with result of substitute function
+ * @param substitute - function will be called with key or string value as a parameter, result of this function will replace original value in specification
+ * @param ignoredKeys - list of keys, which will stop the recursion
+ */
+export function recursiveSubstitute(
+  specs: any,
+  substitute: (value: string) => string,
+  ignoredKeys: string[] = []
+): any {
+  const filteredKeys = Object.keys(specs).filter((key) => !ignoredKeys.includes(key));
+
+  if (Array.isArray(specs)) {
+    return specs.map((value) => {
+      if (typeof value === 'string') {
+        return substitute(value);
+      }
+
+      return recursiveSubstitute(value, substitute, ignoredKeys);
     });
   }
 
   return filteredKeys.reduce((acc, key) => {
-    const newKey = key.replace(/__match/g, match);
+    const newKey = substitute(key);
 
-    if (typeof template[key] === 'string') {
-      const newValue = template[key].replace(/__match/g, match);
-      return { ...acc, [newKey]: newValue };
+    if (typeof specs[key] === 'string') {
+      return { ...acc, [newKey]: substitute(specs[key]) };
     }
 
-    const newValue = replaceConditionalMatch(match, template[key]);
+    const newValue = recursiveSubstitute(specs[key], substitute, ignoredKeys);
     return { ...acc, [newKey]: newValue };
   }, {});
 }
@@ -75,15 +145,15 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }
 
   return Object.keys(specs).reduce((acc, key) => {
-    if (nonRedundant[key] !== undefined) {
-      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], `${paramPath}${paramPath ? '.' : ''}${key}`)];
-    }
-
     if (nonRedundant['__noCheck']) {
       return acc;
     }
 
-    return [...acc, logger.warn(`Extra field: ${paramPath}${paramPath ? '.' : ''}${key}`)];
+    if (nonRedundant[key] !== undefined) {
+      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], combinePaths(paramPath, key))];
+    }
+
+    return [...acc, logger.warn(`Extra field: ${combinePaths(paramPath, key)}`)];
   }, []);
 }
 
@@ -197,26 +267,6 @@ export function insertValue(paramPath: string, spec: any, value: any) {
 }
 
 /**
- * Replaces "{{index}}" keywords in paramPath with parameter names from path on "index"
- * @param paramPath - parameters path that can include "{{index}}", which will be replaced
- * @param path - path that will be used to replace "{{index}}" with appropriate parameter names
- */
-export function parseParamPath(paramPath: string, path: string): string {
-  if (paramPath === '' || path === '') {
-    return paramPath;
-  }
-
-  const parsedPath = path.split('.');
-
-  for (const match of paramPath.match(/\{\{([0-9]+)\}\}/g) || []) {
-    const index = parseInt(match.match('[0-9]+')![0]);
-    paramPath = paramPath.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
-  }
-
-  return paramPath;
-}
-
-/**
  * Returns object located on paramPath in specs
  * @param paramPath - path to parameter in specs that will be returned
  * @param specs - specification that will be searched for parameter
@@ -237,20 +287,16 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
       return null;
     }
 
-    if (indexMatches) {
-      specs[paramName] = [];
-
-      for (let i = 0; i < parseInt(indexMatches[0]); i++) {
-        specs[paramName].push({});
-      }
-    } else {
-      specs[paramName] = {};
-    }
+    specs[paramName] = indexMatches ? [] : {};
   }
 
   specs = specs[paramName];
 
-  if (indexMatches) {
+  if (Array.isArray(specs) && indexMatches) {
+    for (let i = specs.length; i <= parseInt(indexMatches[0]); i++) {
+      specs.push({});
+    }
+
     specs = specs[parseInt(indexMatches[0])];
   }
 
@@ -261,4 +307,29 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
   }
 
   return getSpecsFromPath(paramPath, specs, insertPath);
+}
+
+/**
+ * Combines provided strings into a valid path
+ * @param path - parameter paths, which will be combined
+ */
+export function combinePaths(...path: string[]): string {
+  let acc = '';
+  let shouldSeparate = false;
+
+  for (let i = 0; i < path.length; i++) {
+    const current = path[i];
+
+    if (current.length) {
+      if (shouldSeparate && !current.match(/^\[[0-9]+\]/)) {
+        acc += '.';
+      }
+
+      shouldSeparate = true;
+    }
+
+    acc += path[i];
+  }
+
+  return acc;
 }

@@ -16,7 +16,7 @@ const configSecurityTemplate = JSON.parse(fs.readFileSync('templates/configSecur
  */
 export function validate(specsPath: string | undefined, templatePath: string | undefined): Result {
   if (!specsPath || !templatePath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
 
   let template, specs;
@@ -24,7 +24,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   try {
     template = fs.readFileSync(templatePath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)], output: {} };
+    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
   }
 
   try {
@@ -36,7 +36,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   try {
     specs = fs.readFileSync(specsPath);
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
+    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
   }
 
   try {
@@ -55,17 +55,13 @@ export function validate(specsPath: string | undefined, templatePath: string | u
  * @returns array of error and warning messages
  */
 export function validateJson(specs: object, template: object): Result {
-  try {
-    const nonRedundant = {};
+  const nonRedundant = {};
 
-    return processSpecs(specs, template, '', nonRedundant, {
-      specs,
-      nonRedundantParams: nonRedundant,
-      output: {},
-    });
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
+  return processSpecs(specs, template, '', nonRedundant, {
+    specs: specs,
+    nonRedundantParams: nonRedundant,
+    output: {},
+  });
 }
 
 /**
@@ -98,19 +94,23 @@ export function validateConfigSecurity(configPath: string | undefined, securityP
 
 export function isConfigSecurityValid(config: string, security: string): Result {
   const nonRedundant = {};
+  let parsedConfigSpecs;
+  let parsedSecuritySpecs;
+  let specs;
 
   try {
-    const parsedConfigSpecs = JSON.parse(config);
-    const parsedSecuritySpecs = JSON.parse(security);
-    const specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
-    return processSpecs(specs, configSecurityTemplate, '', nonRedundant, {
-      specs,
-      nonRedundantParams: nonRedundant,
-      output: {},
-    });
+    parsedConfigSpecs = JSON.parse(config);
+    parsedSecuritySpecs = JSON.parse(security);
+    specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
+
+  return processSpecs(specs, configSecurityTemplate, '', nonRedundant, {
+    specs,
+    nonRedundantParams: nonRedundant,
+    output: {},
+  });
 }
 
 /**
@@ -120,17 +120,19 @@ export function isConfigSecurityValid(config: string, security: string): Result 
  */
 export function isApiSpecsValid(specs: string): Result {
   const nonRedundant = {};
+  let parsedSpecs;
 
   try {
-    const parsedSpecs = JSON.parse(specs);
-    return processSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
-      specs: parsedSpecs,
-      nonRedundantParams: nonRedundant,
-      output: {},
-    });
+    parsedSpecs = JSON.parse(specs);
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
+
+  return processSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
+    specs: parsedSpecs,
+    nonRedundantParams: nonRedundant,
+    output: {},
+  });
 }
 
 /**
@@ -140,17 +142,19 @@ export function isApiSpecsValid(specs: string): Result {
  */
 export function isEndpointsValid(specs: string): Result {
   const nonRedundant = [];
+  let parsedSpecs;
 
   try {
-    const parsedSpecs = JSON.parse(specs);
-    return processSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
-      specs: parsedSpecs,
-      nonRedundantParams: nonRedundant,
-      output: {},
-    });
+    parsedSpecs = JSON.parse(specs);
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
+
+  return processSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
+    specs: parsedSpecs,
+    nonRedundantParams: nonRedundant,
+    output: {},
+  });
 }
 
 /**
@@ -160,15 +164,17 @@ export function isEndpointsValid(specs: string): Result {
  */
 export function isOisValid(specs: string): Result {
   const nonRedundant = {};
+  let parsedSpecs;
 
   try {
-    const parsedSpecs = JSON.parse(specs);
-    return processSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
-      specs: parsedSpecs,
-      nonRedundantParams: nonRedundant,
-      output: {},
-    });
+    parsedSpecs = JSON.parse(specs);
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
+
+  return processSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
+    specs: parsedSpecs,
+    nonRedundantParams: nonRedundant,
+    output: {},
+  });
 }

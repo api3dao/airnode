@@ -91,6 +91,14 @@
             "name": "amount",
             "in": "query"
           }
+        },
+        {
+          "name": "date",
+          "default": "1",
+          "operationParameter": {
+            "name": "date",
+            "in": "query"
+          }
         }
       ]
     }

@@ -5,6 +5,7 @@ import {
   formattingMessage,
   keyFormattingMessage,
   missingParamMessage,
+  requiredConditionNotMetMessage,
   sizeExceededMessage,
 } from './utils/messages';
 
@@ -16,6 +17,20 @@ const validAPISpecification = `{
 ],
 "paths": {
   "/myPath": {
+    "get": {
+      "parameters": [
+        {
+          "name": "myParameter",
+          "in": "query"
+        },
+        {
+          "name": "myParameter2",
+          "in": "header"
+        }
+      ]
+    }
+  },
+  "/myPath2": {
     "get": {
       "parameters": [
         {
@@ -43,33 +58,47 @@ const validAPISpecification = `{
 const invalidAPISpecification = `{
 "servers": [
     {
-        "url":  "https:/myapi.com/api"
+        "url":  "https://myapi.com/api"
     }
 ],
 "paths": {
-  "/myPath/{myParam}": {
+  "/myPath": {
     "get": {
       "parameters": [
         {
-          "name": "myParam0",
+          "name": "myParameter",
+          "in": "query"
+        },
+        {
+          "name": "myParameter2",
+          "in": "header"
+        }
+      ]
+    }
+  },
+  "/myPath2": {
+    "get": {
+      "parameters": [
+        {
+          "name": "myParameter",
           "in": "query"
         }
       ]
     }
-  }
+  }   
 },
 "components": {
-  "securitySchemes": {
-    "mySecurityScheme": {
-      "type": "invalid",
-      "in": "query"
+    "securitySchemes": {
+      "mySecurityScheme": {
+        "type": "apiKey",
+        "name": "X-MY-API-KEY",
+        "in": "query"
+      }
     }
-  }
 },
 "security": {
-  "mySecurityScheme": [],
-  "mySecurityScheme2": []
-}
+      "mySecurityScheme": []
+        }
 }`;
 
 const validEndpointSpecification = `[
@@ -78,14 +107,57 @@ const validEndpointSpecification = `[
     "operation": {
       "path": "/myPath",
       "method": "get"
-    }
+    },
+    "fixedOperationParameters": [
+      {
+        "operationParameter": {
+          "in": "header",
+          "name": "myParameter2"
+        },
+        "value": "myValue"
+      }
+    ],
+    "reservedParameters": [
+      {
+        "name": "_type",
+        "fixed": "int256"
+      },
+      {
+        "name": "_path",
+        "fixed": "result"
+      },
+      {
+        "name": "_times",
+        "default": "1000000"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "myParameter",
+        "operationParameter": {
+          "in": "query",
+          "name": "myParameter"
+        }
+      }
+    ]
   },
   {
     "name": "two",
     "operation": {
       "path": "/myPath2",
       "method": "post"
-    }
+    },
+    "fixedOperationParameters": [],
+    "reservedParameters": [],
+    "parameters": [
+      {
+        "name": "myParameter",
+        "operationParameter": {
+          "in": "query",
+          "name": "myParameter"
+        }
+      }
+    ]
   }
 ]`;
 
@@ -93,14 +165,33 @@ const invalidEndpointSpecification = `[
   {
     "name": "test",
     "operation": {
-      "method": "undefined"
+      "path": "/myPath",
+      "method": "get"
     },
+    "reservedParameters": [],
     "parameters": [
       {
-        "name": "correct",
+        "name": "myParameter",
         "operationParameter": {
-          "name": "operation",
-          "in": "header"
+          "in": "query",
+          "name": "myParameter"
+        }
+      }
+    ]
+  },
+  {
+    "name": "two",
+    "operation": {
+      "path": "/notMyPath",
+      "method": "post"
+    },
+    "fixedOperationParameters": [],
+    "parameters": [
+      {
+        "name": "myParameter",
+        "operationParameter": {
+          "in": "query",
+          "name": "myParameter"
         }
       }
     ]
@@ -156,11 +247,13 @@ const validConfigSpecification = `
   "id": "abc123",
   "ois": [ ${validOISSpecification} ],
   "triggers": {
-    "request": {
-      "endpointId": "...",
-      "oisTitle": "...",
-      "endpointName": "..."
-    }
+    "request": [
+      {
+        "endpointId": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+        "oisTitle": "...",
+        "endpointName": "..."
+      }
+    ]
   },
   "nodeSettings": {
     "providerIdShort": "9e5a89d",
@@ -171,7 +264,7 @@ const validConfigSpecification = `
     "logFormat": "plain",
     "chains": [
       {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "id": 1,
         "type": "evm",
         "providers": [
@@ -181,10 +274,14 @@ const validConfigSpecification = `
             "blockHistoryLimit": 600,
             "minConfirmations": 6
           }
-        ]
+        ],
+        "contracts": {
+          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
+        }
       },
       {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "id": 3,
         "type": "evm",
         "providers": [
@@ -194,7 +291,8 @@ const validConfigSpecification = `
           }
         ],
         "contracts": {
-          "Airnode": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9"
+          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
         }
       }
     ]
@@ -205,14 +303,8 @@ const validConfigSpecification = `
 const invalidConfigSpecification = `
 {
   "id": "abc123",
-  "ois": [ ${invalidOISSpecification}, ${validOISSpecification} ],
-  "triggers": {
-    "request": {
-      "endpointId": "...",
-      "oisTitle": "...",
-      "endpointName": "..."
-    }
-  },
+  "ois": [ ${invalidOISSpecification} ],
+  "triggers": {},
   "nodeSettings": {
     "providerIdShort": "9e5a89de",
     "nodeVersion": "0.1.0",
@@ -235,7 +327,7 @@ const invalidConfigSpecification = `
         ]
       },
       {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9",
+        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
         "id": 3,
         "type": "evm",
         "providers": [
@@ -245,7 +337,8 @@ const invalidConfigSpecification = `
           }
         ],
         "contracts": {
-          "Airnode": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9"
+          "Airnod": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
+          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
         }
       }
     ]
@@ -895,14 +988,20 @@ describe('validator', () => {
         "operation": {
           "path": "/myPath",
           "method": "get"
-        }
+        }, 
+        "fixedOperationParameters": [],
+        "reservedParameters": [],
+        "parameters": []
       },
       {
         "name": "two",
         "operation": {
           "path": "/myPath2",
           "method": "post"
-        }
+        },
+        "fixedOperationParameters": [],
+        "reservedParameters": [],
+        "parameters": []
       }
     ]`;
     expect(validator.isEndpointsValid(validEndpointSpec)).toMatchObject({
@@ -970,6 +1069,8 @@ describe('validator', () => {
         missingParamMessage('[1].operation'),
         missingParamMessage('[1].fixedOperationParameters[0].operationParameter.name'),
         formattingMessage('[1].fixedOperationParameters[0].operationParameter.in'),
+        missingParamMessage('[1].reservedParameters'),
+        missingParamMessage('[1].parameters'),
         extraFieldMessage('[1].extra'),
       ],
     });
@@ -986,12 +1087,13 @@ describe('validator', () => {
       messages: [
         formattingMessage('oisFormat'),
         formattingMessage('version'),
-        formattingMessage('apiSpecifications.servers[0].url'),
-        conditionNotMetMessage('apiSpecifications.paths./myPath/{myParam}', 'myParam'),
-        formattingMessage('apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
-        missingParamMessage('apiSpecifications.components.securitySchemes.mySecurityScheme2'),
-        missingParamMessage('endpoints[0].operation.path'),
-        formattingMessage('endpoints[0].operation.method'),
+        conditionNotMetMessage('apiSpecifications.paths./myPath2', '/myPath2'),
+        requiredConditionNotMetMessage('endpoints'),
+        requiredConditionNotMetMessage('endpoints'),
+        missingParamMessage('endpoints[0].fixedOperationParameters'),
+        missingParamMessage('endpoints[1].reservedParameters'),
+        missingParamMessage('apiSpecifications.paths./notMyPath'),
+        missingParamMessage('apiSpecifications.paths./notMyPath'),
       ],
     });
   });
@@ -1007,18 +1109,21 @@ describe('validator', () => {
       messages: [
         formattingMessage('config.ois[0].oisFormat'),
         formattingMessage('config.ois[0].version'),
-        formattingMessage('config.ois[0].apiSpecifications.servers[0].url'),
-        conditionNotMetMessage('config.ois[0].apiSpecifications.paths./myPath/{myParam}', 'myParam'),
-        formattingMessage('config.ois[0].apiSpecifications.components.securitySchemes.mySecurityScheme.type', true),
-        missingParamMessage('config.ois[0].apiSpecifications.components.securitySchemes.mySecurityScheme2'),
-        missingParamMessage('config.ois[0].endpoints[0].operation.path'),
-        formattingMessage('config.ois[0].endpoints[0].operation.method'),
+        conditionNotMetMessage('config.ois[0].apiSpecifications.paths./myPath2', '/myPath2'),
+        requiredConditionNotMetMessage('config.ois[0].endpoints'),
+        requiredConditionNotMetMessage('config.ois[0].endpoints'),
+        missingParamMessage('config.ois[0].endpoints[0].fixedOperationParameters'),
+        missingParamMessage('config.ois[0].endpoints[1].reservedParameters'),
+        missingParamMessage('config.ois[0].apiSpecifications.paths./notMyPath'),
+        missingParamMessage('config.ois[0].apiSpecifications.paths./notMyPath'),
         formattingMessage('config.nodeSettings.providerIdShort'),
         formattingMessage('config.nodeSettings.cloudProvider'),
         formattingMessage('config.nodeSettings.logFormat'),
+        missingParamMessage('config.nodeSettings.chains[0].contracts'),
         formattingMessage('config.nodeSettings.chains[0].providerAdminForRecordCreation'),
-        keyFormattingMessage('Airnod', 'config.nodeSettings.chains[1].contracts.Airnod'),
+        missingParamMessage('config.nodeSettings.chains[1].contracts.Airnode'),
         formattingMessage('security.id', true),
+        extraFieldMessage('config.nodeSettings.chains[1].contracts.Airnod'),
       ],
     });
   });

@@ -19,7 +19,7 @@ export function validateAny(
   nonRedundantParams: any,
   roots: Roots
 ): Log[] {
-  if (!specs) {
+  if (!specs || typeof specs !== 'object') {
     return [logger.error(`Required conditions not met in ${paramPath}`)];
   }
 

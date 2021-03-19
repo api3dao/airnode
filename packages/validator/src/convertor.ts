@@ -57,20 +57,16 @@ export function convert(specsPath: string | undefined, templatePath: string | un
  * @returns array of messages and converted specification
  */
 export function convertJson(specs: object, template: object): Result {
-  try {
-    const nonRedundant = {};
-    const output = {};
+  const nonRedundant = {};
+  const output = {};
 
-    const result = processSpecs(specs, template, '', nonRedundant, {
-      specs,
-      nonRedundantParams: nonRedundant,
-      output,
-    });
+  const result = processSpecs(specs, template, '', nonRedundant, {
+    specs: specs,
+    nonRedundantParams: nonRedundant,
+    output,
+  });
 
-    return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }], output: {} };
-  }
+  return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
 }
 
 /**

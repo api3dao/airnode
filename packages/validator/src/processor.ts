@@ -7,6 +7,9 @@ import { validateAny } from './validators/anyValidator';
 import { Log, Result, Roots } from './types';
 import { execute } from './utils/action';
 import fs from 'fs';
+import { validateParameter } from './validators/parameterValidator';
+import { validateCatch } from './validators/catchValidator';
+import { combinePaths } from './utils/utils';
 
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
 const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
@@ -39,11 +42,11 @@ export function processSpecs(
     if (key === '__ignore') {
       for (const copy of Object.keys(specs)) {
         if (!nonRedundantParams[copy]) {
-          nonRedundantParams[copy] = specs[copy];
+          nonRedundantParams[copy] = JSON.parse(JSON.stringify(specs[copy]));
         }
       }
 
-      break;
+      continue;
     }
 
     switch (key) {
@@ -55,16 +58,18 @@ export function processSpecs(
         break;
 
       case '__regexp':
-        messages.push(...validateRegexp(specs, template, paramPath));
+        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath)));
         break;
 
       case '__keyRegexp':
-        messages.push(...validateRegexp(specs, template, paramPath, true));
+        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), true));
         break;
 
       case '__maxSize':
         if (template[key] < specs.length) {
-          messages.push(logger.error(`${paramPath} must contain ${template[key]} or less items`));
+          messages.push(
+            logger.error(`${combinePaths(paramPathPrefix, paramPath)} must contain ${template[key]} or less items`)
+          );
         }
 
         break;
@@ -101,7 +106,7 @@ export function processSpecs(
           const result = processSpecs(
             specs[item],
             template[key],
-            `${paramPath}${paramPath ? '.' : ''}${item}`,
+            `${combinePaths(paramPath, item)}`,
             nonRedundantParams[item],
             roots,
             paramPathPrefix
@@ -120,13 +125,16 @@ export function processSpecs(
       case '__level':
         break;
 
+      case '__catch':
+        break;
+
       case '__any':
         messages.push(...validateAny(specs, template[key], paramPath, nonRedundantParams, roots));
 
         break;
 
       case '__actions':
-        execute(specs, template[key], `${paramPathPrefix ? `${paramPathPrefix}.` : ''}${paramPath}`, roots);
+        execute(specs, template[key], paramPath, roots);
 
         break;
 
@@ -134,7 +142,14 @@ export function processSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, apiTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(
+          specs,
+          apiTemplate,
+          '',
+          tmpNonRedundant,
+          tmpRoots,
+          combinePaths(paramPathPrefix, paramPath)
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -145,7 +160,14 @@ export function processSpecs(
         tmpNonRedundant = [];
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, endpointsTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(
+          specs,
+          endpointsTemplate,
+          '',
+          tmpNonRedundant,
+          tmpRoots,
+          combinePaths(paramPathPrefix, paramPath)
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -156,7 +178,14 @@ export function processSpecs(
         tmpNonRedundant = {};
         tmpRoots = { specs, nonRedundantParams: tmpNonRedundant, output: {} };
 
-        tmpResult = processSpecs(specs, oisTemplate, paramPath, tmpNonRedundant, tmpRoots, paramPath);
+        tmpResult = processSpecs(
+          specs,
+          oisTemplate,
+          '',
+          tmpNonRedundant,
+          tmpRoots,
+          combinePaths(paramPathPrefix, paramPath)
+        );
         messages.push(...tmpResult.messages);
 
         nonRedundantParams['__noCheck'] = {};
@@ -165,27 +194,9 @@ export function processSpecs(
 
       // key is not a special keyword, but a regular parameter
       default:
-        if (!specs[key]) {
-          messages.push(logger.error(`Missing parameter ${paramPath}${paramPath && key ? '.' : ''}${key}`));
-
-          continue;
-        }
-
-        nonRedundantParams[key] = utils.getEmptyNonRedundantParam(key, template, nonRedundantParams, specs[key]);
-
-        if (!Object.keys(template[key]).length) {
-          continue;
-        }
-
-        tmpResult = processSpecs(
-          specs[key],
-          template[key],
-          `${paramPath}${paramPath ? '.' : ''}${key}`,
-          nonRedundantParams[key],
-          roots,
-          paramPathPrefix
+        messages.push(
+          ...validateParameter(key, specs, template, paramPath, nonRedundantParams, roots, paramPathPrefix)
         );
-        messages.push(...tmpResult.messages);
 
         break;
     }
@@ -194,9 +205,13 @@ export function processSpecs(
   let valid = true;
 
   if (specs === roots.specs) {
-    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, paramPath));
+    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, combinePaths(paramPathPrefix, paramPath)));
     valid = !messages.some((msg) => msg.level === 'error');
   }
 
-  return { valid, messages, output: roots.output };
+  return {
+    valid,
+    messages: validateCatch(specs, template, messages, paramPath, paramPathPrefix, roots.specs),
+    output: roots.output,
+  };
 }
