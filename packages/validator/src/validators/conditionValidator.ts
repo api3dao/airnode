@@ -23,7 +23,7 @@ function validateConditionRegexInKey(
   roots: Roots,
   paramPathPrefix: string
 ): Log[] {
-  const messages: Log[] = [];
+  let messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
 
@@ -91,6 +91,14 @@ function validateConditionRegexInKey(
         messages.push(
           logger.error(`Condition in ${combinePaths(paramPathPrefix, paramPath, thisName)} is not met with ${param}`)
         );
+        messages = validateCatch(
+          specs,
+          utils.replaceConditionalMatch(param, condition),
+          messages,
+          combinePaths(paramPath, thisName),
+          paramPathPrefix,
+          roots.specs
+        );
       }
     }
   }
@@ -116,7 +124,7 @@ function validateConditionRegexInValue(
   roots: Roots,
   paramPathPrefix: string
 ): Log[] {
-  const messages: Log[] = [];
+  let messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
 
@@ -162,10 +170,27 @@ function validateConditionRegexInValue(
       nonRedundantParams[paramName] = {};
     }
 
-    return result.messages;
+    return [];
   }
 
-  messages.push(...result.messages);
+  messages.push(
+    logger.error(
+      `Condition in ${combinePaths(
+        paramPathPrefix,
+        paramPath,
+        paramName === '__this' ? '' : paramName
+      )} is not met with ${paramName === '__this' ? utils.getLastParamName(paramPath) : paramName}`
+    )
+  );
+  messages = validateCatch(
+    specs,
+    utils.replaceConditionalMatch(paramName === '__this' ? specs : specs[paramName], condition),
+    messages,
+    utils.combinePaths(paramPath, paramName === '__this' ? '' : paramName),
+    paramPathPrefix,
+    roots.specs
+  );
+
   let keepRedundantParams = true;
 
   // if a parameter from "then section" is missing in specs, this part of specs will be considered as extra params if nothing else requires them
@@ -341,5 +366,5 @@ export function validateCondition(
     );
   }
 
-  return validateCatch(specs, condition, messages, paramPath, paramPathPrefix, roots.specs);
+  return messages;
 }
