@@ -28,11 +28,11 @@ export function validateCatch(
   message = utils.replacePathsWithValues(specs, rootSpecs, message);
 
   if (typeof specs === 'string') {
-    message['message'] = message['message'].replace(/__value/g, specs);
+    message['__message'] = message['__message'].replace(/__value/g, specs);
   }
 
-  message['message'] = message['message'].replace(/__fullPath/g, combinePaths(paramPathPrefix, paramPath));
-  message['message'] = message['message'].replace(/__path/g, paramPath);
+  message['__message'] = message['__message'].replace(/__fullPath/g, combinePaths(paramPathPrefix, paramPath));
+  message['__message'] = message['__message'].replace(/__path/g, paramPath);
 
-  return [{ message: message['message'], level: message['level'] ? message['level'] : 'error' }];
+  return [{ message: message['__message'], level: message['__level'] ? message['__level'] : 'error' }];
 }
