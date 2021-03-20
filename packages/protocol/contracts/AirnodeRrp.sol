@@ -14,17 +14,6 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
     mapping(bytes32 => bool) public requestWithIdHasFailed;
 
-    /// @dev Reverts if the caller is not endorsed by the requester
-    /// @param requesterIndex Requester index
-    modifier onlyEndorsedClient(uint256 requesterIndex)
-    {
-        require(
-            requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
-            "Client not endorsed by requester"
-            );
-        _;
-    }
-
     /// @dev Reverts if the incoming fulfillment parameters do not match the
     /// ones provided in the request
     /// @param requestId Request ID
@@ -74,12 +63,16 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
         )
         external
         override
-        onlyEndorsedClient(requesterIndex)
         returns (bytes32 requestId)
     {
+        require(
+            requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
+            "Client not endorsed by requester"
+            );
         uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
         requestId = keccak256(abi.encode(
             clientNoRequests,
+            block.chainid,
             msg.sender,
             templateId,
             parameters
@@ -95,6 +88,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
             airnodeId,
             requestId,
             clientNoRequests,
+            block.chainid,
             msg.sender,
             templateId,
             requesterIndex,
@@ -130,12 +124,16 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
         )
         external
         override
-        onlyEndorsedClient(requesterIndex)
         returns (bytes32 requestId)
     {
+        require(
+            requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
+            "Client not endorsed by requester"
+            );
         uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
         requestId = keccak256(abi.encode(
             clientNoRequests,
+            block.chainid,
             msg.sender,
             endpointId,
             parameters
@@ -150,6 +148,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
             airnodeId,
             requestId,
             clientNoRequests,
+            block.chainid,
             msg.sender,
             endpointId,
             requesterIndex,
