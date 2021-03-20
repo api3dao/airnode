@@ -23,8 +23,13 @@ function updateApiCallResponse(
   apiCall: ClientRequest<ApiCall>,
   aggregatedApiCallsById: AggregatedApiCallsById
 ): LogsData<ClientRequest<ApiCall>> {
-  const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
+  if (apiCall.status !== RequestStatus.Pending) {
+    const message = `Not applying response value to Request:${apiCall.id} as it has status:${apiCall.status}`;
+    const log = logger.pend('DEBUG', message);
+    return [[log], apiCall];
+  }
 
+  const aggregatedApiCall = aggregatedApiCallsById[apiCall.id];
   // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
   if (!aggregatedApiCall) {
     const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
