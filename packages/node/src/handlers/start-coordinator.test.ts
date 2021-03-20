@@ -80,11 +80,11 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(contract.fulfill).toHaveBeenCalledTimes(1);
     expect(contract.fulfill).toHaveBeenCalledWith(
-      '0xe4413447744dfa328f09ab5a4166f80d9e99a30a7984728f5d53dfb211a7dd7b',
+      '0x2f5bbfb2ad81ba5f426067d0a6942a400f70532e75484acec51f0cfd5f423ee5',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       ethers.BigNumber.from('0'),
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
-      '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+      '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       '0x48a4157c',
       { gasLimit: 500_000, gasPrice, nonce: 212 }
     );

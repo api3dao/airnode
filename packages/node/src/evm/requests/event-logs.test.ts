@@ -22,7 +22,7 @@ describe('EVM event logs - fetch', () => {
   it('returns all logs with metadata', async () => {
     const newApiCallEvent = {
       blockNumber: 10716082,
-      topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
+      topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf',
       transactionHash: '0x1',
     };
     const fulfilledApiCallEvent = {
@@ -62,7 +62,7 @@ describe('EVM event logs - fetch', () => {
         blockNumber: 10716082,
         currentBlock: 10716084,
         ignoreBlockedRequestsAfterBlocks: 20,
-        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+        parsedLog: { topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
         transactionHash: '0x1',
       },
       {
@@ -174,7 +174,7 @@ describe('EVM event logs - group', () => {
       // Request
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+        parsedLog: { topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
         transactionHash: '0x1',
       },
       // Fulfillment
@@ -196,7 +196,7 @@ describe('EVM event logs - group', () => {
       apiCalls: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+          parsedLog: { topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
           transactionHash: '0x1',
         },
         {

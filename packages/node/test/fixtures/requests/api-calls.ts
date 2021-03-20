@@ -8,6 +8,7 @@ export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRe
   // they can be overridden with valid values
   return {
     airnodeId: 'airnodeId',
+    chainId: '31337',
     clientAddress: 'clientAddress',
     designatedWallet: 'designatedWallet',
     encodedParameters: 'encodedParameters',
