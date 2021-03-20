@@ -62,6 +62,7 @@ export type ApiCallType = 'regular' | 'full';
 
 export interface ApiCall {
   readonly airnodeId: string | null;
+  readonly chainId: string;
   readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
