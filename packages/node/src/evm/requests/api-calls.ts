@@ -31,6 +31,7 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
 
   const request: ClientRequest<ApiCall> = {
     airnodeId: parsedLog.args.airnodeId,
+    chainId: parsedLog.args.chainId.toString(),
     clientAddress: parsedLog.args.clientAddress,
     designatedWallet: parsedLog.args.designatedWallet || null,
     encodedParameters: parsedLog.args.parameters,

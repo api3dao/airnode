@@ -76,8 +76,12 @@ describe('requestWithdrawal', function () {
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address'],
-          [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
+          ['uint256', 'uint256', 'uint256'],
+          [
+            await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+            (await ethers.provider.getNetwork()).chainId,
+            requesterIndex,
+          ]
         )
       );
       // Request withdrawal
@@ -131,8 +135,12 @@ describe('fulfillWithdrawal', function () {
         // Derive the expected withdrawal request ID
         const withdrawalRequestId = ethers.utils.keccak256(
           ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address'],
-            [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
+            ['uint256', 'uint256', 'uint256'],
+            [
+              await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+              (await ethers.provider.getNetwork()).chainId,
+              requesterIndex,
+            ]
           )
         );
         // Request withdrawal
@@ -188,8 +196,12 @@ describe('fulfillWithdrawal', function () {
         // Derive the expected withdrawal request ID
         const withdrawalRequestId = ethers.utils.keccak256(
           ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address'],
-            [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
+            ['uint256', 'uint256', 'uint256'],
+            [
+              await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+              (await ethers.provider.getNetwork()).chainId,
+              requesterIndex,
+            ]
           )
         );
         // Request withdrawal (using Airnode RRP as it has no default payable method)
@@ -221,8 +233,12 @@ describe('fulfillWithdrawal', function () {
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address'],
-          [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
+          ['uint256', 'uint256', 'uint256'],
+          [
+            await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+            (await ethers.provider.getNetwork()).chainId,
+            requesterIndex,
+          ]
         )
       );
       // Request withdrawal
@@ -286,8 +302,12 @@ describe('fulfillWithdrawal', function () {
       // Derive the expected withdrawal request ID
       const withdrawalRequestId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address'],
-          [await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex), requesterIndex, airnodeRrp.address]
+          ['uint256', 'uint256', 'uint256'],
+          [
+            await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+            (await ethers.provider.getNetwork()).chainId,
+            requesterIndex,
+          ]
         )
       );
       // Request withdrawal

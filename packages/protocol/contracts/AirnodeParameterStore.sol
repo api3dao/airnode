@@ -77,8 +77,8 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
     {
         bytes32 withdrawalRequestId = keccak256(abi.encodePacked(
             requesterIndexToNoWithdrawalRequests[requesterIndex]++,
-            requesterIndex,
-            address(this)
+            block.chainid,
+            requesterIndex
             ));
         bytes32 withdrawalParameters = keccak256(abi.encodePacked(
             airnodeId,

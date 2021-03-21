@@ -67,10 +67,10 @@ describe('AirnodeRrp', () => {
 
     // API calls
     expect(AirnodeRrp.topics.ClientRequestCreated).toEqual(
-      '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b'
+      '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf'
     );
     expect(AirnodeRrp.topics.ClientFullRequestCreated).toEqual(
-      '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44'
+      '0xe8ae99161b1547fd1c6ff3cb9660293fa4cd770fd52f72ff0362d64d8bccc08e'
     );
 
     expect(AirnodeRrp.topics.ClientRequestFulfilled).toEqual(
