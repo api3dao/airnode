@@ -41,6 +41,7 @@ export async function initializeProvider(
   const { chainId, chainType, name: providerName } = initialState.settings;
   const baseLogOptions = {
     format: initialState.settings.logFormat,
+    level: initialState.settings.logLevel,
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 

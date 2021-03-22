@@ -10,6 +10,7 @@ export function create(config: Config): CoordinatorState {
     airnodeId: wallet.getAirnodeId(masterHDNode),
     airnodeIdShort: wallet.getAirnodeIdShort(masterHDNode),
     logFormat: config.nodeSettings.logFormat,
+    logLevel: config.nodeSettings.logLevel,
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
   };

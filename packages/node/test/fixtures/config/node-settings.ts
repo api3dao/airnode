@@ -4,6 +4,7 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
   return {
     cloudProvider: 'local',
     logFormat: 'plain',
+    logLevel: 'DEBUG',
     nodeVersion: '1.0.0',
     region: 'us-east-1',
     stage: 'test',

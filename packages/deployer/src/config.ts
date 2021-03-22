@@ -64,7 +64,6 @@ export function generateServerlessSecretsFile(airnodeIdShort, apiCredentials) {
   const secrets = {};
   // The mnemonic will be fetched from AWS SSM
   secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${airnodeIdShort}/masterKeyMnemonic~true\}`;
-  secrets['LOG_LEVEL'] = 'debug';
   for (const oisTitle in apiCredentials) {
     for (const securityScheme of apiCredentials[oisTitle]) {
       secrets[`${oisTitle}_${securityScheme.securitySchemeName}`] = securityScheme.value;

@@ -32,6 +32,7 @@ export function buildEVMState(
     // If this number of blocks has passed, then ignore requests instead of blocking them
     ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || BLOCK_COUNT_IGNORE_LIMIT,
     logFormat: config.nodeSettings.logFormat,
+    logLevel: config.nodeSettings.logLevel,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
     name: chainProviderName,
     region: config.nodeSettings.region,

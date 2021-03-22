@@ -123,6 +123,7 @@ export interface CoordinatorSettings {
   readonly airnodeId: string;
   readonly airnodeIdShort: string;
   readonly logFormat: LogFormat;
+  readonly logLevel: LogLevel;
   readonly region: string;
   readonly stage: string;
 }
@@ -254,6 +255,7 @@ export interface LogOptions {
   readonly additional?: any;
   readonly error?: Error | null;
   readonly format: LogFormat;
+  readonly level: LogLevel;
   readonly meta: LogMetadata;
 }
 
@@ -300,10 +302,11 @@ export interface ChainConfig {
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
+  readonly airnodeIdShort?: string;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
+  readonly logLevel: LogLevel;
   readonly nodeVersion: string;
-  readonly airnodeIdShort?: string;
   readonly region: string;
   readonly stage: string;
 }

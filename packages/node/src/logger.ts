@@ -12,6 +12,10 @@ export function debug(message: string, options: LogOptions) {
   log('DEBUG', message, options);
 }
 
+export function info(message: string, options: LogOptions) {
+  log('INFO', message, options);
+}
+
 export function warn(message: string, options: LogOptions) {
   log('WARN', message, options);
 }
@@ -20,20 +24,12 @@ export function error(message: string, options: LogOptions) {
   log('ERROR', message, options);
 }
 
-export function info(message: string, options: LogOptions) {
-  log('INFO', message, options);
-}
-
 export function log(level: LogLevel, message: string, options: LogOptions) {
   if (process.env.SILENCE_LOGGER) {
     return;
   }
 
-  // Set as lowercase. i.e. `export LOG_LEVEL=debug`
-  // Defaults to 'info' so the user needs to opt in to debug logs
-  const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
-
-  const systemLevel = logLevels[LOG_LEVEL.toUpperCase()];
+  const systemLevel = logLevels[options.level];
   const messageLevel = logLevels[level];
   if (systemLevel > messageLevel) {
     return;

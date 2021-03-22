@@ -36,6 +36,7 @@
   "nodeSettings": {
     "cloudProvider": "local",
     "logFormat": "plain",
+    "logLevel": "INFO",
     "nodeVersion": "1.0.0",
     "region": "us-east-1",
     "stage": "dev"

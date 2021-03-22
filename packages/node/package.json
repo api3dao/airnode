@@ -15,10 +15,10 @@
     "prepublishOnly": "yarn run build",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
-    "test:e2e:debug": "LOG_LEVEL=debug jest \"withdrawals.feature\" --selectProjects e2e",
+    "test:e2e:debug": "jest \"withdrawals.feature\" --selectProjects e2e",
     "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
-    "test:watch:debug": "LOG_LEVEL=debug jest \"initialize.test\" --selectProjects unit --watch"
+    "test:watch:debug": "jest \"initialize.test\" --selectProjects unit --watch"
   },
   "dependencies": {
     "@airnode/adapter": "^0.1.0",

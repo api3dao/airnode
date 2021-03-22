@@ -15,7 +15,11 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   const state1 = state.create(config);
   const { id: coordinatorId } = state1;
-  const baseLogOptions = { format: config.nodeSettings.logFormat, meta: { coordinatorId } };
+  const baseLogOptions = {
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+    meta: { coordinatorId },
+  };
 
   const startedAt = new Date();
   logger.info(`Coordinator starting...`, baseLogOptions);
