@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { buildEVMState } from '../../../src/providers/state';
-import { buildConfig, buildNodeSettings } from '../config';
+import { buildConfig } from '../config';
 import { ChainConfig, ChainProvider, EVMProviderState, ProviderState } from 'src/types';
 
 export function buildEVMProviderState(
@@ -18,8 +18,7 @@ export function buildEVMProviderState(
     type: 'evm',
     providers: [chainProvider],
   };
-  const nodeSettings = buildNodeSettings({ chains: [chainConfig] });
-  const config = buildConfig({ nodeSettings });
+  const config = buildConfig({ chains: [chainConfig] });
   const state = buildEVMState(coordinatorId, chainConfig, chainProvider, config);
   return {
     ...state,

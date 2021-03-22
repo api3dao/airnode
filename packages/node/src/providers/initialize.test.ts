@@ -49,8 +49,7 @@ const chains: ChainConfig[] = [
 
 describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
-    const nodeSettings = fixtures.buildNodeSettings({ chains });
-    const config = fixtures.buildConfig({ nodeSettings });
+    const config = fixtures.buildConfig({ chains });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
@@ -145,8 +144,7 @@ describe('initializeProviders', () => {
 
   it('throws an error if no providers are configured', async () => {
     expect.assertions(1);
-    const nodeSettings = fixtures.buildNodeSettings({ chains: [] });
-    const config = fixtures.buildConfig({ nodeSettings });
+    const config = fixtures.buildConfig({ chains: [] });
     const workerOpts = fixtures.buildWorkerOptions();
     try {
       await providers.initialize('abcdefg', config, workerOpts);

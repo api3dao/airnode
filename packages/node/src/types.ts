@@ -305,7 +305,6 @@ export interface ChainConfig {
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
-  readonly chains: ChainConfig[];
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly nodeVersion: string;
@@ -315,8 +314,9 @@ export interface NodeSettings {
 }
 
 export interface Config {
+  readonly chains: ChainConfig[];
   readonly id: string;
-  readonly ois: OIS[];
   readonly nodeSettings: NodeSettings;
+  readonly ois: OIS[];
   readonly triggers: Triggers;
 }

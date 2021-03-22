@@ -28,8 +28,7 @@ it('does not process requests twice', async () => {
   expect(preinvokeFulfillments.length).toEqual(0);
 
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const nodeSettings = fixtures.buildNodeSettings({ chains: [chain] });
-  const config = fixtures.buildConfig({ nodeSettings });
+  const config = fixtures.buildConfig({ chains: [chain] });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   await handlers.startCoordinator();

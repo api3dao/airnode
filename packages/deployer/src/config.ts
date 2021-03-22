@@ -17,7 +17,7 @@ export function parseFiles(configPath, securityPath) {
   }
   return {
     apiCredentials: security.apiCredentials,
-    chains: config.nodeSettings.chains,
+    chains: config.chains,
     cloudProvider: config.nodeSettings.cloudProvider,
     configId: config.id,
     nodeVersion: config.nodeSettings.nodeVersion,

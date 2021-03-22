@@ -34,8 +34,7 @@ it('sets the correct status code for both successful and failed requests', async
   await e2e.makeRequests(deployConfig, deployment);
 
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const nodeSettings = fixtures.buildNodeSettings({ chains: [chain] });
-  const config = fixtures.buildConfig({ nodeSettings });
+  const config = fixtures.buildConfig({ chains: [chain] });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   await handlers.startCoordinator();

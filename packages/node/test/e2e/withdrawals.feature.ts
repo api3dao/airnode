@@ -22,8 +22,7 @@ it('processes withdrawals only once', async () => {
   await e2e.makeRequests(deployConfig, deployment);
 
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const nodeSettings = fixtures.buildNodeSettings({ chains: [chain] });
-  const config = fixtures.buildConfig({ nodeSettings });
+  const config = fixtures.buildConfig({ chains: [chain] });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   // Check that the relevant withdrawal events are present

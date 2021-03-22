@@ -29,7 +29,7 @@ export async function initialize(
   config: Config,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderState>[]>> {
-  const { chains } = config.nodeSettings;
+  const { chains } = config;
 
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in the provided config');
