@@ -16,7 +16,6 @@ describe('callApi', () => {
   });
 
   it('calls the adapter with the given parameters', async () => {
-    process.env['currency-converter-ois_mySecurityScheme'] = 'supersecret';
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };

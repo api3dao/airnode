@@ -97,7 +97,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
-  readonly chainId: number;
+  readonly chainId: string;
   readonly chainType: ChainType;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
@@ -245,7 +245,7 @@ export type LogFormat = 'json' | 'plain';
 
 export interface LogMetadata {
   readonly coordinatorId?: string;
-  readonly chainId?: number;
+  readonly chainId?: string;
   readonly chainType?: ChainType;
   readonly providerName?: string;
 }
@@ -285,20 +285,15 @@ export interface ChainContracts {
   readonly AirnodeRrp: string;
 }
 
-export interface ChainProvider {
-  readonly name: string;
-  readonly url: string;
-}
-
 export interface ChainConfig {
   readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
-  readonly id: number;
+  readonly id: string;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providers: ChainProvider[];
+  readonly providerNames: string[];
   readonly type: ChainType;
 }
 

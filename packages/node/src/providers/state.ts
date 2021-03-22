@@ -1,24 +1,24 @@
 import * as evm from '../evm';
+import { getConfigSecret } from '../config';
 import { removeKeys } from '../utils/object-utils';
-import {
-  ChainConfig,
-  ChainProvider,
-  ChainType,
-  EVMProviderState,
-  Config,
-  ProviderSettings,
-  ProviderState,
-} from '../types';
+import { ChainConfig, ChainType, EVMProviderState, Config, ProviderSettings, ProviderState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 
 export function buildEVMState(
   coordinatorId: string,
   chain: ChainConfig,
-  chainProvider: ChainProvider,
+  chainProviderName: string,
   config: Config
 ): ProviderState<EVMProviderState> {
   const masterHDNode = evm.getMasterHDNode();
-  const provider = evm.buildEVMProvider(chainProvider.url, chain.id);
+  const chainProviderEnvironmentConfig = config.environment.chainProviders.find(
+    (c) => c.chainType === chain.type && c.chainId === chain.id && c.name === chainProviderName
+  );
+  if (!chainProviderEnvironmentConfig) {
+    throw new Error('Chain provider environment variable name must be defined in the provided config');
+  }
+  const chainProviderUrl = getConfigSecret(chainProviderEnvironmentConfig.envName) || '';
+  const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
 
   const providerSettings: ProviderSettings = {
     airnodeAdmin: chain.airnodeAdmin,
@@ -33,10 +33,10 @@ export function buildEVMState(
     ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || BLOCK_COUNT_IGNORE_LIMIT,
     logFormat: config.nodeSettings.logFormat,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
-    name: chainProvider.name,
+    name: chainProviderName,
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
-    url: chainProvider.url,
+    url: chainProviderUrl,
     xpub: evm.getExtendedPublicKey(masterHDNode),
   };
 

@@ -12,6 +12,15 @@ export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigge
 }
 
 export function buildConfig(overrides?: Partial<Config>): Config {
+  const oisTitle = 'currency-converter-ois';
+  const securitySchemeName = 'mySecurityScheme';
+  const securitySchemeEnvName = `ss_${oisTitle}_${securitySchemeName}`;
+  const chainType = 'evm';
+  const chainId = '31337';
+  const chainProviderName = 'evm-local';
+  const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
+  process.env[securitySchemeEnvName] = 'supersecret';
+  process.env[chainProviderEnvName] = 'http://127.0.0.1:8545/';
   return {
     chains: [
       {
@@ -20,20 +29,27 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         contracts: {
           AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },
-        id: 31337,
+        id: '31337',
         type: 'evm',
-        providers: [{ name: 'evm-local', url: 'http://127.0.0.1:8545/' }],
+        providerNames: ['evm-local'],
       },
     ],
     environment: {
       securitySchemes: [
         {
-          oisTitle: 'currency-converter-ois',
-          name: 'mySecurityScheme',
-          envName: 'currency-converter-ois_mySecurityScheme',
+          oisTitle: oisTitle,
+          name: securitySchemeName,
+          envName: securitySchemeEnvName,
         },
       ],
-      chainProviders: [],
+      chainProviders: [
+        {
+          chainType: chainType,
+          chainId: chainId,
+          name: chainProviderName,
+          envName: chainProviderEnvName,
+        },
+      ],
     },
     id: 'test-config',
     nodeSettings: settings.buildNodeSettings(),

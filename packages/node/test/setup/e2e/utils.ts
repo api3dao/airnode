@@ -15,9 +15,9 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
       AirnodeRrp: contracts.AirnodeRrp,
     },
     authorizers: [ethers.constants.AddressZero],
-    id: 31337,
+    id: '31337',
     type: 'evm',
-    providers: [{ name: 'evm-local', url: 'http://127.0.0.1:8545/' }],
+    providerNames: ['evm-local'],
   };
 }
 
