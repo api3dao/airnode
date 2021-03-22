@@ -26,6 +26,6 @@ export function getMasterKeyMnemonic(): string {
   return mnemonic;
 }
 
-export function getConfigSecret(oisTitle: string, securitySchemeName: string) {
-  return process.env[`${oisTitle}_${securitySchemeName}`];
+export function getConfigSecret(securitySchemeEnvName: string) {
+  return process.env[securitySchemeEnvName];
 }

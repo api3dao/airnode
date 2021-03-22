@@ -25,6 +25,16 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         providers: [{ name: 'evm-local', url: 'http://127.0.0.1:8545/' }],
       },
     ],
+    environment: {
+      securitySchemes: [
+        {
+          oisTitle: 'currency-converter-ois',
+          name: 'mySecurityScheme',
+          envName: 'currency-converter-ois_mySecurityScheme',
+        },
+      ],
+      chainProviders: [],
+    },
     id: 'test-config',
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
