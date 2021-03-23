@@ -31,7 +31,6 @@ describe('create', () => {
         },
       ],
     };
-    process.env[chainProviderEnvName] = 'http://localhost:4111';
     const config = fixtures.buildConfig({ environment: environmentConfig });
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
@@ -100,7 +99,6 @@ describe('create', () => {
         },
       ],
     };
-    process.env[chainProviderEnvName] = 'http://localhost:4111';
     const config = fixtures.buildConfig({ environment: environmentConfig });
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({

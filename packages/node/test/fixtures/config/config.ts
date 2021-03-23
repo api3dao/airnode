@@ -19,8 +19,6 @@ export function buildConfig(overrides?: Partial<Config>): Config {
   const chainId = '31337';
   const chainProviderName = 'evm-local';
   const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
-  process.env[securitySchemeEnvName] = 'supersecret';
-  process.env[chainProviderEnvName] = 'http://127.0.0.1:8545/';
   return {
     chains: [
       {

@@ -11,7 +11,6 @@ export function buildEVMProviderState(
   const chainId = '1337';
   const chainProviderName = 'ganache-test';
   const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
-  process.env[chainProviderEnvName] = 'http://localhost:4111';
   const chainConfig: ChainConfig = {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],

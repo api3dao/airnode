@@ -70,8 +70,6 @@ const environmentConfig: EnvironmentConfig = {
 describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains, environment: environmentConfig });
-    process.env[config.environment.chainProviders[0].envName] = 'https://mainnet.infura.io/v3/<key>';
-    process.env[config.environment.chainProviders[1].envName] = 'https://ropsten.infura.io/v3/<key>';
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
