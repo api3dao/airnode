@@ -15,7 +15,9 @@ export function buildEVMState(
     (c) => c.chainType === chain.type && c.chainId === chain.id && c.name === chainProviderName
   );
   if (!chainProviderEnvironmentConfig) {
-    throw new Error('Chain provider environment variable name must be defined in the provided config');
+    throw new Error(
+      `Chain provider URL environment variable name for type: ${chain.type}, ID: ${chain.id}, provider name: ${chainProviderName} must be defined in the provided config object`
+    );
   }
   const chainProviderUrl = getConfigSecret(chainProviderEnvironmentConfig.envName) || '';
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
