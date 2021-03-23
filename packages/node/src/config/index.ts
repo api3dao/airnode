@@ -26,6 +26,6 @@ export function getMasterKeyMnemonic(): string {
   return mnemonic;
 }
 
-export function getConfigSecret(envName: string) {
+export function getEnvValue(envName: string) {
   return process.env[envName];
 }

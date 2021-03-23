@@ -2,7 +2,7 @@ import * as adapter from '@airnode/adapter';
 import { OIS, SecurityScheme } from '@airnode/ois';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
-import { getConfigSecret } from '../config';
+import { getEnvValue } from '../config';
 import * as logger from '../logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import {
@@ -31,7 +31,7 @@ function buildOptions(
     if (!securitySchemeEnvironmentConfig) {
       return { ...securityScheme, securitySchemeName, value: '' } as SecurityScheme;
     }
-    const value = getConfigSecret(securitySchemeEnvironmentConfig.envName) || '';
+    const value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
     return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
   });
 

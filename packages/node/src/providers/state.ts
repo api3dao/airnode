@@ -1,5 +1,5 @@
 import * as evm from '../evm';
-import { getConfigSecret } from '../config';
+import { getEnvValue } from '../config';
 import { removeKeys } from '../utils/object-utils';
 import { ChainConfig, ChainType, EVMProviderState, Config, ProviderSettings, ProviderState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
@@ -19,7 +19,7 @@ export function buildEVMState(
       `Chain provider URL environment variable name for type: ${chain.type}, ID: ${chain.id}, provider name: ${chainProviderName} must be defined in the provided config object`
     );
   }
-  const chainProviderUrl = getConfigSecret(chainProviderEnvironmentConfig.envName) || '';
+  const chainProviderUrl = getEnvValue(chainProviderEnvironmentConfig.envName) || '';
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
 
   const providerSettings: ProviderSettings = {
