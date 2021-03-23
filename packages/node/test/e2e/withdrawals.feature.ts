@@ -17,6 +17,7 @@ it('processes withdrawals only once', async () => {
 
   const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
+  // Overwrites the one injected by the jest setup script
   process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAPI.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
