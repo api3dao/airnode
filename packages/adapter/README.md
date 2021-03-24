@@ -226,7 +226,7 @@ const options = {
   endpointName: 'myUniqueEndpointName',
   parameters: { from: 'BTC', to: 'USD' },
   securitySchemes: [
-    { securitySchemeName: 'mySecurityScheme', value: 'supersecret' },
+    { securitySchemeName: 'My Security Scheme', value: 'supersecret' },
     { securitySchemeName: 'anotherScheme', value: 'anothersecret' },
   ]
 };

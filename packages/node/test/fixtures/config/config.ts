@@ -4,21 +4,21 @@ import * as settings from './node-settings';
 
 export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigger {
   return {
-    endpointId: '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb',
+    endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
     endpointName: 'convertToUSD',
-    oisTitle: 'currency-converter-ois',
+    oisTitle: 'Currency Converter API',
     ...overrides,
   };
 }
 
 export function buildConfig(overrides?: Partial<Config>): Config {
-  const oisTitle = 'currency-converter-ois';
-  const securitySchemeName = 'mySecurityScheme';
-  const securitySchemeEnvName = `ss_${oisTitle}_${securitySchemeName}`;
+  const oisTitle = 'Currency Converter API';
+  const securitySchemeName = 'My Security Scheme';
+  const securitySchemeEnvName = 'SS_CURRENCY_CONVERTER_API_MY_SECURITY_SCHEME';
   const chainType = 'evm';
   const chainId = '31337';
-  const chainProviderName = 'evm-local';
-  const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
+  const chainProviderName = 'EVM local';
+  const chainProviderEnvName = 'CP_EVM_31337_EVM_LOCAL';
   return {
     chains: [
       {
@@ -29,7 +29,7 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
         id: '31337',
         type: 'evm',
-        providerNames: ['evm-local'],
+        providerNames: ['EVM local'],
       },
     ],
     environment: {

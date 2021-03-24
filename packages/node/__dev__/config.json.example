@@ -20,15 +20,15 @@
       {
         "chainType": "evm",
         "chainId": "31337",
-        "name": "evm-local",
-        "envName": "cp_evm_31337_evm-local"
+        "name": "EVM local",
+        "envName": "CP_EVM_31337_EVM_LOCAL"
       }
     ],
     "securitySchemes": [
       {
-        "oisTitle": "currency-converter-ois",
-        "name": "currencyConverterSecurityScheme",
-        "envName": "ss_currency-converter-ois_currencyConverterSecurityScheme"
+        "oisTitle": "Currency Converter API",
+        "name": "Currency Converter Security Scheme",
+        "envName": "SS_CURRENCY_CONVERTER_API_CURRENCY_CONVERTER_SECURITY_SCHEME"
       }
     ]
   },
@@ -44,8 +44,8 @@
   "triggers": {
     "request": [
       {
-        "endpointId": "0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb",
-        "oisTitle": "currency-converter-ois",
+        "endpointId": "0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353",
+        "oisTitle": "Currency Converter API",
         "endpointName": "convertToUSD"
       }
     ]
@@ -54,7 +54,7 @@
     {
       "oisFormat": "1.0.0",
       "version": "1.2.3",
-      "title": "currency-converter-ois",
+      "title": "Currency Converter API",
       "apiSpecifications": {
         "servers": [
           {
@@ -87,7 +87,7 @@
         },
         "components": {
           "securitySchemes": {
-            "currencyConverterSecurityScheme": {
+            "Currency Converter Security Scheme": {
               "in": "query",
               "type": "apiKey",
               "name": "access_key"
@@ -96,7 +96,7 @@
         },
         "security": [
           {
-            "currencyConverterSecurityScheme": []
+            "Currency Converter Security Scheme": []
           }
         ]
       },

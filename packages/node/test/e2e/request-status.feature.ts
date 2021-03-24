@@ -30,7 +30,7 @@ it('sets the correct status code for both successful and failed requests', async
   const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
   // Overwrites the one injected by the jest setup script
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAPI.mnemonic;
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
 

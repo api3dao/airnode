@@ -8,8 +8,8 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainType = 'evm';
     const chainId = '1337';
-    const chainProviderName = 'ganache-test';
-    const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
+    const chainProviderName = 'Ganache test';
+    const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
     const chainConfig: ChainConfig = {
       airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
@@ -49,7 +49,7 @@ describe('create', () => {
         logFormat: 'plain',
         logLevel: 'DEBUG',
         minConfirmations: 0,
-        name: 'ganache-test',
+        name: 'Ganache test',
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',
@@ -74,8 +74,8 @@ describe('create', () => {
     const coordinatorId = '837daEf231';
     const chainType = 'evm';
     const chainId = '1337';
-    const chainProviderName = 'ganache-test';
-    const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
+    const chainProviderName = 'Ganache test';
+    const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
     const chainConfig: ChainConfig = {
       airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
@@ -117,7 +117,7 @@ describe('create', () => {
         logFormat: 'plain',
         logLevel: 'DEBUG',
         minConfirmations: 3,
-        name: 'ganache-test',
+        name: 'Ganache test',
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',

@@ -39,7 +39,7 @@ describe('initializeProvider', () => {
     const error = new Error('Something went wrong!');
     jest.spyOn(handlers, 'initializeProvider').mockRejectedValue(error);
 
-    const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to initialize provider:ganache-test' };
+    const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to initialize provider:Ganache test' };
     const res = await local.initializeProvider({ state });
     expect(res).toEqual({ ok: false, errorLog });
   });
@@ -80,7 +80,7 @@ describe('processProviderRequests', () => {
     const error = new Error('Something went wrong!');
     jest.spyOn(handlers, 'processTransactions').mockRejectedValue(error);
 
-    const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to process provider requests:ganache-test' };
+    const errorLog: PendingLog = { level: 'ERROR', error, message: 'Failed to process provider requests:Ganache test' };
     const res = await local.processProviderRequests({ state });
     expect(res).toEqual({ ok: false, errorLog });
   });

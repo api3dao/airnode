@@ -33,7 +33,7 @@ describe('callApi', () => {
           {
             in: 'query',
             name: 'access_key',
-            securitySchemeName: 'mySecurityScheme',
+            securitySchemeName: 'My Security Scheme',
             type: 'apiKey',
             value: 'supersecret',
           },
@@ -49,7 +49,7 @@ describe('callApi', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: "No '_type' parameter was found for Endpoint:convertToUSD, OIS:currency-converter-ois",
+        message: "No '_type' parameter was found for Endpoint:convertToUSD, OIS:Currency Converter API",
       },
     ]);
     expect(res).toEqual({

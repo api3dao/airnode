@@ -15,7 +15,7 @@ describe('aggregate (API calls)', () => {
   });
 
   it('groups calls if they have the exact same attributes', () => {
-    const endpointId = '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb';
+    const endpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';
     const apiCalls = [
       fixtures.requests.buildApiCall({ endpointId }),
       fixtures.requests.buildApiCall({ endpointId }),
@@ -24,10 +24,10 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
-        endpointId: '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb',
+        endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
-        oisTitle: 'currency-converter-ois',
+        oisTitle: 'Currency Converter API',
         parameters: { from: 'ETH' },
         type: 'request',
       },
@@ -35,7 +35,7 @@ describe('aggregate (API calls)', () => {
   });
 
   it('groups calls if they have they different attributes unrelated to the API call', () => {
-    const endpointId = '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb';
+    const endpointId = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';
     const apiCalls = [
       fixtures.requests.buildApiCall({ endpointId, fulfillAddress: '0x123' }),
       fixtures.requests.buildApiCall({ endpointId, fulfillAddress: '0x456' }),
@@ -43,10 +43,10 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
-        endpointId: '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb',
+        endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
-        oisTitle: 'currency-converter-ois',
+        oisTitle: 'Currency Converter API',
         parameters: { from: 'ETH' },
         type: 'request',
       },

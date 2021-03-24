@@ -9,8 +9,8 @@ export function buildEVMProviderState(
   const coordinatorId = '837daEf231';
   const chainType = 'evm';
   const chainId = '1337';
-  const chainProviderName = 'ganache-test';
-  const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
+  const chainProviderName = 'Ganache test';
+  const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
   const chainConfig: ChainConfig = {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
