@@ -1,84 +1,54 @@
 const { expect } = require('chai');
 
-let _median;
+let median;
+let owner;
+
+// some helper functions for testing
+
+const permutations = (arr) => {
+  if (arr.length <= 2) return arr.length === 2 ? [arr, [arr[1], arr[0]]] : arr;
+  return arr.reduce(
+    (acc, item, i) => acc.concat(permutations([...arr.slice(0, i), ...arr.slice(i + 1)]).map((val) => [item, ...val])),
+    []
+  );
+};
+
+const range = (n) => {
+  var arr = new Array();
+  for (let x = 100; x <= n * 100; x += 100) {
+    arr.push(x);
+  }
+  return arr;
+};
+
+const medianSorted = (arr) => {
+  n = arr.length;
+  if (n % 2 == 1) {
+    return arr[Math.floor(n / 2)];
+  } else {
+    return (arr[n / 2 - 1] + arr[n / 2]) / 2;
+  }
+};
 
 beforeEach(async () => {
-  const [owner] = await ethers.getSigners();
+  //owner = await ethers.getSigners()[0];
 
+  console.log(owner);
   const Median = await ethers.getContractFactory('Median');
 
   median = await Median.deploy();
 });
 
-describe('_median1', function () {
-  it('return correct median for array of length 1', async function () {
-    expect(await median._median1([1])).to.equal(1);
-  });
-});
+describe('median.compute', function () {
+  for (let n = 1; n <= 5; n++) {
+    arr = range(n);
+    perms = permutations(arr);
 
-describe('_median2', function () {
-  it('return correct median for array of length 2: [1, 3]', async function () {
-    expect(await median._median2([1, 3])).to.equal(2);
-  });
-  it('return correct median for array of length 2: [3, 1]', async function () {
-    expect(await median._median2([3, 1])).to.equal(2);
-  });
-});
-
-describe('_median3', function () {
-  let arrays = [
-    [1, 2, 3],
-    [2, 1, 3],
-    [3, 1, 2],
-    [1, 3, 2],
-    [2, 3, 1],
-    [3, 2, 1],
-  ];
-  it('return correct median for array of length 3: ' + arrays[0], async function () {
-    expect(await median._median3(arrays[0])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[1], async function () {
-    expect(await median._median3(arrays[1])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[2], async function () {
-    expect(await median._median3(arrays[2])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[3], async function () {
-    expect(await median._median3(arrays[3])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[4], async function () {
-    expect(await median._median3(arrays[4])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[5], async function () {
-    expect(await median._median3(arrays[5])).to.equal(2);
-  });
-});
-
-describe('_median3', function () {
-  let arrays = [
-    [1, 4, 2, 3],
-    [2, 1, 4, 3],
-    [3, 1, 2, 4],
-    [1, 4, 3, 2],
-    [2, 3, 4, 1],
-    [4, 3, 2, 1],
-  ];
-  it('return correct median for array of length 3: ' + arrays[0], async function () {
-    expect(await median._median4(arrays[0])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[1], async function () {
-    expect(await median._median4(arrays[1])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[2], async function () {
-    expect(await median._median4(arrays[2])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[3], async function () {
-    expect(await median._median4(arrays[3])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[4], async function () {
-    expect(await median._median4(arrays[4])).to.equal(2);
-  });
-  it('return correct median for array of length 3: ' + arrays[5], async function () {
-    expect(await median._median4(arrays[5])).to.equal(2);
-  });
+    for (let i = 0; i < perms.length; i++) {
+      arrP = perms[i];
+      it('return correct median for all permutations of array of length ' + n + ': [' + arrP + ']', async function () {
+        expect(await median.compute(arrP)).to.equal(medianSorted(arr));
+      });
+    }
+  }
 });
