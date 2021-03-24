@@ -55,7 +55,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
  * @returns array of error and warning messages
  */
 export function validateJson(specs: object, template: object): Result {
-  const nonRedundant = {};
+  const nonRedundant = template['__arrayItem'] ? [] : {};
 
   return processSpecs(specs, template, '', nonRedundant, {
     specs: specs,
