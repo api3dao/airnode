@@ -4,7 +4,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
   return {
     oisFormat: '1.0.0',
     version: '1.2.3',
-    title: 'currency-converter-ois',
+    title: 'Currency Converter API',
     apiSpecifications: {
       servers: [
         {
@@ -37,7 +37,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
       },
       components: {
         securitySchemes: {
-          mySecurityScheme: {
+          'My Security Scheme': {
             in: 'query',
             type: 'apiKey',
             name: 'access_key',
@@ -45,7 +45,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
         },
       },
       security: {
-        mySecurityScheme: [],
+        'My Security Scheme': [],
       },
     },
     endpoints: [

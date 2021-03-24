@@ -17,7 +17,7 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     authorizers: [ethers.constants.AddressZero],
     id: '31337',
     type: 'evm',
-    providerNames: ['evm-local'],
+    providerNames: ['EVM local'],
   };
 }
 

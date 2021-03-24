@@ -80,7 +80,7 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(contract.fulfill).toHaveBeenCalledTimes(1);
     expect(contract.fulfill).toHaveBeenCalledWith(
-      '0x2f5bbfb2ad81ba5f426067d0a6942a400f70532e75484acec51f0cfd5f423ee5',
+      '0x676274e2d1979dbdbd0b6915276fcb2cc3fb3be32862eab9d1d201882edc8c93',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       ethers.BigNumber.from('0'),
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',

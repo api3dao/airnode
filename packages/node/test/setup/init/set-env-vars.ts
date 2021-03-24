@@ -1,6 +1,6 @@
 process.env.MASTER_KEY_MNEMONIC = 'achieve climb couple wait accident symbol spy blouse reduce foil echo label';
-process.env['ss_currency-converter-ois_mySecurityScheme'] = 'supersecret';
-process.env['cp_evm_31337_evm-local'] = 'http://127.0.0.1:8545/';
-process.env['cp_evm_1337_ganache-test'] = 'http://localhost:4111';
-process.env['cp_evm_1_infura-mainnet'] = 'https://mainnet.infura.io/v3/<key>';
-process.env['cp_evm_3_infura-ropsten'] = 'https://ropsten.infura.io/v3/<key>';
+process.env['SS_CURRENCY_CONVERTER_API_MY_SECURITY_SCHEME'] = 'supersecret';
+process.env['CP_EVM_31337_EVM_LOCAL'] = 'http://127.0.0.1:8545/';
+process.env['CP_EVM_1337_GANACHE_TEST'] = 'http://localhost:4111';
+process.env['CP_EVM_1_INFURA_MAINNET'] = 'https://mainnet.infura.io/v3/<key>';
+process.env['CP_EVM_3_INFURA_ROPSTEN'] = 'https://ropsten.infura.io/v3/<key>';

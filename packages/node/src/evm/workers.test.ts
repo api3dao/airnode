@@ -37,7 +37,7 @@ describe('spawnNewProvider', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'Unable to initialize provider:ganache-test',
+        message: 'Unable to initialize provider:Ganache test',
         error: new Error('Something went wrong'),
       },
     ]);
@@ -79,7 +79,7 @@ describe('spawnNewProvider', () => {
     );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewProvider(state, workerOpts);
-    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to initialize provider:ganache-test' }]);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to initialize provider:Ganache test' }]);
     expect(res).toEqual(null);
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(
@@ -120,7 +120,7 @@ describe('spawnProviderRequestProcessor', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'Unable to process provider requests:ganache-test',
+        message: 'Unable to process provider requests:Ganache test',
         error: new Error('Something went wrong'),
       },
     ]);
@@ -162,7 +162,7 @@ describe('spawnProviderRequestProcessor', () => {
     );
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnProviderRequestProcessor(state, workerOpts);
-    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to process provider requests:ganache-test' }]);
+    expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to process provider requests:Ganache test' }]);
     expect(res).toEqual(null);
     expect(invokeMock).toHaveBeenCalledTimes(1);
     expect(invokeMock).toHaveBeenCalledWith(

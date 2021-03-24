@@ -5,7 +5,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
     deployerIndex: 0,
     airnodes: {
-      CurrencyConverterAPI: {
+      CurrencyConverterAirnode: {
         airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
         // We need to create a new mnemonic each time otherwise E2E tests
         // will share the same Airnode wallet
@@ -13,13 +13,13 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         authorizers: ['public'],
         endpoints: {
           convertToUSD: {
-            oisTitle: 'currency-converter-ois',
+            oisTitle: 'Currency Converter API',
           },
         },
         templates: {
           'template-1': {
             endpoint: 'convertToUSD',
-            oisTitle: 'currency-converter-ois',
+            oisTitle: 'Currency Converter API',
             parameters: [
               { type: 'bytes32', name: 'to', value: 'USD' },
               { type: 'bytes32', name: '_type', value: 'uint256' },
@@ -40,13 +40,13 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         id: 'alice',
         airnodes: {
-          CurrencyConverterAPI: { ethBalance: '2' },
+          CurrencyConverterAirnode: { ethBalance: '2' },
         },
       },
       {
         id: 'bob',
         airnodes: {
-          CurrencyConverterAPI: { ethBalance: '5' },
+          CurrencyConverterAirnode: { ethBalance: '5' },
         },
       },
     ],
@@ -54,7 +54,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         requesterId: 'bob',
         type: 'regular',
-        airnode: 'CurrencyConverterAPI',
+        airnode: 'CurrencyConverterAirnode',
         template: 'template-1',
         client: 'MockAirnodeRrpClient',
         fulfillFunctionName: 'fulfill',
@@ -63,9 +63,9 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         requesterId: 'bob',
         type: 'full',
-        airnode: 'CurrencyConverterAPI',
+        airnode: 'CurrencyConverterAirnode',
         endpoint: 'convertToUSD',
-        oisTitle: 'currency-converter-ois',
+        oisTitle: 'Currency Converter API',
         client: 'MockAirnodeRrpClient',
         fulfillFunctionName: 'fulfill',
         parameters: [

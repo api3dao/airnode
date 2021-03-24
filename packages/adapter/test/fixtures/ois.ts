@@ -4,7 +4,7 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
   return {
     oisFormat: '1.0.0',
     version: '1.2.3',
-    title: 'currency-converter-ois',
+    title: 'Currency Converter API',
     apiSpecifications: {
       servers: [
         {

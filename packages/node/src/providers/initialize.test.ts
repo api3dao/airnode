@@ -24,8 +24,8 @@ import * as fixtures from 'test/fixtures';
 import { ChainConfig, EnvironmentConfig } from 'src/types';
 import * as providers from './initialize';
 
-const chainProviderName1 = 'infura-mainnet';
-const chainProviderName3 = 'infura-ropsten';
+const chainProviderName1 = 'Infura Mainnet';
+const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -56,13 +56,13 @@ const environmentConfig: EnvironmentConfig = {
       chainType: 'evm',
       chainId: '1',
       name: chainProviderName1,
-      envName: `cp_evm_1_${chainProviderName1}`,
+      envName: 'CP_EVM_1_INFURA_MAINNET',
     },
     {
       chainType: 'evm',
       chainId: '3',
       name: chainProviderName3,
-      envName: `cp_evm_3_${chainProviderName3}`,
+      envName: 'CP_EVM_3_INFURA_ROPSTEN',
     },
   ],
 };
@@ -109,7 +109,7 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           logLevel: 'DEBUG',
           minConfirmations: 0,
-          name: 'infura-mainnet',
+          name: 'Infura Mainnet',
           region: 'us-east-1',
           stage: 'test',
           url: 'https://mainnet.infura.io/v3/<key>',
@@ -143,7 +143,7 @@ describe('initializeProviders', () => {
           logFormat: 'plain',
           logLevel: 'DEBUG',
           minConfirmations: 0,
-          name: 'infura-ropsten',
+          name: 'Infura Ropsten',
           region: 'us-east-1',
           stage: 'test',
           url: 'https://ropsten.infura.io/v3/<key>',
