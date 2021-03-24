@@ -35,7 +35,7 @@ contract Median {
               array[0],
               array[1],
               array[2],
-              array[4]
+              array[3]
             );
         }
         else if (array.length == 5)
@@ -51,9 +51,42 @@ contract Median {
         else
         {
             uint256 pivotVal = _medianOfMedians(array);
-            //int8 i = _quickselect(pivot, array);
-            median = 0;
+            uint k = array.length / 2;
+            if (array.length % 2 == 1) {
+              median = _quickSelect(array, 0, array.length - 1, k, pivotVal);
+            } else {
+              uint x1 = _quickSelect(array, 0, array.length - 1, k - 1, pivotVal);
+              uint x2 = _quickSelect(array, 0, array.length - 1, k, pivotVal);
+              median = x2;
+            }
         }
+    }
+
+    function _quickSelect
+    (
+      uint256[] memory array,
+      uint256 left,
+      uint256 right,
+      uint256 k,
+      uint256 pivotVal
+    )
+      public
+      pure
+      returns (uint256 result)
+    {
+      if (left == right) {result = array[left];}
+
+      uint256 pivotIdx = _partition(array, left, right, pivotVal);
+
+      if (k == pivotIdx) {
+        result = array[k];
+      } else if (k < pivotIdx){
+        pivotVal = array[left]; 
+        result = _quickSelect(array, left, pivotIdx - 1, k, pivotVal);
+      } else {
+        pivotVal = array[pivotIdx + 1]; 
+        result = _quickSelect(array, pivotIdx + 1, right, k, pivotVal);
+      }
     }
 
     function _medianOfMedians
@@ -76,39 +109,37 @@ contract Median {
             array[i+3],
             array[i+4]
           );
-          medians[i/5] = (med);   
+          medians[i/5] = med;   
         }
         
         _pivot = compute(medians);
     }
 
     function _partition
-    ( uint256[] memory array,
-      uint8 left,
-      uint8 right,
+    (
+      uint256[] memory array,
+      uint256 left,
+      uint256 right,
       uint256 pivotVal
     )
       public
       pure
-      returns (uint8 idx)
+      returns (uint256 storeIdx)
     {
-      uint8 storeIdx = left;
-      for (uint8 i=left; i<right; i++)
-      {
-        if (array[i] < pivotVal)
-        {
+      storeIdx = left;
+      for (uint i=left; i<=right; i++) {
+        if (array[i] <= pivotVal) {
           _swap(array, storeIdx, i);
           storeIdx++;
         }
       }
-      return storeIdx;
     }
 
     function _swap
     (
       uint256[] memory array,
-      uint8 i,
-      uint8 j
+      uint256 i,
+      uint256 j
     )
       public
       pure
@@ -174,10 +205,10 @@ contract Median {
 
         if (x4 < x1) {
             _median = x1;
-        } else if (x4 > x3) {
+        } else if (x4 > x2) {
             _median = x2;
         } else {
-            _median = x4;
+          _median = x4; 
         }
     }
 }
