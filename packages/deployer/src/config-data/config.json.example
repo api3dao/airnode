@@ -1,30 +1,45 @@
 {
+  "chains": [
+    {
+      "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
+      "authorizers": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "contracts": {
+        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      },
+      "id": "31337",
+      "providerNames": [
+        "evm-local"
+      ],
+      "type": "evm"
+    }
+  ],
+  "environment": {
+    "chainProviders": [
+      {
+        "chainType": "evm",
+        "chainId": "31337",
+        "name": "evm-local",
+        "envName": "cp_evm_31337_evm-local"
+      }
+    ],
+    "securitySchemes": [
+      {
+        "oisTitle": "currency-converter-ois",
+        "name": "currencyConverterSecurityScheme",
+        "envName": "ss_currency-converter-ois_currencyConverterSecurityScheme"
+      }
+    ]
+  },
   "id": "e08f5610-5772-4986-92fb-c8aef5aee6a0",
   "nodeSettings": {
     "cloudProvider": "aws",
     "logFormat": "plain",
+    "logLevel": "INFO",
     "nodeVersion": "1.0.0",
     "region": "us-east-1",
-    "stage": "dev",
-    "chains": [
-      {
-        "type": "evm",
-        "id": 31337,
-        "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
-        "contracts": {
-          "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-        },
-        "authorizers": [
-          "0x0000000000000000000000000000000000000000"
-        ],
-        "providers": [
-          {
-            "name": "evm-local",
-            "url": "http://127.0.0.1:8545/"
-          }
-        ]
-      }
-    ]
+    "stage": "dev"
   },
   "triggers": {
     "request": [

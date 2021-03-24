@@ -11,6 +11,7 @@ import { LogOptions, RequestErrorCode } from '../../types';
 describe('callApis', () => {
   const logOptions: LogOptions = {
     format: 'plain',
+    level: 'DEBUG',
     meta: { coordinatorId: '123456' },
   };
 

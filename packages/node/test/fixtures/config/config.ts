@@ -12,13 +12,49 @@ export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigge
 }
 
 export function buildConfig(overrides?: Partial<Config>): Config {
+  const oisTitle = 'currency-converter-ois';
+  const securitySchemeName = 'mySecurityScheme';
+  const securitySchemeEnvName = `ss_${oisTitle}_${securitySchemeName}`;
+  const chainType = 'evm';
+  const chainId = '31337';
+  const chainProviderName = 'evm-local';
+  const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
   return {
+    chains: [
+      {
+        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+        authorizers: ['0x0000000000000000000000000000000000000000'],
+        contracts: {
+          AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
+        },
+        id: '31337',
+        type: 'evm',
+        providerNames: ['evm-local'],
+      },
+    ],
+    environment: {
+      securitySchemes: [
+        {
+          oisTitle: oisTitle,
+          name: securitySchemeName,
+          envName: securitySchemeEnvName,
+        },
+      ],
+      chainProviders: [
+        {
+          chainType: chainType,
+          chainId: chainId,
+          name: chainProviderName,
+          envName: chainProviderEnvName,
+        },
+      ],
+    },
     id: 'test-config',
+    nodeSettings: settings.buildNodeSettings(),
     triggers: {
       request: [buildTrigger()],
     },
     ois: [ois.buildOIS()],
-    nodeSettings: settings.buildNodeSettings(),
     ...overrides,
   };
 }

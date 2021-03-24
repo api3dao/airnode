@@ -2,13 +2,24 @@ import * as adapter from '@airnode/adapter';
 import { OIS, SecurityScheme } from '@airnode/ois';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
-import { getConfigSecret } from '../config';
+import { getEnvValue } from '../config';
 import * as logger from '../logger';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
-import { AggregatedApiCall, ApiCallResponse, Config, LogsData, RequestErrorCode } from '../types';
+import {
+  AggregatedApiCall,
+  ApiCallResponse,
+  Config,
+  LogsData,
+  RequestErrorCode,
+  SecuritySchemeEnvironmentConfig,
+} from '../types';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 
-function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.BuildRequestOptions {
+function buildOptions(
+  ois: OIS,
+  securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[],
+  aggregatedApiCall: AggregatedApiCall
+): adapter.BuildRequestOptions {
   // Don't submit the reserved parameters to the API
   const parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
 
@@ -16,7 +27,11 @@ function buildOptions(ois: OIS, aggregatedApiCall: AggregatedApiCall): adapter.B
   const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
   const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
     const securityScheme = ois.apiSpecifications.components.securitySchemes[securitySchemeName];
-    const value = getConfigSecret(ois.title, securitySchemeName) || '';
+    const securitySchemeEnvironmentConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
+    if (!securitySchemeEnvironmentConfig) {
+      return { ...securityScheme, securitySchemeName, value: '' } as SecurityScheme;
+    }
+    const value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
     return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
   });
 
@@ -34,6 +49,7 @@ export async function callApi(
 ): Promise<LogsData<ApiCallResponse>> {
   const { endpointName, oisTitle } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
+  const securitySchemeEnvironmentConfigs = config.environment.securitySchemes.filter((s) => s.oisTitle === oisTitle);
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
 
   // Check before making the API call in case the parameters are missing
@@ -43,7 +59,7 @@ export async function callApi(
     return [[log], { errorCode: RequestErrorCode.ResponseParametersInvalid }];
   }
 
-  const options = buildOptions(ois, aggregatedApiCall);
+  const options = buildOptions(ois, securitySchemeEnvironmentConfigs, aggregatedApiCall);
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
   // maximum timeout is reached.
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };

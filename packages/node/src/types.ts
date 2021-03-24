@@ -97,7 +97,7 @@ export interface ProviderSettings extends CoordinatorSettings {
   readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
-  readonly chainId: number;
+  readonly chainId: string;
   readonly chainType: ChainType;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
@@ -123,6 +123,7 @@ export interface CoordinatorSettings {
   readonly airnodeId: string;
   readonly airnodeIdShort: string;
   readonly logFormat: LogFormat;
+  readonly logLevel: LogLevel;
   readonly region: string;
   readonly stage: string;
 }
@@ -245,7 +246,7 @@ export type LogFormat = 'json' | 'plain';
 
 export interface LogMetadata {
   readonly coordinatorId?: string;
-  readonly chainId?: number;
+  readonly chainId?: string;
   readonly chainType?: ChainType;
   readonly providerName?: string;
 }
@@ -254,6 +255,7 @@ export interface LogOptions {
   readonly additional?: any;
   readonly error?: Error | null;
   readonly format: LogFormat;
+  readonly level: LogLevel;
   readonly meta: LogMetadata;
 }
 
@@ -285,38 +287,53 @@ export interface ChainContracts {
   readonly AirnodeRrp: string;
 }
 
-export interface ChainProvider {
-  readonly name: string;
-  readonly url: string;
-}
-
 export interface ChainConfig {
   readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
-  readonly id: number;
+  readonly id: string;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providers: ChainProvider[];
+  readonly providerNames: string[];
   readonly type: ChainType;
 }
 
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
-  readonly chains: ChainConfig[];
+  readonly airnodeIdShort?: string;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
+  readonly logLevel: LogLevel;
   readonly nodeVersion: string;
-  readonly airnodeIdShort?: string;
   readonly region: string;
   readonly stage: string;
 }
 
+export interface SecuritySchemeEnvironmentConfig {
+  readonly oisTitle: string;
+  readonly name: string;
+  readonly envName: string;
+}
+
+export interface ChainProviderEnvironmentConfig {
+  readonly chainType: ChainType;
+  readonly chainId: string;
+  readonly name: string;
+  readonly envName: string;
+}
+
+export interface EnvironmentConfig {
+  readonly securitySchemes: SecuritySchemeEnvironmentConfig[];
+  readonly chainProviders: ChainProviderEnvironmentConfig[];
+}
+
 export interface Config {
+  readonly chains: ChainConfig[];
+  readonly environment: EnvironmentConfig;
   readonly id: string;
-  readonly ois: OIS[];
   readonly nodeSettings: NodeSettings;
+  readonly ois: OIS[];
   readonly triggers: Triggers;
 }

@@ -13,6 +13,7 @@ import { LogOptions } from 'src/types';
 describe('spawnNewApiCall', () => {
   const logOptions: LogOptions = {
     format: 'plain',
+    level: 'DEBUG',
     meta: { coordinatorId: '837daEf231' },
   };
 

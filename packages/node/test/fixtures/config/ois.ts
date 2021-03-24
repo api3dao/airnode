@@ -37,7 +37,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
       },
       components: {
         securitySchemes: {
-          myapiApiScheme: {
+          mySecurityScheme: {
             in: 'query',
             type: 'apiKey',
             name: 'access_key',
@@ -45,7 +45,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
         },
       },
       security: {
-        myapiApiScheme: [],
+        mySecurityScheme: [],
       },
     },
     endpoints: [

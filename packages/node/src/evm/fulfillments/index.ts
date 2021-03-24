@@ -21,6 +21,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
 
   const baseLogOptions = {
     format: state.settings.logFormat,
+    level: state.settings.logLevel,
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 

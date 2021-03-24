@@ -1,24 +1,38 @@
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import { ChainConfig, ChainProvider } from 'src/types';
+import { ChainConfig, EnvironmentConfig } from 'src/types';
 import * as state from './state';
 
 describe('create', () => {
   it('returns a clean state with defaults', () => {
     const coordinatorId = '837daEf231';
-    const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
+    const chainType = 'evm';
+    const chainId = '1337';
+    const chainProviderName = 'ganache-test';
+    const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
     const chainConfig: ChainConfig = {
       airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
-      id: 1337,
-      providers: [chainProvider],
-      type: 'evm',
+      id: chainId,
+      providerNames: [chainProviderName],
+      type: chainType,
     };
-    const config = fixtures.buildConfig();
-    const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
+    const environmentConfig: EnvironmentConfig = {
+      securitySchemes: [],
+      chainProviders: [
+        {
+          chainType: chainType,
+          chainId: chainId,
+          name: chainProviderName,
+          envName: chainProviderEnvName,
+        },
+      ],
+    };
+    const config = fixtures.buildConfig({ environment: environmentConfig });
+    const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -29,10 +43,11 @@ describe('create', () => {
         airnodeIdShort: '19255a4',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 300,
-        chainId: 1337,
+        chainId: '1337',
         chainType: 'evm',
         ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',
+        logLevel: 'DEBUG',
         minConfirmations: 0,
         name: 'ganache-test',
         region: 'us-east-1',
@@ -57,7 +72,10 @@ describe('create', () => {
 
   it('allows for overwriting settings', () => {
     const coordinatorId = '837daEf231';
-    const chainProvider: ChainProvider = { name: 'ganache-test', url: 'http://localhost:4111' };
+    const chainType = 'evm';
+    const chainId = '1337';
+    const chainProviderName = 'ganache-test';
+    const chainProviderEnvName = `cp_${chainType}_${chainId}_${chainProviderName}`;
     const chainConfig: ChainConfig = {
       airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
@@ -65,13 +83,24 @@ describe('create', () => {
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
-      id: 1337,
+      id: chainId,
       minConfirmations: 3,
-      providers: [chainProvider],
-      type: 'evm',
+      providerNames: [chainProviderName],
+      type: chainType,
     };
-    const config = fixtures.buildConfig();
-    const res = state.buildEVMState(coordinatorId, chainConfig, chainProvider, config);
+    const environmentConfig: EnvironmentConfig = {
+      securitySchemes: [],
+      chainProviders: [
+        {
+          chainType: chainType,
+          chainId: chainId,
+          name: chainProviderName,
+          envName: chainProviderEnvName,
+        },
+      ],
+    };
+    const config = fixtures.buildConfig({ environment: environmentConfig });
+    const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -82,10 +111,11 @@ describe('create', () => {
         airnodeIdShort: '19255a4',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 150,
-        chainId: 1337,
+        chainId: '1337',
         chainType: 'evm',
         ignoreBlockedRequestsAfterBlocks: 20,
         logFormat: 'plain',
+        logLevel: 'DEBUG',
         minConfirmations: 3,
         name: 'ganache-test',
         region: 'us-east-1',
