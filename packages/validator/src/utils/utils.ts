@@ -38,7 +38,7 @@ export function replaceConditionalMatch(match: string, template: any): any {
  */
 export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
   const substitute = (toReplace: string) => {
-    const matches = toReplace.match(/(?<=\[\[)((?!\[\[.*\]\]).)+(?=\]\])/);
+    const matches = toReplace.match(/(?<=\[\[)((?!\[\[.*\]\]).)+(?=\]\])/g);
 
     if (!matches) {
       return toReplace;
