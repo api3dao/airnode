@@ -282,15 +282,19 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
     paramName = paramName.replace(`[${indexMatches[0]}]`, '');
   }
 
-  if (!(paramName in specs)) {
-    if (!insertPath) {
-      return null;
+  const rootIsArray = !paramName.length && indexMatches && paramPath.split('.')[0] === `[${indexMatches[0]}]`;
+
+  if (!rootIsArray) {
+    if (!(paramName in specs)) {
+      if (!insertPath) {
+        return null;
+      }
+
+      specs[paramName] = indexMatches ? [] : {};
     }
 
-    specs[paramName] = indexMatches ? [] : {};
+    specs = specs[paramName];
   }
-
-  specs = specs[paramName];
 
   if (Array.isArray(specs) && indexMatches) {
     for (let i = specs.length; i <= parseInt(indexMatches[0]); i++) {
