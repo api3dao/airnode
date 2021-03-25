@@ -1,0 +1,190 @@
+{
+	"__arrayItem": {
+		"ois": {
+			"__arrayItem": {
+				"__oisSpecs": {}
+			}
+		},
+		"triggers": {
+			"request": {
+				"__arrayItem": {
+					"endpointId": {
+						"__regexp": "^0x[a-fA-F0-9]{64}$"
+					},
+					"oisTitle": {},
+					"endpointName": {},
+					"__conditions": [
+						{
+							"__if": {
+								"oisTitle": ".*"
+							},
+							"__rootThen": {
+								"{{0}}": {
+									"ois": {
+										"__any": {
+											"title": {
+												"__regexp": "^__match$"
+											},
+											"endpoints": {
+												"__any": {
+													"name": {
+														"__regexp": "[[endpointName]]"
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							"__catch": {
+								"__message": "OIS \"[[oisTitle]]\" must contain endpoint \"[[endpointName]]\", as it is specified in {{0}}.triggers.{{2}}"
+							}
+						}
+					]
+				}
+			}
+		},
+		"chains": {
+			"__arrayItem": {
+				"id": {},
+				"type": {
+					"__regexp": "^evm$",
+					"__catch": {
+						"__message": "__fullPath: Currently only \"evm\" is supported"
+					}
+				},
+				"providerNames": {
+					"__arrayItem": {}
+				},
+				"contracts": {
+					"AirnodeRRP": {
+						"__regexp": "^0x[a-fA-F0-9]{64}$"
+					}
+				},
+				"airnodeAdmin": {
+					"__regexp": "^0x[a-fA-F0-9]{64}$"
+				},
+				"authorizers": {
+					"__arrayItem": {
+						"__regexp": "^0x[a-fA-F0-9]{64}$"
+					}
+				},
+				"__optional": {
+					"blockHistoryLimit": {},
+					"minConfirmations": {},
+					"ignoreBlockedRequestsAfterBlocks": {}
+				}
+			}
+		},
+		"nodeSettings": {
+			"nodeVersion": {
+				"__regexp": "^[0-9]+.[0-9]+.[0-9]+$"
+			},
+			"cloudProvider": {
+				"__regexp": "^aws$",
+				"__catch": {
+					"__message": "__fullPath: Currently only \"aws\" is supported"
+				}
+			},
+			"region": {},
+			"stage": {},
+			"logFormat": {
+				"__regexp": "^(json|plain)$",
+				"__catch": {
+					"__message": "__fullPath: Allowed values are \"json\" or \"plain\""
+				}
+			},
+			"logLevel": {
+				"__regexp": "^(DEBUG|INFO|WARN|ERROR)$",
+				"__catch": {
+					"__message": "__fullPath: Allowed values are \"DEBUG\", \"INFO\", \"WARN\" or \"ERROR\""
+				}
+			}
+		},
+		"environment": {
+			"securitySchemes": {
+				"__arrayItem": {
+					"oisTitle": {},
+					"name": {},
+					"envName": {
+						"__regexp": "^\\S+$",
+						"__catch": {
+							"__message": "__fullPath: Can't contain any whitespaces"
+						}
+					},
+					"__conditions": [
+						{
+							"__if": {
+								"oisTitle": ".*"
+							},
+							"__rootThen": {
+								"{{0}}": {
+									"ois": {
+										"__any": {
+											"title": {
+												"__regexp": "^__match$"
+											},
+											"apiSpecifications": {
+												"security": {
+													"__any": {
+														"__keyRegexp": "^[[name]]$"
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							"__catch": {
+								"__message": "OIS \"[[oisTitle]]\" must contain security scheme \"[[name]]\", as it is specified in {{0}}.{{1}}.{{2}}"
+							}
+						}
+					]
+				}
+			},
+			"chainProviders": {
+				"__arrayItem": {
+					"chainType": {},
+					"chainId": {},
+					"name": {},
+					"envName": {
+						"__regexp": "^\\S+$",
+						"__catch": {
+							"__message": "__fullPath: Can't contain any whitespaces"
+						}
+					},
+					"__conditions": [
+						{
+							"__if": {
+								"name": ".*"
+							},
+							"__rootThen": {
+								"{{0}}": {
+									"chains": {
+										"__any": {
+											"providerNames": {
+												"__any": {
+													"__regexp": "^[[name]]$"
+												}
+											},
+											"id": {
+												"__regexp": "^[[chainId]]$"
+											},
+											"type": {
+												"__regexp": "^[[chainType]]$"
+											}
+										}
+									}
+								}
+							},
+							"__catch": {
+								"__message": "{{0}}.chains must contain entry with provider: \"[[name]]\", id: \"[[chainId]]\" and type: \"[[chainType]]\", as it is specified in {{0}}.{{1}}.{{2}}"
+							}
+						}
+					]
+				}
+			}
+		},
+		"id": {}
+	}
+}
