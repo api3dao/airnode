@@ -19,7 +19,7 @@ jobs:
       uses: homoluctus/slatify@master
       if: failure()
       with:
-        channel: '#technical'
+        channel: '#technical-notifications'
         commit: true
         job_name: 'Airnode - Documentation'
         token: ${{ secrets.ACCESS_TOKEN }}
