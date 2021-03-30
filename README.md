@@ -24,8 +24,6 @@ It houses the following packages:
 
 [**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement the Airnode protocol (the request-response version)
 
-[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/validator) A package that can be used to validate [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) and [security.json](https://github.com/api3dao/api3-docs/blob/master/airnode/security-json.md) files
-
 ## Instructions
 
 To install dependencies, run this at the repository root:
