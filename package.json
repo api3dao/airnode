@@ -2,7 +2,7 @@
   "name": "airnode",
   "license": "MIT",
   "engines": {
-    "node": "^12.13.1"
+    "node": "^14.16.0"
   },
   "scripts": {
     "bootstrap": "yarn install && lerna bootstrap",
