@@ -15,7 +15,7 @@ jobs:
       uses: homoluctus/slatify@master
       if: failure()
       with:
-        channel: '#technical'
+        channel: '#technical-notifications'
         commit: true
         job_name: 'Airnode - Documentation'
         token: ${{ secrets.ACCESS_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
         uses: homoluctus/slatify@master
         if: failure()
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - test @airnode/adapter'
           token: ${{ secrets.ACCESS_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
         uses: homoluctus/slatify@master
         if: failure()
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - test @airnode/airnode-abi'
           token: ${{ secrets.ACCESS_TOKEN }}
@@ -118,7 +118,7 @@ jobs:
         uses: homoluctus/slatify@master
         if: failure()
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - test @airnode/node'
           token: ${{ secrets.ACCESS_TOKEN }}
@@ -144,7 +144,7 @@ jobs:
         uses: homoluctus/slatify@master
         if: failure()
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - test @airnode/protocol'
           token: ${{ secrets.ACCESS_TOKEN }}
@@ -179,7 +179,7 @@ jobs:
         uses: homoluctus/slatify@master
         if: failure()
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - E2E tests'
           token: ${{ secrets.ACCESS_TOKEN }}
