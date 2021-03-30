@@ -46,7 +46,7 @@ jobs:
       uses: homoluctus/slatify@master
       if: always()
       with:
-        channel: '#technical'
+        channel: '#technical-notifications'
         commit: true
         job_name: 'Airnode - Continuous Build'
         token: ${{ secrets.ACCESS_TOKEN }}
