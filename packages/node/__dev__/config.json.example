@@ -20,7 +20,7 @@
       {
         "chainType": "evm",
         "chainId": "31337",
-        "name": "EVM local",
+        "name": "evm-local",
         "envName": "CP_EVM_31337_EVM_LOCAL"
       }
     ],
