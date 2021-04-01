@@ -65,3 +65,15 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
+
+    - name: Slack Notification
+      uses: homoluctus/slatify@master
+      if: failure()
+      with:
+        channel: '#technical-notifications'
+        commit: true
+        job_name: 'Airnode - CodeQL'
+        token: ${{ secrets.ACCESS_TOKEN }}
+        type: ${{ job.status }}
+        url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
