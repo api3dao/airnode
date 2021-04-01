@@ -3,7 +3,8 @@ FROM node:14.16.0-alpine3.13
 ENV NODE_ENV production
 
 RUN apk update \
-    && apk add git
+    && apk add git \
+    && apk add strace
 
 RUN git clone --single-branch --branch pre-alpha https://github.com/api3dao/airnode.git
 WORKDIR /airnode
@@ -17,5 +18,10 @@ RUN yarn run build
 RUN echo '*/1 * * * * cd /airnode && yarn run dev:invoke' > local-cron
 RUN /usr/bin/crontab /airnode/local-cron
 
+HEALTHCHECK --interval=5m --timeout=2m \
+    CMD (strace -p $(pgrep crond) -s9999 -o cronLog.txt) & sleep 70 ; kill $! \
+        && cat cronLog.txt | grep crond > /dev/null; if [ 0 != $? ]; then kill 1; fi && rm cronLog.txt
+
 CMD cp out/config.json /airnode/packages/node/__dev__/config.json | true \
+    && cp out/.env /airnode/packages/node/__dev__/.env | true \
     && /usr/sbin/crond -f -l 8
