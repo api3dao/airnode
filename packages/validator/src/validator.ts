@@ -6,7 +6,7 @@ import { processSpecs } from './processor';
 const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
 const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
 const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json', 'utf8'));
-const configSecurityTemplate = JSON.parse(fs.readFileSync('templates/configSecurity.json', 'utf8'));
+const configTemplate = JSON.parse(fs.readFileSync('templates/config.json', 'utf8'));
 
 /**
  * Validates specification from provided file according to template file
@@ -64,50 +64,18 @@ export function validateJson(specs: object, template: object): Result {
   });
 }
 
-/**
- * Validates config and security
- * @param configPath - path to config json file
- * @param securityPath - path to security json file
- * @returns array of error and warning messages
- */
-export function validateConfigSecurity(configPath: string | undefined, securityPath: string | undefined): Result {
-  if (!configPath || !securityPath) {
-    return { valid: false, messages: [logger.error('Specification and template file must be provided')], output: {} };
-  }
-
-  let config, security;
-
-  try {
-    config = fs.readFileSync(configPath);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${configPath}`)] };
-  }
-
-  try {
-    security = fs.readFileSync(securityPath);
-  } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${securityPath}`)] };
-  }
-
-  return isConfigSecurityValid(config, security);
-}
-
-export function isConfigSecurityValid(config: string, security: string): Result {
+export function isConfigValid(specs: string): Result {
   const nonRedundant = {};
-  let parsedConfigSpecs;
-  let parsedSecuritySpecs;
-  let specs;
+  let parsedSpecs;
 
   try {
-    parsedConfigSpecs = JSON.parse(config);
-    parsedSecuritySpecs = JSON.parse(security);
-    specs = { config: parsedConfigSpecs, security: parsedSecuritySpecs };
+    parsedSpecs = JSON.parse(specs);
   } catch (e) {
     return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
   }
 
-  return processSpecs(specs, configSecurityTemplate, '', nonRedundant, {
-    specs,
+  return processSpecs(parsedSpecs, configTemplate, '', nonRedundant, {
+    specs: parsedSpecs,
     nonRedundantParams: nonRedundant,
     output: {},
   });
