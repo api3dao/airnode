@@ -2,7 +2,39 @@
 	"__arrayItem": {
 		"ois": {
 			"__arrayItem": {
-				"__oisSpecs": {}
+				"__oisSpecs": {},
+				"apiSpecifications": {
+					"components": {
+						"securitySchemes": {
+							"__conditions": [
+								{
+									"__if": {
+										"__this_name": ".*"
+									},
+									"__rootThen": {
+										"{{0}}": {
+											"environment": {
+												"securitySchemes": {
+													"__any": {
+														"oisTitle": {
+															"__regexp": "^[[/{{0}}.{{1}}.title]]$"
+														},
+														"name": {
+															"__regexp": "^__match$"
+														}
+													}
+												}
+											}
+										}
+									},
+									"__catch": {
+										"__message": "Security scheme __match from __fullPath must be present in __prefix{{0}}.environment.securitySchemes"
+									}
+								}
+							]
+						}
+					}
+				}
 			}
 		},
 		"triggers": {
@@ -54,7 +86,31 @@
 					}
 				},
 				"providerNames": {
-					"__arrayItem": {}
+					"__arrayItem": {
+						"__conditions": [
+							{
+								"__if": {
+									"__this": ".*"
+								},
+								"__rootThen": {
+									"{{0}}": {
+										"environment": {
+											"chainProviders": {
+												"__any": {
+													"name": {
+														"__regexp": "^__match$"
+													}
+												}
+											}
+										}
+									}
+								},
+								"__catch": {
+									"__message": "Provider __match from __fullPath must be included in environment.chainProviders"
+								}
+							}
+						]
+					}
 				},
 				"contracts": {
 					"AirnodeRRP": {

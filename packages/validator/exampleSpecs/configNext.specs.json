@@ -101,7 +101,7 @@
 				"ignoreBlockedRequestsAfterBlocks": 20
 			},
 			{
-				"id": "3",
+				"id": "2",
 				"type": "evm",
 				"providerNames": [
 					"infura-ropsten"
@@ -137,6 +137,18 @@
 					"chainId": "1",
 					"name": "infura-mainnet",
 					"envName": "cp_evm_1_infura-mainnet"
+				},
+				{
+					"chainType": "evm",
+					"chainId": "1",
+					"name": "self-hosted-mainnet",
+					"envName": "cp_evm_1_self-hosted-mainnet"
+				},
+				{
+					"chainType": "evm",
+					"chainId": "2",
+					"name": "infura-ropsten",
+					"envName": "cp_evm_2_infura-ropsten"
 				}
 			]
 		},
