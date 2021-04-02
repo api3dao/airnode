@@ -20,11 +20,13 @@
                 "operation": {
                   "path": {
                     "__regexp": "__match"
-                  },
-                  "__ignore": {}
+                  }
                 }
               }
             }
+          },
+          "__catch": {
+            "__message": "Path \"__match\" from __fullPath must be included in endpoints array"
           }
         }
       ],
@@ -60,10 +62,12 @@
                         }
                       }
                     }
+                  },
+                  "__catch": {
+                    "__message": "//TODO Parameter with name: \"__match\" and in \"[[in]]\" must be included in \"__prefix.apiSpecifications.paths.\", as it is specified in __prefix.{{0}}.{{1}}.{{2}}"
                   }
                 }
-              ],
-              "__ignore": {}
+              ]
             }
           }
         }
@@ -73,78 +77,46 @@
   "endpoints": {
     "__endpointsSpecs": {},
     "__arrayItem": {
-      "__ignore": {},
-      "__optional": {
-        "operation": {
-          "__conditions": [
-            {
-              "__if": {
-                "path": ".*"
-              },
-              "__rootThen": {
-                "apiSpecifications": {
-                  "paths": {
-                    "__match": {}
-                  }
+      "operation": {
+        "__conditions": [
+          {
+            "__if": {
+              "path": ".*"
+            },
+            "__rootThen": {
+              "apiSpecifications": {
+                "paths": {
+                  "__match": {}
                 }
               }
-            }
-          ]
-        },
-        "parameters": {
-          "__arrayItem": {
-            "operationParameter": {
-              "__conditions": [
-                {
-                  "__if": {
-                    "name": ".*"
-                  },
-                  "__rootThen": {
-                    "apiSpecifications": {
-                      "paths": {
-                        "[[/{{0}}.operation.path]]": {
-                          "__any": {
-                            "parameters": {
-                              "__any": {
-                                "name": {
-                                  "__regexp": "^__match$"
-                                },
-                                "in": {
-                                  "__regexp": "^[[in]]$"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              ]
+            },
+            "__catch": {
+              "__message": "Expected \"__prefix.apiSpecifications.paths.__match\" to exist as path \"__match\" is defined in __fullPath"
             }
           }
-        },
-        "fixedOperationParameters": {
-          "__arrayItem": {
-            "operationParameter": {
-              "__conditions": [
-                {
-                  "__if": {
-                    "name": ".*"
-                  },
-                  "__rootThen": {
-                    "apiSpecifications": {
-                      "paths": {
-                        "[[/{{0}}.operation.path]]": {
-                          "__any": {
-                            "parameters": {
-                              "__any": {
-                                "name": {
-                                  "__regexp": "^__match$"
-                                },
-                                "in": {
-                                  "__regexp": "^[[in]]$"
-                                }
+        ],
+        "__ignore": {}
+      },
+      "parameters": {
+        "__arrayItem": {
+          "operationParameter": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "apiSpecifications": {
+                    "paths": {
+                      "[[/{{0}}.operation.path]]": {
+                        "__any": {
+                          "parameters": {
+                            "__any": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
                               }
                             }
                           }
@@ -152,9 +124,48 @@
                       }
                     }
                   }
+                },
+                "__catch": {
+                  "__message": "Properties of parameter \"__match\" from __fullPath, must match it's properties in apiSpecifications.paths"
                 }
-              ]
-            }
+              }
+            ]
+          }
+        }
+      },
+      "fixedOperationParameters": {
+        "__arrayItem": {
+          "operationParameter": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "apiSpecifications": {
+                    "paths": {
+                      "[[/{{0}}.operation.path]]": {
+                        "__any": {
+                          "parameters": {
+                            "__any": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "__catch": {
+                  "__message": "Properties of parameter \"__match\" from __fullPath, must match it's properties in apiSpecifications.paths"
+                }
+              }
+            ]
           }
         }
       }

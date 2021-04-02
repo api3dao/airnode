@@ -33,7 +33,7 @@ export function validateCatch(
 
   message['__message'] = message['__message'].replace(/__fullPath/g, combinePaths(paramPathPrefix, paramPath));
   message['__message'] = message['__message'].replace(/__path/g, paramPath);
-  message['__message'] = message['__message'].replace(/__prefix/g, paramPathPrefix);
+  message['__message'] = message['__message'].replace(/__prefix/g, paramPathPrefix ? `${paramPathPrefix}.` : '');
 
   return [{ message: message['__message'], level: message['__level'] ? message['__level'] : 'error' }];
 }
