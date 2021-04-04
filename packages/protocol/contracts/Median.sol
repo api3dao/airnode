@@ -11,8 +11,6 @@ contract Median {
         pure
         returns (uint256 median)
     {
-        // require array < 256
-
         if (array.length == 1)
         {
             median = array[0];
@@ -51,18 +49,22 @@ contract Median {
         else
         {
             uint256 pivotVal = _medianOfMedians(array);
-            uint k = array.length / 2;
+            
             if (array.length % 2 == 1) {
-              median = _quickSelect(array, 0, array.length - 1, k, pivotVal);
+              uint idx = _quickSelect1(
+                array, 0, array.length - 1, array.length / 2 + 1, pivotVal
+              );
+              median = array[idx];
             } else {
-              uint x1 = _quickSelect(array, 0, array.length - 1, k - 1, pivotVal);
-              uint x2 = _quickSelect(array, 0, array.length - 1, k, pivotVal);
-              median = x2;
+              (uint idx1, uint idx2) = _quickSelect2(
+                array, 0, array.length - 1, array.length / 2, pivotVal
+              );
+              median = (array[idx1] + array[idx2]) / 2;
             }
         }
     }
 
-    function _quickSelect
+    function _quickSelect1
     (
       uint256[] memory array,
       uint256 left,
@@ -74,18 +76,43 @@ contract Median {
       pure
       returns (uint256 result)
     {
-      if (left == right) {result = array[left];}
+      if (left == right) {return left;}
 
       uint256 pivotIdx = _partition(array, left, right, pivotVal);
 
-      if (k == pivotIdx) {
-        result = array[k];
-      } else if (k < pivotIdx){
+      if (k == pivotIdx + 1) {
+        result = pivotIdx;
+      } else if (k < pivotIdx + 1){
         pivotVal = array[left]; 
-        result = _quickSelect(array, left, pivotIdx - 1, k, pivotVal);
+        result = _quickSelect1(array, left, pivotIdx - 1, k, pivotVal);
       } else {
         pivotVal = array[pivotIdx + 1]; 
-        result = _quickSelect(array, pivotIdx + 1, right, k, pivotVal);
+        result = _quickSelect1(array, pivotIdx + 1, right, k, pivotVal);
+      }
+    }
+
+    function _quickSelect2
+    (
+      uint256[] memory array,
+      uint256 left,
+      uint256 right,
+      uint256 k,
+      uint256 pivotVal
+    )
+      public
+      pure
+      returns (uint idx, uint minIdx)
+    {
+      idx = _quickSelect1(array, left, right, k, pivotVal);
+      assert(idx != array.length - 1);
+      // find minimum in right partition of array
+      minIdx = idx + 1;
+      for (uint i=idx+2; i<array.length; i++) {
+        // TODO: what's the cost of accessing an array value?
+        // ... compared to accessing "normal" variable?
+        if (array[i] < array[minIdx]) {
+          minIdx = i;
+        }
       }
     }
 
@@ -95,7 +122,7 @@ contract Median {
     )
         public
         pure
-        returns (uint256 _pivot)
+        returns (uint256 pivot)
     {
         uint256[] memory medians = new uint256[](array.length/5);
         uint256 med;
@@ -111,8 +138,12 @@ contract Median {
           );
           medians[i/5] = med;   
         }
-        
-        _pivot = compute(medians);
+       
+        uint pivotIdx; 
+        pivotIdx = _quickSelect1(
+          medians, 0, medians.length - 1, medians.length / 2, medians[0]
+        );
+        pivot = medians[pivotIdx];
     }
 
     function _partition
@@ -124,15 +155,23 @@ contract Median {
     )
       public
       pure
-      returns (uint256 storeIdx)
+      returns (uint256 idx)
     {
-      storeIdx = left;
-      for (uint i=left; i<=right; i++) {
-        if (array[i] <= pivotVal) {
-          _swap(array, storeIdx, i);
-          storeIdx++;
+      uint i = left;
+      uint j = left;
+      while (j < right) {
+        if (array[j] < pivotVal) {
+          _swap(array, i, j);
+          i++;
+          j++;
+        } else if (array[j] == pivotVal && pivotVal != array[right]) {
+          _swap(array, j, right);
+        } else {
+          j++;
         }
       }
+      _swap(array, i, right);
+      idx = i;
     }
 
     function _swap
