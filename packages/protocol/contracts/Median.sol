@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.2;
 
+/// @title A contract for computing the median of an array of uints.
+/// @author Sasa Milic - <sasa@api3.org>
 contract Median {
 
+    // External functions
+
+    /// Computes a median on an array of unsigned integers of any length.
+    /// @param array An array of unsigned integers.
+    /// @return median of `array` 
     function compute
     (
       uint256[] memory array
     )
-        public
+        external
         pure
         returns (uint256 median)
     {
@@ -64,6 +71,17 @@ contract Median {
         }
     }
 
+    // Private functions
+
+    /// Select the kth element in an array.
+    /// @param array an array of uints.
+    /// @param left the left index to begin search.
+    /// @param right the right index to begin search.
+    /// @param k.
+    /// @param pivotVal the value of the element we pivot on.
+    /// @dev the pre-condition is that the kth smallest element
+    ///   is not in array[0:left-1] or in array[right+1:]
+    /// @return result the kth smallest element in the array
     function _quickSelect1
     (
       uint256[] memory array,
@@ -72,7 +90,7 @@ contract Median {
       uint256 k,
       uint256 pivotVal
     )
-      public
+      private
       pure
       returns (uint256 result)
     {
@@ -91,6 +109,17 @@ contract Median {
       }
     }
 
+    /// Select the kth and (k+1)th elements in an array.
+    /// @param array an array of uints.
+    /// @param left the left index to begin search.
+    /// @param right the right index to begin search.
+    /// @param k.
+    /// @param pivotVal the value of the element we pivot on.
+    /// @dev the function calls _quickselect1 to find the kth smallest element
+    ///   and then finds the smallest element in the right partition, which
+    ///   is equal to the (k+1)th smallest element in the entire array.
+    /// @return idx1 the index of the  kth smallest element in the array
+    /// @return idx2 the index of the (k+1)th smallest element in the array
     function _quickSelect2
     (
       uint256[] memory array,
@@ -99,23 +128,29 @@ contract Median {
       uint256 k,
       uint256 pivotVal
     )
-      public
+      private
       pure
-      returns (uint idx, uint minIdx)
+      returns (uint idx1, uint idx2)
     {
-      idx = _quickSelect1(array, left, right, k, pivotVal);
-      assert(idx != array.length - 1);
+      idx1 = _quickSelect1(array, left, right, k, pivotVal);
+      assert(idx1 != array.length - 1);
+      // In order to find (k+1)th element,
       // find minimum in right partition of array
-      minIdx = idx + 1;
-      for (uint i=idx+2; i<array.length; i++) {
-        // TODO: what's the cost of accessing an array value?
-        // ... compared to accessing "normal" variable?
-        if (array[i] < array[minIdx]) {
-          minIdx = i;
+      idx2 = idx1 + 1;
+      for (uint i=idx1+2; i<array.length; i++) {
+        if (array[i] < array[idx2]) {
+          idx2 = i;
         }
       }
     }
 
+    /// Return the median of medians of an array.
+    ///   This is the median of the median of disjoin subarrays
+    ///   of length 5.
+    /// @param array an array of uints.
+    /// @dev The result of this is used as a pivot value for quickselect,
+    ///   when computing median.
+    /// @return pivot the median of medians
     function _medianOfMedians
     (
       uint256[] memory array
@@ -146,6 +181,13 @@ contract Median {
         pivot = medians[pivotIdx];
     }
 
+    /// Partition the array around a pivot.
+    /// @param array an array of uints.
+    /// @param left index of array from which we begin partition 
+    /// @param right index of array from which we end partition 
+    /// @param pivotVal the value of the element we select as our pivot.
+    /// @dev We only partition the subarray array[left...right]
+    /// @return idx the resulting index of the pivot
     function _partition
     (
       uint256[] memory array,
@@ -153,7 +195,7 @@ contract Median {
       uint256 right,
       uint256 pivotVal
     )
-      public
+      private
       pure
       returns (uint256 idx)
     {
@@ -174,13 +216,17 @@ contract Median {
       idx = i;
     }
 
+    /// Swap two elements in an array.
+    /// @param array an array of uints.
+    /// @param i an index in `array`.
+    /// @param j an index in `array`.
     function _swap
     (
       uint256[] memory array,
       uint256 i,
       uint256 j
     )
-      public
+      private
       pure
     {
       uint256 temp = array[i];
@@ -188,13 +234,18 @@ contract Median {
       array[j] = temp;
     }
 
+    /// Computes a median on a length-3 array of unsigned integers.
+    /// @param x0 value of element at index 0
+    /// @param x1 value of element at index 1
+    /// @param x2 value of element at index 2
+    /// @return _median median of x0, x1, x2
     function _median3
     (
       uint256 x0,
       uint256 x1,
       uint256 x2
     )
-        public
+        private
         pure
         returns (uint256 _median)
     {
@@ -205,6 +256,12 @@ contract Median {
         _median = x1;
     }
 
+    /// Computes a median on a length-4 array of unsigned integers.
+    /// @param x0 value of element at index 0
+    /// @param x1 value of element at index 1
+    /// @param x2 value of element at index 2
+    /// @param x3 value of element at index 3
+    /// @return _median median of x0, x1, x2, x3
     function _median4
     (
       uint256 x0,
@@ -212,7 +269,7 @@ contract Median {
       uint256 x2,
       uint256 x3
     )
-        public
+        private
         pure
         returns (uint256 _median)
     {
@@ -224,6 +281,13 @@ contract Median {
         _median = (x1 + x2) / 2;
     }
     
+    /// Computes a median on a length-5 array of unsigned integers.
+    /// @param x0 value of element at index 0
+    /// @param x1 value of element at index 1
+    /// @param x2 value of element at index 2
+    /// @param x3 value of element at index 3
+    /// @param x4 value of element at index 4
+    /// @return _median median of x0, x1, x2, x3, x4 
     function _median5
     (
       uint256 x0,
@@ -232,7 +296,7 @@ contract Median {
       uint256 x3,
       uint256 x4
     )
-        public
+        private
         pure
         returns (uint256 _median)
     {
