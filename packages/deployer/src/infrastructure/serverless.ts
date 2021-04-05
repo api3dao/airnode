@@ -3,24 +3,24 @@ import * as child from 'child_process';
 const exec = util.promisify(child.exec);
 import ora from 'ora';
 
-export async function deployAirnode(airnodeIdShort, region, stage) {
-  const spinner = ora('Deploying the serverless functions').start();
+export async function deployAirnode(airnodeIdShort, stage, cloudProvider, region) {
+  const spinner = ora(`Deploying Airnode ${airnodeIdShort}-${stage} at ${cloudProvider}-${region}`).start();
   try {
     await deployServerless(airnodeIdShort, region, stage);
-    spinner.succeed('Deployed the serverless functions');
+    spinner.succeed(`Deployed Airnode ${airnodeIdShort}-${stage} at ${cloudProvider}-${region}`);
   } catch (e) {
-    spinner.fail('Failed deploying the serverless functions');
+    spinner.fail(`Failed deploying Airnode ${airnodeIdShort}-${stage} at ${cloudProvider}-${region}`);
     throw e;
   }
 }
 
-export async function removeAirnode(airnodeIdShort, region, stage) {
-  const spinner = ora('Removing the serverless functions').start();
+export async function removeAirnode(airnodeIdShort, stage, cloudProvider, region) {
+  const spinner = ora(`Removing Airnode ${airnodeIdShort}-${stage} at ${cloudProvider}-${region}`).start();
   try {
     await removeServerless(airnodeIdShort, region, stage);
-    spinner.succeed('Removed the serverless functions');
+    spinner.succeed(`Removed Airnode ${airnodeIdShort}-${stage} at ${cloudProvider}-${region}`);
   } catch (e) {
-    spinner.fail('Failed removing the serverless functions.');
+    spinner.fail(`Failed removing Airnode ${airnodeIdShort}-${stage} at ${cloudProvider}-${region}`);
     throw e;
   }
 }

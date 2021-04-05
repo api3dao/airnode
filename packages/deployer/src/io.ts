@@ -2,17 +2,6 @@ import readline from 'readline';
 import shuffle from 'lodash/shuffle';
 import ora from 'ora';
 
-function ask(rl, question) {
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => resolve(answer));
-  });
-}
-
-function clearLine() {
-  readline.moveCursor(process.stdout, 0, -1);
-  readline.clearLine(process.stdout, 1);
-}
-
 export async function verifyMnemonic(mnemonic) {
   const mnemonics = mnemonic.split(' ');
   const shuffledIndexedMnemonics = shuffle(
@@ -42,4 +31,15 @@ export async function verifyMnemonic(mnemonic) {
   }
   ora().succeed('Mnemonic verified successfully');
   rl.close();
+}
+
+function ask(rl, question) {
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => resolve(answer));
+  });
+}
+
+function clearLine() {
+  readline.moveCursor(process.stdout, 0, -1);
+  readline.clearLine(process.stdout, 1);
 }
