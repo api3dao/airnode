@@ -70,7 +70,7 @@ const environmentConfig: EnvironmentConfig = {
 describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains, environment: environmentConfig });
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
