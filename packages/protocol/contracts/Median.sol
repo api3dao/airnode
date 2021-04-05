@@ -6,6 +6,48 @@ pragma solidity 0.8.2;
 contract Median {
 
     // External functions
+  
+    /// Checks a given value is the correct median of an array.
+    /// @param array An array of unsigned integers.
+    /// @param median given value to check
+    /// @return true iff `median` is the true median of an array 
+    function check
+    (
+      uint256[] calldata array,
+      uint256 median
+    )
+      external
+      pure
+      returns (bool)
+    {
+      uint lessthan;
+      uint greaterthan;
+      for (uint i=0; i<array.length; i++) {
+        if (array[i] < median) {
+          lessthan++;
+        } else if (array[i] > median) {
+          greaterthan++;
+        }
+      }
+      if (lessthan != greaterthan) {
+        return false;
+      }
+      if (array.length % 2 == 1) {
+        return true;
+      }
+      // additional check is needed if array is even-length;
+      // i.e. if the median is an average of two elements
+      uint256 greatestLessThan = 0;
+      uint256 leastGreaterThan = 2**256 - 1; // effectively acts as "infinity"
+      for (uint i=0; i<array.length; i++) {
+        if (array[i] < median && array[i] > greatestLessThan) {
+          greatestLessThan = array[i];
+        } else if (array[i] > median && array[i] < leastGreaterThan) {
+          leastGreaterThan = array[i];
+        }
+      }
+      return median == (greatestLessThan + leastGreaterThan) / 2;
+    }
 
     /// Computes a median on an array of unsigned integers of any length.
     /// @param array An array of unsigned integers.
