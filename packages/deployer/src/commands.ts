@@ -47,7 +47,7 @@ export async function deploy(configPath, secretsPath, nonStop, nodeVersion) {
       receipts.push({
         airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
         airnodeIdShort,
-        config,
+        config: { id: config.id, chains: config.chains, nodeSettings: config.nodeSettings },
         masterWalletAddress,
         xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
       });
