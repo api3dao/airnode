@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Contracts that implement the Airnode protocols",
   "license": "MIT",
-  "main": "index",
+  "main": "dist/index",
   "scripts": {
     "build": "hardhat compile"
   },

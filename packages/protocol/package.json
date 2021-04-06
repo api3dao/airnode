@@ -2,9 +2,11 @@
   "name": "@airnode/protocol",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "index",
+  "main": "dist/src/index",
   "scripts": {
-    "build": "hardhat compile",
+    "build": "yarn run build:contracts && yarn run build:tsc",
+    "build:tsc": "rimraf -rf ./dist && tsc -p tsconfig.build.json",
+    "build:contracts": "hardhat compile",
     "deploy:ropsten": "hardhat deploy --network ropsten",
     "deploy:rinkeby": "hardhat deploy --network rinkeby",
     "deploy:goerli": "hardhat deploy --network goerli",
