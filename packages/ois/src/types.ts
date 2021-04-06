@@ -1,8 +1,17 @@
 // ===========================================
 // General
 // ===========================================
-export type Method = 'get' | 'post';
-export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie';
+export const Method =  {
+  get: 'get',
+  post: 'post',
+} as const;
+
+export const ParameterTarget =  {
+  path: 'path',
+  query: 'query',
+  header: 'header',
+  cookie: 'cookie',
+} as const;
 
 export interface OperationParameter {
   in: ParameterTarget;
@@ -28,9 +37,23 @@ export interface Path {
   [key: string]: Operation;
 }
 
-export type SecuritySchemeName = 'bearer' | 'basic';
-export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
-export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
+export const SecuritySchemeName = {
+  bearer: 'bearer',
+  basic: 'basic',
+} as const;
+
+export const SecuritySchemeType = {
+  apiKey: 'apiKey',
+  http: 'http',
+  // oauth2: 'oauth2' ,
+  // openIdConnect: 'openIdConnect' ,
+} as const;
+
+export const SecuritySchemeTarget = {
+  query: 'query',
+  header: 'header',
+  cookie: 'cookie',
+} as const;
 
 export interface ApiSecurityScheme {
   in?: SecuritySchemeTarget;
