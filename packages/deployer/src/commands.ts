@@ -52,7 +52,7 @@ export async function deploy(configPath, secretsPath, nonStop, nodeVersion) {
         xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
       });
     } catch {
-      // continue
+      ora().warn(`Failed deploying configuration ${config.id}, skipping`);
     }
   }
   const receiptFilename = `receipt.json`;
@@ -67,11 +67,15 @@ export async function remove(airnodeIdShort, stage, cloudProvider, region) {
 export async function removeWithReceipt(receiptFilename) {
   const receipts = await parseReceiptFile(receiptFilename);
   for (const receipt of receipts) {
-    await removeAirnode(
-      receipt.airnodeIdShort,
-      receipt.config.nodeSettings.stage,
-      receipt.config.nodeSettings.cloudProvider,
-      receipt.config.nodeSettings.region
-    );
+    try {
+      await removeAirnode(
+        receipt.airnodeIdShort,
+        receipt.config.nodeSettings.stage,
+        receipt.config.nodeSettings.cloudProvider,
+        receipt.config.nodeSettings.region
+      );
+    } catch {
+      ora().warn(`Failed removing configuration ${receipt.config.id}, skipping`);
+    }
   }
 }
