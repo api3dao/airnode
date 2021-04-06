@@ -2,25 +2,15 @@ const { expect } = require('chai');
 
 let median;
 
-// TODO: add test arrays with duplicate values
-
 // some helper functions for testing
 
-/*
-const permutations = arr => {
+const permutations = (arr) => {
   if (arr.length <= 2) return arr.length === 2 ? [arr, [arr[1], arr[0]]] : [arr];
   return arr.reduce(
-    (acc, item, i) =>
-      acc.concat(
-        permutations([...arr.slice(0, i), ...arr.slice(i + 1)]).map(val => [
-          item,
-          ...val,
-        ])
-      ),
+    (acc, item, i) => acc.concat(permutations([...arr.slice(0, i), ...arr.slice(i + 1)]).map((val) => [item, ...val])),
     []
   );
 };
-*/
 
 const factorial = (n) => {
   var res = 1;
@@ -75,8 +65,56 @@ beforeEach(async () => {
   median = await Median.deploy();
 });
 
-describe('median.compute', function () {
-  for (let n = 1; n <= 25; n++) {
+/*
+ * Test median computation for *all* permutations of arrays of length at most 5.
+ */
+describe('median.compute length <= 5', function () {
+  for (let n = 1; n <= 5; n++) {
+    let arr = range(n);
+    const med = _median(arr);
+    let perms = permutations(arr);
+    // test `nShuffles` random shuffles for each array length
+    for (let i = 0; i < perms.length; i++) {
+      let arrP = perms[i];
+      it('return correct median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
+        expect(await median.compute(arrP)).to.equal(med);
+      });
+    }
+  }
+});
+
+/*
+ * Test median checker for *all* permutations of arrays of length at most 5.
+ */
+describe('median.check length <= 5', function () {
+  for (let n = 1; n <= 5; n++) {
+    let arr = range(n);
+    const med = _median(arr);
+    let perms = permutations(arr);
+    // test `nShuffles` random shuffles for each array length
+    for (let i = 0; i < perms.length; i++) {
+      let arrP = perms[i];
+      it('check correct median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
+        expect(await median.check(arrP, med)).to.equal(true);
+      });
+      // all other values should return false
+      for (let idx = 0; i < arrP.length; i++) {
+        let x = arrP[idx];
+        if (x != med) {
+          it('check incorrect median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
+            expect(await median.check(arrP, x)).to.equal(false);
+          });
+        }
+      }
+    }
+  }
+});
+
+/*
+ * Test a random sampling of arrays of length greater than 5.
+ */
+describe('median.compute length > 5', function () {
+  for (let n = 6; n <= 25; n++) {
     let arr = addRandomDuplicates(range(n));
     const med = _median(arr);
     // test `nShuffles` random shuffles for each array length
