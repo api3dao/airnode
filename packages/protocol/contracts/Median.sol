@@ -16,10 +16,10 @@ contract Median {
       uint256[] calldata array,
       uint256 median
     )
-      external
-      pure
+      public
       returns (bool)
     {
+
       uint lessthan;
       uint greaterthan;
       for (uint i=0; i<array.length; i++) {
