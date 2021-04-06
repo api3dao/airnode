@@ -57,7 +57,7 @@ export async function deploy(configPath, secretsPath, nonStop, nodeVersion) {
   }
   const receiptFilename = `receipt.json`;
   fs.writeFileSync(receiptFilename, JSON.stringify(receipts, null, 4));
-  ora().info(`Outputted ${receiptFilename}\n` + ' This file does not contain any sensitive information.');
+  ora().info(`Outputted ${receiptFilename}\n` + '  This file does not contain any sensitive information.');
 }
 
 export async function remove(airnodeIdShort, stage, cloudProvider, region) {
