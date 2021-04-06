@@ -73,7 +73,6 @@ describe('median.compute length <= 5', function () {
     let arr = range(n);
     const med = _median(arr);
     let perms = permutations(arr);
-    // test `nShuffles` random shuffles for each array length
     for (let i = 0; i < perms.length; i++) {
       let arrP = perms[i];
       it('return correct median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
@@ -91,7 +90,6 @@ describe('median.check length <= 5', function () {
     let arr = range(n);
     const med = _median(arr);
     let perms = permutations(arr);
-    // test `nShuffles` random shuffles for each array length
     for (let i = 0; i < perms.length; i++) {
       let arrP = perms[i];
       it('check correct median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
