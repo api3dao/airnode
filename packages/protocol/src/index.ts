@@ -1,11 +1,14 @@
-import AirnodeRrpArtifact from '../artifacts/contracts/AirnodeRrp.sol/AirnodeRrp.json';
-import MockAirnodeRrpClientArtifact from '../artifacts/contracts/mock/MockAirnodeRrpClient.sol/MockAirnodeRrpClient.json';
+import {
+  MockAirnodeRrpClient__factory as MockAirnodeRrpClientFactory,
+  AirnodeRrp__factory as AirnodeRrpFactory,
+} from './contracts';
 
 const AirnodeRrpAddresses: { [chainId: number]: string } = {};
 const mocks = {
-  MockAirnodeRrpClient: MockAirnodeRrpClientArtifact,
+  MockAirnodeRrpClientFactory,
 };
 // TODO
 const authorizers = {};
 
-export { AirnodeRrpArtifact, AirnodeRrpAddresses, mocks, authorizers };
+export { AirnodeRrpAddresses, AirnodeRrpFactory, mocks, authorizers };
+export type { AirnodeRrp, MockAirnodeRrpClient } from './contracts';

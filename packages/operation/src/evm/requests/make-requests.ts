@@ -9,9 +9,8 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
   const { privateKey, requesterIndex } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
-  const clientAbi = mocks.MockAirnodeRrpClient.abi;
   const clientAddress = state.deployment.clients[request.client];
-  const client = new ethers.Contract(clientAddress, clientAbi, state.provider);
+  const client = mocks.MockAirnodeRrpClientFactory.connect(clientAddress, state.provider);
   const encodedParameters = encode(request.parameters);
 
   const templateId = state.deployment.airnodes[request.airnode].templates[request.template].hash;
@@ -41,9 +40,8 @@ export async function makeFullRequest(state: State, request: FullRequest) {
   const airnodeId = deriveAirnodeId(airnodeAddress);
   const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
 
-  const clientAbi = mocks.MockAirnodeRrpClient.abi;
   const clientAddress = state.deployment.clients[request.client];
-  const client = new ethers.Contract(clientAddress, clientAbi, state.provider);
+  const client = mocks.MockAirnodeRrpClientFactory.connect(clientAddress, state.provider);
   const encodedParameters = encode(request.parameters);
 
   const { mnemonic } = state.config.airnodes[request.airnode];
