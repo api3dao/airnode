@@ -3,6 +3,7 @@
 
 /cache
 /artifacts
+/src/contracts
 
 credentials.json
 *.flat.sol

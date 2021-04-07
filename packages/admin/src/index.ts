@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
 import * as airnodeAbi from '@airnode/airnode-abi';
+import { AirnodeRrp } from '@airnode/protocol';
 
-// TODO: add stronger types for airnodeRrp contract
-
-export async function createRequester(airnodeRrp: ethers.Contract, requesterAdmin: string) {
+export async function createRequester(airnodeRrp: AirnodeRrp, requesterAdmin: string) {
   const receipt = await airnodeRrp.createRequester(requesterAdmin);
   return new Promise((resolve) =>
     airnodeRrp.provider.once(receipt.hash, (tx) => {
@@ -13,7 +12,7 @@ export async function createRequester(airnodeRrp: ethers.Contract, requesterAdmi
   );
 }
 
-export async function setRequesterAdmin(airnodeRrp: ethers.Contract, requesterIndex: string, requesterAdmin: string) {
+export async function setRequesterAdmin(airnodeRrp: AirnodeRrp, requesterIndex: string, requesterAdmin: string) {
   const receipt = await airnodeRrp.setRequesterAdmin(requesterIndex, requesterAdmin);
   return new Promise((resolve) =>
     airnodeRrp.provider.once(receipt.hash, (tx) => {
@@ -23,14 +22,14 @@ export async function setRequesterAdmin(airnodeRrp: ethers.Contract, requesterIn
   );
 }
 
-export async function deriveDesignatedWallet(airnodeRrp: ethers.Contract, airnodeId: string, requesterIndex: string) {
+export async function deriveDesignatedWallet(airnodeRrp: AirnodeRrp, airnodeId: string, requesterIndex: string) {
   const airnode = await airnodeRrp.getAirnodeParameters(airnodeId);
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnode.xpub);
   const designatedWalletNode = hdNode.derivePath(`m/0/${requesterIndex}`);
   return designatedWalletNode.address;
 }
 
-export async function endorseClient(airnodeRrp: ethers.Contract, requesterIndex: string, clientAddress: string) {
+export async function endorseClient(airnodeRrp: AirnodeRrp, requesterIndex: string, clientAddress: string) {
   const receipt = await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, true);
   return new Promise((resolve) =>
     airnodeRrp.provider.once(receipt.hash, (tx) => {
@@ -40,7 +39,7 @@ export async function endorseClient(airnodeRrp: ethers.Contract, requesterIndex:
   );
 }
 
-export async function unendorseClient(airnodeRrp: ethers.Contract, requesterIndex: string, clientAddress: string) {
+export async function unendorseClient(airnodeRrp: AirnodeRrp, requesterIndex: string, clientAddress: string) {
   const receipt = await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, false);
   return new Promise((resolve) =>
     airnodeRrp.provider.once(receipt.hash, (tx) => {
@@ -50,14 +49,13 @@ export async function unendorseClient(airnodeRrp: ethers.Contract, requesterInde
   );
 }
 
-// TODO: type me
 interface Template {
   parameters: string | airnodeAbi.InputParameter[];
   airnodeId: string;
   endpointId: string;
 }
 
-export async function createTemplate(airnodeRrp: ethers.Contract, template: Template) {
+export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template) {
   let encodedParameters;
   if (typeof template.parameters == 'string') {
     encodedParameters = template.parameters;
@@ -74,12 +72,12 @@ export async function createTemplate(airnodeRrp: ethers.Contract, template: Temp
 }
 
 export async function requestWithdrawal(
-  airnodeRrp: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   airnodeId: string,
   requesterIndex: string,
   destination: string
 ) {
-  const designatedWalletAddress = deriveDesignatedWallet(airnodeRrp, airnodeId, requesterIndex);
+  const designatedWalletAddress = await deriveDesignatedWallet(airnodeRrp, airnodeId, requesterIndex); // TODO: this was probably a bug before, test it
   const receipt = await airnodeRrp.requestWithdrawal(airnodeId, requesterIndex, designatedWalletAddress, destination);
   return new Promise((resolve) =>
     airnodeRrp.provider.once(receipt.hash, (tx) => {
@@ -89,7 +87,7 @@ export async function requestWithdrawal(
   );
 }
 
-export async function checkWithdrawalRequest(airnodeRrp: ethers.Contract, withdrawalRequestId: string) {
+export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, withdrawalRequestId: string) {
   const logs = await airnodeRrp.provider.getLogs({
     address: airnodeRrp.address,
     fromBlock: 0,
@@ -108,11 +106,7 @@ export async function checkWithdrawalRequest(airnodeRrp: ethers.Contract, withdr
   return parsedLog.args.amount;
 }
 
-export async function setAirnodeParameters(
-  airnodeRrp: ethers.Contract,
-  airnodeAdmin: string,
-  authorizers: object /** TODO: */
-) {
+export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeAdmin: string, authorizers: string[]) {
   const wallet = airnodeRrp.signer as ethers.Wallet;
   const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
