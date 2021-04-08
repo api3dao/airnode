@@ -3,7 +3,7 @@
     "__maxSize": 1,
     "__arrayItem": {
       "url": {
-        "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
+        "__regexp": "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)"
       }
     }
   },
@@ -24,6 +24,9 @@
               }
             }
           }
+        },
+        "__catch": {
+          "__message": "Parameter __match from __fullPath must be in parameters of path {{1}}"
         }
       }
     ],
@@ -34,7 +37,10 @@
           "__arrayItem": {
             "name": {},
             "in": {
-              "__regexp": "^(path|query|header|cookie)$"
+              "__regexp": "^(path|query|header|cookie)$",
+              "__catch": {
+                "__message": "Allowed values in __fullPath are: 'path', 'query', 'header' or 'cookie'"
+              }
             }
           }
         }
@@ -44,10 +50,27 @@
   "components": {
     "securitySchemes": {
       "__keyRegexp": "^[^\\s'\"\\\\]+$",
+      "__conditions": [
+        {
+          "__if": {
+            "__this_name": ".*"
+          },
+          "__rootThen": {
+            "security": {
+              "__match": {}
+            }
+          },
+          "__catch": {
+            "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixsecurity"
+          }
+        }
+      ],
       "__objectItem": {
         "type": {
           "__regexp": "^(apiKey|http)$",
-          "__level": "error"
+          "__catch": {
+            "__message": "__fullPath: Allowed values are \"apiKey\" or \"http\""
+          }
         },
         "__conditions": [
           {
@@ -56,6 +79,9 @@
             },
             "__then": {
               "name": {}
+            },
+            "__catch": {
+              "__message": "__fullPath must contain \"name\" since value of \"type\" is \"apiKey\""
             }
           },
           {
@@ -64,34 +90,44 @@
             },
             "__then": {
               "scheme": {
-                "__regexp": "^(Basic|Bearer)$",
-                "__level": "error"
+                "__regexp": "^(basic|bearer)$",
+                "__catch": {
+                  "__message": "__fullPath: Allowed values are \"basic\" or \"bearer\""
+                }
               }
-            }
-          },
-          {
-            "__require": {
-              "/security.__this_name": {}
             }
           }
         ],
         "in": {
-          "__regexp": "^(query|header|cookie)$"
+          "__regexp": "^(query|header|cookie)$",
+          "__catch": {
+            "__message": "__fullPath: Allowed values are \"query\", \"header\" or \"cookie\""
+          }
         }
       }
     }
   },
   "security": {
     "__keyRegexp": "^[^\\s'\"\\\\]+$",
-    "__objectItem": {
-      "__arrayItem": {},
-      "__conditions": [
-        {
-          "__require": {
-            "/components.securitySchemes.__this_name": {}
+    "__conditions": [
+      {
+        "__if": {
+          "__this_name": ".*"
+        },
+        "__rootThen": {
+          "components": {
+            "securitySchemes": {
+              "__match": {}
+            }
           }
+        },
+        "__catch": {
+          "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
         }
-      ]
+      }
+    ],
+    "__objectItem": {
+      "__arrayItem": {}
     }
   }
 }

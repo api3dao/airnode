@@ -58,11 +58,11 @@ export function processSpecs(
         break;
 
       case '__regexp':
-        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath)));
+        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), roots.specs));
         break;
 
       case '__keyRegexp':
-        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), true));
+        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), roots.specs, true));
         break;
 
       case '__maxSize':

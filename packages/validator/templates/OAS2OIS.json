@@ -61,7 +61,7 @@
 	"servers": {
 		"__arrayItem": {
 			"url": {
-				"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
+				"__regexp": "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)",
 				"__actions": [
 					{
 						"__copy": {
@@ -259,7 +259,7 @@
 						},
 						"__then": {
 							"scheme": {
-								"__regexp": "^(Basic|Bearer)$",
+								"__regexp": "^(basic|bearer)$",
 								"__actions": [
 									{
 										"__copy": {

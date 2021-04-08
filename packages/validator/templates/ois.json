@@ -1,10 +1,10 @@
 {
   "oisFormat": {
-    "__regexp": "^[0-9]+.[0-9]+.[0-9]+$"
+    "__regexp": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
   },
   "title": {},
   "version": {
-    "__regexp": "^[0-9]+.[0-9]+.[0-9]+$"
+    "__regexp": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
   },
   "apiSpecifications": {
     "__apiSpecs": {},
@@ -20,11 +20,13 @@
                 "operation": {
                   "path": {
                     "__regexp": "__match"
-                  },
-                  "__ignore": {}
+                  }
                 }
               }
             }
+          },
+          "__catch": {
+            "__message": "Path \"__match\" from __fullPath must be included in endpoints array"
           }
         }
       ],
@@ -60,10 +62,12 @@
                         }
                       }
                     }
+                  },
+                  "__catch": {
+                    "__message": "Parameter \"__match\" from \"__prefix{{0}}.{{1}}.{{2}}\" must be included in \"__prefixendpoints\""
                   }
                 }
-              ],
-              "__ignore": {}
+              ]
             }
           }
         }
@@ -74,77 +78,47 @@
     "__endpointsSpecs": {},
     "__arrayItem": {
       "__ignore": {},
-      "__optional": {
-        "operation": {
-          "__conditions": [
-            {
-              "__if": {
-                "path": ".*"
-              },
-              "__rootThen": {
-                "apiSpecifications": {
-                  "paths": {
-                    "__match": {}
-                  }
+      "operation": {
+        "__conditions": [
+          {
+            "__if": {
+              "path": ".*"
+            },
+            "__rootThen": {
+              "apiSpecifications": {
+                "paths": {
+                  "__match": {}
                 }
               }
-            }
-          ]
-        },
-        "parameters": {
-          "__arrayItem": {
-            "operationParameter": {
-              "__conditions": [
-                {
-                  "__if": {
-                    "name": ".*"
-                  },
-                  "__rootThen": {
-                    "apiSpecifications": {
-                      "paths": {
-                        "[[/{{0}}.operation.path]]": {
-                          "__any": {
-                            "parameters": {
-                              "__any": {
-                                "name": {
-                                  "__regexp": "^__match$"
-                                },
-                                "in": {
-                                  "__regexp": "^[[in]]$"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              ]
+            },
+            "__catch": {
+              "__message": "Expected \"__prefixapiSpecifications.paths.__match\" to exist as path \"__match\" is defined in __fullPath"
             }
           }
-        },
-        "fixedOperationParameters": {
-          "__arrayItem": {
-            "operationParameter": {
-              "__conditions": [
-                {
-                  "__if": {
-                    "name": ".*"
-                  },
-                  "__rootThen": {
-                    "apiSpecifications": {
-                      "paths": {
-                        "[[/{{0}}.operation.path]]": {
-                          "__any": {
-                            "parameters": {
-                              "__any": {
-                                "name": {
-                                  "__regexp": "^__match$"
-                                },
-                                "in": {
-                                  "__regexp": "^[[in]]$"
-                                }
+        ],
+        "__ignore": {}
+      },
+      "parameters": {
+        "__arrayItem": {
+          "__ignore": {},
+          "operationParameter": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "apiSpecifications": {
+                    "paths": {
+                      "[[/{{0}}.operation.path]]": {
+                        "__any": {
+                          "parameters": {
+                            "__any": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
                               }
                             }
                           }
@@ -152,9 +126,49 @@
                       }
                     }
                   }
+                },
+                "__catch": {
+                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}, must match it's properties in __prefixapiSpecifications.paths"
                 }
-              ]
-            }
+              }
+            ]
+          }
+        }
+      },
+      "fixedOperationParameters": {
+        "__arrayItem": {
+          "__ignore": {},
+          "operationParameter": {
+            "__conditions": [
+              {
+                "__if": {
+                  "name": ".*"
+                },
+                "__rootThen": {
+                  "apiSpecifications": {
+                    "paths": {
+                      "[[/{{0}}.operation.path]]": {
+                        "__any": {
+                          "parameters": {
+                            "__any": {
+                              "name": {
+                                "__regexp": "^__match$"
+                              },
+                              "in": {
+                                "__regexp": "^[[in]]$"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "__catch": {
+                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}, must match it's properties in __prefixapiSpecifications.paths"
+                }
+              }
+            ]
           }
         }
       }

@@ -214,34 +214,6 @@ const invalidOISSpecification = `{
   "endpoints": ${invalidEndpointSpecification}
 }`;
 
-const validSecuritySpecification = `
-{
-  "id": "abc123",
-  "apiCredentials": {
-    "myOisTitle": [
-      {
-        "securitySchemeName": "mySecurityScheme",
-        "value": "<TO_BE_FILLED>"
-      }
-    ]
-  }
-}
-`;
-
-const invalidSecuritySpecification = `
-{
-  "id": "abc",
-  "apiCredentials": {
-    "myOisTitle": [
-      {
-        "securitySchemeName": "mySecurityScheme",
-        "value": "<TO_BE_FILLED>"
-      }
-    ]
-  }
-}
-`;
-
 const validConfigSpecification = `
 {
   "id": "abc123",
@@ -1099,12 +1071,12 @@ describe('validator', () => {
   });
 
   it('config & security specs', () => {
-    expect(validator.isConfigSecurityValid(validConfigSpecification, validSecuritySpecification)).toMatchObject({
+    expect(validator.isConfigValid(validConfigSpecification)).toMatchObject({
       valid: true,
       messages: [],
     });
 
-    expect(validator.isConfigSecurityValid(invalidConfigSpecification, invalidSecuritySpecification)).toMatchObject({
+    expect(validator.isConfigValid(invalidConfigSpecification)).toMatchObject({
       valid: false,
       messages: [
         formattingMessage('config.ois[0].oisFormat'),
