@@ -259,7 +259,7 @@
 						},
 						"__then": {
 							"scheme": {
-								"__regexp": "^(Basic|Bearer)$",
+								"__regexp": "^(basic|bearer)$",
 								"__actions": [
 									{
 										"__copy": {

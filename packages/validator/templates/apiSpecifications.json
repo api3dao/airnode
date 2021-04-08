@@ -90,9 +90,9 @@
             },
             "__then": {
               "scheme": {
-                "__regexp": "^(Basic|Bearer)$",
+                "__regexp": "^(basic|bearer)$",
                 "__catch": {
-                  "__message": "__fullPath: Allowed values are \"Basic\" or \"Bearer\""
+                  "__message": "__fullPath: Allowed values are \"basic\" or \"bearer\""
                 }
               }
             }
