@@ -109,25 +109,25 @@
   },
   "security": {
     "__keyRegexp": "^[^\\s'\"\\\\]+$",
-    "__objectItem": {
-      "__arrayItem": {},
-      "__conditions": [
-        {
-          "__if": {
-            "__this_name": ".*"
-          },
-          "__rootThen": {
-            "components": {
-              "securitySchemes": {
-                "__match": {}
-              }
+    "__conditions": [
+      {
+        "__if": {
+          "__this_name": ".*"
+        },
+        "__rootThen": {
+          "components": {
+            "securitySchemes": {
+              "__match": {}
             }
-          },
-          "__catch": {
-            "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
           }
+        },
+        "__catch": {
+          "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
         }
-      ]
+      }
+    ],
+    "__objectItem": {
+      "__arrayItem": {}
     }
   }
 }

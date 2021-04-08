@@ -64,7 +64,7 @@
                     }
                   },
                   "__catch": {
-                    "__message": "//TODO Parameter with name: \"__match\" and in \"[[in]]\" must be included in \"__prefix.apiSpecifications.paths.\", as it is specified in __prefix.{{0}}.{{1}}.{{2}}"
+                    "__message": "Parameter \"__match\" from \"__prefix{{0}}.{{1}}.{{2}}\" must be included in \"__prefixendpoints\""
                   }
                 }
               ]
@@ -77,6 +77,7 @@
   "endpoints": {
     "__endpointsSpecs": {},
     "__arrayItem": {
+      "__ignore": {},
       "operation": {
         "__conditions": [
           {
@@ -91,7 +92,7 @@
               }
             },
             "__catch": {
-              "__message": "Expected \"__prefix.apiSpecifications.paths.__match\" to exist as path \"__match\" is defined in __fullPath"
+              "__message": "Expected \"__prefixapiSpecifications.paths.__match\" to exist as path \"__match\" is defined in __fullPath"
             }
           }
         ],
@@ -99,6 +100,7 @@
       },
       "parameters": {
         "__arrayItem": {
+          "__ignore": {},
           "operationParameter": {
             "__conditions": [
               {
@@ -126,7 +128,7 @@
                   }
                 },
                 "__catch": {
-                  "__message": "Properties of parameter \"__match\" from __fullPath, must match it's properties in apiSpecifications.paths"
+                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}, must match it's properties in __prefixapiSpecifications.paths"
                 }
               }
             ]
@@ -135,6 +137,7 @@
       },
       "fixedOperationParameters": {
         "__arrayItem": {
+          "__ignore": {},
           "operationParameter": {
             "__conditions": [
               {
@@ -162,7 +165,7 @@
                   }
                 },
                 "__catch": {
-                  "__message": "Properties of parameter \"__match\" from __fullPath, must match it's properties in apiSpecifications.paths"
+                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}, must match it's properties in __prefixapiSpecifications.paths"
                 }
               }
             ]

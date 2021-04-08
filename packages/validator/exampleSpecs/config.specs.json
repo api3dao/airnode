@@ -21,6 +21,16 @@
 									}
 								]
 							}
+						},
+						"/myPath2": {
+							"post": {
+								"parameters": [
+									{
+										"in": "query",
+										"name": "myParam"
+									}
+								]
+							}
 						}
 					},
 					"components": {
@@ -29,11 +39,17 @@
 								"in": "query",
 								"type": "apiKey",
 								"name": "myKey"
+							},
+							"mySecurityScheme2": {
+								"in": "query",
+								"type": "apiKey",
+								"name": "myKey"
 							}
 						}
 					},
 					"security": {
-						"mySecurityScheme": []
+						"mySecurityScheme": [],
+						"mySecurityScheme2": []
 					}
 				},
 				"endpoints": [
@@ -67,6 +83,37 @@
 								}
 							}
 						]
+					},
+					{
+						"name": "myEndpointName2",
+						"operation": {
+							"method": "post",
+							"path": "/myPath2"
+						},
+						"fixedOperationParameters": [
+							{
+								"value": "myValue",
+								"operationParameter": {
+									"in": "query",
+									"name": "myParam"
+								}
+							}
+						],
+						"reservedParameters": [
+							{
+								"name": "_type",
+								"fixed": "int256"
+							},
+							{
+								"name": "_path",
+								"fixed": "result"
+							},
+							{
+								"name": "_times",
+								"default": "1000000"
+							}
+						],
+						"parameters": []
 					}
 				]
 			}
@@ -128,6 +175,11 @@
 				{
 					"oisTitle": "myOisTitle",
 					"name": "mySecurityScheme",
+					"envName": "ss_myOisTitle_mySecurityScheme"
+				},
+				{
+					"oisTitle": "myOisTitle",
+					"name": "mySecurityScheme2",
 					"envName": "ss_myOisTitle_mySecurityScheme"
 				}
 			],
