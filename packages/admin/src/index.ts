@@ -3,21 +3,23 @@ import * as airnodeAbi from '@airnode/airnode-abi';
 import { AirnodeRrp } from '@airnode/protocol';
 
 export async function createRequester(airnodeRrp: AirnodeRrp, requesterAdmin: string) {
-  const receipt = await airnodeRrp.createRequester(requesterAdmin);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.requesterIndex.toString());
+  await airnodeRrp.createRequester(requesterAdmin);
+  const filter = airnodeRrp.filters.RequesterCreated(null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.provider.once(filter, (_, requesterIndex) => {
+      resolve(requesterIndex);
     })
   );
 }
 
 export async function setRequesterAdmin(airnodeRrp: AirnodeRrp, requesterIndex: string, requesterAdmin: string) {
-  const receipt = await airnodeRrp.setRequesterAdmin(requesterIndex, requesterAdmin);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.admin);
+  await airnodeRrp.setRequesterAdmin(requesterIndex, requesterAdmin);
+  const filter = airnodeRrp.filters.RequesterUpdated(null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.once(filter, (_, requesterIndex) => {
+      resolve(requesterIndex);
     })
   );
 }
@@ -30,21 +32,23 @@ export async function deriveDesignatedWallet(airnodeRrp: AirnodeRrp, airnodeId: 
 }
 
 export async function endorseClient(airnodeRrp: AirnodeRrp, requesterIndex: string, clientAddress: string) {
-  const receipt = await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, true);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.clientAddress);
+  await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, true);
+  const filter = airnodeRrp.filters.ClientEndorsementStatusSet(null, null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.once(filter, (_, clientAddress) => {
+      resolve(clientAddress);
     })
   );
 }
 
 export async function unendorseClient(airnodeRrp: AirnodeRrp, requesterIndex: string, clientAddress: string) {
-  const receipt = await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, false);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.clientAddress);
+  await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, false);
+  const filter = airnodeRrp.filters.ClientEndorsementStatusSet(null, null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.once(filter, (_, clientAddress) => {
+      resolve(clientAddress);
     })
   );
 }
@@ -62,11 +66,12 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  const receipt = await airnodeRrp.createTemplate(template.airnodeId, template.endpointId, encodedParameters);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.templateId);
+  await airnodeRrp.createTemplate(template.airnodeId, template.endpointId, encodedParameters);
+  const filter = airnodeRrp.filters.TemplateCreated(null, null, null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.once(filter, (templateId) => {
+      resolve(templateId);
     })
   );
 }
@@ -78,11 +83,12 @@ export async function requestWithdrawal(
   destination: string
 ) {
   const designatedWalletAddress = await deriveDesignatedWallet(airnodeRrp, airnodeId, requesterIndex); // TODO: this was probably a bug before, test it
-  const receipt = await airnodeRrp.requestWithdrawal(airnodeId, requesterIndex, designatedWalletAddress, destination);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.withdrawalRequestId);
+  await airnodeRrp.requestWithdrawal(airnodeId, requesterIndex, designatedWalletAddress, destination);
+  const filter = airnodeRrp.filters.WithdrawalRequested(null, null, null, null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.once(filter, (_, __, withdrawalRequestId) => {
+      resolve(withdrawalRequestId);
     })
   );
 }
@@ -103,22 +109,23 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, withdrawalR
     return undefined;
   }
   const parsedLog = airnodeRrp.interface.parseLog(logs[0]!);
-  return parsedLog.args.amount;
+  return parsedLog.args.amount as string;
 }
 
 export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeAdmin: string, authorizers: string[]) {
   const wallet = airnodeRrp.signer as ethers.Wallet;
   const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
-  const masterWallet = ethers.Wallet.fromMnemonic(wallet.mnemonic.phrase, 'm').connect(airnodeRrp.provider);
+  const masterWallet = ethers.Wallet.fromMnemonic(wallet.mnemonic.phrase, 'm').connect(
+    airnodeRrp.provider as ethers.providers.Provider
+  );
   // Assuming masterWallet has funds to make the transaction below
-  const receipt = await airnodeRrp
-    .connect(masterWallet)
-    .setAirnodeParametersAndForwardFunds(airnodeAdmin, xpub, authorizers);
-  return new Promise((resolve) =>
-    airnodeRrp.provider.once(receipt.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.airnodeId.toString());
+  await airnodeRrp.connect(masterWallet).setAirnodeParametersAndForwardFunds(airnodeAdmin, xpub, authorizers);
+  const filter = airnodeRrp.filters.AirnodeParametersSet(null, null, null, null);
+
+  return new Promise<string>((resolve) =>
+    airnodeRrp.once(filter, (airnodeId) => {
+      resolve(airnodeId);
     })
   );
 }
