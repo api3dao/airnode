@@ -22,19 +22,17 @@
     "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol && yarn run flatten:delete-license-lines",
     "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol"
   },
-  "dependencies": {
+  "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@typechain/ethers-v5": "^6.0.5",
     "chai": "^4.2.0",
+    "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.2.1",
     "hardhat": "^2.0.5",
     "hardhat-deploy": "^0.7.0-beta.38",
-    "solidity-coverage": "^0.7.13"
-  },
-  "devDependencies": {
-    "@typechain/ethers-v5": "^6.0.5",
-    "copyfiles": "^2.4.1",
     "hardhat-gas-reporter": "^1.0.4",
+    "solidity-coverage": "^0.7.13",
     "typechain": "^4.0.3"
   }
 }
