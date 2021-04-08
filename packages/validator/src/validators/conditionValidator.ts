@@ -51,14 +51,20 @@ function validateConditionRegexInKey(
         continue;
       }
 
-      const nonRedundantParamsCopy = {};
+      const nonRedundantParamsCopy = Array.isArray(currentNonRedundantParams) ? [] : {};
       let template = utils.replaceConditionalMatch(param, thenCondition);
       template = utils.replaceParamIndexWithName(template, paramPath);
       template = utils.replacePathsWithValues(specs, roots.specs, template);
 
       // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
-      for (const key in currentNonRedundantParams) {
-        nonRedundantParamsCopy[key] = JSON.parse(JSON.stringify(currentNonRedundantParams[key]));
+      if (Array.isArray(currentNonRedundantParams)) {
+        for (const item of currentNonRedundantParams) {
+          (nonRedundantParamsCopy as Array<any>).push(JSON.parse(JSON.stringify(item)));
+        }
+      } else {
+        for (const key in currentNonRedundantParams) {
+          nonRedundantParamsCopy[key] = JSON.parse(JSON.stringify(currentNonRedundantParams[key]));
+        }
       }
 
       const result = processSpecs(
@@ -72,13 +78,21 @@ function validateConditionRegexInKey(
       if (result.messages.some((msg) => msg.level === 'error')) {
         // validateSpecs ended with errors => correct "then section" is not present in specs
         // returning nonRedundantParams to original state, because some parameters might be extra if nothing else requires them
-        for (const key in nonRedundantParamsCopy) {
-          currentNonRedundantParams[key] = JSON.parse(JSON.stringify(nonRedundantParamsCopy[key]));
-        }
+        if (Array.isArray(nonRedundantParamsCopy)) {
+          currentNonRedundantParams.length = 0;
 
-        for (const key in currentNonRedundantParams) {
-          if (!(key in nonRedundantParamsCopy)) {
-            delete currentNonRedundantParams[key];
+          for (const item of nonRedundantParamsCopy) {
+            currentNonRedundantParams.push(JSON.parse(JSON.stringify(item)));
+          }
+        } else {
+          for (const key in nonRedundantParamsCopy) {
+            currentNonRedundantParams[key] = JSON.parse(JSON.stringify(nonRedundantParamsCopy[key]));
+          }
+
+          for (const key in currentNonRedundantParams) {
+            if (!(key in nonRedundantParamsCopy)) {
+              delete currentNonRedundantParams[key];
+            }
           }
         }
 
@@ -152,11 +166,17 @@ function validateConditionRegexInValue(
   thenCondition = utils.replacePathsWithValues(specs, roots.specs, thenCondition);
 
   // parameter value matched regex, "then section" must be checked
-  const nonRedundantParamsCopy = {};
+  const nonRedundantParamsCopy = Array.isArray(currentNonRedundantParams) ? [] : {};
 
   // create copy of nonRedundantParams, so in case "then section" had errors it can be restored to previous state
-  for (const key in currentNonRedundantParams) {
-    nonRedundantParamsCopy[key] = JSON.parse(JSON.stringify(currentNonRedundantParams[key]));
+  if (Array.isArray(currentNonRedundantParams)) {
+    for (const item of currentNonRedundantParams) {
+      (nonRedundantParamsCopy as Array<any>).push(JSON.parse(JSON.stringify(item)));
+    }
+  } else {
+    for (const key in currentNonRedundantParams) {
+      nonRedundantParamsCopy[key] = JSON.parse(JSON.stringify(currentNonRedundantParams[key]));
+    }
   }
 
   const result = processSpecs(currentSpecs, thenCondition, `${currentParamPath}`, currentNonRedundantParams, roots);
@@ -202,13 +222,21 @@ function validateConditionRegexInValue(
 
   if (!keepRedundantParams) {
     // returning nonRedundantParams to original state, since it wasn't used in "then section" of condition
-    for (const key in nonRedundantParamsCopy) {
-      currentNonRedundantParams[key] = JSON.parse(JSON.stringify(nonRedundantParamsCopy[key]));
-    }
+    if (Array.isArray(nonRedundantParamsCopy)) {
+      currentNonRedundantParams.length = 0;
 
-    for (const key in currentNonRedundantParams) {
-      if (!(key in nonRedundantParamsCopy)) {
-        delete currentNonRedundantParams[key];
+      for (const item of nonRedundantParamsCopy) {
+        currentNonRedundantParams.push(JSON.parse(JSON.stringify(item)));
+      }
+    } else {
+      for (const key in nonRedundantParamsCopy) {
+        currentNonRedundantParams[key] = JSON.parse(JSON.stringify(nonRedundantParamsCopy[key]));
+      }
+
+      for (const key in currentNonRedundantParams) {
+        if (!(key in nonRedundantParamsCopy)) {
+          delete currentNonRedundantParams[key];
+        }
       }
     }
   }
