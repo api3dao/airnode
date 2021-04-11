@@ -22,13 +22,14 @@ yargs
     'deploy',
     'Executes Airnode deployments specified in the config file',
     {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      secretsPath: { type: 'string', demandOption: true, alias: 's' },
+      configPath: { alias: 'c', default: './src/config-data/config.json', type: 'string' },
+      secretsPath: { alias: 's', default: './src/config-data/secrets.env', type: 'string' },
+      outputFilename: { alias: 'o', default: 'receipt.json', type: 'string' },
       nonStop: { boolean: true, default: false },
     },
     async (args) => {
       try {
-        await deploy(args.configPath, args.secretsPath, args.nonStop, nodeVersion);
+        await deploy(args.configPath, args.secretsPath, args.outputFilename, args.nonStop, nodeVersion);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -39,7 +40,7 @@ yargs
     'remove-with-receipt',
     'Removes Airnode deployment using the receipt',
     {
-      receiptFilename: { type: 'string', demandOption: true, alias: 'rf' },
+      receiptFilename: { alias: 'rf', default: 'receipt.json', type: 'string' },
     },
     async (args) => {
       try {

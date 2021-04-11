@@ -12,11 +12,10 @@ RUN apk update \
 RUN yarn run bootstrap
 RUN yarn run build
 
-CMD cp out/config.json packages/deployer/src/config-data/config.json | true \
-    && cp out/secrets.env packages/deployer/src/config-data/secrets.env | true \
-    && cp out/$RECEIPT_FILENAME packages/deployer/ | true \
+CMD if [ -z ${CONFIG_FILENAME+x} ]; then cp out/$CONFIG_FILENAME packages/deployer/src/config-data/config.json; fi \
+    && if [ -z ${SECRETS_FILENAME+x} ]; then cp out/$SECRETS_FILENAME packages/deployer/src/config-data/security.env; fi \
+    && if [ -z ${RECEIPT_FILENAME+x} ]; then cp out/$RECEIPT_FILENAME packages/deployer/receipt.json; fi \
     && cd /airnode/packages/deployer \
     && yarn run sls:config \
     && yarn run command:$COMMAND \
-    && cd /airnode \
-    && cp packages/deployer/*.receipt.json out | true
+    if [ -z ${OUTPUT_FILENAME+x} ]; then cp $OUTPUT_FILENAME ../../out; else cp receipt.json ../../out; fi

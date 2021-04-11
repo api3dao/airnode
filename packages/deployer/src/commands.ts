@@ -13,7 +13,7 @@ import {
 import { deployAirnode, removeAirnode } from './infrastructure/serverless';
 import { verifyMnemonic } from './io';
 
-export async function deploy(configPath, secretsPath, nonStop, nodeVersion) {
+export async function deploy(configPath, secretsPath, outputFilename, nonStop, nodeVersion) {
   const configs = parseConfigFile(configPath, nodeVersion);
   const secrets = parseSecretsFile(secretsPath);
 
@@ -55,9 +55,8 @@ export async function deploy(configPath, secretsPath, nonStop, nodeVersion) {
       ora().warn(`Failed deploying configuration ${config.id}, skipping`);
     }
   }
-  const receiptFilename = `receipt.json`;
-  fs.writeFileSync(receiptFilename, JSON.stringify(receipts, null, 4));
-  ora().info(`Outputted ${receiptFilename}\n` + '  This file does not contain any sensitive information.');
+  fs.writeFileSync(outputFilename, JSON.stringify(receipts, null, 4));
+  ora().info(`Outputted ${outputFilename}\n` + '  This file does not contain any sensitive information.');
 }
 
 export async function remove(airnodeIdShort, stage, cloudProvider, region) {
