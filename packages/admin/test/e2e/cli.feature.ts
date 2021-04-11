@@ -62,8 +62,8 @@ describe('CLI', () => {
     expect(airnodeRrp.address).toBeDefined();
   });
 
-  it('shows help', async () => {
-    const output = await execCommand('--help');
+  it('shows help', () => {
+    const output = execCommand('--help');
     expect(output).toMatchSnapshot();
   });
 
@@ -103,15 +103,15 @@ describe('CLI', () => {
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
-  it('creates requester', async () => {
-    const out1 = await execCommand(
+  it('creates requester', () => {
+    const out1 = execCommand(
       'create-requester',
       ['--mnemonic', mnemonic],
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
       ['--requesterAdmin', alice.address]
     );
-    const out2 = await execCommand(
+    const out2 = execCommand(
       'create-requester',
       ['--mnemonic', mnemonic],
       ['--providerUrl', PROVIDER_URL],
@@ -126,13 +126,13 @@ describe('CLI', () => {
     const index1 = await admin.createRequester(airnodeRrp, alice.address);
     const index2 = await admin.createRequester(airnodeRrp, bob.address);
 
-    const admin1 = await execCommand(
+    const admin1 = execCommand(
       'requester-index-to-admin',
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
       ['--requesterIndex', index1]
     );
-    const admin2 = await execCommand(
+    const admin2 = execCommand(
       'requester-index-to-admin',
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
@@ -324,13 +324,6 @@ describe('CLI', () => {
     });
   });
 
-  /**
-   * TODO:
-   * - test for missing param
-   * - admin Sdk tests
-   * - test unknown command
-   * - relative path for json files
-   */
   describe('withdrawal', () => {
     let requesterIndex: string;
     let airnodeMnemonic: string;
@@ -404,8 +397,6 @@ describe('CLI', () => {
       const fulfillWithdrawalOutput = execCommand(
         'fulfill-withdrawal',
         ['--mnemonic', airnodeMnemonic],
-        // TODO: This doesn't feel right to ask for the user - create issue for this
-        ['--derivationPath', `m/0/${requesterIndex}`],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--airnodeId', airnodeId],
@@ -500,5 +491,25 @@ describe('CLI', () => {
     );
 
     expect(out).toBe(`Requester admin: ${alice.address}`);
+  });
+
+  describe('incorrect usage', () => {
+    it('is missing command parameter', () => {
+      expect(() =>
+        execCommand(
+          'create-requester',
+          ['--mnemonic', mnemonic],
+          ['--providerUrl', PROVIDER_URL],
+          ['--airnodeRrp', airnodeRrp.address]
+          // missing --requesterAdmin parameter
+        )
+      ).toThrow('Missing required argument: requesterAdmin');
+    });
+
+    it('unknown command', () => {
+      expect(() =>
+        execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--providerUrl', PROVIDER_URL])
+      ).toThrow('Unknown arguments: mnemonic, providerUrl, not-existent-command');
+    });
   });
 });
