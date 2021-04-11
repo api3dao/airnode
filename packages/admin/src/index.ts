@@ -44,7 +44,7 @@ export async function unendorseClient(airnodeRrp: AirnodeRrp, requesterIndex: Bi
   return clientAddress;
 }
 
-interface Template {
+export interface Template {
   parameters: string | airnodeAbi.InputParameter[];
   airnodeId: string;
   endpointId: string;
