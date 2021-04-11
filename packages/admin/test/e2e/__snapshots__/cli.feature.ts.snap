@@ -12,6 +12,8 @@ Commands:
                                         wallet for a airnode-requester pair
   cli.js endorse-client                 Endorses a client as a requester admin
   cli.js unendorse-client               Unendorses a client as a requester admin
+  cli.js get-endorsement-status         Returns the endorsment status for the
+                                        given requesterIndex and client
   cli.js create-template                Creates a template and returns its id
   cli.js request-withdrawal             Requests withdrawal from the designated
                                         wallet of an Airnode as a requester
@@ -33,10 +35,6 @@ Commands:
                                         templateId
   cli.js get-templates                  Returns the templates for the given
                                         templateIds
-  cli.js get-endorsement-status         Returns the endorsment status for the
-                                        given requesterIndex and client
-  cli.js check-request-status           Returns true if the request with the
-                                        given id has failed
 
 Options:
   --version  Show version number                                       [boolean]
