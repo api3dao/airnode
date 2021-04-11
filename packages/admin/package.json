@@ -7,10 +7,15 @@
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
-    "compile": "tsc -p tsconfig.build.json"
+    "compile": "tsc -p tsconfig.build.json",
+    "test:e2e": "jest --selectProjects e2e",
+    "test:e2e:watch": "jest --coverage --watch --selectProjects e2e"
   },
   "dependencies": {
-    "@airnode/protocol": "^0.1.0",
-    "@airnode/airnode-abi": "^0.1.0"
+    "@airnode/airnode-abi": "^0.1.0",
+    "@airnode/protocol": "^0.1.0"
+  },
+  "devDependencies": {
+    "@airnode/operation": "^0.1.0"
   }
 }
