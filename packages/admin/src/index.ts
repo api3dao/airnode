@@ -11,8 +11,6 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   }
 };
 
-// TODO: allow passing overrides for CLI and SDK  - e.g. for setting up gas limit and gas cost
-
 export async function createRequester(airnodeRrp: AirnodeRrp, requesterAdmin: string) {
   await airnodeRrp.createRequester(requesterAdmin);
   const filter = airnodeRrp.filters.RequesterCreated(null, null);
@@ -26,14 +24,7 @@ export async function createRequester(airnodeRrp: AirnodeRrp, requesterAdmin: st
 
 export async function setRequesterAdmin(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish, requesterAdmin: string) {
   await airnodeRrp.setRequesterAdmin(requesterIndex, requesterAdmin, { gasLimit: 5000000 });
-  const filter = airnodeRrp.filters.RequesterUpdated(null, null);
-
-  // TODO: why can't just return requesterIndex at this point?
-  return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (requesterIndex) => {
-      resolve(requesterIndex.toString());
-    })
-  );
+  return requesterIndex;
 }
 
 export async function deriveDesignatedWallet(airnodeRrp: AirnodeRrp, airnodeId: string, requesterIndex: BigNumberish) {
@@ -45,24 +36,12 @@ export async function deriveDesignatedWallet(airnodeRrp: AirnodeRrp, airnodeId: 
 
 export async function endorseClient(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish, clientAddress: string) {
   await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, true);
-  const filter = airnodeRrp.filters.ClientEndorsementStatusSet(null, null, null);
-
-  return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (_, clientAddress) => {
-      resolve(clientAddress);
-    })
-  );
+  return clientAddress;
 }
 
 export async function unendorseClient(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish, clientAddress: string) {
   await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, false);
-  const filter = airnodeRrp.filters.ClientEndorsementStatusSet(null, null, null);
-
-  return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (_, clientAddress) => {
-      resolve(clientAddress);
-    })
-  );
+  return clientAddress;
 }
 
 interface Template {
@@ -106,26 +85,26 @@ export async function requestWithdrawal(
 }
 
 export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, withdrawalRequestId: string) {
-  const logs = await airnodeRrp.provider.getLogs({
-    address: airnodeRrp.address,
-    fromBlock: 0,
-    topics: [
-      ethers.utils.id('WithdrawalFulfilled(bytes32,uint256,bytes32,address,address,uint256)'),
-      // these are wrong typings by ethers.js: https://github.com/ethers-io/ethers.js/issues/1434
-      null as any,
-      null,
-      withdrawalRequestId,
-    ],
-  });
+  const filter = airnodeRrp.filters.WithdrawalFulfilled(null, null, withdrawalRequestId, null, null, null);
+
+  const logs = await airnodeRrp.queryFilter(filter);
   if (logs.length === 0) {
     return undefined;
   }
-  const parsedLog = airnodeRrp.interface.parseLog(logs[0]!);
-  return parsedLog.args.amount as string;
+
+  // TODO: maybe return all event parameters? Similarly how fulfilWithdrawal is implemented
+  return logs[0].args.amount.toString();
 }
 
+const isEthersWallet = (signer: any): signer is ethers.Wallet => !!signer.mnemonic;
+
 export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeAdmin: string, authorizers: string[]) {
-  const wallet = airnodeRrp.signer as ethers.Wallet; // TODO: verify this
+  const wallet = airnodeRrp.signer;
+
+  if (!isEthersWallet(wallet)) {
+    throw new Error('Expected AirnodeRrp contract signer must be ethers.Wallet!');
+  }
+
   const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
   const masterWallet = ethers.Wallet.fromMnemonic(wallet.mnemonic.phrase, 'm').connect(
@@ -226,18 +205,16 @@ export async function fulfilWithdrawal(
   await airnodeRrp.fulfillWithdrawal(requestId, airnodeId, requesterIndex, destination, {
     value: ethers.utils.parseEther(amount),
   });
-  // TODO: update check withdrawal similarly
   const filter = airnodeRrp.filters.WithdrawalFulfilled(
-    null,
+    airnodeId,
     ethers.BigNumber.from(requesterIndex),
-    null,
+    requestId,
     null,
     null,
     null
   );
 
   return new Promise<FulfillWithdrawalReturnValue>((resolve) =>
-    // TODO: update other filters in this file
     airnodeRrp.once(filter, (...args) => {
       // remove array parameters from ethers response
       const { airnodeId, requesterIndex, designatedWallet, destination, amount, withdrawalRequestId } = last(args).args;

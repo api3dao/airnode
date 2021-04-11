@@ -13,7 +13,7 @@ const COMMON_COMMAND_ARGUMENTS = {
     },
     airnodeRrp: {
       type: 'string',
-      describe: 'Address of the deployed AirnodeRrp contract.',
+      describe: 'Address of the deployed AirnodeRrp contract',
     },
   },
   mnemonicCommands: {
@@ -66,7 +66,6 @@ const {
 
 const toJSON = JSON.stringify;
 
-// TODO: create issue for nicer output for the commands
 yargs
   .command(
     'create-requester',
@@ -269,7 +268,11 @@ yargs
     'Fulfils the withdrawal status',
     {
       ...airnodeRrpCommands,
-      ...mnemonicCommands,
+      mnemonic: {
+        type: 'string',
+        demandOption: true,
+        describe: 'Mnemonic of the wallet (derivation path of the account will be derived from the requesterIndex)',
+      },
       requesterIndex,
       airnodeId,
       requestId: {
@@ -281,13 +284,13 @@ yargs
       amount: {
         type: 'string',
         demandOption: true,
-        describe: 'Amount of ether to withdraw. For example "1.2" to withdraw 1.2 ETH.',
+        describe: 'Amount of ether to withdraw. For example "1.2" to withdraw 1.2 ETH',
       },
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
         args.mnemonic,
-        args.derivationPath,
+        `m/0/${args.requesterIndex}`,
         args.providerUrl,
         args.airnodeRrp
       );
