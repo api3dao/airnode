@@ -1,7 +1,7 @@
 import { AirnodeRrp } from '@airnode/protocol';
 import { BigNumberish } from 'ethers';
 import * as evm from './evm';
-import * as admin from '.';
+import * as admin from './implementation';
 
 /*
  * Class versin of the SDK bound to AirnodeRrp contract instance
