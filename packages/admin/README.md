@@ -23,7 +23,7 @@ To see the parameters of a command:
 ```sh
 npx @api3/airnode-admin $COMMAND --help
 ```
-
+# TODO: update documentation for these commands
 ## Requester commands
 
 ### `create-requester`
