@@ -29,6 +29,9 @@ export async function deploy(configPath, secretsPath, outputFilename, nonStop, n
   } else if (!validateMnemonic(secrets.MASTER_KEY_MNEMONIC)) {
     ora().fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
   }
+  delete secrets['AWS_ACCESS_KEY_ID'];
+  delete secrets['AWS_SECRET_KEY'];
+  fs.writeFileSync('secrets.json', JSON.stringify(secrets, null, 2));
 
   const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
   const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
@@ -55,7 +58,7 @@ export async function deploy(configPath, secretsPath, outputFilename, nonStop, n
       ora().warn(`Failed deploying configuration ${config.id}, skipping`);
     }
   }
-  fs.writeFileSync(outputFilename, JSON.stringify(receipts, null, 4));
+  fs.writeFileSync(outputFilename, JSON.stringify(receipts, null, 2));
   ora().info(`Outputted ${outputFilename}\n` + '  This file does not contain any sensitive information.');
 }
 

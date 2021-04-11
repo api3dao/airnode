@@ -2,6 +2,7 @@
 /dist
 /.serverless
 /.build
+/.webpack
 
 # Test files
 coverage/

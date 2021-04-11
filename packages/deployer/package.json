@@ -14,15 +14,16 @@
     "sls:config": "sls config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_KEY",
     "sls:deploy": "sls deploy --config serverless.aws.yml --airnodeIdShort $AIRNODE_ID_SHORT --region $REGION --stage $STAGE",
     "sls:remove": "sls remove --config serverless.aws.yml --airnodeIdShort $AIRNODE_ID_SHORT --region $REGION --stage $STAGE",
-    "sls:invoke": "sls invoke --function startCoordinator --config serverless.aws.yml --airnodeIdShort $AIRNODE_ID_SHORT --region $REGION --stage $STAGE"
+    "sls:invoke": "sls invoke --function startCoordinator --config serverless.aws.yml --airnodeIdShort $AIRNODE_ID_SHORT --region $REGION --stage $STAGE",
+    "webpack": "webpack"
   },
   "dependencies": {
     "@airnode/node": "^0.1.0",
     "@airnode/protocol": "^0.1.0",
     "dotenv": "^8.2.0",
     "ora": "^5.1.0",
-    "serverless": "^2.8.0",
-    "serverless-plugin-optimize": "^4.1.4-rc.1",
-    "serverless-plugin-typescript": "^1.1.9"
+    "serverless": "^2.35.0",
+    "webpack": "^5.31.2",
+    "webpack-cli": "^4.6.0"
   }
 }
