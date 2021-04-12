@@ -6,17 +6,18 @@ pragma solidity 0.8.2;
 contract Median {
 
     // External functions
-  
+
     /// Checks a given value is the correct median of an array.
     /// @param array An array of unsigned integers.
     /// @param median given value to check
     /// @return true iff `median` is the true median of an array 
     function check
     (
-      uint256[] calldata array,
+      uint256[] memory array,
       uint256 median
     )
       public
+      pure
       returns (bool)
     {
 
@@ -38,7 +39,7 @@ contract Median {
       // additional check is needed if array is even-length;
       // i.e. if the median is an average of two elements
       uint256 greatestLessThan = 0;
-      uint256 leastGreaterThan = 2**256 - 1; // effectively acts as "infinity"
+      uint256 leastGreaterThan = 2**255 - 1; // effectively acts as "infinity"
       for (uint i=0; i<array.length; i++) {
         if (array[i] < median && array[i] > greatestLessThan) {
           greatestLessThan = array[i];
@@ -95,6 +96,10 @@ contract Median {
               array[4]
             );
         }
+        else if (array.length == 6)
+        {
+            median = _median6(array);
+        }
         else
         {
             uint256 pivotVal = _medianOfMedians(array);
@@ -112,6 +117,9 @@ contract Median {
             }
         }
     }
+
+    // max length of array for which we call `_quickSelect1_shortArray`
+    uint256 constant QUICKSELECT_SHORT_ARRAY_MAX_LENGTH = 5;
 
     // Private functions
 
@@ -192,14 +200,14 @@ contract Median {
     /// @param array an array of uints.
     /// @dev The result of this is used as a pivot value for quickselect,
     ///   when computing median.
-    /// @return pivot the median of medians
+    /// @return pivotVal the median of medians
     function _medianOfMedians
     (
       uint256[] memory array
     )
         public
         pure
-        returns (uint256 pivot)
+        returns (uint256 pivotVal)
     {
         uint256[] memory medians = new uint256[](array.length/5);
         uint256 med;
@@ -220,7 +228,7 @@ contract Median {
         pivotIdx = _quickSelect1(
           medians, 0, medians.length - 1, medians.length / 2, medians[0]
         );
-        pivot = medians[pivotIdx];
+        pivotVal = medians[pivotIdx];
     }
 
     /// Partition the array around a pivot.
@@ -355,5 +363,31 @@ contract Median {
         } else {
           _median = x4; 
         }
+    }
+    
+    /// Computes a median on a length-6 array of unsigned integers.
+    /// @param array a length-6 array
+    /// @return _median median of array 
+    function _median6
+    (
+      uint256[] memory array
+    )
+        public
+        pure
+        returns (uint256 _median)
+    {
+        if (array[0] > array[1]) {(array[0], array[1]) = (array[1], array[0]);}
+        if (array[2] > array[3]) {(array[2], array[3]) = (array[3], array[2]);}
+        if (array[4] > array[5]) {(array[4], array[5]) = (array[5], array[4]);}
+        if (array[1] > array[3]) {(array[1], array[3]) = (array[3], array[1]);}
+        if (array[3] > array[5]) {(array[3], array[5]) = (array[5], array[3]);}
+        if (array[1] > array[3]) {(array[1], array[3]) = (array[3], array[1]);}
+        if (array[2] > array[4]) {(array[2], array[4]) = (array[4], array[2]);}
+        if (array[0] > array[2]) {(array[0], array[2]) = (array[2], array[0]);}
+        if (array[2] > array[4]) {(array[2], array[4]) = (array[4], array[2]);}
+        if (array[3] > array[4]) {(array[3], array[4]) = (array[4], array[3]);}
+        if (array[1] > array[2]) {(array[1], array[2]) = (array[2], array[1]);}
+
+        _median = (array[2] + array[3]) / 2;
     }
 }
