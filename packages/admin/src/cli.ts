@@ -417,7 +417,8 @@ yargs
     {
       ...airnodeRrpCommands,
       templateIds: {
-        type: 'array',
+        type: 'string',
+        array: true,
         demandOption: true,
         describe: 'Array of template ids (separated by space)',
       },
