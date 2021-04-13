@@ -4,7 +4,7 @@ import * as evm from './evm';
 import * as admin from './implementation';
 
 /*
- * Class versin of the SDK bound to AirnodeRrp contract instance
+ * Class version of the SDK bound to AirnodeRrp contract instance
  */
 export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;

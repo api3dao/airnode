@@ -7,6 +7,13 @@ import { difference } from 'lodash';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/cli.js`;
+// Turning this flag to 'true' will print each command before executing it
+// It might be useful to turn on, while debugging particular test.
+const DEBUG_COMMANDS = false;
+
+it('has disabled DEBUG_COMMANDS flag', () => {
+  expect(DEBUG_COMMANDS).toBe(false);
+});
 
 describe('CLI', () => {
   let provider: ethers.providers.JsonRpcProvider;
@@ -18,7 +25,6 @@ describe('CLI', () => {
   let airnodeRrp: AirnodeRrp;
   // https://hardhat.org/hardhat-network/#hardhat-network-initial-state
   const mnemonic = 'test test test test test test test test test test test junk';
-  const DEBUG_COMMANDS = false;
 
   type CommandArg = [string, string | string[]];
   const execCommand = (command: string, ...args: CommandArg[]) => {
@@ -89,8 +95,8 @@ describe('CLI', () => {
       'requester-index-to-no-withdrawal-requests',
       // covered by endorse-client and unendrose-client commands
       'set-client-endorsement-status',
-
-      // TODO: do we want to implement these as well?
+      // explicitely not implemented (not useful as of now)
+      'get-templates',
       'check-authorization-status',
       'check-authorization-statuses',
       'fail',
@@ -273,8 +279,8 @@ describe('CLI', () => {
       );
 
     it('can create template', async () => {
-      const out = createTemplate('template1.json');
-      expect(out).toMatch(new RegExp('Template id: 0x\\w+'));
+      const out = createTemplate('template.json');
+      expect(out).toMatch(new RegExp('Template ID: 0x\\w+'));
     });
 
     it('errors out on invalid template file', () => {
@@ -282,7 +288,7 @@ describe('CLI', () => {
     });
 
     it('can get template', () => {
-      const templateId = createTemplate('template1.json').split('Template id: ')[1];
+      const templateId = createTemplate('template.json').split('Template ID: ')[1];
 
       const out = execCommand(
         'get-template',
@@ -296,31 +302,6 @@ describe('CLI', () => {
         endpointId: '0x2605589dfc93c8f9c35eecdfe1e666c2193df30a8b13e1e0dd72941f59f9064c',
         parameters: expect.anything(), // parameters are encoded
       });
-    });
-
-    it('can get multiple templates in one call', () => {
-      const templateId1 = createTemplate('template1.json').split('Template id: ')[1];
-      const templateId2 = createTemplate('template2.json').split('Template id: ')[1];
-
-      const out = execCommand(
-        'get-templates',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--templateIds', [templateId1, templateId2]]
-      );
-
-      expect(JSON.parse(out)).toEqual([
-        {
-          airnodeId: '0x15e7097beac1fd23c0d1e3f5a882a6f99ecbcf2e0c1011d1bd43707c6c0ec717',
-          endpointId: '0x2605589dfc93c8f9c35eecdfe1e666c2193df30a8b13e1e0dd72941f59f9064c',
-          parameters: expect.anything(), // parameters are encoded
-        },
-        {
-          airnodeId: '0x73963232357ce7cf8bf536c4a855670977d110fb27a90b9584f5f40e32d72efb',
-          endpointId: '0x564d41afbc9dce517aaffc7b67d4e5edb05cb3b5f114b6984e16b46607f5726e',
-          parameters: expect.anything(), // parameters are encoded
-        },
-      ]);
     });
   });
 
@@ -381,8 +362,8 @@ describe('CLI', () => {
         ['--destination', destinationWallet.address]
       );
 
-      expect(requestWithdrawalOutput).toMatch(new RegExp(`Withdrawal request id: 0x\\w+`));
-      const withdrawalRequestId = requestWithdrawalOutput.split('Withdrawal request id: ')[1];
+      expect(requestWithdrawalOutput).toMatch(new RegExp(`Withdrawal request ID: 0x\\w+`));
+      const withdrawalRequestId = requestWithdrawalOutput.split('Withdrawal request ID: ')[1];
 
       const checkWithdrawalStatus = () =>
         execCommand(
@@ -449,9 +430,9 @@ describe('CLI', () => {
       ['--airnodeAdmin', bob.address],
       ['--authorizersFilePath', `${__dirname}/../fixtures/authorizers.json`]
     );
-    expect(setAirnodeParametersOut).toMatch(new RegExp('Airnode id: \\w+'));
+    expect(setAirnodeParametersOut).toMatch(new RegExp('Airnode ID: \\w+'));
 
-    const airnodeId = setAirnodeParametersOut.split('Airnode id: ')[1];
+    const airnodeId = setAirnodeParametersOut.split('Airnode ID: ')[1];
     const getAirnodeParametersOut = execCommand(
       'get-airnode-parameters',
       ['--providerUrl', PROVIDER_URL],
@@ -462,13 +443,13 @@ describe('CLI', () => {
     const json = JSON.parse(getAirnodeParametersOut);
     expect(json).toEqual({
       admin: bob.address,
-      authorizers: ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000123'],
+      authorizers: ['0x0000000000000000000000000000000000000000'],
       xpub,
       blockNumber: expect.anything(),
     });
   });
 
-  it('derives endpoint id', () => {
+  it('derives endpoint ID', () => {
     const oisTitle = 'title';
     const endpointName = 'endpoint';
 
@@ -477,7 +458,7 @@ describe('CLI', () => {
     const expected = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
     );
-    expect(out).toBe(`Endpoint id: ${expected}`);
+    expect(out).toBe(`Endpoint ID: ${expected}`);
   });
 
   it('gets requester admin', async () => {
