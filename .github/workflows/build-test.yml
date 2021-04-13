@@ -1,6 +1,10 @@
 name: Continuous Build
 
-on: push
+on:
+  push:
+  pull_request:
+    branches:
+    - master
 
 jobs:
   documentation:
@@ -203,4 +207,3 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
