@@ -206,7 +206,7 @@ describe('CLI', () => {
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--requesterIndex', requesterIndex],
-        ['--client', clientAddress]
+        ['--clientAddress', clientAddress]
       );
       expect(out).toBe(`Client address: ${clientAddress}`);
 
@@ -235,7 +235,7 @@ describe('CLI', () => {
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--requesterIndex', requesterIndex],
-        ['--client', clientAddress]
+        ['--clientAddress', clientAddress]
       );
       expect(out).toBe(`Client address: ${clientAddress}`);
       expect(await isEndorsed()).toBe(false);
@@ -251,7 +251,7 @@ describe('CLI', () => {
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
           ['--requesterIndex', requesterIndex],
-          ['--client', clientAddress]
+          ['--clientAddress', clientAddress]
         );
 
       expect(checkEndorsement()).toBe('Endorsment status: false');
@@ -358,7 +358,7 @@ describe('CLI', () => {
       expect(await destinationBalance()).toBe('0');
     });
 
-    it('can create and fullfill withdrawal request', async () => {
+    it('can create and fulfill withdrawal request', async () => {
       const countWithdrawalRequests = () =>
         execCommand(
           'count-withdrawal-requests',
@@ -389,20 +389,20 @@ describe('CLI', () => {
           'check-withdrawal-request',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
-          ['--requestId', withdrawalRequestId]
+          ['--withdrawalRequestId', withdrawalRequestId]
         );
 
       expect(countWithdrawalRequests()).toBe('Number of withdrawal requests: 2');
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
       const fulfillWithdrawalOutput = execCommand(
         'fulfill-withdrawal',
-        ['--mnemonic', airnodeMnemonic],
+        ['--airnodeMnemonic', airnodeMnemonic],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--airnodeId', airnodeId],
         ['--requesterIndex', requesterIndex],
         ['--destination', destinationWallet.address],
-        ['--requestId', withdrawalRequestId],
+        ['--withdrawalRequestId', withdrawalRequestId],
         ['--amount', '0.8']
       );
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');

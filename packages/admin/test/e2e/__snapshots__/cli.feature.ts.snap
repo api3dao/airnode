@@ -14,7 +14,13 @@ Commands:
   cli.js unendorse-client               Unendorses a client as a requester admin
   cli.js get-endorsement-status         Returns the endorsment status for the
                                         given requesterIndex and client
+  cli.js client-address-to-no-requests  Returns the number of requests made by
+                                        the client
   cli.js create-template                Creates a template and returns its id
+  cli.js get-template                   Returns the template for the given
+                                        templateId
+  cli.js get-templates                  Returns the templates for the given
+                                        templateIds
   cli.js request-withdrawal             Requests withdrawal from the designated
                                         wallet of an Airnode as a requester
                                         admin
@@ -29,12 +35,6 @@ Commands:
                                         number for the given airnodeId
   cli.js derive-endpoint-id             Derives an endpoint id using the OIS
                                         title and endpoint name
-  cli.js client-address-to-no-requests  Returns the number of requests made by
-                                        the client
-  cli.js get-template                   Returns the template for the given
-                                        templateId
-  cli.js get-templates                  Returns the templates for the given
-                                        templateIds
 
 Options:
   --version  Show version number                                       [boolean]

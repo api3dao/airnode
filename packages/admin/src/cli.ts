@@ -42,7 +42,7 @@ const COMMON_COMMAND_ARGUMENTS = {
     demandOption: true,
     describe: 'Airnode id',
   },
-  client: {
+  clientAddress: {
     type: 'string',
     demandOption: true,
     describe: 'Address of the client',
@@ -52,6 +52,11 @@ const COMMON_COMMAND_ARGUMENTS = {
     demandOption: true,
     describe: 'Withdrawal destination',
   },
+  withdrawalRequestId: {
+    type: 'string',
+    demandOption: true,
+    describe: 'Withdrawal request id',
+  },
 } as const;
 
 const {
@@ -60,7 +65,7 @@ const {
   requesterAdmin,
   requesterIndex,
   airnodeId,
-  client,
+  clientAddress,
   destination,
 } = COMMON_COMMAND_ARGUMENTS;
 
@@ -141,7 +146,7 @@ yargs
       ...airnodeRrpCommands,
       ...mnemonicCommands,
       requesterIndex,
-      client,
+      clientAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
@@ -150,7 +155,7 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const client = await admin.endorseClient(airnodeRrp, args.requesterIndex, args.client);
+      const client = await admin.endorseClient(airnodeRrp, args.requesterIndex, args.clientAddress);
       console.log(`Client address: ${client}`);
     }
   )
@@ -161,7 +166,7 @@ yargs
       ...airnodeRrpCommands,
       ...mnemonicCommands,
       requesterIndex,
-      client,
+      clientAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
@@ -170,7 +175,7 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const client = await admin.unendorseClient(airnodeRrp, args.requesterIndex, args.client);
+      const client = await admin.unendorseClient(airnodeRrp, args.requesterIndex, args.clientAddress);
       console.log(`Client address: ${client}`);
     }
   )
@@ -180,16 +185,29 @@ yargs
     {
       ...airnodeRrpCommands,
       requesterIndex,
-      client,
+      clientAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
       const status = await admin.requesterIndexToClientAddressToEndorsementStatus(
         airnodeRrp,
         args.requesterIndex,
-        args.client
+        args.clientAddress
       );
       console.log(`Endorsment status: ${status}`);
+    }
+  )
+  .command(
+    'client-address-to-no-requests',
+    'Returns the number of requests made by the client',
+    {
+      ...airnodeRrpCommands,
+      clientAddress,
+    },
+    async (args) => {
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const requestsCount = await admin.clientAddressToNoRequests(airnodeRrp, args.clientAddress);
+      console.log(`Number of requests: ${requestsCount}`);
     }
   )
   .command(
@@ -214,6 +232,41 @@ yargs
       );
       const templateId = await admin.createTemplate(airnodeRrp, template);
       console.log(`Template id: ${templateId}`);
+    }
+  )
+  .command(
+    'get-template',
+    'Returns the template for the given templateId',
+    {
+      ...airnodeRrpCommands,
+      templateId: {
+        type: 'string',
+        demandOption: true,
+        describe: 'Id of the template',
+      },
+    },
+    async (args) => {
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const parameters = await admin.getTemplate(airnodeRrp, args.templateId);
+      console.log(toJSON(parameters));
+    }
+  )
+  .command(
+    'get-templates',
+    'Returns the templates for the given templateIds',
+    {
+      ...airnodeRrpCommands,
+      templateIds: {
+        type: 'string',
+        array: true,
+        demandOption: true,
+        describe: 'Array of template ids (separated by space)',
+      },
+    },
+    async (args) => {
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const parameters = await admin.getTemplates(airnodeRrp, args.templateIds as string[]);
+      console.log(toJSON(parameters));
     }
   )
   .command(
@@ -247,7 +300,7 @@ yargs
     'Checks the state of the withdrawal request',
     {
       ...airnodeRrpCommands,
-      requestId: {
+      withdrawalRequestId: {
         type: 'string',
         demandOption: true,
         describe: 'Withdrawal request id',
@@ -255,7 +308,7 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const withdrawnAmount = await admin.checkWithdrawalRequest(airnodeRrp, args.requestId);
+      const withdrawnAmount = await admin.checkWithdrawalRequest(airnodeRrp, args.withdrawalRequestId);
       if (withdrawnAmount) {
         console.log(`Withdrawn amount: ${withdrawnAmount}`);
       } else {
@@ -264,18 +317,20 @@ yargs
     }
   )
   .command(
+    // TODO: do we need this? It will be called by airnode, but can be usefull for users to test
     'fulfill-withdrawal',
     'Fulfils the withdrawal status',
     {
       ...airnodeRrpCommands,
-      mnemonic: {
+      airnodeMnemonic: {
         type: 'string',
         demandOption: true,
-        describe: 'Mnemonic of the wallet (derivation path of the account will be derived from the requesterIndex)',
+        describe:
+          'Mnemonic of the airnode wallet (derivation path of the account will be derived from the requesterIndex)',
       },
       requesterIndex,
       airnodeId,
-      requestId: {
+      withdrawalRequestId: {
         type: 'string',
         demandOption: true,
         describe: 'Withdrawal request id',
@@ -289,14 +344,14 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
+        args.airnodeMnemonic,
         `m/0/${args.requesterIndex}`,
         args.providerUrl,
         args.airnodeRrp
       );
       const params = await admin.fulfilWithdrawal(
         airnodeRrp,
-        args.requestId,
+        args.withdrawalRequestId,
         args.airnodeId,
         args.requesterIndex,
         args.destination,
@@ -379,54 +434,6 @@ yargs
     async (args) => {
       const endpointId = await admin.deriveEndpointId(args.oisTitle, args.endpointName);
       console.log(`Endpoint id: ${endpointId}`);
-    }
-  )
-  .command(
-    'client-address-to-no-requests',
-    'Returns the number of requests made by the client',
-    {
-      ...airnodeRrpCommands,
-      client: { type: 'string', demandOption: true, describe: 'Address of the client' },
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const requestsCount = await admin.clientAddressToNoRequests(airnodeRrp, args.client);
-      console.log(`Number of requests: ${requestsCount}`);
-    }
-  )
-  .command(
-    'get-template',
-    'Returns the template for the given templateId',
-    {
-      ...airnodeRrpCommands,
-      templateId: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Id of the template',
-      },
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const parameters = await admin.getTemplate(airnodeRrp, args.templateId);
-      console.log(toJSON(parameters));
-    }
-  )
-  .command(
-    'get-templates',
-    'Returns the templates for the given templateIds',
-    {
-      ...airnodeRrpCommands,
-      templateIds: {
-        type: 'string',
-        array: true,
-        demandOption: true,
-        describe: 'Array of template ids (separated by space)',
-      },
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const parameters = await admin.getTemplates(airnodeRrp, args.templateIds as string[]);
-      console.log(toJSON(parameters));
     }
   )
   .demandCommand(1)
