@@ -20,7 +20,7 @@ const COMMON_COMMAND_ARGUMENTS = {
     mnemonic: {
       type: 'string',
       demandOption: true,
-      describe: 'Mnemonic of the wallet',
+      describe: 'Mnemonic phrase for the Airnode master wallet',
     },
     derivationPath: {
       type: 'string',
@@ -40,22 +40,22 @@ const COMMON_COMMAND_ARGUMENTS = {
   airnodeId: {
     type: 'string',
     demandOption: true,
-    describe: 'Airnode id',
+    describe: 'The onchain ID of the Airnode instance',
   },
   clientAddress: {
     type: 'string',
     demandOption: true,
-    describe: 'Address of the client',
+    describe: 'Address of the client contract',
   },
   destination: {
     type: 'string',
     demandOption: true,
-    describe: 'Withdrawal destination',
+    describe: 'Address of the receiving account (account to which the funds will be withdrawn to)',
   },
   withdrawalRequestId: {
     type: 'string',
     demandOption: true,
-    describe: 'Withdrawal request id',
+    describe: 'Withdrawal request ID',
   },
 } as const;
 
@@ -87,7 +87,6 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      await airnodeRrp.deployed();
       const requesterIndex = await admin.createRequester(airnodeRrp, args.requesterAdmin);
       console.log(`Requester index: ${requesterIndex}`);
     }
@@ -212,7 +211,7 @@ yargs
   )
   .command(
     'create-template',
-    'Creates a template and returns its id',
+    'Creates a template and returns its ID',
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
@@ -231,7 +230,7 @@ yargs
         args.airnodeRrp
       );
       const templateId = await admin.createTemplate(airnodeRrp, template);
-      console.log(`Template id: ${templateId}`);
+      console.log(`Template ID: ${templateId}`);
     }
   )
   .command(
@@ -242,30 +241,12 @@ yargs
       templateId: {
         type: 'string',
         demandOption: true,
-        describe: 'Id of the template',
+        describe: 'Onchain ID of the template',
       },
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
       const parameters = await admin.getTemplate(airnodeRrp, args.templateId);
-      console.log(toJSON(parameters));
-    }
-  )
-  .command(
-    'get-templates',
-    'Returns the templates for the given templateIds',
-    {
-      ...airnodeRrpCommands,
-      templateIds: {
-        type: 'string',
-        array: true,
-        demandOption: true,
-        describe: 'Array of template ids (separated by space)',
-      },
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const parameters = await admin.getTemplates(airnodeRrp, args.templateIds as string[]);
       console.log(toJSON(parameters));
     }
   )
@@ -292,7 +273,7 @@ yargs
         args.requesterIndex,
         args.destination
       );
-      console.log(`Withdrawal request id: ${withdrawalRequestId}`);
+      console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
   )
   .command(
@@ -303,14 +284,14 @@ yargs
       withdrawalRequestId: {
         type: 'string',
         demandOption: true,
-        describe: 'Withdrawal request id',
+        describe: 'Withdrawal request ID',
       },
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const withdrawnAmount = await admin.checkWithdrawalRequest(airnodeRrp, args.withdrawalRequestId);
-      if (withdrawnAmount) {
-        console.log(`Withdrawn amount: ${withdrawnAmount}`);
+      const response = await admin.checkWithdrawalRequest(airnodeRrp, args.withdrawalRequestId);
+      if (response) {
+        console.log(`Withdrawn amount: ${response.amount}`);
       } else {
         console.log(`Withdrawal request is not fulfilled yet`);
       }
@@ -333,7 +314,7 @@ yargs
       withdrawalRequestId: {
         type: 'string',
         demandOption: true,
-        describe: 'Withdrawal request id',
+        describe: 'Withdrawal request ID',
       },
       destination,
       amount: {
@@ -376,7 +357,7 @@ yargs
   )
   .command(
     'set-airnode-parameters',
-    'Sets the parameters of an Airnode and returns its id',
+    'Sets the parameters of an Airnode and returns its ID',
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
@@ -400,12 +381,12 @@ yargs
         args.airnodeRrp
       );
       const airnodeId = await admin.setAirnodeParameters(airnodeRrp, args.airnodeAdmin, authorizers);
-      console.log(`Airnode id: ${airnodeId}`);
+      console.log(`Airnode ID: ${airnodeId}`);
     }
   )
   .command(
     'get-airnode-parameters',
-    'Returns the airnode parameters and block number for the given airnodeId',
+    'Returns the Airnode parameters and current block number for the given airnodeId',
     {
       ...airnodeRrpCommands,
       airnodeId,
@@ -418,7 +399,7 @@ yargs
   )
   .command(
     'derive-endpoint-id',
-    'Derives an endpoint id using the OIS title and endpoint name',
+    'Derives an endpoint ID using the OIS title and endpoint name',
     {
       oisTitle: {
         type: 'string',
@@ -433,7 +414,7 @@ yargs
     },
     async (args) => {
       const endpointId = await admin.deriveEndpointId(args.oisTitle, args.endpointName);
-      console.log(`Endpoint id: ${endpointId}`);
+      console.log(`Endpoint ID: ${endpointId}`);
     }
   )
   .demandCommand(1)

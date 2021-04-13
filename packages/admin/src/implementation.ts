@@ -84,16 +84,22 @@ export async function requestWithdrawal(
   );
 }
 
-export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, withdrawalRequestId: string) {
-  const filter = airnodeRrp.filters.WithdrawalFulfilled(null, null, withdrawalRequestId, null, null, null);
+export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: string) {
+  const filter = airnodeRrp.filters.WithdrawalFulfilled(null, null, requestId, null, null, null);
 
   const logs = await airnodeRrp.queryFilter(filter);
   if (logs.length === 0) {
     return undefined;
   }
 
-  // TODO: maybe return all event parameters? Similarly how fulfilWithdrawal is implemented
-  return logs[0].args.amount.toString();
+  const ethersLogParams = logs[0].args;
+  // remove array parameters from ethers response
+  const { airnodeId, amount, designatedWallet, destination, requesterIndex, withdrawalRequestId } = ethersLogParams;
+  const logParams = { airnodeId, amount, designatedWallet, destination, requesterIndex, withdrawalRequestId };
+  assertAllParamsAreReturned(logParams, ethersLogParams);
+
+  // cast ethers BigNumber for portability
+  return { ...logParams, amount: amount.toString(), requesterIndex: requesterIndex.toString() };
 }
 
 const isEthersWallet = (signer: any): signer is ethers.Wallet => !!signer.mnemonic;
