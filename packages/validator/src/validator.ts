@@ -3,11 +3,6 @@ import * as logger from './utils/logger';
 import { Result } from './types';
 import { processSpecs } from './processor';
 
-const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
-const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
-const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json', 'utf8'));
-const configTemplate = JSON.parse(fs.readFileSync('templates/config.json', 'utf8'));
-
 /**
  * Validates specification from provided file according to template file
  * @param specsPath - specification file to validate, root must be an object (not an array)
@@ -45,104 +40,31 @@ export function validate(specsPath: string | undefined, templatePath: string | u
     return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
   }
 
-  return validateJson(specs, template);
+  const split = templatePath.split('/');
+
+  return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/');
 }
 
 /**
  * Validates specification from provided string according to string containing template structure
  * @param specs - specification to validate, root must be an object (not an array)
  * @param template - template json
+ * @param templatePath - path to current validator template file
  * @returns array of error and warning messages
  */
-export function validateJson(specs: object, template: object): Result {
+export function validateJson(specs: object, template: object, templatePath = ''): Result {
   const nonRedundant = template['__arrayItem'] ? [] : {};
 
-  return processSpecs(specs, template, '', nonRedundant, {
-    specs: specs,
-    nonRedundantParams: nonRedundant,
-    output: {},
-  });
-}
-
-export function isConfigValid(specs: string): Result {
-  const nonRedundant = {};
-  let parsedSpecs;
-
-  try {
-    parsedSpecs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
-
-  return processSpecs(parsedSpecs, configTemplate, '', nonRedundant, {
-    specs: parsedSpecs,
-    nonRedundantParams: nonRedundant,
-    output: {},
-  });
-}
-
-/**
- * Validates api specification
- * @param specs - api specification to validate
- * @returns array of error and warning messages
- */
-export function isApiSpecsValid(specs: string): Result {
-  const nonRedundant = {};
-  let parsedSpecs;
-
-  try {
-    parsedSpecs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
-
-  return processSpecs(parsedSpecs, apiTemplate, '', nonRedundant, {
-    specs: parsedSpecs,
-    nonRedundantParams: nonRedundant,
-    output: {},
-  });
-}
-
-/**
- * Validates endpoints array from oracle integration specification
- * @param specs - endpoints array to validate
- * @returns array of error and warning messages
- */
-export function isEndpointsValid(specs: string): Result {
-  const nonRedundant = [];
-  let parsedSpecs;
-
-  try {
-    parsedSpecs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
-
-  return processSpecs(parsedSpecs, endpointsTemplate, '', nonRedundant, {
-    specs: parsedSpecs,
-    nonRedundantParams: nonRedundant,
-    output: {},
-  });
-}
-
-/**
- * Validates oracle integration specification
- * @param specs - oracle integration specification to validate
- * @returns array of error and warning messages
- */
-export function isOisValid(specs: string): Result {
-  const nonRedundant = {};
-  let parsedSpecs;
-
-  try {
-    parsedSpecs = JSON.parse(specs);
-  } catch (e) {
-    return { valid: false, messages: [{ level: 'error', message: `${e.name}: ${e.message}` }] };
-  }
-
-  return processSpecs(parsedSpecs, oisTemplate, '', nonRedundant, {
-    specs: parsedSpecs,
-    nonRedundantParams: nonRedundant,
-    output: {},
-  });
+  return processSpecs(
+    specs,
+    template,
+    '',
+    nonRedundant,
+    {
+      specs: specs,
+      nonRedundantParams: nonRedundant,
+      output: {},
+    },
+    templatePath
+  );
 }

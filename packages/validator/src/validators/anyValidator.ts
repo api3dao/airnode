@@ -10,6 +10,7 @@ import * as logger from '../utils/logger';
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param roots - roots of specs and nonRedundantParams
+ * @param templatePath - path to current validator template file
  * @returns empty array if at least one child of specs satisfies template, otherwise returns array with error message
  */
 export function validateAny(
@@ -17,7 +18,8 @@ export function validateAny(
   template: any,
   paramPath: string,
   nonRedundantParams: any,
-  roots: Roots
+  roots: Roots,
+  templatePath: string
 ): Log[] {
   if (!specs || typeof specs !== 'object') {
     return [logger.error(`Required conditions not met in ${paramPath}`)];
@@ -38,7 +40,8 @@ export function validateAny(
         template,
         paramPath,
         nonRedundantParams[nonRedundantParams.length - 1],
-        roots
+        roots,
+        templatePath
       );
 
       if (!result.messages.length) {
@@ -65,7 +68,14 @@ export function validateAny(
       );
     }
 
-    const result = processSpecs(specs[paramKey], template, paramPath, nonRedundantParams[paramKey], roots);
+    const result = processSpecs(
+      specs[paramKey],
+      template,
+      paramPath,
+      nonRedundantParams[paramKey],
+      roots,
+      templatePath
+    );
 
     if (!result.messages.length) {
       return [];

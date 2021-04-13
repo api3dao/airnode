@@ -7,7 +7,7 @@
     "__regexp": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
   },
   "apiSpecifications": {
-    "__apiSpecs": {},
+    "__template": "apiSpecifications.json",
     "paths": {
       "__conditions": [
         {
@@ -75,7 +75,7 @@
     }
   },
   "endpoints": {
-    "__endpointsSpecs": {},
+    "__template": "endpoints.json",
     "__arrayItem": {
       "__ignore": {},
       "operation": {

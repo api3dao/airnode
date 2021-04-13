@@ -12,6 +12,7 @@ import { combinePaths } from '../utils/utils';
  * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string in root)
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param roots - roots of specs and nonRedundantParams
+ * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
@@ -22,6 +23,7 @@ export function validateParameter(
   paramPath: string,
   nonRedundantParams: any,
   roots: Roots,
+  templatePath = '',
   paramPathPrefix = ''
 ): Log[] {
   const arrayIndex = param.match(/\[([0-9]+)\]$/);
@@ -70,6 +72,7 @@ export function validateParameter(
       combinePaths(paramPath, processedParam, `[${index}]`),
       nonRedundantParams[index],
       roots,
+      templatePath,
       paramPathPrefix
     ).messages;
   }
@@ -90,6 +93,7 @@ export function validateParameter(
     combinePaths(paramPath, param),
     nonRedundantParams[param],
     roots,
+    templatePath,
     paramPathPrefix
   ).messages;
 }

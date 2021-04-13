@@ -8,6 +8,12 @@ import {
   requiredConditionNotMetMessage,
   sizeExceededMessage,
 } from './utils/messages';
+import fs from 'fs';
+
+const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
+const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json', 'utf8'));
+const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
+const configTemplate = JSON.parse(fs.readFileSync('templates/config.json', 'utf8'));
 
 const validAPISpecification = `{
 "servers": [
@@ -352,7 +358,10 @@ describe('validator', () => {
               "mySecurityScheme": []
             }
       }`;
-      expect(validator.isApiSpecsValid(validAPISpecification1)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.validateJson(JSON.parse(validAPISpecification1), apiTemplate)).toMatchObject({
+        valid: true,
+        messages: [],
+      });
 
       const validAPISpecification2 = `{
         "servers": [],
@@ -362,7 +371,10 @@ describe('validator', () => {
         },
         "security": {}
       }`;
-      expect(validator.isApiSpecsValid(validAPISpecification2)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.validateJson(JSON.parse(validAPISpecification2), apiTemplate)).toMatchObject({
+        valid: true,
+        messages: [],
+      });
 
       const validAPISpecification3 = `{
         "servers": [],
@@ -386,7 +398,10 @@ describe('validator', () => {
             "mySecurityScheme": []
           }
       }`;
-      expect(validator.isApiSpecsValid(validAPISpecification3)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.validateJson(JSON.parse(validAPISpecification3), apiTemplate)).toMatchObject({
+        valid: true,
+        messages: [],
+      });
 
       const validAPISpecification4 = `{
         "servers": [],
@@ -406,7 +421,10 @@ describe('validator', () => {
           "mySecurityScheme": []
         }
       }`;
-      expect(validator.isApiSpecsValid(validAPISpecification4)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.validateJson(JSON.parse(validAPISpecification4), apiTemplate)).toMatchObject({
+        valid: true,
+        messages: [],
+      });
     });
 
     it('formatting of keys and values', () => {
@@ -441,7 +459,7 @@ describe('validator', () => {
               "mySecurityScheme": []
             }
       }`;
-      expect(validator.isApiSpecsValid(invalidUrlAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(invalidUrlAPISpec), apiTemplate)).toMatchObject({
         valid: true,
         messages: [formattingMessage('servers[0].url')],
       });
@@ -477,7 +495,7 @@ describe('validator', () => {
           "mySecurityScheme ": []
         }
       }`;
-      expect(validator.isApiSpecsValid(invalidFormattingAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(invalidFormattingAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
           formattingMessage('servers[0].url'),
@@ -555,7 +573,10 @@ describe('validator', () => {
           "mySecurityScheme2": []
         }
       }`;
-      expect(validator.isApiSpecsValid(validArraySizesAPISpec)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.validateJson(JSON.parse(validArraySizesAPISpec), apiTemplate)).toMatchObject({
+        valid: true,
+        messages: [],
+      });
 
       const exceededArraySizeAPISpec = `{
         "servers": [
@@ -623,7 +644,7 @@ describe('validator', () => {
               "mySecurityScheme2": []
           }
       }`;
-      expect(validator.isApiSpecsValid(exceededArraySizeAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(exceededArraySizeAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [sizeExceededMessage('servers', 1)],
       });
@@ -638,7 +659,10 @@ describe('validator', () => {
         },
         "security": {}
       }`;
-      expect(validator.isApiSpecsValid(smallValidAPISpec)).toMatchObject({ valid: true, messages: [] });
+      expect(validator.validateJson(JSON.parse(smallValidAPISpec), apiTemplate)).toMatchObject({
+        valid: true,
+        messages: [],
+      });
 
       const invalidJSONAPISpec = `{
         "servers": [],
@@ -647,7 +671,7 @@ describe('validator', () => {
             "securitySchemes": {}
         },
         "security": {}`;
-      expect(validator.isApiSpecsValid(invalidJSONAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(invalidJSONAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [{ level: 'error', message: 'SyntaxError: Unexpected end of JSON input' }],
       });
@@ -667,7 +691,7 @@ describe('validator', () => {
             }
         }
       }`;
-      expect(validator.isApiSpecsValid(missingParametersAPISpec1)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(missingParametersAPISpec1), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('servers'),
@@ -725,7 +749,7 @@ describe('validator', () => {
               "mySecurityScheme2": []
           }
       }`;
-      expect(validator.isApiSpecsValid(missingParametersAPISpec2)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(missingParametersAPISpec2), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('paths./myPath.get.parameters[0].name'),
@@ -738,7 +762,7 @@ describe('validator', () => {
       });
 
       const emptyJSON = `{}`;
-      expect(validator.isApiSpecsValid(emptyJSON)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(emptyJSON), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
           missingParamMessage('servers'),
@@ -794,7 +818,7 @@ describe('validator', () => {
           "mySecurityScheme": []
             }
       }`;
-      expect(validator.isApiSpecsValid(extraFieldsAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(extraFieldsAPISpec), apiTemplate)).toMatchObject({
         valid: true,
         messages: [
           extraFieldMessage('extra'),
@@ -845,7 +869,7 @@ describe('validator', () => {
           "mySecurityScheme5": []
         }
       }`;
-      expect(validator.isApiSpecsValid(invalidSecuritySchemesAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(invalidSecuritySchemesAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
           formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
@@ -941,7 +965,7 @@ describe('validator', () => {
         },
         "security": {}
       }`;
-      expect(validator.isApiSpecsValid(invalidPathsAPISpec)).toMatchObject({
+      expect(validator.validateJson(JSON.parse(invalidPathsAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
           conditionNotMetMessage('paths./{myParam}', 'myParam'),
@@ -976,7 +1000,7 @@ describe('validator', () => {
         "parameters": []
       }
     ]`;
-    expect(validator.isEndpointsValid(validEndpointSpec)).toMatchObject({
+    expect(validator.validateJson(JSON.parse(validEndpointSpec), endpointsTemplate)).toMatchObject({
       valid: true,
       messages: [],
     });
@@ -1029,7 +1053,7 @@ describe('validator', () => {
         ]
       }
     ]`;
-    expect(validator.isEndpointsValid(invalidEndpointSpec)).toMatchObject({
+    expect(validator.validateJson(JSON.parse(invalidEndpointSpec), endpointsTemplate)).toMatchObject({
       valid: false,
       messages: [
         missingParamMessage('[0].operation.path'),
@@ -1049,12 +1073,12 @@ describe('validator', () => {
   });
 
   it('ois specs', () => {
-    expect(validator.isOisValid(validOISSpecification)).toMatchObject({
+    expect(validator.validateJson(JSON.parse(validOISSpecification), oisTemplate, 'templates/')).toMatchObject({
       valid: true,
       messages: [],
     });
 
-    expect(validator.isOisValid(invalidOISSpecification)).toMatchObject({
+    expect(validator.validateJson(JSON.parse(invalidOISSpecification), oisTemplate, 'templates/')).toMatchObject({
       valid: false,
       messages: [
         formattingMessage('oisFormat'),
@@ -1071,12 +1095,12 @@ describe('validator', () => {
   });
 
   it('config & security specs', () => {
-    expect(validator.isConfigValid(validConfigSpecification)).toMatchObject({
+    expect(validator.validateJson(JSON.parse(validConfigSpecification), configTemplate, 'templates/')).toMatchObject({
       valid: true,
       messages: [],
     });
 
-    expect(validator.isConfigValid(invalidConfigSpecification)).toMatchObject({
+    expect(validator.validateJson(JSON.parse(invalidConfigSpecification), configTemplate, 'templates/')).toMatchObject({
       valid: false,
       messages: [
         formattingMessage('config.ois[0].oisFormat'),

@@ -12,6 +12,7 @@ import { validateCatch } from './catchValidator';
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param roots - roots of specs and nonRedundantParams
+ * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
@@ -21,6 +22,7 @@ function validateConditionRegexInKey(
   nonRedundantParams: any,
   paramPath: string,
   roots: Roots,
+  templatePath: string,
   paramPathPrefix: string
 ): Log[] {
   let messages: Log[] = [];
@@ -72,7 +74,8 @@ function validateConditionRegexInKey(
         template,
         `${condition['__rootThen'] ? '' : `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`}`,
         condition['__rootThen'] ? currentNonRedundantParams : currentNonRedundantParams[thisName],
-        roots
+        roots,
+        templatePath
       );
 
       if (result.messages.some((msg) => msg.level === 'error')) {
@@ -127,6 +130,7 @@ function validateConditionRegexInKey(
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param roots - roots of specs and nonRedundantParams
+ * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
@@ -136,6 +140,7 @@ function validateConditionRegexInValue(
   nonRedundantParams: any,
   paramPath: string,
   roots: Roots,
+  templatePath: string,
   paramPathPrefix: string
 ): Log[] {
   let messages: Log[] = [];
@@ -179,7 +184,14 @@ function validateConditionRegexInValue(
     }
   }
 
-  const result = processSpecs(currentSpecs, thenCondition, `${currentParamPath}`, currentNonRedundantParams, roots);
+  const result = processSpecs(
+    currentSpecs,
+    thenCondition,
+    `${currentParamPath}`,
+    currentNonRedundantParams,
+    roots,
+    templatePath
+  );
 
   result.messages = result.messages.filter((msg) => {
     return !msg.message.startsWith('Extra field:');
@@ -359,6 +371,7 @@ function validateConditionRequires(
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
  * @param roots - roots of specs and nonRedundantParams
+ * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
@@ -368,6 +381,7 @@ export function validateCondition(
   nonRedundantParams: any,
   paramPath: string,
   roots: Roots,
+  templatePath: string,
   paramPathPrefix: string
 ): Log[] {
   const messages: Log[] = [];
@@ -386,11 +400,27 @@ export function validateCondition(
 
   if (paramName === '__this_name') {
     messages.push(
-      ...validateConditionRegexInKey(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix)
+      ...validateConditionRegexInKey(
+        specs,
+        condition,
+        nonRedundantParams,
+        paramPath,
+        roots,
+        templatePath,
+        paramPathPrefix
+      )
     );
   } else if (specs[paramName] || paramName === '__this') {
     messages.push(
-      ...validateConditionRegexInValue(specs, condition, nonRedundantParams, paramPath, roots, paramPathPrefix)
+      ...validateConditionRegexInValue(
+        specs,
+        condition,
+        nonRedundantParams,
+        paramPath,
+        roots,
+        templatePath,
+        paramPathPrefix
+      )
     );
   }
 

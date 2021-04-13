@@ -47,24 +47,34 @@ export function convert(specsPath: string | undefined, templatePath: string | un
     return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
   }
 
-  return convertJson(specs, template);
+  const split = templatePath.split('/');
+
+  return convertJson(specs, template, split.slice(0, split.length - 1).join('/') + '/');
 }
 
 /**
  * Converts specification from provided string and converts it into format the template specifies
  * @param specs - specification to convert, root must be an object (not an array)
  * @param template - template json
+ * @param templatePath - path to current validator template file
  * @returns array of messages and converted specification
  */
-export function convertJson(specs: object, template: object): Result {
+export function convertJson(specs: object, template: object, templatePath = ''): Result {
   const nonRedundant = {};
   const output = {};
 
-  const result = processSpecs(specs, template, '', nonRedundant, {
-    specs: specs,
-    nonRedundantParams: nonRedundant,
-    output,
-  });
+  const result = processSpecs(
+    specs,
+    template,
+    '',
+    nonRedundant,
+    {
+      specs: specs,
+      nonRedundantParams: nonRedundant,
+      output,
+    },
+    templatePath
+  );
 
   return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
 }
@@ -87,7 +97,7 @@ export function convertFromTo(from, to, specs): Result {
     return convert(specs, oas2ois);
   } else if (from === 'oas' && to.match(/^(cs|configsecurity|configandsecurity)$/)) {
     ois = convert(specs, oas2ois);
-    cs = convertJson(ois.output ? ois.output : {}, JSON.parse(fs.readFileSync(ois2cs).toString()));
+    cs = convertJson(ois.output ? ois.output : {}, JSON.parse(fs.readFileSync(ois2cs).toString()), ois2cs);
     return { valid: ois.valid, messages: ois.messages, output: cs.output };
   } else if (from === 'ois' && to.match(/^(cs|configsecurity|configandsecurity)$/)) {
     return convert(specs, ois2cs);
