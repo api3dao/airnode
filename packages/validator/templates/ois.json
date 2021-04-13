@@ -46,6 +46,9 @@
                         "operation": {
                           "path": {
                             "__regexp": "^{{2}}$"
+                          },
+                          "method": {
+                            "__regexp": "^{{3}}$"
                           }
                         },
                         "__any": {
@@ -64,7 +67,7 @@
                     }
                   },
                   "__catch": {
-                    "__message": "Parameter \"__match\" from \"__prefix{{0}}.{{1}}.{{2}}\" must be included in \"__prefixendpoints\""
+                    "__message": "Parameter \"__match\" from \"__prefix{{0}}.{{1}}.{{2}}.{{3}}\" must be included in \"__prefixendpoints\""
                   }
                 }
               ]
@@ -87,12 +90,14 @@
             "__rootThen": {
               "apiSpecifications": {
                 "paths": {
-                  "__match": {}
+                  "__match": {
+                    "[[method]]": {}
+                  }
                 }
               }
             },
             "__catch": {
-              "__message": "Expected \"__prefixapiSpecifications.paths.__match\" to exist as path \"__match\" is defined in __fullPath"
+              "__message": "Expected \"__prefixapiSpecifications.paths.__match.[[method]]\" to exist as path \"__match\" with method \"[[method]]\" is defined in __fullPath"
             }
           }
         ],
