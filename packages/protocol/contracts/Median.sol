@@ -7,6 +7,35 @@ contract Median {
 
     // External functions
 
+    /// Computes a median on an array of unsigned integers of any length.
+    /// @param arr An array of unsigned integers.
+    /// @return median of `array` 
+    function compute2
+    (
+      uint256[] memory arr
+    )
+      external
+      pure
+      returns (uint256 median)
+    {
+      uint i = 0;
+      uint j;
+      while (i < arr.length) {
+        j = i;
+        while (j > 0 && arr[j - 1] > arr[j]) {
+          (arr[j], arr[j - 1]) = (arr[j - 1], arr[j]);
+          j--;
+        }
+        i++;
+      }
+      if (arr.length % 2 == 1) {
+        median = arr[arr.length / 2];
+      } else {
+        uint m = arr.length / 2;
+        median = (arr[m - 1] + arr[m]) / 2;
+      }
+    }
+
     /// Checks a given value is the correct median of an array.
     /// @param array An array of unsigned integers.
     /// @param median given value to check
@@ -61,48 +90,21 @@ contract Median {
         pure
         returns (uint256 median)
     {
-        if (array.length == 1)
-        {
+        if (array.length == 1) {
             median = array[0];
-        }
-        else if (array.length == 2)
-        {
+        } else if (array.length == 2) {
             median = (array[0] + array[1]) / 2;
-        }
-        else if (array.length == 3)
-        {
-            median = _median3(
-              array[0],
-              array[1],
-              array[2]
-            );
-        }
-        else if (array.length == 4)
-        {
-            median = _median4(
-              array[0],
-              array[1],
-              array[2],
-              array[3]
-            );
-        }
-        else if (array.length == 5)
-        {
-            median = _median5(
-              array[0],
-              array[1],
-              array[2],
-              array[3],
-              array[4]
-            );
-        }
-        else if (array.length == 6)
-        {
+        } else if (array.length == 3) {
+            median = _median3(array);
+        } else if (array.length == 4) {
+            median = _median4(array);
+        } else if (array.length == 5) {
+            median = _median5(array);
+        } else if (array.length == 6) {
             median = _median6(array);
-        }
-        else
-        {
-            uint256 pivotVal = _medianOfMedians(array);
+        } else {
+            //uint256 pivotVal = _medianOfMedians(array);
+            uint256 pivotVal = array[0];
             
             if (array.length % 2 == 1) {
               uint idx = _quickSelect1(
@@ -117,9 +119,6 @@ contract Median {
             }
         }
     }
-
-    // max length of array for which we call `_quickSelect1_shortArray`
-    uint256 constant QUICKSELECT_SHORT_ARRAY_MAX_LENGTH = 5;
 
     // Private functions
 
@@ -140,11 +139,19 @@ contract Median {
       uint256 k,
       uint256 pivotVal
     )
-      private
+      public
       pure
       returns (uint256 result)
     {
+      assert(left <= k - 1 && k - 1 <= right);
       if (left == right) {return left;}
+
+      if (right - left == 1) {
+        if (array[left] > array[right]) {
+          (array[left], array[right]) = (array[right], array[left]);
+        }
+        return k - 1;
+      }
 
       uint256 pivotIdx = _partition(array, left, right, pivotVal);
 
@@ -178,7 +185,7 @@ contract Median {
       uint256 k,
       uint256 pivotVal
     )
-      private
+      public
       pure
       returns (uint idx1, uint idx2)
     {
@@ -214,19 +221,13 @@ contract Median {
 
         for (uint i=0; i<array.length-array.length%5; i+=5)
         {
-          med = _median5(
-            array[i],
-            array[i+1],
-            array[i+2],
-            array[i+3],
-            array[i+4]
-          );
+          med = _median5(array);
           medians[i/5] = med;   
         }
        
         uint pivotIdx; 
         pivotIdx = _quickSelect1(
-          medians, 0, medians.length - 1, medians.length / 2, medians[0]
+          medians, 0, medians.length - 1, medians.length / 2 + 1, medians[0]
         );
         pivotVal = medians[pivotIdx];
     }
@@ -245,7 +246,7 @@ contract Median {
       uint256 right,
       uint256 pivotVal
     )
-      private
+      public
       pure
       returns (uint256 idx)
     {
@@ -285,109 +286,91 @@ contract Median {
     }
 
     /// Computes a median on a length-3 array of unsigned integers.
-    /// @param x0 value of element at index 0
-    /// @param x1 value of element at index 1
-    /// @param x2 value of element at index 2
-    /// @return _median median of x0, x1, x2
+    /// @param arr a length-3 array
+    /// @return _median median of array
     function _median3
     (
-      uint256 x0,
-      uint256 x1,
-      uint256 x2
+      uint256[] memory arr
     )
         private
         pure
         returns (uint256 _median)
     {
-        if (x0 > x1) {(x0, x1) = (x1, x0);}
-        if (x1 > x2) {(x1, x2) = (x2, x1);}
-        if (x0 > x1) {(x0, x1) = (x1, x0);}
+        if (arr[0] > arr[1]) {(arr[0], arr[1]) = (arr[1], arr[0]);}
+        if (arr[1] > arr[2]) {(arr[1], arr[2]) = (arr[2], arr[1]);}
+        if (arr[0] > arr[1]) {(arr[0], arr[1]) = (arr[1], arr[0]);}
 
-        _median = x1;
+        _median = arr[1];
     }
 
     /// Computes a median on a length-4 array of unsigned integers.
-    /// @param x0 value of element at index 0
-    /// @param x1 value of element at index 1
-    /// @param x2 value of element at index 2
-    /// @param x3 value of element at index 3
-    /// @return _median median of x0, x1, x2, x3
+    /// @param arr a length-4 array
+    /// @return _median median of array
     function _median4
     (
-      uint256 x0,
-      uint256 x1,
-      uint256 x2,
-      uint256 x3
+      uint256[] memory arr
     )
         private
         pure
         returns (uint256 _median)
     {
-        if (x0 > x1) {(x0, x1) = (x1, x0);}
-        if (x2 > x3) {(x2, x3) = (x3, x2);}
-        if (x1 > x3) {(x1, x3) = (x3, x1);}
-        if (x0 > x2) {(x0, x2) = (x2, x0);}
+        if (arr[0] > arr[1]) {(arr[0], arr[1]) = (arr[1], arr[0]);}
+        if (arr[2] > arr[3]) {(arr[2], arr[3]) = (arr[3], arr[2]);}
+        if (arr[1] > arr[3]) {(arr[1], arr[3]) = (arr[3], arr[1]);}
+        if (arr[0] > arr[2]) {(arr[0], arr[2]) = (arr[2], arr[0]);}
 
-        _median = (x1 + x2) / 2;
+        _median = (arr[1] + arr[2]) / 2;
     }
     
-    /// Computes a median on a length-5 array of unsigned integers.
-    /// @param x0 value of element at index 0
-    /// @param x1 value of element at index 1
-    /// @param x2 value of element at index 2
-    /// @param x3 value of element at index 3
-    /// @param x4 value of element at index 4
-    /// @return _median median of x0, x1, x2, x3, x4 
+    /// Computes a median on a length-5 arr of unsigned integers.
+    /// @param arr a length-5 array
+    /// @return _median median of array
     function _median5
     (
-      uint256 x0,
-      uint256 x1,
-      uint256 x2,
-      uint256 x3,
-      uint256 x4
+      uint256[] memory arr
     )
         private
         pure
         returns (uint256 _median)
     {
-        if (x0 > x1) {(x0, x1) = (x1, x0);}
-        if (x2 > x3) {(x2, x3) = (x3, x2);}
-        if (x1 > x3) {(x1, x3) = (x3, x1);}
-        if (x0 > x2) {(x0, x2) = (x2, x0);}
-        if (x1 > x2) {(x1, x2) = (x2, x1);}
+        if (arr[0] > arr[1]) {(arr[0], arr[1]) = (arr[1], arr[0]);}
+        if (arr[2] > arr[3]) {(arr[2], arr[3]) = (arr[3], arr[2]);}
+        if (arr[1] > arr[3]) {(arr[1], arr[3]) = (arr[3], arr[1]);}
+        if (arr[0] > arr[2]) {(arr[0], arr[2]) = (arr[2], arr[0]);}
+        if (arr[1] > arr[2]) {(arr[1], arr[2]) = (arr[2], arr[1]);}
 
-        if (x4 < x1) {
-            _median = x1;
-        } else if (x4 > x2) {
-            _median = x2;
+        if (arr[4] < arr[1]) {
+            _median = arr[1];
+        } else if (arr[4] > arr[2]) {
+            _median = arr[2];
         } else {
-          _median = x4; 
+          _median = arr[4]; 
         }
     }
-    
-    /// Computes a median on a length-6 array of unsigned integers.
-    /// @param array a length-6 array
-    /// @return _median median of array 
+
+    /// Computes a median on a length-6 arr of unsigned integers.
+    /// @param arr a length-6 array
+    /// @return _median median of array
     function _median6
     (
-      uint256[] memory array
+      uint256[] memory arr
     )
         public
         pure
         returns (uint256 _median)
     {
-        if (array[0] > array[1]) {(array[0], array[1]) = (array[1], array[0]);}
-        if (array[2] > array[3]) {(array[2], array[3]) = (array[3], array[2]);}
-        if (array[4] > array[5]) {(array[4], array[5]) = (array[5], array[4]);}
-        if (array[1] > array[3]) {(array[1], array[3]) = (array[3], array[1]);}
-        if (array[3] > array[5]) {(array[3], array[5]) = (array[5], array[3]);}
-        if (array[1] > array[3]) {(array[1], array[3]) = (array[3], array[1]);}
-        if (array[2] > array[4]) {(array[2], array[4]) = (array[4], array[2]);}
-        if (array[0] > array[2]) {(array[0], array[2]) = (array[2], array[0]);}
-        if (array[2] > array[4]) {(array[2], array[4]) = (array[4], array[2]);}
-        if (array[3] > array[4]) {(array[3], array[4]) = (array[4], array[3]);}
-        if (array[1] > array[2]) {(array[1], array[2]) = (array[2], array[1]);}
+        if (arr[0] > arr[1]) {(arr[0], arr[1]) = (arr[1], arr[0]);}
+        if (arr[2] > arr[3]) {(arr[2], arr[3]) = (arr[3], arr[2]);}
+        if (arr[4] > arr[5]) {(arr[4], arr[5]) = (arr[5], arr[4]);}
+        if (arr[1] > arr[3]) {(arr[1], arr[3]) = (arr[3], arr[1]);}
+        if (arr[3] > arr[5]) {(arr[3], arr[5]) = (arr[5], arr[3]);}
+        if (arr[1] > arr[3]) {(arr[1], arr[3]) = (arr[3], arr[1]);}
+        if (arr[2] > arr[4]) {(arr[2], arr[4]) = (arr[4], arr[2]);}
+        if (arr[0] > arr[2]) {(arr[0], arr[2]) = (arr[2], arr[0]);}
+        if (arr[2] > arr[4]) {(arr[2], arr[4]) = (arr[4], arr[2]);}
+        if (arr[3] > arr[4]) {(arr[3], arr[4]) = (arr[4], arr[3]);}
+        if (arr[1] > arr[2]) {(arr[1], arr[2]) = (arr[2], arr[1]);}
 
-        _median = (array[2] + array[3]) / 2;
+        _median = (arr[2] + arr[3]) / 2;
     }
 }
