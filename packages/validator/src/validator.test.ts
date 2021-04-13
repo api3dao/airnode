@@ -10,10 +10,10 @@ import {
 } from './utils/messages';
 import fs from 'fs';
 
-const apiTemplate = JSON.parse(fs.readFileSync('templates/apiSpecifications.json', 'utf8'));
-const endpointsTemplate = JSON.parse(fs.readFileSync('templates/endpoints.json', 'utf8'));
-const oisTemplate = JSON.parse(fs.readFileSync('templates/ois.json', 'utf8'));
-const configTemplate = JSON.parse(fs.readFileSync('templates/config.json', 'utf8'));
+const apiTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/apiSpecifications.json', 'utf8'));
+const endpointsTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/endpoints.json', 'utf8'));
+const oisTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/ois.json', 'utf8'));
+const configTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/config.json', 'utf8'));
 
 const validAPISpecification = `{
 "servers": [
