@@ -194,18 +194,18 @@ There are currently three types of requests that can be made. You can learn more
 ```json
 {
   "airnodes": {
-    "CurrencyConverterAPI": {
+    "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "endpoints": {
         "convertToUSD": {
           "authorizers": ["public"],
-          "oisTitle": "currency-converter-api"
+          "oisTitle": "Currency Converter API"
         }
       },
       "templates": {
         "template-1": {
           "endpoint": "convertToUSD",
-          "oisTitle": "currency-converter-api",
+          "oisTitle": "Currency Converter API",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
             { "type": "bytes32", "name": "_type", "value": "int256" },
@@ -226,13 +226,13 @@ There are currently three types of requests that can be made. You can learn more
     {
       "id": "alice",
       "airnodes": {
-        "CurrencyConverterAPI": { "ethBalance": "1" }
+        "CurrencyConverterAirnode": { "ethBalance": "1" }
       }
     },
     {
       "id": "bob",
       "airnodes": {
-        "CurrencyConverterAPI": { "ethBalance": "5" }
+        "CurrencyConverterAirnode": { "ethBalance": "5" }
       }
     }
   ],
@@ -240,7 +240,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "bob",
       "type": "regular",
-      "airnode": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "template": "template-1",
       "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
@@ -251,9 +251,9 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "bob",
       "type": "full",
-      "airnode": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "endpoint": "convertToUSD",
-      "oisTitle": "currency-converter-api",
+      "oisTitle": "Currency Converter API",
       "client": "MockAirnodeRrpClient",
       "fulfillFunctionName": "fulfill",
       "parameters": [
@@ -267,7 +267,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "alice",
       "type": "withdrawal",
-      "airnode": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "destination": "alice"
     }
   ]

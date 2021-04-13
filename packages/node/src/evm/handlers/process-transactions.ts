@@ -14,6 +14,7 @@ export async function processTransactions(
 
   const baseLogOptions = {
     format: initialState.settings.logFormat,
+    level: initialState.settings.logLevel,
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 

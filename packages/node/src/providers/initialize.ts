@@ -29,7 +29,7 @@ export async function initialize(
   config: Config,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderState>[]>> {
-  const { chains } = config.nodeSettings;
+  const { chains } = config;
 
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in the provided config');
@@ -41,8 +41,8 @@ export async function initialize(
   // to configure duplicate providers safely (if they want the added redundancy)
   const EVMInitializations = flatMap(
     EVMChains.map((chain) => {
-      return chain.providers.map(async (provider) => {
-        const state = buildEVMState(coordinatorId, chain, provider, config);
+      return chain.providerNames.map(async (providerName) => {
+        const state = buildEVMState(coordinatorId, chain, providerName, config);
         return initializeEVMProvider(state, workerOpts);
       });
     })

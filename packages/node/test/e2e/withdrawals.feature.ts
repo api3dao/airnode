@@ -17,13 +17,13 @@ it('processes withdrawals only once', async () => {
 
   const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAPI.mnemonic;
+  // Overwrites the one injected by the jest setup script
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
 
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const nodeSettings = fixtures.buildNodeSettings({ chains: [chain] });
-  const config = fixtures.buildConfig({ nodeSettings });
+  const config = fixtures.buildConfig({ chains: [chain] });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   // Check that the relevant withdrawal events are present

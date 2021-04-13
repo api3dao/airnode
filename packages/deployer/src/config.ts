@@ -17,7 +17,7 @@ export function parseFiles(configPath, securityPath) {
   }
   return {
     apiCredentials: security.apiCredentials,
-    chains: config.nodeSettings.chains,
+    chains: config.chains,
     cloudProvider: config.nodeSettings.cloudProvider,
     configId: config.id,
     nodeVersion: config.nodeSettings.nodeVersion,
@@ -64,7 +64,6 @@ export function generateServerlessSecretsFile(airnodeIdShort, apiCredentials) {
   const secrets = {};
   // The mnemonic will be fetched from AWS SSM
   secrets['MASTER_KEY_MNEMONIC'] = `$\{ssm:/airnode/${airnodeIdShort}/masterKeyMnemonic~true\}`;
-  secrets['LOG_LEVEL'] = 'debug';
   for (const oisTitle in apiCredentials) {
     for (const securityScheme of apiCredentials[oisTitle]) {
       secrets[`${oisTitle}_${securityScheme.securitySchemeName}`] = securityScheme.value;
