@@ -4,24 +4,24 @@ Tool used for json specifications processing, can be configured to validate a sp
 
 # Usage
 
-The validator can be run as an NPM script, by providing the paths to the JSON file that will be checked and the JSON file to use as template:
+The validator can be run as an NPM script, by providing template of specification, and the path to the JSON file of specification that will be validated:
 ```sh
-npm run validate --template="[templateFile]" --specs="[specsFile]"
+npm run validate --template="[template]" --specs="[specsFile]"
 ```
 
-In case specifications file is provided first, the command can be simplified to: `npm run validate [templateFile] [specsFile]`. Try it out using the example specification:
+Templates are case-insensitive, valid templates are: `config`, `OIS`, `apiSpecifications`/`apiSpecs` and `endpoints`. If arguments are in order `template`, `specs` command can be simplified: `npm run validate [template] [specsFile]`:
 ```sh
-npm run validate templates/ois.json exampleSpecs/ois.specs.json
+npm run validate config exampleSpecs/config.specs.json
 ```
 
-Validation of config and security has a separate command, in which the template is omitted:
+Validator will automatically validate the latest available version of provided template, in case specific version should be used in validation, it can be passed as `--templateVersion` argument or as the last argument if they are ordered:
 ```sh
-npm run validateConfigSecurity --config="[configFile]" --security="[securityFile]"
+npm run validate config exampleSpecs/config.specs.json 1.0.0
 ```
 
-Which can be simplified in the same manner as `validate` command and invoked with example specifications:
+Custom templates can be used, by providing path to the validator template file in place of `template`:
 ```sh
-npm run validateConfigSecurity exampleSpecs/config.specs.json exampleSpecs/security.specs.json
+npm run validate templates/1.0.0/config.json exampleSpecs/config.specs.json
 ```
 
 Convertor works the same way as validator and can be invoked with the `convert` command, for example:
