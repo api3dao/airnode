@@ -298,7 +298,6 @@ yargs
     }
   )
   .command(
-    // TODO: do we need this? It will be called by airnode, but can be usefull for users to test
     'fulfill-withdrawal',
     'Fulfils the withdrawal status',
     {

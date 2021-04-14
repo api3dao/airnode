@@ -196,7 +196,7 @@ describe('submitApiCall', () => {
       );
     });
 
-    it('does nothing if the the fulfill test returns nothing', async () => {
+    it('does nothing if the fulfill test returns nothing', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce(null);
@@ -319,7 +319,7 @@ describe('submitApiCall', () => {
       expect(contract.fail).not.toHaveBeenCalled();
     });
 
-    it('submits a fail transaction if the the error transaction would revert', async () => {
+    it('submits a fail transaction if the error transaction would revert', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: false });
@@ -412,7 +412,7 @@ describe('submitApiCall', () => {
       expect(contract.fail).not.toHaveBeenCalled();
     });
 
-    it('does nothing if the the error test returns nothing', async () => {
+    it('does nothing if the error test returns nothing', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
       const contract = new ethers.Contract('address', ['ABI']);
       (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce(null);

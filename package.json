@@ -39,7 +39,7 @@
     "test:adapter:watch": "(cd packages/adapter && yarn run test:watch)",
     "test:airnode-abi": "(cd packages/airnode-abi && yarn run test)",
     "test:airnode-abi:watch": "(cd packages/airnode-abi && yarn run test:watch)",
-    "test:e2e": "yarn test:e2e-admin && yarn test:e2e-node",
+    "test:e2e": "lerna run test:e2e --stream",
     "test:e2e-admin": "cd packages/admin && yarn run test:e2e",
     "test:e2e-node": "cd packages/node && yarn run test:e2e",
     "test:e2e-node:debug": "cd packages/node && yarn run test:e2e:debug",

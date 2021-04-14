@@ -6,13 +6,8 @@
 > This README is in sync with the master branch. You can find the **pre-alpha** documentation [here](https://github.com/api3dao/airnode/blob/pre-alpha/packages/admin/README.md).
 
 Almost all commands require you to provide a `providerUrl` such as `https://ropsten.infura.io/v3/<KEY>`, `https://xdai.poanetwork.dev`, etc.
-Currently supported chains are:
-- Ropsten
-- Rinkeby
-- Goerli
-- xDai
-- Fantom
-- Other (custom) chains - if you provide optional `airnodeRrp` command argument with address of the deployed [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract on your targeted chain.
+The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract, which address is derived from the current chain.
+You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
 
 Commands that require `mnemonic` will make an on-chain transaction.
 The application will derive the account from the mnemonic with default ethereum derivation path `m/44'/60'/0'/0/0`, but you can override this by `derivationPath` flag.
@@ -38,7 +33,7 @@ import { createRequester, getAirnodeRrpWithSigner } from '@airnode/admin';
 
 // First obtain the contract instance on target chain
 const airnodeRrp = await getAirnodeRrpWithSigner(mnemonic, derivationPath, providerUrl, airnodeRrpAddress);
-// Pass the contract instance as the first argument the the SDK function
+// Pass the contract instance as the first argument to the SDK function
 const requesterIndex = await createRequester(airnodeRrp, requesterAdmin);
 ```
 
@@ -204,6 +199,18 @@ npx @api3/airnode-admin check-withdrawal-request \
   --withdrawalRequestId 0x011d1b...
 ```
 
+### `count-withdrawal-requests`
+
+Returns the number of withdrawal requests for the given requesterIndex.
+
+```sh
+npx @api3/airnode-admin count-withdrawal-requests \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --requesterIndex 0x011d1b...
+```
+
+## Airnode commands
+
 ### `fulfill-withdrawal`
 
 Checks the status of the withdrawal request with the given ID.
@@ -220,18 +227,6 @@ npx @api3/airnode-admin fulfill-withdrawal \
   --destination 0x98aaba...
   --amount 1.2
 ```
-
-### `count-withdrawal-requests`
-
-Returns the number of withdrawal requests for the given requesterIndex.
-
-```sh
-npx @api3/airnode-admin count-withdrawal-requests \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --requesterIndex 0x011d1b...
-```
-
-## Airnode commands
 
 ### `set-airnode-parameters`
 

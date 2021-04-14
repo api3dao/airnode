@@ -1,4 +1,5 @@
 import AirnodeRrpArtifact from '../artifacts/contracts/AirnodeRrp.sol/AirnodeRrp.json';
+import MockAirnodeRrpClientArtifact from '../artifacts/contracts/mock/MockAirnodeRrpClient.sol/MockAirnodeRrpClient.json';
 import {
   MockAirnodeRrpClient__factory as MockAirnodeRrpClientFactory,
   AirnodeRrp__factory as AirnodeRrpFactory,
@@ -10,8 +11,8 @@ const mocks = {
 };
 // TODO:
 const authorizers = {};
-// TODO: refactor once https://github.com/ethereum-ts/TypeChain/pull/368 is merged
-const AirnodeRrpArtifactAbi = AirnodeRrpArtifact.abi;
 
-export { AirnodeRrpAddresses, AirnodeRrpFactory, mocks, authorizers, AirnodeRrpArtifactAbi };
+export { AirnodeRrpAddresses, AirnodeRrpFactory, mocks, authorizers };
+// Export the artifacts for API consumers using web3
+export { AirnodeRrpArtifact, MockAirnodeRrpClientArtifact };
 export type { AirnodeRrp, MockAirnodeRrpClient } from './contracts';

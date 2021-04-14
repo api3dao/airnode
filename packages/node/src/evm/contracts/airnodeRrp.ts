@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
-import { AirnodeRrpArtifactAbi } from '@airnode/protocol';
+// TODO: refactor once https://github.com/ethereum-ts/TypeChain/pull/368 is merged
+import { AirnodeRrpArtifact } from '@airnode/protocol';
 import { Contract } from './types';
 
 const ClientRequestCreated = ethers.utils.id(
@@ -16,7 +17,7 @@ const WithdrawalRequested = ethers.utils.id('WithdrawalRequested(bytes32,uint256
 const WithdrawalFulfilled = ethers.utils.id('WithdrawalFulfilled(bytes32,uint256,bytes32,address,address,uint256)');
 
 export const AirnodeRrp: Contract = {
-  ABI: AirnodeRrpArtifactAbi,
+  ABI: AirnodeRrpArtifact.abi,
   topics: {
     // API calls
     ClientRequestCreated,
