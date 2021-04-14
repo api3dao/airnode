@@ -3,8 +3,9 @@ const path = require('path');
 module.exports = {
   devtool: 'source-map',
   entry: {
-    'aws/index': './dist/handlers/aws/index.js',
+    'handlers/aws/index': './dist/handlers/aws/index.js',
   },
+  externals: '../../config-data/config.json',
   mode: 'production',
   output: {
     filename: '[name].js',

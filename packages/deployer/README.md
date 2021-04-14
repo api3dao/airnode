@@ -5,6 +5,22 @@
 *The recommended way to deploy Airnode is by using the deployment Docker image.
 This package simply implements the scripts used by that image and is not meant to be used directly by the end user.*
 
+## Temporary instructions
+
+At the root
+```sh
+yarn run build-all
+```
+In this package
+```sh
+yarn run webpack
+yarn run webpack:copy-config
+yarn run command:deploy:nonstop
+yarn run command:remove-with-receipt
+```
+
+The information below is outdated.
+
 ## Setup
 
 - Download the [Terraform v0.13.* binary](https://www.terraform.io/downloads.html) and move it to your `PATH`

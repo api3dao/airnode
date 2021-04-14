@@ -17,39 +17,27 @@ provider:
 
 package: 
   individually: true
+  patterns:
+    - '!**'
+    - .webpack/handlers/aws/index.js
+    - .webpack/config-data/config.json
 
 functions:
   startCoordinator:
-    handler: ./.webpack/aws/index.startCoordinator
+    handler: ./.webpack/handlers/aws/index.startCoordinator
     timeout: 60
     reservedConcurrency: 1
     events:
       - schedule: rate(1 minute)
-    package:
-      patterns:
-        - '!**'
-        - .webpack/aws/index.js
 
   initializeProvider:
-    handler: ./.webpack/aws/index.initializeProvider
+    handler: ./.webpack/handlers/aws/index.initializeProvider
     timeout: 20
-    package:
-      patterns:
-        - '!**'
-        - .webpack/aws/index.js
 
   callApi:
-    handler: ./.webpack/aws/index.callApi
+    handler: ./.webpack/handlers/aws/index.callApi
     timeout: 30
-    package:
-      patterns:
-        - '!**'
-        - .webpack/aws/index.js
 
   processProviderRequests:
-    handler: ./.webpack/aws/index.processProviderRequests
+    handler: ./.webpack/handlers/aws/index.processProviderRequests
     timeout: 10
-    package:
-      patterns:
-        - '!**'
-        - .webpack/aws/index.js
