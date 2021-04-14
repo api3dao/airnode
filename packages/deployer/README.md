@@ -5,8 +5,6 @@
 *The recommended way to deploy Airnode is by using the deployment Docker image.
 This package simply implements the scripts used by that image and is not meant to be used directly by the end user.*
 
-*If you will be using the provided scripts locally, run `export-env.sh` to export your AWS credentials as environment variables first.*
-
 ## Setup
 
 - Download the [Terraform v0.13.* binary](https://www.terraform.io/downloads.html) and move it to your `PATH`
