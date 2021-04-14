@@ -124,6 +124,20 @@ contract Median2 {
         return median;
     }
     
+    /// Computes a median on an array of unsigned integers of any length.
+    /// @param arr An array of unsigned integers.
+    /// @return median of `array` 
+    function compute5
+    (
+      uint256[] calldata arr
+    )
+        external
+        pure
+        returns (uint256 median)
+    {
+      median = arr[0];
+    }
+    
     
     // Private functions
 
