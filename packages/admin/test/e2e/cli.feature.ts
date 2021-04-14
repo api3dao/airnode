@@ -92,7 +92,7 @@ describe('CLI', () => {
       // renamed to get-endorsement-status
       'requester-index-to-client-address-to-endorsement-status',
       // renamed to count-withdrawal-requests
-      'requester-index-to-no-withdrawal-requests',
+      'requester-index-to-next-withdrawal-request-index',
       // covered by endorse-client and unendrose-client commands
       'set-client-endorsement-status',
       // explicitely not implemented (not useful as of now)

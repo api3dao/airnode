@@ -25,7 +25,7 @@ describe('AirnodeRrp', () => {
       'requestWithdrawal',
       'requesterIndexToAdmin',
       'requesterIndexToClientAddressToEndorsementStatus',
-      'requesterIndexToNoWithdrawalRequests',
+      'requesterIndexToNextWithdrawalRequestIndex',
       'setAirnodeParameters',
       'setAirnodeParametersAndForwardFunds',
       'setClientEndorsementStatus',

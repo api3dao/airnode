@@ -53,8 +53,8 @@ export class AdminSdk {
   requesterIndexToClientAddressToEndorsementStatus = (requesterIndex: BigNumberish, clientAddress: string) =>
     admin.requesterIndexToClientAddressToEndorsementStatus(this.airnodeRrp, requesterIndex, clientAddress);
 
-  requesterIndexToNoWithdrawalRequests = (requesterIndex: BigNumberish) =>
-    admin.requesterIndexToNoWithdrawalRequests(this.airnodeRrp, requesterIndex);
+  requesterIndexToNextWithdrawalRequestIndex = (requesterIndex: BigNumberish) =>
+    admin.requesterIndexToNextWithdrawalRequestIndex(this.airnodeRrp, requesterIndex);
 
   fulfilWithdrawal = (
     requestId: string,
