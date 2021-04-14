@@ -186,8 +186,8 @@ export function requesterIndexToClientAddressToEndorsementStatus(
   return airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(requesterIndex, clientAddress);
 }
 
-export async function requesterIndexToNoWithdrawalRequests(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish) {
-  const requestsCount = await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex);
+export async function requesterIndexToNextWithdrawalRequestIndex(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish) {
+  const requestsCount = await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex);
   return requestsCount.toString();
 }
 

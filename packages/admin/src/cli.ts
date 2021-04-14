@@ -350,7 +350,7 @@ yargs
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const requestsCount = await admin.requesterIndexToNoWithdrawalRequests(airnodeRrp, args.requesterIndex);
+      const requestsCount = await admin.requesterIndexToNextWithdrawalRequestIndex(airnodeRrp, args.requesterIndex);
       console.log(`Number of withdrawal requests: ${requestsCount}`);
     }
   )

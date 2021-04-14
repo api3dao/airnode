@@ -32,8 +32,8 @@ describe('createRequester', function () {
     expect(await airnodeRrp.requesterIndexToAdmin(requesterIndex1)).to.equal(roles.requesterAdmin1.address);
     expect(await airnodeRrp.requesterIndexToAdmin(requesterIndex2)).to.equal(roles.requesterAdmin2.address);
     // Verify that the requester withdrawal nonces are initialized
-    expect(await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex1)).to.equal(1);
-    expect(await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex2)).to.equal(1);
+    expect(await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex1)).to.equal(1);
+    expect(await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex2)).to.equal(1);
   });
 });
 
