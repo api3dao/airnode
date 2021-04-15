@@ -66,9 +66,9 @@ beforeEach(async () => {
 });
 
 /*
- * Test median computation for *all* permutations of arrays of length at most 7.
+ * Test median computation for *all* permutations of arrays of length at most 6.
  */
-describe('median.compute length <= 7', function () {
+describe('median.compute length <= 6', function () {
   for (let n = 1; n <= 6; n++) {
     let arr = range(n);
     const med = _median(arr);
@@ -83,10 +83,9 @@ describe('median.compute length <= 7', function () {
 });
 
 /*
- * Test a random sampling of arrays of length greater than 7, with random
- * duplicates added.
+ * Test a random sampling of arrays of length greater than 7, with random duplicates added.
  */
-describe('median.compute length >= 8, with duplicates', function () {
+describe('median.compute length >= 7, with duplicates', function () {
   for (let n = 7; n <= 20; n++) {
     let arr = addRandomDuplicates(range(n));
     const med = _median(arr);
