@@ -91,8 +91,6 @@ describe('CLI', () => {
       'get-airnode-parameters-and-block-number',
       // renamed to get-endorsement-status
       'requester-index-to-client-address-to-endorsement-status',
-      // renamed to count-withdrawal-requests
-      'requester-index-to-next-withdrawal-request-index',
       // covered by endorse-client and unendrose-client commands
       'set-client-endorsement-status',
       // explicitely not implemented (not useful as of now)
@@ -101,10 +99,13 @@ describe('CLI', () => {
       'check-authorization-statuses',
       'fail',
       'fulfill',
+      'fulfill-withdrawal',
       'make-full-request',
       'make-request',
       'request-with-id-has-failed',
       'set-airnode-parameters-and-forward-funds',
+      'client-address-to-no-requests',
+      'requester-index-to-next-withdrawal-request-index',
     ].sort();
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
@@ -310,6 +311,7 @@ describe('CLI', () => {
     let requesterIndex: string;
     let airnodeMnemonic: string;
     let airnodeId: string;
+    let airnodeRequesterWallet: ethers.Wallet;
     let designatedWallet: ethers.Wallet;
     let destinationWallet: ethers.Wallet;
     const destinationBalance = async () => (await destinationWallet.getBalance()).toString();
@@ -319,6 +321,7 @@ describe('CLI', () => {
       requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
       const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
       airnodeMnemonic = airnodeWallet.mnemonic.phrase;
+      airnodeRequesterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(provider);
       const masterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, 'm').connect(provider);
       // Fund the master wallet - which will be used to set the airnode parameters
       await deployer.sendTransaction({
@@ -341,17 +344,6 @@ describe('CLI', () => {
     });
 
     it('can create and fulfill withdrawal request', async () => {
-      const countWithdrawalRequests = () =>
-        execCommand(
-          'count-withdrawal-requests',
-          ['--providerUrl', PROVIDER_URL],
-          ['--airnodeRrp', airnodeRrp.address],
-          ['--requesterIndex', requesterIndex]
-        );
-
-      // TODO: shouldn't this number start from 0? It's initialized to 1 in RequesterStore.sol
-      expect(countWithdrawalRequests()).toBe('Number of withdrawal requests: 1');
-
       const requestWithdrawalOutput = execCommand(
         'request-withdrawal',
         ['--mnemonic', mnemonic],
@@ -374,23 +366,18 @@ describe('CLI', () => {
           ['--withdrawalRequestId', withdrawalRequestId]
         );
 
-      expect(countWithdrawalRequests()).toBe('Number of withdrawal requests: 2');
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
-      const fulfillWithdrawalOutput = execCommand(
-        'fulfill-withdrawal',
-        ['--airnodeMnemonic', airnodeMnemonic],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--airnodeId', airnodeId],
-        ['--requesterIndex', requesterIndex],
-        ['--destination', destinationWallet.address],
-        ['--withdrawalRequestId', withdrawalRequestId],
-        ['--amount', '0.8']
+
+      airnodeRrp = airnodeRrp.connect(airnodeRequesterWallet);
+      await admin.fulfilWithdrawal(
+        airnodeRrp,
+        withdrawalRequestId,
+        airnodeId,
+        requesterIndex,
+        destinationWallet.address,
+        '0.8'
       );
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
-      expect(fulfillWithdrawalOutput).toBe(
-        `{"airnodeId":"${airnodeId}","requesterIndex":"${requesterIndex}","designatedWallet":"${designatedWallet.address}","destination":"${destinationWallet.address}","amount":"800000000000000000","withdrawalRequestId":"${withdrawalRequestId}"}`
-      );
       expect(await destinationBalance()).toBe('800000000000000000');
     });
 

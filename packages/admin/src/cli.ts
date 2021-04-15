@@ -67,6 +67,7 @@ const {
   airnodeId,
   clientAddress,
   destination,
+  withdrawalRequestId,
 } = COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
@@ -197,19 +198,6 @@ yargs
     }
   )
   .command(
-    'client-address-to-no-requests',
-    'Returns the number of requests made by the client',
-    {
-      ...airnodeRrpCommands,
-      clientAddress,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const requestsCount = await admin.clientAddressToNoRequests(airnodeRrp, args.clientAddress);
-      console.log(`Number of requests: ${requestsCount}`);
-    }
-  )
-  .command(
     'create-template',
     'Creates a template and returns its ID',
     {
@@ -281,11 +269,7 @@ yargs
     'Checks the state of the withdrawal request',
     {
       ...airnodeRrpCommands,
-      withdrawalRequestId: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Withdrawal request ID',
-      },
+      withdrawalRequestId,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
@@ -295,63 +279,6 @@ yargs
       } else {
         console.log(`Withdrawal request is not fulfilled yet`);
       }
-    }
-  )
-  .command(
-    'fulfill-withdrawal',
-    'Fulfils the withdrawal status',
-    {
-      ...airnodeRrpCommands,
-      airnodeMnemonic: {
-        type: 'string',
-        demandOption: true,
-        describe:
-          'Mnemonic of the airnode wallet (derivation path of the account will be derived from the requesterIndex)',
-      },
-      requesterIndex,
-      airnodeId,
-      withdrawalRequestId: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Withdrawal request ID',
-      },
-      destination,
-      amount: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Amount of ether to withdraw. For example "1.2" to withdraw 1.2 ETH',
-      },
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.airnodeMnemonic,
-        `m/0/${args.requesterIndex}`,
-        args.providerUrl,
-        args.airnodeRrp
-      );
-      const params = await admin.fulfilWithdrawal(
-        airnodeRrp,
-        args.withdrawalRequestId,
-        args.airnodeId,
-        args.requesterIndex,
-        args.destination,
-        args.amount
-      );
-
-      console.log(toJSON(params));
-    }
-  )
-  .command(
-    'count-withdrawal-requests',
-    'Returns the number of withdrawal requests for the given requesterIndex',
-    {
-      ...airnodeRrpCommands,
-      requesterIndex,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const requestsCount = await admin.requesterIndexToNextWithdrawalRequestIndex(airnodeRrp, args.requesterIndex);
-      console.log(`Number of withdrawal requests: ${requestsCount}`);
     }
   )
   .command(

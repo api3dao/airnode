@@ -3,8 +3,6 @@
 
 > A package/CLI tool to interact with the Airnode contracts across chains
 
-> This README is in sync with the master branch. You can find the **pre-alpha** documentation [here](https://github.com/api3dao/airnode/blob/pre-alpha/packages/admin/README.md).
-
 Almost all commands require you to provide a `providerUrl` such as `https://ropsten.infura.io/v3/<KEY>`, `https://xdai.poanetwork.dev`, etc.
 The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract, which address is derived from the current chain.
 You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
