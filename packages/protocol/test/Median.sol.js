@@ -22,7 +22,7 @@ const factorial = (n) => {
 
 const range = (n) => {
   var arr = [];
-  for (let x = 100; x <= n * 100; x += 100) {
+  for (let x = 10; x <= n * 10; x += 10) {
     arr.push(x);
   }
   return arr;
@@ -69,7 +69,7 @@ beforeEach(async () => {
  * Test median computation for *all* permutations of arrays of length at most 7.
  */
 describe('median.compute length <= 7', function () {
-  for (let n = 1; n <= 7; n++) {
+  for (let n = 1; n <= 6; n++) {
     let arr = range(n);
     const med = _median(arr);
     let perms = permutations(arr);
@@ -83,41 +83,15 @@ describe('median.compute length <= 7', function () {
 });
 
 /*
- * Test median checker for *all* permutations of arrays of length at most 7.
- */
-describe('median.check length <= 7', function () {
-  for (let n = 1; n <= 7; n++) {
-    let arr = range(n);
-    const med = _median(arr);
-    let perms = permutations(arr);
-    for (let i = 0; i < perms.length; i++) {
-      let arrP = perms[i];
-      it('check correct median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
-        expect(await median.check(arrP, med)).to.equal(true);
-      });
-      // all other values should return false
-      for (let idx = 0; i < arrP.length; i++) {
-        let x = arrP[idx];
-        if (x != med) {
-          it('check incorrect median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
-            expect(await median.check(arrP, x)).to.equal(false);
-          });
-        }
-      }
-    }
-  }
-});
-
-/*
  * Test a random sampling of arrays of length greater than 7, with random
  * duplicates added.
  */
 describe('median.compute length >= 8, with duplicates', function () {
-  for (let n = 8; n <= 30; n++) {
+  for (let n = 7; n <= 20; n++) {
     let arr = addRandomDuplicates(range(n));
     const med = _median(arr);
     // test `nShuffles` random shuffles for each array length
-    const nShuffles = 50;
+    const nShuffles = 500;
     for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
       let arrP = arr.slice();
       shuffleArray(arrP);
