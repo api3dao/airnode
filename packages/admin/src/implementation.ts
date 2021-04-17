@@ -200,7 +200,7 @@ export interface FulfillWithdrawalReturnValue {
   withdrawalRequestId: string;
 }
 
-export async function fulfilWithdrawal(
+export async function fulfillWithdrawal(
   airnodeRrp: AirnodeRrp,
   requestId: string,
   airnodeId: string,

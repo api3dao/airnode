@@ -56,11 +56,11 @@ export class AdminSdk {
   requesterIndexToNextWithdrawalRequestIndex = (requesterIndex: BigNumberish) =>
     admin.requesterIndexToNextWithdrawalRequestIndex(this.airnodeRrp, requesterIndex);
 
-  fulfilWithdrawal = (
+  fulfillWithdrawal = (
     requestId: string,
     airnodeId: string,
     requesterIndex: BigNumberish,
     destination: string,
     amount: string
-  ) => admin.fulfilWithdrawal(this.airnodeRrp, requestId, airnodeId, requesterIndex, destination, amount);
+  ) => admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeId, requesterIndex, destination, amount);
 }

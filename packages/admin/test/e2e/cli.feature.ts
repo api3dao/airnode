@@ -311,7 +311,6 @@ describe('CLI', () => {
     let requesterIndex: string;
     let airnodeMnemonic: string;
     let airnodeId: string;
-    let airnodeRequesterWallet: ethers.Wallet;
     let designatedWallet: ethers.Wallet;
     let destinationWallet: ethers.Wallet;
     const destinationBalance = async () => (await destinationWallet.getBalance()).toString();
@@ -321,7 +320,6 @@ describe('CLI', () => {
       requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
       const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
       airnodeMnemonic = airnodeWallet.mnemonic.phrase;
-      airnodeRequesterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(provider);
       const masterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, 'm').connect(provider);
       // Fund the master wallet - which will be used to set the airnode parameters
       await deployer.sendTransaction({
@@ -368,8 +366,8 @@ describe('CLI', () => {
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
 
-      airnodeRrp = airnodeRrp.connect(airnodeRequesterWallet);
-      await admin.fulfilWithdrawal(
+      airnodeRrp = airnodeRrp.connect(designatedWallet);
+      await admin.fulfillWithdrawal(
         airnodeRrp,
         withdrawalRequestId,
         airnodeId,
