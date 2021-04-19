@@ -1,5 +1,13 @@
-import * as fs from 'fs';
 import * as ethers from 'ethers';
+
+export function validateMnemonic(mnemonic) {
+  try {
+    ethers.Wallet.fromMnemonic(mnemonic);
+  } catch {
+    return false;
+  }
+  return true;
+}
 
 export function deriveAirnodeId(mnemonic) {
   return ethers.utils.keccak256(
@@ -27,8 +35,4 @@ export function shortenAirnodeId(airnodeId) {
     throw new Error('airnodeId is not a valid hex string');
   }
   return airnodeId.substring(2, 9);
-}
-
-export function writeJSONFile(fileName, object) {
-  fs.writeFileSync(fileName, JSON.stringify(object, null, 4));
 }

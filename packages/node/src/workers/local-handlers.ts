@@ -7,7 +7,7 @@ import { go } from '../utils/promise-utils';
 import { WorkerResponse } from '../types';
 
 function loadConfig() {
-  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))[0];
   return parseConfig(rawConfig);
 }
 

@@ -5,7 +5,21 @@
 *The recommended way to deploy Airnode is by using the deployment Docker image.
 This package simply implements the scripts used by that image and is not meant to be used directly by the end user.*
 
-*If you will be using the provided scripts locally, run `export-env.sh` to export your AWS credentials as environment variables first.*
+## Temporary instructions
+
+At the root
+```sh
+yarn run build-all
+```
+In this package
+```sh
+yarn run webpack
+yarn run webpack:copy-config
+yarn run command:deploy:nonstop
+yarn run command:remove-with-receipt
+```
+
+The information below is outdated.
 
 ## Setup
 

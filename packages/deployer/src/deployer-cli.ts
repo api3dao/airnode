@@ -1,12 +1,5 @@
 import * as yargs from 'yargs';
-import {
-  deployFirstTime,
-  redeploy,
-  deployMnemonic,
-  removeWithReceipt,
-  removeMnemonic,
-  removeAirnode,
-} from './commands';
+import { deploy, removeWithReceipt, remove } from './commands';
 import { version as nodeVersion } from '../node_modules/@airnode/node/package.json';
 
 function drawHeader() {
@@ -26,47 +19,17 @@ drawHeader();
 
 yargs
   .command(
-    'deploy-first-time',
-    'Creates a mnemonic and deploys it with Airnode',
+    'deploy',
+    'Executes Airnode deployments specified in the config file',
     {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
+      configPath: { alias: 'c', default: './src/config-data/config.json', type: 'string' },
+      secretsPath: { alias: 's', default: './src/config-data/secrets.env', type: 'string' },
+      outputFilename: { alias: 'o', default: 'receipt.json', type: 'string' },
+      nonStop: { boolean: true, default: false },
     },
     async (args) => {
       try {
-        await deployFirstTime(args.configPath, args.securityPath, nodeVersion);
-      } catch (e) {
-        console.error(e);
-        process.exitCode = 1;
-      }
-    }
-  )
-  .command(
-    'redeploy',
-    'Redeploys Airnode with an already deployed mnemonic',
-    {
-      configPath: { type: 'string', demandOption: true, alias: 'c' },
-      securityPath: { type: 'string', demandOption: true, alias: 's' },
-    },
-    async (args) => {
-      try {
-        await redeploy(args.configPath, args.securityPath, nodeVersion);
-      } catch (e) {
-        console.error(e);
-        process.exitCode = 1;
-      }
-    }
-  )
-  .command(
-    'deploy-mnemonic',
-    'Deploys a mnemonic',
-    {
-      mnemonic: { type: 'string', demandOption: true, alias: 'm' },
-      region: { type: 'string', demandOption: true, alias: 'r' },
-    },
-    async (args) => {
-      try {
-        await deployMnemonic(args.mnemonic, args.region);
+        await deploy(args.configPath, args.secretsPath, args.outputFilename, args.nonStop, nodeVersion);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
@@ -75,9 +38,9 @@ yargs
   )
   .command(
     'remove-with-receipt',
-    'Removes Airnode deployment and mnemonic using the receipt',
+    'Removes Airnode deployment using the receipt',
     {
-      receiptFilename: { type: 'string', demandOption: true, alias: 'rf' },
+      receiptFilename: { alias: 'rf', default: 'receipt.json', type: 'string' },
     },
     async (args) => {
       try {
@@ -89,32 +52,17 @@ yargs
     }
   )
   .command(
-    'remove-mnemonic',
-    'Removes mnemonic deployment',
-    {
-      airnodeIdShort: { type: 'string', demandOption: true, alias: 'p' },
-      region: { type: 'string', demandOption: true, alias: 'r' },
-    },
-    async (args) => {
-      try {
-        await removeMnemonic(args.airnodeIdShort, args.region);
-      } catch (e) {
-        console.error(e);
-        process.exitCode = 1;
-      }
-    }
-  )
-  .command(
-    'remove-airnode',
+    'remove',
     'Removes Airnode deployment',
     {
-      airnodeIdShort: { type: 'string', demandOption: true, alias: 'p' },
-      region: { type: 'string', demandOption: true, alias: 'r' },
+      airnodeIdShort: { type: 'string', demandOption: true, alias: 'a' },
       stage: { type: 'string', demandOption: true, alias: 's' },
+      cloudProvider: { type: 'string', demandOption: true, alias: 'c' },
+      region: { type: 'string', demandOption: true, alias: 'r' },
     },
     async (args) => {
       try {
-        await removeAirnode(args.airnodeIdShort, args.region, args.stage);
+        await remove(args.airnodeIdShort, args.stage, args.cloudProvider, args.region);
       } catch (e) {
         console.error(e);
         process.exitCode = 1;
