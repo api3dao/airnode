@@ -9,7 +9,7 @@ const COMMON_COMMAND_ARGUMENTS = {
     providerUrl: {
       type: 'string',
       demandOption: true,
-      describe: 'URL of the Ethereum provider',
+      describe: 'URL of the blockchain provider',
     },
     airnodeRrp: {
       type: 'string',

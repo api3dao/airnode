@@ -78,7 +78,6 @@ The account derived from the `mnemonic` you provide here has to belong to the pr
 npx @api3/airnode-admin set-requester-admin \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --derivationPath "m/44'/60'/0'/0/2" \
   --requesterIndex 6 \
   --requesterAdmin 0xe97301...
 ```
@@ -122,22 +121,12 @@ npx @api3/airnode-admin unendorse-client \
 
 ### `get-endorsement-status`
 
-Returns the endorsment status for the given requesterIndex and client. Returns true if endorsed, false otherwise.
+Returns the endorsement status for the given requester index and client (`true` if endorsed, `false` otherwise).
 
 ```sh
 npx @api3/airnode-admin get-endorsement-status \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --requesterIndex 6 \
-  --clientAddress 0x2c2e12...
-```
-
-### `client-address-to-no-requests`
-
-Returns the number of requests made by the client.
-
-```sh
-npx @api3/airnode-admin client-address-to-no-requests \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --clientAddress 0x2c2e12...
 ```
 
@@ -155,22 +144,12 @@ npx @api3/airnode-admin create-template \
 
 ### `get-template`
 
-Returns the template for the given templateId.
+Returns the template for the given `templateId`.
 
 ```sh
 npx @api3/airnode-admin get-template \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --templateId 0x8d3b9...
-```
-
-### `get-templates`
-
-Returns the templates for the given templateIds. Template IDs need to be separated by space.
-
-```sh
-npx @api3/airnode-admin get-templates \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --templateIds 0x8d3b9... 0x54c63...
 ```
 
 ### `request-withdrawal`
@@ -197,34 +176,7 @@ npx @api3/airnode-admin check-withdrawal-request \
   --withdrawalRequestId 0x011d1b...
 ```
 
-### `count-withdrawal-requests`
-
-Returns the number of withdrawal requests for the given requesterIndex.
-
-```sh
-npx @api3/airnode-admin count-withdrawal-requests \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --requesterIndex 0x011d1b...
-```
-
 ## Airnode commands
-
-### `fulfill-withdrawal`
-
-Checks the status of the withdrawal request with the given ID.
-The `airnodeMnemonic` must be the airnode mnemonic for which you requested withdrawal.
-The amount to be withdrawn is in ETH (e.g. specifying "1.2" will withdraw 1.2 ETH).
-
-```sh
-npx @api3/airnode-admin fulfill-withdrawal \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --airnodeMnemonic "deal hold waste..." \
-  --airnodeId 0xe1e0dd... \
-  --requesterIndex 6 \
-  --withdrawalRequestId 0x011d1b...
-  --destination 0x98aaba...
-  --amount 1.2
-```
 
 ### `set-airnode-parameters`
 
@@ -244,7 +196,7 @@ npx @api3/airnode-admin set-airnode-parameters \
 
 ### `get-airnode-parameters`
 
-Returns the airnode parameters and block number for the given airnodeId.
+Returns the Airnode parameters and block number for the given `airnodeId`.
 
 ```sh
 npx @api3/airnode-admin get-airnode-parameters \
