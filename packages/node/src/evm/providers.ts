@@ -6,7 +6,7 @@ import * as utils from './utils';
 import * as wallet from './wallet';
 import { LogsData } from '../types';
 import { OPERATION_RETRIES } from '../constants';
-//test
+
 interface BaseFetchOptions {
   providerAdminForRecordCreation?: string;
   airnodeAddress: string;
@@ -80,19 +80,19 @@ export async function create(options: CreateOptions): Promise<LogsData<ethers.Tr
   const log2 = logger.pend('INFO', 'Estimating transaction cost for creating provider...');
 
   // Gas cost is 160,076
-  const gasEstimateOp = () =>
-    airnode.estimateGas.createProvider(options.providerAdminForRecordCreation, options.xpub, {
-      gasLimit: 300_000,
-      value: 1,
-    });
-  const retryableGasEstimateOp = retryOperation(OPERATION_RETRIES, gasEstimateOp);
-  const [estimateErr, estimatedGasCost] = await go(retryableGasEstimateOp);
-  if (estimateErr || !estimatedGasCost) {
-    const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
-    return [[log1, log2, errLog], null];
-  }
+//  const gasEstimateOp = () =>
+//    airnode.estimateGas.createProvider(options.providerAdminForRecordCreation, options.xpub, {
+//      gasLimit: 300_000,
+//      value: 1,
+//    });
+//  const retryableGasEstimateOp = retryOperation(OPERATION_RETRIES, gasEstimateOp);
+//  const [estimateErr, estimatedGasCost] = await go(retryableGasEstimateOp);
+//  if (estimateErr || !estimatedGasCost) {
+//    const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
+//    return [[log1, log2, errLog], null];
+//  }
   // Overestimate a bit
-  const gasLimit = estimatedGasCost.add(ethers.BigNumber.from(20_000));
+  const gasLimit = ethers.BigNumber.from(180_000);
   const log3 = logger.pend('INFO', `Estimated gas limit: ${gasLimit.toString()}`);
 
   // Fetch the current gas price
