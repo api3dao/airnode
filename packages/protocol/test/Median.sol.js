@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 
-let median;
+let selectK;
 
 // some helper functions for testing
 
@@ -71,11 +71,10 @@ beforeEach(async () => {
 });
 
 /*
- * Test select-k computation for *all* permutations of arrays of length at most 6.
+ * Test select-k computation for *all* permutations of arrays of length at most 5.
  */
 describe('select-k length <= 6', function () {
-  //for (let n = 1; n <= 5; n++) {
-  for (let n = 1; n <= 0; n++) {
+  for (let n = 1; n <= 5; n++) {
     let arr = range(n);
     for (let k = 0; k < n; k++) {
       const x_k = _selectK(arr, k);
@@ -94,16 +93,16 @@ describe('select-k length <= 6', function () {
 });
 
 /*
- * Test a random sampling of arrays of length greater than 7, with random duplicates added.
+ * Test a random sampling of arrays of length greater than 5, with random duplicates added.
  */
 describe('select-k length >= 7, with duplicates', function () {
-  for (let n = 5; n <= 0; n++) {
+  for (let n = 5; n <= 21; n++) {
     //let arr = range(n);
     let arr = addRandomDuplicates(range(n));
     for (let k = 0; k < n; k++) {
       const x_k = _selectK(arr, k);
       // test `nShuffles` random shuffles for each array length
-      const nShuffles = 10;
+      const nShuffles = 5;
       for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
         let arrP = arr.slice();
         shuffleArray(arrP);
@@ -119,7 +118,7 @@ describe('select-k length >= 7, with duplicates', function () {
  * Test select-2 on a random sampling of arrays with random duplicates added.
  */
 describe('select k and (k+1)', function () {
-  for (let n = 1; n <= 25; n++) {
+  for (let n = 1; n <= 21; n++) {
     //let arr = range(n);
     let arr = addRandomDuplicates(range(n));
     for (let k = 0; k < n - 1; k++) {
