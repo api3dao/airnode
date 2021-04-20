@@ -47,6 +47,11 @@ const _median = (arr) => {
   }
 };
 
+const _selectK = (arr, k) => {
+  const arrSorted = arr.slice(0).sort((a, b) => a - b);
+  return arrSorted[k];
+};
+
 /*
  * Randomize array in-place using Durstenfeld shuffle algorithm,
  * From: https://stackoverflow.com/a/12646864/14796546
@@ -61,23 +66,29 @@ function shuffleArray(array) {
 }
 
 beforeEach(async () => {
-  const Median = await ethers.getContractFactory('Median');
-  median = await Median.deploy();
+  const SelectK = await ethers.getContractFactory('SelectK');
+  selectK = await SelectK.deploy();
 });
 
 /*
- * Test median computation for *all* permutations of arrays of length at most 6.
+ * Test select-k computation for *all* permutations of arrays of length at most 6.
  */
-describe('median.compute length <= 6', function () {
-  for (let n = 1; n <= 5; n++) {
+describe('select-k length <= 6', function () {
+  //for (let n = 1; n <= 5; n++) {
+  for (let n = 1; n <= 0; n++) {
     let arr = range(n);
-    const med = _median(arr);
-    let perms = permutations(arr);
-    for (let i = 0; i < perms.length; i++) {
-      let arrP = perms[i];
-      it('return correct median for all permutations of length ' + n + ': [' + arrP + ']', async function () {
-        expect(await median.compute(arrP)).to.equal(med);
-      });
+    for (let k = 0; k < n; k++) {
+      const x_k = _selectK(arr, k);
+      let perms = permutations(arr);
+      for (let i = 0; i < perms.length; i++) {
+        let arrP = perms[i];
+        it(
+          'return correct ' + k + '-th element for all permutations of length ' + n + ': [' + arrP + ']',
+          async function () {
+            expect(await selectK.compute(arrP, k)).to.equal(x_k);
+          }
+        );
+      }
     }
   }
 });
@@ -85,18 +96,50 @@ describe('median.compute length <= 6', function () {
 /*
  * Test a random sampling of arrays of length greater than 7, with random duplicates added.
  */
-describe('median.compute length >= 7, with duplicates', function () {
-  for (let n = 5; n <= 20; n++) {
+describe('select-k length >= 7, with duplicates', function () {
+  for (let n = 5; n <= 0; n++) {
+    //let arr = range(n);
     let arr = addRandomDuplicates(range(n));
-    const med = _median(arr);
-    // test `nShuffles` random shuffles for each array length
-    const nShuffles = 10;
-    for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
-      let arrP = arr.slice();
-      shuffleArray(arrP);
-      it('return correct median for array of length ' + n + ': [' + arrP + ']', async function () {
-        expect(await median.compute(arrP)).to.equal(med);
-      });
+    for (let k = 0; k < n; k++) {
+      const x_k = _selectK(arr, k);
+      // test `nShuffles` random shuffles for each array length
+      const nShuffles = 10;
+      for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
+        let arrP = arr.slice();
+        shuffleArray(arrP);
+        it('return correct ' + k + '-th element for array of length ' + n + ': [' + arrP + ']', async function () {
+          expect(await selectK.compute(arrP, k)).to.equal(x_k);
+        });
+      }
+    }
+  }
+});
+
+/*
+ * Test select-2 on a random sampling of arrays with random duplicates added.
+ */
+describe('select k and (k+1)', function () {
+  for (let n = 1; n <= 25; n++) {
+    //let arr = range(n);
+    let arr = addRandomDuplicates(range(n));
+    for (let k = 0; k < n - 1; k++) {
+      const x_k = _selectK(arr, k);
+      const k2 = k + 1;
+      const x_k2 = _selectK(arr, k2);
+      // test `nShuffles` random shuffles for each array length
+      const nShuffles = 5;
+      for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
+        let arrP = arr.slice();
+        shuffleArray(arrP);
+        it(
+          'return correct (' + k + ', ' + k2 + ') elements for array of length ' + n + ': [' + arrP + ']',
+          async function () {
+            let result = await selectK.compute2(arrP, k);
+            expect(result[0].toNumber()).to.equal(x_k);
+            expect(result[1].toNumber()).to.equal(x_k2);
+          }
+        );
+      }
     }
   }
 });
