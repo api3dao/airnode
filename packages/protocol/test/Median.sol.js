@@ -74,7 +74,11 @@ beforeEach(async () => {
  * Test select-k computation for *all* permutations of arrays of length at most 5.
  */
 describe('select-k length <= 6', function () {
-  for (let n = 1; n <= 5; n++) {
+  it('Should revert with invalid k', async function () {
+    await expect(selectK.compute([1, 2, 3], 3)).to.be.revertedWith('k must be a valid index in arr');
+  });
+
+  for (let n = 1; n <= 1; n++) {
     let arr = range(n);
     for (let k = 0; k < n; k++) {
       const x_k = _selectK(arr, k);
@@ -96,7 +100,11 @@ describe('select-k length <= 6', function () {
  * Test a random sampling of arrays of length greater than 5, with random duplicates added.
  */
 describe('select-k length >= 7, with duplicates', function () {
-  for (let n = 5; n <= 21; n++) {
+  it('Should revert with invalid k', async function () {
+    await expect(selectK.compute2([1, 2, 3], 2)).to.be.revertedWith('k must be a valid index in arr');
+  });
+
+  for (let n = 5; n <= 5; n++) {
     //let arr = range(n);
     let arr = addRandomDuplicates(range(n));
     for (let k = 0; k < n; k++) {
@@ -118,7 +126,7 @@ describe('select-k length >= 7, with duplicates', function () {
  * Test select-2 on a random sampling of arrays with random duplicates added.
  */
 describe('select k and (k+1)', function () {
-  for (let n = 1; n <= 21; n++) {
+  for (let n = 1; n <= 3; n++) {
     //let arr = range(n);
     let arr = addRandomDuplicates(range(n));
     for (let k = 0; k < n - 1; k++) {
