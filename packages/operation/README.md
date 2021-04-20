@@ -220,7 +220,7 @@ There are currently three types of requests that can be made. You can learn more
     "public": "0x0000000000000000000000000000000000000000"
   },
   "clients": {
-    "MockAirnodeRrpClient": { "endorsers": ["bob"] }
+    "MockAirnodeRrpClientFactory": { "endorsers": ["bob"] }
   },
   "requesters": [
     {
@@ -242,7 +242,7 @@ There are currently three types of requests that can be made. You can learn more
       "type": "regular",
       "airnode": "CurrencyConverterAirnode",
       "template": "template-1",
-      "client": "MockAirnodeRrpClient",
+      "client": "MockAirnodeRrpClientFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" }
@@ -254,7 +254,7 @@ There are currently three types of requests that can be made. You can learn more
       "airnode": "CurrencyConverterAirnode",
       "endpoint": "convertToUSD",
       "oisTitle": "Currency Converter API",
-      "client": "MockAirnodeRrpClient",
+      "client": "MockAirnodeRrpClientFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" },

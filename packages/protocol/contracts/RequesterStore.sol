@@ -11,7 +11,7 @@ contract RequesterStore is IRequesterStore {
     mapping(uint256 => address) public requesterIndexToAdmin;
     mapping(uint256 => mapping(address => bool)) public requesterIndexToClientAddressToEndorsementStatus;
     mapping(address => uint256) public clientAddressToNoRequests;
-    mapping(uint256 => uint256) public requesterIndexToNoWithdrawalRequests;
+    mapping(uint256 => uint256) public requesterIndexToNextWithdrawalRequestIndex;
     uint256 private noRequesters = 1;
 
     /// @dev Reverts if the caller is not the requester admin
@@ -38,7 +38,7 @@ contract RequesterStore is IRequesterStore {
         requesterIndexToAdmin[requesterIndex] = admin;
         // Initialize the requester nonce during creation for consistent
         // withdrawal request gas cost
-        requesterIndexToNoWithdrawalRequests[requesterIndex] = 1;
+        requesterIndexToNextWithdrawalRequestIndex[requesterIndex] = 1;
         emit RequesterCreated(
             requesterIndex,
             admin

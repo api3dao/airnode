@@ -4,14 +4,11 @@
 > A package/CLI tool to interact with the Airnode contracts across chains
 
 Almost all commands require you to provide a `providerUrl` such as `https://ropsten.infura.io/v3/<KEY>`, `https://xdai.poanetwork.dev`, etc.
-Currently supported chains are:
-- Ropsten
-- Rinkeby
-- Goerli
-- xDai
-- Fantom
+The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract, which address is derived from the current chain.
+You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
 
 Commands that require `mnemonic` will make an on-chain transaction.
+The application will derive the account from the mnemonic with default ethereum derivation path `m/44'/60'/0'/0/0`, but you can override this by `derivationPath` flag.
 Make sure that the wallet that is associated with the mnemonic is funded on the target chain.
 The application will not exit until the transaction is confirmed.
 
@@ -23,6 +20,40 @@ To see the parameters of a command:
 ```sh
 npx @api3/airnode-admin $COMMAND --help
 ```
+
+## SDK
+
+You can also use the package programatically. The SDK exports respective functions for all CLI commands as
+well as helper functions for obtaining the contract instance on the targeted chain.
+
+```js
+import { createRequester, getAirnodeRrpWithSigner } from '@airnode/admin';
+
+// First obtain the contract instance on target chain
+const airnodeRrp = await getAirnodeRrpWithSigner(mnemonic, derivationPath, providerUrl, airnodeRrpAddress);
+// Pass the contract instance as the first argument to the SDK function
+const requesterIndex = await createRequester(airnodeRrp, requesterAdmin);
+```
+
+If you plan to use multiple commands it might be tedious to pass the contract instance to every function call. For this reason there is also class based `AdminSdk` which you initialize with `AirnodeRrp` contract only once.
+
+```js
+import { AdminSdk } from '@airnode/admin';
+
+// First initialize the SDK with AirnodeRrp contract instance.
+// You can use static AdminSdk functions or provide your own instance.
+const airnodeRrp = await AdminSdk.getAirnodeRrpWithSigner(mnemonic, derivationPath, providerUrl, airnodeRrpAddress);
+// Create sdk instance
+const adminSdk = new AdminSdk(airnodeRrp);
+// Call the method you need
+const requesterIndex = await adminSdk.createRequester(requesterAdmin);
+
+// You can switch the contract instance anytime. E.g. if you are using ethers
+adminSdk.airnodeRrp = airnodeRrp.connect(someOtherWallet);
+```
+
+The SDK will also provide TS typings out of the box.
+Please, refer to the implementation for more details.
 
 ## Requester commands
 
@@ -41,7 +72,7 @@ npx @api3/airnode-admin create-requester \
 ### `set-requester-admin`
 
 Sets the [requester admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md#requesteradmin).
-The `mnemonic` you provide here has to belong to the previous requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the previous requester admin.
 
 ```sh
 npx @api3/airnode-admin set-requester-admin \
@@ -65,7 +96,7 @@ npx @api3/airnode-admin derive-designated-wallet \
 ### `endorse-client`
 
 [Endorses](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) a client contract so that its requests can be fulfilled by the requester's designated wallet.
-The `mnemonic` you provide here has to belong to the requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin endorse-client \
@@ -78,12 +109,23 @@ npx @api3/airnode-admin endorse-client \
 ### `unendorse-client`
 
 Unendorses a client contract so that its requests can no longer be fulfilled by the requester's designated wallet.
-The `mnemonic` you provide here has to belong to the requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin unendorse-client \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
+  --requesterIndex 6 \
+  --clientAddress 0x2c2e12...
+```
+
+### `get-endorsement-status`
+
+Returns the endorsement status for the given requester index and client (`true` if endorsed, `false` otherwise).
+
+```sh
+npx @api3/airnode-admin get-endorsement-status \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --requesterIndex 6 \
   --clientAddress 0x2c2e12...
 ```
@@ -100,10 +142,20 @@ npx @api3/airnode-admin create-template \
   --templateFilePath ./template.json
 ```
 
+### `get-template`
+
+Returns the template for the given `templateId`.
+
+```sh
+npx @api3/airnode-admin get-template \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --templateId 0x8d3b9...
+```
+
 ### `request-withdrawal`
 
 Requests a [withdrawal](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md#withdrawals) from the wallet designated by an Airnode for a requester, and returns the request ID.
-The `mnemonic` you provide here has to belong to the requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the requester admin.
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
@@ -142,6 +194,16 @@ npx @api3/airnode-admin set-airnode-parameters \
   --authorizersFilePath ./authorizers.json
 ```
 
+### `get-airnode-parameters`
+
+Returns the Airnode parameters and block number for the given `airnodeId`.
+
+```sh
+npx @api3/airnode-admin get-airnode-parameters \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --airnodeId 0xe1e0dd...
+```
+
 ### `derive-endpoint-id`
 
 Derives the endpoint ID using the OIS title and the endpoint name using the convention described [here](https://github.com/api3dao/api3-docs/blob/master/provider-guides/configuring-airnode.md#triggers).
@@ -151,3 +213,7 @@ npx @api3/airnode-admin derive-endpoint-id \
   --oisTitle "My OIS title..." \
   --endpointName "My endpoint name..."
 ```
+
+## More examples
+
+You can find more examples in the test files.

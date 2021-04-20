@@ -5,6 +5,7 @@
     "outDir": "dist",
     "strict": true,
     "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": ["./src/**/*"],
   "exclude": [
