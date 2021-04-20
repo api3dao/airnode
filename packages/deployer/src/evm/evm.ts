@@ -1,6 +1,7 @@
 import * as ethers from 'ethers';
 import ora from 'ora';
 import { AirnodeRrpArtifact } from '@airnode/protocol';
+import { findProviderUrls, findAirnodeRrpAddresses } from './config';
 
 const chainIdsToNames = {
   1: 'mainnet',
@@ -11,28 +12,41 @@ const chainIdsToNames = {
   100: 'xdai',
 };
 
-export async function checkAirnodeParameters(airnodeId, chains, masterWalletAddress) {
+export async function checkAirnodeParameters(configs, secrets, airnodeId, masterWalletAddress) {
+  const providerUrls = findProviderUrls(configs, secrets);
+  const airnodeRrpAddresses = findAirnodeRrpAddresses(configs);
+
   let spinner;
-  for (const chain of chains) {
-    const chainName = chainIdsToNames[chain.id] || `${chain.id}`;
-    spinner = ora(`Checking Airnode parameters on chain: ${chainName}`).start();
-    try {
-      // Use the first provider of the chain in config.json
-      const provider = new ethers.providers.JsonRpcProvider(chain.providers[0].url);
-      // chain.contracts.AirnodeRrp is a required field
-      const airnodeRrp = new ethers.Contract(chain.contracts.AirnodeRrp, AirnodeRrpArtifact.abi, provider);
-      const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
-      if (airnodeParameters.xpub === '') {
-        spinner.warn(`Airnode parameters not found on chain: ${chainName}`);
-        await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
-      } else {
-        // Assuming xpub is valid
-        spinner.succeed(`Airnode parameters found on chain: ${chainName}`);
+  for (const chainType of Object.keys(providerUrls)) {
+    for (const chainId of Object.keys(providerUrls[chainType])) {
+      const chainName = chainIdsToNames[chainId] || `${chainId}`;
+      spinner = ora(`Checking Airnode parameters on chain: ${chainName} (${chainType})`).start();
+      let checkSuccesful = false;
+      for (const providerUrl of providerUrls[chainType][chainId]) {
+        try {
+          const provider = new ethers.providers.JsonRpcProvider(providerUrl);
+          const airnodeRrp = new ethers.Contract(
+            airnodeRrpAddresses[chainType][chainId],
+            AirnodeRrpArtifact.abi,
+            provider
+          );
+          const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
+          if (airnodeParameters.xpub === '') {
+            spinner.warn(`Airnode parameters not found on chain: ${chainName} (${chainType})`);
+            await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
+          } else {
+            // Assuming xpub is valid
+            spinner.succeed(`Airnode parameters found on chain: ${chainName} (${chainType})`);
+          }
+          checkSuccesful = true;
+          break;
+        } catch {
+          // continue
+        }
       }
-    } catch {
-      // The provider for the network probably was not available
-      // We can also cycle through chain.providers.* here
-      spinner.info(`Skipped checking Airnode parameters on chain: ${chainName}`);
+      if (!checkSuccesful) {
+        spinner.info(`Skipped checking Airnode parameters on chain: ${chainName} (${chainType})`);
+      }
     }
   }
 }

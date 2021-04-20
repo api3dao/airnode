@@ -5,12 +5,26 @@
 *The recommended way to deploy Airnode is by using the deployment Docker image.
 This package simply implements the scripts used by that image and is not meant to be used directly by the end user.*
 
-*If you will be using the provided scripts locally, run `export-env.sh` to export your AWS credentials as environment variables first.*
+## Temporary instructions
+
+At the root
+```sh
+yarn run build-all
+```
+In this package
+```sh
+yarn run webpack
+yarn run webpack:copy-config
+yarn run command:deploy:nonstop
+yarn run command:remove-with-receipt
+```
+
+The information below is outdated.
 
 ## Setup
 
 - Download the [Terraform v0.13.* binary](https://www.terraform.io/downloads.html) and move it to your `PATH`
-- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `.env` in the package directory (refer to [`.env.example`](https://github.com/api3dao/airnode/blob/master/packages/deployer/.env.example))
+- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `.env` in the package directory (refer to `.env.example`)
 - Install Serverless Framework globally
 
 ```sh

@@ -8,20 +8,14 @@ COPY . /airnode
 # Need git to install dependencies
 RUN apk update \
     && apk add git
-RUN cd /usr/local/bin \
-    && wget "https://releases.hashicorp.com/terraform/0.13.4/terraform_0.13.4_linux_amd64.zip"  -O terraform.zip \
-    && unzip terraform.zip \
-    && rm terraform.zip
 
 RUN yarn run bootstrap
 RUN yarn run build
 
-CMD cp out/config.json packages/deployer/src/config-data/config.json | true \
-    && cp out/security.json packages/deployer/src/config-data/security.json | true \
-    && cp out/$RECEIPT_FILENAME packages/deployer/ | true \
+CMD if [ -z ${CONFIG_FILENAME+x} ]; then cp out/$CONFIG_FILENAME packages/deployer/src/config-data/config.json; fi \
+    && if [ -z ${SECRETS_FILENAME+x} ]; then cp out/$SECRETS_FILENAME packages/deployer/src/config-data/security.env; fi \
+    && if [ -z ${RECEIPT_FILENAME+x} ]; then cp out/$RECEIPT_FILENAME packages/deployer/receipt.json; fi \
     && cd /airnode/packages/deployer \
     && yarn run sls:config \
-    && yarn run terraform:init \
     && yarn run command:$COMMAND \
-    && cd /airnode \
-    && cp packages/deployer/*.receipt.json out | true
+    if [ -z ${OUTPUT_FILENAME+x} ]; then cp $OUTPUT_FILENAME ../../out; else cp receipt.json ../../out; fi

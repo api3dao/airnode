@@ -1,7 +1,7 @@
 import rawConfig from '../../config-data/config.json';
 import * as node from '@airnode/node';
 
-const config = node.config.parseConfig(rawConfig);
+const config = node.config.parseConfig(rawConfig[0]);
 
 function encodeBody(data: node.WorkerResponse): string {
   return JSON.stringify(data);

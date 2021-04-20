@@ -1,9 +1,4 @@
-service:
-  name: airnode-${opt:airnodeIdShort}
-
-plugins:
-  - serverless-plugin-typescript
-  - serverless-plugin-optimize
+service: airnode-${opt:airnodeIdShort}
 
 provider:
   name: aws
@@ -13,30 +8,36 @@ provider:
   memorySize: 256
   logRetentionInDays: 14
   environment: ${file(secrets.json)}
-  iamRoleStatements:
-    - Effect: 'Allow'
-      Action: 'lambda:InvokeFunction'
-      Resource: '*'
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action: 'lambda:InvokeFunction'
+          Resource: '*'
 
 package: 
   individually: true
-  
+  patterns:
+    - '!**'
+    - .webpack/handlers/aws/index.js
+    - .webpack/config-data/config.json
+
 functions:
   startCoordinator:
-    handler: ./src/handlers/aws/index.startCoordinator
+    handler: ./.webpack/handlers/aws/index.startCoordinator
     timeout: 60
     reservedConcurrency: 1
     events:
       - schedule: rate(1 minute)
 
   initializeProvider:
-    handler: ./src/handlers/aws/index.initializeProvider
+    handler: ./.webpack/handlers/aws/index.initializeProvider
     timeout: 20
 
   callApi:
-    handler: ./src/handlers/aws/index.callApi
+    handler: ./.webpack/handlers/aws/index.callApi
     timeout: 30
 
   processProviderRequests:
-    handler: ./src/handlers/aws/index.processProviderRequests
+    handler: ./.webpack/handlers/aws/index.processProviderRequests
     timeout: 10
