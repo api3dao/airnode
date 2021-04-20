@@ -102,7 +102,7 @@ describe('select-k length >= 7, with duplicates', function () {
     for (let k = 0; k < n; k++) {
       const x_k = _selectK(arr, k);
       // test `nShuffles` random shuffles for each array length
-      const nShuffles = 5;
+      const nShuffles = 1;
       for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
         let arrP = arr.slice();
         shuffleArray(arrP);
@@ -126,7 +126,7 @@ describe('select k and (k+1)', function () {
       const k2 = k + 1;
       const x_k2 = _selectK(arr, k2);
       // test `nShuffles` random shuffles for each array length
-      const nShuffles = 5;
+      const nShuffles = 1;
       for (let i = 0; i < Math.min(factorial(n), nShuffles); i++) {
         let arrP = arr.slice();
         shuffleArray(arrP);
