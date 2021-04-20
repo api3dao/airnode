@@ -78,7 +78,7 @@ describe('requestWithdrawal', function () {
         ethers.utils.solidityPack(
           ['uint256', 'uint256', 'uint256'],
           [
-            await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+            await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex),
             (await ethers.provider.getNetwork()).chainId,
             requesterIndex,
           ]
@@ -137,7 +137,7 @@ describe('fulfillWithdrawal', function () {
           ethers.utils.solidityPack(
             ['uint256', 'uint256', 'uint256'],
             [
-              await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+              await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex),
               (await ethers.provider.getNetwork()).chainId,
               requesterIndex,
             ]
@@ -198,7 +198,7 @@ describe('fulfillWithdrawal', function () {
           ethers.utils.solidityPack(
             ['uint256', 'uint256', 'uint256'],
             [
-              await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+              await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex),
               (await ethers.provider.getNetwork()).chainId,
               requesterIndex,
             ]
@@ -235,7 +235,7 @@ describe('fulfillWithdrawal', function () {
         ethers.utils.solidityPack(
           ['uint256', 'uint256', 'uint256'],
           [
-            await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+            await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex),
             (await ethers.provider.getNetwork()).chainId,
             requesterIndex,
           ]
@@ -304,7 +304,7 @@ describe('fulfillWithdrawal', function () {
         ethers.utils.solidityPack(
           ['uint256', 'uint256', 'uint256'],
           [
-            await airnodeRrp.requesterIndexToNoWithdrawalRequests(requesterIndex),
+            await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex),
             (await ethers.provider.getNetwork()).chainId,
             requesterIndex,
           ]

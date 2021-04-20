@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+// TODO: refactor once https://github.com/ethereum-ts/TypeChain/pull/368 is merged
 import { AirnodeRrpArtifact } from '@airnode/protocol';
 import { Contract } from './types';
 
