@@ -2,10 +2,15 @@
   "name": "@airnode/deployer",
   "license": "MIT",
   "version": "0.1.0",
+  "bin": {
+    "deployer": "./dist/bin/deployer.js"
+  },
+  "main": "./dist/bin/deployer.js",
   "scripts": {
     "_build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
+    "cli": "ts-node bin/deployer.ts",
     "command:help": "node dist/deployer-cli.js --help",
     "command:deploy": "node dist/deployer-cli.js -o $OUTPUT_FILENAME deploy",
     "command:deploy:nonstop": "node dist/deployer-cli.js deploy -o $OUTPUT_FILENAME --nonStop",

@@ -1,8 +1,8 @@
 # Docker instructions
 
-1. Build the Docker image
+1. Build the Docker image (run at the root)
 ```sh
-docker build . -t api3/airnode:latest
+docker build -f docker/Dockerfile -t api3/airnode:latest .
 ```
 
 2. Ensure that your `.env` file looks like `.env.example` and is the current working directory.
