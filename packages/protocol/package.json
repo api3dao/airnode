@@ -16,8 +16,10 @@
     "deploy:xdai": "hardhat deploy --network xdai",
     "deploy:fantom": "hardhat deploy --network fantom",
     "test": "hardhat test",
-    "test:gas": "REPORT_GAS=TRUE hardhat test",
     "test:coverage": "hardhat coverage",
+    "test:coverage-extended": "EXTENDED_TEST=TRUE hardhat coverage",
+    "test:extended": "EXTENDED_TEST=TRUE hardhat test",
+    "test:gas": "REPORT_GAS=TRUE hardhat test",
     "flatten": "yarn run flatten:airnode && yarn run flatten:delete-license-lines",
     "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol && yarn run flatten:delete-license-lines",
     "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol"
