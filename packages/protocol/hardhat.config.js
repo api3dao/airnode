@@ -41,6 +41,9 @@ module.exports = {
       accounts: { mnemonic: credentials.fantom.mnemonic || '' },
     },
   },
+  paths: {
+    tests: process.env.EXTENDED_TEST ? './extended-test' : './test',
+  },
   solidity: {
     version: '0.8.2',
   },
