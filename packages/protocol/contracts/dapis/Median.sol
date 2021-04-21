@@ -124,8 +124,6 @@ contract SelectK {
     pure
     returns (uint256, uint256)
   {
-    assert(lo <= k && k <= hi);
-    
     if (lo == hi) {return (k, 0);}
    
     uint256 pivotIdx = partition(arr, lo, hi);
@@ -143,7 +141,6 @@ contract SelectK {
     if (!selectKplusOne) {
       return (idx1, 0);
     }
-    assert(idx1 != arr.length - 1);
     // In order to find (k+1)th element,
     // find minimum in right partition of array
     idx2 = idx1 + 1;
@@ -208,192 +205,190 @@ contract SelectK {
       pure
       returns (int256)
   {
-    assert(arr.length <= SMALL_ARRAY_MAX_LENGTH);
-
     if (arr.length == 2) {
-      swap(arr, 0, 1);
+      condSwap(arr, 0, 1);
     }
     else if (arr.length == 3) {
-      swap(arr, 0, 1); swap(arr, 1, 2); swap(arr, 0, 1);
+      condSwap(arr, 0, 1); condSwap(arr, 1, 2); condSwap(arr, 0, 1);
     }
     else if (arr.length == 4) {
-      swap(arr, 0, 1); swap(arr, 2, 3); swap(arr, 1, 3);
-      swap(arr, 0, 2); swap(arr, 1, 2);
+      condSwap(arr, 0, 1); condSwap(arr, 2, 3); condSwap(arr, 1, 3);
+      condSwap(arr, 0, 2); condSwap(arr, 1, 2);
     }
     else if (arr.length == 5) {
-      swap(arr, 1, 2); swap(arr, 3, 4); swap(arr, 1, 3);
-      swap(arr, 0, 2); swap(arr, 2, 4); swap(arr, 0, 3);
-      swap(arr, 0, 1); swap(arr, 2, 3); swap(arr, 1, 2);
+      condSwap(arr, 1, 2); condSwap(arr, 3, 4); condSwap(arr, 1, 3);
+      condSwap(arr, 0, 2); condSwap(arr, 2, 4); condSwap(arr, 0, 3);
+      condSwap(arr, 0, 1); condSwap(arr, 2, 3); condSwap(arr, 1, 2);
     }
     else if (arr.length == 6) {
-      swap(arr, 0, 1); swap(arr, 2, 3); swap(arr, 4, 5);
-      swap(arr, 1, 3); swap(arr, 3, 5); swap(arr, 1, 3);
-      swap(arr, 2, 4); swap(arr, 0, 2); swap(arr, 2, 4);
-      swap(arr, 3, 4); swap(arr, 1, 2); swap(arr, 2, 3);
+      condSwap(arr, 0, 1); condSwap(arr, 2, 3); condSwap(arr, 4, 5);
+      condSwap(arr, 1, 3); condSwap(arr, 3, 5); condSwap(arr, 1, 3);
+      condSwap(arr, 2, 4); condSwap(arr, 0, 2); condSwap(arr, 2, 4);
+      condSwap(arr, 3, 4); condSwap(arr, 1, 2); condSwap(arr, 2, 3);
     }
     else if (arr.length == 7) {
-      swap(arr, 1, 2); swap(arr, 3, 4); swap(arr, 5, 6);
-      swap(arr, 0, 2); swap(arr, 4, 6); swap(arr, 3, 5);
-      swap(arr, 2, 6); swap(arr, 1, 5); swap(arr, 0, 4);
-      swap(arr, 2, 5); swap(arr, 0, 3); swap(arr, 2, 4);
-      swap(arr, 1, 3); swap(arr, 0, 1); swap(arr, 2, 3);
-      swap(arr, 4, 5);
+      condSwap(arr, 1, 2); condSwap(arr, 3, 4); condSwap(arr, 5, 6);
+      condSwap(arr, 0, 2); condSwap(arr, 4, 6); condSwap(arr, 3, 5);
+      condSwap(arr, 2, 6); condSwap(arr, 1, 5); condSwap(arr, 0, 4);
+      condSwap(arr, 2, 5); condSwap(arr, 0, 3); condSwap(arr, 2, 4);
+      condSwap(arr, 1, 3); condSwap(arr, 0, 1); condSwap(arr, 2, 3);
+      condSwap(arr, 4, 5);
     }
     else if (arr.length == 8) {
-      swap(arr, 0, 7); swap(arr, 1, 6); swap(arr, 2, 5);
-      swap(arr, 3, 4); swap(arr, 0, 3); swap(arr, 4, 7);
-      swap(arr, 1, 2); swap(arr, 5, 6); swap(arr, 0, 1);
-      swap(arr, 2, 3); swap(arr, 4, 5); swap(arr, 6, 7);
-      swap(arr, 3, 5); swap(arr, 2, 4); swap(arr, 1, 2);
-      swap(arr, 3, 4); swap(arr, 5, 6); swap(arr, 2, 3);
-      swap(arr, 4, 5);
+      condSwap(arr, 0, 7); condSwap(arr, 1, 6); condSwap(arr, 2, 5);
+      condSwap(arr, 3, 4); condSwap(arr, 0, 3); condSwap(arr, 4, 7);
+      condSwap(arr, 1, 2); condSwap(arr, 5, 6); condSwap(arr, 0, 1);
+      condSwap(arr, 2, 3); condSwap(arr, 4, 5); condSwap(arr, 6, 7);
+      condSwap(arr, 3, 5); condSwap(arr, 2, 4); condSwap(arr, 1, 2);
+      condSwap(arr, 3, 4); condSwap(arr, 5, 6); condSwap(arr, 2, 3);
+      condSwap(arr, 4, 5);
     }
     else if (arr.length == 9) {
-      swap(arr, 1, 8); swap(arr, 2, 7); swap(arr, 3, 6);
-      swap(arr, 4, 5); swap(arr, 1, 4); swap(arr, 5, 8);
-      swap(arr, 0, 2); swap(arr, 6, 7); swap(arr, 2, 6);
-      swap(arr, 7, 8); swap(arr, 0, 3); swap(arr, 4, 5);
-      swap(arr, 0, 1); swap(arr, 3, 5); swap(arr, 6, 7);
-      swap(arr, 2, 4); swap(arr, 1, 3); swap(arr, 5, 7);
-      swap(arr, 4, 6); swap(arr, 1, 2); swap(arr, 3, 4);
-      swap(arr, 5, 6); swap(arr, 7, 8); swap(arr, 2, 3);
-      swap(arr, 4, 5);
+      condSwap(arr, 1, 8); condSwap(arr, 2, 7); condSwap(arr, 3, 6);
+      condSwap(arr, 4, 5); condSwap(arr, 1, 4); condSwap(arr, 5, 8);
+      condSwap(arr, 0, 2); condSwap(arr, 6, 7); condSwap(arr, 2, 6);
+      condSwap(arr, 7, 8); condSwap(arr, 0, 3); condSwap(arr, 4, 5);
+      condSwap(arr, 0, 1); condSwap(arr, 3, 5); condSwap(arr, 6, 7);
+      condSwap(arr, 2, 4); condSwap(arr, 1, 3); condSwap(arr, 5, 7);
+      condSwap(arr, 4, 6); condSwap(arr, 1, 2); condSwap(arr, 3, 4);
+      condSwap(arr, 5, 6); condSwap(arr, 7, 8); condSwap(arr, 2, 3);
+      condSwap(arr, 4, 5);
     }
     else if (arr.length == 10) {
-      swap(arr, 0, 1);  swap(arr, 2, 3); swap(arr, 4, 5);
-      swap(arr, 6, 7);  swap(arr, 8, 9); swap(arr, 4, 9);
-      swap(arr, 0, 5);  swap(arr, 1, 8); swap(arr, 3, 7);
-      swap(arr, 2, 6);  swap(arr, 0, 2); swap(arr, 3, 6);
-      swap(arr, 7, 9);  swap(arr, 1, 4); swap(arr, 5, 8);
-      swap(arr, 0, 1);  swap(arr, 2, 7); swap(arr, 8, 9);
-      swap(arr, 4, 6);  swap(arr, 3, 5); swap(arr, 2, 4);
-      swap(arr, 6, 8);  swap(arr, 1, 3); swap(arr, 5, 7);
-      swap(arr, 1, 2);  swap(arr, 3, 4); swap(arr, 5, 6);
-      swap(arr, 7, 8);  swap(arr, 2, 3); swap(arr, 4, 5);
-      swap(arr, 6, 7);
+      condSwap(arr, 0, 1);  condSwap(arr, 2, 3); condSwap(arr, 4, 5);
+      condSwap(arr, 6, 7);  condSwap(arr, 8, 9); condSwap(arr, 4, 9);
+      condSwap(arr, 0, 5);  condSwap(arr, 1, 8); condSwap(arr, 3, 7);
+      condSwap(arr, 2, 6);  condSwap(arr, 0, 2); condSwap(arr, 3, 6);
+      condSwap(arr, 7, 9);  condSwap(arr, 1, 4); condSwap(arr, 5, 8);
+      condSwap(arr, 0, 1);  condSwap(arr, 2, 7); condSwap(arr, 8, 9);
+      condSwap(arr, 4, 6);  condSwap(arr, 3, 5); condSwap(arr, 2, 4);
+      condSwap(arr, 6, 8);  condSwap(arr, 1, 3); condSwap(arr, 5, 7);
+      condSwap(arr, 1, 2);  condSwap(arr, 3, 4); condSwap(arr, 5, 6);
+      condSwap(arr, 7, 8);  condSwap(arr, 2, 3); condSwap(arr, 4, 5);
+      condSwap(arr, 6, 7);
     }
     else if (arr.length == 11) {
-      swap(arr, 0, 9);  swap(arr, 1, 8);  swap(arr, 2, 7);
-      swap(arr, 3, 6);  swap(arr, 4, 5);  swap(arr, 0, 3);
-      swap(arr, 1, 2);  swap(arr, 4, 10); swap(arr, 6, 9);
-      swap(arr, 7, 8);  swap(arr, 0, 1);  swap(arr, 2, 3);
-      swap(arr, 5, 8);  swap(arr, 9, 10); swap(arr, 6, 7);
-      swap(arr, 1, 2);  swap(arr, 4, 6);  swap(arr, 8, 10);
-      swap(arr, 5, 9);  swap(arr, 0, 4);  swap(arr, 7, 8);
-      swap(arr, 1, 5);  swap(arr, 2, 9);  swap(arr, 3, 6);
-      swap(arr, 1, 4);  swap(arr, 5, 7);  swap(arr, 2, 3);
-      swap(arr, 6, 9);  swap(arr, 2, 4);  swap(arr, 6, 7);
-      swap(arr, 8, 9);  swap(arr, 3, 5);  swap(arr, 3, 4);
-      swap(arr, 5, 6);  swap(arr, 7, 8);
+      condSwap(arr, 0, 9);  condSwap(arr, 1, 8);  condSwap(arr, 2, 7);
+      condSwap(arr, 3, 6);  condSwap(arr, 4, 5);  condSwap(arr, 0, 3);
+      condSwap(arr, 1, 2);  condSwap(arr, 4, 10); condSwap(arr, 6, 9);
+      condSwap(arr, 7, 8);  condSwap(arr, 0, 1);  condSwap(arr, 2, 3);
+      condSwap(arr, 5, 8);  condSwap(arr, 9, 10); condSwap(arr, 6, 7);
+      condSwap(arr, 1, 2);  condSwap(arr, 4, 6);  condSwap(arr, 8, 10);
+      condSwap(arr, 5, 9);  condSwap(arr, 0, 4);  condSwap(arr, 7, 8);
+      condSwap(arr, 1, 5);  condSwap(arr, 2, 9);  condSwap(arr, 3, 6);
+      condSwap(arr, 1, 4);  condSwap(arr, 5, 7);  condSwap(arr, 2, 3);
+      condSwap(arr, 6, 9);  condSwap(arr, 2, 4);  condSwap(arr, 6, 7);
+      condSwap(arr, 8, 9);  condSwap(arr, 3, 5);  condSwap(arr, 3, 4);
+      condSwap(arr, 5, 6);  condSwap(arr, 7, 8);
     }
     else if (arr.length == 12) {
-      swap(arr, 0, 6);   swap(arr, 1, 7);  swap(arr, 2, 8);
-      swap(arr, 3, 9);   swap(arr, 4, 10); swap(arr, 5, 11);
-      swap(arr, 0, 3);   swap(arr, 1, 4);  swap(arr, 2, 5);
-      swap(arr, 6, 9);   swap(arr, 7, 10); swap(arr, 8, 11);
-      swap(arr, 0, 1);   swap(arr, 3, 4);  swap(arr, 5, 8);
-      swap(arr, 10, 11); swap(arr, 6, 7);  swap(arr, 1, 2);
-      swap(arr, 3, 6);   swap(arr, 7, 8);  swap(arr, 9, 10);
-      swap(arr, 4, 5);   swap(arr, 0, 1);  swap(arr, 2, 9);
-      swap(arr, 10, 11); swap(arr, 3, 4);  swap(arr, 5, 8);
-      swap(arr, 6, 7);   swap(arr, 1, 3);  swap(arr, 4, 7);
-      swap(arr, 8, 10);  swap(arr, 2, 6);  swap(arr, 5, 9);
-      swap(arr, 2, 3);   swap(arr, 4, 6);  swap(arr, 8, 9);
-      swap(arr, 5, 7);   swap(arr, 3, 4);  swap(arr, 5, 6);
-      swap(arr, 7, 8);
+      condSwap(arr, 0, 6);   condSwap(arr, 1, 7);  condSwap(arr, 2, 8);
+      condSwap(arr, 3, 9);   condSwap(arr, 4, 10); condSwap(arr, 5, 11);
+      condSwap(arr, 0, 3);   condSwap(arr, 1, 4);  condSwap(arr, 2, 5);
+      condSwap(arr, 6, 9);   condSwap(arr, 7, 10); condSwap(arr, 8, 11);
+      condSwap(arr, 0, 1);   condSwap(arr, 3, 4);  condSwap(arr, 5, 8);
+      condSwap(arr, 10, 11); condSwap(arr, 6, 7);  condSwap(arr, 1, 2);
+      condSwap(arr, 3, 6);   condSwap(arr, 7, 8);  condSwap(arr, 9, 10);
+      condSwap(arr, 4, 5);   condSwap(arr, 0, 1);  condSwap(arr, 2, 9);
+      condSwap(arr, 10, 11); condSwap(arr, 3, 4);  condSwap(arr, 5, 8);
+      condSwap(arr, 6, 7);   condSwap(arr, 1, 3);  condSwap(arr, 4, 7);
+      condSwap(arr, 8, 10);  condSwap(arr, 2, 6);  condSwap(arr, 5, 9);
+      condSwap(arr, 2, 3);   condSwap(arr, 4, 6);  condSwap(arr, 8, 9);
+      condSwap(arr, 5, 7);   condSwap(arr, 3, 4);  condSwap(arr, 5, 6);
+      condSwap(arr, 7, 8);
     }
     else if (arr.length == 13) {
-      swap(arr, 1, 12); swap(arr, 2, 11);  swap(arr, 3, 10);
-      swap(arr, 4, 9);  swap(arr, 5, 8);   swap(arr, 6, 7);
-      swap(arr, 0, 5);  swap(arr, 1, 4);   swap(arr, 2, 3);
-      swap(arr, 9, 12); swap(arr, 10, 11); swap(arr, 3, 6);
-      swap(arr, 7, 10); swap(arr, 0, 1);   swap(arr, 4, 5);
-      swap(arr, 8, 9);  swap(arr, 1, 7);   swap(arr, 9, 10);
-      swap(arr, 2, 8);  swap(arr, 3, 4);   swap(arr, 5, 11);
-      swap(arr, 6, 12); swap(arr, 0, 3);   swap(arr, 4, 9);
-      swap(arr, 1, 2);  swap(arr, 5, 8);   swap(arr, 11, 12);
-      swap(arr, 6, 7);  swap(arr, 0, 1);   swap(arr, 2, 3);
-      swap(arr, 4, 7);  swap(arr, 10, 11); swap(arr, 5, 9);
-      swap(arr, 6, 8);  swap(arr, 1, 2);   swap(arr, 3, 5);
-      swap(arr, 8, 10); swap(arr, 11, 12); swap(arr, 4, 6);
-      swap(arr, 7, 9);  swap(arr, 3, 4);   swap(arr, 5, 6);
-      swap(arr, 7, 8);  swap(arr, 9, 10);  swap(arr, 2, 3);
-      swap(arr, 4, 5);  swap(arr, 6, 7);   swap(arr, 8, 9);
-      swap(arr, 10, 11);
+      condSwap(arr, 1, 12); condSwap(arr, 2, 11);  condSwap(arr, 3, 10);
+      condSwap(arr, 4, 9);  condSwap(arr, 5, 8);   condSwap(arr, 6, 7);
+      condSwap(arr, 0, 5);  condSwap(arr, 1, 4);   condSwap(arr, 2, 3);
+      condSwap(arr, 9, 12); condSwap(arr, 10, 11); condSwap(arr, 3, 6);
+      condSwap(arr, 7, 10); condSwap(arr, 0, 1);   condSwap(arr, 4, 5);
+      condSwap(arr, 8, 9);  condSwap(arr, 1, 7);   condSwap(arr, 9, 10);
+      condSwap(arr, 2, 8);  condSwap(arr, 3, 4);   condSwap(arr, 5, 11);
+      condSwap(arr, 6, 12); condSwap(arr, 0, 3);   condSwap(arr, 4, 9);
+      condSwap(arr, 1, 2);  condSwap(arr, 5, 8);   condSwap(arr, 11, 12);
+      condSwap(arr, 6, 7);  condSwap(arr, 0, 1);   condSwap(arr, 2, 3);
+      condSwap(arr, 4, 7);  condSwap(arr, 10, 11); condSwap(arr, 5, 9);
+      condSwap(arr, 6, 8);  condSwap(arr, 1, 2);   condSwap(arr, 3, 5);
+      condSwap(arr, 8, 10); condSwap(arr, 11, 12); condSwap(arr, 4, 6);
+      condSwap(arr, 7, 9);  condSwap(arr, 3, 4);   condSwap(arr, 5, 6);
+      condSwap(arr, 7, 8);  condSwap(arr, 9, 10);  condSwap(arr, 2, 3);
+      condSwap(arr, 4, 5);  condSwap(arr, 6, 7);   condSwap(arr, 8, 9);
+      condSwap(arr, 10, 11);
     }
     else if (arr.length == 14) {
-      swap(arr, 0, 13);  swap(arr, 1, 12); swap(arr, 2, 11);
-      swap(arr, 3, 10);  swap(arr, 4, 9);  swap(arr, 5, 8);
-      swap(arr, 6, 7);   swap(arr, 0, 5);  swap(arr, 1, 4);
-      swap(arr, 2, 3);   swap(arr, 8, 13); swap(arr, 9, 12);
-      swap(arr, 10, 11); swap(arr, 3, 6);  swap(arr, 7, 10);
-      swap(arr, 0, 1);   swap(arr, 4, 5);  swap(arr, 8, 9);
-      swap(arr, 12, 13); swap(arr, 1, 7);  swap(arr, 9, 10);
-      swap(arr, 2, 8);   swap(arr, 3, 4);  swap(arr, 5, 11);
-      swap(arr, 6, 12);  swap(arr, 0, 3);  swap(arr, 4, 9);
-      swap(arr, 10, 13); swap(arr, 1, 2);  swap(arr, 5, 8);
-      swap(arr, 11, 12); swap(arr, 6, 7);  swap(arr, 0, 1);
-      swap(arr, 2, 3);   swap(arr, 4, 7);  swap(arr, 10, 11);
-      swap(arr, 12, 13); swap(arr, 5, 9);  swap(arr, 6, 8);
-      swap(arr, 1, 2);   swap(arr, 3, 5);  swap(arr, 8, 10);
-      swap(arr, 11, 12); swap(arr, 4, 6);  swap(arr, 7, 9);
-      swap(arr, 3, 4);   swap(arr, 5, 6);  swap(arr, 7, 8);
-      swap(arr, 9, 10);  swap(arr, 2, 3);  swap(arr, 4, 5);
-      swap(arr, 6, 7);   swap(arr, 8, 9);  swap(arr, 10, 11);
+      condSwap(arr, 0, 13);  condSwap(arr, 1, 12); condSwap(arr, 2, 11);
+      condSwap(arr, 3, 10);  condSwap(arr, 4, 9);  condSwap(arr, 5, 8);
+      condSwap(arr, 6, 7);   condSwap(arr, 0, 5);  condSwap(arr, 1, 4);
+      condSwap(arr, 2, 3);   condSwap(arr, 8, 13); condSwap(arr, 9, 12);
+      condSwap(arr, 10, 11); condSwap(arr, 3, 6);  condSwap(arr, 7, 10);
+      condSwap(arr, 0, 1);   condSwap(arr, 4, 5);  condSwap(arr, 8, 9);
+      condSwap(arr, 12, 13); condSwap(arr, 1, 7);  condSwap(arr, 9, 10);
+      condSwap(arr, 2, 8);   condSwap(arr, 3, 4);  condSwap(arr, 5, 11);
+      condSwap(arr, 6, 12);  condSwap(arr, 0, 3);  condSwap(arr, 4, 9);
+      condSwap(arr, 10, 13); condSwap(arr, 1, 2);  condSwap(arr, 5, 8);
+      condSwap(arr, 11, 12); condSwap(arr, 6, 7);  condSwap(arr, 0, 1);
+      condSwap(arr, 2, 3);   condSwap(arr, 4, 7);  condSwap(arr, 10, 11);
+      condSwap(arr, 12, 13); condSwap(arr, 5, 9);  condSwap(arr, 6, 8);
+      condSwap(arr, 1, 2);   condSwap(arr, 3, 5);  condSwap(arr, 8, 10);
+      condSwap(arr, 11, 12); condSwap(arr, 4, 6);  condSwap(arr, 7, 9);
+      condSwap(arr, 3, 4);   condSwap(arr, 5, 6);  condSwap(arr, 7, 8);
+      condSwap(arr, 9, 10);  condSwap(arr, 2, 3);  condSwap(arr, 4, 5);
+      condSwap(arr, 6, 7);   condSwap(arr, 8, 9);  condSwap(arr, 10, 11);
     }
     else if (arr.length == 15) {
-      swap(arr, 1, 14);  swap(arr, 2, 13);  swap(arr, 3, 12);
-      swap(arr, 4, 11);  swap(arr, 5, 10);  swap(arr, 6, 9);
-      swap(arr, 7, 8);   swap(arr, 0, 7);   swap(arr, 1, 6);
-      swap(arr, 2, 5);   swap(arr, 3, 4);   swap(arr, 9, 14);
-      swap(arr, 10, 13); swap(arr, 11, 12); swap(arr, 0, 3);
-      swap(arr, 4, 7);   swap(arr, 8, 11);  swap(arr, 1, 2);
-      swap(arr, 5, 6);   swap(arr, 9, 10);  swap(arr, 13, 14);
-      swap(arr, 0, 1);   swap(arr, 2, 8);   swap(arr, 10, 11);
-      swap(arr, 3, 9);   swap(arr, 4, 5);   swap(arr, 6, 12);
-      swap(arr, 7, 13);  swap(arr, 1, 4);   swap(arr, 5, 10);
-      swap(arr, 11, 14); swap(arr, 2, 3);   swap(arr, 6, 9);
-      swap(arr, 12, 13); swap(arr, 7, 8);   swap(arr, 1, 2);
-      swap(arr, 3, 4);   swap(arr, 5, 8);   swap(arr, 11, 12);
-      swap(arr, 13, 14); swap(arr, 6, 10);  swap(arr, 7, 9);
-      swap(arr, 2, 3);   swap(arr, 4, 6);   swap(arr, 9, 11);
-      swap(arr, 12, 13); swap(arr, 5, 7);   swap(arr, 8, 10);
-      swap(arr, 4, 5);   swap(arr, 6, 7);   swap(arr, 8, 9);
-      swap(arr, 10, 11); swap(arr, 3, 4);   swap(arr, 5, 6);
-      swap(arr, 7, 8);   swap(arr, 9, 10);  swap(arr, 11, 12);
+      condSwap(arr, 1, 14);  condSwap(arr, 2, 13);  condSwap(arr, 3, 12);
+      condSwap(arr, 4, 11);  condSwap(arr, 5, 10);  condSwap(arr, 6, 9);
+      condSwap(arr, 7, 8);   condSwap(arr, 0, 7);   condSwap(arr, 1, 6);
+      condSwap(arr, 2, 5);   condSwap(arr, 3, 4);   condSwap(arr, 9, 14);
+      condSwap(arr, 10, 13); condSwap(arr, 11, 12); condSwap(arr, 0, 3);
+      condSwap(arr, 4, 7);   condSwap(arr, 8, 11);  condSwap(arr, 1, 2);
+      condSwap(arr, 5, 6);   condSwap(arr, 9, 10);  condSwap(arr, 13, 14);
+      condSwap(arr, 0, 1);   condSwap(arr, 2, 8);   condSwap(arr, 10, 11);
+      condSwap(arr, 3, 9);   condSwap(arr, 4, 5);   condSwap(arr, 6, 12);
+      condSwap(arr, 7, 13);  condSwap(arr, 1, 4);   condSwap(arr, 5, 10);
+      condSwap(arr, 11, 14); condSwap(arr, 2, 3);   condSwap(arr, 6, 9);
+      condSwap(arr, 12, 13); condSwap(arr, 7, 8);   condSwap(arr, 1, 2);
+      condSwap(arr, 3, 4);   condSwap(arr, 5, 8);   condSwap(arr, 11, 12);
+      condSwap(arr, 13, 14); condSwap(arr, 6, 10);  condSwap(arr, 7, 9);
+      condSwap(arr, 2, 3);   condSwap(arr, 4, 6);   condSwap(arr, 9, 11);
+      condSwap(arr, 12, 13); condSwap(arr, 5, 7);   condSwap(arr, 8, 10);
+      condSwap(arr, 4, 5);   condSwap(arr, 6, 7);   condSwap(arr, 8, 9);
+      condSwap(arr, 10, 11); condSwap(arr, 3, 4);   condSwap(arr, 5, 6);
+      condSwap(arr, 7, 8);   condSwap(arr, 9, 10);  condSwap(arr, 11, 12);
     }
     else if (arr.length == 16) {
-      swap(arr, 0, 15);  swap(arr, 1, 14);  swap(arr, 2, 13);
-      swap(arr, 3, 12);  swap(arr, 4, 11);  swap(arr, 5, 10);
-      swap(arr, 6, 9);   swap(arr, 7, 8);   swap(arr, 0, 7);
-      swap(arr, 1, 6);   swap(arr, 2, 5);   swap(arr, 3, 4);
-      swap(arr, 8, 15);  swap(arr, 9, 14);  swap(arr, 10, 13);
-      swap(arr, 11, 12); swap(arr, 0, 3);   swap(arr, 4, 7);
-      swap(arr, 8, 11);  swap(arr, 12, 15); swap(arr, 1, 2);
-      swap(arr, 5, 6);   swap(arr, 9, 10);  swap(arr, 13, 14);
-      swap(arr, 0, 1);   swap(arr, 2, 8);   swap(arr, 10, 11);
-      swap(arr, 14, 15); swap(arr, 3, 9);   swap(arr, 4, 5);
-      swap(arr, 6, 12);  swap(arr, 7, 13);  swap(arr, 1, 4);
-      swap(arr, 5, 10);  swap(arr, 11, 14); swap(arr, 2, 3);
-      swap(arr, 6, 9);   swap(arr, 12, 13); swap(arr, 7, 8);
-      swap(arr, 1, 2);   swap(arr, 3, 4);   swap(arr, 5, 8);
-      swap(arr, 11, 12); swap(arr, 13, 14); swap(arr, 6, 10);
-      swap(arr, 7, 9);   swap(arr, 2, 3);   swap(arr, 4, 6);
-      swap(arr, 9, 11);  swap(arr, 12, 13); swap(arr, 5, 7);
-      swap(arr, 8, 10);  swap(arr, 4, 5);   swap(arr, 6, 7);
-      swap(arr, 8, 9);   swap(arr, 10, 11); swap(arr, 3, 4);
-      swap(arr, 5, 6);   swap(arr, 7, 8);   swap(arr, 9, 10);
-      swap(arr, 11, 12);
+      condSwap(arr, 0, 15);  condSwap(arr, 1, 14);  condSwap(arr, 2, 13);
+      condSwap(arr, 3, 12);  condSwap(arr, 4, 11);  condSwap(arr, 5, 10);
+      condSwap(arr, 6, 9);   condSwap(arr, 7, 8);   condSwap(arr, 0, 7);
+      condSwap(arr, 1, 6);   condSwap(arr, 2, 5);   condSwap(arr, 3, 4);
+      condSwap(arr, 8, 15);  condSwap(arr, 9, 14);  condSwap(arr, 10, 13);
+      condSwap(arr, 11, 12); condSwap(arr, 0, 3);   condSwap(arr, 4, 7);
+      condSwap(arr, 8, 11);  condSwap(arr, 12, 15); condSwap(arr, 1, 2);
+      condSwap(arr, 5, 6);   condSwap(arr, 9, 10);  condSwap(arr, 13, 14);
+      condSwap(arr, 0, 1);   condSwap(arr, 2, 8);   condSwap(arr, 10, 11);
+      condSwap(arr, 14, 15); condSwap(arr, 3, 9);   condSwap(arr, 4, 5);
+      condSwap(arr, 6, 12);  condSwap(arr, 7, 13);  condSwap(arr, 1, 4);
+      condSwap(arr, 5, 10);  condSwap(arr, 11, 14); condSwap(arr, 2, 3);
+      condSwap(arr, 6, 9);   condSwap(arr, 12, 13); condSwap(arr, 7, 8);
+      condSwap(arr, 1, 2);   condSwap(arr, 3, 4);   condSwap(arr, 5, 8);
+      condSwap(arr, 11, 12); condSwap(arr, 13, 14); condSwap(arr, 6, 10);
+      condSwap(arr, 7, 9);   condSwap(arr, 2, 3);   condSwap(arr, 4, 6);
+      condSwap(arr, 9, 11);  condSwap(arr, 12, 13); condSwap(arr, 5, 7);
+      condSwap(arr, 8, 10);  condSwap(arr, 4, 5);   condSwap(arr, 6, 7);
+      condSwap(arr, 8, 9);   condSwap(arr, 10, 11); condSwap(arr, 3, 4);
+      condSwap(arr, 5, 6);   condSwap(arr, 7, 8);   condSwap(arr, 9, 10);
+      condSwap(arr, 11, 12);
     }
     return arr[k];
   }
 
-  /// Swap two elements of an array iff the first element
+  /// condSwap two elements of an array iff the first element
   /// is greater than the second.
   /// @param arr an array of unsigned integers
   /// @param i the first index
   /// @param j the second index
-  function swap
+  function condSwap
   (
     int256[] memory arr,
     uint256 i,
