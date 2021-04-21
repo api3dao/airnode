@@ -17,6 +17,7 @@
     "build:ois": "(cd packages/ois && yarn run build)",
     "build:protocol": "(cd packages/protocol && yarn run build)",
     "clean": "lerna run clean --stream",
+    "cli:deployer": "lerna run --scope @airnode/deployer cli -- --",
     "dev:api": "(cd packages/operation && yarn run dev:api)",
     "dev:api:background": "(cd packages/operation && yarn run dev:api:background)",
     "dev:background": "(cd packages/operation && yarn run dev:background)",
