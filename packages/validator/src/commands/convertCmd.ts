@@ -1,26 +1,41 @@
-import { convert, convertFromTo } from '../convertor';
+import { convert, convertJson } from '../convertor';
+import { Log, Result } from '../types';
+import * as utils from './utils';
+import fs from 'fs';
+import { invalidConversionMessage } from '../utils/messages';
 
-// Find out if command with explicit arguments (--from, --to) was called or if each argument should be interpreted based on their position
-if (process.env.npm_config_specs && process.env.npm_config_template) {
-  console.log(convert(process.env.npm_config_specs, process.env.npm_config_template));
-} else if (process.env.npm_config_from && process.env.npm_config_to && process.env.npm_config_specs) {
-  console.log(convertFromTo(process.env.npm_config_from, process.env.npm_config_to, process.env.npm_config_specs));
+const oas2ois = 'OAS2OIS.json';
+const ois2config = 'OAS2OIS.json';
+
+if (process.env.npm_config_template) {
+  console.log(convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template));
 } else {
-  // Decide which convert command was called based on number of provided arguments
-  if (process.argv.length === 5) {
-    /* user called: convert [from] [to] [specsFile]
-      argument          index
-      from              2
-      to                3
-      specsFile         4
-     */
-    console.log(convertFromTo(process.argv[2], process.argv[3], process.argv[4]));
+  const from = (process.env.npm_config_from || process.argv[2]).toLowerCase();
+  const to = (process.env.npm_config_to || process.argv[3]).toLowerCase();
+  const specs = process.env.npm_config_specs || process.argv[4];
+  const version = process.env.npm_config_fromVersion || process.argv[5];
+  const messages: Log[] = [];
+  let res: Result = { valid: false, messages: [], output: {} };
+
+  if (from === 'oas' && to === 'ois') {
+    res = convert(specs, utils.getPath(oas2ois, messages, version));
+    res.messages.push(...messages);
+  } else if (from === 'ois' && to === 'config') {
+    res = convert(specs, utils.getPath(ois2config, messages, version));
+  } else if (from === 'oas' && to === 'config') {
+    const tmp = convert(specs, utils.getPath(oas2ois, messages, version));
+    const templatePath = utils.getPath(ois2config, messages);
+    const template = JSON.parse(fs.readFileSync(templatePath).toString());
+
+    if (tmp.output && template) {
+      res = convertJson(tmp.output, template, templatePath);
+    } else {
+      res = tmp;
+    }
   } else {
-    /* user called: convert [templateFile] [specsFile]
-      argument          index
-      templateFile      2
-      specsFile         3
-     */
-    console.log(convert(process.argv[3], process.argv[2]));
+    messages.push(invalidConversionMessage(from, to));
   }
+
+  res.messages.push(...messages);
+  console.log(res);
 }

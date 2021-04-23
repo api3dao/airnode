@@ -1,14 +1,7 @@
-import { Log, Result } from './types';
+import { Result } from './types';
 import * as logger from './utils/logger';
 import fs from 'fs';
 import { processSpecs } from './processor';
-
-const oas2ois = 'templates/OAS2OIS.json';
-const ois2cs = 'templates/OIS2C&S.json';
-
-function invalidConversionMessage(from, to): Log {
-  return logger.error(`Conversion from ${from} to ${to} is not valid conversion`);
-}
 
 /**
  * Converts specification from provided file into format the template specifies
@@ -77,31 +70,4 @@ export function convertJson(specs: object, template: object, templatePath = ''):
   );
 
   return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
-}
-
-/**
- * Converts specification from one format into another
- * @param from - format of the provided specification, can be "oas" or "ois"
- * @param to - format specification will be converted into, can be "ois" or "cs"
- * @param specs - specification that will be converted
- * @returns - converted specification as a Result object
- */
-export function convertFromTo(from, to, specs): Result {
-  from = from.toLowerCase();
-  to = to.toLowerCase();
-
-  let ois: Result = { valid: true, messages: [], output: {} };
-  let cs: Result = { valid: true, messages: [], output: {} };
-
-  if (from === 'oas' && to === 'ois') {
-    return convert(specs, oas2ois);
-  } else if (from === 'oas' && to.match(/^(cs|configsecurity|configandsecurity)$/)) {
-    ois = convert(specs, oas2ois);
-    cs = convertJson(ois.output ? ois.output : {}, JSON.parse(fs.readFileSync(ois2cs).toString()), ois2cs);
-    return { valid: ois.valid, messages: ois.messages, output: cs.output };
-  } else if (from === 'ois' && to.match(/^(cs|configsecurity|configandsecurity)$/)) {
-    return convert(specs, ois2cs);
-  }
-
-  return { valid: false, messages: [invalidConversionMessage(from, to)] };
 }

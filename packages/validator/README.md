@@ -26,12 +26,12 @@ npm run validate templates/1.0.0/config.json exampleSpecs/config.specs.json
 
 Convertor works the same way as validator and can be invoked with the `convert` command, for example:
 ```sh
-npm run convert --template="templates/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
+npm run convert --template="templates/3.0.0/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
 ```
 
 Conversions can be invoked without providing any template, specifying which format provided specification is in and to which format it should be converted into, is enough:
 ```sh
-npm run convert --from="OAS" --to="ConfigAndSecurity" --specs="exampleSpecs/OAS.specs.json"
+npm run convert --from="OAS" --to="Config" --specs="exampleSpecs/OAS.specs.json"
 ```
 
 From/to formats are case-insensitive, these are valid conversions:
@@ -39,12 +39,12 @@ From/to formats are case-insensitive, these are valid conversions:
 | From | To |
 | ----- | -----|
 | oas | ois |
-| oas | cs / ConfigSecurity / ConfigAndSecurity |
-| ois | cs / ConfigSecurity / ConfigAndSecurity |
+| oas | config |
+| ois | config |
 
 Another example of `convert` command:
 ```sh
-npm run convert oas cs "exampleSpecs/OAS.specs.json"
+npm run convert oas config "exampleSpecs/OAS.specs.json"
 ```
 
 # Output
