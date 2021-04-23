@@ -86,6 +86,16 @@
           },
           {
             "__if": {
+              "name": ".*"
+            },
+            "__then": {
+              "type": {
+                "__regexp": "^apiKey$"
+              }
+            }
+          },
+          {
+            "__if": {
               "type": "^http$"
             },
             "__then": {
@@ -103,6 +113,9 @@
           "__catch": {
             "__message": "__fullPath: Allowed values are \"query\", \"header\" or \"cookie\""
           }
+        },
+        "__optional": {
+          "name": {}
         }
       }
     }
