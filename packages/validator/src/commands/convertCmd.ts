@@ -8,7 +8,13 @@ const oas2ois = 'OAS2OIS.json';
 const ois2config = 'OAS2OIS.json';
 
 if (process.env.npm_config_template) {
-  console.log(convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template));
+  console.log(
+    JSON.stringify(
+      convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template),
+      null,
+      '\t'
+    )
+  );
 } else {
   const from = (process.env.npm_config_from || process.argv[2]).toLowerCase();
   const to = (process.env.npm_config_to || process.argv[3]).toLowerCase();
@@ -37,5 +43,5 @@ if (process.env.npm_config_template) {
   }
 
   res.messages.push(...messages);
-  console.log(res);
+  console.log(JSON.stringify(res, null, '\t'));
 }
