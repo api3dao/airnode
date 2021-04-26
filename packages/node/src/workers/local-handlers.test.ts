@@ -54,7 +54,8 @@ describe('callApi', () => {
     jest.spyOn(handlers, 'callApi').mockResolvedValue([[], callResponse]);
 
     const aggregatedApiCall = fixtures.createAggregatedApiCall();
-    const res = await local.callApi({ aggregatedApiCall, logOptions: {} });
+    const logOptions = fixtures.buildLogOptions();
+    const res = await local.callApi({ aggregatedApiCall, logOptions });
     expect(res).toEqual({ ok: true, data: callResponse });
   });
 });

@@ -12,7 +12,7 @@ describe('verifyDesignatedWallets', () => {
       it(`returns API calls that have status: ${status}`, () => {
         const apiCall = fixtures.requests.buildApiCall({
           designatedWallet: '0xinvalid',
-          status: RequestStatus[status],
+          status: RequestStatus[status as RequestStatus],
         });
         const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
         expect(logs).toEqual([
@@ -27,7 +27,7 @@ describe('verifyDesignatedWallets', () => {
       it(`returns withdrawals that have status: ${status}`, () => {
         const withdrawal = fixtures.requests.buildWithdrawal({
           designatedWallet: '0xinvalid',
-          status: RequestStatus[status],
+          status: RequestStatus[status as RequestStatus],
         });
         const [logs, res] = verification.verifyDesignatedWallets([withdrawal], masterHDNode);
         expect(logs).toEqual([
@@ -94,7 +94,7 @@ describe('verifyTriggers', () => {
       it(`returns API calls that have status: ${status}`, () => {
         const apiCall = fixtures.requests.buildApiCall({
           endpointId: '0xinvalid',
-          status: RequestStatus[status],
+          status: RequestStatus[status as RequestStatus],
         });
         const config = fixtures.buildConfig();
         const triggers = config.triggers.request;
