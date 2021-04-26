@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import * as encoding from '../abi-encoding';
-import * as contracts from '../contracts';
+import { airnodeRrpTopics } from '../contracts';
 import * as events from './events';
 import * as logger from '../../logger';
 import {
@@ -15,11 +15,10 @@ import {
 } from '../../types';
 
 function getApiCallType(topic: string): ApiCallType {
-  const { topics } = contracts.AirnodeRrp;
   switch (topic) {
-    case topics.ClientRequestCreated:
+    case airnodeRrpTopics.ClientRequestCreated:
       return 'regular';
-    case topics.ClientFullRequestCreated:
+    case airnodeRrpTopics.ClientFullRequestCreated:
       return 'full';
     // This should never be reached
     default:

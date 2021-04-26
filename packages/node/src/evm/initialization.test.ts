@@ -1,18 +1,16 @@
+import { mockEthers } from '../test-utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const setAirnodeParametersMock = jest.fn();
 const estimateSetAirnodeParametersMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      setAirnodeParametersAndForwardFunds: setAirnodeParametersMock,
-      estimateGas: {
-        setAirnodeParametersAndForwardFunds: estimateSetAirnodeParametersMock,
-      },
-      getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    setAirnodeParametersAndForwardFunds: setAirnodeParametersMock,
+    estimateGas: {
+      setAirnodeParametersAndForwardFunds: estimateSetAirnodeParametersMock,
+    },
+    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
   },
-}));
+});
 
 import { ethers } from 'ethers';
 import * as wallet from './wallet';
@@ -418,7 +416,7 @@ describe('setAirnodeParameters', () => {
       expect(setAirnodeParametersMock).toHaveBeenCalledTimes(2);
     });
 
-    it('does not warn if the Airnode parameters match', async () => {
+    it.only('does not warn if the Airnode parameters match', async () => {
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');

@@ -1,20 +1,17 @@
+import { mockEthers } from '../test-utils';
 const getGasPriceMock = jest.fn();
 const latestAnswerMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getGasPrice: getGasPriceMock,
-        })),
-      },
-      Contract: jest.fn().mockImplementation(() => ({
-        latestAnswer: latestAnswerMock,
+mockEthers({
+  ethersMocks: {
+    providers: {
+      JsonRpcProvider: jest.fn().mockImplementation(() => ({
+        getGasPrice: getGasPriceMock,
       })),
     },
-  };
+    Contract: jest.fn().mockImplementation(() => ({
+      latestAnswer: latestAnswerMock,
+    })),
+  },
 });
 
 import { ethers } from 'ethers';

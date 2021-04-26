@@ -1,9 +1,4 @@
-import fs from 'fs';
-import { ethers } from 'ethers';
-import * as adapter from '@airnode/adapter';
-import { startCoordinator } from './start-coordinator';
-import * as fixtures from 'test/fixtures';
-
+import { mockEthers } from 'src/test-utils';
 const checkAuthorizationStatusesMock = jest.fn();
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
@@ -12,25 +7,28 @@ const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      callStatic: {
-        fulfill: staticFulfillMock,
-      },
-      estimateGas: {
-        fulfillWithdrawal: estimateGasWithdrawalMock,
-      },
-      checkAuthorizationStatuses: checkAuthorizationStatusesMock,
-      fail: failMock,
-      fulfill: fulfillMock,
-      fulfillWithdrawal: fulfillWithdrawalMock,
-      getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
-      getTemplates: getTemplatesMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: {
+      fulfillWithdrawal: estimateGasWithdrawalMock,
+    },
+    checkAuthorizationStatuses: checkAuthorizationStatusesMock,
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
+    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
+    getTemplates: getTemplatesMock,
   },
-}));
+});
+
+import fs from 'fs';
+import { ethers } from 'ethers';
+import * as adapter from '@airnode/adapter';
+import { startCoordinator } from './start-coordinator';
+import * as fixtures from 'test/fixtures';
 
 describe('startCoordinator', () => {
   it('fetches and processes requests', async () => {

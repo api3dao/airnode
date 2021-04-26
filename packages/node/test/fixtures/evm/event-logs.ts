@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
 
+// TODO: can we type the log event for the requests better?
+// It is not sure what will the parsed event contain.
 type Log = ethers.providers.Log;
 
 // =================================================================

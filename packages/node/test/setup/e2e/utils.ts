@@ -1,7 +1,7 @@
 import orderBy from 'lodash/orderBy';
 import fs from 'fs';
 import { ethers } from 'ethers';
-import { AirnodeRrp } from '../../../src/evm/contracts';
+import { AirnodeRrpArtifact } from '../../../src/evm/contracts';
 import { ChainConfig } from '../../../src/types';
 
 export interface Contracts {
@@ -26,7 +26,7 @@ export function buildProvider() {
 }
 
 export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, address: string) {
-  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrp.ABI);
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
   const filter: ethers.providers.Filter = {
     fromBlock: 0,
     address,

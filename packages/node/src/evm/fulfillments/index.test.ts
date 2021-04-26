@@ -1,26 +1,26 @@
+import { mockEthers } from '../../test-utils';
 const connectMock = jest.fn();
 const estimateWithdrawalGasMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      callStatic: {
-        fulfill: staticFulfillMock,
-      },
-      estimateGas: { fulfillWithdrawal: estimateWithdrawalGasMock },
-      fail: failMock,
-      fulfill: fulfillMock,
-      fulfillWithdrawal: fulfillWithdrawalMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: { fulfillWithdrawal: estimateWithdrawalGasMock },
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
+  },
+  ethersMocks: {
     Wallet: jest.fn().mockImplementation(() => ({
       connect: connectMock,
     })),
   },
-}));
+});
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';

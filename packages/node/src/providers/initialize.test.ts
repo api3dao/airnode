@@ -1,15 +1,6 @@
+import { mockEthers } from '../test-utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      Contract: jest.fn().mockImplementation(() => ({
-        getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
-      })),
-    },
-  };
-});
+mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
 
 const spawnAwsMock = jest.fn();
 jest.mock('../workers/cloud-platforms/aws', () => ({

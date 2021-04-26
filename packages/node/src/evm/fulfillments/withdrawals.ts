@@ -5,11 +5,12 @@ import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../types';
 import { OPERATION_RETRIES } from '../../constants';
+import { AirnodeRrp } from '../contracts';
 
 type SubmitResponse = ethers.Transaction | null;
 
 export async function submitWithdrawal(
-  airnodeRrp: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   request: ClientRequest<Withdrawal>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {

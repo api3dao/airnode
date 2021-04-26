@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import * as contracts from '../contracts';
 import * as events from './events';
 import { EVMEventLogWithMetadata } from '../../types';
 import { retryOperation } from '../../utils/promise-utils';
 import { OPERATION_RETRIES } from '../../constants';
+import { AirnodeRrpArtifact } from '../contracts';
 
 interface FetchOptions {
   address: string;
@@ -39,7 +39,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
   const rawLogs = await retryableOperation;
 
   // If the provider returns a bad response, mapping logs could also throw
-  const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,

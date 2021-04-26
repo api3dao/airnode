@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import * as contracts from '../contracts';
+import { AirnodeRrpArtifact } from '../contracts';
 import * as withdrawals from './withdrawals';
 import * as fixtures from 'test/fixtures';
 import { RequestStatus } from 'src/types';
@@ -7,7 +7,7 @@ import { RequestStatus } from 'src/types';
 describe('initialize (Withdrawal)', () => {
   it('builds a withdrawal request', () => {
     const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
     const parsedLog = airnodeRrpInterface.parseLog(event);
     const parseLogWithMetadata = {
       parsedLog,
@@ -74,7 +74,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
 describe('mapRequests (Withdrawal)', () => {
   it('initializes and returns withdrawal requests', () => {
     const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
     const parsedLog = airnodeRrpInterface.parseLog(event);
     const parsedLogWithMetadata = {
       parsedLog,
@@ -106,7 +106,7 @@ describe('mapRequests (Withdrawal)', () => {
   it('updates the status of fulfilled withdrawal requests', () => {
     const requestEvent = fixtures.evm.logs.buildWithdrawalRequest();
     const fulfillEvent = fixtures.evm.logs.buildWithdrawalFulfilled();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
+    const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
     const requestLog = airnodeRrpInterface.parseLog(requestEvent);
     const fulfillLog = airnodeRrpInterface.parseLog(fulfillEvent);
 

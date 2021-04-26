@@ -1,16 +1,13 @@
+import { mockEthers } from '../test-utils';
 const getTransactionCountMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          getTransactionCount: getTransactionCountMock,
-        })),
-      },
+mockEthers({
+  ethersMocks: {
+    providers: {
+      JsonRpcProvider: jest.fn().mockImplementation(() => ({
+        getTransactionCount: getTransactionCountMock,
+      })),
     },
-  };
+  },
 });
 
 import { ethers } from 'ethers';

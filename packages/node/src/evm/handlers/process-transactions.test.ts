@@ -1,29 +1,27 @@
-import { ethers } from 'ethers';
-import { processTransactions } from './process-transactions';
-import * as fixtures from 'test/fixtures';
-import { GroupedRequests } from '../../types';
-
+import { mockEthers } from 'src/test-utils';
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      callStatic: {
-        fulfill: staticFulfillMock,
-      },
-      estimateGas: {
-        fulfillWithdrawal: estimateGasWithdrawalMock,
-      },
-      fail: failMock,
-      fulfill: fulfillMock,
-      fulfillWithdrawal: fulfillWithdrawalMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: {
+      fulfillWithdrawal: estimateGasWithdrawalMock,
+    },
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
   },
-}));
+});
+
+import { ethers } from 'ethers';
+import { processTransactions } from './process-transactions';
+import * as fixtures from 'test/fixtures';
+import { GroupedRequests } from '../../types';
 
 describe('processTransactions', () => {
   it('fetches the gas price, assigns nonces and submits transactions', async () => {
