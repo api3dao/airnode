@@ -8,6 +8,7 @@ contract rrpDapiServer is CustomReducer {
     struct DapiParameters {
         uint256 minResponsesToReduce;
         int256 toleranceInPercentages;
+        uint256 requesterIndex;
         bytes32[] templateIds;
         address[] designatedWallets;
         address reduceAddress;
@@ -25,21 +26,17 @@ contract rrpDapiServer is CustomReducer {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
     }
 
-    modifier onlyEndorsed(uint256 requesterIndex) {
-      require(
-        airnodeRrp.isEndorsed(requesterIndex, msg.sender),
-        "Only an endorsed requester can call this function."
-      );
-      _;
-    }
-
     function makeDapiRequest(bytes32 dapiId, uint256 requesterIndex)
         external
-        onlyEndorsed(requesterIndex)
     {
         DapiParameters storage dapiParameters = dapiIdToParameters[dapiId];
+        require(
+            airnodeRrp.isEndorsed(dapiParameters.requesterIndex, msg.sender),
+            "Only an endorsed requester can call this function."
+            );
         require(dapiParameters.reduceAddress == msg.sender);
         for (uint i = 0; i < dapiParameters.templateIds.length; i++) {
+            // TODO: use delegatecall
             bytes32 requestId = airnodeRrp.makeRequest(
                 dapiParameters.templateIds[i],
                 requesterIndex,
