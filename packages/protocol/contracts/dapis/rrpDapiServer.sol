@@ -2,7 +2,6 @@
 pragma solidity 0.8.4;
 
 import "../AirnodeRrp.sol";
-import "../RequesterStore.sol";
 import "./CustomReducer.sol";
 
 contract rrpDapiServer is CustomReducer {
@@ -16,21 +15,19 @@ contract rrpDapiServer is CustomReducer {
         }
     
     AirnodeRrp public airnodeRrp;
-    RequesterStore public requesterStore;
     mapping(bytes32 => DapiParameters) private dapiIdToParameters;
     uint256 public nextDapiRequestIndex = 1;
     mapping(bytes32 => uint256) private requestIdToDapiRequestIndex;
     mapping(uint256 => int256[]) private dapiRequestIndexToResponses;
     mapping(uint256 => bytes32) private dapiRequestIndexToDapiId;
 
-    constructor(address _airnodeRrp, address _requesterStore) {
+    constructor(address _airnodeRrp) {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
-        requesterStore = RequesterStore(_requesterStore);
     }
 
     modifier onlyEndorsed(uint256 requesterIndex) {
       require(
-        requesterStore.isEndorsed(requesterIndex, msg.sender),
+        airnodeRrp.isEndorsed(requesterIndex, msg.sender),
         "Only an endorsed requester can call this function."
       );
       _;
