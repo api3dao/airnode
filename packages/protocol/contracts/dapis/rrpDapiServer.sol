@@ -5,7 +5,7 @@ import "../AirnodeRrp.sol";
 import "../RequesterStore.sol";
 import "./CustomReducer.sol";
 
-abstract contract rrpDapiServer is CustomReducer {
+contract rrpDapiServer is CustomReducer {
     struct DapiParameters {
         uint256 minResponsesToReduce;
         int256 toleranceInPercentages;
