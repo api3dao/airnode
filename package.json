@@ -15,6 +15,7 @@
     "build:deployer": "(cd packages/deployer && yarn run _build)",
     "build:node": "(cd packages/node && yarn run build)",
     "build:ois": "(cd packages/ois && yarn run build)",
+    "build:operation": "(cd packages/operation && yarn run build)",
     "build:protocol": "(cd packages/protocol && yarn run build)",
     "clean": "lerna run clean --stream",
     "cli:deployer": "lerna run --scope @airnode/deployer cli -- --",
