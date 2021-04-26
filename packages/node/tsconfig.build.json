@@ -2,8 +2,9 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "rootDir": "src",
     "outDir": "./dist",
+    "rootDir": "src",
+    // Enable at root tsconfig.json once all packages have been fixed
     "strict": true
   },
   "include": [
