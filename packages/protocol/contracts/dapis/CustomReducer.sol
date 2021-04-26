@@ -50,7 +50,7 @@ contract CustomReducer {
     }
 
     function computeMedian(int256[] memory values)
-        private
+        internal
         view
         returns (int256)
     {
