@@ -10,7 +10,7 @@ abstract contract Aggregator {
     /// method runs
     /// @param values Values to be aggregated
     function aggregateInplace(int256[] memory values)
-        internal
+        public
         view
         virtual
         returns (int256);
