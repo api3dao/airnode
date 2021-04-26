@@ -25,6 +25,14 @@ contract RequesterStore is IRequesterStore {
         _;
     }
 
+    function isEndorsed(uint256 requesterIndex, address addr)
+      external
+      returns (bool)
+    {
+      return
+      requesterIndexToClientAddressToEndorsementStatus[requesterIndex][addr];
+    }
+
     /// @notice Creates a requester with the given parameters, addressable by
     /// the index it returns
     /// @param admin Requester admin

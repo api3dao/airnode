@@ -2,9 +2,10 @@
 pragma solidity 0.8.4;
 
 import "../AirnodeRrp.sol";
-import "./reducers/MeanMedianHybrid.sol";
+import "../RequesterStore.sol";
+import "./CustomReducer.sol";
 
-abstract contract rrpDapiServer is MeanMedianHybrid {
+abstract contract rrpDapiServer is CustomReducer {
     struct DapiParameters {
         uint256 minResponsesToReduce;
         bytes32[] templateIds;
@@ -14,19 +15,29 @@ abstract contract rrpDapiServer is MeanMedianHybrid {
         }
     
     AirnodeRrp public airnodeRrp;
+    RequesterStore public requesterStore;
     mapping(bytes32 => DapiParameters) private dapiIdToParameters;
-    uint256 public requesterIndex;
     uint256 public nextDapiRequestIndex = 1;
     mapping(bytes32 => uint256) private requestIdToDapiRequestIndex;
     mapping(uint256 => int256[]) private dapiRequestIndexToResponses;
     mapping(uint256 => bytes32) private dapiRequestIndexToDapiId;
 
-    constructor(address _airnodeRrp) {
+    constructor(address _airnodeRrp, address _requesterStore) {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
+        requesterStore = RequesterStore(_requesterStore);
     }
 
-    function makeDapiRequest(bytes32 dapiId)
+    modifier onlyEndorsed(uint256 requesterIndex) {
+      require(
+        requesterStore.isEndorsed(requesterIndex, msg.sender),
+        "Only an endorsed requester can call this function."
+      );
+      _;
+    }
+
+    function makeDapiRequest(bytes32 dapiId, uint256 requesterIndex)
         external
+        onlyEndorsed(requesterIndex)
     {
         DapiParameters storage dapiParameters = dapiIdToParameters[dapiId];
         require(dapiParameters.reduceAddress == msg.sender);
@@ -66,7 +77,7 @@ abstract contract rrpDapiServer is MeanMedianHybrid {
                     && responsesLength >= dapiParameters.minResponsesToReduce
                 )
             {
-                int256 reducedValue = reduceInPlace(dapiRequestIndexToResponses[dapiRequestIndex]);
+                int256 reducedValue = computeMedian(dapiRequestIndexToResponses[dapiRequestIndex]);
                 dapiParameters.reduceAddress.call(  // solhint-disable-line
                     abi.encodeWithSelector(dapiParameters.reduceFunctionId, dapiRequestIndex, reducedValue)
                     );
