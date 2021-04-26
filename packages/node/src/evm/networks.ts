@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 export type ChainID = 1 | 3 | 4 | 31337;
 
 type NetworkDetails = {
-  [chainId: number]: ethers.providers.Network;
+  [chainId: string]: ethers.providers.Network;
 };
 
 export const NETWORKS: NetworkDetails = {

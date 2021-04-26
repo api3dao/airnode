@@ -9,6 +9,7 @@ import {
   ClientRequest,
   EVMEventLogWithMetadata,
   LogsData,
+  PendingLog,
   RequestErrorCode,
   RequestStatus,
 } from '../../types';
@@ -80,12 +81,17 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
   return [[], { ...request, parameters }];
 }
 
+export interface UpdatedFulfilledRequests {
+  logs: PendingLog[];
+  requests: ClientRequest<ApiCall>[];
+}
+
 export function updateFulfilledRequests(
   apiCalls: ClientRequest<ApiCall>[],
   fulfilledRequestIds: string[]
 ): LogsData<ClientRequest<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
-    (acc, apiCall) => {
+    (acc: UpdatedFulfilledRequests, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
         const log = logger.pend('DEBUG', `Request ID:${apiCall.id} (API call) has already been fulfilled`);
 
