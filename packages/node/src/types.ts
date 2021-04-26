@@ -49,25 +49,27 @@ export interface RequestMetadata {
 }
 
 export type ClientRequest<T extends {}> = T & {
-  readonly designatedWallet: string | null;
+  readonly designatedWallet: string;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly requesterIndex: string | null;
+  readonly requesterIndex: string;
   readonly status: RequestStatus;
 };
 
 export type ApiCallType = 'regular' | 'full';
 
+// TODO: refactor these types such that there is user facing "ApiCall" which will get merged with
+// template and internal type that is the result of those two being merged.
 export interface ApiCall {
   readonly airnodeId: string | null;
   readonly chainId: string;
   readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
-  readonly fulfillAddress: string | null;
-  readonly fulfillFunctionId: string | null;
+  readonly fulfillAddress: string;
+  readonly fulfillFunctionId: string;
   readonly parameters: ApiCallParameters;
   readonly requestCount: string;
   readonly responseValue?: string;
