@@ -2,17 +2,17 @@
 pragma solidity 0.8.2;
 
 import "./SelectK.sol";
-import "./Aggregator.sol";
+import "./Reducer.sol";
 
-/// @title Median aggregation contract
-/// @notice Median aggregation is robust against misreports, yet it is not as
+/// @title Median reduction contract
+/// @notice Median reduction is robust against misreports, yet it is not as
 /// numerically accurate as mean beacuse it depends on a single data point. It
 /// should be used when numerical accuracy is not critical or as a part of a
-/// more complex aggregation method such as MeanMedianHybrid.sol.
-contract Median is SelectK, Aggregator {
-    /// @notice Aggregates the array of values by computing their median
-    /// @param values Values to be aggregated
-    function aggregateInplace(int256[] memory values)
+/// more complex reduction method such as MeanMedianHybrid.sol.
+contract Median is SelectK, Reducer {
+    /// @notice Reduces the array of values by computing their median
+    /// @param values Values to be reduced
+    function reduceInPlace(int256[] memory values)
         internal
         view
         virtual

@@ -3,9 +3,9 @@ pragma solidity 0.8.2;
 
 import "./Mean.sol";
 import "./Median.sol";
-import "./Aggregator.sol";
+import "./Reducer.sol";
 
-/// @title Mean-median hybrid aggregation contract
+/// @title Mean-median hybrid reduction contract
 /// @notice Mean is accurate but not robust. Median is inaccurate but robust.
 /// Mean-median hybrid uses mean under normal circumstances for accuracy, but
 /// falls back to median if there is a large enough discrepancy between mean
@@ -13,10 +13,10 @@ import "./Aggregator.sol";
 /// time, it is more scalable than bare median under normal circumstances
 /// (where mean will be similar to median).
 /// @dev Even though the types are defined as `int256` for consistency, this
-/// method is more suitable for unsigned values. For example, consider the
+/// method is more suitable for similarly values. For example, consider the
 /// values [-100, -4, 1, 1, 1, 1, 100]. The mean of these values is 0 and the
 /// median is 1. Here, even though the mean is very close to the median, upper
-/// and lower tolerances will be zero, which means the aggregation will fall
+/// and lower tolerances will be zero, which means the reduction will fall
 /// back to median. Therefore, consider using Median.sol instead for values
 /// with potentially alternating signs.
 /// Note that there is a potential for overflow while summing large enough
@@ -25,7 +25,7 @@ import "./Aggregator.sol";
 contract MeanMedianHybrid is Mean, Median {
     /// @notice Percentages are represented by multiplying by 1,000,000 (1e6)
     int256 public constant HUNDRED_PERCENT = 100e6;
-    /// @notice Aggregation will fall back to median if the median is not with
+    /// @notice Reduction will fall back to median if the median is not with
     /// a [-toleranceInPercentages, toleranceInPercentages] neighborhood of the
     /// mean
     int256 public toleranceInPercentages;
@@ -50,9 +50,9 @@ contract MeanMedianHybrid is Mean, Median {
     }
 
     /// @notice Called by the owner to set the tolerance
-    /// @dev This should be set high enough that the aggregation does not fall
+    /// @dev This should be set high enough that the reduction does not fall
     /// back to median unless there is a misreport among the values to be
-    /// aggregated
+    /// reduced
     /// @param _toleranceInPercentages Tolerance in percentages
     function setTolerance (int256 _toleranceInPercentages)
         external
@@ -62,18 +62,18 @@ contract MeanMedianHybrid is Mean, Median {
         toleranceInPercentages = _toleranceInPercentages;
     }
 
-    /// @notice Aggregates the array of values by computing their mean,
-    /// checking if the mean is similar enough to median, and computing the
-    /// median instead if it is not
-    /// @param values Values to be aggregated
-    function aggregateInplace(int256[] memory values)
+    /// @notice Reduces the array of values by computing their mean, checking
+    /// if the mean is similar enough to median, and computing the median
+    /// instead if it is not
+    /// @param values Values to be reduced
+    function reduceInPlace(int256[] memory values)
         internal
         view
         virtual
         override(Mean, Median)
         returns (int256)
     {
-        int256 mean = Mean.aggregateInplace(values);
+        int256 mean = Mean.reduceInPlace(values);
         // Test the mean for validity
         int256 upperTolerance = mean * (HUNDRED_PERCENT + toleranceInPercentages) / HUNDRED_PERCENT;
         int256 lowerTolerance = mean * (HUNDRED_PERCENT - toleranceInPercentages) / HUNDRED_PERCENT;
@@ -93,6 +93,6 @@ contract MeanMedianHybrid is Mean, Median {
             }
         }
         // Fall back to median if the mean is not valid
-        return Median.aggregateInplace(values);
+        return Median.reduceInPlace(values);
     }
 }
