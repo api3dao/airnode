@@ -8,6 +8,7 @@ import "./CustomReducer.sol";
 abstract contract rrpDapiServer is CustomReducer {
     struct DapiParameters {
         uint256 minResponsesToReduce;
+        int256 toleranceInPercentages;
         bytes32[] templateIds;
         address[] designatedWallets;
         address reduceAddress;
@@ -77,7 +78,7 @@ abstract contract rrpDapiServer is CustomReducer {
                     && responsesLength >= dapiParameters.minResponsesToReduce
                 )
             {
-                int256 reducedValue = computeMedian(dapiRequestIndexToResponses[dapiRequestIndex]);
+                int256 reducedValue = meanMedianHybrid(dapiRequestIndexToResponses[dapiRequestIndex], dapiParameters.toleranceInPercentages);
                 dapiParameters.reduceAddress.call(  // solhint-disable-line
                     abi.encodeWithSelector(dapiParameters.reduceFunctionId, dapiRequestIndex, reducedValue)
                     );
