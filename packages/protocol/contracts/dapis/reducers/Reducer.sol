@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.2;
+pragma solidity 0.8.4;
 
 /// @title The abstract contract that generalizes reduction methods
 /// @notice Reduction method implementations should inherit this contract
