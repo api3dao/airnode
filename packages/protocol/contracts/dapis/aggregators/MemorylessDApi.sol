@@ -55,7 +55,7 @@ contract MemorylessDApi is DApi, AirnodeRrpClient {
     }
 
     modifier onlyOwner(){
-        require(msg.sender == _owner, 'only the owner can call this function');
+        require(msg.sender == _owner, "only owner can call this function");
         _;
     }
 
