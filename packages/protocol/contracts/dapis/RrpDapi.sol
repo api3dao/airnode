@@ -9,6 +9,6 @@ import "./reducers/Reducer.sol";
 //       contract myRrpDapi is rrpDapi, Median {
 //           // Any specific implementation required
 //       }
-abstract contract rrpDapi is Reducer {
+abstract contract RrpDapi is Reducer {
     // TODO: Implement
 }
