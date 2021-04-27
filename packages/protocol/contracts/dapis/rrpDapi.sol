@@ -2,7 +2,7 @@
 pragma solidity 0.8.4;
 
 import "./reducers/Reducer.sol";
-import "./RrpDapiServer.sol";
+import "./rrpDapiServer.sol";
 
 // A stub for an RRP dAPI contract
 // When the user wants to deploy a dAPI contract, they inherit the specific
