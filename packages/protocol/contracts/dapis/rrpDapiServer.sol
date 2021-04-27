@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import "../AirnodeRrp.sol";
 import "./CustomReducer.sol";
 
-contract rrpDapiServer is CustomReducer {
+contract RrpDapiServer is CustomReducer {
     struct DapiParameters {
         uint256 minResponsesToReduce;
         int256 toleranceInPercentages;
@@ -16,18 +16,46 @@ contract rrpDapiServer is CustomReducer {
         }
     
     AirnodeRrp public airnodeRrp;
-    mapping(bytes32 => DapiParameters) private dapiIdToParameters;
+    mapping(uint256 => DapiParameters) private dapiIdToParameters;
+    uint256 public nextDapiID = 1;
     uint256 public nextDapiRequestIndex = 1;
     mapping(bytes32 => uint256) private requestIdToDapiRequestIndex;
     mapping(uint256 => int256[]) private dapiRequestIndexToResponses;
-    mapping(uint256 => bytes32) private dapiRequestIndexToDapiId;
+    mapping(uint256 => uint256) private dapiRequestIndexToDapiId;
 
     constructor(address _airnodeRrp) {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
     }
 
-    function makeDapiRequest(bytes32 dapiId, uint256 requesterIndex)
+    function registerDapi
+    (
+        uint256 minResponsesToReduce,
+        int256 toleranceInPercentages,
+        uint256 requesterIndex,
+        bytes32[] calldata templateIds,
+        address[] calldata designatedWallets,
+        address reduceAddress,
+        bytes4 reduceFunctionId
+    )
         external
+        returns (uint256 dapiId)
+    {
+      dapiIdToParameters[nextDapiID] = DapiParameters(
+        minResponsesToReduce,
+        toleranceInPercentages,
+        requesterIndex,
+        templateIds,
+        designatedWallets,
+        reduceAddress,
+        reduceFunctionId
+      );
+      dapiId = nextDapiID++;
+    }
+
+
+    function makeDapiRequest(uint256 dapiId, uint256 requesterIndex)
+        external
+        returns (uint256 currDapiRequestIndex)
     {
         DapiParameters storage dapiParameters = dapiIdToParameters[dapiId];
         require(
@@ -48,6 +76,7 @@ contract rrpDapiServer is CustomReducer {
             requestIdToDapiRequestIndex[requestId] = nextDapiRequestIndex;
         }
         dapiRequestIndexToDapiId[nextDapiRequestIndex] = dapiId;
+        currDapiRequestIndex = nextDapiRequestIndex;
         nextDapiRequestIndex++;
     }
 
@@ -81,7 +110,7 @@ contract rrpDapiServer is CustomReducer {
                 }
                 dapiParameters.reduceAddress.call(  // solhint-disable-line
                     abi.encodeWithSelector(dapiParameters.reduceFunctionId, dapiRequestIndex, reducedValue)
-                    );
+                );
             }
         }
     }
