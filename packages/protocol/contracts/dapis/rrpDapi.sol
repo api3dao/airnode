@@ -22,7 +22,6 @@ abstract contract rrpDapi is Reducer {
     
     mapping(uint256 => uint256) private requestIndexToAnswerIdMod;    
     mapping(uint256 => uint256) private answerIdModToRequestIndex;    
-    mapping(uint256 => uint256) private AnswerIdModToAnswerId;    
     mapping(uint256 => int256) private answerIdModToValue;    
 
     constructor
@@ -54,9 +53,12 @@ abstract contract rrpDapi is Reducer {
 
     function getAnswer(uint answerId) internal view returns (int256) {
       require(
-             nextAnswerId - maxAnswersInStorage <= answerId && answerId < nextAnswerId,
+             0 < answerId
+             && (answerId <= maxAnswersInStorage || nextAnswerId - maxAnswersInStorage <= answerId)
+             && answerId < nextAnswerId,
             "Answer doesn't exist."
         );
+        return answerIdModToValue[answerId % maxAnswersInStorage + 1];
     }
 
     function makeRequest() external returns (uint256 answerId){
