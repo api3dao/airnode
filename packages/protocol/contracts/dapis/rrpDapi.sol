@@ -10,13 +10,13 @@ import "./rrpDapiServer.sol";
 //       contract myRrpDapi is rrpDapi, Median {
 //           // Any specific implementation required
 //       }
-abstract contract rrpDapi is Reducer {
+abstract contract RrpDapi is Reducer {
 
     RrpDapiServer public rrpDapiServer;
 
-    uint256 immutable maxAnswersInStorage;
-    uint256 immutable dapiId;
-    uint256 immutable requesterIndex;
+    uint256 public immutable maxAnswersInStorage;
+    uint256 private immutable dapiId;
+    uint256 private immutable requesterIndex;
 
     uint256 public nextAnswerId = 1;
     
@@ -86,7 +86,7 @@ abstract contract rrpDapi is Reducer {
       external
     {
       uint256 answerIdMod = requestIndexToAnswerIdMod[dapiRequestIndex];
-      require(answerIdMod != 0, "dAPI request index doesn't exist.");
+      require(answerIdMod != 0, "request index doesn't exist.");
       answerIdModToValue[answerIdMod] = reducedValue;
     }
 }
