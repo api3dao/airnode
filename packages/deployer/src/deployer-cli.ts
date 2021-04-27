@@ -1,6 +1,7 @@
 import * as yargs from 'yargs';
 import { deploy, removeWithReceipt, remove } from './commands';
-import { version as nodeVersion } from '../node_modules/@airnode/node/package.json';
+// TODO: Get nodeVersion from the package
+const nodeVersion = '0.1.0';
 
 function drawHeader() {
   console.log(
