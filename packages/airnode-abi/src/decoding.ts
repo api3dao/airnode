@@ -59,7 +59,7 @@ export function decode(encodedData: string): DecodedMap {
 
   const decodingTypes = fullParameterTypes.reduce((acc: string[], type) => {
     // Each parameter is expected to have a `bytes32` name
-    return [...acc, 'bytes32', type];
+    return [...acc, 'bytes32' as const, type];
   }, initialDecodedTypes);
 
   // It's important to leave the `encodedData` intact here and not try to trim off the first

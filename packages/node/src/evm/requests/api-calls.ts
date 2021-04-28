@@ -91,7 +91,7 @@ export function updateFulfilledRequests(
   fulfilledRequestIds: string[]
 ): LogsData<ClientRequest<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
-    (acc: UpdatedFulfilledRequests, apiCall) => {
+    (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
         const log = logger.pend('DEBUG', `Request ID:${apiCall.id} (API call) has already been fulfilled`);
 
@@ -106,7 +106,7 @@ export function updateFulfilledRequests(
 
       return { ...acc, requests: [...acc.requests, apiCall] };
     },
-    { logs: [], requests: [] }
+    { logs: [], requests: [] } as UpdatedFulfilledRequests
   );
 
   return [logs, requests];

@@ -12,11 +12,11 @@ export function buildHeader(cookies: Parameters): CookieHeader | object {
 
   const keys = Object.keys(cookies);
 
-  const cookieValues = keys.reduce((values: string[], key) => {
+  const cookieValues = keys.reduce((values, key) => {
     const value = encodeURIComponent(cookies[key]);
     const cookie = `${key}=${value};`;
     return [...values, cookie];
-  }, []);
+  }, [] as string[]);
 
   return { Cookie: cookieValues.join(' ') };
 }
