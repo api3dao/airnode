@@ -3,9 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "noImplicitReturns": true,
-    "outDir": "dist",
-    // Enable at root tsconfig.json once all packages have been fixed
-    "strict": true
+    "outDir": "dist"
   },
   "include": ["./src/**/*"],
   "exclude": [

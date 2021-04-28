@@ -2,9 +2,7 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "./dist",
-    // Enable at root tsconfig.json once all packages have been fixed
-    "strict": true
+    "outDir": "./dist"
   },
   "include": [
     "src/**/*"
