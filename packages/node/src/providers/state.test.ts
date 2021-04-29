@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
-import { ChainConfig, EnvironmentConfig } from 'src/types';
+import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from 'src/types';
 import * as state from './state';
 
 describe('create', () => {
@@ -153,9 +153,9 @@ describe('scrub', () => {
   SCRUB_KEYS.forEach((key) => {
     it(`removes the ${key} key`, () => {
       const newState = fixtures.buildEVMProviderState();
-      expect(newState[key]).not.toEqual(undefined);
+      expect(newState[key as keyof ProviderState<EVMProviderState>]).not.toEqual(undefined);
       const scrubbed = state.scrub(newState);
-      expect(scrubbed[key]).toEqual(undefined);
+      expect(scrubbed[key as keyof ProviderState<EVMProviderState>]).toEqual(undefined);
     });
   });
 });

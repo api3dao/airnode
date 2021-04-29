@@ -1,6 +1,6 @@
 import * as events from './events';
 import * as logger from '../../logger';
-import { ClientRequest, EVMEventLogWithMetadata, LogsData, RequestStatus, Withdrawal } from '../../types';
+import { ClientRequest, EVMEventLogWithMetadata, LogsData, PendingLog, RequestStatus, Withdrawal } from '../../types';
 
 export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
@@ -23,12 +23,17 @@ export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequ
   return request;
 }
 
+export interface UpdatedFulfilledRequests {
+  logs: PendingLog[];
+  requests: ClientRequest<Withdrawal>[];
+}
+
 export function updateFulfilledRequests(
   withdrawals: ClientRequest<Withdrawal>[],
   fulfilledRequestIds: string[]
 ): LogsData<ClientRequest<Withdrawal>[]> {
   const { logs, requests } = withdrawals.reduce(
-    (acc, withdrawal) => {
+    (acc: UpdatedFulfilledRequests, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
         const log = logger.pend('DEBUG', `Request ID:${withdrawal.id} (withdrawal) has already been fulfilled`);
         const fulfilledWithdrawal = { ...withdrawal, status: RequestStatus.Fulfilled };

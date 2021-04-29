@@ -22,7 +22,10 @@ describe('verify', () => {
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.buildApiCall({ templateId: TEMPLATE_ID, status: RequestStatus[status] });
+        const apiCall = fixtures.requests.buildApiCall({
+          templateId: TEMPLATE_ID,
+          status: RequestStatus[status as RequestStatus],
+        });
         const [logs, res] = verification.verify([apiCall], {});
         expect(logs).toEqual([
           {
@@ -88,7 +91,7 @@ describe('verify', () => {
 
     Object.keys(invalidFields).forEach((field) => {
       it(`is invalid if ${field} has been changed`, () => {
-        const invalidTemplate = { ...validTemplate, [field]: invalidFields[field] };
+        const invalidTemplate = { ...validTemplate, [field]: (invalidFields as any)[field] };
         const templatesById = { [TEMPLATE_ID]: invalidTemplate };
         const expectedTemplateId = verification.getExpectedTemplateId(invalidTemplate);
         const [logs, res] = verification.verify([apiCall], templatesById);

@@ -9,6 +9,7 @@ import {
   ClientRequest,
   EVMEventLogWithMetadata,
   LogsData,
+  PendingLog,
   RequestErrorCode,
   RequestStatus,
 } from '../../types';
@@ -80,6 +81,11 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
   return [[], { ...request, parameters }];
 }
 
+export interface UpdatedFulfilledRequests {
+  logs: PendingLog[];
+  requests: ClientRequest<ApiCall>[];
+}
+
 export function updateFulfilledRequests(
   apiCalls: ClientRequest<ApiCall>[],
   fulfilledRequestIds: string[]
@@ -100,7 +106,7 @@ export function updateFulfilledRequests(
 
       return { ...acc, requests: [...acc.requests, apiCall] };
     },
-    { logs: [], requests: [] }
+    { logs: [], requests: [] } as UpdatedFulfilledRequests
   );
 
   return [logs, requests];

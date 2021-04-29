@@ -91,13 +91,13 @@ export async function fetch(
   }
 
   // Requests are made for up to 10 templates at a time
-  const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE);
+  const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use
   const airnodeRrp = new ethers.Contract(fetchOptions.airnodeRrpAddress, AirnodeRrp.ABI, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
-  const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(airnodeRrp, ids));
+  const promises = groupedTemplateIds.map((ids) => fetchTemplateGroup(airnodeRrp, ids));
 
   const templateResponses = await Promise.all(promises);
   const templateResponseLogs = flatMap(templateResponses, (t) => t[0]);

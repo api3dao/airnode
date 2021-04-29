@@ -41,9 +41,11 @@ describe('blockRequestsWithWithdrawals', () => {
   it('does not block API calls linked to non-pending withdrawals', () => {
     const requesterIndex = '123';
     const apiCall = fixtures.requests.buildApiCall({ requesterIndex });
-    const statuses = Object.keys(RequestStatus).filter((status) => RequestStatus[status] !== RequestStatus.Pending);
+    const statuses = Object.keys(RequestStatus).filter(
+      (status) => RequestStatus[status as RequestStatus] !== RequestStatus.Pending
+    );
     const withdrawals = statuses.map((status) => {
-      return fixtures.requests.buildWithdrawal({ status: RequestStatus[status], requesterIndex });
+      return fixtures.requests.buildWithdrawal({ status: RequestStatus[status as RequestStatus], requesterIndex });
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],

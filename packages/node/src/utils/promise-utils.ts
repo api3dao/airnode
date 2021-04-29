@@ -74,7 +74,7 @@ export function retryOperation<T>(
         // Delay the new attempt slightly
         return wait(options?.delay || 50)
           .then(retryOperation.bind(null, retriesLeft - 1, operation, options))
-          .then(resolve)
+          .then((res) => resolve(res as T))
           .catch(reject);
       }
       // Reject (and bubble the result up) if there are no more retries
@@ -87,9 +87,9 @@ export interface ContinuousRetryOptions {
   delay?: number;
 }
 
-export function retryOnTimeout(maxTimeoutMs: number, operation: () => Promise<any>, options?: ContinuousRetryOptions) {
+export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise<T>, options?: ContinuousRetryOptions) {
   const promise = new Promise((resolve, reject) => {
-    function run() {
+    function run(): Promise<void> {
       // If the promise is successful, resolve it and bubble the result up
       return operation()
         .then(resolve)

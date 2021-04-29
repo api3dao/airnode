@@ -2,12 +2,12 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "rootDirs": ["./src", "./artifacts"],
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "rootDirs": ["./src", "./artifacts"]
   },
   "include": [
     "./src/**/*",
-    "./src/**/*.d.ts",
+    "./src/**/*.d.ts"
   ],
   "exclude": [
     "./src/**/*.test.ts"
