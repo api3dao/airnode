@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.2;
+pragma solidity 0.8.4;
 
 import "./reducers/Reducer.sol";
 
@@ -9,6 +9,6 @@ import "./reducers/Reducer.sol";
 //       contract myRrpDapi is rrpDapi, Median {
 //           // Any specific implementation required
 //       }
-abstract contract rrpDapi is Reducer {
+abstract contract RrpDapi is Reducer {
     // TODO: Implement
 }

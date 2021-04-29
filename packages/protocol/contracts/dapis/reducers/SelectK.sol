@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.2;
+pragma solidity 0.8.4;
 
 /// @title A contract for selecting the kth smallest element in an array of uints.
 /// @author Sasa Milic - <sasa@api3.org>

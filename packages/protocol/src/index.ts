@@ -4,8 +4,9 @@ import {
   MockAirnodeRrpClient__factory as MockAirnodeRrpClientFactory,
   AirnodeRrp__factory as AirnodeRrpFactory,
 } from './contracts';
+import AirnodeRrpDeploymentRopsten from '../deployments/ropsten/AirnodeRrp.json';
 
-const AirnodeRrpAddresses: { [chainId: number]: string } = {};
+const AirnodeRrpAddresses: { [chainId: number]: string } = { 3: AirnodeRrpDeploymentRopsten.receipt.contractAddress };
 const mocks = {
   MockAirnodeRrpClientFactory,
 };
