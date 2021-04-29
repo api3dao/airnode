@@ -9,7 +9,6 @@ import { execute } from './utils/action';
 import { validateParameter } from './validators/parameterValidator';
 import { validateCatch } from './validators/catchValidator';
 import { validateTemplate } from './validators/templateValidator';
-import { combinePaths } from './utils/utils';
 
 /**
  * Recursion validating provided specification against template
@@ -25,11 +24,11 @@ import { combinePaths } from './utils/utils';
 export function processSpecs(
   specs: any,
   template: any,
-  paramPath: string,
+  paramPath: string[],
   nonRedundantParams: any,
   roots: Roots,
   templatePath: string,
-  paramPathPrefix = ''
+  paramPathPrefix: string[] = []
 ): Result {
   const messages: Log[] = [];
 
@@ -53,17 +52,17 @@ export function processSpecs(
         break;
 
       case '__regexp':
-        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), roots.specs));
+        messages.push(...validateRegexp(specs, template, [...paramPathPrefix, ...paramPath], roots.specs));
         break;
 
       case '__keyRegexp':
-        messages.push(...validateRegexp(specs, template, combinePaths(paramPathPrefix, paramPath), roots.specs, true));
+        messages.push(...validateRegexp(specs, template, [...paramPathPrefix, ...paramPath], roots.specs, true));
         break;
 
       case '__maxSize':
         if (template[key] < specs.length) {
           messages.push(
-            logger.error(`${combinePaths(paramPathPrefix, paramPath)} must contain ${template[key]} or less items`)
+            logger.error(`${[...paramPathPrefix, ...paramPath].join('.')} must contain ${template[key]} or less items`)
           );
         }
 
@@ -76,13 +75,20 @@ export function processSpecs(
           nonRedundantParams = [];
         }
 
+        if (!paramPath.length) {
+          paramPath.push('[0]');
+        }
+
         // validate each item in specs
         for (let i = 0; i < specs.length; i++) {
           nonRedundantParams.push({});
+
+          paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(/\[[0-9]+\]$/, '') + `[${i}]`;
+
           const result = processSpecs(
             specs[i],
             template[key],
-            `${paramPath}[${i}]`,
+            paramPath,
             nonRedundantParams[i],
             roots,
             templatePath,
@@ -102,7 +108,7 @@ export function processSpecs(
           const result = processSpecs(
             specs[item],
             template[key],
-            `${combinePaths(paramPath, item)}`,
+            [...paramPath, item],
             nonRedundantParams[item],
             roots,
             templatePath,
@@ -165,7 +171,7 @@ export function processSpecs(
   let valid = true;
 
   if (specs === roots.specs) {
-    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, combinePaths(paramPathPrefix, paramPath)));
+    messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, [...paramPathPrefix, ...paramPath]));
     valid = !messages.some((msg) => msg.level === 'error');
   }
 

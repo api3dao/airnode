@@ -16,13 +16,13 @@ import * as logger from '../utils/logger';
 export function validateAny(
   specs: any,
   template: any,
-  paramPath: string,
+  paramPath: string[],
   nonRedundantParams: any,
   roots: Roots,
   templatePath: string
 ): Log[] {
   if (!specs || typeof specs !== 'object') {
-    return [logger.error(`Required conditions not met in ${paramPath}`)];
+    return [logger.error(`Required conditions not met in ${paramPath.join('.')}`)];
   }
 
   if (Array.isArray(specs)) {
@@ -51,7 +51,7 @@ export function validateAny(
       nonRedundantParams[paramIndex] = nonRedundantParamsCopy;
     }
 
-    return [logger.error(`Required conditions not met in ${paramPath}`)];
+    return [logger.error(`Required conditions not met in ${paramPath.join('.')}`)];
   }
 
   for (const paramKey of Object.keys(specs)) {
@@ -84,5 +84,5 @@ export function validateAny(
     nonRedundantParams[paramKey] = nonRedundantParamsCopy;
   }
 
-  return [logger.error(`Required conditions not met in ${paramPath}`)];
+  return [logger.error(`Required conditions not met in ${paramPath.join('.')}`)];
 }

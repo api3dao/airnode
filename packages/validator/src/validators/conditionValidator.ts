@@ -2,7 +2,6 @@ import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Log } from '../types';
-import { combinePaths } from '../utils/utils';
 import { validateCatch } from './catchValidator';
 
 /**
@@ -18,10 +17,10 @@ import { validateCatch } from './catchValidator';
 function validateConditionRegexInKey(
   specs: any,
   condition: any,
-  paramPath: string,
+  paramPath: string[],
   specsRoot: any,
   templatePath: string,
-  paramPathPrefix: string
+  paramPathPrefix: string[]
 ): Log[] {
   let messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
@@ -54,7 +53,7 @@ function validateConditionRegexInKey(
       const result = processSpecs(
         condition['__rootThen'] ? currentSpecs : currentSpecs[thisName],
         template,
-        `${condition['__rootThen'] ? '' : `${currentParamPath}${currentParamPath ? '.' : ''}${thisName}`}`,
+        condition['__rootThen'] ? [] : [...currentParamPath, thisName],
         tmpNonRedundantParams,
         { specs: specsRoot, nonRedundantParams: tmpNonRedundantParams, output: {} },
         templatePath
@@ -63,13 +62,15 @@ function validateConditionRegexInKey(
       if (result.messages.some((msg) => msg.level === 'error')) {
         // validateSpecs ended with errors => correct "then section" is not present in specs
         messages.push(
-          logger.error(`Condition in ${combinePaths(paramPathPrefix, paramPath, thisName)} is not met with ${param}`)
+          logger.error(
+            `Condition in ${[...paramPathPrefix, ...paramPath, thisName].join('.')} is not met with ${param}`
+          )
         );
         messages = validateCatch(
           specs,
           utils.replaceConditionalMatch(param, condition),
           messages,
-          combinePaths(paramPath, thisName),
+          [...paramPath, thisName],
           paramPathPrefix,
           specsRoot
         );
@@ -93,10 +94,10 @@ function validateConditionRegexInKey(
 function validateConditionRegexInValue(
   specs: any,
   condition: any,
-  paramPath: string,
+  paramPath: string[],
   specsRoot: any,
   templatePath: string,
-  paramPathPrefix: string
+  paramPathPrefix: string[]
 ): Log[] {
   let messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
@@ -130,7 +131,7 @@ function validateConditionRegexInValue(
   const result = processSpecs(
     currentSpecs,
     thenCondition,
-    `${currentParamPath}`,
+    currentParamPath,
     tmpNonRedundantParams,
     { specs: specsRoot, nonRedundantParams: tmpNonRedundantParams, output: {} },
     templatePath
@@ -146,107 +147,19 @@ function validateConditionRegexInValue(
 
   messages.push(
     logger.error(
-      `Condition in ${combinePaths(
-        paramPathPrefix,
-        paramPath,
-        paramName === '__this' ? '' : paramName
-      )} is not met with ${paramName === '__this' ? utils.getLastParamName(paramPath) : paramName}`
+      `Condition in ${[...paramPathPrefix, ...paramPath, paramName === '__this' ? '' : paramName].join(
+        '.'
+      )} is not met with ${paramName === '__this' ? paramPath[paramPath.length - 1] : paramName}`
     )
   );
   messages = validateCatch(
     specs,
     utils.replaceConditionalMatch(paramName === '__this' ? specs : specs[paramName], condition),
     messages,
-    utils.combinePaths(paramPath, paramName === '__this' ? '' : paramName),
+    [...paramPath, paramName === '__this' ? '' : paramName],
     paramPathPrefix,
     specsRoot
   );
-
-  return messages;
-}
-
-/**
- * Validates "require" condition in which a certain structure is required to be present in specification
- * @param specs - specification that is being validated
- * @param condition - object containing the template that needs to be present in specification
- * @param paramPath - string of parameters separated by ".", representing path to current specs location
- * @param specsRoot - roots of specs
- * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
- * @returns errors and warnings that occurred in validation of provided specification
- */
-function validateConditionRequires(
-  specs: any,
-  condition: any,
-  paramPath: string,
-  specsRoot: any,
-  paramPathPrefix: string
-): Log[] {
-  const messages: Log[] = [];
-
-  for (let requiredParam of Object.keys(condition['__require'])) {
-    let workingDir = specs;
-    let requiredPath = '';
-    let currentDir = paramPath;
-
-    const thisName = utils.getLastParamName(paramPath);
-    requiredParam = requiredParam.replace(/__this_name/g, thisName);
-
-    if (requiredParam[0] === '/') {
-      requiredParam = requiredParam.slice(1);
-      workingDir = specsRoot;
-      currentDir = '';
-    }
-
-    requiredPath = requiredParam;
-
-    while (requiredPath.length) {
-      const dotIndex = requiredPath.indexOf('.');
-      let paramName = requiredPath;
-
-      if (dotIndex > 0) {
-        paramName = requiredPath.substr(0, dotIndex);
-      }
-
-      currentDir = combinePaths(currentDir, paramName);
-      requiredPath = requiredPath.replace(paramName, '');
-
-      if (requiredPath.startsWith('.')) {
-        requiredPath = requiredPath.replace('.', '');
-      }
-
-      let index = 0;
-      const indexMatches = paramName.match(/(?<=\[)[\d]+(?=])/);
-
-      if (indexMatches && indexMatches.length) {
-        index = parseInt(indexMatches[0]);
-      }
-
-      if (!workingDir[paramName]) {
-        messages.push(logger.error(`Missing parameter ${combinePaths(paramPathPrefix, currentDir, requiredPath)}`));
-
-        break;
-      }
-
-      workingDir = workingDir[paramName];
-
-      if (index) {
-        if (!workingDir[index]) {
-          messages.push(
-            logger.error(
-              `Array out of bounds, attempted to access element on index ${index} in ${combinePaths(
-                paramPathPrefix,
-                currentDir
-              )}`
-            )
-          );
-
-          break;
-        }
-
-        workingDir = workingDir[index];
-      }
-    }
-  }
 
   return messages;
 }
@@ -264,21 +177,12 @@ function validateConditionRequires(
 export function validateCondition(
   specs: any,
   condition: any,
-  paramPath: string,
+  paramPath: string[],
   specsRoot: any,
   templatePath: string,
-  paramPathPrefix: string
+  paramPathPrefix: string[]
 ): Log[] {
   const messages: Log[] = [];
-
-  if (condition['__require']) {
-    // condition is require condition
-    messages.push(...validateConditionRequires(specs, condition, paramPath, specsRoot, paramPathPrefix));
-
-    return validateCatch(specs, condition, messages, paramPath, paramPathPrefix, specsRoot);
-  }
-
-  // condition is if, then condition
   const paramName = Object.keys(condition['__if'])[0];
 
   if (paramName === '__this_name') {

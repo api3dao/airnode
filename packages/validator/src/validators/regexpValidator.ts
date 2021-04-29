@@ -14,7 +14,7 @@ import * as utils from '../utils/utils';
 export function validateRegexp(
   specs: any,
   template: any,
-  paramPath: string,
+  paramPath: string[],
   rootSpecs: any,
   isKeyRegexp = false
 ): Log[] {
@@ -26,7 +26,7 @@ export function validateRegexp(
   if (isKeyRegexp) {
     for (const item of Object.keys(specs)) {
       if (!item.match(new RegExp(template['__keyRegexp']))) {
-        messages.push(logger.error(`Key ${item} in ${utils.combinePaths(paramPath, item)} is formatted incorrectly`));
+        messages.push(logger.error(`Key ${item} in ${[...paramPath, item].join('.')} is formatted incorrectly`));
       }
     }
 
@@ -35,7 +35,7 @@ export function validateRegexp(
 
   if (typeof specs !== 'string' || !specs.match(new RegExp(template['__regexp']))) {
     const level = template['__level'] || 'warning';
-    const message = `${paramPath} is not formatted correctly`;
+    const message = `${paramPath.join('.')} is not formatted correctly`;
 
     messages.push(level === 'error' ? logger.error(message) : logger.warn(message));
   }

@@ -31,7 +31,19 @@
       }
     ],
     "__objectItem": {
-      "__keyRegexp": "^(get|post)$",
+      "__conditions": [
+        {
+          "__if": {
+            "__this_name": "^(?!get$|post$).*$"
+          },
+          "__rootThen": {
+            "{{1}}": {}
+          },
+          "__catch": {
+            "__message": "__fullPath: allowed methods are only \"get\" or \"post\" not \"__match\""
+          }
+        }
+      ],
       "__objectItem": {
         "parameters": {
           "__arrayItem": {

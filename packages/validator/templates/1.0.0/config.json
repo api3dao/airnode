@@ -17,7 +17,7 @@
 												"securitySchemes": {
 													"__any": {
 														"oisTitle": {
-															"__regexp": "^[[/{{0}}.{{1}}.title]]$"
+															"__regexp": "^[['/', '{{0}}', '{{1}}', 'title']]$"
 														},
 														"name": {
 															"__regexp": "^__match$"
@@ -60,7 +60,7 @@
 											"endpoints": {
 												"__any": {
 													"name": {
-														"__regexp": "[[endpointName]]"
+														"__regexp": "[['endpointName']]"
 													}
 												}
 											}
@@ -69,7 +69,7 @@
 								}
 							},
 							"__catch": {
-								"__message": "OIS \"[[oisTitle]]\" must contain endpoint \"[[endpointName]]\", as it is specified in {{0}}.triggers.{{2}}"
+								"__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in {{0}}.triggers.{{2}}"
 							}
 						}
 					]
@@ -188,7 +188,7 @@
 											"apiSpecifications": {
 												"security": {
 													"__any": {
-														"__keyRegexp": "^[[name]]$"
+														"__keyRegexp": "^[['name']]$"
 													}
 												}
 											}
@@ -197,7 +197,7 @@
 								}
 							},
 							"__catch": {
-								"__message": "OIS \"[[oisTitle]]\" must contain security scheme \"[[name]]\", as it is specified in {{0}}.{{1}}.{{2}}"
+								"__message": "OIS \"[['oisTitle']]\" must contain security scheme \"[['name']]\", as it is specified in {{0}}.{{1}}.{{2}}"
 							}
 						}
 					]
@@ -225,21 +225,21 @@
 										"__any": {
 											"providerNames": {
 												"__any": {
-													"__regexp": "^[[name]]$"
+													"__regexp": "^[['name']]$"
 												}
 											},
 											"id": {
-												"__regexp": "^[[chainId]]$"
+												"__regexp": "^[['chainId']]$"
 											},
 											"type": {
-												"__regexp": "^[[chainType]]$"
+												"__regexp": "^[['chainType']]$"
 											}
 										}
 									}
 								}
 							},
 							"__catch": {
-								"__message": "{{0}}.chains must contain entry with provider: \"[[name]]\", id: \"[[chainId]]\" and type: \"[[chainType]]\", as it is specified in {{0}}.{{1}}.{{2}}"
+								"__message": "{{0}}.chains must contain entry with provider: \"[['name']]\", id: \"[['chainId']]\" and type: \"[['chainType']]\", as it is specified in {{0}}.{{1}}.{{2}}"
 							}
 						}
 					]

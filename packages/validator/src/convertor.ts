@@ -59,7 +59,7 @@ export function convertJson(specs: object, template: object, templatePath = ''):
   const result = processSpecs(
     specs,
     template,
-    '',
+    [],
     nonRedundant,
     {
       specs: specs,

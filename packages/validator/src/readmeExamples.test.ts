@@ -1,3 +1,4 @@
+/*
 import { validateJson } from './validator';
 import {
   conditionNotMetMessage,
@@ -792,3 +793,4 @@ describe('readme examples', () => {
     });
   });
 });
+*/

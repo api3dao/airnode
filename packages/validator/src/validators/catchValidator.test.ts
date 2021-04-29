@@ -14,10 +14,10 @@ describe('Catch validator', () => {
       },
     };
 
-    expect(validateCatch({}, template, messages, 'paramPath', 'prefix', {})).toEqual([
+    expect(validateCatch({}, template, messages, ['paramPath'], ['prefix'], {})).toEqual([
       { message: 'Simple message', level: 'error' },
     ]);
-    expect(validateCatch({}, template, [], 'paramPath', 'prefix', {})).toEqual([]);
+    expect(validateCatch({}, template, [], ['paramPath'], ['prefix'], {})).toEqual([]);
   });
 
   it('Specified level', () => {
@@ -28,7 +28,7 @@ describe('Catch validator', () => {
       },
     };
 
-    expect(validateCatch({}, template, messages, 'paramPath', 'prefix', {})).toEqual([
+    expect(validateCatch({}, template, messages, ['paramPath'], ['prefix'], {})).toEqual([
       { message: 'Simple message', level: 'error' },
     ]);
 
@@ -39,7 +39,7 @@ describe('Catch validator', () => {
       },
     };
 
-    expect(validateCatch({}, template, messages, 'paramPath', 'prefix', {})).toEqual([
+    expect(validateCatch({}, template, messages, ['paramPath'], ['prefix'], {})).toEqual([
       { message: 'Simple message', level: 'warning' },
     ]);
   });
@@ -52,7 +52,7 @@ describe('Catch validator', () => {
       },
     };
 
-    expect(validateCatch({}, template, messages, 'paramPath', 'prefix', {})).toEqual([
+    expect(validateCatch({}, template, messages, ['paramPath'], ['prefix'], {})).toEqual([
       { message: 'Message from paramPath in prefix.paramPath', level: 'error' },
     ]);
   });
@@ -65,7 +65,7 @@ describe('Catch validator', () => {
       },
     };
 
-    expect(validateCatch('warning', template, messages, 'paramPath', 'prefix', {})).toEqual([
+    expect(validateCatch('warning', template, messages, ['paramPath'], ['prefix'], {})).toEqual([
       { message: 'Simple warning message', level: 'warning' },
     ]);
   });
@@ -77,7 +77,7 @@ describe('Catch validator', () => {
       },
     };
 
-    expect(validateCatch({}, template, messages, 'param1.array[2].param2', 'prefix', {})).toEqual([
+    expect(validateCatch({}, template, messages, ['param1', 'array[2]', 'param2'], ['prefix'], {})).toEqual([
       { message: '2nd parameter from root is array[2]', level: 'error' },
     ]);
   });
@@ -96,7 +96,7 @@ describe('Catch validator', () => {
         },
       };
 
-      expect(validateCatch(specs, template, messages, 'path', 'prefix', {})).toEqual([
+      expect(validateCatch(specs, template, messages, ['path'], ['prefix'], {})).toEqual([
         { message: 'Value of parameter is: ok', level: 'error' },
       ]);
     });
@@ -118,7 +118,7 @@ describe('Catch validator', () => {
       };
 
       expect(
-        validateCatch(specs['outer']['currentSpecs'], template, messages, 'outer.currentSpecs', 'prefix', specs)
+        validateCatch(specs['outer']['currentSpecs'], template, messages, ['outer', 'currentSpecs'], ['prefix'], specs)
       ).toEqual([{ message: 'Value of parameter is: absolute', level: 'error' }]);
     });
   });
@@ -140,7 +140,7 @@ describe('Catch validator', () => {
     };
 
     expect(
-      validateCatch(specs['outer']['currentSpecs'], template, messages, 'outer.currentSpecs', 'prefix', specs)
+      validateCatch(specs['outer']['currentSpecs'], template, messages, ['outer', 'currentSpecs'], ['prefix'], specs)
     ).toEqual([{ message: 'Value of currentSpecs is: ok', level: 'error' }]);
   });
 });

@@ -2,7 +2,6 @@ import { Roots, Log } from '../types';
 import * as logger from '../utils/logger';
 import fs from 'fs';
 import { processSpecs } from '../processor';
-import { combinePaths } from '../utils/utils';
 
 /**
  * Recursion validating provided specification against template
@@ -16,9 +15,9 @@ import { combinePaths } from '../utils/utils';
 export function validateTemplate(
   specs: any,
   nestedTemplatePath: string,
-  paramPath: string,
+  paramPath: string[],
   templatePath: string,
-  paramPathPrefix = ''
+  paramPathPrefix: string[] = []
 ): Log[] {
   let template;
 
@@ -35,11 +34,11 @@ export function validateTemplate(
   const result = processSpecs(
     specs,
     template,
-    '',
+    [],
     roots.nonRedundantParams,
     roots,
     `${templatePath}${nestedTemplatePath}/`,
-    combinePaths(paramPathPrefix, paramPath)
+    [...paramPathPrefix, ...paramPath]
   );
 
   return result.messages;

@@ -58,7 +58,7 @@ export function validateJson(specs: object, template: object, templatePath = '')
   return processSpecs(
     specs,
     template,
-    '',
+    [],
     nonRedundant,
     {
       specs: specs,

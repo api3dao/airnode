@@ -28,5 +28,5 @@ if (templates[template.toLowerCase()]) {
 if (specs && template) {
   const res = validate(specs, template);
   res.messages.push(...messages);
-  console.log(JSON.stringify(res), null, '\t');
+  console.log(JSON.stringify(res, null, '\t'));
 }

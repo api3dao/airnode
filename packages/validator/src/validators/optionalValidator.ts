@@ -1,7 +1,6 @@
 import * as utils from '../utils/utils';
 import { processSpecs } from '../processor';
 import { Roots, Log } from '../types';
-import { combinePaths } from '../utils/utils';
 
 /**
  * Validates optional parameters in specification
@@ -17,11 +16,11 @@ import { combinePaths } from '../utils/utils';
 export function validateOptional(
   specs: any,
   template: any,
-  paramPath: string,
+  paramPath: string[],
   nonRedundantParams: any,
   roots: Roots,
   templatePath: string,
-  paramPathPrefix: string
+  paramPathPrefix: string[]
 ): Log[] {
   const messages: Log[] = [];
 
@@ -34,7 +33,7 @@ export function validateOptional(
         const result = processSpecs(
           specs[item],
           template[item],
-          combinePaths(paramPath, item),
+          [...paramPath, item],
           nonRedundantParams[item],
           roots,
           templatePath,

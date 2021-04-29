@@ -1,6 +1,5 @@
 import { Log } from '../types';
 import * as utils from '../utils/utils';
-import { combinePaths } from '../utils/utils';
 
 /**
  * If '__catch' was defined in template, any messages should be replaced with message specified inside '__catch'
@@ -16,8 +15,8 @@ export function validateCatch(
   specs: any,
   template: any,
   messages: Log[],
-  paramPath: string,
-  paramPathPrefix: string,
+  paramPath: string[],
+  paramPathPrefix: string[],
   rootSpecs: any
 ): Log[] {
   if (!messages.length || !template['__catch']) {
@@ -31,9 +30,15 @@ export function validateCatch(
     message['__message'] = message['__message'].replace(/__value/g, specs);
   }
 
-  message['__message'] = message['__message'].replace(/__fullPath/g, combinePaths(paramPathPrefix, paramPath));
-  message['__message'] = message['__message'].replace(/__path/g, paramPath);
-  message['__message'] = message['__message'].replace(/__prefix/g, paramPathPrefix ? `${paramPathPrefix}.` : '');
+  let prefixStr = paramPathPrefix.join('.');
+  prefixStr += prefixStr.length ? '.' : '';
+
+  let paramPathStr = paramPath.join('.');
+  paramPathStr += paramPathStr.length ? '.' : '';
+
+  message['__message'] = message['__message'].replace(/__fullPath/g, prefixStr + paramPathStr);
+  message['__message'] = message['__message'].replace(/__path/g, paramPathStr);
+  message['__message'] = message['__message'].replace(/__prefix/g, prefixStr);
 
   return [{ message: message['__message'], level: message['__level'] ? message['__level'] : 'error' }];
 }

@@ -60,7 +60,7 @@
                                 "__regexp": "^__match$"
                               },
                               "in": {
-                                "__regexp": "^[[in]]$"
+                                "__regexp": "^[['in']]$"
                               }
                             }
                           }
@@ -93,13 +93,13 @@
               "apiSpecifications": {
                 "paths": {
                   "__match": {
-                    "[[method]]": {}
+                    "[['method']]": {}
                   }
                 }
               }
             },
             "__catch": {
-              "__message": "Expected \"__prefixapiSpecifications.paths.__match.[[method]]\" to exist as path \"__match\" with method \"[[method]]\" is defined in __fullPath"
+              "__message": "Expected \"__prefixapiSpecifications.paths.__match.[['method']]\" to exist as path \"__match\" with method \"[['method']]\" is defined in __fullPath"
             }
           }
         ],
@@ -117,7 +117,7 @@
                 "__rootThen": {
                   "apiSpecifications": {
                     "paths": {
-                      "[[/{{0}}.operation.path]]": {
+                      "[['/', '{{0}}', 'operation', 'path']]": {
                         "__any": {
                           "parameters": {
                             "__any": {
@@ -125,7 +125,7 @@
                                 "__regexp": "^__match$"
                               },
                               "in": {
-                                "__regexp": "^[[in]]$"
+                                "__regexp": "^[['in']]$"
                               }
                             }
                           }
@@ -154,7 +154,7 @@
                 "__rootThen": {
                   "apiSpecifications": {
                     "paths": {
-                      "[[/{{0}}.operation.path]]": {
+                      "[['/', '{{0}}', 'operation', 'path']]": {
                         "__any": {
                           "parameters": {
                             "__any": {
@@ -162,7 +162,7 @@
                                 "__regexp": "^__match$"
                               },
                               "in": {
-                                "__regexp": "^[[in]]$"
+                                "__regexp": "^[['in']]$"
                               }
                             }
                           }

@@ -2,7 +2,6 @@ import { Log, Roots } from '../types';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { processSpecs } from '../processor';
-import { combinePaths } from '../utils/utils';
 
 /**
  * Validates parameter from template, that is not a validator keyword
@@ -20,11 +19,11 @@ export function validateParameter(
   param: string,
   specs: any,
   template: any,
-  paramPath: string,
+  paramPath: string[],
   nonRedundantParams: any,
   roots: Roots,
   templatePath = '',
-  paramPathPrefix = ''
+  paramPathPrefix: string[] = []
 ): Log[] {
   const arrayIndex = param.match(/\[([0-9]+)\]$/);
 
@@ -33,7 +32,7 @@ export function validateParameter(
     const processedParam = param.replace(arrayIndex[0], '');
 
     if (processedParam.length && !specs[processedParam]) {
-      return [logger.error(`Missing parameter ${combinePaths(paramPathPrefix, paramPath, processedParam)}`)];
+      return [logger.error(`Missing parameter ${[...paramPathPrefix, ...paramPath, processedParam].join('.')}`)];
     }
 
     const index = parseInt(arrayIndex[1]);
@@ -52,13 +51,17 @@ export function validateParameter(
 
     if (!Array.isArray(currentSpecs)) {
       return [
-        logger.error(`Type mismatch: parameter ${combinePaths(paramPathPrefix, paramPath)} is expected to be an array`),
+        logger.error(
+          `Type mismatch: parameter ${[...paramPathPrefix, ...paramPath].join('.')} is expected to be an array`
+        ),
       ];
     }
 
     if (index >= currentSpecs.length) {
       return [
-        logger.error(`Missing parameter ${combinePaths(paramPathPrefix, paramPath, processedParam, `[${index}]`)}`),
+        logger.error(
+          `Missing parameter ${[...paramPathPrefix, ...paramPath, `${processedParam}[${index}]`].join('.')}`
+        ),
       ];
     }
 
@@ -69,7 +72,7 @@ export function validateParameter(
     return processSpecs(
       currentSpecs[index],
       template[param],
-      combinePaths(paramPath, processedParam, `[${index}]`),
+      [...paramPath, `${processedParam}[${index}]`],
       nonRedundantParams[index],
       roots,
       templatePath,
@@ -78,7 +81,7 @@ export function validateParameter(
   }
 
   if (!specs[param]) {
-    return [logger.error(`Missing parameter ${combinePaths(paramPathPrefix, paramPath, param)}`)];
+    return [logger.error(`Missing parameter ${[...paramPathPrefix, ...paramPath, param].join('.')}`)];
   }
 
   nonRedundantParams[param] = utils.getEmptyNonRedundantParam(param, template, nonRedundantParams, specs[param]);
@@ -90,7 +93,7 @@ export function validateParameter(
   return processSpecs(
     specs[param],
     template[param],
-    combinePaths(paramPath, param),
+    [...paramPath, param],
     nonRedundantParams[param],
     roots,
     templatePath,

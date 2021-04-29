@@ -2,21 +2,6 @@ import * as logger from './logger';
 import { Log } from '../types';
 
 /**
- * Retrieves name of the last parameter in provided path
- * @param paramPath - string of parameters separated by ".", representing path to current specs location
- * @returns last parameter in paramPath
- */
-export function getLastParamName(paramPath: string): string {
-  const lastDotIndex = paramPath.lastIndexOf('.');
-
-  if (lastDotIndex >= 0) {
-    return paramPath.slice(lastDotIndex + 1);
-  }
-
-  return paramPath;
-}
-
-/**
  * Replaces all "__match" instances in provided object and all it's children, except children of "__conditions"
  * @param match - string that "__match" instances will be replaced with
  * @param template - object in which "__match" instances will be replaced in
@@ -24,7 +9,7 @@ export function getLastParamName(paramPath: string): string {
  */
 export function replaceConditionalMatch(match: string, template: any): any {
   const substitute = (toReplace: string) => {
-    return toReplace.replace(/__match/g, match);
+    return toReplace.replace(/__match/g, match.replace(/[\.\\\[\]\(\)]/g, '$&'));
   };
 
   return recursiveSubstitute(template, substitute, ['__conditions']);
@@ -38,24 +23,32 @@ export function replaceConditionalMatch(match: string, template: any): any {
  */
 export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
   const substitute = (toReplace: string) => {
-    const matches = toReplace.match(/(?<=\[\[)((?!\[\[.*\]\]).)+(?=\]\])/g);
+    const matches = toReplace.match(/(?<=\[)\[.+?\](?=\])/g);
 
     if (!matches) {
       return toReplace;
     }
 
-    for (let param of matches) {
+    for (const pathStr of matches) {
+      let pathArr;
+
+      try {
+        pathArr = JSON.parse(pathStr.replace(/'/g, '"')) as string[];
+      } catch {
+        continue;
+      }
+
       let currentSpecs = specs;
 
-      if (param.startsWith('/')) {
-        param = param.replace('/', '');
+      if (pathArr[0] === '/') {
+        pathArr = pathArr.slice(1);
         currentSpecs = rootSpecs;
       }
 
-      const value = getSpecsFromPath(param, currentSpecs);
+      const value = getSpecsFromPath(pathArr, currentSpecs);
 
       if (value) {
-        toReplace = toReplace.replace(`[[${currentSpecs === rootSpecs ? '/' : ''}${param}]]`, value);
+        toReplace = toReplace.replace(`[${pathStr}]`, value);
       }
     }
 
@@ -70,13 +63,11 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
  * @param specs - parameter indices in this specification will be replaced
  * @param paramPath - path that will be used to replace "{{index}}" with appropriate parameter names
  */
-export function replaceParamIndexWithName(specs: any, paramPath: string): any {
+export function replaceParamIndexWithName(specs: any, paramPath: string[]): any {
   const substitute = (toReplace: string) => {
-    const parsedPath = paramPath.split('.');
-
-    for (const match of toReplace.match(/\{\{([0-9]+)\}\}/g) || []) {
+    for (const match of toReplace.match(/\{\{([0-9]+?)\}\}/g) || []) {
       const index = parseInt(match.match('[0-9]+')![0]);
-      toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), parsedPath[index]);
+      toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), paramPath[index]);
     }
 
     return toReplace;
@@ -127,7 +118,7 @@ export function recursiveSubstitute(
  * @param paramPath - in case an extra parameter is present, paramPath will be added in front of extra parameter in message
  * @returns validator messages of all extra parameters
  */
-export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string): Log[] {
+export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string[]): Log[] {
   if (typeof specs !== 'object') {
     return [];
   }
@@ -137,7 +128,8 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
 
     for (let i = 0; i < specs.length; i++) {
       if (nonRedundant[i] !== undefined) {
-        messages.push(...warnExtraFields(nonRedundant[i], specs[i], `${paramPath}[${i}]`));
+        paramPath[paramPath.length - 1] += `[${i}]`;
+        messages.push(...warnExtraFields(nonRedundant[i], specs[i], paramPath));
       }
     }
 
@@ -150,10 +142,10 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
     }
 
     if (nonRedundant[key] !== undefined) {
-      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], combinePaths(paramPath, key))];
+      return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], [...paramPath, key])];
     }
 
-    return [...acc, logger.warn(`Extra field: ${combinePaths(paramPath, key)}`)];
+    return [...acc, logger.warn(`Extra field: ${paramPath.join('.')}.${key}`)];
   }, []);
 }
 
@@ -188,7 +180,7 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
  * @param value - value that will be inserted
  */
 export function insertValue(paramPath: string, spec: any, value: any) {
-  let param = paramPath.split('.')[0];
+  let param = paramPath[0];
 
   if (param === '') {
     for (const key of Object.keys(value)) {
@@ -199,7 +191,7 @@ export function insertValue(paramPath: string, spec: any, value: any) {
   }
 
   if (param === '__all') {
-    paramPath = paramPath.replace('__all', '').replace('.', '');
+    paramPath = paramPath.slice(1);
 
     if (Array.isArray(spec)) {
       spec.forEach((item) => {
@@ -263,7 +255,7 @@ export function insertValue(paramPath: string, spec: any, value: any) {
 
   spec = spec[param];
 
-  insertValue(paramPath.replace(`${param}`, '').replace('.', ''), spec, value);
+  insertValue(paramPath.slice(1), spec, value);
 }
 
 /**
@@ -273,8 +265,8 @@ export function insertValue(paramPath: string, spec: any, value: any) {
  * @param insertPath - won't return null if paramPath is not in the specs, but insert all missing parameters into specs
  * @returns object located on paramPath in specs or null if object does not exists in specs
  */
-export function getSpecsFromPath(paramPath: string, specs: object, insertPath = false) {
-  let paramName = paramPath.split('.')[0];
+export function getSpecsFromPath(paramPath: string[], specs: object, insertPath = false) {
+  let paramName = paramPath[0];
 
   const indexMatches = paramName.match(/(?<=\[)[0-9]+(?=\])/);
 
@@ -282,7 +274,7 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
     paramName = paramName.replace(`[${indexMatches[0]}]`, '');
   }
 
-  const rootIsArray = !paramName.length && indexMatches && paramPath.split('.')[0] === `[${indexMatches[0]}]`;
+  const rootIsArray = !paramName.length && indexMatches && paramPath[0] === `[${indexMatches[0]}]`;
 
   if (!rootIsArray) {
     if (!(paramName in specs)) {
@@ -304,36 +296,11 @@ export function getSpecsFromPath(paramPath: string, specs: object, insertPath = 
     specs = specs[parseInt(indexMatches[0])];
   }
 
-  paramPath = paramPath.replace(`${paramName}${indexMatches ? `[${indexMatches[0]}]` : ''}`, '').replace('.', '');
+  paramPath = paramPath.slice(1);
 
   if (!paramPath.length) {
     return specs;
   }
 
   return getSpecsFromPath(paramPath, specs, insertPath);
-}
-
-/**
- * Combines provided strings into a valid path
- * @param path - parameter paths, which will be combined
- */
-export function combinePaths(...path: string[]): string {
-  let acc = '';
-  let shouldSeparate = false;
-
-  for (let i = 0; i < path.length; i++) {
-    const current = path[i];
-
-    if (current.length) {
-      if (shouldSeparate && !current.match(/^\[[0-9]+\]/)) {
-        acc += '.';
-      }
-
-      shouldSeparate = true;
-    }
-
-    acc += path[i];
-  }
-
-  return acc;
 }

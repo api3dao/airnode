@@ -1,33 +1,33 @@
 import { Log } from '../types';
 
-export function formattingMessage(paramPath, error = false): Log {
-  return { level: error ? 'error' : 'warning', message: `${paramPath} is not formatted correctly` };
+export function formattingMessage(paramPath: string[], error = false): Log {
+  return { level: error ? 'error' : 'warning', message: `${paramPath.join('.')} is not formatted correctly` };
 }
 
-export function keyFormattingMessage(key, paramPath): Log {
-  return { level: 'error', message: `Key ${key} in ${paramPath} is formatted incorrectly` };
+export function keyFormattingMessage(key: string, paramPath: string[]): Log {
+  return { level: 'error', message: `Key ${key} in ${paramPath.join('.')} is formatted incorrectly` };
 }
 
-export function sizeExceededMessage(paramPath, maxSize): Log {
-  return { level: 'error', message: `${paramPath} must contain ${maxSize} or less items` };
+export function sizeExceededMessage(paramPath: string[], maxSize: number): Log {
+  return { level: 'error', message: `${paramPath.join('.')} must contain ${maxSize} or less items` };
 }
 
-export function missingParamMessage(param): Log {
-  return { level: 'error', message: `Missing parameter ${param}` };
+export function missingParamMessage(param: string[]): Log {
+  return { level: 'error', message: `Missing parameter ${param.join('.')}` };
 }
 
-export function extraFieldMessage(param): Log {
-  return { level: 'warning', message: `Extra field: ${param}` };
+export function extraFieldMessage(param: string[]): Log {
+  return { level: 'warning', message: `Extra field: ${param.join('.')}` };
 }
 
-export function conditionNotMetMessage(paramPath, param): Log {
-  return { level: 'error', message: `Condition in ${paramPath} is not met with ${param}` };
+export function conditionNotMetMessage(paramPath: string[], param: string): Log {
+  return { level: 'error', message: `Condition in ${paramPath.join('.')} is not met with ${param}` };
 }
 
-export function requiredConditionNotMetMessage(paramPath): Log {
-  return { level: 'error', message: `Required conditions not met in ${paramPath}` };
+export function requiredConditionNotMetMessage(paramPath: string[]): Log {
+  return { level: 'error', message: `Required conditions not met in ${paramPath.join('.')}` };
 }
 
-export function invalidConversionMessage(from, to): Log {
+export function invalidConversionMessage(from: string, to: string): Log {
   return { level: 'error', message: `Conversion from ${from} to ${to} is not valid conversion` };
 }
