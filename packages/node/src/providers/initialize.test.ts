@@ -1,4 +1,4 @@
-import { mockEthers } from '../test-utils';
+import { mockEthers } from '../../test/utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
 

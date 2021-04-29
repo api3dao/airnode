@@ -1,4 +1,4 @@
-import { mockEthers } from 'src/test-utils/test-utils';
+import { mockEthers } from 'test/utils/utils';
 const getTemplateMock = jest.fn();
 const getTemplatesMock = jest.fn();
 mockEthers({ airnodeRrpMocks: { getTemplate: getTemplateMock, getTemplates: getTemplatesMock } });

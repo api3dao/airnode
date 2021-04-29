@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test-utils';
+import { mockEthers } from '../../../test/utils';
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const staticFulfillMock = jest.fn();

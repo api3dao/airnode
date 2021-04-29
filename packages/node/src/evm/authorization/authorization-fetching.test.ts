@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test-utils';
+import { mockEthers } from '../../../test/utils';
 const checkAuthorizationStatusMock = jest.fn();
 const checkAuthorizationStatusesMock = jest.fn();
 mockEthers({

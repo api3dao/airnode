@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test-utils';
+import { mockEthers } from '../../../test/utils';
 const parseLogMock = jest.fn();
 const original = jest.requireActual('ethers');
 mockEthers({
