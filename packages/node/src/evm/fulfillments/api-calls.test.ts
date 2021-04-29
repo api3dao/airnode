@@ -29,9 +29,12 @@ describe('submitApiCall', () => {
   describe('Fulfilled API calls', () => {
     it('does nothing for API call requests that have already been fulfilled', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
       const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus.Fulfilled });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -40,18 +43,21 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).not.toHaveBeenCalled();
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(staticFulfillMock).not.toHaveBeenCalled();
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
   });
 
   describe('Blocked API calls', () => {
     it('does not action blocked requests', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
       const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus.Blocked });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'INFO',
@@ -60,18 +66,21 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).not.toHaveBeenCalled();
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(staticFulfillMock).not.toHaveBeenCalled();
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
   });
 
   describe('Pending API calls', () => {
     it('does nothing for API call requests that do not have a nonce', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
       const apiCall = fixtures.requests.buildApiCall({ nonce: undefined });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'ERROR',
@@ -80,27 +89,30 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).not.toHaveBeenCalled();
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(staticFulfillMock).not.toHaveBeenCalled();
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
 
     it('successfully tests and submits a fulfill transaction for pending requests', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
-      (contract.fulfill as any).mockResolvedValueOnce({ hash: '0xtransactionId' });
+      staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+      fulfillMock.mockResolvedValueOnce({ hash: '0xtransactionId' });
 
       const apiCall = fixtures.requests.buildApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         { level: 'INFO', message: `Submitting API call fulfillment with status code:0 for Request:${apiCall.id}...` },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xtransactionId' });
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -109,8 +121,8 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.fulfill).toHaveBeenCalledWith(
+      expect(fulfillMock).toHaveBeenCalledTimes(1);
+      expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -119,18 +131,21 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
 
     it('returns an error if the fulfill transaction for pending requests fails', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
-      (contract.fulfill as any).mockRejectedValueOnce(new Error('Server did not respond'));
-      (contract.fulfill as any).mockRejectedValueOnce(new Error('Server did not respond'));
+      staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+      (fulfillMock as any).mockRejectedValueOnce(new Error('Server did not respond'));
+      (fulfillMock as any).mockRejectedValueOnce(new Error('Server did not respond'));
 
       const apiCall = fixtures.requests.buildApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         { level: 'INFO', message: `Submitting API call fulfillment with status code:0 for Request:${apiCall.id}...` },
@@ -142,8 +157,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(new Error('Server did not respond'));
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -152,8 +167,8 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).toHaveBeenCalledTimes(2);
-      expect(contract.fulfill).toHaveBeenCalledWith(
+      expect(fulfillMock).toHaveBeenCalledTimes(2);
+      expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -162,24 +177,27 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
 
     it('submits a fail transaction if the fulfill call would revert', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: false });
-      (contract.fail as jest.Mock).mockResolvedValueOnce({ hash: '0xfailtransaction' });
+      staticFulfillMock.mockResolvedValueOnce({ callSuccess: false });
+      (failMock as jest.Mock).mockResolvedValueOnce({ hash: '0xfailtransaction' });
       const apiCall = fixtures.requests.buildApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         { level: 'INFO', message: `Submitting API call fail for Request:${apiCall.id}...` },
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xfailtransaction' });
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -188,9 +206,9 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).toHaveBeenCalledTimes(1);
-      expect(contract.fail).toHaveBeenCalledWith(
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).toHaveBeenCalledTimes(1);
+      expect(failMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         apiCall.fulfillAddress,
@@ -201,10 +219,13 @@ describe('submitApiCall', () => {
 
     it('does nothing if the fulfill test returns nothing', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce(null);
+      staticFulfillMock.mockResolvedValueOnce(null);
       const apiCall = fixtures.requests.buildApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         {
@@ -214,8 +235,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -224,19 +245,22 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
 
     it('returns an error if everything fails', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
-      (contract.callStatic.fulfill as jest.Mock).mockRejectedValueOnce(new Error('Server did not respond'));
-      (contract.fail as any).mockRejectedValueOnce(new Error('Server still says no'));
-      (contract.fail as any).mockRejectedValueOnce(new Error('Server still says no'));
+      staticFulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
+      staticFulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
+      (failMock as any).mockRejectedValueOnce(new Error('Server still says no'));
+      (failMock as any).mockRejectedValueOnce(new Error('Server still says no'));
       const apiCall = fixtures.requests.buildApiCall({ responseValue: '0xresponse', nonce: 5 });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         { level: 'DEBUG', message: `Attempting to fulfill API call with status code:0 for Request:${apiCall.id}...` },
         {
@@ -253,8 +277,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(new Error('Server still says no'));
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(2);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(2);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from('0'),
@@ -263,9 +287,9 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).toHaveBeenCalledTimes(2);
-      expect(contract.fail).toHaveBeenCalledWith(
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).toHaveBeenCalledTimes(2);
+      expect(failMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         apiCall.fulfillAddress,
@@ -278,15 +302,18 @@ describe('submitApiCall', () => {
   describe('Errored API calls', () => {
     it('forwards the error code for errored requests', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
-      (contract.fulfill as any).mockResolvedValueOnce({ hash: '0xtransactionId' });
+      staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+      (fulfillMock as any).mockResolvedValueOnce({ hash: '0xtransactionId' });
       const apiCall = fixtures.requests.buildApiCall({
         errorCode: RequestErrorCode.ApiCallFailed,
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -299,8 +326,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xtransactionId' });
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
@@ -309,8 +336,8 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.fulfill).toHaveBeenCalledWith(
+      expect(fulfillMock).toHaveBeenCalledTimes(1);
+      expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
@@ -319,20 +346,23 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
 
     it('submits a fail transaction if the error transaction would revert', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: false });
-      (contract.fail as any).mockResolvedValueOnce({ hash: '0xtransactionId' });
+      staticFulfillMock.mockResolvedValueOnce({ callSuccess: false });
+      (failMock as any).mockResolvedValueOnce({ hash: '0xtransactionId' });
       const apiCall = fixtures.requests.buildApiCall({
         errorCode: RequestErrorCode.ApiCallFailed,
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -342,8 +372,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual({ hash: '0xtransactionId' });
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
@@ -352,9 +382,9 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).toHaveBeenCalledTimes(1);
-      expect(contract.fail).toHaveBeenCalledWith(
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).toHaveBeenCalledTimes(1);
+      expect(failMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         apiCall.fulfillAddress,
@@ -365,16 +395,19 @@ describe('submitApiCall', () => {
 
     it('returns an error if the error transaction fails', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
-      (contract.fulfill as any).mockRejectedValueOnce(new Error('Server did not respond'));
-      (contract.fulfill as any).mockRejectedValueOnce(new Error('Server did not respond'));
+      staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+      (fulfillMock as any).mockRejectedValueOnce(new Error('Server did not respond'));
+      (fulfillMock as any).mockRejectedValueOnce(new Error('Server did not respond'));
       const apiCall = fixtures.requests.buildApiCall({
         errorCode: RequestErrorCode.ApiCallFailed,
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -392,8 +425,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(new Error('Server did not respond'));
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
@@ -402,8 +435,8 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).toHaveBeenCalledTimes(2);
-      expect(contract.fulfill).toHaveBeenCalledWith(
+      expect(fulfillMock).toHaveBeenCalledTimes(2);
+      expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
@@ -412,19 +445,22 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
 
     it('does nothing if the error test returns nothing', async () => {
       const provider = new ethers.providers.JsonRpcProvider();
-      const contract = createAirnodeRrpFake();
-      (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce(null);
+      staticFulfillMock.mockResolvedValueOnce(null);
       const apiCall = fixtures.requests.buildApiCall({
         errorCode: RequestErrorCode.ApiCallFailed,
         status: RequestStatus.Errored,
         nonce: 5,
       });
-      const [logs, err, data] = await apiCalls.submitApiCall(contract, apiCall, { gasPrice, masterHDNode, provider });
+      const [logs, err, data] = await apiCalls.submitApiCall(createAirnodeRrpFake(), apiCall, {
+        gasPrice,
+        masterHDNode,
+        provider,
+      });
       expect(logs).toEqual([
         {
           level: 'DEBUG',
@@ -437,8 +473,8 @@ describe('submitApiCall', () => {
       ]);
       expect(err).toEqual(null);
       expect(data).toEqual(null);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledTimes(1);
-      expect(contract.callStatic.fulfill).toHaveBeenCalledWith(
+      expect(staticFulfillMock).toHaveBeenCalledTimes(1);
+      expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
         apiCall.airnodeId,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
@@ -447,8 +483,8 @@ describe('submitApiCall', () => {
         apiCall.fulfillFunctionId,
         txOpts
       );
-      expect(contract.fulfill).not.toHaveBeenCalled();
-      expect(contract.fail).not.toHaveBeenCalled();
+      expect(fulfillMock).not.toHaveBeenCalled();
+      expect(failMock).not.toHaveBeenCalled();
     });
   });
 });
