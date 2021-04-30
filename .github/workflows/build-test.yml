@@ -17,7 +17,7 @@ jobs:
       uses: gaurav-nelson/github-action-markdown-link-check@v1
     - name: Slack Notification
       uses: lazy-actions/slatify@master
-      if: failure() && ${{ github.repository_owner == 'api3dao' }}
+      if: ${{ failure() && github.repository_owner == 'api3dao' }}
       with:
         channel: '#technical-notifications'
         commit: true
@@ -45,6 +45,16 @@ jobs:
           cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json
       - name: Build
         run: yarn run build
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - Build'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
       - uses: actions/cache@v2
         id: cache-build
         with:
@@ -68,7 +78,7 @@ jobs:
       - run: yarn run test:adapter
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: failure() && ${{ github.repository_owner == 'api3dao' }}
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -94,7 +104,7 @@ jobs:
       - run: yarn run test:airnode-abi
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: failure() && ${{ github.repository_owner == 'api3dao' }}
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -120,7 +130,7 @@ jobs:
       - run: yarn run test:node
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: failure() && ${{ github.repository_owner == 'api3dao' }}
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -146,7 +156,7 @@ jobs:
       - run: yarn run test:protocol
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: failure() && ${{ github.repository_owner == 'api3dao' }}
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -181,7 +191,7 @@ jobs:
       - run: yarn run test:e2e
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: failure() && ${{ github.repository_owner == 'api3dao' }}
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -199,7 +209,7 @@ jobs:
       - run: exit 0
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: always() && ${{ github.repository_owner == 'api3dao' }}
+        if: ${{ always() && github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
