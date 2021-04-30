@@ -68,7 +68,7 @@ jobs:
 
     - name: Slack Notification
       uses: lazy-actions/slatify@master
-      if: failure()
+      if: failure() && ${{ github.repository_owner == 'api3dao' }}
       with:
         channel: '#technical-notifications'
         commit: true
