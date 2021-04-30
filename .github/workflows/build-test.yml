@@ -16,7 +16,7 @@ jobs:
     - name: Check hyperlinks
       uses: gaurav-nelson/github-action-markdown-link-check@v1
     - name: Slack Notification
-      uses: homoluctus/slatify@master
+      uses: lazy-actions/slatify@master
       if: failure()
       with:
         channel: '#technical-notifications'
@@ -67,7 +67,7 @@ jobs:
           node-version: '12'
       - run: yarn run test:adapter
       - name: Slack Notification
-        uses: homoluctus/slatify@master
+        uses: lazy-actions/slatify@master
         if: failure()
         with:
           channel: '#technical-notifications'
@@ -93,7 +93,7 @@ jobs:
           node-version: '12'
       - run: yarn run test:airnode-abi
       - name: Slack Notification
-        uses: homoluctus/slatify@master
+        uses: lazy-actions/slatify@master
         if: failure()
         with:
           channel: '#technical-notifications'
@@ -119,7 +119,7 @@ jobs:
           node-version: '12'
       - run: yarn run test:node
       - name: Slack Notification
-        uses: homoluctus/slatify@master
+        uses: lazy-actions/slatify@master
         if: failure()
         with:
           channel: '#technical-notifications'
@@ -145,7 +145,7 @@ jobs:
           node-version: '12'
       - run: yarn run test:protocol
       - name: Slack Notification
-        uses: homoluctus/slatify@master
+        uses: lazy-actions/slatify@master
         if: failure()
         with:
           channel: '#technical-notifications'
@@ -180,7 +180,7 @@ jobs:
         run: yarn run dev:background
       - run: yarn run test:e2e
       - name: Slack Notification
-        uses: homoluctus/slatify@master
+        uses: lazy-actions/slatify@master
         if: failure()
         with:
           channel: '#technical-notifications'
@@ -198,7 +198,7 @@ jobs:
     steps:
       - run: exit 0
       - name: Slack Notification
-        uses: homoluctus/slatify@master
+        uses: lazy-actions/slatify@master
         if: always()
         with:
           channel: '#technical-notifications'

@@ -67,7 +67,7 @@ jobs:
       uses: github/codeql-action/analyze@v1
 
     - name: Slack Notification
-      uses: homoluctus/slatify@master
+      uses: lazy-actions/slatify@master
       if: failure()
       with:
         channel: '#technical-notifications'
