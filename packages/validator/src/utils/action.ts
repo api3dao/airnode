@@ -3,10 +3,18 @@ import { insertValue, replaceParamIndexWithName } from './utils';
 
 export function execute(specs: any, template: any, currentPath: string[], roots: Roots) {
   for (const action of template) {
+    let targetPath;
+
+    try {
+      targetPath = JSON.parse((action['__insert'] || action['__copy'])['__target'].replace(/'/g, '"')) as string[];
+    } catch {
+      continue;
+    }
+
     switch (Object.keys(action)[0]) {
       case '__insert':
         insertValue(
-          replaceParamIndexWithName(action['__insert'], currentPath)['__target'],
+          replaceParamIndexWithName(targetPath, currentPath),
           roots.output,
           typeof action['__insert']['__value'] === 'string'
             ? replaceParamIndexWithName(action['__insert'], currentPath)['__value']
@@ -15,7 +23,7 @@ export function execute(specs: any, template: any, currentPath: string[], roots:
         break;
 
       case '__copy':
-        insertValue(replaceParamIndexWithName(action['__copy'], currentPath)['__target'], roots.output, specs);
+        insertValue(replaceParamIndexWithName(targetPath, currentPath), roots.output, specs);
         break;
     }
   }

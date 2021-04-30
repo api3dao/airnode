@@ -179,7 +179,7 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
  * @param spec - specification that will be modified
  * @param value - value that will be inserted
  */
-export function insertValue(paramPath: string, spec: any, value: any) {
+export function insertValue(paramPath: string[], spec: any, value: any) {
   let param = paramPath[0];
 
   if (param === '') {
@@ -239,11 +239,11 @@ export function insertValue(paramPath: string, spec: any, value: any) {
 
     spec = spec[index];
 
-    insertValue(paramPath.replace(paramPath.split('.')[0], '').replace('.', ''), spec, value);
+    insertValue(paramPath.slice(1), spec, value);
     return;
   }
 
-  if (paramPath.endsWith(param)) {
+  if (paramPath[paramPath.length - 1] === param) {
     spec[param] = JSON.parse(JSON.stringify(value));
 
     return;
