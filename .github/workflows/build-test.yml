@@ -16,8 +16,8 @@ jobs:
     - name: Check hyperlinks
       uses: gaurav-nelson/github-action-markdown-link-check@v1
     - name: Slack Notification
-      uses: homoluctus/slatify@master
-      if: failure()
+      uses: lazy-actions/slatify@master
+      if: failure() && ${{ github.repository_owner == 'api3dao' }}
       with:
         channel: '#technical-notifications'
         commit: true
@@ -67,8 +67,8 @@ jobs:
           node-version: '12'
       - run: yarn run test:adapter
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: failure() && ${{ github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -93,8 +93,8 @@ jobs:
           node-version: '12'
       - run: yarn run test:airnode-abi
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: failure() && ${{ github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -119,8 +119,8 @@ jobs:
           node-version: '12'
       - run: yarn run test:node
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: failure() && ${{ github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -145,8 +145,8 @@ jobs:
           node-version: '12'
       - run: yarn run test:protocol
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: failure() && ${{ github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -180,8 +180,8 @@ jobs:
         run: yarn run dev:background
       - run: yarn run test:e2e
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: failure() && ${{ github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -198,8 +198,8 @@ jobs:
     steps:
       - run: exit 0
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: always()
+        uses: lazy-actions/slatify@master
+        if: always() && ${{ github.repository_owner == 'api3dao' }}
         with:
           channel: '#technical-notifications'
           commit: true
