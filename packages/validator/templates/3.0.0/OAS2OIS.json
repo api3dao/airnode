@@ -2,37 +2,37 @@
 	"__actions": [
 		{
 			"__insert": {
-				"__target": "oisFormat",
+				"__target": "[ 'oisFormat' ]",
 				"__value": "1.0.0"
 			}
 		},
 		{
 			"__insert": {
-				"__target": "apiSpecifications.servers",
+				"__target": "[ 'apiSpecifications', 'servers' ]",
 				"__value": []
 			}
 		},
 		{
 			"__insert": {
-				"__target": "endpoints",
+				"__target": "[ 'endpoints' ]",
 				"__value": []
 			}
 		},
 		{
 			"__insert": {
-				"__target": "apiSpecifications.security",
+				"__target": "[ 'apiSpecifications', 'security' ]",
 				"__value": {}
 			}
 		},
 		{
 			"__insert": {
-				"__target": "apiSpecifications.components.securitySchemes",
+				"__target": "[ 'apiSpecifications', 'components', 'securitySchemes' ]",
 				"__value": {}
 			}
 		},
 		{
 			"__insert": {
-				"__target": "apiSpecifications.paths",
+				"__target": "[ 'apiSpecifications', 'paths' ]",
 				"__value": {}
 			}
 		}
@@ -42,7 +42,7 @@
 			"__actions": [
 				{
 					"__copy": {
-						"__target": "title"
+						"__target": "[ 'title' ]"
 					}
 				}
 			]
@@ -51,7 +51,7 @@
 			"__actions": [
 				{
 					"__copy": {
-						"__target": "version"
+						"__target": "[ 'version' ]"
 					}
 				}
 			]
@@ -65,7 +65,7 @@
 				"__actions": [
 					{
 						"__copy": {
-							"__target": "apiSpecifications.servers[0].url"
+							"__target": "[ 'apiSpecifications', 'servers[0]', 'url' ]"
 						}
 					}
 				]
@@ -75,36 +75,48 @@
 	"paths": {
 		"__keyRegexp": "^\\/[^\\s'\"\\\\]+$",
 		"__objectItem": {
-			"__keyRegexp": "^(get|post)$",
+			"__conditions": [
+				{
+					"__if": {
+						"__this_name": "^(?!get$|post$).*$"
+					},
+					"__rootThen": {
+						"{{1}}": {}
+					},
+					"__catch": {
+						"__message": "__fullPath: allowed methods are only \"get\" or \"post\" not \"__match\""
+					}
+				}
+			],
 			"__objectItem": {
 				"__actions": [
 					{
 						"__insert": {
-							"__target": "apiSpecifications.paths.{{1}}.{{2}}.parameters",
+							"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '{{2}}', 'parameters' ]",
 							"__value": []
 						}
 					},
 					{
 						"__insert": {
-							"__target": "endpoints[].name",
+							"__target": "[ 'endpoints[]', 'name' ]",
 							"__value": "{{1}}"
 						}
 					},
 					{
 						"__insert": {
-							"__target": "endpoints[_].operation.method",
+							"__target": "[ 'endpoints[_]', 'operation', 'method' ]",
 							"__value": "{{2}}"
 						}
 					},
 					{
 						"__insert": {
-							"__target": "endpoints[_].operation.path",
+							"__target": "[ 'endpoints[_]', 'operation', 'path' ]",
 							"__value": "{{1}}"
 						}
 					},
 					{
 						"__insert": {
-							"__target": "endpoints[_].reservedParameters",
+							"__target": "[ 'endpoints[_]', 'reservedParameters' ]",
 							"__value": [
 								{
 									"name": "_type"
@@ -120,7 +132,13 @@
 					},
 					{
 						"__insert": {
-							"__target": "endpoints[_].fixedOperationParameters",
+							"__target": "[ 'endpoints[_]', 'fixedOperationParameters' ]",
+							"__value": []
+						}
+					},
+					{
+						"__insert": {
+							"__target": "[ 'endpoints[_]', 'parameters' ]",
 							"__value": []
 						}
 					}
@@ -131,17 +149,17 @@
 							"__actions": [
 								{
 									"__copy": {
-										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.name"
+										"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '{{2}}', '{{3}}', 'name' ]"
 									}
 								},
 								{
 									"__copy": {
-										"__target": "endpoints[_].parameters[].name"
+										"__target": "[ 'endpoints[_]', 'parameters[]', 'name' ]"
 									}
 								},
 								{
 									"__copy": {
-										"__target": "endpoints[_].parameters[_].operationParameter.name"
+										"__target": "[ 'endpoints[_]', 'parameters[_]', 'operationParameter', 'name' ]"
 									}
 								}
 							]
@@ -151,12 +169,12 @@
 							"__actions": [
 								{
 									"__copy": {
-										"__target": "apiSpecifications.paths.{{1}}.{{2}}.{{3}}.in"
+										"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '{{2}}', '{{3}}', 'in' ]"
 									}
 								},
 								{
 									"__copy": {
-										"__target": "endpoints[_].parameters[_].operationParameter.in"
+										"__target": "[ 'endpoints[_]', 'parameters[_]', 'operationParameter', 'in' ]"
 									}
 								}
 							]
@@ -172,7 +190,7 @@
 											"__actions": [
 												{
 													"__copy": {
-														"__target": "endpoints[_].parameters[_].default"
+														"__target": "[ 'endpoints[_]', 'parameters[_]', 'default' ]"
 													}
 												}
 											]
@@ -208,12 +226,12 @@
 								"__actions": [
 									{
 										"__copy": {
-											"__target": "apiSpecifications.components.securitySchemes.{{2}}.type"
+											"__target": "[ 'apiSpecifications', 'components', 'securitySchemes', '{{2}}', 'type' ]"
 										}
 									},
 									{
 										"__insert": {
-											"__target": "apiSpecifications.security.{{2}}",
+											"__target": "[ 'apiSpecifications', 'security', '{{2}}' ]",
 											"__value": []
 										}
 									}
@@ -230,7 +248,7 @@
 								"__actions": [
 									{
 										"__copy": {
-											"__target": "apiSpecifications.components.securitySchemes.{{2}}.in"
+											"__target": "[ 'apiSpecifications', 'components', 'securitySchemes', '{{2}}', 'in' ]"
 										}
 									}
 								]
@@ -246,7 +264,7 @@
 								"__actions": [
 									{
 										"__copy": {
-											"__target": "apiSpecifications.components.securitySchemes.{{2}}.name"
+											"__target": "[ 'apiSpecifications', 'components', 'securitySchemes', '{{2}}', 'name' ]"
 										}
 									}
 								]
@@ -263,7 +281,7 @@
 								"__actions": [
 									{
 										"__copy": {
-											"__target": "apiSpecifications.components.securitySchemes.{{2}}.scheme"
+											"__target": "[ 'apiSpecifications', 'components', 'securitySchemes', '{{2}}', 'scheme' ]"
 										}
 									}
 								]
