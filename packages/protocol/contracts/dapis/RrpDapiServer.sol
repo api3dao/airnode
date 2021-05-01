@@ -63,7 +63,7 @@ contract RrpDapiServer is CustomReducer {
         DapiParameters storage dapiParameters = dapiIdToParameters[dapiId];
         require(
             airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(dapiParameters.requesterIndex, msg.sender),
-            "Only an endorsed requester can call this function."
+            "Caller not endorsed"
             );
         for (uint i = 0; i < dapiParameters.templateIds.length; i++) {
             // TODO: use delegatecall
@@ -76,7 +76,7 @@ contract RrpDapiServer is CustomReducer {
                 this.fulfill.selector,
                 parameters
                 ));
-            require(success);
+            require(success, "Request unsuccessful"); // This will never happen if AirnodeRrp is valid
             bytes32 requestId = abi.decode(returnedData, (bytes32));
             requestIdToDapiRequestIndex[requestId] = nextDapiRequestIndex;
         }
@@ -92,9 +92,15 @@ contract RrpDapiServer is CustomReducer {
         )
         external
     {
-        require(address(airnodeRrp) == msg.sender);
+        require(
+            address(airnodeRrp) == msg.sender,
+            "Caller not AirnodeRrp"
+            );
         uint256 dapiRequestIndex = requestIdToDapiRequestIndex[requestId]; 
-        require(dapiRequestIndex != 0);
+        require(
+            dapiRequestIndex != 0,
+            "No such valid request ID"
+            );
         delete requestIdToDapiRequestIndex[requestId];
         if (statusCode == 0) {
             DapiParameters storage dapiParameters = dapiIdToParameters[dapiRequestIndexToDapiId[dapiRequestIndex]];
