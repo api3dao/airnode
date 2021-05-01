@@ -39,7 +39,8 @@ abstract contract RrpDapi {
         _templateIds,
         _designatedWallets,
         address(this),
-        this.reduce.selector
+        this.reduce.selector,
+        address(this)
       );
     }
 

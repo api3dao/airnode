@@ -15,12 +15,15 @@ contract RrpDapiServer is CustomReducer {
         bytes4 reduceFunctionId;
         mapping(uint256 => int256[]) requestIndexToResponses;
         mapping(uint256 => uint256) requestIndexToResponsesLength;
-        uint128 nextDapiRequestIndex;
+        uint64 nextDapiRequestIndex;
+        uint256 lastDapiRequestIndexResetTime;
+        address dapiRequestIndexResetter;
         }
     
     struct DapiRequestIdentifiers {
         bytes16 dapiId;
-        uint128 dapiRequestIndex;
+        uint64 dapiRequestIndex;
+        uint64 dapiRequestTime;
         }
     
     AirnodeRrp public airnodeRrp;
@@ -39,7 +42,8 @@ contract RrpDapiServer is CustomReducer {
         bytes32[] calldata templateIds,
         address[] calldata designatedWallets,
         address reduceAddress,
-        bytes4 reduceFunctionId
+        bytes4 reduceFunctionId,
+        address dapiRequestIndexResetter
         )
         external
         returns (bytes16 dapiId)
@@ -51,7 +55,8 @@ contract RrpDapiServer is CustomReducer {
           templateIds,
           designatedWallets,
           reduceAddress,
-          reduceFunctionId
+          reduceFunctionId,
+          dapiRequestIndexResetter
           )));
       dapis[dapiId].noResponsesToReduce = noResponsesToReduce;
       dapis[dapiId].toleranceInPercentages = toleranceInPercentages;
@@ -60,16 +65,28 @@ contract RrpDapiServer is CustomReducer {
       dapis[dapiId].designatedWallets = designatedWallets;
       dapis[dapiId].reduceAddress = reduceAddress;
       dapis[dapiId].reduceFunctionId = reduceFunctionId;
+      dapis[dapiId].dapiRequestIndexResetter = dapiRequestIndexResetter;
       dapis[dapiId].nextDapiRequestIndex = 1;
     }
 
+    function resetDapiRequestIndex(bytes16 dapiId)
+        external
+    {
+        Dapi storage dapi = dapis[dapiId];
+        require(
+            msg.sender == dapi.dapiRequestIndexResetter,
+            "Caller not resetter"
+            );
+        dapi.nextDapiRequestIndex = 1;
+        dapi.lastDapiRequestIndexResetTime = block.timestamp;
+    }
 
     function makeDapiRequest(
         bytes16 dapiId,
         bytes calldata parameters
         )
         external
-        returns (uint256 currDapiRequestIndex)
+        returns (uint64 currDapiRequestIndex)
     {
         Dapi storage dapi = dapis[dapiId];
         currDapiRequestIndex = dapi.nextDapiRequestIndex;
@@ -94,7 +111,7 @@ contract RrpDapiServer is CustomReducer {
                 ));
             require(success, "Request unsuccessful"); // This will never happen if AirnodeRrp is valid
             bytes32 requestId = abi.decode(returnedData, (bytes32));
-            requestIdToDapiRequestIdentifiers[requestId] = DapiRequestIdentifiers(dapiId, uint128(currDapiRequestIndex));
+            requestIdToDapiRequestIdentifiers[requestId] = DapiRequestIdentifiers(dapiId, uint64(currDapiRequestIndex), uint64(block.timestamp));
         }
     }
 
@@ -116,6 +133,10 @@ contract RrpDapiServer is CustomReducer {
             );
         if (statusCode == 0) {
             Dapi storage dapi = dapis[dapiRequestIdentifiers.dapiId];
+            require(
+                dapiRequestIdentifiers.dapiRequestTime > dapi.lastDapiRequestIndexResetTime,
+                "Request stale"
+                );
             uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex];
             
             if (responsesLength < dapi.noResponsesToReduce) {
