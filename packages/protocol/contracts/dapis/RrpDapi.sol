@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "./rrpDapiServer.sol";
+import "./RrpDapiServer.sol";
 
 abstract contract RrpDapi {
     RrpDapiServer public rrpDapiServer;
