@@ -98,7 +98,7 @@ contract RrpDapiServer is CustomReducer {
         uint256 dapiRequestIndex = requestIdToDapiRequestIndex[requestId]; 
         require(
             dapiRequestIndex != 0,
-            "No such valid request ID"
+            "Request ID invalid"
             );
         delete requestIdToDapiRequestIndex[requestId];
         if (statusCode == 0) {
