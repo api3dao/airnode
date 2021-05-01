@@ -66,9 +66,8 @@ contract RrpDapiServer is CustomReducer {
             "Caller not endorsed"
             );
         for (uint i = 0; i < dapiParameters.templateIds.length; i++) {
-            // TODO: use delegatecall
-            (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSignature( // solhint-disable-line
-                "makeRequest(bytes32,uint256,address,address,bytes4,bytes)",
+            (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSelector( // solhint-disable-line
+                AirnodeRrp.makeRequest.selector,
                 dapiParameters.templateIds[i],
                 dapiParameters.requesterIndex,
                 dapiParameters.designatedWallets[i],
