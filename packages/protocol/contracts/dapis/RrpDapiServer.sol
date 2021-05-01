@@ -6,7 +6,7 @@ import "./CustomReducer.sol";
 
 contract RrpDapiServer is CustomReducer {
     struct DapiParameters {
-        uint256 minResponsesToReduce;
+        uint256 noResponsesToReduce;
         int256 toleranceInPercentages;
         uint256 requesterIndex;
         bytes32[] templateIds;
@@ -92,25 +92,23 @@ contract RrpDapiServer is CustomReducer {
         require(dapiRequestIndex != 0);
         delete requestIdToDapiRequestIndex[requestId];
         if (statusCode == 0) {
-            int256 decodedData = abi.decode(data, (int256));
-            dapiRequestIndexToResponses[dapiRequestIndex].push(decodedData);
-            uint256 responsesLength = dapiRequestIndexToResponses[dapiRequestIndex].length;
             DapiParameters storage dapiParameters = dapiIdToParameters[dapiRequestIndexToDapiId[dapiRequestIndex]];
-            if (
-                responsesLength % 2 == 1
-                    && responsesLength >= dapiParameters.minResponsesToReduce
-                )
-            {
-                int256 reducedValue;
-                if (dapiParameters.toleranceInPercentages == 0) {
-                    reducedValue = computeMedian(dapiRequestIndexToResponses[dapiRequestIndex]);
+            uint256 responsesLength = dapiRequestIndexToResponses[dapiRequestIndex].length;
+            if (responsesLength < dapiParameters.noResponsesToReduce) {
+                int256 decodedData = abi.decode(data, (int256));
+                dapiRequestIndexToResponses[dapiRequestIndex].push(decodedData);
+                if (responsesLength + 1 == dapiParameters.noResponsesToReduce) {
+                    int256 reducedValue;
+                    if (dapiParameters.toleranceInPercentages == 0) {
+                        reducedValue = computeMedian(dapiRequestIndexToResponses[dapiRequestIndex]);
+                    }
+                    else {
+                        reducedValue = meanMedianHybrid(dapiRequestIndexToResponses[dapiRequestIndex], dapiParameters.toleranceInPercentages);
+                    }
+                    dapiParameters.reduceAddress.call(  // solhint-disable-line
+                        abi.encodeWithSelector(dapiParameters.reduceFunctionId, dapiRequestIndex, reducedValue)
+                        );
                 }
-                else {
-                    reducedValue = meanMedianHybrid(dapiRequestIndexToResponses[dapiRequestIndex], dapiParameters.toleranceInPercentages);
-                }
-                dapiParameters.reduceAddress.call(  // solhint-disable-line
-                    abi.encodeWithSelector(dapiParameters.reduceFunctionId, dapiRequestIndex, reducedValue)
-                );
             }
         }
     }
