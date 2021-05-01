@@ -41,14 +41,14 @@ contract RrpDapiServer is CustomReducer {
         returns (uint256 dapiId)
     {
       dapiIdToParameters[nextDapiID] = DapiParameters(
-        minResponsesToReduce,
-        toleranceInPercentages,
-        requesterIndex,
-        templateIds,
-        designatedWallets,
-        reduceAddress,
-        reduceFunctionId
-      );
+          minResponsesToReduce,
+          toleranceInPercentages,
+          requesterIndex,
+          templateIds,
+          designatedWallets,
+          reduceAddress,
+          reduceFunctionId
+          );
       dapiId = nextDapiID++;
     }
 
@@ -68,7 +68,7 @@ contract RrpDapiServer is CustomReducer {
         require(dapiParameters.reduceAddress == msg.sender);
         for (uint i = 0; i < dapiParameters.templateIds.length; i++) {
             // TODO: use delegatecall
-            (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSignature(
+            (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSignature( // solhint-disable-line
                 "makeRequest(bytes32,uint256,address,address,bytes4,bytes)",
                 dapiParameters.templateIds[i],
                 dapiParameters.requesterIndex,
@@ -111,9 +111,11 @@ contract RrpDapiServer is CustomReducer {
                     else {
                         reducedValue = meanMedianHybrid(dapiRequestIndexToResponses[dapiRequestIndex], dapiParameters.toleranceInPercentages);
                     }
-                    dapiParameters.reduceAddress.call(  // solhint-disable-line
-                        abi.encodeWithSelector(dapiParameters.reduceFunctionId, dapiRequestIndex, reducedValue)
-                        );
+                    dapiParameters.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
+                        dapiParameters.reduceFunctionId,
+                        dapiRequestIndex,
+                        reducedValue
+                        ));
                 }
             }
         }
