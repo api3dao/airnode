@@ -27,21 +27,20 @@ contract RrpDapiServer is CustomReducer {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
     }
 
-    function registerDapi
-    (
-        uint256 minResponsesToReduce,
+    function registerDapi(
+        uint256 noResponsesToReduce,
         int256 toleranceInPercentages,
         uint256 requesterIndex,
         bytes32[] calldata templateIds,
         address[] calldata designatedWallets,
         address reduceAddress,
         bytes4 reduceFunctionId
-    )
+        )
         external
         returns (uint256 dapiId)
     {
       dapiIdToParameters[nextDapiID] = DapiParameters(
-          minResponsesToReduce,
+          noResponsesToReduce,
           toleranceInPercentages,
           requesterIndex,
           templateIds,
