@@ -14,6 +14,7 @@ contract RrpDapiServer is CustomReducer {
         address reduceAddress;
         bytes4 reduceFunctionId;
         mapping(uint256 => int256[]) requestIndexToResponses;
+        mapping(uint256 => uint256) requestIndexToResponsesLength;
         uint128 nextDapiRequestIndex;
         }
     
@@ -65,6 +66,10 @@ contract RrpDapiServer is CustomReducer {
     {
         Dapi storage dapi = dapis[dapiIndex];
         currDapiRequestIndex = dapi.nextDapiRequestIndex;
+        dapi.requestIndexToResponsesLength[currDapiRequestIndex] = 0;
+        if (dapi.requestIndexToResponses[currDapiRequestIndex].length == 0) {
+            dapi.requestIndexToResponses[currDapiRequestIndex] = new int256[](dapi.noResponsesToReduce);
+        }
         dapi.nextDapiRequestIndex++;
         require(
             airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(dapi.requesterIndex, msg.sender),
@@ -104,11 +109,14 @@ contract RrpDapiServer is CustomReducer {
             );
         if (statusCode == 0) {
             Dapi storage dapi = dapis[dapiRequestIndices.dapiIndex];
-            uint256 responsesLength = dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex].length;
+            uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIndices.dapiRequestIndex];
+            
             if (responsesLength < dapi.noResponsesToReduce) {
                 int256 decodedData = abi.decode(data, (int256));
-                dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex].push(decodedData);
-                if (responsesLength + 1 == dapi.noResponsesToReduce) {
+                dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex][responsesLength] = decodedData;
+                dapi.requestIndexToResponsesLength[dapiRequestIndices.dapiRequestIndex] = responsesLength++;
+                
+                if (responsesLength == dapi.noResponsesToReduce) {
                     int256 reducedValue;
                     if (dapi.toleranceInPercentages == 0) {
                         reducedValue = computeMedian(dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex]);
