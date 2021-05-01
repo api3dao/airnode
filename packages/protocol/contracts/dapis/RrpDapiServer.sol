@@ -65,14 +65,17 @@ contract RrpDapiServer is CustomReducer {
         require(dapiParameters.reduceAddress == msg.sender);
         for (uint i = 0; i < dapiParameters.templateIds.length; i++) {
             // TODO: use delegatecall
-            bytes32 requestId = airnodeRrp.makeRequest(
+            (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSignature(
+                "makeRequest(bytes32,uint256,address,address,bytes4,bytes)",
                 dapiParameters.templateIds[i],
                 requesterIndex,
                 dapiParameters.designatedWallets[i],
                 address(this),
                 this.fulfill.selector,
                 "" // no additional parameters passed
-                );
+                ));
+            require(success);
+            bytes32 requestId = abi.decode(returnedData, (bytes32));
             requestIdToDapiRequestIndex[requestId] = nextDapiRequestIndex;
         }
         dapiRequestIndexToDapiId[nextDapiRequestIndex] = dapiId;
