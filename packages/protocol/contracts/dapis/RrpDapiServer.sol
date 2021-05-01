@@ -59,7 +59,7 @@ contract RrpDapiServer is CustomReducer {
     {
         DapiParameters storage dapiParameters = dapiIdToParameters[dapiId];
         require(
-            airnodeRrp.isEndorsed(dapiParameters.requesterIndex, msg.sender),
+            airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(dapiParameters.requesterIndex, msg.sender),
             "Only an endorsed requester can call this function."
             );
         require(dapiParameters.reduceAddress == msg.sender);
