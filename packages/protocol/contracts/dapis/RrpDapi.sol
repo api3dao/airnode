@@ -56,7 +56,7 @@ abstract contract RrpDapi {
     function makeRequest() external returns (uint256 answerId){
       
       // reverts if requester is not endorsed
-      uint256 requestIndex = rrpDapiServer.makeDapiRequest(dapiId, requesterIndex);
+      uint256 requestIndex = rrpDapiServer.makeDapiRequest(dapiId);
 
       // +1 is added to the modulo to prevent 0 values
       uint256 answerMod = nextAnswerId % maxAnswersInStorage + 1;

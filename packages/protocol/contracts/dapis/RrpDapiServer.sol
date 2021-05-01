@@ -53,7 +53,7 @@ contract RrpDapiServer is CustomReducer {
     }
 
 
-    function makeDapiRequest(uint256 dapiId, uint256 requesterIndex)
+    function makeDapiRequest(uint256 dapiId)
         external
         returns (uint256 currDapiRequestIndex)
     {
@@ -68,7 +68,7 @@ contract RrpDapiServer is CustomReducer {
             (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSignature(
                 "makeRequest(bytes32,uint256,address,address,bytes4,bytes)",
                 dapiParameters.templateIds[i],
-                requesterIndex,
+                dapiParameters.requesterIndex,
                 dapiParameters.designatedWallets[i],
                 address(this),
                 this.fulfill.selector,
