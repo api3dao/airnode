@@ -18,7 +18,7 @@ contract RrpDapiServer is CustomReducer {
         uint128 nextDapiRequestIndex;
         }
     
-    struct DapiRequestIndices {
+    struct DapiRequestIdentifiers {
         bytes16 dapiId;
         uint128 dapiRequestIndex;
         }
@@ -26,7 +26,7 @@ contract RrpDapiServer is CustomReducer {
     AirnodeRrp public airnodeRrp;
     mapping(bytes16 => Dapi) private dapis;
     uint256 public nextDapiIndex = 1;
-    mapping(bytes32 => DapiRequestIndices) private requestIdToDapiRequestIdentifiers;
+    mapping(bytes32 => DapiRequestIdentifiers) private requestIdToDapiRequestIdentifiers;
 
     constructor(address _airnodeRrp) {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
@@ -94,7 +94,7 @@ contract RrpDapiServer is CustomReducer {
                 ));
             require(success, "Request unsuccessful"); // This will never happen if AirnodeRrp is valid
             bytes32 requestId = abi.decode(returnedData, (bytes32));
-            requestIdToDapiRequestIdentifiers[requestId] = DapiRequestIndices(dapiId, uint128(currDapiRequestIndex));
+            requestIdToDapiRequestIdentifiers[requestId] = DapiRequestIdentifiers(dapiId, uint128(currDapiRequestIndex));
         }
     }
 
@@ -109,32 +109,32 @@ contract RrpDapiServer is CustomReducer {
             address(airnodeRrp) == msg.sender,
             "Caller not AirnodeRrp"
             );
-        DapiRequestIndices storage dapiRequestIndices = requestIdToDapiRequestIdentifiers[requestId]; 
+        DapiRequestIdentifiers storage dapiRequestIdentifiers = requestIdToDapiRequestIdentifiers[requestId]; 
         require(
-            dapiRequestIndices.dapiRequestIndex != 0,
+            dapiRequestIdentifiers.dapiRequestIndex != 0,
             "Request ID invalid"
             );
         if (statusCode == 0) {
-            Dapi storage dapi = dapis[dapiRequestIndices.dapiId];
-            uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIndices.dapiRequestIndex];
+            Dapi storage dapi = dapis[dapiRequestIdentifiers.dapiId];
+            uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex];
             
             if (responsesLength < dapi.noResponsesToReduce) {
                 int256 decodedData = abi.decode(data, (int256));
-                dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex][responsesLength] = decodedData;
-                dapi.requestIndexToResponsesLength[dapiRequestIndices.dapiRequestIndex] = responsesLength++;
+                dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex][responsesLength] = decodedData;
+                dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex] = responsesLength++;
                 
                 if (responsesLength == dapi.noResponsesToReduce) {
                     int256 reducedValue;
                     if (dapi.toleranceInPercentages == 0) {
-                        reducedValue = computeMedian(dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex]);
+                        reducedValue = computeMedian(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex]);
                     }
                     else {
-                        reducedValue = computeMeanMedianHybrid(dapi.requestIndexToResponses[dapiRequestIndices.dapiRequestIndex], dapi.toleranceInPercentages);
+                        reducedValue = computeMeanMedianHybrid(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex], dapi.toleranceInPercentages);
                     }
                     dapi.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
                         dapi.reduceFunctionId,
-                        dapiRequestIndices.dapiId,
-                        dapiRequestIndices.dapiRequestIndex,
+                        dapiRequestIdentifiers.dapiId,
+                        dapiRequestIdentifiers.dapiRequestIndex,
                         reducedValue
                         ));
                 }
