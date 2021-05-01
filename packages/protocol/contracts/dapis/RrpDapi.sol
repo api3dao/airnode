@@ -7,7 +7,7 @@ abstract contract RrpDapi {
     RrpDapiServer public rrpDapiServer;
 
     uint256 public immutable maxAnswersInStorage;
-    uint256 private immutable dapiId;
+    bytes16 private immutable dapiId;
     uint256 private immutable requesterIndex;
 
     uint256 public nextAnswerId = 1;

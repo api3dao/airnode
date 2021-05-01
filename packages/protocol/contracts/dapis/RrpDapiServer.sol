@@ -19,14 +19,14 @@ contract RrpDapiServer is CustomReducer {
         }
     
     struct DapiRequestIndices {
-        uint128 dapiIndex;
+        bytes16 dapiId;
         uint128 dapiRequestIndex;
         }
     
     AirnodeRrp public airnodeRrp;
-    mapping(uint256 => Dapi) private dapis;
+    mapping(bytes16 => Dapi) private dapis;
     uint256 public nextDapiIndex = 1;
-    mapping(bytes32 => DapiRequestIndices) private requestIdToDapiRequestIndices;
+    mapping(bytes32 => DapiRequestIndices) private requestIdToDapiRequestIdentifiers;
 
     constructor(address _airnodeRrp) {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
@@ -42,29 +42,36 @@ contract RrpDapiServer is CustomReducer {
         bytes4 reduceFunctionId
         )
         external
-        returns (uint256 dapiIndex)
+        returns (bytes16 dapiId)
     {
-      dapis[nextDapiIndex].noResponsesToReduce = noResponsesToReduce;
-      dapis[nextDapiIndex].toleranceInPercentages = toleranceInPercentages;
-      dapis[nextDapiIndex].requesterIndex = requesterIndex;
-      dapis[nextDapiIndex].templateIds = templateIds;
-      dapis[nextDapiIndex].designatedWallets = designatedWallets;
-      dapis[nextDapiIndex].reduceAddress = reduceAddress;
-      dapis[nextDapiIndex].reduceFunctionId = reduceFunctionId;
-      dapis[nextDapiIndex].nextDapiRequestIndex = 1;
-
-      dapiIndex = nextDapiIndex++;
+      dapiId = bytes16(keccak256(abi.encodePacked(
+          noResponsesToReduce,
+          toleranceInPercentages,
+          requesterIndex,
+          templateIds,
+          designatedWallets,
+          reduceAddress,
+          reduceFunctionId
+          )));
+      dapis[dapiId].noResponsesToReduce = noResponsesToReduce;
+      dapis[dapiId].toleranceInPercentages = toleranceInPercentages;
+      dapis[dapiId].requesterIndex = requesterIndex;
+      dapis[dapiId].templateIds = templateIds;
+      dapis[dapiId].designatedWallets = designatedWallets;
+      dapis[dapiId].reduceAddress = reduceAddress;
+      dapis[dapiId].reduceFunctionId = reduceFunctionId;
+      dapis[dapiId].nextDapiRequestIndex = 1;
     }
 
 
     function makeDapiRequest(
-        uint256 dapiIndex,
+        bytes16 dapiId,
         bytes calldata parameters
         )
         external
         returns (uint256 currDapiRequestIndex)
     {
-        Dapi storage dapi = dapis[dapiIndex];
+        Dapi storage dapi = dapis[dapiId];
         currDapiRequestIndex = dapi.nextDapiRequestIndex;
         dapi.requestIndexToResponsesLength[currDapiRequestIndex] = 0;
         if (dapi.requestIndexToResponses[currDapiRequestIndex].length == 0) {
@@ -87,7 +94,7 @@ contract RrpDapiServer is CustomReducer {
                 ));
             require(success, "Request unsuccessful"); // This will never happen if AirnodeRrp is valid
             bytes32 requestId = abi.decode(returnedData, (bytes32));
-            requestIdToDapiRequestIndices[requestId] = DapiRequestIndices(uint128(dapiIndex), uint128(currDapiRequestIndex));
+            requestIdToDapiRequestIdentifiers[requestId] = DapiRequestIndices(dapiId, uint128(currDapiRequestIndex));
         }
     }
 
@@ -102,13 +109,13 @@ contract RrpDapiServer is CustomReducer {
             address(airnodeRrp) == msg.sender,
             "Caller not AirnodeRrp"
             );
-        DapiRequestIndices storage dapiRequestIndices = requestIdToDapiRequestIndices[requestId]; 
+        DapiRequestIndices storage dapiRequestIndices = requestIdToDapiRequestIdentifiers[requestId]; 
         require(
             dapiRequestIndices.dapiRequestIndex != 0,
             "Request ID invalid"
             );
         if (statusCode == 0) {
-            Dapi storage dapi = dapis[dapiRequestIndices.dapiIndex];
+            Dapi storage dapi = dapis[dapiRequestIndices.dapiId];
             uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIndices.dapiRequestIndex];
             
             if (responsesLength < dapi.noResponsesToReduce) {
@@ -126,13 +133,13 @@ contract RrpDapiServer is CustomReducer {
                     }
                     dapi.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
                         dapi.reduceFunctionId,
-                        dapiRequestIndices.dapiIndex,
+                        dapiRequestIndices.dapiId,
                         dapiRequestIndices.dapiRequestIndex,
                         reducedValue
                         ));
                 }
             }
         }
-        delete requestIdToDapiRequestIndices[requestId];
+        delete requestIdToDapiRequestIdentifiers[requestId];
     }
 }
