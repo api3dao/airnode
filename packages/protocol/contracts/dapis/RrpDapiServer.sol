@@ -65,7 +65,6 @@ contract RrpDapiServer is CustomReducer {
             airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(dapiParameters.requesterIndex, msg.sender),
             "Only an endorsed requester can call this function."
             );
-        require(dapiParameters.reduceAddress == msg.sender);
         for (uint i = 0; i < dapiParameters.templateIds.length; i++) {
             // TODO: use delegatecall
             (bool success, bytes memory returnedData) = address(airnodeRrp).delegatecall(abi.encodeWithSignature( // solhint-disable-line
