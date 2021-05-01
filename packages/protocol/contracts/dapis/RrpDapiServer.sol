@@ -109,7 +109,7 @@ contract RrpDapiServer is CustomReducer {
                         reducedValue = computeMedian(dapiRequestIndexToResponses[dapiRequestIndex]);
                     }
                     else {
-                        reducedValue = meanMedianHybrid(dapiRequestIndexToResponses[dapiRequestIndex], dapiParameters.toleranceInPercentages);
+                        reducedValue = computeMeanMedianHybrid(dapiRequestIndexToResponses[dapiRequestIndex], dapiParameters.toleranceInPercentages);
                     }
                     dapiParameters.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
                         dapiParameters.reduceFunctionId,

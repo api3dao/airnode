@@ -5,12 +5,12 @@ contract CustomReducer {
   int256 public constant HUNDRED_PERCENT = 100e6;
   uint256 constant public SMALL_ARRAY_MAX_LENGTH = 15;
 
-  function meanMedianHybrid(
+  function computeMeanMedianHybrid(
         int256[] memory values,
         int256 toleranceInPercentages
         )
         internal
-        view
+        pure
         returns (int256)
     {
         int256 mean = computeMean(values);
@@ -38,7 +38,7 @@ contract CustomReducer {
 
     function computeMean(int256[] memory values)
         private
-        view
+        pure
         returns (int256)
     {
         int256 mean = 0;
@@ -51,7 +51,7 @@ contract CustomReducer {
 
     function computeMedian(int256[] memory values)
         internal
-        view
+        pure
         returns (int256)
     {
         return computeInPlace(values, values.length / 2 + 1);
