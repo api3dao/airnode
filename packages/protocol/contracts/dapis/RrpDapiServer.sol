@@ -53,7 +53,10 @@ contract RrpDapiServer is CustomReducer {
     }
 
 
-    function makeDapiRequest(uint256 dapiId)
+    function makeDapiRequest(
+        uint256 dapiId,
+        bytes calldata parameters
+        )
         external
         returns (uint256 currDapiRequestIndex)
     {
@@ -72,7 +75,7 @@ contract RrpDapiServer is CustomReducer {
                 dapiParameters.designatedWallets[i],
                 address(this),
                 this.fulfill.selector,
-                "" // no additional parameters passed
+                parameters
                 ));
             require(success);
             bytes32 requestId = abi.decode(returnedData, (bytes32));
