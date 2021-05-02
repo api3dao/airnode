@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "engines": {
-    "node": "^14.16.0"
+    "node": "^12.13.1"
   },
   "scripts": {
     "bootstrap": "yarn install && lerna bootstrap",
