@@ -108,15 +108,6 @@ describe('initializeProvider', () => {
     ]);
   });
 
-  it('does nothing if unable to verify or set Airnode parameters', async () => {
-    const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce(null);
-    const state = fixtures.buildEVMProviderState();
-    const res = await initializeProvider(state);
-    expect(res).toEqual(null);
-    expect(getLogsSpy).not.toHaveBeenCalled();
-  });
-
   it('does nothing if requests cannot be fetched', async () => {
     getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
