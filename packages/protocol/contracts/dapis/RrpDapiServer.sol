@@ -152,12 +152,13 @@ contract RrpDapiServer is CustomReducer {
                     else {
                         reducedValue = computeMeanMedianHybrid(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex], dapi.toleranceInPercentages);
                     }
-                    dapi.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
+                    (bool success, ) = dapi.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
                         dapi.reduceFunctionId,
                         dapiRequestIdentifiers.dapiId,
                         dapiRequestIdentifiers.dapiRequestIndex,
                         reducedValue
                         ));
+                    require(success, "Reduce callback unsuccessful");
                 }
             }
         }
