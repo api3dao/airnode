@@ -4,6 +4,10 @@ import * as evm from './evm';
 import * as admin from '.';
 import { exit } from 'process';
 
+type CmdExample = {
+  [key: string]: [string, (string | undefined)?];
+};
+
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
     providerUrl: {
@@ -59,6 +63,111 @@ const COMMON_COMMAND_ARGUMENTS = {
   },
 } as const;
 
+const COMMON_COMMAND_EXAMPLES: CmdExample = {
+  createRequester: [
+    `$0 create-requester \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --mnemonic "nature about salad..." \
+      --requesterAdmin 0x5c17cb...
+    `,
+    'Creates a requester and returns a requester index. Note down your requester index because you will be using it in future interactions.',
+  ],
+  setRequesterAdmin: [
+    `$0 set-requester-admin \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --mnemonic "nature about salad..." \
+      --requesterIndex 6 \
+      --requesterAdmin 0xe97301...
+    `,
+    'Sets the requester admin. The account derived from the "mnemonic" you provide here has to belong to the previous requester admin.',
+  ],
+  deriveDesignatedWallet: [
+    `$0 derive-designated-wallet \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --airnodeId 0xe1e0dd... \
+      --requesterIndex 6
+    `,
+    'Derives the address of the wallet designated by an Airnode for a requester.',
+  ],
+  endorseClient: [
+    `$0 endorse-client \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --mnemonic "nature about salad..." \
+      --requesterIndex 6 \
+      --clientAddress 0x2c2e12...
+    `,
+    `Endorses a client contract so that its requests can be fulfilled by the requester's designated wallet.
+    The account derived from the mnemonic you provide here has to belong to the requester admin.
+    `,
+  ],
+  unendorseClient: [
+    `$0 unendorse-client \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --mnemonic "nature about salad..." \
+      --requesterIndex 6 \
+      --clientAddress 0x2c2e12...
+    `,
+    `Unendorses a client contract so that its requests can no longer be fulfilled by the requester's designated wallet.
+    The account derived from the mnemonic you provide here has to belong to the requester admin.
+    `,
+  ],
+  getEndorsementStatus: [
+    `$0 get-endorsement-status \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --requesterIndex 6 \
+      --clientAddress 0x2c2e12...
+    `,
+    'Returns the endorsement status for the given requester index and client (true if endorsed, false otherwise).',
+  ],
+  createTemplate: [
+    `$0 create-template \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --mnemonic "nature about salad..." \
+      --templateFilePath ./template.json
+    `,
+    'Reads a file, uses its contents to create a template and returns the template ID. See the /example directory for an example template file.',
+  ],
+  getTemplate: [
+    `$0 get-template \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --templateId 0x8d3b9...
+    `,
+    'Returns the template for the given templateId.',
+  ],
+  requestWithdrawal: [
+    `$0 request-withdrawal \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --mnemonic "nature about salad..." \
+      --airnodeId 0xe1e0dd... \
+      --requesterIndex 6 \
+      --destination 0x98aaba...
+    `,
+    `Requests a withdrawal from the wallet designated by an Airnode for a requester, and returns the request ID.
+    The account derived from the mnemonic you provide here has to belong to the requester admin.`,
+  ],
+  checkWithdrawalRequest: [
+    `$0 check-withdrawal-request \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --withdrawalRequestId 0x011d1b...
+    `,
+    'Checks the status of the withdrawal request with the given ID.',
+  ],
+  getAirnodeParameters: [
+    `$0 get-airnode-parameters \
+      --providerUrl https://ropsten.infura.io/v3/<KEY> \
+      --airnodeId 0xe1e0dd...
+    `,
+    'Returns the Airnode parameters and block number for the given airnodeId.',
+  ],
+  deriveEndpointId: [
+    `$0 get-airnode-parameters \
+      --oisTitle "My OIS title..." \
+      --endpointName "My endpoint name..."
+    `,
+    'Derives the endpoint ID using the OIS title and the endpoint name using the triggers convention.',
+  ],
+};
+
 const {
   airnodeRrpCommands,
   mnemonicCommands,
@@ -69,6 +178,21 @@ const {
   destination,
   withdrawalRequestId,
 } = COMMON_COMMAND_ARGUMENTS;
+
+const {
+  createRequester,
+  setRequesterAdmin,
+  deriveDesignatedWallet,
+  endorseClient,
+  unendorseClient,
+  getEndorsementStatus,
+  createTemplate,
+  getTemplate,
+  requestWithdrawal,
+  checkWithdrawalRequest,
+  getAirnodeParameters,
+  deriveEndpointId,
+} = COMMON_COMMAND_EXAMPLES;
 
 const toJSON = JSON.stringify;
 
@@ -343,6 +467,20 @@ yargs
       console.log(`Endpoint ID: ${endpointId}`);
     }
   )
+  .example([
+    createRequester,
+    setRequesterAdmin,
+    deriveDesignatedWallet,
+    endorseClient,
+    unendorseClient,
+    getEndorsementStatus,
+    createTemplate,
+    getTemplate,
+    requestWithdrawal,
+    checkWithdrawalRequest,
+    getAirnodeParameters,
+    deriveEndpointId,
+  ])
   .demandCommand(1)
   .strict()
   .fail((message, err) => {
