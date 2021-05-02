@@ -6,8 +6,8 @@ const chainIdsToNames = {
   1: 'mainnet',
   3: 'ropsten',
   4: 'rinkeby',
-  5: 'kovan',
-  42: 'göerli',
+  5: 'göerli',
+  42: 'kovan',
   100: 'xdai',
 };
 
