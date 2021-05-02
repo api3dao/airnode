@@ -8,6 +8,7 @@
     "deploy:ropsten": "hardhat deploy --network ropsten",
     "deploy:rinkeby": "hardhat deploy --network rinkeby",
     "deploy:goerli": "hardhat deploy --network goerli",
+    "deploy:kovan": "hardhat deploy --network kovan",
     "deploy:xdai": "hardhat deploy --network xdai",
     "deploy:fantom": "hardhat deploy --network fantom",
     "test": "hardhat test",
