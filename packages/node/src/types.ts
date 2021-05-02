@@ -223,7 +223,8 @@ interface EVMEventLogMetadata {
 // See: https://github.com/ethereum-ts/TypeChain/issues/376
 // NOTE: I am also ignoring the typed tupple and only extracting the typed event object.
 type ExtractTypedEvent<T> = T extends TypedEventFilter<any, infer EventArgsObject> ? EventArgsObject : never;
-export type AirnodeRrpEvents = Pick<
+// NOTE: Picking only the events used by node code
+export type AirnodeRrpFilters = Pick<
   InstanceType<typeof AirnodeRrp>['filters'],
   | 'ClientRequestCreated'
   | 'ClientFullRequestCreated'
@@ -232,7 +233,7 @@ export type AirnodeRrpEvents = Pick<
   | 'WithdrawalRequested'
   | 'WithdrawalFulfilled'
 >;
-export type AirnodeRrpLog<T extends keyof AirnodeRrpEvents> = ExtractTypedEvent<ReturnType<AirnodeRrpEvents[T]>>;
+export type AirnodeRrpLog<T extends keyof AirnodeRrpFilters> = ExtractTypedEvent<ReturnType<AirnodeRrpFilters[T]>>;
 
 export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { args: T };
 

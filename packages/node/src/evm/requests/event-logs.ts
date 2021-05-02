@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import * as events from './events';
 import {
   EVMEventLog,
-  AirnodeRrpEvents,
+  AirnodeRrpFilters,
   AirnodeRrpLog,
   EVMRequestCreatedLog,
   EVMRequestFulfilledLog,
@@ -28,7 +28,7 @@ interface GroupedLogs {
   withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
 }
 
-export function parseAirnodeRrpLog<T extends keyof AirnodeRrpEvents>(
+export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
   log: ethers.providers.Log
 ): AirnodeLogDescription<AirnodeRrpLog<T>> {
   const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
