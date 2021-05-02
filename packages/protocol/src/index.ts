@@ -29,4 +29,4 @@ const authorizers = {};
 export { AirnodeRrpAddresses, AirnodeRrpFactory, mocks, authorizers };
 // Export the artifacts for API consumers using web3
 export { AirnodeRrpArtifact, MockAirnodeRrpClientArtifact };
-export type { AirnodeRrp, MockAirnodeRrpClient } from './contracts';
+export type { AirnodeRrp, MockAirnodeRrpClient, TypedEventFilter } from './contracts';

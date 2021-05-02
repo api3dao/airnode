@@ -1,6 +1,15 @@
 import { ethers } from 'ethers';
 import * as events from './events';
-import { EVMEventLogWithMetadata } from '../../types';
+import {
+  EVMEventLog,
+  AirnodeRrpEvents,
+  AirnodeRrpLog,
+  EVMRequestCreatedLog,
+  EVMRequestFulfilledLog,
+  EVMWithdrawalFulfilledLog,
+  EVMWithdrawalRequestLog,
+  AirnodeLogDescription,
+} from '../../types';
 import { retryOperation } from '../../utils/promise-utils';
 import { OPERATION_RETRIES } from '../../constants';
 import { AirnodeRrpArtifact } from '../contracts';
@@ -15,11 +24,19 @@ interface FetchOptions {
 }
 
 interface GroupedLogs {
-  apiCalls: EVMEventLogWithMetadata[];
-  withdrawals: EVMEventLogWithMetadata[];
+  apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
+  withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
 }
 
-export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetadata[]> {
+export function parseAirnodeRrpLog<T extends keyof AirnodeRrpEvents>(
+  log: ethers.providers.Log
+): AirnodeLogDescription<AirnodeRrpLog<T>> {
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
+  const parsedLog = airnodeRrpInterface.parseLog(log);
+  return parsedLog as AirnodeLogDescription<AirnodeRrpLog<T>>;
+}
+
+export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
   // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
 
@@ -38,33 +55,30 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLogWithMetad
   // Let this throw if something goes wrong
   const rawLogs = await retryableOperation;
 
-  // If the provider returns a bad response, mapping logs could also throw
-  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
   const logsWithBlocks = rawLogs.map((log) => ({
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
     ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,
     transactionHash: log.transactionHash,
-    parsedLog: airnodeRrpInterface.parseLog(log),
-  }));
+    // If the provider returns a bad response, mapping logs could also throw
+    parsedLog: parseAirnodeRrpLog(log),
+  })) as EVMEventLog[];
 
   return logsWithBlocks;
 }
 
-export function group(logsWithMetadata: EVMEventLogWithMetadata[]): GroupedLogs {
+export function group(logsWithMetadata: EVMEventLog[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
     withdrawals: [],
   };
 
   return logsWithMetadata.reduce((acc, log) => {
-    const { parsedLog } = log;
-
-    if (events.isApiCallRequest(parsedLog) || events.isApiCallFulfillment(parsedLog)) {
+    if (events.isApiCallRequest(log) || events.isApiCallFulfillment(log)) {
       return { ...acc, apiCalls: [...acc.apiCalls, log] };
     }
 
-    if (events.isWithdrawalRequest(parsedLog) || events.isWithdrawalFulfillment(parsedLog)) {
+    if (events.isWithdrawalRequest(log) || events.isWithdrawalFulfillment(log)) {
       return { ...acc, withdrawals: [...acc.withdrawals, log] };
     }
 

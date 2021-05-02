@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/indent */
+// TODO: fix the indent conflict between Eslint and TS
 import { OIS } from '@airnode/ois';
 import { ethers } from 'ethers';
+import { AirnodeRrp, TypedEventFilter } from '@airnode/protocol';
 
 // ===========================================
 // State
@@ -209,13 +212,59 @@ export interface WorkerResponse {
 // ===========================================
 // Events
 // ===========================================
-export interface EVMEventLogWithMetadata {
+interface EVMEventLogMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
-  readonly parsedLog: ethers.utils.LogDescription;
   readonly transactionHash: string;
 }
+
+// Maybe there will be less hacky way to obtain this in the future.
+// See: https://github.com/ethereum-ts/TypeChain/issues/376
+// NOTE: I am also ignoring the typed tupple and only extracting the typed event object.
+type ExtractTypedEvent<T> = T extends TypedEventFilter<any, infer EventArgsObject> ? EventArgsObject : never;
+export type AirnodeRrpEvents = Pick<
+  InstanceType<typeof AirnodeRrp>['filters'],
+  | 'ClientRequestCreated'
+  | 'ClientFullRequestCreated'
+  | 'ClientRequestFulfilled'
+  | 'ClientRequestFailed'
+  | 'WithdrawalRequested'
+  | 'WithdrawalFulfilled'
+>;
+export type AirnodeRrpLog<T extends keyof AirnodeRrpEvents> = ExtractTypedEvent<ReturnType<AirnodeRrpEvents[T]>>;
+
+export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { args: T };
+
+export interface EVMFullApiRequestCreatedLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientFullRequestCreated'>>;
+}
+
+export interface EVMTemplateRequestCreatedLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientRequestCreated'>>;
+}
+
+export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequestCreatedLog;
+
+export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
+  parsedLog:
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+}
+
+export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalRequested'>>;
+}
+
+export interface EVMWithdrawalFulfilledLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalFulfilled'>>;
+}
+
+export type EVMEventLog =
+  | EVMRequestCreatedLog
+  | EVMRequestFulfilledLog
+  | EVMWithdrawalRequestLog
+  | EVMWithdrawalFulfilledLog;
 
 // ===========================================
 // Transactions
