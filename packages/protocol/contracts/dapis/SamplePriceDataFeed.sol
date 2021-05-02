@@ -7,7 +7,6 @@ import "./RrpDapiServer.sol";
 contract SamplePriceDataFeed {
     RrpDapiServer public rrpDapiServer;
     bytes16 public latestDapiId;
-    uint64 public latestDapiRequestIndex;
     int256 public latestAnswer;
 
     constructor (address _rrpDapiServer)
@@ -20,14 +19,16 @@ contract SamplePriceDataFeed {
         // onlyOwner
     {
         latestDapiId = dapiId;
-        latestDapiRequestIndex = 0;
     }
 
     function makeDapiRequest()
         external
         // onlyOwner
     {
-        latestDapiRequestIndex = rrpDapiServer.makeDapiRequest(latestDapiId, "");
+        rrpDapiServer.resetDapiRequestIndex(latestDapiId);
+        rrpDapiServer.makeDapiRequest(latestDapiId, "");
+        // We don't need to get the dAPI request index because we know
+        // it will be 1, we just have reset it
     }
 
     function reduce(
@@ -46,7 +47,7 @@ contract SamplePriceDataFeed {
             "dAPI stale"
             );
         require(
-            dapiRequestIndex == latestDapiRequestIndex,
+            dapiRequestIndex == 1,
             "Request stale"
             );
         latestAnswer = reducedValue;
