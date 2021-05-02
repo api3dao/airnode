@@ -142,7 +142,7 @@ contract RrpDapiServer is CustomReducer {
             if (responsesLength < dapi.noResponsesToReduce) {
                 int256 decodedData = abi.decode(data, (int256));
                 dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex][responsesLength] = decodedData;
-                dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex] = responsesLength++;
+                dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex] = ++responsesLength;
                 
                 if (responsesLength == dapi.noResponsesToReduce) {
                     int256 reducedValue;
