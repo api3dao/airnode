@@ -48,6 +48,14 @@ contract RrpDapiServer is CustomReducer {
         external
         returns (bytes16 dapiId)
     {
+      require(
+          templateIds.length == designatedWallets.length,
+          "Parameter lengths do not match"
+          );
+      require(
+          noResponsesToReduce <= templateIds.length && noResponsesToReduce != 0,
+          "Invalid number of responses to reduce"
+          );
       dapiId = bytes16(keccak256(abi.encodePacked(
           noResponsesToReduce,
           toleranceInPercentages,
