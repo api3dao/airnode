@@ -2,9 +2,9 @@
 pragma solidity 0.8.4;
 
 import "../AirnodeRrp.sol";
-import "./CustomReducer.sol";
+import "./reducers/MeanMedianHybrid.sol";
 
-contract RrpDapiServer is CustomReducer {
+contract RrpDapiServer is MeanMedianHybrid {
     struct Dapi {
         uint256 noResponsesToReduce;
         int256 toleranceInPercentages;
@@ -158,10 +158,10 @@ contract RrpDapiServer is CustomReducer {
                 if (responsesLength == dapi.noResponsesToReduce) {
                     int256 reducedValue;
                     if (dapi.toleranceInPercentages == 0) {
-                        reducedValue = computeMedian(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex]);
+                        reducedValue = computeMedianInPlace(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex]);
                     }
                     else {
-                        reducedValue = computeMeanMedianHybrid(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex], dapi.toleranceInPercentages);
+                        reducedValue = computeMeanMedianHybridInPlace(dapi.requestIndexToResponses[dapiRequestIdentifiers.dapiRequestIndex], dapi.toleranceInPercentages);
                     }
                     (bool success, ) = dapi.reduceAddress.call(abi.encodeWithSelector( // solhint-disable-line
                         dapi.reduceFunctionId,
