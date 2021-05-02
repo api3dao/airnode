@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
-// TODO: fix the indent conflict between Eslint and TS
 import { OIS } from '@airnode/ois';
 import { ethers } from 'ethers';
 import { AirnodeRrp, TypedEventFilter } from '@airnode/protocol';

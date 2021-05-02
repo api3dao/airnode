@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */ // TODO: Fix - there is a conflit between prettier and eslint
 import { AirnodeRrp } from '@airnode/protocol';
 
 type AirnodeRrpMocks = { [key in keyof InstanceType<typeof AirnodeRrp>['functions']]: jest.Mock };
