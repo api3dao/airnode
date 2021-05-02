@@ -16,14 +16,14 @@ contract RrpDapiServer is CustomReducer {
         mapping(uint256 => int256[]) requestIndexToResponses;
         mapping(uint256 => uint256) requestIndexToResponsesLength;
         uint64 nextRequestIndex;
-        uint256 lastRequestIndexResetTime;
+        uint256 lastRequestIndexResetBlock;
         address requestIndexResetter;
         }
     
     struct DapiRequestIdentifiers {
         bytes16 dapiId;
         uint64 dapiRequestIndex;
-        uint64 dapiRequestTime;
+        uint64 dapiRequestBlock;
         }
     
     AirnodeRrp public airnodeRrp;
@@ -85,8 +85,12 @@ contract RrpDapiServer is CustomReducer {
             msg.sender == dapi.requestIndexResetter,
             "Caller not resetter"
             );
+        require(
+            block.number > dapi.lastRequestIndexResetBlock,
+            "Already reset this block"
+            );
         dapi.nextRequestIndex = 1;
-        dapi.lastRequestIndexResetTime = block.timestamp;
+        dapi.lastRequestIndexResetBlock = block.number;
     }
 
     function makeDapiRequest(
@@ -121,7 +125,7 @@ contract RrpDapiServer is CustomReducer {
             airnodeRequestIdToDapiRequestIdentifiers[requestId] = DapiRequestIdentifiers({
                 dapiId: dapiId,
                 dapiRequestIndex: uint64(currDapiRequestIndex),
-                dapiRequestTime: uint64(block.timestamp)
+                dapiRequestBlock: uint64(block.number)
                 });
         }
     }
@@ -145,7 +149,7 @@ contract RrpDapiServer is CustomReducer {
         if (statusCode == 0) {
             Dapi storage dapi = dapis[dapiRequestIdentifiers.dapiId];
             require(
-                dapiRequestIdentifiers.dapiRequestTime > dapi.lastRequestIndexResetTime,
+                dapiRequestIdentifiers.dapiRequestBlock > dapi.lastRequestIndexResetBlock,
                 "Request stale"
                 );
             uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex];
