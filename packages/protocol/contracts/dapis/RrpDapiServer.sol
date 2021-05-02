@@ -15,9 +15,9 @@ contract RrpDapiServer is CustomReducer {
         bytes4 reduceFunctionId;
         mapping(uint256 => int256[]) requestIndexToResponses;
         mapping(uint256 => uint256) requestIndexToResponsesLength;
-        uint64 nextDapiRequestIndex;
-        uint256 lastDapiRequestIndexResetTime;
-        address dapiRequestIndexResetter;
+        uint64 nextRequestIndex;
+        uint256 lastRequestIndexResetTime;
+        address requestIndexResetter;
         }
     
     struct DapiRequestIdentifiers {
@@ -29,7 +29,7 @@ contract RrpDapiServer is CustomReducer {
     AirnodeRrp public airnodeRrp;
     mapping(bytes16 => Dapi) private dapis;
     uint256 public nextDapiIndex = 1;
-    mapping(bytes32 => DapiRequestIdentifiers) private requestIdToDapiRequestIdentifiers;
+    mapping(bytes32 => DapiRequestIdentifiers) private airnodeRequestIdToDapiRequestIdentifiers;
 
     constructor(address _airnodeRrp) {
         airnodeRrp = AirnodeRrp(_airnodeRrp);
@@ -43,7 +43,7 @@ contract RrpDapiServer is CustomReducer {
         address[] calldata designatedWallets,
         address reduceAddress,
         bytes4 reduceFunctionId,
-        address dapiRequestIndexResetter
+        address requestIndexResetter
         )
         external
         returns (bytes16 dapiId)
@@ -56,7 +56,7 @@ contract RrpDapiServer is CustomReducer {
           designatedWallets,
           reduceAddress,
           reduceFunctionId,
-          dapiRequestIndexResetter
+          requestIndexResetter
           )));
       dapis[dapiId].noResponsesToReduce = noResponsesToReduce;
       dapis[dapiId].toleranceInPercentages = toleranceInPercentages;
@@ -65,8 +65,8 @@ contract RrpDapiServer is CustomReducer {
       dapis[dapiId].designatedWallets = designatedWallets;
       dapis[dapiId].reduceAddress = reduceAddress;
       dapis[dapiId].reduceFunctionId = reduceFunctionId;
-      dapis[dapiId].dapiRequestIndexResetter = dapiRequestIndexResetter;
-      dapis[dapiId].nextDapiRequestIndex = 1;
+      dapis[dapiId].requestIndexResetter = requestIndexResetter;
+      dapis[dapiId].nextRequestIndex = 1;
     }
 
     function resetDapiRequestIndex(bytes16 dapiId)
@@ -74,11 +74,11 @@ contract RrpDapiServer is CustomReducer {
     {
         Dapi storage dapi = dapis[dapiId];
         require(
-            msg.sender == dapi.dapiRequestIndexResetter,
+            msg.sender == dapi.requestIndexResetter,
             "Caller not resetter"
             );
-        dapi.nextDapiRequestIndex = 1;
-        dapi.lastDapiRequestIndexResetTime = block.timestamp;
+        dapi.nextRequestIndex = 1;
+        dapi.lastRequestIndexResetTime = block.timestamp;
     }
 
     function makeDapiRequest(
@@ -89,12 +89,11 @@ contract RrpDapiServer is CustomReducer {
         returns (uint64 currDapiRequestIndex)
     {
         Dapi storage dapi = dapis[dapiId];
-        currDapiRequestIndex = dapi.nextDapiRequestIndex;
+        currDapiRequestIndex = dapi.nextRequestIndex++;
         dapi.requestIndexToResponsesLength[currDapiRequestIndex] = 0;
         if (dapi.requestIndexToResponses[currDapiRequestIndex].length == 0) {
             dapi.requestIndexToResponses[currDapiRequestIndex] = new int256[](dapi.noResponsesToReduce);
         }
-        dapi.nextDapiRequestIndex++;
         require(
             airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(dapi.requesterIndex, msg.sender),
             "Caller not endorsed"
@@ -111,7 +110,11 @@ contract RrpDapiServer is CustomReducer {
                 ));
             require(success, "Request unsuccessful"); // This will never happen if AirnodeRrp is valid
             bytes32 requestId = abi.decode(returnedData, (bytes32));
-            requestIdToDapiRequestIdentifiers[requestId] = DapiRequestIdentifiers(dapiId, uint64(currDapiRequestIndex), uint64(block.timestamp));
+            airnodeRequestIdToDapiRequestIdentifiers[requestId] = DapiRequestIdentifiers({
+                dapiId: dapiId,
+                dapiRequestIndex: uint64(currDapiRequestIndex),
+                dapiRequestTime: uint64(block.timestamp)
+                });
         }
     }
 
@@ -126,7 +129,7 @@ contract RrpDapiServer is CustomReducer {
             address(airnodeRrp) == msg.sender,
             "Caller not AirnodeRrp"
             );
-        DapiRequestIdentifiers storage dapiRequestIdentifiers = requestIdToDapiRequestIdentifiers[requestId]; 
+        DapiRequestIdentifiers storage dapiRequestIdentifiers = airnodeRequestIdToDapiRequestIdentifiers[requestId]; 
         require(
             dapiRequestIdentifiers.dapiRequestIndex != 0,
             "Request ID invalid"
@@ -134,7 +137,7 @@ contract RrpDapiServer is CustomReducer {
         if (statusCode == 0) {
             Dapi storage dapi = dapis[dapiRequestIdentifiers.dapiId];
             require(
-                dapiRequestIdentifiers.dapiRequestTime > dapi.lastDapiRequestIndexResetTime,
+                dapiRequestIdentifiers.dapiRequestTime > dapi.lastRequestIndexResetTime,
                 "Request stale"
                 );
             uint256 responsesLength = dapi.requestIndexToResponsesLength[dapiRequestIdentifiers.dapiRequestIndex];
@@ -162,6 +165,6 @@ contract RrpDapiServer is CustomReducer {
                 }
             }
         }
-        delete requestIdToDapiRequestIdentifiers[requestId];
+        delete airnodeRequestIdToDapiRequestIdentifiers[requestId];
     }
 }
