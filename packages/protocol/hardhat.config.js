@@ -26,6 +26,10 @@ module.exports = {
       url: credentials.goerli.providerUrl || '',
       accounts: { mnemonic: credentials.goerli.mnemonic || '' },
     },
+    kovan: {
+      url: credentials.kovan.providerUrl || '',
+      accounts: { mnemonic: credentials.kovan.mnemonic || '' },
+    },
     xdai: {
       url: credentials.xdai.providerUrl || '',
       accounts: { mnemonic: credentials.xdai.mnemonic || '' },

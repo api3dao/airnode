@@ -11,6 +11,9 @@ const ConvenienceRinkeby = require('./deployments/rinkeby/Convenience.json');
 const AirnodeGoerli = require('./deployments/goerli/Airnode.json');
 const ConvenienceGoerli = require('./deployments/goerli/Convenience.json');
 
+const AirnodeKovan = require('./deployments/kovan/Airnode.json');
+const ConvenienceKovan = require('./deployments/kovan/Convenience.json');
+
 const AirnodeXdai = require('./deployments/xdai/Airnode.json');
 const ConvenienceXdai = require('./deployments/xdai/Convenience.json');
 
@@ -21,6 +24,7 @@ const AirnodeAddresses = {
   3: AirnodeRopsten.receipt.contractAddress,
   4: AirnodeRinkeby.receipt.contractAddress,
   5: AirnodeGoerli.receipt.contractAddress,
+  42: AirnodeKovan.receipt.contractAddress,
   100: AirnodeXdai.receipt.contractAddress,
   250: AirnodeFantom.receipt.contractAddress,
 };
@@ -28,6 +32,7 @@ const ConvenienceAddresses = {
   3: ConvenienceRopsten.receipt.contractAddress,
   4: ConvenienceRinkeby.receipt.contractAddress,
   5: ConvenienceGoerli.receipt.contractAddress,
+  42: ConvenienceKovan.receipt.contractAddress,
   100: ConvenienceXdai.receipt.contractAddress,
   250: ConvenienceFantom.receipt.contractAddress,
 };
