@@ -24,7 +24,7 @@ export function validateTemplate(
   try {
     template = JSON.parse(fs.readFileSync(`${templatePath}${nestedTemplatePath}`, 'utf8'));
   } catch {
-    return [logger.error(`${nestedTemplatePath} is not validator template`)];
+    return [logger.error(`${templatePath}${nestedTemplatePath} is not validator template`)];
   }
 
   const roots: Roots = { specs, nonRedundantParams: '__arrayItem' in template ? [] : {}, output: {} };
@@ -37,7 +37,7 @@ export function validateTemplate(
     [],
     roots.nonRedundantParams,
     roots,
-    `${templatePath}${nestedTemplatePath}/`,
+    `${templatePath}${nestedTemplatePath}${nestedTemplatePath ? '/' : ''}`,
     [...paramPathPrefix, ...paramPath]
   );
 

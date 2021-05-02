@@ -1,5 +1,5 @@
 import * as logger from './logger';
-import { Log } from '../types';
+import { Log, Roots } from '../types';
 
 /**
  * Replaces all "__match" instances in provided object and all it's children, except children of "__conditions"
@@ -176,13 +176,26 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
 /**
  * Inserts value into specification inside specified parameter, creates missing parameters in parameter if they don't exist and merges parameter with value if both of them are objects
  * @param paramPath - full path to parameter
- * @param spec - specification that will be modified
+ * @param roots - roots of specs, nonRedundantParams, output
  * @param value - value that will be inserted
  */
-export function insertValue(paramPath: string[], spec: any, value: any) {
+export function insertValue(paramPath: string[], roots: Roots, value: any) {
+  if (!paramPath.length) {
+    roots.output = value;
+    return;
+  }
+
+  if (paramPath[0] === '[]') {
+    roots.output = [];
+  }
+
+  insertValueRecursive(paramPath, roots.output, value);
+}
+
+function insertValueRecursive(paramPath: string[], spec: any, value: any) {
   let param = paramPath[0];
 
-  if (param === '') {
+  if (param === '' || !param) {
     for (const key of Object.keys(value)) {
       spec[key] = JSON.parse(JSON.stringify(value[key]));
     }
@@ -195,11 +208,11 @@ export function insertValue(paramPath: string[], spec: any, value: any) {
 
     if (Array.isArray(spec)) {
       spec.forEach((item) => {
-        insertValue(paramPath, item, value);
+        insertValueRecursive(paramPath, item, value);
       });
     } else {
       for (const key in spec) {
-        insertValue(paramPath, spec[key], value);
+        insertValueRecursive(paramPath, spec[key], value);
       }
     }
 
@@ -219,11 +232,13 @@ export function insertValue(paramPath: string[], spec: any, value: any) {
 
     param = param.replace(/\[([0-9]*|_)\]$/, '');
 
-    if (!spec[param]) {
-      spec[param] = [];
-    }
+    if (param) {
+      if (!spec[param]) {
+        spec[param] = [];
+      }
 
-    spec = spec[param];
+      spec = spec[param];
+    }
 
     if (index === -2) {
       index = spec.length - 1;
@@ -239,7 +254,7 @@ export function insertValue(paramPath: string[], spec: any, value: any) {
 
     spec = spec[index];
 
-    insertValue(paramPath.slice(1), spec, value);
+    insertValueRecursive(paramPath.slice(1), spec, value);
     return;
   }
 
@@ -255,7 +270,7 @@ export function insertValue(paramPath: string[], spec: any, value: any) {
 
   spec = spec[param];
 
-  insertValue(paramPath.slice(1), spec, value);
+  insertValueRecursive(paramPath.slice(1), spec, value);
 }
 
 /**

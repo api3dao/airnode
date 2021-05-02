@@ -5,7 +5,7 @@ import fs from 'fs';
 import { invalidConversionMessage } from '../utils/messages';
 
 const oas2ois = 'OAS2OIS.json';
-const ois2config = 'OAS2OIS.json';
+const ois2config = 'OIS2Config.json';
 
 if (process.env.npm_config_template) {
   console.log(
@@ -30,11 +30,13 @@ if (process.env.npm_config_template) {
     res = convert(specs, utils.getPath(ois2config, messages, version));
   } else if (from === 'oas' && to === 'config') {
     const tmp = convert(specs, utils.getPath(oas2ois, messages, version));
-    const templatePath = utils.getPath(ois2config, messages);
+    let templatePath: string | string[] = utils.getPath(ois2config, messages);
     const template = JSON.parse(fs.readFileSync(templatePath).toString());
+    templatePath = templatePath.split('/');
 
     if (tmp.output && template) {
-      res = convertJson(tmp.output, template, templatePath);
+      res = convertJson(tmp.output, template, templatePath.slice(0, templatePath.length - 1).join('/') + '/');
+      res.messages.push(...tmp.messages);
     } else {
       res = tmp;
     }

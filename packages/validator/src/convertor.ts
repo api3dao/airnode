@@ -69,5 +69,5 @@ export function convertJson(specs: object, template: object, templatePath = ''):
     templatePath
   );
 
-  return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(output)) };
+  return { valid: result.valid, messages: result.messages, output: JSON.parse(JSON.stringify(result.output)) };
 }

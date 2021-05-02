@@ -1,5 +1,5 @@
 import { Roots } from '../types';
-import { insertValue, replaceParamIndexWithName } from './utils';
+import { insertValue, replaceParamIndexWithName, replacePathsWithValues } from './utils';
 
 export function execute(specs: any, template: any, currentPath: string[], roots: Roots) {
   for (const action of template) {
@@ -14,16 +14,16 @@ export function execute(specs: any, template: any, currentPath: string[], roots:
     switch (Object.keys(action)[0]) {
       case '__insert':
         insertValue(
-          replaceParamIndexWithName(targetPath, currentPath),
-          roots.output,
-          typeof action['__insert']['__value'] === 'string'
-            ? replaceParamIndexWithName(action['__insert'], currentPath)['__value']
-            : action['__insert']['__value']
+          replacePathsWithValues(specs, roots.specs, replaceParamIndexWithName(targetPath, currentPath)),
+          roots,
+          replacePathsWithValues(specs, roots.specs, replaceParamIndexWithName(action['__insert'], currentPath))[
+            '__value'
+          ]
         );
         break;
 
       case '__copy':
-        insertValue(replaceParamIndexWithName(targetPath, currentPath), roots.output, specs);
+        insertValue(replaceParamIndexWithName(targetPath, currentPath), roots, specs);
         break;
     }
   }
