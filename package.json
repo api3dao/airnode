@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.165",
-    "@types/node": "^14.10.2",
+    "@types/node": "^15.0.1",
     "@types/yargs": "^16.0.0",
     "ethers": "^5.0.24",
     "lerna": "^3.22.1",
