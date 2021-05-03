@@ -31,13 +31,11 @@
     "chai": "^4.2.0",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.3.0",
+    "ethers": "^5.1.4",
     "hardhat": "^2.2.1",
     "hardhat-deploy": "^0.7.0-beta.38",
     "hardhat-gas-reporter": "^1.0.4",
     "solidity-coverage": "^0.7.16",
     "typechain": "^4.0.3"
-  },
-  "dependencies": {
-    "ethers": "^5.1.4"
   }
 }
