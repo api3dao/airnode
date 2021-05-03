@@ -1,7 +1,7 @@
 import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
-import { Log } from '../types';
+import { Log, Roots } from '../types';
 import { validateCatch } from './catchValidator';
 
 /**
@@ -9,7 +9,7 @@ import { validateCatch } from './catchValidator';
  * @param specs - specification containing objects with keys that will be matched with regular expression
  * @param condition - object containing the regular expression and validator structure, which will be validated in case the regular expression is matched
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
- * @param specsRoot - roots of specs
+ * @param roots - roots of specs, nonRedundantParams and output
  * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
@@ -18,7 +18,7 @@ function validateConditionRegexInKey(
   specs: any,
   condition: any,
   paramPath: string[],
-  specsRoot: any,
+  roots: Roots,
   templatePath: string,
   paramPathPrefix: string[]
 ): Log[] {
@@ -28,7 +28,7 @@ function validateConditionRegexInKey(
 
   // In case of '__rootThen' validate from root
   const thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
-  const currentSpecs = condition['__rootThen'] ? specsRoot : specs;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   // check all keys of children for a match with provided regex
@@ -48,14 +48,14 @@ function validateConditionRegexInKey(
       const tmpNonRedundantParams = Array.isArray(currentSpecs) ? [] : {};
       let template = utils.replaceConditionalMatch(param, thenCondition);
       template = utils.replaceParamIndexWithName(template, paramPath);
-      template = utils.replacePathsWithValues(specs, specsRoot, template);
+      template = utils.replacePathsWithValues(specs, roots.specs, template);
 
       const result = processSpecs(
         condition['__rootThen'] ? currentSpecs : currentSpecs[thisName],
         template,
         condition['__rootThen'] ? [] : [...currentParamPath, thisName],
         tmpNonRedundantParams,
-        { specs: specsRoot, nonRedundantParams: tmpNonRedundantParams, output: {} },
+        { specs: roots.specs, nonRedundantParams: tmpNonRedundantParams, output: roots.output },
         templatePath
       );
 
@@ -72,7 +72,7 @@ function validateConditionRegexInKey(
           messages,
           [...paramPath, thisName],
           paramPathPrefix,
-          specsRoot
+          roots.specs
         );
       }
     }
@@ -86,7 +86,7 @@ function validateConditionRegexInKey(
  * @param specs - specification containing objects with keys that will be matched with regular expression
  * @param condition - object containing the regular expression and template, which will be validated in case the regular expression is matched
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
- * @param specsRoot - roots of specs
+ * @param roots - roots of specs, nonRedundantParams and output
  * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
@@ -95,7 +95,7 @@ function validateConditionRegexInValue(
   specs: any,
   condition: any,
   paramPath: string[],
-  specsRoot: any,
+  roots: Roots,
   templatePath: string,
   paramPathPrefix: string[]
 ): Log[] {
@@ -105,7 +105,7 @@ function validateConditionRegexInValue(
 
   // In case of '__rootThen' validate from root
   let thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
-  const currentSpecs = condition['__rootThen'] ? specsRoot : specs;
+  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
   const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
 
   if (paramName === '__this') {
@@ -123,7 +123,7 @@ function validateConditionRegexInValue(
   }
 
   thenCondition = utils.replaceParamIndexWithName(thenCondition, paramPath);
-  thenCondition = utils.replacePathsWithValues(specs, specsRoot, thenCondition);
+  thenCondition = utils.replacePathsWithValues(specs, roots.specs, thenCondition);
 
   // parameter value matched regex, "then section" must be checked
   const tmpNonRedundantParams = Array.isArray(currentSpecs) ? [] : {};
@@ -133,7 +133,7 @@ function validateConditionRegexInValue(
     thenCondition,
     currentParamPath,
     tmpNonRedundantParams,
-    { specs: specsRoot, nonRedundantParams: tmpNonRedundantParams, output: {} },
+    { specs: roots.specs, nonRedundantParams: tmpNonRedundantParams, output: roots.output },
     templatePath
   );
 
@@ -158,7 +158,7 @@ function validateConditionRegexInValue(
     messages,
     [...paramPath, paramName === '__this' ? '' : paramName],
     paramPathPrefix,
-    specsRoot
+    roots.specs
   );
 
   return messages;
@@ -169,7 +169,7 @@ function validateConditionRegexInValue(
  * @param specs - specification that is being validated
  * @param condition - template of conditions that the specification will be checked against
  * @param paramPath - string of parameters separated by ".", representing path to current specs location
- * @param specsRoot - roots of specs
+ * @param roots - roots of specs, nonRedundantParams and output
  * @param templatePath - path to current validator template file
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
@@ -178,7 +178,7 @@ export function validateCondition(
   specs: any,
   condition: any,
   paramPath: string[],
-  specsRoot: any,
+  roots: Roots,
   templatePath: string,
   paramPathPrefix: string[]
 ): Log[] {
@@ -186,13 +186,9 @@ export function validateCondition(
   const paramName = Object.keys(condition['__if'])[0];
 
   if (paramName === '__this_name') {
-    messages.push(
-      ...validateConditionRegexInKey(specs, condition, paramPath, specsRoot, templatePath, paramPathPrefix)
-    );
+    messages.push(...validateConditionRegexInKey(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
   } else if (specs[paramName] || paramName === '__this') {
-    messages.push(
-      ...validateConditionRegexInValue(specs, condition, paramPath, specsRoot, templatePath, paramPathPrefix)
-    );
+    messages.push(...validateConditionRegexInValue(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
   }
 
   return messages;

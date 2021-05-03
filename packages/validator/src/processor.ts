@@ -46,7 +46,7 @@ export function processSpecs(
     switch (key) {
       case '__conditions':
         for (const condition of template[key]) {
-          messages.push(...validateCondition(specs, condition, paramPath, roots.specs, templatePath, paramPathPrefix));
+          messages.push(...validateCondition(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
         }
 
         break;
