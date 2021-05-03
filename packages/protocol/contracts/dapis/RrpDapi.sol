@@ -10,5 +10,5 @@ import "./reducers/Reducer.sol";
 //           // Any specific implementation required
 //       }
 abstract contract RrpDapi is Reducer {
-    // TODO: Implement
+  // TODO: Implement
 }
