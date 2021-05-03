@@ -8,6 +8,7 @@ import {
   LogsData,
   RequestStatus,
   Withdrawal,
+  PendingLog,
 } from '../../types';
 
 export function initialize(logWithMetadata: EVMWithdrawalRequestLog): ClientRequest<Withdrawal> {
