@@ -217,7 +217,6 @@ describe('fetchTemplate', () => {
   let airnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    // mock AirnodeRrp contract
     airnodeRrp = (new ethers.Contract('address', ['ABI']) as unknown) as AirnodeRrp;
   });
 

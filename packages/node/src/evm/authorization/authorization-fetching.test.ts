@@ -155,7 +155,6 @@ describe('fetchAuthorizationStatus', () => {
   let airnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    // create mock of AirnodeRrp contract
     airnodeRrp = (new ethers.Contract('address', ['ABI']) as any) as AirnodeRrp;
   });
 

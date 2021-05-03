@@ -416,7 +416,7 @@ describe('setAirnodeParameters', () => {
       expect(setAirnodeParametersMock).toHaveBeenCalledTimes(2);
     });
 
-    it.only('does not warn if the Airnode parameters match', async () => {
+    it('does not warn if the Airnode parameters match', async () => {
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
