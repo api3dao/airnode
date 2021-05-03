@@ -13,9 +13,11 @@
   },
   "dependencies": {
     "@airnode/airnode-abi": "^0.1.0",
-    "@airnode/protocol": "^0.1.0"
+    "@airnode/protocol": "^0.1.0",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
-    "@airnode/operation": "^0.1.0"
+    "@airnode/operation": "^0.1.0",
+    "@types/yargs": "^16.0.0"
   }
 }
