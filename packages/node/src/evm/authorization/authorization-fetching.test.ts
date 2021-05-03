@@ -162,7 +162,7 @@ describe('fetchAuthorizationStatus', () => {
     airnodeRrp = new ethers.Contract('address', ['ABI']);
   });
 
-  it('fetches individual authorization statuses if the group cannot be fetched', async () => {
+  it('fetches group authorization status if it can be fetched', async () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
     const apiCall = fixtures.requests.buildApiCall();
     const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
