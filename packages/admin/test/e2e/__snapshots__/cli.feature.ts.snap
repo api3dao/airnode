@@ -27,5 +27,78 @@ Commands:
 
 Options:
   --version  Show version number                                       [boolean]
-  --help     Show help                                                 [boolean]"
+  --help     Show help                                                 [boolean]
+
+Examples:
+  cli.js create-requester                   Creates a requester and returns a
+  --providerUrl                             requester index. Note down your
+  https://ropsten.infura.io/v3/<KEY>        requester index because you will be
+  --mnemonic \\"nature about salad...\\"        using it in future interactions.
+  --requesterAdmin 0x5c17cb...
+
+  cli.js set-requester-admin                Sets the requester admin. The
+  --providerUrl                             account derived from the \\"mnemonic\\"
+  https://ropsten.infura.io/v3/<KEY>        you provide here has to belong to
+  --mnemonic \\"nature about salad...\\"        the previous requester admin.
+  --requesterIndex 6
+  --requesterAdmin 0xe97301...
+
+  cli.js derive-designated-wallet           Derives the address of the wallet
+  --providerUrl                             designated by an Airnode for a
+  https://ropsten.infura.io/v3/<KEY>        requester.
+  --airnodeId 0xe1e0dd...
+  --requesterIndex 6
+
+  cli.js endorse-client                     Endorses a client contract so that
+  --providerUrl                             its requests can be fulfilled by the
+  https://ropsten.infura.io/v3/<KEY>        requester's designated wallet.
+  --mnemonic \\"nature about salad...\\"        The account derived from the
+  --requesterIndex 6       --clientAddress  mnemonic you provide here has to
+  0x2c2e12...                               belong to the requester admin.
+
+  cli.js unendorse-client                   Unendorses a client contract so that
+  --providerUrl                             its requests can no longer be
+  https://ropsten.infura.io/v3/<KEY>        fulfilled by the requester's
+  --mnemonic \\"nature about salad...\\"        designated wallet.
+  --requesterIndex 6       --clientAddress  The account derived from the
+  0x2c2e12...                               mnemonic you provide here has to
+                                            belong to the requester admin.
+
+  cli.js get-endorsement-status             Returns the endorsement status for
+  --providerUrl                             the given requester index and client
+  https://ropsten.infura.io/v3/<KEY>        (true if endorsed, false otherwise).
+  --requesterIndex 6       --clientAddress
+  0x2c2e12...
+
+  cli.js create-template                    Reads a file, uses its contents to
+  --providerUrl                             create a template and returns the
+  https://ropsten.infura.io/v3/<KEY>        template ID. See the /example
+  --mnemonic \\"nature about salad...\\"        directory for an example template
+  --templateFilePath ./template.json        file.
+
+  cli.js get-template       --providerUrl   Returns the template for the given
+  https://ropsten.infura.io/v3/<KEY>        templateId.
+  --templateId 0x8d3b9...
+
+  cli.js request-withdrawal                 Requests a withdrawal from the
+  --providerUrl                             wallet designated by an Airnode for
+  https://ropsten.infura.io/v3/<KEY>        a requester, and returns the request
+  --mnemonic \\"nature about salad...\\"        ID.
+  --airnodeId 0xe1e0dd...                   The account derived from the
+  --requesterIndex 6       --destination    mnemonic you provide here has to
+  0x98aaba...                               belong to the requester admin.
+
+  cli.js check-withdrawal-request           Checks the status of the withdrawal
+  --providerUrl                             request with the given ID.
+  https://ropsten.infura.io/v3/<KEY>
+  --withdrawalRequestId 0x011d1b...
+
+  cli.js get-airnode-parameters             Returns the Airnode parameters and
+  --providerUrl                             block number for the given
+  https://ropsten.infura.io/v3/<KEY>        airnodeId.
+  --airnodeId 0xe1e0dd...
+
+  cli.js get-airnode-parameters             Derives the endpoint ID using the
+  --oisTitle \\"My OIS title...\\"              OIS title and the endpoint name
+  --endpointName \\"My endpoint name...\\"      using the triggers convention."
 `;
