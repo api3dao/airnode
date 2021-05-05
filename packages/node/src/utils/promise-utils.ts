@@ -88,8 +88,8 @@ export interface ContinuousRetryOptions {
 }
 
 export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise<T>, options?: ContinuousRetryOptions) {
-  const promise = new Promise((resolve, reject) => {
-    function run(): Promise<void> {
+  const promise = new Promise<T>((resolve, reject) => {
+    function run(): Promise<any> {
       // If the promise is successful, resolve it and bubble the result up
       return operation()
         .then(resolve)

@@ -23,7 +23,7 @@ export async function fetchTemplate(
   airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const contractCall = () => airnodeRrp.getTemplate(templateId) as Promise<any>;
+  const contractCall = () => airnodeRrp.getTemplate(templateId);
   const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, rawTemplate] = await go(retryableContractCall);

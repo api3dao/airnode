@@ -59,7 +59,7 @@ export async function fetchAirnodeParametersWithData(
   fetchOptions: VerifyOptions
 ): Promise<LogsData<AirnodeParametersData | null>> {
   const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
-  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId) as Promise<any>;
+  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId);
   const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and Airnode parameters...');
@@ -177,7 +177,7 @@ export async function setAirnodeParameters(
       value: fundsToSend,
       gasLimit,
       gasPrice,
-    }) as Promise<any>;
+    });
   const retryableSetAirnodeParametersTx = retryOperation(OPERATION_RETRIES, setAirnodeParametersTx);
   const [txErr, tx] = await go(retryableSetAirnodeParametersTx);
   if (txErr || !tx) {
