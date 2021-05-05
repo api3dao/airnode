@@ -7,7 +7,7 @@ import "./reducers/MeanMedianHybrid.sol";
 contract RrpDapiServer is MeanMedianHybrid {
     struct Dapi {
         uint256 noResponsesToReduce;
-        int256 toleranceInPercentages;
+        uint256 toleranceInPercentages;
         uint256 requesterIndex;
         bytes32[] templateIds;
         address[] designatedWallets;
@@ -37,7 +37,7 @@ contract RrpDapiServer is MeanMedianHybrid {
 
     function registerDapi(
         uint256 noResponsesToReduce,
-        int256 toleranceInPercentages,
+        uint256 toleranceInPercentages,
         uint256 requesterIndex,
         bytes32[] calldata templateIds,
         address[] calldata designatedWallets,

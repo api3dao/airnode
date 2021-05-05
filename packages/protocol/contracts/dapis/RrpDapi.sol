@@ -22,7 +22,7 @@ abstract contract RrpDapi {
       uint256 _requesterIndex,
       uint256 _maxAnswersInStorage,
       uint256 _minResponsesToReduce,
-      int256 _toleranceInPercentages,
+      uint256 _toleranceInPercentages,
       bytes32[] memory _templateIds,
       address[] memory _designatedWallets
     ){

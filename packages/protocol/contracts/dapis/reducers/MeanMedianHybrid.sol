@@ -23,7 +23,7 @@ import "./Median.sol";
 /// Median.sol instead.
 contract MeanMedianHybrid is Mean, Median {
     /// @notice Percentages are represented by multiplying by 1,000,000 (1e6)
-    int256 public constant HUNDRED_PERCENT = 100e6;
+    uint256 public constant HUNDRED_PERCENT = 100e6;
 
     /// @notice Reduces the array of values by computing their mean, checking
     /// if the mean is similar enough to median, and computing the median
@@ -31,7 +31,7 @@ contract MeanMedianHybrid is Mean, Median {
     /// @param values Values to be reduced
     function computeMeanMedianHybridInPlace(
         int256[] memory values,
-        int256 toleranceInPercentages
+        uint256 toleranceInPercentages
         )
         internal
         pure
@@ -39,8 +39,8 @@ contract MeanMedianHybrid is Mean, Median {
     {
         int256 mean = computeMean(values);
         // Test the mean for validity
-        int256 upperTolerance = mean * (HUNDRED_PERCENT + toleranceInPercentages) / HUNDRED_PERCENT;
-        int256 lowerTolerance = mean * (HUNDRED_PERCENT - toleranceInPercentages) / HUNDRED_PERCENT;
+        int256 upperTolerance = mean * int256((HUNDRED_PERCENT + toleranceInPercentages) / HUNDRED_PERCENT);
+        int256 lowerTolerance = mean * int256((HUNDRED_PERCENT - toleranceInPercentages) / HUNDRED_PERCENT);
         uint256 upperToleranceValidityCount;
         uint256 lowerToleranceValidityCount;
         for (uint256 i = 0; i < values.length; i++) {
