@@ -16,19 +16,6 @@ export function verifyDesignatedWallets<T>(
       return [[log], request];
     }
 
-    // We can't validate the wallet if there is no requester index. There should always be one
-    // at this point but just in case there isn't.
-    if (!request.requesterIndex) {
-      const message = `Ignoring Request:${request.id} as no requester index could be found for designated wallet verification`;
-      const log = logger.pend('ERROR', message);
-      const updatedRequest = {
-        ...request,
-        status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.TemplateNotFound,
-      };
-      return [[log], updatedRequest];
-    }
-
     const expectedDesignatedWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, request.requesterIndex);
     if (request.designatedWallet !== expectedDesignatedWallet) {
       const message = `Invalid designated wallet:${request.designatedWallet} for Request:${request.id}. Expected:${expectedDesignatedWallet}`;

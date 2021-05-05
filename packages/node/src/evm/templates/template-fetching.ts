@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { go, retryOperation } from '../../utils/promise-utils';
 import * as logger from '../../logger';
-import { AirnodeRrp } from '../contracts';
+import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
 import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
 
@@ -20,10 +20,10 @@ interface ApiCallTemplatesById {
 }
 
 export async function fetchTemplate(
-  airnodeRrp: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const contractCall = () => airnodeRrp.getTemplate(templateId) as Promise<any>;
+  const contractCall = () => airnodeRrp.getTemplate(templateId);
   const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, rawTemplate] = await go(retryableContractCall);
@@ -44,10 +44,10 @@ export async function fetchTemplate(
 }
 
 async function fetchTemplateGroup(
-  airnodeRrp: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
-  const contractCall = () => airnodeRrp.getTemplates(templateIds) as Promise<any>;
+  const contractCall = () => airnodeRrp.getTemplates(templateIds);
   const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
   const [err, rawTemplates] = await go(retryableContractCall);
@@ -94,7 +94,7 @@ export async function fetch(
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use
-  const airnodeRrp = new ethers.Contract(fetchOptions.airnodeRrpAddress, AirnodeRrp.ABI, fetchOptions.provider);
+  const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids) => fetchTemplateGroup(airnodeRrp, ids));

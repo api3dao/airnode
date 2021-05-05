@@ -1,34 +1,30 @@
-import { ethers } from 'ethers';
-import { processTransactions } from './process-transactions';
-import * as fixtures from 'test/fixtures';
-import { GroupedRequests } from '../../types';
-
+import { mockEthers } from 'test/utils';
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      callStatic: {
-        fulfill: staticFulfillMock,
-      },
-      estimateGas: {
-        fulfillWithdrawal: estimateGasWithdrawalMock,
-      },
-      fail: failMock,
-      fulfill: fulfillMock,
-      fulfillWithdrawal: fulfillWithdrawalMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: {
+      fulfillWithdrawal: estimateGasWithdrawalMock,
+    },
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
   },
-}));
+});
+
+import { ethers } from 'ethers';
+import { processTransactions } from './process-transactions';
+import * as fixtures from 'test/fixtures';
+import { GroupedRequests } from '../../types';
 
 describe('processTransactions', () => {
   it('fetches the gas price, assigns nonces and submits transactions', async () => {
-    const contract = new ethers.Contract('address', ['ABI']);
-
     const gasPrice = ethers.BigNumber.from(1000);
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockResolvedValueOnce(gasPrice);
@@ -36,9 +32,9 @@ describe('processTransactions', () => {
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
 
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
-    contract.fulfill.mockResolvedValueOnce({
+    estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+    staticFulfillMock.mockResolvedValueOnce({
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
@@ -57,8 +53,8 @@ describe('processTransactions', () => {
     expect(res.gasPrice).toEqual(ethers.BigNumber.from('1000'));
 
     // Withdrawal was submitted
-    expect(contract.fulfillWithdrawal).toHaveBeenCalledTimes(1);
-    expect(contract.fulfillWithdrawal).toHaveBeenCalledWith(
+    expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
+    expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
       withdrawal.airnodeId,
       withdrawal.requesterIndex,
@@ -73,8 +69,8 @@ describe('processTransactions', () => {
     );
 
     // API call was submitted
-    expect(contract.fulfill).toHaveBeenCalledTimes(1);
-    expect(contract.fulfill).toHaveBeenCalledWith(
+    expect(fulfillMock).toHaveBeenCalledTimes(1);
+    expect(fulfillMock).toHaveBeenCalledWith(
       apiCall.id,
       apiCall.airnodeId,
       ethers.BigNumber.from('0'),

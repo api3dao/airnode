@@ -1,14 +1,12 @@
-import { ethers } from 'ethers';
-import * as contracts from '../contracts';
 import * as fixtures from 'test/fixtures';
 import * as apiCalls from './api-calls';
-import { EVMEventLogWithMetadata, RequestErrorCode, RequestStatus } from 'src/types';
+import { EVMRequestCreatedLog, RequestErrorCode, RequestStatus } from 'src/types';
+import { parseAirnodeRrpLog } from './event-logs';
 
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
-    const parsedLog = airnodeRrpInterface.parseLog(event);
+    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -44,8 +42,7 @@ describe('initialize (ApiCall)', () => {
 
   it('sets the API call type', () => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
-    const parsedLog = airnodeRrpInterface.parseLog(event);
+    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
     const base = {
       parsedLog,
       blockNumber: 10716082,
@@ -68,12 +65,11 @@ describe('initialize (ApiCall)', () => {
 });
 
 describe('applyParameters', () => {
-  let parsedLogWithMetadata: EVMEventLogWithMetadata;
+  let parsedLogWithMetadata: EVMRequestCreatedLog;
 
   beforeEach(() => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
-    const parsedLog = airnodeRrpInterface.parseLog(event);
+    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
     parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -168,8 +164,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 describe('mapRequests (ApiCall)', () => {
   it('initializes, applies parameters and returns API call requests', () => {
     const event = fixtures.evm.logs.buildClientRequest();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
-    const parsedLog = airnodeRrpInterface.parseLog(event);
+    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -210,9 +205,8 @@ describe('mapRequests (ApiCall)', () => {
   it('updates the status of fulfilled ApiCall requests', () => {
     const requestEvent = fixtures.evm.logs.buildClientRequest();
     const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
-    const airnodeRrpInterface = new ethers.utils.Interface(contracts.AirnodeRrp.ABI);
-    const requestLog = airnodeRrpInterface.parseLog(requestEvent);
-    const fulfillLog = airnodeRrpInterface.parseLog(fulfillEvent);
+    const requestLog = parseAirnodeRrpLog<'ClientRequestCreated'>(requestEvent);
+    const fulfillLog = parseAirnodeRrpLog<'ClientRequestFulfilled'>(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,

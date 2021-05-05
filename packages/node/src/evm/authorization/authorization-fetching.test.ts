@@ -1,22 +1,18 @@
+import { mockEthers } from '../../../test/utils';
 const checkAuthorizationStatusMock = jest.fn();
 const checkAuthorizationStatusesMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      Contract: jest.fn().mockImplementation(() => ({
-        checkAuthorizationStatus: checkAuthorizationStatusMock,
-        checkAuthorizationStatuses: checkAuthorizationStatusesMock,
-      })),
-    },
-  };
+mockEthers({
+  airnodeRrpMocks: {
+    checkAuthorizationStatus: checkAuthorizationStatusMock,
+    checkAuthorizationStatuses: checkAuthorizationStatusesMock,
+  },
 });
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
 import * as authorization from './authorization-fetching';
 import { RequestStatus } from 'src/types';
+import { AirnodeRrp } from '../contracts';
 
 describe('fetch (authorizations)', () => {
   let fetchOptions: any;
@@ -156,10 +152,10 @@ describe('fetch (authorizations)', () => {
 
 describe('fetchAuthorizationStatus', () => {
   const airnodeId = '0xairnodeId';
-  let airnodeRrp: ethers.Contract;
+  let airnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    airnodeRrp = new ethers.Contract('address', ['ABI']);
+    airnodeRrp = (new ethers.Contract('address', ['ABI']) as any) as AirnodeRrp;
   });
 
   it('fetches group authorization status if it can be fetched', async () => {
