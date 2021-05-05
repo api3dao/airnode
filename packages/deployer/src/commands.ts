@@ -1,4 +1,6 @@
 import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import ora from 'ora';
 import { parseConfigFile, parseSecretsFile, parseReceiptFile } from './config';
 import { checkAirnodeParameters } from './evm/evm';
@@ -10,7 +12,7 @@ import {
   shortenAirnodeId,
   validateMnemonic,
 } from './evm/util';
-import { deployAirnode, removeAirnode } from './infrastructure/serverless';
+import { deployAirnode, removeAirnode } from './infrastructure';
 import { verifyMnemonic } from './io';
 
 export async function deploy(configPath, secretsPath, outputFilename, nonStop, nodeVersion) {
@@ -29,9 +31,9 @@ export async function deploy(configPath, secretsPath, outputFilename, nonStop, n
   } else if (!validateMnemonic(secrets.MASTER_KEY_MNEMONIC)) {
     ora().fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
   }
-  delete secrets['AWS_ACCESS_KEY_ID'];
-  delete secrets['AWS_SECRET_KEY'];
-  fs.writeFileSync('secrets.json', JSON.stringify(secrets, null, 2));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+  const secretsFile = path.join(tmpDir, 'secrets.json');
+  fs.writeFileSync(secretsFile, JSON.stringify(secrets, null, 2));
 
   const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
   const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
@@ -45,7 +47,9 @@ export async function deploy(configPath, secretsPath, outputFilename, nonStop, n
         airnodeIdShort,
         config.nodeSettings.stage,
         config.nodeSettings.cloudProvider,
-        config.nodeSettings.region
+        config.nodeSettings.region,
+        configPath,
+        secretsFile
       );
       receipts.push({
         airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
