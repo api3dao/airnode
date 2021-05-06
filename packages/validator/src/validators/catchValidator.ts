@@ -33,11 +33,10 @@ export function validateCatch(
   let prefixStr = paramPathPrefix.join('.');
   prefixStr += prefixStr.length ? '.' : '';
 
-  let paramPathStr = paramPath.join('.');
-  paramPathStr += paramPathStr.length ? '.' : '';
+  const paramPathStr = paramPath.join('.');
 
   message['__message'] = message['__message'].replace(/__fullPath/g, prefixStr + paramPathStr);
-  message['__message'] = message['__message'].replace(/__path/g, paramPathStr);
+  message['__message'] = message['__message'].replace(/__path/g, `${paramPathStr}${paramPathStr.length ? '.' : ''}`);
   message['__message'] = message['__message'].replace(/__prefix/g, prefixStr);
 
   return [{ message: message['__message'], level: message['__level'] ? message['__level'] : 'error' }];

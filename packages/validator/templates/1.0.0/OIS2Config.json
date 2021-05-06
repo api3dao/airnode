@@ -1,136 +1,95 @@
 {
+	"__template": "ois.json",
 	"__actions": [
 		{
 			"__insert": {
-				"__target": "config",
-				"__value": {
-					"id": "{FILL}",
-					"nodeSettings": {
-						"providerIdShort": "{FILL}",
-						"nodeVersion": "{FILL}",
-						"cloudProvider": "{FILL}",
-						"stage": "{FILL}",
-						"region": "{FILL}",
-						"logFormat": "{FILL}",
+				"__target": "[]",
+				"__value": [
+					{
+						"id": "{FILL}",
+						"nodeSettings": {
+							"nodeVersion": "{FILL}",
+							"cloudProvider": "aws",
+							"region": "{FILL}",
+							"stage": "{FILL}",
+							"logFormat": "{FILL}",
+							"logLevel": "{FILL}"
+						},
+						"environment": {
+							"securitySchemes": [],
+							"chainProviders": []
+						},
 						"chains": [],
 						"triggers": {
 							"request": []
 						},
-						"ois": [{}]
-					}
-				}
-			}
-		},
-		{
-			"__insert": {
-				"__target": "security",
-				"__value": {
-					"id": "{FILL}",
-					"apiCredentials": {}
-				}
-			}
-		}
-	],
-	"__conditions": [
-		{
-			"__if": {
-				"title": ".*"
-			},
-			"__then": {
-				"__actions": [
-					{
-						"__insert": {
-							"__target": "security.apiCredentials.__match",
-							"__value": [
-								{
-									"value": "{FILL}"
-								}
-							]
-						}
+						"ois": []
 					}
 				]
 			}
+		},
+		{
+			"__copy": {
+				"__target": "[ '[_]', 'ois[]' ]"
+			}
 		}
 	],
-	"oisFormat": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.ois[0].oisFormat"
-				}
-			}
-		]
-	},
-	"version": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.ois[0].version"
-				}
-			}
-		]
-	},
 	"apiSpecifications": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.ois[0].apiSpecifications"
-				}
-			}
-		],
 		"security": {
-			"__objectItem": {
-				"__actions": [
-					{
-						"__insert": {
-							"__target": "security.apiCredentials.__all.__all.securitySchemeName",
-							"__value": "{{2}}"
-						}
+			"__conditions": [
+				{
+					"__if": {
+						"__this_name": ".*"
+					},
+					"__then": {
+						"__actions": [
+							{
+								"__insert": {
+									"__target": "[ '[_]', 'environment', 'securitySchemes[]', 'name' ]",
+									"__value": "__match"
+								}
+							},
+							{
+								"__insert": {
+									"__target": "[ '[_]', 'environment', 'securitySchemes[_]', 'oisTitle' ]",
+									"__value": "[[ '/', 'title' ]]"
+								}
+							},
+							{
+								"__insert": {
+									"__target": "[ '[_]', 'environment', 'securitySchemes[_]', 'envName' ]",
+									"__value": "ss_[[ '/', 'title' ]]___match"
+								}
+							}
+						]
 					}
-				]
-			}
-		},
-		"__ignore": {}
+				}
+			]
+		}
 	},
 	"endpoints": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.ois[0].endpoints"
-				}
-			}
-		],
 		"__arrayItem": {
 			"name": {
 				"__actions": [
 					{
+						"__insert": {
+							"__target": "[ '[_]', 'triggers', 'request[]', 'endpointId' ]",
+							"__value": "{FILL}"
+						}
+					},
+					{
 						"__copy": {
-							"__target": "config.nodeSettings.triggers.request[].endpointName"
+							"__target": "[ '[_]', 'triggers', 'request[_]', 'endpointName' ]"
 						}
 					},
 					{
 						"__insert": {
-							"__target": "config.nodeSettings.triggers.request[_].endpointId",
-							"__value": "{FILL}"
+							"__target": "[ '[_]', 'triggers', 'request[_]', 'oisTitle' ]",
+							"__value": "[[ '/', 'title' ]]"
 						}
 					}
 				]
-			},
-			"__ignore": {}
-		}
-	},
-	"title": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.ois[0].title"
-				}
-			},
-			{
-				"__copy": {
-					"__target": "config.nodeSettings.triggers.request.__all.oisTitle"
-				}
 			}
-		]
+		}
 	}
 }

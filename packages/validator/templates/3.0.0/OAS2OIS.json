@@ -59,13 +59,14 @@
 		"__ignore": {}
 	},
 	"servers": {
+		"__maxSize": 1,
 		"__arrayItem": {
 			"url": {
 				"__regexp": "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)",
 				"__actions": [
 					{
 						"__copy": {
-							"__target": "[ 'apiSpecifications', 'servers[0]', 'url' ]"
+							"__target": "[ 'apiSpecifications', 'servers[]', 'url' ]"
 						}
 					}
 				]
@@ -75,6 +76,7 @@
 	"paths": {
 		"__keyRegexp": "^\\/[^\\s'\"\\\\]+$",
 		"__objectItem": {
+			"__ignore": {},
 			"__conditions": [
 				{
 					"__if": {
@@ -84,127 +86,111 @@
 						"{{1}}": {}
 					},
 					"__catch": {
-						"__message": "__fullPath: allowed methods are only \"get\" or \"post\" not \"__match\""
+						"__message": "__fullPath: allowed methods are only get or post not __match"
 					}
-				}
-			],
-			"__objectItem": {
-				"__actions": [
-					{
-						"__insert": {
-							"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '{{2}}', 'parameters' ]",
-							"__value": []
-						}
+				},
+				{
+					"__if": {
+						"__this_name": "^(get|post)$"
 					},
-					{
-						"__insert": {
-							"__target": "[ 'endpoints[]', 'name' ]",
-							"__value": "{{1}}"
-						}
-					},
-					{
-						"__insert": {
-							"__target": "[ 'endpoints[_]', 'operation', 'method' ]",
-							"__value": "{{2}}"
-						}
-					},
-					{
-						"__insert": {
-							"__target": "[ 'endpoints[_]', 'operation', 'path' ]",
-							"__value": "{{1}}"
-						}
-					},
-					{
-						"__insert": {
-							"__target": "[ 'endpoints[_]', 'reservedParameters' ]",
-							"__value": [
-								{
-									"name": "_type"
-								},
-								{
-									"name": "_path"
-								},
-								{
-									"name": "_times"
+					"__then": {
+						"__actions": [
+							{
+								"__insert": {
+									"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '__match', 'parameters' ]",
+									"__value": []
 								}
-							]
-						}
-					},
-					{
-						"__insert": {
-							"__target": "[ 'endpoints[_]', 'fixedOperationParameters' ]",
-							"__value": []
-						}
-					},
-					{
-						"__insert": {
-							"__target": "[ 'endpoints[_]', 'parameters' ]",
-							"__value": []
-						}
-					}
-				],
-				"parameters": {
-					"__arrayItem": {
-						"name": {
-							"__actions": [
-								{
-									"__copy": {
-										"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '{{2}}', '{{3}}', 'name' ]"
-									}
-								},
-								{
-									"__copy": {
-										"__target": "[ 'endpoints[_]', 'parameters[]', 'name' ]"
-									}
-								},
-								{
-									"__copy": {
-										"__target": "[ 'endpoints[_]', 'parameters[_]', 'operationParameter', 'name' ]"
+							},
+							{
+								"__insert": {
+									"__target": "[ 'endpoints[]' ]",
+									"__value": {
+										"name": "{{1}}",
+										"operation": {
+											"method": "__match",
+											"path": "{{1}}"
+										},
+										"reservedParameters": [
+											{
+												"name": "_type"
+											},
+											{
+												"name": "_path"
+											},
+											{
+												"name": "_times"
+											}
+										],
+										"fixedOperationParameters": [],
+										"parameters": []
 									}
 								}
-							]
-						},
-						"in": {
-							"__regexp": "^(path|query|header|cookie)$",
-							"__actions": [
-								{
-									"__copy": {
-										"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '{{2}}', '{{3}}', 'in' ]"
-									}
-								},
-								{
-									"__copy": {
-										"__target": "[ 'endpoints[_]', 'parameters[_]', 'operationParameter', 'in' ]"
-									}
-								}
-							]
-						},
-						"schema": {
-							"__conditions": [
-								{
-									"__if": {
-										"default": ".*"
-									},
-									"__then": {
-										"default": {
-											"__actions": [
-												{
-													"__copy": {
-														"__target": "[ 'endpoints[_]', 'parameters[_]', 'default' ]"
-													}
-												}
-											]
+							}
+						],
+						"parameters": {
+							"__arrayItem": {
+								"name": {
+									"__actions": [
+										{
+											"__copy": {
+												"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '__match', 'parameters[]', 'name' ]"
+											}
+										},
+										{
+											"__copy": {
+												"__target": "[ 'endpoints[_]', 'parameters[]', 'name' ]"
+											}
+										},
+										{
+											"__copy": {
+												"__target": "[ 'endpoints[_]', 'parameters[_]', 'operationParameter', 'name' ]"
+											}
 										}
-									}
-								}
-							],
-							"__ignore": {}
+									]
+								},
+								"in": {
+									"__regexp": "^(path|query|header|cookie)$",
+									"__actions": [
+										{
+											"__copy": {
+												"__target": "[ 'apiSpecifications', 'paths', '{{1}}', '__match', 'parameters[_]', 'in' ]"
+											}
+										},
+										{
+											"__copy": {
+												"__target": "[ 'endpoints[_]', 'parameters[_]', 'operationParameter', 'in' ]"
+											}
+										}
+									]
+								},
+								"schema": {
+									"__conditions": [
+										{
+											"__if": {
+												"default": ".*"
+											},
+											"__then": {
+												"default": {
+													"__actions": [
+														{
+															"__copy": {
+																"__target": "[ 'endpoints[_]', 'parameters[_]', 'default' ]"
+															}
+														}
+													]
+												}
+											}
+										}
+									],
+									"__ignore": {}
+								},
+								"__ignore": {}
+							}
 						},
 						"__ignore": {}
 					}
-				},
-				"__ignore": {}
-			}
+				}
+			]
 		}
 	},
 	"components": {
@@ -281,7 +267,7 @@
 								"__actions": [
 									{
 										"__copy": {
-											"__target": "[ 'apiSpecifications', 'components', 'securitySchemes', '{{2}}', 'scheme' ]"
+											"__target": "[ 'apiSpecifications', 'components', 'securitySchemes', '{{2}}' ]"
 										}
 									}
 								]
