@@ -168,9 +168,9 @@
 					"oisTitle": {},
 					"name": {},
 					"envName": {
-						"__regexp": "^\\S+$",
+						"__regexp": "^[a-zA-Z0-9_]+$",
 						"__catch": {
-							"__message": "__fullPath: Can't contain any whitespaces"
+							"__message": "__fullPath: only alphanumeric characters or '_' are allowed"
 						}
 					},
 					"__conditions": [
@@ -209,9 +209,9 @@
 					"chainId": {},
 					"name": {},
 					"envName": {
-						"__regexp": "^\\S+$",
+						"__regexp": "^[a-zA-Z0-9_]+$",
 						"__catch": {
-							"__message": "__fullPath: Can't contain any whitespaces"
+							"__message": "__fullPath: only alphanumeric characters or '_' are allowed"
 						}
 					},
 					"__conditions": [
