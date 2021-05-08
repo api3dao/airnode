@@ -1,14 +1,14 @@
 import * as ethers from 'ethers';
 import ora from 'ora';
-import { AirnodeRrpArtifact } from '@airnode/protocol';
+import { AirnodeRrpFactory } from '@airnode/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
 
 const chainIdsToNames = {
   1: 'mainnet',
   3: 'ropsten',
   4: 'rinkeby',
-  5: 'kovan',
-  42: 'göerli',
+  5: 'göerli',
+  42: 'kovan',
   100: 'xdai',
 };
 
@@ -25,11 +25,7 @@ export async function checkAirnodeParameters(configs, secrets, airnodeId, master
       for (const providerUrl of providerUrls[chainType][chainId]) {
         try {
           const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-          const airnodeRrp = new ethers.Contract(
-            airnodeRrpAddresses[chainType][chainId],
-            AirnodeRrpArtifact.abi,
-            provider
-          );
+          const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType][chainId], provider);
           const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
           if (airnodeParameters.xpub === '') {
             spinner.warn(`Airnode parameters not found on chain: ${chainName} (${chainType})`);

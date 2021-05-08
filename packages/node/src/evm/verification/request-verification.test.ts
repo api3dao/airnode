@@ -12,7 +12,7 @@ describe('verifyDesignatedWallets', () => {
       it(`returns API calls that have status: ${status}`, () => {
         const apiCall = fixtures.requests.buildApiCall({
           designatedWallet: '0xinvalid',
-          status: RequestStatus[status],
+          status: RequestStatus[status as RequestStatus],
         });
         const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
         expect(logs).toEqual([
@@ -27,7 +27,7 @@ describe('verifyDesignatedWallets', () => {
       it(`returns withdrawals that have status: ${status}`, () => {
         const withdrawal = fixtures.requests.buildWithdrawal({
           designatedWallet: '0xinvalid',
-          status: RequestStatus[status],
+          status: RequestStatus[status as RequestStatus],
         });
         const [logs, res] = verification.verifyDesignatedWallets([withdrawal], masterHDNode);
         expect(logs).toEqual([
@@ -39,19 +39,6 @@ describe('verifyDesignatedWallets', () => {
         expect(res).toEqual([withdrawal]);
       });
     }
-  });
-
-  it('ignores API calls that have no requester index', () => {
-    const apiCall = fixtures.requests.buildApiCall({ designatedWallet: '0xinvalid', requesterIndex: null });
-    const [logs, res] = verification.verifyDesignatedWallets([apiCall], masterHDNode);
-    expect(logs).toEqual([
-      {
-        level: 'ERROR',
-        message: `Ignoring Request:${apiCall.id} as no requester index could be found for designated wallet verification`,
-      },
-    ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.TemplateNotFound });
   });
 
   it('ignores API calls where the designated wallet does not match the expected address', () => {
@@ -94,7 +81,7 @@ describe('verifyTriggers', () => {
       it(`returns API calls that have status: ${status}`, () => {
         const apiCall = fixtures.requests.buildApiCall({
           endpointId: '0xinvalid',
-          status: RequestStatus[status],
+          status: RequestStatus[status as RequestStatus],
         });
         const config = fixtures.buildConfig();
         const triggers = config.triggers.request;

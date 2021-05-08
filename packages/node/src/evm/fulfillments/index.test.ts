@@ -1,26 +1,26 @@
+import { mockEthers } from '../../../test/utils';
 const connectMock = jest.fn();
 const estimateWithdrawalGasMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      callStatic: {
-        fulfill: staticFulfillMock,
-      },
-      estimateGas: { fulfillWithdrawal: estimateWithdrawalGasMock },
-      fail: failMock,
-      fulfill: fulfillMock,
-      fulfillWithdrawal: fulfillWithdrawalMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: { fulfillWithdrawal: estimateWithdrawalGasMock },
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
+  },
+  ethersMocks: {
     Wallet: jest.fn().mockImplementation(() => ({
       connect: connectMock,
     })),
   },
-}));
+});
 
 import { ethers } from 'ethers';
 import * as fixtures from 'test/fixtures';
@@ -47,14 +47,13 @@ describe('submit', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(initialState, { gasPrice, provider, requests });
 
-    const contract = new ethers.Contract('address', ['ABI']);
-    (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
-    contract.fulfill.mockResolvedValueOnce({ hash: '0xapicall_tx1' });
-    contract.fulfill.mockResolvedValueOnce({ hash: '0xapicall_tx2' });
+    staticFulfillMock.mockResolvedValue({ callSuccess: true });
+    fulfillMock.mockResolvedValueOnce({ hash: '0xapicall_tx1' });
+    fulfillMock.mockResolvedValueOnce({ hash: '0xapicall_tx2' });
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValue(ethers.BigNumber.from(250_000_000));
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from(50_000));
-    contract.fulfillWithdrawal.mockResolvedValueOnce({ hash: '0xwithdrawal_tx1' });
+    estimateWithdrawalGasMock.mockResolvedValue(ethers.BigNumber.from(50_000));
+    fulfillWithdrawalMock.mockResolvedValueOnce({ hash: '0xwithdrawal_tx1' });
 
     const res = await fulfillments.submit(state);
     expect(res.length).toEqual(3);
@@ -81,10 +80,9 @@ describe('submit', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(initialState, { gasPrice, provider, requests });
 
-    const contract = new ethers.Contract('address', ['ABI']);
-    (contract.callStatic.fulfill as jest.Mock).mockResolvedValue({ callSuccess: true });
-    contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
-    contract.fulfill.mockRejectedValueOnce(new Error('Server did not respond'));
+    staticFulfillMock.mockResolvedValue({ callSuccess: true });
+    fulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
+    fulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await fulfillments.submit(state);
     expect(res).toEqual([{ id: apiCall.id, type: RequestType.ApiCall, error: new Error('Server did not respond') }]);
@@ -100,12 +98,11 @@ describe('submit', () => {
     const provider = new ethers.providers.JsonRpcProvider();
     const state = providerState.update(initialState, { gasPrice, provider, requests });
 
-    const contract = new ethers.Contract('address', ['ABI']);
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValue(ethers.BigNumber.from(250_000_000));
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValue(ethers.BigNumber.from(50_000));
-    contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server did not respond'));
-    contract.fulfillWithdrawal.mockRejectedValueOnce(new Error('Server did not respond'));
+    estimateWithdrawalGasMock.mockResolvedValue(ethers.BigNumber.from(50_000));
+    fulfillWithdrawalMock.mockRejectedValueOnce(new Error('Server did not respond'));
+    fulfillWithdrawalMock.mockRejectedValueOnce(new Error('Server did not respond'));
 
     const res = await fulfillments.submit(state);
     expect(res).toEqual([

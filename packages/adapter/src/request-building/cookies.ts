@@ -16,7 +16,7 @@ export function buildHeader(cookies: Parameters): CookieHeader | object {
     const value = encodeURIComponent(cookies[key]);
     const cookie = `${key}=${value};`;
     return [...values, cookie];
-  }, []);
+  }, [] as string[]);
 
   return { Cookie: cookieValues.join(' ') };
 }

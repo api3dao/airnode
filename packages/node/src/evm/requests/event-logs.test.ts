@@ -1,17 +1,15 @@
+import { mockEthers } from '../../../test/utils';
 const parseLogMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      utils: {
-        ...original.utils,
-        Interface: jest.fn().mockImplementation(() => ({
-          parseLog: parseLogMock,
-        })),
-      },
+const original = jest.requireActual('ethers');
+mockEthers({
+  ethersMocks: {
+    utils: {
+      ...original.utils,
+      Interface: jest.fn().mockImplementation(() => ({
+        parseLog: parseLogMock,
+      })),
     },
-  };
+  },
 });
 
 import { ethers } from 'ethers';

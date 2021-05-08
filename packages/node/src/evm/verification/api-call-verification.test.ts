@@ -7,7 +7,7 @@ describe('verifyApiCallIds', () => {
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
-        const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus[status] });
+        const apiCall = fixtures.requests.buildApiCall({ status: RequestStatus[status as RequestStatus] });
         const [logs, res] = verification.verifyApiCallIds([apiCall]);
         expect(logs).toEqual([
           {

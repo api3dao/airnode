@@ -67,8 +67,8 @@ jobs:
       uses: github/codeql-action/analyze@v1
 
     - name: Slack Notification
-      uses: homoluctus/slatify@master
-      if: failure()
+      uses: lazy-actions/slatify@master
+      if: ${{ failure() && github.repository_owner == 'api3dao' }}
       with:
         channel: '#technical-notifications'
         commit: true

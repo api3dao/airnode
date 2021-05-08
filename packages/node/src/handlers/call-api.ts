@@ -67,7 +67,7 @@ export async function callApi(
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
   const retryableCall = retryOnTimeout(API_CALL_TOTAL_TIMEOUT, () =>
     adapter.buildAndExecuteRequest(options, adapterConfig)
-  ) as Promise<any>;
+  );
 
   const [err, res] = await go(retryableCall);
   if (err) {
@@ -76,7 +76,7 @@ export async function callApi(
   }
 
   try {
-    const extracted = adapter.extractAndEncodeResponse(res.data, responseParameters as adapter.ResponseParameters);
+    const extracted = adapter.extractAndEncodeResponse(res?.data, responseParameters as adapter.ResponseParameters);
     return [[], { value: extracted.encodedValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});

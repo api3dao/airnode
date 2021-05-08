@@ -54,7 +54,7 @@ contract RrpDapiServer is MeanMedianHybrid {
           );
       require(
           noResponsesToReduce <= templateIds.length && noResponsesToReduce != 0,
-          "Invalid number of responses to reduce"
+          "Invalid no. responses to reduce"
           );
       dapiId = bytes16(keccak256(abi.encodePacked(
           noResponsesToReduce,

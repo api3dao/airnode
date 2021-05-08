@@ -1,92 +1,63 @@
+import { mockEthers } from '../../test/utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const setAirnodeParametersMock = jest.fn();
 const estimateSetAirnodeParametersMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      setAirnodeParametersAndForwardFunds: setAirnodeParametersMock,
-      estimateGas: {
-        setAirnodeParametersAndForwardFunds: estimateSetAirnodeParametersMock,
-      },
-      getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    setAirnodeParametersAndForwardFunds: setAirnodeParametersMock,
+    estimateGas: {
+      setAirnodeParametersAndForwardFunds: estimateSetAirnodeParametersMock,
+    },
+    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
   },
-}));
+});
 
 import { ethers } from 'ethers';
 import * as wallet from './wallet';
 import * as initialization from './initialization';
 
-describe('airnodeParametersMatch', () => {
-  const options = {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-    authorizers: [ethers.constants.AddressZero],
-    masterHDNode: wallet.getMasterHDNode(),
-  };
+const initializationFunctions = ['airnodeParametersMatch', 'airnodeParametersExistOnchain'] as const;
 
-  const validData = {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-    authorizers: [ethers.constants.AddressZero],
-    blockNumber: 12,
-    xpub:
-      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-  };
+initializationFunctions.forEach((initFunction) => {
+  describe(initFunction, () => {
+    const options = {
+      airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
+      masterHDNode: wallet.getMasterHDNode(),
+    };
 
-  it('is true if the Airnode onchain parameters match the expected data', () => {
-    const res = initialization.airnodeParametersMatch(options, validData);
-    expect(res).toEqual(true);
-  });
+    const validData = {
+      airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      authorizers: [ethers.constants.AddressZero],
+      blockNumber: 12,
+      xpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+    };
 
-  it('is false if the Airnode admin does not exist', () => {
-    const invalidData = { ...validData, airnodeAdmin: '' };
-    const res = initialization.airnodeParametersMatch(options, invalidData);
-    expect(res).toEqual(false);
-  });
+    it('is true if the Airnode onchain parameters match the expected data', () => {
+      const res = initialization[initFunction](options, validData);
+      expect(res).toEqual(true);
+    });
 
-  it('is false if the authorizers do not match', () => {
-    const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
-    const res = initialization.airnodeParametersMatch(options, invalidData);
-    expect(res).toEqual(false);
-  });
-});
+    it('is false if the Airnode admin does not exist', () => {
+      const invalidData = { ...validData, airnodeAdmin: '' };
+      const res = initialization[initFunction](options, invalidData);
+      expect(res).toEqual(false);
+    });
 
-describe('airnodeParametersExistOnchain', () => {
-  const options = {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-    authorizers: [ethers.constants.AddressZero],
-    masterHDNode: wallet.getMasterHDNode(),
-  };
+    it('is false if the authorizers do not match', () => {
+      const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
+      const res = initialization[initFunction](options, invalidData);
+      expect(res).toEqual(false);
+    });
 
-  const validData = {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-    authorizers: [ethers.constants.AddressZero],
-    blockNumber: 12,
-    xpub:
-      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-  };
-
-  it('is true if the Airnode onchain parameters match the expected data', () => {
-    const res = initialization.airnodeParametersExistOnchain(options, validData);
-    expect(res).toEqual(true);
-  });
-
-  it('is false if the Airnode admin does not exist', () => {
-    const invalidData = { ...validData, airnodeAdmin: '' };
-    const res = initialization.airnodeParametersExistOnchain(options, invalidData);
-    expect(res).toEqual(false);
-  });
-
-  it('is false if the authorizers do not match', () => {
-    const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
-    const res = initialization.airnodeParametersExistOnchain(options, invalidData);
-    expect(res).toEqual(false);
-  });
-
-  it('is false if the extended public key does not match', () => {
-    const invalidData = { ...validData, xpub: '' };
-    const res = initialization.airnodeParametersExistOnchain(options, invalidData);
-    expect(res).toEqual(false);
+    if (initFunction === 'airnodeParametersExistOnchain') {
+      it('is false if the extended public key does not match', () => {
+        const invalidData = { ...validData, xpub: '' };
+        const res = initialization[initFunction](options, invalidData);
+        expect(res).toEqual(false);
+      });
+    }
   });
 });
 
