@@ -2,7 +2,7 @@ import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
 import ora from 'ora';
-import { removeDeployment } from './aws';
+import { removeDeployment, stateExists } from './aws';
 
 const exec = util.promisify(child.exec);
 const terraformDir = path.resolve(`${__dirname}/../../terraform`);
@@ -31,12 +31,14 @@ async function deploy(airnodeIdShort: string, stage: string, region: string, con
   const bucket = `airnode-${airnodeIdShort}-${stage}-terraform`;
   const dynamodbTable = `${bucket}-lock`;
 
-  // Run state recipes
-  await exec(`terraform init`, { cwd: terraformStateDir });
-  await exec(
-    `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -auto-approve -input=false -no-color`,
-    { cwd: terraformStateDir }
-  );
+  if (!(await stateExists(region, bucket, dynamodbTable))) {
+    // Run state recipes
+    await exec(`terraform init`, { cwd: terraformStateDir });
+    await exec(
+      `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -auto-approve -input=false -no-color`,
+      { cwd: terraformStateDir }
+    );
+  }
 
   // Run airnode recipes
   await exec(
