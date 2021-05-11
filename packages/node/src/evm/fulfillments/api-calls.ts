@@ -1,6 +1,6 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
-import { go, retryOperation } from '../../utils/promise-utils';
+import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import {
@@ -11,7 +11,6 @@ import {
   RequestStatus,
   TransactionOptions,
 } from '../../types';
-import { OPERATION_RETRIES } from '../../constants';
 
 const GAS_LIMIT = 500_000;
 
@@ -66,8 +65,7 @@ async function testFulfill(
         nonce: request.nonce!,
       }
     );
-  const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
-  const [err, res] = await go(retryableOperation);
+  const [err, res] = await go(operation, { retries: 1 });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
@@ -101,8 +99,7 @@ async function submitFulfill(
         nonce: request.nonce!,
       }
     );
-  const retryableTx = retryOperation(OPERATION_RETRIES, tx);
-  const [err, res] = await go(retryableTx);
+  const [err, res] = await go(tx, { retries: 1 });
   if (err) {
     const errorLog = logger.pend(
       'ERROR',
@@ -167,8 +164,7 @@ async function submitFail(
       gasPrice: options.gasPrice,
       nonce: request.nonce!,
     });
-  const retryableTx = retryOperation(OPERATION_RETRIES, tx);
-  const [err, res] = await go(retryableTx);
+  const [err, res] = await go(tx, { retries: 1 });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];

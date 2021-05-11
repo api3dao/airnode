@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import { DEFAULT_RETRY_OPERATION_TIMEOUT } from '../constants';
+import { DEFAULT_RETRY_OPERATION_TIMEOUT_MS } from '../constants';
 
 // Adapted from:
 // https://github.com/then/is-promise
@@ -9,20 +9,63 @@ export function isPromise(obj: any) {
 
 type Response<T> = [Error, null] | [null, T];
 
-// Go style async handling
-export function go<T>(fn: Promise<T>): Promise<Response<T>> {
-  const successFn = (value: T): [null, T] => {
-    return [null, value];
-  };
-  const errorFn = (err: Error): [Error, null] => {
-    return [err, null];
-  };
-
-  return fn.then(successFn).catch(errorFn);
+export interface PromiseOptions {
+  retries?: number;
+  retryDelay?: number;
+  timeoutMs?: number;
 }
 
-export function goTimeout<T>(ms: number, fn: Promise<T>): Promise<Response<T>> {
-  return go(promiseTimeout(ms, fn));
+export interface RetryOptions extends PromiseOptions {
+  retries: number;
+}
+
+// Go style async handling
+export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<Response<T>> {
+  function successFn(value: T): [null, T] {
+    return [null, value];
+  }
+  function errorFn(err: Error): [Error, null] {
+    return [err, null];
+  }
+
+  if (options?.retries) {
+    const optionsWithRetries = { ...options, retries: options.retries! };
+    return retryOperation(fn, optionsWithRetries).then(successFn).catch(errorFn);
+  }
+
+  if (options?.timeoutMs) {
+    return promiseTimeout(options.timeoutMs, fn()).then(successFn).catch(errorFn);
+  }
+
+  return fn().then(successFn).catch(errorFn);
+}
+
+export function retryOperation<T>(operation: () => Promise<T>, options: RetryOptions): Promise<T> {
+  const timeout = options?.timeoutMs || DEFAULT_RETRY_OPERATION_TIMEOUT_MS;
+
+  return new Promise((resolve, reject) => {
+    // Wrap the original operation in a timeout
+    const execution = promiseTimeout(timeout, operation());
+
+    // If the promise is successful, resolve it and bubble the result up
+    return execution.then(resolve).catch((reason: any) => {
+      // If there are any retries left, we call the same retryOperation function again,
+      // but decrementing the number of retries left by 1
+      if (options.retries > 0) {
+        // Delay the new attempt slightly
+        return wait(options.retryDelay || 50)
+          .then(retryOperation.bind(null, operation, { ...options, retries: options.retries - 1 }))
+          .then((res) => resolve(res as T))
+          .catch(reject);
+      }
+      // Reject (and bubble the result up) if there are no more retries
+      return reject(reason);
+    });
+  });
+}
+
+export interface ContinuousRetryOptions {
+  delay?: number;
 }
 
 // A native implementation of the following function might look like:
@@ -45,46 +88,6 @@ export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 
 export function wait(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
-}
-
-export interface RetryOptions {
-  delay?: number;
-  timeouts?: number[];
-}
-
-export function retryOperation<T>(
-  retriesLeft: number,
-  operation: () => Promise<T>,
-  options?: RetryOptions
-): Promise<T> {
-  return new Promise((resolve, reject) => {
-    // Find the timeout for this specific iteration. Default to 5 seconds timeout
-    const timeout = options?.timeouts
-      ? options.timeouts[options.timeouts.length - retriesLeft]
-      : DEFAULT_RETRY_OPERATION_TIMEOUT;
-
-    // Wrap the original operation in a timeout
-    const execution = promiseTimeout(timeout, operation());
-
-    // If the promise is successful, resolve it and bubble the result up
-    return execution.then(resolve).catch((reason: any) => {
-      // If there are any retries left, we call the same retryOperation function again,
-      // but decrementing the number of retries left by 1
-      if (retriesLeft - 1 > 0) {
-        // Delay the new attempt slightly
-        return wait(options?.delay || 50)
-          .then(retryOperation.bind(null, retriesLeft - 1, operation, options))
-          .then((res) => resolve(res as T))
-          .catch(reject);
-      }
-      // Reject (and bubble the result up) if there are no more retries
-      return reject(reason);
-    });
-  });
-}
-
-export interface ContinuousRetryOptions {
-  delay?: number;
 }
 
 export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise<T>, options?: ContinuousRetryOptions) {

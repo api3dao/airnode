@@ -5,9 +5,9 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import { AirnodeRrp } from '../contracts';
 import * as logger from '../../logger';
-import { go, retryOperation } from '../../utils/promise-utils';
+import { go } from '../../utils/promise-utils';
 import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../types';
-import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 interface FetchOptions {
   airnodeId: string;
@@ -29,9 +29,8 @@ export async function fetchAuthorizationStatus(
       apiCall.designatedWallet,
       apiCall.clientAddress
     ) as Promise<boolean>;
-  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
-  const [err, authorized] = await go(retryableContractCall);
+  const [err, authorized] = await go(contractCall, { retries: 1 });
   if (err || isNil(authorized)) {
     const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`, err);
     return [[log], null];
@@ -61,9 +60,8 @@ async function fetchAuthorizationStatuses(
       designatedWallets,
       clientAddresses
     ) as Promise<any>;
-  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
 
-  const [err, data] = await go(retryableContractCall);
+  const [err, data] = await go(contractCall, { retries: 1 });
   if (err || !data) {
     const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', err);
 

@@ -4,11 +4,11 @@ import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
-import { go, retryOperation } from '../../utils/promise-utils';
+import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import { AirnodeRrp } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
-import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE } from '../../constants';
 
 export interface FetchOptions {
   airnodeRrpAddress: string;
@@ -23,10 +23,8 @@ export async function fetchTemplate(
   airnodeRrp: ethers.Contract,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const contractCall = () => airnodeRrp.getTemplate(templateId) as Promise<any>;
-  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
-
-  const [err, rawTemplate] = await go(retryableContractCall);
+  const operation = () => airnodeRrp.getTemplate(templateId) as Promise<any>;
+  const [err, rawTemplate] = await go(operation, { retries: 1 });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
     return [[log], null];
@@ -48,9 +46,7 @@ async function fetchTemplateGroup(
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds) as Promise<any>;
-  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
-
-  const [err, rawTemplates] = await go(retryableContractCall);
+  const [err, rawTemplates] = await go(contractCall, { retries: 1 });
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
   if (err || !rawTemplates) {
