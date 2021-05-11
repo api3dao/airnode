@@ -27,7 +27,8 @@ module.exports = {
     '@typescript-eslint/camelcase': 0,
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/explicit-module-boundary-types': 0,
-    '@typescript-eslint/indent': ['error', 2],
+    // Turning off, because it conflicts with prettier
+    '@typescript-eslint/indent': ['off'],
     '@typescript-eslint/no-empty-function': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-non-null-assertion': 0,

@@ -1,18 +1,16 @@
+import { mockEthers } from '../../test/utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const setAirnodeParametersMock = jest.fn();
 const estimateSetAirnodeParametersMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      setAirnodeParametersAndForwardFunds: setAirnodeParametersMock,
-      estimateGas: {
-        setAirnodeParametersAndForwardFunds: estimateSetAirnodeParametersMock,
-      },
-      getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    setAirnodeParametersAndForwardFunds: setAirnodeParametersMock,
+    estimateGas: {
+      setAirnodeParametersAndForwardFunds: estimateSetAirnodeParametersMock,
+    },
+    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
   },
-}));
+});
 
 import { ethers } from 'ethers';
 import * as wallet from './wallet';

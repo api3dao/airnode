@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
-import { AirnodeRrp } from './contracts';
+import { AirnodeRrpFactory } from './contracts';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as utils from './utils';
@@ -57,11 +57,11 @@ export function airnodeParametersExistOnchain(
 export async function fetchAirnodeParametersWithData(
   fetchOptions: VerifyOptions
 ): Promise<LogsData<AirnodeParametersData | null>> {
-  const airnodeRrp = new ethers.Contract(fetchOptions.airnodeRrpAddress, AirnodeRrp.ABI, fetchOptions.provider);
+  const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and Airnode parameters...');
 
-  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId) as Promise<any>;
+  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId);
   const [err, res] = await go(operation, { retries: 1 });
   if (err || !res) {
     const errLog = logger.pend('ERROR', 'Unable to fetch current block and Airnode parameters', err);
@@ -100,7 +100,7 @@ export async function setAirnodeParameters(
   const log1 = logger.pend('INFO', `Setting Airnode parameters with address:${masterWallet.address}...`);
 
   const connectedWallet = masterWallet.connect(options.provider);
-  const airnodeRrp = new ethers.Contract(airnodeRrpAddress, AirnodeRrp.ABI, connectedWallet);
+  const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddress, connectedWallet);
 
   const log2 = logger.pend('INFO', 'Estimating transaction cost for setting Airnode parameters...');
 
@@ -172,7 +172,7 @@ export async function setAirnodeParameters(
       value: fundsToSend,
       gasLimit,
       gasPrice,
-    }) as Promise<any>;
+    });
   const [txErr, tx] = await go(setAirnodeParametersTx, { retries: 1 });
   if (txErr || !tx) {
     const errLog = logger.pend('ERROR', 'Unable to submit set Airnode parameters transaction', txErr);

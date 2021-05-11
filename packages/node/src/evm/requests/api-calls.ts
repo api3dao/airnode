@@ -1,13 +1,15 @@
 import flatMap from 'lodash/flatMap';
 import * as encoding from '../abi-encoding';
-import * as contracts from '../contracts';
+import { airnodeRrpTopics } from '../contracts';
 import * as events from './events';
 import * as logger from '../../logger';
 import {
   ApiCall,
   ApiCallType,
   ClientRequest,
-  EVMEventLogWithMetadata,
+  EVMEventLog,
+  EVMRequestCreatedLog,
+  EVMRequestFulfilledLog,
   LogsData,
   PendingLog,
   RequestErrorCode,
@@ -15,11 +17,10 @@ import {
 } from '../../types';
 
 function getApiCallType(topic: string): ApiCallType {
-  const { topics } = contracts.AirnodeRrp;
   switch (topic) {
-    case topics.ClientRequestCreated:
+    case airnodeRrpTopics.ClientRequestCreated:
       return 'regular';
-    case topics.ClientFullRequestCreated:
+    case airnodeRrpTopics.ClientFullRequestCreated:
       return 'full';
     // This should never be reached
     default:
@@ -27,31 +28,31 @@ function getApiCallType(topic: string): ApiCallType {
   }
 }
 
-export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequest<ApiCall> {
-  const { parsedLog } = logWithMetadata;
+export function initialize(log: EVMRequestCreatedLog): ClientRequest<ApiCall> {
+  const { parsedLog } = log;
 
   const request: ClientRequest<ApiCall> = {
     airnodeId: parsedLog.args.airnodeId,
     chainId: parsedLog.args.chainId.toString(),
     clientAddress: parsedLog.args.clientAddress,
-    designatedWallet: parsedLog.args.designatedWallet || null,
+    designatedWallet: parsedLog.args.designatedWallet,
     encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
-    endpointId: parsedLog.args.endpointId || null,
-    fulfillAddress: parsedLog.args.fulfillAddress || null,
-    fulfillFunctionId: parsedLog.args.fulfillFunctionId || null,
+    endpointId: events.isFullApiRequest(log) ? log.parsedLog.args.endpointId : null,
+    fulfillAddress: parsedLog.args.fulfillAddress,
+    fulfillFunctionId: parsedLog.args.fulfillFunctionId,
     metadata: {
-      blockNumber: logWithMetadata.blockNumber,
-      currentBlock: logWithMetadata.currentBlock,
-      ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
-      transactionHash: logWithMetadata.transactionHash,
+      blockNumber: log.blockNumber,
+      currentBlock: log.currentBlock,
+      ignoreBlockedRequestsAfterBlocks: log.ignoreBlockedRequestsAfterBlocks,
+      transactionHash: log.transactionHash,
     },
     // Parameters are decoded separately
     parameters: {},
     requestCount: parsedLog.args.noRequests.toString(),
-    requesterIndex: parsedLog.args.requesterIndex?.toString() || null,
+    requesterIndex: parsedLog.args.requesterIndex?.toString(),
     status: RequestStatus.Pending,
-    templateId: parsedLog.args.templateId || null,
+    templateId: events.isTemplateApiRequest(log) ? log.parsedLog.args.templateId : null,
     type: getApiCallType(parsedLog.topic),
   };
 
@@ -112,10 +113,12 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsData<ClientRequest<ApiCall>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
   // Separate the logs
-  const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log.parsedLog));
-  const fulfillmentLogs = logsWithMetadata.filter((log) => events.isApiCallFulfillment(log.parsedLog));
+  const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log)) as EVMRequestCreatedLog[];
+  const fulfillmentLogs = logsWithMetadata.filter((log) =>
+    events.isApiCallFulfillment(log)
+  ) as EVMRequestFulfilledLog[];
 
   // Cast raw logs to typed API request objects
   const apiCallRequests = requestLogs.map((log) => initialize(log));

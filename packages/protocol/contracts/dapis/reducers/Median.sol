@@ -2,17 +2,16 @@
 pragma solidity 0.8.4;
 
 import "./SelectK.sol";
-import "./Reducer.sol";
 
 /// @title Median reduction contract
 /// @notice Median reduction is robust against misreports, yet it is not as
 /// numerically accurate as mean beacuse it depends on a single data point. It
 /// should be used when numerical accuracy is not critical or as a part of a
 /// more complex reduction method such as MeanMedianHybrid.sol.
-contract Median is SelectK, Reducer {
+contract Median is SelectK {
   /// @notice Reduces the array of values by computing their median
   /// @param values Values to be reduced
-  function reduceInPlace(int256[] memory values) internal view virtual override returns (int256) {
+  function computeMedianInPlace(int256[] memory values) internal pure returns (int256) {
     if (values.length % 2 != 1) {
       return computeInPlace(values, values.length / 2 + 1);
     } else {

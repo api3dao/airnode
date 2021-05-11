@@ -1,8 +1,17 @@
 import * as events from './events';
 import * as logger from '../../logger';
-import { ClientRequest, EVMEventLogWithMetadata, LogsData, PendingLog, RequestStatus, Withdrawal } from '../../types';
+import {
+  ClientRequest,
+  EVMEventLog,
+  EVMWithdrawalFulfilledLog,
+  EVMWithdrawalRequestLog,
+  LogsData,
+  RequestStatus,
+  Withdrawal,
+  PendingLog,
+} from '../../types';
 
-export function initialize(logWithMetadata: EVMEventLogWithMetadata): ClientRequest<Withdrawal> {
+export function initialize(logWithMetadata: EVMWithdrawalRequestLog): ClientRequest<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
   const request: ClientRequest<Withdrawal> = {
@@ -53,10 +62,12 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: EVMEventLogWithMetadata[]): LogsData<ClientRequest<Withdrawal>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<Withdrawal>[]> {
   // Separate the logs
-  const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log.parsedLog));
-  const fulfillmentLogs = logsWithMetadata.filter((log) => events.isWithdrawalFulfillment(log.parsedLog));
+  const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log)) as EVMWithdrawalRequestLog[];
+  const fulfillmentLogs = logsWithMetadata.filter((log) =>
+    events.isWithdrawalFulfillment(log)
+  ) as EVMWithdrawalFulfilledLog[];
 
   // Cast raw logs to typed WithdrawalRequest objects
   const withdrawalRequests = requestLogs.map((log) => initialize(log));

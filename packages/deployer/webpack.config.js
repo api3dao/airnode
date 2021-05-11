@@ -12,5 +12,8 @@ module.exports = {
     libraryTarget: 'commonjs2',
     path: path.resolve(__dirname, '.webpack'),
   },
+  resolve: {
+    mainFields: ['main'],
+  },
   target: 'node',
 };

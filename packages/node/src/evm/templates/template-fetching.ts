@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
-import { AirnodeRrp } from '../contracts';
+import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE } from '../../constants';
 
@@ -20,10 +20,10 @@ interface ApiCallTemplatesById {
 }
 
 export async function fetchTemplate(
-  airnodeRrp: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const operation = () => airnodeRrp.getTemplate(templateId) as Promise<any>;
+  const operation = () => airnodeRrp.getTemplate(templateId);
   const [err, rawTemplate] = await go(operation, { retries: 1 });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
@@ -42,10 +42,10 @@ export async function fetchTemplate(
 }
 
 async function fetchTemplateGroup(
-  airnodeRrp: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
-  const contractCall = () => airnodeRrp.getTemplates(templateIds) as Promise<any>;
+  const contractCall = () => airnodeRrp.getTemplates(templateIds);
   const [err, rawTemplates] = await go(contractCall, { retries: 1 });
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
@@ -90,7 +90,7 @@ export async function fetch(
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use
-  const airnodeRrp = new ethers.Contract(fetchOptions.airnodeRrpAddress, AirnodeRrp.ABI, fetchOptions.provider);
+  const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
   const promises = groupedTemplateIds.map((ids) => fetchTemplateGroup(airnodeRrp, ids));
