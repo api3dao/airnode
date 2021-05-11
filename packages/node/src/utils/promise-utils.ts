@@ -11,7 +11,7 @@ type Response<T> = [Error, null] | [null, T];
 
 export interface PromiseOptions {
   retries?: number;
-  retryDelay?: number;
+  retryDelayMs?: number;
   timeoutMs?: number;
 }
 
@@ -53,7 +53,7 @@ export function retryOperation<T>(operation: () => Promise<T>, options: RetryOpt
       // but decrementing the number of retries left by 1
       if (options.retries > 0) {
         // Delay the new attempt slightly
-        return wait(options.retryDelay || 50)
+        return wait(options.retryDelayMs || 50)
           .then(retryOperation.bind(null, operation, { ...options, retries: options.retries - 1 }))
           .then((res) => resolve(res as T))
           .catch(reject);
