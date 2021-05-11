@@ -1,4 +1,17 @@
-import { FullRequest, Withdrawal } from '@airnode/operation';
+import { RegularRequest, FullRequest, Withdrawal } from '@airnode/operation';
+
+export function buildRegularRequest(overrides?: Partial<RegularRequest>): RegularRequest {
+  return {
+    requesterId: 'bob',
+    type: 'regular',
+    airnode: 'CurrencyConverterAirnode',
+    template: 'template-1',
+    client: 'MockAirnodeRrpClientFactory',
+    fulfillFunctionName: 'fulfill',
+    parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
+    ...overrides,
+  };
+}
 
 export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest {
   return {
