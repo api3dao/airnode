@@ -9,22 +9,22 @@ If any action is specified in template, object `output` will be returned when pr
 #### Template
 ```json
 {
-	"outerParameter": {
-		"innerParameter": {
-			"__actions": [
-				{
-					"__copy": {
-						"__target": "outerParameter.innerParameter"
-					}
-				},
-				{
-					"__copy": {
-						"__target": "backup"
-					}
-				}
-			]
-		}
-	}
+  "outerParameter": {
+    "innerParameter": {
+      "__actions": [
+        {
+          "__copy": {
+            "__target": "outerParameter.innerParameter"
+          }
+        },
+        {
+          "__copy": {
+            "__target": "backup"
+          }
+        }
+      ]
+    }
+  }
 }
 ```
 ---
@@ -32,18 +32,18 @@ If any action is specified in template, object `output` will be returned when pr
 
 ```json
 {
-	"outerParameter": {
-		"innerParameter": "valueToCopy"
-	}
+  "outerParameter": {
+    "innerParameter": "valueToCopy"
+  }
 }
 ```
 #### Expected output
 ```json
 {
-	"outerParameter": {
-		"innerParameter": "valueToCopy"
-	},
-	"backup": "valueToCopy"
+  "outerParameter": {
+    "innerParameter": "valueToCopy"
+  },
+  "backup": "valueToCopy"
 }
 ```
 ---
@@ -56,24 +56,24 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 
 ```json
 {
-	"outerParameter": {
-		"innerParameter": {
-			"__actions": [
-				{
-					"__insert": {
-						"__target": "outerParameter.innerParameter",
-						"__value": "inserted"
-					}
-				},
-				{
-					"__insert": {
-						"__target": "parameter",
-						"__value": "inserted"
-					}
-				}
-			]
-		}
-	}
+  "outerParameter": {
+    "innerParameter": {
+      "__actions": [
+        {
+          "__insert": {
+            "__target": "outerParameter.innerParameter",
+            "__value": "inserted"
+          }
+        },
+        {
+          "__insert": {
+            "__target": "parameter",
+            "__value": "inserted"
+          }
+        }
+      ]
+    }
+  }
 }
 ```
 ---
@@ -81,19 +81,19 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
 
 ```json
 {
-	"outerParameter": {
-		"innerParameter": {}
-	}
+  "outerParameter": {
+    "innerParameter": {}
+  }
 }
 ```
 #### Expected output
 
 ```json
 {
-	"outerParameter": {
-		"innerParameter": "inserted"
-	},
-	"parameter": "inserted"
+  "outerParameter": {
+    "innerParameter": "inserted"
+  },
+  "parameter": "inserted"
 }
 ```
 ---
@@ -108,49 +108,49 @@ Accessing parameter on index `X` (`{{X}}`) can be used in conditions the same wa
 
 ```json
 {
-	"array": {
-		"__arrayItem": {
-			"__objectItem": {
-				"__actions": [
-					{
-						"__copy": {
-							"__target": "array[].{{1}}"
-						}
-					},
-					{
-						"__insert": {
-							"__target": "array[_].parameter",
-							"__value": {}
-						}
-					},
-					{
-						"__insert": {
-							"__target": "array.__all.inserted",
-							"__value": {}
-						}
-					}
-				]
-			}
-		}
-	},
-	"all": {
-		"__actions": [
-			{
-				"__copy": {
-					"__target": "all"
-				}
-			}
-		],
-		"__ignore": {}
-	},
-	"__actions": [
-		{
-			"__insert": {
-				"__target": "all.__all.inserted",
-				"__value": {}
-			}
-		}
-	]
+  "array": {
+    "__arrayItem": {
+      "__objectItem": {
+        "__actions": [
+          {
+            "__copy": {
+              "__target": "array[].{{1}}"
+            }
+          },
+          {
+            "__insert": {
+              "__target": "array[_].parameter",
+              "__value": {}
+            }
+          },
+          {
+            "__insert": {
+              "__target": "array.__all.inserted",
+              "__value": {}
+            }
+          }
+        ]
+      }
+    }
+  },
+  "all": {
+    "__actions": [
+      {
+        "__copy": {
+          "__target": "all"
+        }
+      }
+    ],
+    "__ignore": {}
+  },
+  "__actions": [
+    {
+      "__insert": {
+        "__target": "all.__all.inserted",
+        "__value": {}
+      }
+    }
+  ]
 }
 ```
 ---
@@ -158,56 +158,56 @@ Accessing parameter on index `X` (`{{X}}`) can be used in conditions the same wa
 
 ```json
 {
-	"array": [
-		{
-			"param0": "0"
-		},
-		{
-			"param1": "1"
-		},
-		{
-			"param2": "2"
-		}
-	],
-	"all": {
-		"item1": {},
-		"item2": {},
-		"item3": {}
-	}
+  "array": [
+    {
+      "param0": "0"
+    },
+    {
+      "param1": "1"
+    },
+    {
+      "param2": "2"
+    }
+  ],
+  "all": {
+    "item1": {},
+    "item2": {},
+    "item3": {}
+  }
 }
 ```
 #### Expected output
 
 ```json
 {
-	"array": [
-		{
-			"param0": "0",
-			"parameter": {},
-			"inserted": {}
-		},
-		{
-			"param1": "1",
-			"parameter": {},
-			"inserted": {}
-		},
-		{
-			"param2": "2",
-			"parameter": {},
-			"inserted": {}
-		}
-	],
-	"all": {
-		"item1": {
-			"inserted": {}
-		},
-		"item2": {
-			"inserted": {}
-		},
-		"item3": {
-			"inserted": {}
-		}
-	}
+  "array": [
+    {
+      "param0": "0",
+      "parameter": {},
+      "inserted": {}
+    },
+    {
+      "param1": "1",
+      "parameter": {},
+      "inserted": {}
+    },
+    {
+      "param2": "2",
+      "parameter": {},
+      "inserted": {}
+    }
+  ],
+  "all": {
+    "item1": {
+      "inserted": {}
+    },
+    "item2": {
+      "inserted": {}
+    },
+    "item3": {
+      "inserted": {}
+    }
+  }
 }
 ```
 ---

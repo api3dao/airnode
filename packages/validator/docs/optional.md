@@ -6,13 +6,13 @@ Sometimes a warning, should be considered an error and vice versa, the level of 
 #### Template
 ```json
 {
-	"levelExample": {
-		"__regexp": "^true$",
-		"__level": "error"
-	},
-	"__optional": {
-		"optionalExample": {}
-	}
+  "levelExample": {
+    "__regexp": "^true$",
+    "__level": "error"
+  },
+  "__optional": {
+    "optionalExample": {}
+  }
 }
 ```
 ---
@@ -20,7 +20,7 @@ Sometimes a warning, should be considered an error and vice versa, the level of 
 
 ```json
 {
-	"levelExample": "true"
+  "levelExample": "true"
 }
 ```
 ---
@@ -28,17 +28,17 @@ Sometimes a warning, should be considered an error and vice versa, the level of 
 
 ```json
 {
-	"levelExample": "false",
-	"optionalExample": {}
+  "levelExample": "false",
+  "optionalExample": {}
 }
 ```
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "levelExample is not formatted correctly" }
-	]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "levelExample is not formatted correctly" }
+  ]
 }
 ```
 ---
@@ -52,40 +52,40 @@ If keyword `__ignore` is present, parameters that are not specified in the templ
 #### Template
 ```json
 {
-	"ignoreExample": {
-		"param": {},
-		"__ignore": {}
-	}
+  "ignoreExample": {
+    "param": {},
+    "__ignore": {}
+  }
 }
 ```
 ---
 #### Valid specification
 ```json
 {
-	"ignoreExample": {
-		"param": "This is in template",
-		"other": "This is not in template"
-	}
+  "ignoreExample": {
+    "param": "This is in template",
+    "other": "This is not in template"
+  }
 }
 ```
 ---
 #### Invalid specification
 ```json
 {
-	"ignoreExample": {
-		"param": "This is in template",
-		"other": "This is not in template"
-	},
-	"notIgnored": "This is not in template"
+  "ignoreExample": {
+    "param": "This is in template",
+    "other": "This is not in template"
+  },
+  "notIgnored": "This is not in template"
 }
 ```
 #### Expected output
 ```json
 {
-	"valid": true,
-	"messages": [
-		{ "level": "warning", "message": "Extra field: notIgnored" }
-	]
+  "valid": true,
+  "messages": [
+    { "level": "warning", "message": "Extra field: notIgnored" }
+  ]
 }
 ```
 ---

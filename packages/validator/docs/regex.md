@@ -5,34 +5,34 @@ To ensure parameters are in correct format, regular expressions are used. Token 
 #### Template
 ```json
 {
-	"__keyRegexp": "^server$",
-	"__objectItem": {
-		"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
-	}
+  "__keyRegexp": "^server$",
+  "__objectItem": {
+    "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
+  }
 }
 ```
 ---
 #### Valid specification
 ```json
 {
-	"server": "https://www.google.com/"
+  "server": "https://www.google.com/"
 }
 ```
 ---
 #### Invalid specification
 ```json
 {
-	"invalid": "google"
+  "invalid": "google"
 }
 ```
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "Key invalid in invalid is formatted incorrectly" },
-		{ "level": "warning", "message": "invalid is not formatted correctly" }
-	]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Key invalid in invalid is formatted incorrectly" },
+    { "level": "warning", "message": "invalid is not formatted correctly" }
+  ]
 }
 ```
 ---

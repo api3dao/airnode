@@ -8,31 +8,31 @@ Conditions are objects containing `__if` and `__then` objects, these objects are
 
 ```json
 {
-	"conditionsExample": {
-		"value": {},
-		"__conditions": [
-			{
-				"__if": {
-					"value": "^one$"
-				},
-				"__then": {
-					"one": {
-						"__regexp": "^This is required by one$"
-					}
-				}
-			},
-			{
-				"__if": {
-					"value": "^two$"
-				},
-				"__then": {
-					"two": {
-						"__regexp": "^This is required by two$"
-					}
-				}
-			}
-		]
-	}
+  "conditionsExample": {
+    "value": {},
+    "__conditions": [
+      {
+        "__if": {
+          "value": "^one$"
+        },
+        "__then": {
+          "one": {
+            "__regexp": "^This is required by one$"
+          }
+        }
+      },
+      {
+        "__if": {
+          "value": "^two$"
+        },
+        "__then": {
+          "two": {
+            "__regexp": "^This is required by two$"
+          }
+        }
+      }
+    ]
+  }
 }
 ```
 ---
@@ -78,17 +78,17 @@ In this example parameter `conditionsExample.value` is required, if it's value i
 ```json
 {
   "items": {
-		"__objectItem": {
-			"__keyRegexp": "^require[0-9]$",
-			"__conditions": [
-				{
-					"__require": {
-						"/outer.__this_name.inner": {}
-					}
-				}
-			]
-		}
-	}
+    "__objectItem": {
+      "__keyRegexp": "^require[0-9]$",
+      "__conditions": [
+        {
+          "__require": {
+            "/outer.__this_name.inner": {}
+          }
+        }
+      ]
+    }
+  }
 }
 ```
 ---
@@ -96,44 +96,44 @@ In this example parameter `conditionsExample.value` is required, if it's value i
 ```json
 {
   "items": {
-		"require0": {},
-		"require5": {}
-	},
-	"outer": {
-		"require0": {
-			"inner": {}
-		},
-		"require5": {
-			"inner": {}
-		}
-	}
+    "require0": {},
+    "require5": {}
+  },
+  "outer": {
+    "require0": {
+      "inner": {}
+    },
+    "require5": {
+      "inner": {}
+    }
+  }
 }
 ```
 ---
 #### Invalid specification
 ```json
 {
-	"items": {
-		"require0": {},
-		"require5": {}
-	},
-	"outer": {
-		"require0": {},
-		"require1": {
-			"inner": {}
-		}
-	}
+  "items": {
+    "require0": {},
+    "require5": {}
+  },
+  "outer": {
+    "require0": {},
+    "require1": {
+      "inner": {}
+    }
+  }
 }
 ```
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "Missing parameter outer.require0.inner" },
-		{ "level": "error", "message": "Missing parameter outer.require5.inner" },
-		{ "level": "warning", "message": "Extra field: outer.require1" }
-	]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Missing parameter outer.require0.inner" },
+    { "level": "error", "message": "Missing parameter outer.require5.inner" },
+    { "level": "warning", "message": "Extra field: outer.require1" }
+  ]
 }
 ```
 ---
@@ -151,39 +151,39 @@ Regular expressions are often used in `__if` parameter of condition, matched str
 #### Template
 ```json
 {
-	"items": {
-		"__objectItem": {
-			"__conditions": [
-				{
-					"__if": {
-						"__this": "^matchedValue$"
-					},
-					"__rootThen": {
-						"thenItems": {
-							"byValue": {
-								"__regexp": "^__match$"
-							}
-						}
-					}
-				}
-			]
-		},
-		"__conditions": [
-			{
-				"__if": {
-					"__this_name": "^matchedKey$"
-				},
-				"__rootThen": {
-					"thenItems": {
-						"byKey": {
-							"__regexp": "^__match$"
-						}
-					}
-				}
-			}
-		]
-	},
-	"thenItems": {}
+  "items": {
+    "__objectItem": {
+      "__conditions": [
+        {
+          "__if": {
+            "__this": "^matchedValue$"
+          },
+          "__rootThen": {
+            "thenItems": {
+              "byValue": {
+                "__regexp": "^__match$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "__conditions": [
+      {
+        "__if": {
+          "__this_name": "^matchedKey$"
+        },
+        "__rootThen": {
+          "thenItems": {
+            "byKey": {
+              "__regexp": "^__match$"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "thenItems": {}
 }
 ```
 ---
@@ -191,14 +191,14 @@ Regular expressions are often used in `__if` parameter of condition, matched str
 
 ```json
 {
-	"items": {
-		"item1": "matchedValue",
-		"matchedKey": "item2"
-	},
-	"thenItems": {
-		"byValue": "matchedValue",
-		"byKey": "matchedKey"
-	}
+  "items": {
+    "item1": "matchedValue",
+    "matchedKey": "item2"
+  },
+  "thenItems": {
+    "byValue": "matchedValue",
+    "byKey": "matchedKey"
+  }
 }
 ```
 ---
@@ -206,22 +206,22 @@ Regular expressions are often used in `__if` parameter of condition, matched str
 
 ```json
 {
-	"items": {
-		"item1": "matchedValue",
-		"matchedKey": "item2"
-	},
-	"thenItems": {}
+  "items": {
+    "item1": "matchedValue",
+    "matchedKey": "item2"
+  },
+  "thenItems": {}
 }
 ```
 
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "Missing parameter thenItems.byValue" },
-		{ "level": "error", "message": "Missing parameter items.matchedKey" }
-	]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Missing parameter thenItems.byValue" },
+    { "level": "error", "message": "Missing parameter items.matchedKey" }
+  ]
 }
 ```
 ---
@@ -236,24 +236,24 @@ Value of any parameter in the specification can accessed by providing relative o
 
 ```json
 {
-	"container": {
-		"__conditions": [
-			{
-				"__if": {
-					"param": ".*"
-				},
-				"__rootThen": {
-					"[[/used.name]]": {
-						"__regexp": "^[[param]]$",
-						"__level": "error"
-					}
-				}
-			}
-		]
-	},
-	"used": {
-		"name": {}
-	}
+  "container": {
+    "__conditions": [
+      {
+        "__if": {
+          "param": ".*"
+        },
+        "__rootThen": {
+          "[[/used.name]]": {
+            "__regexp": "^[[param]]$",
+            "__level": "error"
+          }
+        }
+      }
+    ]
+  },
+  "used": {
+    "name": {}
+  }
 }
 ```
 ---
@@ -261,35 +261,35 @@ Value of any parameter in the specification can accessed by providing relative o
 
 ```json
 {
-	"container": {
-		"param": "value"
-	},
-	"used": {
-		"name": "thenParam"
-	},
-	"thenParam": "value"
+  "container": {
+    "param": "value"
+  },
+  "used": {
+    "name": "thenParam"
+  },
+  "thenParam": "value"
 }
 ```
 ---
 #### Invalid specification
 ```json
 {
-	"container": {
-		"param": "value"
-	},
-	"used": {
-		"name": "thenParam"
-	},
-	"thenParam": "notValue"
+  "container": {
+    "param": "value"
+  },
+  "used": {
+    "name": "thenParam"
+  },
+  "thenParam": "notValue"
 }
 ```
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "thenParam is not formatted correctly" }
-	]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "thenParam is not formatted correctly" }
+  ]
 }
 ```
 ---
@@ -302,30 +302,30 @@ Section `__then` can contain keyword `__any`, on level where array or object is 
 
 ```json
 {
-	"items": {
-		"__objectItem": {
-			"__keyRegexp": ".*"
-		},
-		"__conditions": [
-			{
-				"__if": {
-					"__this_name": "^anyExample$"
-				},
-				"__rootThen": {
-					"thenItems": {
-						"__any": {
-							"valid": {}
-						}
-					}
-				}
-			}
-		]
-	},
-	"thenItems": {
-		"item1": {},
-		"item2": {},
-		"item3": {}
-	}
+  "items": {
+    "__objectItem": {
+      "__keyRegexp": ".*"
+    },
+    "__conditions": [
+      {
+        "__if": {
+          "__this_name": "^anyExample$"
+        },
+        "__rootThen": {
+          "thenItems": {
+            "__any": {
+              "valid": {}
+            }
+          }
+        }
+      }
+    ]
+  },
+  "thenItems": {
+    "item1": {},
+    "item2": {},
+    "item3": {}
+  }
 }
 ```
 ---
@@ -333,39 +333,39 @@ Section `__then` can contain keyword `__any`, on level where array or object is 
 
 ```json
 {
-	"items": {
-		"anyExample": {}
-	},
-	"thenItems": {
-		"item1": {},
-		"item2": {
-			"valid": "true"
-		},
-		"item3": {}
-	}
+  "items": {
+    "anyExample": {}
+  },
+  "thenItems": {
+    "item1": {},
+    "item2": {
+      "valid": "true"
+    },
+    "item3": {}
+  }
 }
 ```
 ---
 #### Invalid specification
 ```json
 {
-	"items": {
-		"anyExample": {}
-	},
-	"thenItems": {
-		"item1": {},
-		"item2": {},
-		"item3": {}
-	}
+  "items": {
+    "anyExample": {}
+  },
+  "thenItems": {
+    "item1": {},
+    "item2": {},
+    "item3": {}
+  }
 }
 ```
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "Condition in items.anyExample is not met with anyExample" }
-	]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Condition in items.anyExample is not met with anyExample" }
+  ]
 }
 ```
 ---

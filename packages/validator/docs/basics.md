@@ -5,32 +5,32 @@ Most basic validator template can simply include names of all required parameter
 ### Template
 ```json
 {
-	"server": {
-		"url": {}
-	},
-	"component": {
-		"securityScheme": {
-			"in": {},
-			"name": {},
-			"type": {}
-		}
-	}
+  "server": {
+    "url": {}
+  },
+  "component": {
+    "securityScheme": {
+      "in": {},
+      "name": {},
+      "type": {}
+    }
+  }
 }
 ```
 ---
 ### Valid specification
 ```json
 {
-	"server": {
-		"url": "https://just.example.com"
-	},
-	"component": {
-		"securityScheme": {
-			"in": "query",
-			"name": "example",
-			"type": {}
-		}
-	}
+  "server": {
+    "url": "https://just.example.com"
+  },
+  "component": {
+    "securityScheme": {
+      "in": "query",
+      "name": "example",
+      "type": {}
+    }
+  }
 }
 ```
 ### Expected output
@@ -76,32 +76,32 @@ Token `__arrayItem` means that the parameter is an array and contents of the tok
 #### Template
 ```json
 {
-	"server": {
-		"__maxSize": 1,
-		"__arrayItem": {
-			"url": {
-				"__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
-			}
-		}
-	},
-	"component": {
-		"securitySchemes": {
-			"__objectItem": {
-				"in": {
-					"__regexp": "^(query|header|cookie)$"
-				},
-				"name": {
-					"__regexp": "^[^\\s'\"\\\\]+$"
-				},
-				"type": {}
-			}
-		}
-	},
-	"security": {
-		"__objectItem": {
-			"__arrayItem": {}
-		}
-	}
+  "server": {
+    "__maxSize": 1,
+    "__arrayItem": {
+      "url": {
+        "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
+      }
+    }
+  },
+  "component": {
+    "securitySchemes": {
+      "__objectItem": {
+        "in": {
+          "__regexp": "^(query|header|cookie)$"
+        },
+        "name": {
+          "__regexp": "^[^\\s'\"\\\\]+$"
+        },
+        "type": {}
+      }
+    }
+  },
+  "security": {
+    "__objectItem": {
+      "__arrayItem": {}
+    }
+  }
 }
 ```
 ---
@@ -166,14 +166,14 @@ Token `__arrayItem` means that the parameter is an array and contents of the tok
 #### Expected output
 ```json
 {
-	"valid": false,
-	"messages": [
-		{ "level": "error", "message": "server must contain 1 or less items" },
-		{ "level": "warning", "message": "server[1].url is not formatted correctly" },
-		{ "level": "warning", "message": "component.securitySchemes.scheme.in is not formatted correctly" },
-		{ "level": "warning", "message": "component.securitySchemes.scheme.name is not formatted correctly" },
-		{ "level": "warning", "message": "Extra field: security.scheme[0].extra" }
-	] 
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "server must contain 1 or less items" },
+    { "level": "warning", "message": "server[1].url is not formatted correctly" },
+    { "level": "warning", "message": "component.securitySchemes.scheme.in is not formatted correctly" },
+    { "level": "warning", "message": "component.securitySchemes.scheme.name is not formatted correctly" },
+    { "level": "warning", "message": "Extra field: security.scheme[0].extra" }
+  ] 
 }
 ```
 ---
