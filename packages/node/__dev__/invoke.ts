@@ -7,6 +7,4 @@ async function invoke() {
   await local.startCoordinator();
 }
 
-invoke()
-  .then(() => process.exit(0))
-  .catch(() => process.exit(1));
+invoke();

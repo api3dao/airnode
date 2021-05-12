@@ -25,14 +25,20 @@ export function goTimeout<T>(ms: number, fn: Promise<T>): Promise<Response<T>> {
 }
 
 export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
+  let timeoutId: NodeJS.Timeout;
   const timeout = new Promise((_res, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject(new Error(`operation timed out in ${ms} ms.`));
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Operation timed out in ${ms} ms.`));
     }, ms);
   });
 
-  return Promise.race([promise, timeout]) as Promise<T>;
+  const wrappedPromise = promise.finally(() => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  });
+
+  return Promise.race([wrappedPromise, timeout]) as Promise<T>;
 }
 
 export function wait(ms: number) {
@@ -87,7 +93,7 @@ export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise
         .then(resolve)
         .catch((reason: any) => {
           // Only if the error is a timeout error, do we retry the promise
-          if (reason instanceof Error && reason.message === 'operation timed out') {
+          if (reason instanceof Error && reason.message.includes('Operation timed out')) {
             // Delay the new attempt slightly
             return wait(options?.delay || 50)
               .then(run)
