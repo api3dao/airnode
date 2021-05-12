@@ -18,7 +18,7 @@
     "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
-    "test:watch:debug": "jest \"template-fetching.test\" --selectProjects unit --watch"
+    "test:watch:debug": "jest \"authorization-fetching.test\" --selectProjects unit --watch"
   },
   "dependencies": {
     "@airnode/adapter": "^0.1.0",
@@ -26,6 +26,7 @@
     "@airnode/ois": "^0.1.0",
     "@airnode/operation": "^0.1.0",
     "@airnode/protocol": "^0.1.0",
+    "@lifeomic/attempt": "^3.0.0",
     "@types/bluebird": "^3.5.32",
     "aws-sdk": "^2.753.0",
     "bluebird": "^3.7.2",

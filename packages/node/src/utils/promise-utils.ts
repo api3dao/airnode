@@ -1,4 +1,5 @@
 import Bluebird from 'bluebird';
+import { AttemptOptions, retry, sleep } from '@lifeomic/attempt';
 import { DEFAULT_RETRY_DELAY_MS } from '../constants';
 
 // Adapted from:
@@ -40,28 +41,23 @@ export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<G
   return fn().then(successFn).catch(errorFn);
 }
 
-export function retryOperation<T>(operation: () => Promise<T>, options: RetryOptions): Promise<T> {
-  const { timeoutMs } = options;
-
-  return new Promise((resolve, reject) => {
-    // Wrap the original operation in a timeout if one is provided
-    const execution = timeoutMs ? promiseTimeout(timeoutMs, operation()) : operation();
-
-    // If the promise is successful, resolve it and bubble the result up
-    return execution.then(resolve).catch((reason: any) => {
-      // If there are any retries left, we call the same retryOperation function again,
-      // but decrementing the number of retries left by 1
-      if (options.retries > 0) {
-        // Delay the new attempt slightly
-        return wait(options.retryDelayMs || DEFAULT_RETRY_DELAY_MS)
-          .then(retryOperation.bind(null, operation, { ...options, retries: options.retries - 1 }))
-          .then((res) => resolve(res as T))
-          .catch(reject);
-      }
-      // Reject (and bubble the result up) if there are no more retries
-      return reject(reason);
-    });
-  });
+export async function retryOperation<T>(operation: () => Promise<T>, options: RetryOptions): Promise<T> {
+  // We may want to use some of these options in the future
+  const attemptOptions: AttemptOptions<any> = {
+    delay: options.retryDelayMs || DEFAULT_RETRY_DELAY_MS,
+    maxAttempts: options.retries + 1,
+    initialDelay: 0,
+    minDelay: 0,
+    maxDelay: 0,
+    factor: 0,
+    timeout: options.timeoutMs || 0,
+    jitter: false,
+    handleError: null,
+    handleTimeout: null,
+    beforeAttempt: null,
+    calculateDelay: null,
+  };
+  return retry((_context) => operation(), attemptOptions);
 }
 
 export interface ContinuousRetryOptions {
@@ -86,10 +82,6 @@ export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
   return Bluebird.resolve(promise).timeout(ms);
 }
 
-export function wait(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
 export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise<T>, options?: ContinuousRetryOptions) {
   const promise = new Promise<T>((resolve, reject) => {
     function run(): Promise<any> {
@@ -100,7 +92,7 @@ export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise
           // Only if the error is a timeout error, do we retry the promise
           if (reason instanceof Error && reason.message === 'operation timed out') {
             // Delay the new attempt slightly
-            return wait(options?.delay || DEFAULT_RETRY_DELAY_MS)
+            return sleep(options?.delay || DEFAULT_RETRY_DELAY_MS)
               .then(run)
               .then(resolve)
               .catch(reject);
