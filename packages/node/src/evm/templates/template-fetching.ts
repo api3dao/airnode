@@ -8,7 +8,7 @@ import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
-import { CONVENIENCE_BATCH_SIZE } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 
 export interface FetchOptions {
   airnodeRrpAddress: string;
@@ -24,7 +24,7 @@ export async function fetchTemplate(
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
   const operation = () => airnodeRrp.getTemplate(templateId);
-  const [err, rawTemplate] = await go(operation, { retries: 1 });
+  const [err, rawTemplate] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
     return [[log], null];
@@ -46,7 +46,7 @@ async function fetchTemplateGroup(
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
-  const [err, rawTemplates] = await go(contractCall, { retries: 1 });
+  const [err, rawTemplates] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
   if (err || !rawTemplates) {

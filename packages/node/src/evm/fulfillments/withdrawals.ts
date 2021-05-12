@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
@@ -32,7 +33,10 @@ export async function submitWithdrawal(
 
   const requesterAddress = wallet.deriveWalletAddressFromIndex(options.masterHDNode, request.requesterIndex!);
   const getBalanceOperation = () => options.provider!.getBalance(requesterAddress);
-  const [balanceErr, currentBalance] = await go(getBalanceOperation, { retries: 1 });
+  const [balanceErr, currentBalance] = await go(getBalanceOperation, {
+    retries: 1,
+    timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
+  });
   if (balanceErr || !currentBalance) {
     const errLog = logger.pend(
       'ERROR',
@@ -54,7 +58,7 @@ export async function submitWithdrawal(
       { value: 1 }
     );
   // The node calculates how much gas the next transaction will cost (53,654)
-  const [estimateErr, estimatedGasLimit] = await go(estimateTx, { retries: 1 });
+  const [estimateErr, estimatedGasLimit] = await go(estimateTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (estimateErr || !estimatedGasLimit) {
     const estimateErrorLog = logger.pend(
       'ERROR',
@@ -99,7 +103,7 @@ export async function submitWithdrawal(
       value: fundsToSend,
     });
   // Note that we're using the requester wallet to call this
-  const [withdrawalErr, withdrawalRes] = await go(withdrawalTx, { retries: 1 });
+  const [withdrawalErr, withdrawalRes] = await go(withdrawalTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (withdrawalErr || !withdrawalRes) {
     const withdrawalErrLog = logger.pend(
       'ERROR',

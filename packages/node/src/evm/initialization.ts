@@ -5,6 +5,7 @@ import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as utils from './utils';
 import * as wallet from './wallet';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 
 interface AirnodeParametersExistOptions {
@@ -62,7 +63,7 @@ export async function fetchAirnodeParametersWithData(
   const fetchLog = logger.pend('INFO', 'Fetching current block and Airnode parameters...');
 
   const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId);
-  const [err, res] = await go(operation, { retries: 1 });
+  const [err, res] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !res) {
     const errLog = logger.pend('ERROR', 'Unable to fetch current block and Airnode parameters', err);
     return [[fetchLog, errLog], null];
@@ -110,7 +111,7 @@ export async function setAirnodeParameters(
       gasLimit: 300_000,
       value: 1,
     });
-  const [estimateErr, estimatedGasCost] = await go(gasEstimateOp, { retries: 1 });
+  const [estimateErr, estimatedGasCost] = await go(gasEstimateOp, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (estimateErr || !estimatedGasCost) {
     const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
     return [[log1, log2, errLog], null];
@@ -121,7 +122,7 @@ export async function setAirnodeParameters(
 
   // Fetch the current gas price
   const gasPriceOp = () => options.provider.getGasPrice();
-  const [gasPriceErr, gasPrice] = await go(gasPriceOp, { retries: 1 });
+  const [gasPriceErr, gasPrice] = await go(gasPriceOp, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (gasPriceErr || !gasPrice) {
     const errLog = logger.pend('ERROR', 'Unable to fetch gas price', gasPriceErr);
     return [[log1, log2, log3, errLog], null];
@@ -130,7 +131,7 @@ export async function setAirnodeParameters(
 
   // Get the balance for the master wallet
   const balanceOp = () => options.provider.getBalance(masterWallet.address);
-  const [balanceErr, masterWalletBalance] = await go(balanceOp, { retries: 1 });
+  const [balanceErr, masterWalletBalance] = await go(balanceOp, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (balanceErr || !masterWalletBalance) {
     const errLog = logger.pend('ERROR', 'Unable to fetch master wallet balance', balanceErr);
     return [[log1, log2, log3, log4, errLog], null];
@@ -173,7 +174,7 @@ export async function setAirnodeParameters(
       gasLimit,
       gasPrice,
     });
-  const [txErr, tx] = await go(setAirnodeParametersTx, { retries: 1 });
+  const [txErr, tx] = await go(setAirnodeParametersTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (txErr || !tx) {
     const errLog = logger.pend('ERROR', 'Unable to submit set Airnode parameters transaction', txErr);
     return [[log1, log2, log3, log4, log5, log6, errLog], null];

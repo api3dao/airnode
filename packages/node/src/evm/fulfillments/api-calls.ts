@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import {
   ApiCall,
   ClientRequest,
@@ -67,7 +68,7 @@ async function testFulfill(
         nonce: request.nonce!,
       }
     );
-  const [err, res] = await go(operation, { retries: 1 });
+  const [err, res] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
@@ -102,7 +103,7 @@ async function submitFulfill(
         nonce: request.nonce!,
       }
     );
-  const [err, res] = await go(tx, { retries: 1 });
+  const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend(
       'ERROR',
@@ -168,7 +169,7 @@ async function submitFail(
       gasPrice: options.gasPrice,
       nonce: request.nonce!,
     });
-  const [err, res] = await go(tx, { retries: 1 });
+  const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];

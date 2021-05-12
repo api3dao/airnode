@@ -22,7 +22,7 @@ export const BLOCK_MIN_CONFIRMATIONS = 0;
 export const CONVENIENCE_BATCH_SIZE = 10;
 
 // The default amount of time before a "retryable" promise is timed out and retried
-export const DEFAULT_RETRY_OPERATION_TIMEOUT_MS = 5_000;
+export const DEFAULT_RETRY_TIMEOUT_MS = 5_000;
 
 // The default amount of time to wait before retrying a given promise
 export const DEFAULT_RETRY_DELAY_MS = 50;

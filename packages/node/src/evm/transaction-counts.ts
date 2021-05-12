@@ -4,6 +4,7 @@ import flatMap from 'lodash/flatMap';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as wallet from './wallet';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 
 export interface TransactionCountByRequesterIndex {
@@ -22,7 +23,7 @@ async function getWalletTransactionCount(
 ): Promise<LogsData<TransactionCountByRequesterIndex | null>> {
   const address = wallet.deriveWalletAddressFromIndex(options.masterHDNode, requesterIndex);
   const operation = () => options.provider.getTransactionCount(address, options.currentBlock);
-  const [err, count] = await go(operation, { retries: 1 });
+  const [err, count] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || count === null) {
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
     return [[log], null];

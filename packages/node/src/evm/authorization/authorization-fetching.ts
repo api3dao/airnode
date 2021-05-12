@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import * as logger from '../../logger';
 import { go } from '../../utils/promise-utils';
 import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../types';
-import { CONVENIENCE_BATCH_SIZE } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 
 interface FetchOptions {
@@ -31,7 +31,7 @@ export async function fetchAuthorizationStatus(
       apiCall.clientAddress
     );
 
-  const [err, authorized] = await go(contractCall, { retries: 1 });
+  const [err, authorized] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || isNil(authorized)) {
     const log = logger.pend('ERROR', `Failed to fetch authorization details for Request:${apiCall.id}`, err);
     return [[log], null];
@@ -63,7 +63,7 @@ async function fetchAuthorizationStatuses(
       clientAddresses
     );
 
-  const [err, data] = await go(contractCall, { retries: 1 });
+  const [err, data] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !data) {
     const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', err);
 

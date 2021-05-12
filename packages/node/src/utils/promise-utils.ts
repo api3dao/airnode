@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import { DEFAULT_RETRY_DELAY_MS, DEFAULT_RETRY_OPERATION_TIMEOUT_MS } from '../constants';
+import { DEFAULT_RETRY_DELAY_MS } from '../constants';
 
 // Adapted from:
 // https://github.com/then/is-promise
@@ -41,11 +41,11 @@ export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<G
 }
 
 export function retryOperation<T>(operation: () => Promise<T>, options: RetryOptions): Promise<T> {
-  const timeout = options?.timeoutMs || DEFAULT_RETRY_OPERATION_TIMEOUT_MS;
+  const { timeoutMs } = options;
 
   return new Promise((resolve, reject) => {
-    // Wrap the original operation in a timeout
-    const execution = promiseTimeout(timeout, operation());
+    // Wrap the original operation in a timeout if one is provided
+    const execution = timeoutMs ? promiseTimeout(timeoutMs, operation()) : operation();
 
     // If the promise is successful, resolve it and bubble the result up
     return execution.then(resolve).catch((reason: any) => {
