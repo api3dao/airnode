@@ -15,14 +15,15 @@
     "deploy:goerli": "hardhat deploy --network goerli",
     "deploy:xdai": "hardhat deploy --network xdai",
     "deploy:fantom": "hardhat deploy --network fantom",
+    "flatten": "yarn run flatten:airnode && yarn run flatten:delete-license-lines",
+    "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol && yarn run flatten:delete-license-lines",
+    "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol",
+    "prepublishOnly": "yarn run build",
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "test:coverage-extended": "EXTENDED_TEST=TRUE hardhat coverage",
     "test:extended": "EXTENDED_TEST=TRUE hardhat test",
-    "test:gas": "REPORT_GAS=TRUE hardhat test",
-    "flatten": "yarn run flatten:airnode && yarn run flatten:delete-license-lines",
-    "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol && yarn run flatten:delete-license-lines",
-    "flatten:delete-license-lines": "sed --in-place '/SPDX-License-Identifier/d' *.flat.sol"
+    "test:gas": "REPORT_GAS=TRUE hardhat test"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
@@ -31,11 +32,15 @@
     "chai": "^4.2.0",
     "copyfiles": "^2.4.1",
     "ethereum-waffle": "^3.3.0",
-    "ethers": "^5.1.4",
     "hardhat": "^2.2.1",
     "hardhat-deploy": "^0.7.0-beta.38",
     "hardhat-gas-reporter": "^1.0.4",
+    "rimraf": "^3.0.2",
     "solidity-coverage": "^0.7.16",
-    "typechain": "^4.0.3"
+    "typechain": "^4.0.3",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "ethers": "^5.1.4"
   }
 }
