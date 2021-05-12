@@ -1,5 +1,5 @@
 import Bluebird from 'bluebird';
-import { DEFAULT_RETRY_OPERATION_TIMEOUT_MS } from '../constants';
+import { DEFAULT_RETRY_DELAY_MS, DEFAULT_RETRY_OPERATION_TIMEOUT_MS } from '../constants';
 
 // Adapted from:
 // https://github.com/then/is-promise
@@ -53,7 +53,7 @@ export function retryOperation<T>(operation: () => Promise<T>, options: RetryOpt
       // but decrementing the number of retries left by 1
       if (options.retries > 0) {
         // Delay the new attempt slightly
-        return wait(options.retryDelayMs || 50)
+        return wait(options.retryDelayMs || DEFAULT_RETRY_DELAY_MS)
           .then(retryOperation.bind(null, operation, { ...options, retries: options.retries - 1 }))
           .then((res) => resolve(res as T))
           .catch(reject);
@@ -100,7 +100,7 @@ export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise
           // Only if the error is a timeout error, do we retry the promise
           if (reason instanceof Error && reason.message === 'operation timed out') {
             // Delay the new attempt slightly
-            return wait(options?.delay || 50)
+            return wait(options?.delay || DEFAULT_RETRY_DELAY_MS)
               .then(run)
               .then(resolve)
               .catch(reject);
