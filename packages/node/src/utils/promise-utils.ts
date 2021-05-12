@@ -7,7 +7,7 @@ export function isPromise(obj: any) {
   return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
 }
 
-type Response<T> = [Error, null] | [null, T];
+type GoResult<T> = [Error, null] | [null, T];
 
 export interface PromiseOptions {
   retries?: number;
@@ -20,7 +20,7 @@ export interface RetryOptions extends PromiseOptions {
 }
 
 // Go style async handling
-export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<Response<T>> {
+export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<GoResult<T>> {
   function successFn(value: T): [null, T] {
     return [null, value];
   }
