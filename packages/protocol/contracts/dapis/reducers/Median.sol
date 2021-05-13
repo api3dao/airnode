@@ -9,19 +9,14 @@ import "./SelectK.sol";
 /// should be used when numerical accuracy is not critical or as a part of a
 /// more complex reduction method such as MeanMedianHybrid.sol.
 contract Median is SelectK {
-    /// @notice Reduces the array of values by computing their median
-    /// @param values Values to be reduced
-    function computeMedianInPlace(int256[] memory values)
-        internal
-        pure
-        returns (int256)
-    {
-        if (values.length % 2 != 1) {
-            return computeInPlace(values, values.length / 2 + 1);
-        }
-        else {
-            (int256 mid1, int256 mid2) = compute2InPlace(values, values.length / 2 - 1);
-            return (mid1 + mid2) / 2;
-        }
+  /// @notice Reduces the array of values by computing their median
+  /// @param values Values to be reduced
+  function computeMedianInPlace(int256[] memory values) internal pure returns (int256) {
+    if (values.length % 2 != 1) {
+      return computeInPlace(values, values.length / 2 + 1);
+    } else {
+      (int256 mid1, int256 mid2) = compute2InPlace(values, values.length / 2 - 1);
+      return (mid1 + mid2) / 2;
     }
+  }
 }

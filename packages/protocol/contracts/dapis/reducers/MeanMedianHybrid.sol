@@ -22,41 +22,38 @@ import "./Median.sol";
 /// values (in `Mean.aggregateInplace`). If that is a probability, use
 /// Median.sol instead.
 contract MeanMedianHybrid is Mean, Median {
-    /// @notice Percentages are represented by multiplying by 1,000,000 (1e6)
-    uint256 public constant HUNDRED_PERCENT = 100e6;
+  /// @notice Percentages are represented by multiplying by 1,000,000 (1e6)
+  uint256 public constant HUNDRED_PERCENT = 100e6;
 
-    /// @notice Reduces the array of values by computing their mean, checking
-    /// if the mean is similar enough to median, and computing the median
-    /// instead if it is not
-    /// @param values Values to be reduced
-    function computeMeanMedianHybridInPlace(
-        int256[] memory values,
-        uint256 toleranceInPercentages
-        )
-        internal
-        pure
-        returns (int256)
-    {
-        int256 mean = computeMean(values);
-        // Test the mean for validity
-        int256 upperTolerance = mean * int256((HUNDRED_PERCENT + toleranceInPercentages) / HUNDRED_PERCENT);
-        int256 lowerTolerance = mean * int256((HUNDRED_PERCENT - toleranceInPercentages) / HUNDRED_PERCENT);
-        uint256 upperToleranceValidityCount;
-        uint256 lowerToleranceValidityCount;
-        for (uint256 i = 0; i < values.length; i++) {
-            if (upperTolerance >= values[i]) {
-                upperToleranceValidityCount++;
-            }
-            if (lowerTolerance <= values[i]) {
-                lowerToleranceValidityCount++;
-            }
-        }
-        if (upperToleranceValidityCount >= values.length / 2) {
-            if (lowerToleranceValidityCount >= values.length / 2) {
-                return mean;
-            }
-        }
-        // Fall back to median if the mean is not valid
-        return computeMedianInPlace(values);
+  /// @notice Reduces the array of values by computing their mean, checking
+  /// if the mean is similar enough to median, and computing the median
+  /// instead if it is not
+  /// @param values Values to be reduced
+  function computeMeanMedianHybridInPlace(int256[] memory values, uint256 toleranceInPercentages)
+    internal
+    pure
+    returns (int256)
+  {
+    int256 mean = computeMean(values);
+    // Test the mean for validity
+    int256 upperTolerance = mean * int256((HUNDRED_PERCENT + toleranceInPercentages) / HUNDRED_PERCENT);
+    int256 lowerTolerance = mean * int256((HUNDRED_PERCENT - toleranceInPercentages) / HUNDRED_PERCENT);
+    uint256 upperToleranceValidityCount;
+    uint256 lowerToleranceValidityCount;
+    for (uint256 i = 0; i < values.length; i++) {
+      if (upperTolerance >= values[i]) {
+        upperToleranceValidityCount++;
+      }
+      if (lowerTolerance <= values[i]) {
+        lowerToleranceValidityCount++;
+      }
     }
+    if (upperToleranceValidityCount >= values.length / 2) {
+      if (lowerToleranceValidityCount >= values.length / 2) {
+        return mean;
+      }
+    }
+    // Fall back to median if the mean is not valid
+    return computeMedianInPlace(values);
+  }
 }
