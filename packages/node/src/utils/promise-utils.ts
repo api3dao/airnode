@@ -1,4 +1,3 @@
-import Bluebird from 'bluebird';
 import { DEFAULT_RETRY_OPERATION_TIMEOUT } from '../constants';
 
 // Adapted from:
@@ -25,22 +24,21 @@ export function goTimeout<T>(ms: number, fn: Promise<T>): Promise<Response<T>> {
   return go(promiseTimeout(ms, fn));
 }
 
-// A native implementation of the following function might look like:
-//
-//   function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-//     const timeout = new Promise((_res, reject) => {
-//       setTimeout(() => {
-//         reject(new Error(`Timed out in ${ms} ms.`));
-//       }, ms);
-//     });
-//     return Promise.race([promise, timeout]);
-//   }
-//
-// The problem with this is that that the slow promise still runs until it resolves.
-// This means that the serverless function will not exit until the entire timeout
-// duration has been reached which is a problem.
 export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-  return Bluebird.resolve(promise).timeout(ms);
+  let timeoutId: NodeJS.Timeout;
+  const timeout = new Promise((_res, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Operation timed out in ${ms} ms.`));
+    }, ms);
+  });
+
+  const wrappedPromise = promise.finally(() => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  });
+
+  return Promise.race([wrappedPromise, timeout]) as Promise<T>;
 }
 
 export function wait(ms: number) {
@@ -95,7 +93,7 @@ export function retryOnTimeout<T>(maxTimeoutMs: number, operation: () => Promise
         .then(resolve)
         .catch((reason: any) => {
           // Only if the error is a timeout error, do we retry the promise
-          if (reason instanceof Error && reason.message === 'operation timed out') {
+          if (reason instanceof Error && reason.message.includes('Operation timed out')) {
             // Delay the new attempt slightly
             return wait(options?.delay || 50)
               .then(run)
