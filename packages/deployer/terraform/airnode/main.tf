@@ -7,7 +7,7 @@ module "initializeProvider" {
 
   name                = "initializeProvider"
   handler             = "handlers/aws/index.initializeProvider"
-  source_file         = "${path.module}/../../.webpack/handlers/aws/index.js"
+  source_file         = var.handler_file
   timeout             = 20
   infrastructure_name = var.infrastructure_name
   stage               = var.stage
@@ -21,7 +21,7 @@ module "callApi" {
 
   name                = "callApi"
   handler             = "handlers/aws/index.callApi"
-  source_file         = "${path.module}/../../.webpack/handlers/aws/index.js"
+  source_file         = var.handler_file
   timeout             = 30
   infrastructure_name = var.infrastructure_name
   stage               = var.stage
@@ -35,7 +35,7 @@ module "processProviderRequests" {
 
   name                = "processProviderRequests"
   handler             = "handlers/aws/index.processProviderRequests"
-  source_file         = "${path.module}/../../.webpack/handlers/aws/index.js"
+  source_file         = var.handler_file
   timeout             = 10
   infrastructure_name = var.infrastructure_name
   stage               = var.stage
@@ -49,7 +49,7 @@ module "startCoordinator" {
 
   name                = "startCoordinator"
   handler             = "handlers/aws/index.startCoordinator"
-  source_file         = "${path.module}/../../.webpack/handlers/aws/index.js"
+  source_file         = var.handler_file
   timeout             = 60
   infrastructure_name = var.infrastructure_name
   stage               = var.stage

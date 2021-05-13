@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
@@ -5,6 +7,9 @@ import ora from 'ora';
 import { removeDeployment, stateExists } from './aws';
 
 const exec = util.promisify(child.exec);
+// TODO:
+// Pass handler as argument
+const handlerFile = path.resolve(`${__dirname}/../../.webpack/handlers/aws/index.js`);
 const terraformDir = path.resolve(`${__dirname}/../../terraform`);
 const terraformStateDir = `${terraformDir}/state`;
 const terraformAirnodeDir = `${terraformDir}/airnode`;
@@ -33,23 +38,27 @@ async function deploy(airnodeIdShort: string, stage: string, region: string, con
 
   if (!(await stateExists(region, bucket, dynamodbTable))) {
     // Run state recipes
-    await exec(`terraform init`, { cwd: terraformStateDir });
+    const stateTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
+    await exec(`terraform init -from-module=${terraformStateDir}`, { cwd: stateTmpDir });
     await exec(
       `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -auto-approve -input=false -no-color`,
-      { cwd: terraformStateDir }
+      { cwd: stateTmpDir }
     );
   }
 
   // Run airnode recipes
+  const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   await exec(
-    `terraform init -backend-config="region=${region}" -backend-config="bucket=${bucket}" -backend-config="dynamodb_table=${dynamodbTable}"`,
-    { cwd: terraformAirnodeDir }
+    `terraform init -from-module=${terraformAirnodeDir} -backend-config="region=${region}" -backend-config="bucket=${bucket}" -backend-config="dynamodb_table=${dynamodbTable}"`,
+    { cwd: airnodeTmpDir }
   );
   await exec(
     `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
       configPath
-    )}" -var="secrets_file=${path.resolve(secretsPath)}" -auto-approve -input=false -no-color`,
-    { cwd: terraformAirnodeDir }
+    )}" -var="secrets_file=${path.resolve(
+      secretsPath
+    )}" -var="handler_file=${handlerFile}" -auto-approve -input=false -no-color`,
+    { cwd: airnodeTmpDir }
   );
 }
 
@@ -69,13 +78,14 @@ async function remove(airnodeIdShort: string, stage: string, region: string) {
   const dynamodbTable = `${bucket}-lock`;
 
   // Remove airnode
+  const airnodeTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   await exec(
-    `terraform init -backend-config="region=${region}" -backend-config="bucket=${bucket}" -backend-config="dynamodb_table=${dynamodbTable}"`,
-    { cwd: terraformAirnodeDir }
+    `terraform init -from-module=${terraformAirnodeDir} -backend-config="region=${region}" -backend-config="bucket=${bucket}" -backend-config="dynamodb_table=${dynamodbTable}"`,
+    { cwd: airnodeTmpDir }
   );
   await exec(
-    `terraform destroy -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -auto-approve -input=false -no-color`,
-    { cwd: terraformAirnodeDir }
+    `terraform destroy -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -var="handler_file=${handlerFile}" -auto-approve -input=false -no-color`,
+    { cwd: airnodeTmpDir }
   );
 
   // Remove state

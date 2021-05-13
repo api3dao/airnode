@@ -1,6 +1,9 @@
-import rawConfig from '../../config-data/config.json';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as node from '@airnode/node';
 
+const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
+const rawConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 const config = node.config.parseConfig(rawConfig[0]);
 
 function encodeBody(data: node.WorkerResponse): string {
