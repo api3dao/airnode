@@ -19,7 +19,7 @@ describe('disaggregate - ClientRequests', () => {
     provider1 = providerState.update(provider1, { requests });
     provider2 = providerState.update(provider2, { requests });
 
-    const aggregatedApiCall = fixtures.createAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
       responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
@@ -57,7 +57,7 @@ describe('disaggregate - ClientRequests', () => {
     provider0 = providerState.update(provider0, { requests: requests0 });
     provider1 = providerState.update(provider1, { requests: requests1 });
 
-    const aggregatedApiCall = fixtures.createAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
       id: 'btcCall',
       parameters: { from: 'BTC' },
       responseValue: '0x123',
@@ -90,7 +90,7 @@ describe('disaggregate - ClientRequests', () => {
     let provider0 = fixtures.buildEVMProviderState();
     provider0 = providerState.update(provider0, { requests });
 
-    const aggregatedApiCall = fixtures.createAggregatedApiCall({
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({
       responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
     });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
@@ -121,7 +121,7 @@ describe('disaggregate - ClientRequests', () => {
     provider1 = providerState.update(provider1, { requests });
     provider2 = providerState.update(provider2, { requests });
 
-    const aggregatedApiCall = fixtures.createAggregatedApiCall({ errorCode: RequestErrorCode.ApiCallFailed });
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorCode: RequestErrorCode.ApiCallFailed });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();

@@ -19,7 +19,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'price', from: 'ETH' };
-    const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
+    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([]);
     expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
@@ -44,7 +44,7 @@ describe('callApi', () => {
   });
 
   it('returns an error if no _type parameter is found', async () => {
-    const aggregatedCall = fixtures.createAggregatedApiCall();
+    const aggregatedCall = fixtures.buildAggregatedApiCall();
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       {
@@ -62,7 +62,7 @@ describe('callApi', () => {
     spy.mockRejectedValueOnce(new Error('Network is down'));
 
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
+    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
@@ -76,7 +76,7 @@ describe('callApi', () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
     spy.mockResolvedValueOnce({ data: { price: 1000 } });
     const parameters = { _type: 'int256', _path: 'unknown', from: 'ETH' };
-    const aggregatedCall = fixtures.createAggregatedApiCall({ parameters });
+    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
