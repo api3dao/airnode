@@ -1,4 +1,3 @@
-import { TimeoutError } from 'bluebird';
 import { go, promiseTimeout, retryOnTimeout, retryOperation } from './promise-utils';
 
 describe('go', () => {
@@ -25,7 +24,7 @@ describe('promiseTimeout', () => {
     try {
       await promiseTimeout(15, fn);
     } catch (e) {
-      expect(e).toEqual(new TimeoutError('operation timed out'));
+      expect(e.message).toContain('Operation timed out');
     }
   });
 });
@@ -94,13 +93,13 @@ describe('retryOnTimeout', () => {
   it('retries on timeout until the maximum timeout is reached', async () => {
     expect.assertions(3);
 
-    const operation = { perform: () => Promise.reject(new TimeoutError('operation timed out')) };
+    const operation = { perform: () => Promise.reject(new Error('Operation timed out')) };
     const spy = jest.spyOn(operation, 'perform');
 
     try {
       await retryOnTimeout(50, operation.perform, { delay: 2 });
     } catch (e) {
-      expect(e).toEqual(new TimeoutError('operation timed out'));
+      expect(e.message).toContain('Operation timed out');
     }
     expect(spy.mock.calls.length).toBeGreaterThan(5);
     expect(spy.mock.calls.length).toBeLessThan(30);

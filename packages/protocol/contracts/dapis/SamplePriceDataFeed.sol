@@ -13,8 +13,9 @@ contract SamplePriceDataFeed {
     rrpDapiServer = RrpDapiServer(_rrpDapiServer);
   }
 
-  function setDapi(bytes16 dapiId) external // onlyOwner
-  {
+  function setDapi(
+    bytes16 dapiId // onlyOwner
+  ) external {
     latestDapiId = dapiId;
   }
 

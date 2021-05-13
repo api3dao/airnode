@@ -27,9 +27,7 @@
     "@airnode/operation": "^0.1.0",
     "@airnode/protocol": "^0.1.0",
     "@lifeomic/attempt": "^3.0.0",
-    "@types/bluebird": "^3.5.32",
     "aws-sdk": "^2.753.0",
-    "bluebird": "^3.7.2",
     "date-fns": "^2.16.1"
   }
 }
