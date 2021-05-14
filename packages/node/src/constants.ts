@@ -22,14 +22,13 @@ export const BLOCK_MIN_CONFIRMATIONS = 0;
 export const CONVENIENCE_BATCH_SIZE = 10;
 
 // The default amount of time before a "retryable" promise is timed out and retried
-export const DEFAULT_RETRY_OPERATION_TIMEOUT = 5_000;
+export const DEFAULT_RETRY_TIMEOUT_MS = 5_000;
+
+// The default amount of time to wait before retrying a given promise
+export const DEFAULT_RETRY_DELAY_MS = 50;
 
 // The amount of time EVM provider calls are allowed
 export const EVM_PROVIDER_TIMEOUT = 10_000;
-
-// The default number of times a "retryable" promise is retried
-// TODO: this should be 1 to represent a single retry
-export const OPERATION_RETRIES = 2;
 
 // The maximum amount of time the "initialize provider" worker is allowed before being timed out
 export const WORKER_PROVIDER_INITIALIZATION_TIMEOUT = 19_500;

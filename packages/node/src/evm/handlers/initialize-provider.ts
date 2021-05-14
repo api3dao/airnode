@@ -81,7 +81,7 @@ export async function initializeProvider(
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
   // =================================================================
-  const [dataErr, groupedRequests] = await go(fetchPendingRequests(state2));
+  const [dataErr, groupedRequests] = await go(() => fetchPendingRequests(state2));
   if (dataErr || !groupedRequests) {
     logger.error('Unable to get pending requests', { ...baseLogOptions, error: dataErr });
     return null;

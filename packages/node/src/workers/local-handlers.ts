@@ -30,7 +30,7 @@ export async function initializeProvider({ state: providerState }: ProviderArgs)
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
-  const [err, initializedState] = await go(handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider:${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
@@ -52,7 +52,7 @@ export async function processProviderRequests({ state: providerState }: Provider
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
-  const [err, updatedState] = await go(handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests:${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
