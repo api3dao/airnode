@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { Config, Request } from '../types';
 
-function execute(config: AxiosRequestConfig) {
+export function execute(config: AxiosRequestConfig) {
   return axios({
     url: config.url,
     method: config.method,

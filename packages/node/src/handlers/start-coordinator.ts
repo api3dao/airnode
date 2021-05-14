@@ -3,6 +3,7 @@ import keyBy from 'lodash/keyBy';
 import * as calls from '../coordinator/calls';
 import * as logger from '../logger';
 import * as providers from '../providers';
+import * as reporting from '../reporting';
 import * as request from '../requests/request';
 import * as state from '../coordinator/state';
 import { formatDateTime } from '../utils/date-utils';
@@ -77,15 +78,19 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  const providerTxs = state5.EVMProviders.map(async (providerState) => {
+  const processProviders = state5.EVMProviders.map(async (providerState) => {
     logger.info(`Forking to submit transactions for provider:${providerState.settings.name}...`, baseLogOptions);
     return await spawnProviderRequestProcessor(providerState, workerOpts);
   });
-  const providerTxResponses = await Promise.all(providerTxs);
+  const processedProviders = await Promise.all(processProviders);
 
-  const providerTxLogs = flatMap(providerTxResponses, (pr) => pr[0]);
+  const providerTxLogs = flatMap(processedProviders, (pr) => pr[0]);
   logger.logPending(providerTxLogs, baseLogOptions);
   logger.info('Forking to submit transactions complete', baseLogOptions);
+
+  // TODO:
+  // const processedProviderStates = flatMap(processedProviders, (pr) => pr[1]);
+  // const state6 = state.update(state5, { EVMProviders: processedProviderStates });
 
   // =================================================================
   // STEP 7: Log coordinator stats
@@ -95,8 +100,13 @@ export async function startCoordinator(config: Config) {
   logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, baseLogOptions);
 
   // =================================================================
-  // TODO: STEP 8: Post healthcheck and statistics
+  // STEP 8: Report healthcheck and statistics
   // =================================================================
+  // TODO: use state6
+  const reportingError = await reporting.reportDeployment(state5);
+  if (reportingError) {
+    logger.error('Failed to report coordinator statistics', { ...baseLogOptions, error: reportingError });
+  }
 
   return state5;
 }
