@@ -94,5 +94,9 @@ export async function startCoordinator(config: Config) {
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
   logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, baseLogOptions);
 
+  // =================================================================
+  // TODO: STEP 8: Post healthcheck and statistics
+  // =================================================================
+
   return state5;
 }
