@@ -1,17 +1,17 @@
-# @airnode/adapter
+# @api3/adapter
 
-The adapter package for @airnode contains logic for building requests from an [Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), executing those requests and returning a single value from the response.
+The adapter package for @api3 contains logic for building requests from an [Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), executing those requests and returning a single value from the response.
 
 ## Getting Started
 
-You can install `@airnode/adapter` by adding it to the `package.json` file in your project.
+You can install `@api3/adapter` by adding it to the `package.json` file in your project.
 
 ```sh
 # NPM
-npm install --save @airnode/adapter
+npm install --save @api3/adapter
 
 # Yarn
-yarn add @airnode/adapter
+yarn add @api3/adapter
 ```
 
 ## Types
@@ -219,7 +219,7 @@ console.log(values)
 ## Example
 
 ```ts
-import * as adapter from '@airnode/adapter';
+import * as adapter from '@api3/adapter';
 
 const options = {
   ois: { ... }, // a valid OIS object

@@ -1,4 +1,4 @@
-import { Endpoint } from '@airnode/ois';
+import { Endpoint } from '@api3/ois';
 import { ApiCallParameters } from '../../types';
 
 export const RESERVED_PARAMETERS = ['_path', '_times', '_type'];

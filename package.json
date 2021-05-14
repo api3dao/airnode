@@ -1,5 +1,5 @@
 {
-  "name": "airnode",
+  "name": "api3",
   "version": "0.0.1",
   "license": "MIT",
   "engines": {
@@ -23,7 +23,7 @@
     "build:operation": "(cd packages/operation && yarn run build)",
     "build:protocol": "(cd packages/protocol && yarn run build)",
     "clean": "lerna run clean --stream",
-    "cli:deployer": "lerna run --scope @airnode/deployer cli -- --",
+    "cli:deployer": "lerna run --scope @api3/deployer cli -- --",
     "dev:api": "(cd packages/operation && yarn run dev:api)",
     "dev:api:background": "(cd packages/operation && yarn run dev:api:background)",
     "dev:background": "(cd packages/operation && yarn run dev:background)",

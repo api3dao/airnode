@@ -1,4 +1,4 @@
-import * as adapter from '@airnode/adapter';
+import * as adapter from '@api3/adapter';
 import * as fixtures from 'test/fixtures';
 import { callApi } from './call-api';
 import { RequestErrorCode } from 'src/types';

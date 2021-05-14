@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AirnodeRrpFactory, AirnodeRrpAddresses } from '@airnode/protocol';
+import { AirnodeRrpFactory, AirnodeRrpAddresses } from '@api3/protocol';
 
 async function getAirnodeRrpAddress(provider: ethers.providers.Provider) {
   const network = await provider.getNetwork();

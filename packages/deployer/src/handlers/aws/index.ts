@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as node from '@airnode/node';
+import * as node from '@api3/node';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const rawConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));

@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/admin",
+  "name": "@api3/admin",
   "license": "MIT",
   "version": "0.1.0",
   "bin": "./cli-wrapper.js",
@@ -13,8 +13,8 @@
     "test:e2e:watch": "jest --coverage --watch --selectProjects e2e"
   },
   "dependencies": {
-    "@airnode/airnode-abi": "^0.1.0",
-    "@airnode/protocol": "^0.1.0",
+    "@api3/airnode-abi": "^0.1.0",
+    "@api3/protocol": "^0.1.0",
     "ethers": "^5.1.4",
     "lodash": "^4.17.21",
     "yargs": "^16.2.0"

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { ethers } from 'ethers';
-import { encode } from '@airnode/airnode-abi';
+import { encode } from '@api3/airnode-abi';
 import * as handlers from '../../src/workers/local-handlers';
 import * as e2e from '../setup/e2e';
 import * as fixtures from '../fixtures';

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AirnodeRrpFactory } from '@airnode/protocol';
+import { AirnodeRrpFactory } from '@api3/protocol';
 import { Config, Deployment, RequestsState as State } from '../../types';
 
 export function buildRequestsState(config: Config, deployment: Deployment): State {

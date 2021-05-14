@@ -1,5 +1,5 @@
-import * as adapter from '@airnode/adapter';
-import { OIS, SecurityScheme } from '@airnode/ois';
+import * as adapter from '@api3/adapter';
+import { OIS, SecurityScheme } from '@api3/ois';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 import { removeKeys } from '../utils/object-utils';
 import { getEnvValue } from '../config';

@@ -11,7 +11,7 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as adapter from '@airnode/adapter';
+import * as adapter from '@api3/adapter';
 import { initializeProvider } from './initialize-provider';
 import * as fixtures from 'test/fixtures';
 

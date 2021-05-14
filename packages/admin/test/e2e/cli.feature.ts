@@ -1,4 +1,4 @@
-import { AirnodeRrp, AirnodeRrpFactory } from '@airnode/protocol';
+import { AirnodeRrp, AirnodeRrpFactory } from '@api3/protocol';
 import { ethers } from 'ethers';
 import * as admin from '../../src';
 import { execSync } from 'child_process';

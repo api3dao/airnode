@@ -62,7 +62,7 @@ jobs:
           key: ${{ github.sha }}
 
   test-adapter:
-    name: Test @airnode/adapter
+    name: Test @api3/adapter
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -82,13 +82,13 @@ jobs:
         with:
           channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/adapter'
+          job_name: 'Airnode - test @api3/adapter'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-airnode-abi:
-    name: Test @airnode/airnode-abi
+    name: Test @api3/airnode-abi
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -108,13 +108,13 @@ jobs:
         with:
           channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/airnode-abi'
+          job_name: 'Airnode - test @api3/airnode-abi'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-node:
-    name: Test @airnode/node
+    name: Test @api3/node
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -134,13 +134,13 @@ jobs:
         with:
           channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/node'
+          job_name: 'Airnode - test @api3/node'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-protocol:
-    name: Test @airnode/protocol
+    name: Test @api3/protocol
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -160,7 +160,7 @@ jobs:
         with:
           channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/protocol'
+          job_name: 'Airnode - test @api3/protocol'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}

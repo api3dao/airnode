@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/ois';
+import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@api3/ois';
 
 export interface BuildRequestOptions {
   ois: OIS;

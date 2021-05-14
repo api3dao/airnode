@@ -1,4 +1,4 @@
-import { RegularRequest, FullRequest, Withdrawal } from '@airnode/operation';
+import { RegularRequest, FullRequest, Withdrawal } from '@api3/operation';
 
 export function buildRegularRequest(overrides?: Partial<RegularRequest>): RegularRequest {
   return {

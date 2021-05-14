@@ -1,6 +1,6 @@
 import * as ethers from 'ethers';
 import ora from 'ora';
-import { AirnodeRrpFactory } from '@airnode/protocol';
+import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
 
 const chainIdsToNames = {

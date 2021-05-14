@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/deployer",
+  "name": "@api3/deployer",
   "license": "MIT",
   "version": "0.1.0",
   "bin": {
@@ -16,8 +16,8 @@
     "webpack": "webpack"
   },
   "dependencies": {
-    "@airnode/node": "^0.1.0",
-    "@airnode/protocol": "^0.1.0",
+    "@api3/node": "^0.1.0",
+    "@api3/protocol": "^0.1.0",
     "dotenv": "^8.2.0",
     "ethers": "^5.1.4",
     "lodash": "^4.17.21",

@@ -1,4 +1,4 @@
-import { ApiSecurityScheme, ApiSpecification } from '@airnode/ois';
+import { ApiSecurityScheme, ApiSpecification } from '@api3/ois';
 import * as fixtures from '../../test/fixtures';
 import * as authentication from './authentication';
 
