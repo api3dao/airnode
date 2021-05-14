@@ -4,7 +4,7 @@ import * as logger from '../../logger';
 import * as nonces from '../../requests/nonces';
 import * as state from '../../providers/state';
 import * as utils from '../utils';
-import { EVMProviderState, ProviderState } from '../../types';
+import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
 
 export async function processTransactions(
   initialState: ProviderState<EVMProviderState>
@@ -54,7 +54,11 @@ export async function processTransactions(
     logger.info(`Transaction:${receipt.data!.hash} submitted for Request:${receipt.id}`, baseLogOptions);
   });
 
-  // TODO: apply tx hashes to each request
+  const requestsWithFulfillments: GroupedRequests = {
+    apiCalls: fulfillments.applyFulfillments(state3.requests.apiCalls, successfulReceipts),
+    withdrawals: fulfillments.applyFulfillments(state3.requests.withdrawals, successfulReceipts),
+  };
+  const state4 = state.update(state3, { requests: requestsWithFulfillments });
 
-  return state3;
+  return state4;
 }

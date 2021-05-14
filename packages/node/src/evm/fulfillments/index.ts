@@ -4,17 +4,17 @@ import * as logger from '../../logger';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
 import * as wallet from '../wallet';
-import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from '../../types';
+import {
+  ClientRequest,
+  EVMProviderState,
+  ProviderState,
+  RequestType,
+  TransactionOptions,
+  TransactionReceipt,
+} from '../../types';
 import { AirnodeRrpFactory } from '../contracts';
 
-export interface Receipt {
-  id: string;
-  data?: string;
-  error?: Error;
-  type: RequestType;
-}
-
-export async function submit(state: ProviderState<EVMProviderState>) {
+export async function submit(state: ProviderState<EVMProviderState>): Promise<TransactionReceipt[]> {
   const { chainId, chainType, name: providerName } = state.settings;
   const { coordinatorId } = state;
 
@@ -65,7 +65,17 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     return [...submittedApiCalls, ...submittedWithdrawals];
   });
 
-  const responses = await Promise.all(promises);
+  const receipts = (await Promise.all(promises)) as TransactionReceipt[];
+  return receipts;
+}
 
-  return responses;
+export function applyFulfillments<T>(requests: ClientRequest<T>[], receipts: TransactionReceipt[]) {
+  return requests.reduce((acc, request) => {
+    const receipt = receipts.find((r) => r.id === request.id);
+    if (!receipt || !receipt.data?.hash) {
+      return [...acc, request];
+    }
+    const updatedRequest = { ...request, fulfillment: { hash: receipt.data.hash } };
+    return [...acc, updatedRequest];
+  }, [] as ClientRequest<T>[]);
 }

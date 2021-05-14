@@ -49,10 +49,15 @@ export interface RequestMetadata {
   readonly transactionHash: string;
 }
 
+export interface RequestFulfillment {
+  readonly hash: string;
+}
+
 export type ClientRequest<T extends {}> = T & {
   readonly designatedWallet: string;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
+  readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly requesterIndex: string;
@@ -270,7 +275,8 @@ export type EVMEventLog =
 // ===========================================
 export interface TransactionReceipt {
   readonly id: string;
-  readonly transactionHash: string;
+  readonly data?: ethers.Transaction;
+  readonly error?: Error;
   readonly type: RequestType;
 }
 
