@@ -1,6 +1,18 @@
 # Basics
 
-Most basic validator template can simply include names of all required parameters, which will result in validator accepting any specification that has exactly these parameters with any values.
+## Terminology
+
+In the whole documentation unified terminology will be used, here is the definition of some important keywords:
+
+- **specification** - json structure, that will be checked for compliance with well-defined format
+- **template** - json structure, which defines format of valid specification
+- **parameter** - combination of key and value assigned to it, located somewhere in the json structure
+- **parameter path** - string of keys separated with `.`, contains all keys needed to access a parameter in the json structure from the most outer one to key of the parameter itself
+- other json related keywords like **json structure**, **key**, **object**, **array**, etc... Will stick to the standard [JSON terminology](https://www.json.org/json-en.html)
+
+---
+
+Most basic validator template can simply include keys of all required parameters, which will result in validator accepting any specification that has exactly these keys with any values. As validator does not take order of the parameters into consideration, parameters in the specification can be in any order, and it won't change output of the validator.
 
 ### Template
 ```json
@@ -21,15 +33,15 @@ Most basic validator template can simply include names of all required parameter
 ### Valid specification
 ```json
 {
-  "server": {
-    "url": "https://just.example.com"
-  },
   "component": {
     "securityScheme": {
       "in": "query",
       "name": "example",
       "type": {}
     }
+  },
+  "server": {
+    "url": "https://just.example.com"
   }
 }
 ```
@@ -44,12 +56,10 @@ Most basic validator template can simply include names of all required parameter
 ### Invalid specification
 ```json
 {
-    "server": {
-        "extra": {}
-    },
-    "component": {
-        "securityScheme": {}
-    }
+  "server": {
+    "extra": {}
+  },
+  "component": {}
 }
 ```
 ### Expected output
@@ -57,123 +67,165 @@ Most basic validator template can simply include names of all required parameter
 {
     "valid": false,
     "messages": [
-        { "level": "error", "message": "Missing parameter server.url" },
-        { "level": "error", "message": "Missing parameter component.securityScheme.in" },
-        { "level": "error", "message": "Missing parameter component.securityScheme.name" },
-        { "level": "error", "message": "Missing parameter component.securityScheme.type" },
-        { "level": "warning", "message": "Extra field: server.extra" }
+      { "level": "error", "message": "Missing parameter server.url" },
+      { "level": "error", "message": "Missing parameter component.securityScheme" },
+      { "level": "warning", "message": "Extra field: server.extra" }
     ]
 }
 ```
+
+After closer examination of error messages it might seem that there is no error message about missing parameters `component.securityScheme.in`, `component.securityScheme.name` and `component.securityScheme.type`. This is caused by missing `component.securityScheme`, which contains these parameters. If parameter is not present in specification, children of this parameter will not be checked and no error message will be returned for them.
+
 ---
 
-# Arrays and objects
+# Object item
 
-Token `__arrayItem` means that the parameter is an array and contents of the token describe what should be the structure of the contents in the array. `maxSize` is an array specific token, which can be used to set maximal count of elements in the array.
+In some instances specification might contain key that is not predefined, to allow any string as a key `__objectItem` in template is used. In place of `__objectItem` specification can contain any key, but structure inside it will be still checked with template.
 
-`__objectItem` is used in combination with `__keyRegexp` or in conditions, it describes the structure of the object inside the parameter.
-
-#### Template
+### Template
 ```json
 {
-  "server": {
-    "__maxSize": 1,
-    "__arrayItem": {
-      "url": {
-        "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
-      }
-    }
-  },
-  "component": {
-    "securitySchemes": {
-      "__objectItem": {
-        "in": {
-          "__regexp": "^(query|header|cookie)$"
-        },
-        "name": {
-          "__regexp": "^[^\\s'\"\\\\]+$"
-        },
-        "type": {}
-      }
-    }
-  },
-  "security": {
-    "__objectItem": {
-      "__arrayItem": {}
-    }
+  "__objectItem": {
+    "name": {}
   }
 }
 ```
 ---
-#### Valid specification
+### Valid specification
+
 ```json
 {
-  "server": [
-    {
-      "url": "https://just.example.com"
-    }
-  ],
-  "component": {
-    "securitySchemes": {
-      "scheme1": {
-        "in": "query",
-        "name": "example1",
-        "type": {}
-      },
-      "scheme2": {
-        "in": "query",
-        "name": "example2",
-        "type": {}
-      }
-    }
+  "any": {
+    "name": "val"
   },
-  "security": {
-    "scheme1": [],
-    "scheme2": []
+  "key": {
+    "name": "val"
   }
 }
 ```
 ---
-#### Invalid specification
+### Invalid specification
+
 ```json
 {
-  "server": [
-    {
-      "url": "https://just.example.com"
-    },
-    {
-      "url": "example.com"
-    }
-  ],
-  "component": {
-    "securitySchemes": {
-      "scheme": {
-        "in": "invalid",
-        "name": {},
-        "type": {}
-      }
-    }
+  "invalid": {
+    "value": "val"
   },
-  "security": {
-    "scheme": [
-      {
-        "extra": "extra"
-      }
-    ]
-  }
+  "specification": {}
 }
 ```
-#### Expected output
+
+### Expected output
 ```json
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "server must contain 1 or less items" },
-    { "level": "warning", "message": "server[1].url is not formatted correctly" },
-    { "level": "warning", "message": "component.securitySchemes.scheme.in is not formatted correctly" },
-    { "level": "warning", "message": "component.securitySchemes.scheme.name is not formatted correctly" },
-    { "level": "warning", "message": "Extra field: security.scheme[0].extra" }
-  ] 
+    { "level": "error", "message": "Missing parameter invalid.name" },
+    { "level": "error", "message": "Missing parameter specification.name" },
+    { "level": "warning", "message": "Extra field: invalid.value" }
+  ]
 }
 ```
+
+# Array item
+
+Contents of `__arrayItem` define structure of items that are inside the array, which implies parameter containing `__arrayItem` must be an array in specification.
+
+`__maxSize` is an array specific token, which can be used to set maximal count of elements in the array.
+
+### Template
+
+```json
+{
+  "arrayParameter": {
+    "__maxSize": 2,
+    "__arrayItem": {
+      "outer": {
+        "inner": {}
+      }
+    }
+  },
+  "moreArrays": {
+    "__objectItem": {
+      "__arrayItem": {
+        "value": {}
+      }
+    }
+  }
+}
+```
+---
+
+### Valid specification
+
+```json
+{
+  "arrayParameter": [
+    {
+      "outer": {
+        "inner": "value1"
+      }
+    },
+    {
+      "outer": {
+        "inner": "value2"
+      }
+    }
+  ],
+  "moreArrays": {
+    "array1": [
+      {
+        "value": "value"
+      }
+    ],
+    "array2": []
+  }
+}
+```
+
+---
+
+### Invalid specification
+
+```json
+{
+  "arrayParameter": [
+    {
+      "outer": {
+        "inner": "value1"
+      }
+    },
+    {
+      "outer": {
+        "inner": "value2"
+      }
+    },
+    {
+      "outer": {}
+    }
+  ],
+  "moreArrays": {
+    "array1": [
+      {
+        "invalid": "value"
+      }
+    ]
+  }
+}
+```
+
+### Expected output
+
+```json
+{
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Missing parameter moreArrays.array1[0].value" },
+    { "level": "error", "message": "Missing parameter arrayParameter[2].outer.inner" },
+    { "level": "warning", "message": "Extra field: moreArrays.array1[0].invalid" },
+    { "level": "warning", "message": "arrayParameter must contain 2 or less items" }
+  ]
+}
+```
+
 ---
