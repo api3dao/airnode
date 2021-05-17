@@ -19,7 +19,7 @@ export async function startCoordinator() {
 export async function initializeProvider(event: any) {
   const stateWithConfig = { ...event.state, config };
 
-  const [err, initializedState] = await node.promiseUtils.go(node.handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await node.promiseUtils.go(() => node.handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     const errorLog = node.logger.pend('ERROR', msg, err);
@@ -42,7 +42,7 @@ export async function callApi(event: any) {
 export async function processProviderRequests(event: any) {
   const stateWithConfig = { ...event.state, config };
 
-  const [err, updatedState] = await node.promiseUtils.go(node.handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await node.promiseUtils.go(() => node.handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = node.logger.pend('ERROR', msg, err);
