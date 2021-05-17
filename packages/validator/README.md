@@ -16,7 +16,7 @@ npm run validate config exampleSpecs/config.specs.json
 
 Validator will automatically validate the latest available version of provided template, in case specific version should be used in validation, it can be passed as `--templateVersion` argument or as the last argument if they are ordered:
 ```sh
-npm run validate config exampleSpecs/config.specs.json 1.0.0
+npm run validate config exampleSpecs/config.specs.json 0.1.0
 ```
 
 Custom templates can be used, by providing path to the validator template file in place of `template`:
