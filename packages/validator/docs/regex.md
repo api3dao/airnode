@@ -1,45 +1,66 @@
 # Regular expressions
 
-To ensure parameters are in correct format, regular expressions are used. Token `__regexp` means, that value of the parameter, has to match the provided regular expression. Similarly `__keyRegexp`, is checking if the key of parameter matches the regular expression.
+Content of string values in specification can be controlled with [regular expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions). Value of key `__regexp` in template, will be interpreted as regular expression and checked with value of specification parameter it is nested in. Regular expressions are very useful in combination with `__objectItem`, by using `__keyRegexp` contents of keys in specification can be regulated as well.
 
-#### Template
+Regular expressions in templates are stored as a string, this means when validator reads the regular expression one escape character gets consumed before executing the regular expression, that's why **all backslashes must be doubled in regular expressions**.
+
+### Template
+
 ```json
 {
-  "__keyRegexp": "^server$",
-  "__objectItem": {
-    "__regexp": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"
+  "string": {
+    "__regexp": "^(string|char)$"
+  },
+  "numbers": {
+    "__keyRegexp": "^[0-9]+$",
+    "__objectItem": {
+      "__regexp": "^\\\\[a-z]+\\s$"
+    }
   }
 }
 ```
 ---
-#### Valid specification
+### Valid specification
+
 ```json
 {
-  "server": "https://www.google.com/"
+  "string": "string",
+  "numbers": {
+    "3": "\\three ",
+    "10": "\\ten ",
+    "42": "\\yes "
+  }
 }
 ```
 ---
-#### Invalid specification
+### Invalid specification
+
 ```json
 {
-  "invalid": "google"
+  "string": "boolean",
+  "numbers": {
+    "string": "\\NaN ",
+    "5": "five ",
+    "1": "\\one"
+  }
 }
 ```
-#### Expected output
+### Expected output
 ```json
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Key invalid in invalid is formatted incorrectly" },
-    { "level": "warning", "message": "invalid is not formatted correctly" }
+    { "level": "warning", "message": "string is not formatted correctly" },
+    { "level": "error", "message": "Key string in numbers.string is formatted incorrectly" },
+    { "level": "warning", "message": "numbers.1 is not formatted correctly" },
+    { "level": "warning", "message": "numbers.5 is not formatted correctly" },
+    { "level": "warning", "message": "numbers.string is not formatted correctly" }
   ]
 }
 ```
 ---
 
-Notice `__keyRegexp` is nested on the same level as key of the parameter it is validating, whereas `__regexp` is nested in the object, which value it is validating.
-
-### Useful regular expressions
+## Useful regular expressions
 
 `^(one|two)$` - all the valid strings are `one` and `two`
 
