@@ -4,6 +4,8 @@ pragma solidity 0.8.4;
 import "../AirnodeRrp.sol";
 import "./reducers/MeanMedianHybrid.sol";
 
+import "hardhat/console.sol";
+
 contract RrpDapiServer is MeanMedianHybrid {
   struct Dapi {
     uint256 noResponsesToReduce;
@@ -28,11 +30,40 @@ contract RrpDapiServer is MeanMedianHybrid {
 
   AirnodeRrp public airnodeRrp;
   mapping(bytes16 => Dapi) private dapis;
+  // TODO: are we missing a dapiIds bytes16 array for getting all the dapi ids?
   uint256 public nextDapiIndex = 1;
   mapping(bytes32 => DapiRequestIdentifiers) private airnodeRequestIdToDapiRequestIdentifiers;
 
   constructor(address _airnodeRrp) {
     airnodeRrp = AirnodeRrp(_airnodeRrp);
+  }
+
+  function getDapi(bytes16 dapiId)
+    external
+    view
+    returns (
+      uint256,
+      uint256,
+      uint256,
+      bytes32[] memory,
+      address[] memory,
+      address,
+      bytes4,
+      address
+    )
+  {
+    Dapi storage dapi = dapis[dapiId];
+    console.log("toleranceInPercentages %d", dapi.toleranceInPercentages);
+    return (
+      dapi.noResponsesToReduce,
+      dapi.toleranceInPercentages,
+      dapi.requesterIndex,
+      dapi.templateIds,
+      dapi.designatedWallets,
+      dapi.reduceAddress,
+      dapi.reduceFunctionId,
+      dapi.requestIndexResetter
+    );
   }
 
   function registerDapi(
@@ -47,6 +78,7 @@ contract RrpDapiServer is MeanMedianHybrid {
   ) external returns (bytes16 dapiId) {
     require(templateIds.length == designatedWallets.length, "Parameter lengths do not match");
     require(noResponsesToReduce <= templateIds.length && noResponsesToReduce != 0, "Invalid no. responses to reduce");
+
     dapiId = bytes16(
       keccak256(
         abi.encodePacked(
@@ -70,6 +102,8 @@ contract RrpDapiServer is MeanMedianHybrid {
     dapis[dapiId].reduceFunctionId = reduceFunctionId;
     dapis[dapiId].requestIndexResetter = requestIndexResetter;
     dapis[dapiId].nextRequestIndex = 1;
+
+    nextDapiIndex++;
   }
 
   function resetDapiRequestIndex(bytes16 dapiId) external {
