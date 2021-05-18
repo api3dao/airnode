@@ -8,10 +8,6 @@ const AdminStatus = {
 
 let roles;
 let api3Adminship;
-// const airnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-// const requesterIndex = 123;
-// const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-// const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 
 beforeEach(async () => {
   const accounts = await ethers.getSigners();
