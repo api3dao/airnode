@@ -17,8 +17,9 @@ export const mockEthers = ({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
   // Mocks the Contract constructor to return contract with mocked functions (specified via
   // `airnodeRrpMocks`)
   jest.mock('ethers', () => ({
+    ...jest.requireActual('ethers'),
     ethers: {
-      ...jest.requireActual('ethers'),
+      ...jest.requireActual('ethers').ethers,
       Contract: jest.fn().mockImplementation(() => airnodeRrpMocks),
       ...ethersMocks,
     },
