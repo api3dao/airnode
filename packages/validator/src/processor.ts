@@ -126,10 +126,6 @@ export function processSpecs(
 
         break;
 
-      // determines level of message for single parameter, currently used only in regexp validation
-      case '__level':
-        break;
-
       case '__catch':
         break;
 

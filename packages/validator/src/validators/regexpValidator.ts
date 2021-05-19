@@ -34,10 +34,7 @@ export function validateRegexp(
   }
 
   if (typeof specs !== 'string' || !specs.match(new RegExp(template['__regexp']))) {
-    const level = template['__level'] || 'warning';
-    const message = `${paramPath.join('.')} is not formatted correctly`;
-
-    messages.push(level === 'error' ? logger.error(message) : logger.warn(message));
+    messages.push(logger.warn(`${paramPath.join('.')} is not formatted correctly`));
   }
 
   return messages;
