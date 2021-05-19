@@ -30,7 +30,7 @@ export function processSpecs(
   templatePath: string,
   paramPathPrefix: string[] = []
 ): Result {
-  const messages: Log[] = [];
+  let messages: Log[] = [];
 
   for (const key of Object.keys(template)) {
     if (key === '__ignore') {
@@ -172,7 +172,9 @@ export function processSpecs(
 
   if (specs === roots.specs) {
     messages.push(...utils.warnExtraFields(roots.nonRedundantParams, specs, [...paramPathPrefix, ...paramPath]));
+    messages = validateCatch(specs, template, messages, paramPath, paramPathPrefix, roots.specs);
     valid = !messages.some((msg) => msg.level === 'error');
+    return { valid, messages, output: roots.output };
   }
 
   return {

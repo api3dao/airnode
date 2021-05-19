@@ -26,6 +26,17 @@ export function validateCatch(
   let message = utils.replaceParamIndexWithName(template['__catch'], paramPath);
   message = utils.replacePathsWithValues(specs, rootSpecs, message);
 
+  if (!message['__message']) {
+    if (!message['__level']) {
+      return [];
+    }
+
+    return messages.map((msg) => {
+      msg['level'] = message['__level'];
+      return msg;
+    });
+  }
+
   if (typeof specs === 'string') {
     message['__message'] = message['__message'].replace(/__value/g, specs);
   }
