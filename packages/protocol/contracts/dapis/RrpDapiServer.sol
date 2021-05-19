@@ -4,9 +4,9 @@ pragma solidity 0.8.4;
 import "../AirnodeRrp.sol";
 import "./reducers/MeanMedianHybrid.sol";
 
-import "hardhat/console.sol";
-
 contract RrpDapiServer is MeanMedianHybrid {
+  event DapiRegistered(bytes16 indexed dapiId);
+
   struct Dapi {
     uint256 noResponsesToReduce;
     uint256 toleranceInPercentages;
@@ -53,7 +53,6 @@ contract RrpDapiServer is MeanMedianHybrid {
     )
   {
     Dapi storage dapi = dapis[dapiId];
-    console.log("toleranceInPercentages %d", dapi.toleranceInPercentages);
     return (
       dapi.noResponsesToReduce,
       dapi.toleranceInPercentages,
@@ -104,6 +103,11 @@ contract RrpDapiServer is MeanMedianHybrid {
     dapis[dapiId].nextRequestIndex = 1;
 
     nextDapiIndex++;
+
+    // TODO: move this into an interface? IRrpDapiServer.sol?
+    emit DapiRegistered(
+      dapiId /* , noResponsesToReduce, toleranceInPercentages, requesterIndex, templateIds, designatedWallets, reduceAddress, reduceFunctionId, requestIndexResetter, 1 */
+    );
   }
 
   function resetDapiRequestIndex(bytes16 dapiId) external {

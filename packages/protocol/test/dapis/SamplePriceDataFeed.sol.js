@@ -6,14 +6,10 @@ const AdminStatus = {
   SuperAdmin: 2,
 };
 
-const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
-const requesterIndex = 1;
-
 let roles;
 let airnodeRrp, rrpDapiServer, samplePriceDataFeed;
 let airnodeId, masterWallet, designatedWallet;
-let templateId;
+let templateId1, templateId2, templateId3;
 
 beforeEach(async () => {
   const [
@@ -44,6 +40,7 @@ beforeEach(async () => {
   // Create the requester
   await airnodeRrp.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
   // Generate the Airnode private key and derive the related parameters
+  const requesterIndex = 1;
   const airnodeWallet = ethers.Wallet.createRandom();
   const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
   const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
@@ -61,10 +58,39 @@ beforeEach(async () => {
     value: ethers.utils.parseEther('1'),
   });
   // Create the template
-  await airnodeRrp.createTemplate(airnodeId, endpointId, templateParameters);
-  templateId = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId, templateParameters])
+  const endpointId1 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+  const endpointId2 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+  const endpointId3 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+  const templateParameters1 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+  const templateParameters2 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+  const templateParameters3 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+  await airnodeRrp.createTemplate(airnodeId, endpointId1, templateParameters1);
+  templateId1 = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId1, templateParameters1])
   );
+  await airnodeRrp.createTemplate(airnodeId, endpointId2, templateParameters2);
+  templateId2 = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId2, templateParameters2])
+  );
+  await airnodeRrp.createTemplate(airnodeId, endpointId3, templateParameters3);
+  templateId3 = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId3, templateParameters3])
+  );
+  // Register dapi
+  const tx = await rrpDapiServer.registerDapi(
+    1 /* noResponsesToReduce */,
+    10 /* toleranceInPercentages */,
+    1 /* requesterIndex */,
+    [templateId1, templateId2, templateId3],
+    [designatedWallet.address, designatedWallet.address, designatedWallet.address],
+    samplePriceDataFeed.address /* reduceAddress */,
+    samplePriceDataFeed.interface.getSighash('reduce') /* reduceFunctionId */,
+    ethers.constants.AddressZero /* requestIndexResetter */
+  );
+  // Get dapiId and set it on SamplePriceDataFeed
+  const { events } = await tx.wait();
+  const [dapiId] = events.filter((e) => e.event == 'DapiRegistered').map((e) => e.args[0]);
+  await samplePriceDataFeed.connect(roles.airnodeAdmin).setDapi(dapiId);
 });
 
 describe('constructor', function () {
@@ -86,31 +112,23 @@ describe('constructor', function () {
 describe('addTemplate', function () {
   context('Caller is an admin', function () {
     it('adds a new templateId to dapi', async function () {
-      // Register DApi
-      await rrpDapiServer.registerDapi(
-        1 /* noResponsesToReduce */,
-        10 /* toleranceInPercentages */,
-        1 /* requesterIndex */,
-        [templateId],
-        [designatedWallet.address],
-        samplePriceDataFeed.address /* reduceAddress */,
-        samplePriceDataFeed.interface.getSighash('reduce') /* reduceFunctionId */,
-        ethers.constants.AddressZero /* requestIndexResetter */
+      const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, newEndpointId, newTemplateParameters);
+      const newTemplateId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'bytes32', 'bytes'],
+          [airnodeId, newEndpointId, newTemplateParameters]
+        )
       );
 
-      const currentDapiId; // TODO: HOW DO I GET THE RETURN VALUE FROM PREVIOUS TX???
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed.connect(roles.requesterAdmin).addTemplate(previousDapiId, newTemplateId);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
 
-      // await airnodeRrp.createTemplate(airnodeId, endpointId, templateParameters);
-      // const newTemplateId = ethers.utils.keccak256(
-      //   ethers.utils.defaultAbiCoder.encode(
-      //     ['bytes32', 'bytes32', 'bytes'],
-      //     [airnodeId, endpointId, templateParameters]
-      //   )
-      // );
-
-      await samplePriceDataFeed.connect(roles.requesterAdmin).addTemplate(currentDapiId, templateId);
-
-      expect(await samplePriceDataFeed.latestDapiId()).not.to.eq(currentDapiId);
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).to.include(newTemplateId);
     });
   });
   context('Caller is an super admin', function () {
@@ -137,4 +155,54 @@ describe('addTemplate', function () {
       it('adds a new templateId to dapi', function () {});
     }
   );
+});
+
+describe('removeTemplate', function () {
+  context('Caller is an admin', function () {
+    it('removes a templateId from dapi (begining of array)', async function () {
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId1);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
+
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).not.to.include(templateId1);
+    });
+    it('removes a templateId from dapi (middle of array)', async function () {
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId2);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
+
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).not.to.include(templateId2);
+    });
+    it('removes a templateId from dapi (end of array)', async function () {
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId3);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
+
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).not.to.include(templateId3);
+    });
+    it('reverts if templateId was not found', async function () {
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, endpointId, templateParameters);
+      const templateId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'bytes32', 'bytes'],
+          [airnodeId, endpointId, templateParameters]
+        )
+      );
+      await expect(
+        samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId)
+      ).to.be.revertedWith('TemplateId was not found');
+
+      const [, , , templateIds] = await rrpDapiServer.getDapi(previousDapiId);
+      expect(templateIds).not.equal([templateId1, templateId2, templateId3]);
+    });
+  });
 });
