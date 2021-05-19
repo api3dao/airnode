@@ -37,11 +37,11 @@ contract SamplePriceDataFeed is Api3Adminship {
     require(
       adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
         block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
-      "need to wait for cooldown time to elapse"
+      "Need to wait for cooldown time to elapse"
     );
 
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
-    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: do I need to create a getter that returns multiple values instead of struct?
+    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -54,17 +54,19 @@ contract SamplePriceDataFeed is Api3Adminship {
     ) = rrpDapiServer.getDapi(_dapiId);
     // TODO: check dapi was found?
 
-    console.logUint(rrpDapiServer.nextDapiIndex());
-
     // Adds templateId to Dapi.templateIds (iterating over because array push() is only available in storage arrays)
     bytes32[] memory newTemplateIds = new bytes32[](templateIds.length + 1);
-    // TODO: DELETE ME!
-    // WHY IS THIS 0???
-    console.log("templateIds.length: %i", templateIds.length);
     for (uint256 i = 0; i < templateIds.length; i++) {
       newTemplateIds[i] = templateIds[i];
     }
     newTemplateIds[newTemplateIds.length - 1] = _templateId;
+
+    // TODO: should we also receive a designatedWallet address as param?
+    address[] memory newDesignatedWallets = new address[](designatedWallets.length + 1);
+    for (uint256 i = 0; i < designatedWallets.length; i++) {
+      newDesignatedWallets[i] = designatedWallets[i];
+    }
+    newDesignatedWallets[newDesignatedWallets.length - 1] = designatedWallets[designatedWallets.length - 1]; // TODO: param?
 
     // Calls RrpDapiServer to create the new dAPI
     bytes16 newDapiId =
@@ -73,7 +75,7 @@ contract SamplePriceDataFeed is Api3Adminship {
         toleranceInPercentages,
         requesterIndex,
         newTemplateIds,
-        designatedWallets,
+        newDesignatedWallets,
         reduceAddress,
         reduceFunctionId,
         requestIndexResetter
@@ -96,7 +98,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     require(
       adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
         block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
-      "need to wait for cooldown time to elapse"
+      "Need to wait for cooldown time to elapse"
     );
 
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
@@ -113,17 +115,24 @@ contract SamplePriceDataFeed is Api3Adminship {
     ) = rrpDapiServer.getDapi(_dapiId);
     // TODO: check dapi was found?
 
-    // Adds templateId to Dapi.templateIds (iterating over because array push() is only available in storage arrays)
-    bytes32[] memory newTemplateIds;
+    // Removes templateId from Dapi.templateIds (iterating over because array pop() is only available in storage arrays)
+    bool found = false;
+    bytes32[] memory newTemplateIds = new bytes32[](templateIds.length - 1);
+    address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
     for (uint256 i = 0; i < templateIds.length; i++) {
       // copy array without _templateId
-      if (templateIds[i] != _templateId) {
-        newTemplateIds[i] = templateIds[i];
+      uint256 j = i;
+      if (templateIds[i] == _templateId) {
+        j = i + 1;
+        found = true;
+      }
+      if (j < templateIds.length - 1) {
+        newTemplateIds[i] = templateIds[j];
+        newDesignatedWallets[i] = designatedWallets[j];
       }
     }
-    if (newTemplateIds.length == templateIds.length) {
-      // If all ids were copied then id was not found
-      revert("templateId was not found");
+    if (!found) {
+      revert("TemplateId was not found");
     }
 
     // Calls RrpDapiServer to create the new dAPI
@@ -133,7 +142,7 @@ contract SamplePriceDataFeed is Api3Adminship {
         toleranceInPercentages,
         requesterIndex,
         newTemplateIds,
-        designatedWallets,
+        newDesignatedWallets,
         reduceAddress,
         reduceFunctionId,
         requestIndexResetter
@@ -160,7 +169,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     require(
       adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
         block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
-      "need to wait for cooldown time to elapse"
+      "Need to wait for cooldown time to elapse"
     );
 
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
@@ -188,7 +197,7 @@ contract SamplePriceDataFeed is Api3Adminship {
       }
     }
     if (!found) {
-      revert("templateId was not found");
+      revert("TemplateId was not found");
     }
 
     // Calls RrpDapiServer to create the new dAPI
