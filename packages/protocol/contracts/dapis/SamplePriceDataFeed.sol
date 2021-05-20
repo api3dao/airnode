@@ -4,8 +4,6 @@ pragma solidity 0.8.4;
 import "./RrpDapiServer.sol";
 import "./Api3Adminship.sol";
 
-import "hardhat/console.sol";
-
 // A sample price data feed implemented as a dAPI client
 contract SamplePriceDataFeed is Api3Adminship {
   RrpDapiServer public rrpDapiServer;
@@ -14,7 +12,17 @@ contract SamplePriceDataFeed is Api3Adminship {
   int256 public latestAnswer;
 
   uint256 public cooldownTime = 1 days; // TODO: is this the right value?
-  mapping(address => uint64) adminToDapiLastUpdated;
+  mapping(address => uint64) public adminToDapiLastUpdated;
+
+  /// @dev Reverts if the caller tries to update a dapi again before the cooldown period has elapsed
+  modifier cooldownTimeEnded() {
+    require(
+      adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
+        block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
+      "Cooldown period has not finished"
+    );
+    _;
+  }
 
   constructor(address _rrpDapiServer, address _metaAdmin) Api3Adminship(_metaAdmin) {
     require(_rrpDapiServer != address(0), ERROR_ZERO_ADDRESS);
@@ -29,17 +37,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     latestDapiId = dapiId;
   }
 
-  function addTemplate(bytes16 _dapiId, bytes32 _templateId) external {
-    // Check admin status
-    // TODO: should this be in a modifier inside Api3Adminship contract?
-    require(adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
-    // Check cooldown period
-    require(
-      adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
-        block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
-      "Need to wait for cooldown time to elapse"
-    );
-
+  function addTemplate(bytes16 _dapiId, bytes32 _templateId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
     // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
@@ -90,17 +88,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     // TODO: publish TemplateAdded event?
   }
 
-  function removeTemplate(bytes16 _dapiId, bytes32 _templateId) external {
-    // Check admin status
-    // TODO: should this be in a modifier inside Api3Adminship contract?
-    require(adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
-    // Check cooldown period
-    require(
-      adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
-        block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
-      "Need to wait for cooldown time to elapse"
-    );
-
+  function removeTemplate(bytes16 _dapiId, bytes32 _templateId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
     // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
@@ -121,12 +109,11 @@ contract SamplePriceDataFeed is Api3Adminship {
     address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
     for (uint256 i = 0; i < templateIds.length; i++) {
       // copy array without _templateId
-      uint256 j = i;
       if (templateIds[i] == _templateId) {
-        j = i + 1;
         found = true;
       }
-      if (j < templateIds.length - 1) {
+      uint256 j = found ? i + 1 : i;
+      if (i != templateIds.length - 1) {
         newTemplateIds[i] = templateIds[j];
         newDesignatedWallets[i] = designatedWallets[j];
       }
@@ -161,17 +148,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     bytes16 _dapiId,
     bytes32 _templateId1,
     bytes32 _templateId2
-  ) external {
-    // Check admin status
-    // TODO: should this be in a modifier inside Api3Adminship contract?
-    require(adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
-    // Check cooldown period
-    require(
-      adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
-        block.timestamp >= (adminToDapiLastUpdated[msg.sender] + cooldownTime),
-      "Need to wait for cooldown time to elapse"
-    );
-
+  ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
     // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
