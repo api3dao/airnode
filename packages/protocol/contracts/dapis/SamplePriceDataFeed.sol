@@ -102,7 +102,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     );
 
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
-    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: do I need to create a getter that returns multiple values instead of struct?
+    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -173,7 +173,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     );
 
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
-    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: do I need to create a getter that returns multiple values instead of struct?
+    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -186,7 +186,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     ) = rrpDapiServer.getDapi(_dapiId);
     // TODO: check dapi was found?
 
-    // Adds templateId to Dapi.templateIds (iterating over because array push() is only available in storage arrays)
+    // updates templateId1 with templateId2 in Dapi.templateIds
     bool found = false;
     for (uint256 i = 0; i < templateIds.length; i++) {
       // update_templateId1 with _templateId2

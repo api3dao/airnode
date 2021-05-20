@@ -122,11 +122,13 @@ describe('addTemplate', function () {
         )
       );
 
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await samplePriceDataFeed.connect(roles.requesterAdmin).addTemplate(previousDapiId, newTemplateId);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).to.include(newTemplateId);
     });
@@ -160,33 +162,40 @@ describe('addTemplate', function () {
 describe('removeTemplate', function () {
   context('Caller is an admin', function () {
     it('removes a templateId from dapi (begining of array)', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId1);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId1);
     });
     it('removes a templateId from dapi (middle of array)', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId2);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId2);
     });
     it('removes a templateId from dapi (end of array)', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId3);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId3);
     });
     it('reverts if templateId was not found', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
@@ -200,9 +209,102 @@ describe('removeTemplate', function () {
       await expect(
         samplePriceDataFeed.connect(roles.requesterAdmin).removeTemplate(previousDapiId, templateId)
       ).to.be.revertedWith('TemplateId was not found');
+      expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
+      const [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
+      expect(templateIds).to.have.same.members([templateId1, templateId2, templateId3]);
+    });
+  });
+});
 
-      const [, , , templateIds] = await rrpDapiServer.getDapi(previousDapiId);
-      expect(templateIds).not.equal([templateId1, templateId2, templateId3]);
+describe.only('updateTemplate', function () {
+  context('Caller is an admin', function () {
+    it('updates first templateId in a dapi', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
+      const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, newEndpointId, newTemplateParameters);
+      const newTemplateId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'bytes32', 'bytes'],
+          [airnodeId, newEndpointId, newTemplateParameters]
+        )
+      );
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed
+        .connect(roles.requesterAdmin)
+        .updateTemplate(previousDapiId, templateId1, newTemplateId);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).not.to.include(templateId1);
+      expect(templateIds).to.include(newTemplateId);
+    });
+    it('updates a templateId in the middle of the list in a dapi', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
+      const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, newEndpointId, newTemplateParameters);
+      const newTemplateId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'bytes32', 'bytes'],
+          [airnodeId, newEndpointId, newTemplateParameters]
+        )
+      );
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed
+        .connect(roles.requesterAdmin)
+        .updateTemplate(previousDapiId, templateId2, newTemplateId);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).not.to.include(templateId2);
+      expect(templateIds).to.include(newTemplateId);
+    });
+    it('updates last templateId in a dapi', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
+      const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, newEndpointId, newTemplateParameters);
+      const newTemplateId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'bytes32', 'bytes'],
+          [airnodeId, newEndpointId, newTemplateParameters]
+        )
+      );
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      await samplePriceDataFeed
+        .connect(roles.requesterAdmin)
+        .updateTemplate(previousDapiId, templateId3, newTemplateId);
+
+      expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
+      const newDapiId = await samplePriceDataFeed.latestDapiId();
+      expect(newDapiId).not.to.eq(previousDapiId);
+      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(templateIds).not.to.include(templateId3);
+      expect(templateIds).to.include(newTemplateId);
+    });
+    it('reverts if templateId was not found', async function () {
+      const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
+      const previousDapiId = await samplePriceDataFeed.latestDapiId();
+      const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, endpointId, templateParameters);
+      const templateId = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          ['bytes32', 'bytes32', 'bytes'],
+          [airnodeId, endpointId, templateParameters]
+        )
+      );
+      await expect(
+        samplePriceDataFeed.connect(roles.requesterAdmin).updateTemplate(previousDapiId, templateId, templateId1)
+      ).to.be.revertedWith('TemplateId was not found');
+      expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
+      const [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
+      expect(templateIds).to.have.same.members([templateId1, templateId2, templateId3]);
     });
   });
 });
