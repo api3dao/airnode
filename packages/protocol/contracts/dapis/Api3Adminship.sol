@@ -14,6 +14,12 @@ contract Api3Adminship is IApi3Adminship {
   address public metaAdmin;
   mapping(address => AdminStatus) public adminStatuses;
 
+  /// @dev Reverts if the caller is not the meta admin or has admin/superadmin priviliges
+  modifier onlyAdminOrMetaAdmin() {
+    require(adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
+    _;
+  }
+
   /// @param _metaAdmin Address that will be set as the meta admin
   constructor(address _metaAdmin) {
     require(_metaAdmin != address(0), ERROR_ZERO_ADDRESS);
