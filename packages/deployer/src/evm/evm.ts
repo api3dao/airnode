@@ -1,9 +1,11 @@
 import * as ethers from 'ethers';
+import _ from 'lodash';
 import ora from 'ora';
 import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
+import { ChainType, Configurations } from 'src/config';
 
-const chainIdsToNames = {
+const chainIdsToNames: Record<string, string> = {
   1: 'mainnet',
   3: 'ropsten',
   4: 'rinkeby',
@@ -12,20 +14,27 @@ const chainIdsToNames = {
   100: 'xdai',
 };
 
-export async function checkAirnodeParameters(configs, secrets, airnodeId, masterWalletAddress) {
+export async function checkAirnodeParameters(
+  configs: Configurations,
+  secrets: Record<string, string>,
+  airnodeId: string,
+  masterWalletAddress: string
+) {
   const providerUrls = findProviderUrls(configs, secrets);
   const airnodeRrpAddresses = findAirnodeRrpAddresses(configs);
 
   let spinner;
-  for (const chainType of Object.keys(providerUrls)) {
-    for (const chainId of Object.keys(providerUrls[chainType])) {
+  let chainType: ChainType;
+  for (chainType in providerUrls) {
+    const chain = providerUrls[chainType];
+    for (const chainId in chain) {
       const chainName = chainIdsToNames[chainId] || `${chainId}`;
       spinner = ora(`Checking Airnode parameters on chain: ${chainName} (${chainType})`).start();
       let checkSuccesful = false;
-      for (const providerUrl of providerUrls[chainType][chainId]) {
+      for (const providerUrl of chain[chainId]) {
         try {
           const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-          const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType][chainId], provider);
+          const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType]![chainId], provider);
           const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
           if (airnodeParameters.xpub === '') {
             spinner.warn(`Airnode parameters not found on chain: ${chainName} (${chainType})`);
@@ -47,7 +56,11 @@ export async function checkAirnodeParameters(configs, secrets, airnodeId, master
   }
 }
 
-async function checkMasterWalletBalance(provider, masterWalletAddress, chainName) {
+async function checkMasterWalletBalance(
+  provider: ethers.providers.Provider,
+  masterWalletAddress: string,
+  chainName: string
+) {
   const spinner = ora(`Checking master wallet balance on chain: ${chainName}`).start();
   try {
     const balance = await provider.getBalance(masterWalletAddress);

@@ -1,6 +1,6 @@
 import * as ethers from 'ethers';
 
-export function validateMnemonic(mnemonic) {
+export function validateMnemonic(mnemonic: string) {
   try {
     ethers.Wallet.fromMnemonic(mnemonic);
   } catch {
@@ -9,18 +9,18 @@ export function validateMnemonic(mnemonic) {
   return true;
 }
 
-export function deriveAirnodeId(mnemonic) {
+export function deriveAirnodeId(mnemonic: string) {
   return ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(['address'], [deriveMasterWalletAddress(mnemonic)])
   );
 }
 
-export function deriveMasterWalletAddress(mnemonic) {
+export function deriveMasterWalletAddress(mnemonic: string) {
   const masterWallet = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return masterWallet.address;
 }
 
-export function deriveXpub(mnemonic) {
+export function deriveXpub(mnemonic: string) {
   const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return hdNode.neuter().extendedKey;
 }
@@ -30,7 +30,7 @@ export function generateMnemonic() {
   return masterWallet.mnemonic.phrase;
 }
 
-export function shortenAirnodeId(airnodeId) {
+export function shortenAirnodeId(airnodeId: string) {
   if (!ethers.utils.isHexString(airnodeId, 32)) {
     throw new Error('airnodeId is not a valid hex string');
   }

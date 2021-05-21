@@ -1,8 +1,8 @@
-import readline from 'readline';
+import readline, { Interface } from 'readline';
 import shuffle from 'lodash/shuffle';
 import ora from 'ora';
 
-export async function verifyMnemonic(mnemonic) {
+export async function verifyMnemonic(mnemonic: string) {
   const mnemonics = mnemonic.split(' ');
   const shuffledIndexedMnemonics = shuffle(
     mnemonics.map((element, index) => {
@@ -33,7 +33,7 @@ export async function verifyMnemonic(mnemonic) {
   rl.close();
 }
 
-function ask(rl, question) {
+function ask(rl: Interface, question: string) {
   return new Promise((resolve) => {
     rl.question(question, (answer) => resolve(answer));
   });

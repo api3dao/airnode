@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 
-async function deleteObjects(s3: AWS.S3, bucket: string, objects: AWS.S3.DeleteMarkerEntry[]) {
+async function deleteObjects(s3: AWS.S3, bucket: string, objects: AWS.S3.ObjectIdentifierList) {
   await s3
     .deleteObjects({
       Bucket: bucket,
@@ -12,8 +12,9 @@ async function deleteObjects(s3: AWS.S3, bucket: string, objects: AWS.S3.DeleteM
 }
 
 async function fetchObjects(s3: AWS.S3, bucket: string) {
-  const objects = await s3.listObjectVersions({ Bucket: bucket }).promise();
-  return [...objects.Versions, ...objects.DeleteMarkers];
+  const objectResults = await s3.listObjectVersions({ Bucket: bucket }).promise();
+  const objects = [...(objectResults.Versions ?? []), ...(objectResults.DeleteMarkers ?? [])];
+  return objects.filter((object): object is AWS.S3.ObjectIdentifier => !!object.Key);
 }
 
 async function emptyBucket(s3: AWS.S3, bucket: string) {
