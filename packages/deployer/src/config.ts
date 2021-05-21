@@ -67,8 +67,8 @@ export function generateServerlessSecretsFile(providerIdShort, apiCredentials) {
   secrets['LOG_LEVEL'] = 'debug';
   for (const oisTitle in apiCredentials) {
     for (const securityScheme of apiCredentials[oisTitle]) {
-      let replacedOisTitle = oisTitle.replace('-', '_');
-      let replacedSecuritySchemeName = securityScheme.securitySchemeName.replace('-', '_');
+      const replacedOisTitle = oisTitle.replace('-', '_');
+      const replacedSecuritySchemeName = securityScheme.securitySchemeName.replace('-', '_');
       secrets[`${replacedOisTitle}_${replacedSecuritySchemeName}`] = securityScheme.value;
     }
   }
