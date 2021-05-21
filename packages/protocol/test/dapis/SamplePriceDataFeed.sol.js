@@ -47,25 +47,26 @@ beforeEach(async () => {
     .connect(roles.metaAdmin)
     .setAdminStatus(roles.randomPerson.address, AdminStatus.Unauthorized);
   // Create the requester
-  // await airnodeRrp.connect(roles.admin).createRequester(roles.admin.address);
+  await airnodeRrp.connect(roles.superAdmin).createRequester(roles.admin.address);
   // Generate the Airnode private key and derive the related parameters
   const requesterIndex = 1;
   const airnodeWallet = ethers.Wallet.createRandom();
   const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
   const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
+  // Compute airnodeId off-chain
   airnodeId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
   designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
   // Fund the Airnode master wallet for it to be able to set the Airnode parameters
-  // await roles.metaAdmin.sendTransaction({
-  //   to: masterWallet.address,
-  //   value: ethers.utils.parseEther('1'),
-  // });
-  // // Fund the designated wallet so that it can be withdrawn from
-  // await roles.admin.sendTransaction({
-  //   to: designatedWallet.address,
-  //   value: ethers.utils.parseEther('1'),
-  // });
+  await roles.metaAdmin.sendTransaction({
+    to: masterWallet.address,
+    value: ethers.utils.parseEther('1'),
+  });
+  // Fund the designated wallet so that it can be withdrawn from
+  await roles.admin.sendTransaction({
+    to: designatedWallet.address,
+    value: ethers.utils.parseEther('1'),
+  });
   // Create the template
   const endpointId1 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
   const endpointId2 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
@@ -74,14 +75,17 @@ beforeEach(async () => {
   const templateParameters2 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
   const templateParameters3 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
   await airnodeRrp.createTemplate(airnodeId, endpointId1, templateParameters1);
+  // Compute templateId1 off-chain
   templateId1 = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId1, templateParameters1])
   );
   await airnodeRrp.createTemplate(airnodeId, endpointId2, templateParameters2);
+  // Compute templateId2 off-chain
   templateId2 = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId2, templateParameters2])
   );
   await airnodeRrp.createTemplate(airnodeId, endpointId3, templateParameters3);
+  // Compute templateId3 off-chain
   templateId3 = ethers.utils.keccak256(
     ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId3, templateParameters3])
   );
@@ -96,8 +100,8 @@ beforeEach(async () => {
     samplePriceDataFeed.interface.getSighash('reduce') /* reduceFunctionId */,
     ethers.constants.AddressZero /* requestIndexResetter */
   );
-  // Get dapiId and set it on SamplePriceDataFeed
   const { events } = await tx.wait();
+  // Get dapiId and set it on SamplePriceDataFeed
   const [dapiId] = events.filter((e) => e.event == 'DapiRegistered').map((e) => e.args[0]);
   await samplePriceDataFeed.connect(roles.metaAdmin).setDapi(dapiId);
 });
@@ -133,7 +137,9 @@ describe('addTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -156,7 +162,9 @@ describe('addTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.superAdmin).addTemplate(previousDapiId, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.superAdmin)
+        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -179,7 +187,9 @@ describe('addTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.superAdmin).addTemplate(previousDapiId, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.superAdmin)
+        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -203,7 +213,9 @@ describe('addTemplate', function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await expect(
-        samplePriceDataFeed.connect(roles.randomPerson).addTemplate(previousDapiId, newTemplateId)
+        samplePriceDataFeed
+          .connect(roles.randomPerson)
+          .addTemplate(previousDapiId, newTemplateId, designatedWallet.address)
       ).to.be.revertedWith('Unauthorized');
       expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
       const [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
@@ -224,7 +236,7 @@ describe('addTemplate', function () {
 
       let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       let previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId1);
+      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId1, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       let newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -249,7 +261,7 @@ describe('addTemplate', function () {
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId2);
+      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId2, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -272,7 +284,9 @@ describe('addTemplate', function () {
 
       let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       let previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -283,7 +297,7 @@ describe('addTemplate', function () {
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
       await expect(
-        samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, newTemplateId)
+        samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, newTemplateId, designatedWallet.address)
       ).to.be.revertedWith('Cooldown period has not finished');
       expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
       [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
@@ -306,7 +320,9 @@ describe('addTemplate', function () {
 
         let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
         let previousDapiId = await samplePriceDataFeed.latestDapiId();
-        await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId1);
+        await samplePriceDataFeed
+          .connect(roles.admin)
+          .addTemplate(previousDapiId, templateId1, designatedWallet.address);
 
         expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
         let newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -326,7 +342,9 @@ describe('addTemplate', function () {
 
         nextDapiIndex = await rrpDapiServer.nextDapiIndex();
         previousDapiId = await samplePriceDataFeed.latestDapiId();
-        await samplePriceDataFeed.connect(roles.anotherAdmin).addTemplate(previousDapiId, templateId2);
+        await samplePriceDataFeed
+          .connect(roles.anotherAdmin)
+          .addTemplate(previousDapiId, templateId2, designatedWallet.address);
 
         expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
         newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -531,7 +549,9 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId1, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -553,7 +573,9 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId2, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .updateTemplate(previousDapiId, templateId2, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -575,7 +597,9 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId3, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .updateTemplate(previousDapiId, templateId3, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -598,7 +622,9 @@ describe('updateTemplate', function () {
         )
       );
       await expect(
-        samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId, templateId1)
+        samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, templateId, templateId1, designatedWallet.address)
       ).to.be.revertedWith('TemplateId was not found');
       expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
       const [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
@@ -618,7 +644,9 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.superAdmin).updateTemplate(previousDapiId, templateId1, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.superAdmin)
+        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -642,7 +670,9 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.metaAdmin).updateTemplate(previousDapiId, templateId1, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.metaAdmin)
+        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -667,7 +697,9 @@ describe('updateTemplate', function () {
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await expect(
-        samplePriceDataFeed.connect(roles.randomPerson).updateTemplate(previousDapiId, templateId1, newTemplateId)
+        samplePriceDataFeed
+          .connect(roles.randomPerson)
+          .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address)
       ).to.be.revertedWith('Unauthorized');
       expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
       const [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
@@ -687,7 +719,9 @@ describe('updateTemplate', function () {
       );
       let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       let previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId1, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       let newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -704,7 +738,9 @@ describe('updateTemplate', function () {
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, newTemplateId, templateId1);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -728,7 +764,9 @@ describe('updateTemplate', function () {
       );
       let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       let previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId1, newTemplateId);
+      await samplePriceDataFeed
+        .connect(roles.admin)
+        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       let newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -741,7 +779,9 @@ describe('updateTemplate', function () {
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
       await expect(
-        samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, newTemplateId, templateId1)
+        samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address)
       ).to.be.revertedWith('Cooldown period has not finished');
       expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
       [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
@@ -763,7 +803,9 @@ describe('updateTemplate', function () {
         );
         let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
         let previousDapiId = await samplePriceDataFeed.latestDapiId();
-        await samplePriceDataFeed.connect(roles.admin).updateTemplate(previousDapiId, templateId1, newTemplateId);
+        await samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
 
         expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
         let newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -777,7 +819,7 @@ describe('updateTemplate', function () {
         previousDapiId = await samplePriceDataFeed.latestDapiId();
         await samplePriceDataFeed
           .connect(roles.anotherAdmin)
-          .updateTemplate(previousDapiId, newTemplateId, templateId1);
+          .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address);
 
         expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
         newDapiId = await samplePriceDataFeed.latestDapiId();

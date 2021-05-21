@@ -14,7 +14,7 @@ contract SamplePriceDataFeed is Api3Adminship {
   uint256 public cooldownTime = 1 days; // TODO: is this the right value?
   mapping(address => uint64) public adminToDapiLastUpdated;
 
-  /// @dev Reverts if the caller tries to update a dapi again before the cooldown period has elapsed
+  /// @dev Reverts if the caller tries to update a dAPI again before the cooldown period has elapsed
   modifier cooldownTimeEnded() {
     require(
       adminToDapiLastUpdated[msg.sender] == 0 || // first time updating will not have a last updated value
@@ -37,9 +37,12 @@ contract SamplePriceDataFeed is Api3Adminship {
     latestDapiId = dapiId;
   }
 
-  function addTemplate(bytes16 _dapiId, bytes32 _templateId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
+  function addTemplate(
+    bytes16 _dapiId,
+    bytes32 _templateId,
+    address _designatedWallet
+  ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
-    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -50,21 +53,18 @@ contract SamplePriceDataFeed is Api3Adminship {
       bytes4 reduceFunctionId,
       address requestIndexResetter
     ) = rrpDapiServer.getDapi(_dapiId);
-    // TODO: check dapi was found?
+    // TODO: check dAPI was found?
 
-    // Adds templateId to Dapi.templateIds (iterating over because array push() is only available in storage arrays)
+    // Adds templateId to dAPI.templateIds (iterating over because array push() is only available in storage arrays)
+    // Also add _designatedWallet to dAPI.designatedWallets
     bytes32[] memory newTemplateIds = new bytes32[](templateIds.length + 1);
+    address[] memory newDesignatedWallets = new address[](designatedWallets.length + 1);
     for (uint256 i = 0; i < templateIds.length; i++) {
       newTemplateIds[i] = templateIds[i];
-    }
-    newTemplateIds[newTemplateIds.length - 1] = _templateId;
-
-    // TODO: should we also receive a designatedWallet address as param?
-    address[] memory newDesignatedWallets = new address[](designatedWallets.length + 1);
-    for (uint256 i = 0; i < designatedWallets.length; i++) {
       newDesignatedWallets[i] = designatedWallets[i];
     }
-    newDesignatedWallets[newDesignatedWallets.length - 1] = designatedWallets[designatedWallets.length - 1]; // TODO: param?
+    newTemplateIds[newTemplateIds.length - 1] = _templateId;
+    newDesignatedWallets[newDesignatedWallets.length - 1] = _designatedWallet;
 
     // Calls RrpDapiServer to create the new dAPI
     bytes16 newDapiId =
@@ -90,7 +90,6 @@ contract SamplePriceDataFeed is Api3Adminship {
 
   function removeTemplate(bytes16 _dapiId, bytes32 _templateId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
-    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -101,9 +100,10 @@ contract SamplePriceDataFeed is Api3Adminship {
       bytes4 reduceFunctionId,
       address requestIndexResetter
     ) = rrpDapiServer.getDapi(_dapiId);
-    // TODO: check dapi was found?
+    // TODO: check dAPI was found?
 
-    // Removes templateId from Dapi.templateIds (iterating over because array pop() is only available in storage arrays)
+    // Removes templateId from dAPI.templateIds (iterating over because array pop() is only available in storage arrays)
+    // Also removes designatedWallet from dAPI.designatedWallets
     bool found = false;
     bytes32[] memory newTemplateIds = new bytes32[](templateIds.length - 1);
     address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
@@ -147,10 +147,10 @@ contract SamplePriceDataFeed is Api3Adminship {
   function updateTemplate(
     bytes16 _dapiId,
     bytes32 _templateId1,
-    bytes32 _templateId2
+    bytes32 _templateId2,
+    address _designatedWallet
   ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
-    // Dapi dapi = this.rrpDapiServer.dapis[_dapiId]; // TODO: this doesn't work
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -161,14 +161,16 @@ contract SamplePriceDataFeed is Api3Adminship {
       bytes4 reduceFunctionId,
       address requestIndexResetter
     ) = rrpDapiServer.getDapi(_dapiId);
-    // TODO: check dapi was found?
+    // TODO: check dAPI was found?
 
-    // updates templateId1 with templateId2 in Dapi.templateIds
+    // Updates templateId1 with templateId2 in dAPI.templateIds
+    // Also updates templatedId1 associated designatedWallet in dAPI.designatedWallets
     bool found = false;
     for (uint256 i = 0; i < templateIds.length; i++) {
       // update_templateId1 with _templateId2
       if (templateIds[i] == _templateId1) {
         templateIds[i] = _templateId2;
+        designatedWallets[i] = _designatedWallet;
         found = true;
         break;
       }
