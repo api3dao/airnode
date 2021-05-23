@@ -27,7 +27,5 @@ export function getMasterKeyMnemonic(): string {
 }
 
 export function getConfigSecret(oisTitle: string, securitySchemeName: string) {
-  const replacedOisTitle = oisTitle.replace('-', '_');
-  const replacedSecuritySchemeName = securitySchemeName.replace('-', '_');
-  return process.env[`${replacedOisTitle}_${replacedSecuritySchemeName}`];
+  return process.env[`${oisTitle}_${securitySchemeName}`];
 }
