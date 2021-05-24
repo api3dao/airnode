@@ -3,7 +3,7 @@ import _ from 'lodash';
 import ora from 'ora';
 import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
-import { ChainType, Configurations } from 'src/config';
+import { ChainType, Configurations } from '../types';
 
 const chainIdsToNames: Record<string, string> = {
   1: 'mainnet',

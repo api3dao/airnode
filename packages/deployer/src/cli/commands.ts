@@ -2,29 +2,21 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import ora from 'ora';
-import { parseConfigFile, parseSecretsFile, parseReceiptFile } from '../config';
-import { checkAirnodeParameters } from '../evm/evm';
+import { checkAirnodeParameters } from '../evm';
+import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
   deriveAirnodeId,
   deriveMasterWalletAddress,
   deriveXpub,
   generateMnemonic,
+  parseConfigFile,
+  parseReceiptFile,
+  parseSecretsFile,
   shortenAirnodeId,
   validateMnemonic,
-} from '../evm/util';
-import { deployAirnode, removeAirnode } from '../infrastructure';
-import { verifyMnemonic } from '../io';
-import { Configuration } from '../config';
-
-interface Receipt {
-  airnodeId: string;
-  airnodeIdShort: string;
-  xpub: string;
-  masterWalletAddress: string;
-  config: Omit<Configuration, 'ois' | 'triggers' | 'environment'>;
-}
-
-type Receipts = Receipt[];
+  verifyMnemonic,
+} from '../utils';
+import { Receipts } from 'src/types';
 
 export async function deploy(
   configPath: string,

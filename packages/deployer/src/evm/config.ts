@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import mergeWith from 'lodash/mergeWith';
 import merge from 'lodash/merge';
-import { Configurations, ChainType } from 'src/config';
+import { Configurations, ChainType } from '../types';
 
 type ProviderUrls = {
   [key in ChainType]?: Record<string, string[]>;
