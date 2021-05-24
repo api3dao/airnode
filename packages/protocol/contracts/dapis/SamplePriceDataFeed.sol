@@ -59,7 +59,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     // Also add _designatedWallet to dAPI.designatedWallets
     bytes32[] memory newTemplateIds = new bytes32[](templateIds.length + 1);
     address[] memory newDesignatedWallets = new address[](designatedWallets.length + 1);
-    for (uint256 i = 0; i < templateIds.length; i++) {
+    for (uint256 i; i < templateIds.length; i++) {
       newTemplateIds[i] = templateIds[i];
       newDesignatedWallets[i] = designatedWallets[i];
     }
@@ -107,7 +107,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     bool found = false;
     bytes32[] memory newTemplateIds = new bytes32[](templateIds.length - 1);
     address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
-    for (uint256 i = 0; i < templateIds.length; i++) {
+    for (uint256 i; i < templateIds.length; i++) {
       // copy array without _templateId
       if (templateIds[i] == _templateId) {
         found = true;
@@ -166,7 +166,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     // Updates templateId1 with templateId2 in dAPI.templateIds
     // Also updates templatedId1 associated designatedWallet in dAPI.designatedWallets
     bool found = false;
-    for (uint256 i = 0; i < templateIds.length; i++) {
+    for (uint256 i; i < templateIds.length; i++) {
       // update_templateId1 with _templateId2
       if (templateIds[i] == _templateId1) {
         templateIds[i] = _templateId2;
