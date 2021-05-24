@@ -1,0 +1,132 @@
+import _ from 'lodash';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import { deploy, removeWithReceipt, remove } from './commands';
+
+// TODO: Get nodeVersion from the package
+const nodeVersion = '0.1.0';
+
+function drawHeader() {
+  console.log(
+    '  ___  _                      _      \n' +
+      ' / _ \\(_)                    | |     \n' +
+      '/ /_\\ \\_ _ __ _ __   ___   __| | ___ \n' +
+      "|  _  | | '__| '_ \\ / _ \\ / _` |/ _ \\\n" +
+      '| | | | | |  | | | | (_) | (_| |  __/\n' +
+      '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|\n'
+  );
+  console.log(`\n          Airnode v${nodeVersion}`);
+  console.log(`        Deployer CLI v${process.env.npm_package_version}\n`);
+}
+
+async function runCommand(command: () => Promise<void>) {
+  try {
+    command();
+  } catch (err) {
+    console.error(err);
+    process.exitCode = 1;
+  }
+}
+
+drawHeader();
+yargs(hideBin(process.argv))
+  .command(
+    'deploy',
+    'Executes Airnode deployments specified in the config file',
+    {
+      configuration: {
+        alias: ['c', 'config', 'conf'],
+        description: 'Path to configuration file',
+        default: './src/config-data/config.json',
+        type: 'string',
+      },
+      secrets: {
+        alias: 's',
+        description: 'Path to secrets file',
+        default: './src/config-data/secrets.env',
+        type: 'string',
+      },
+      receipt: {
+        alias: 'r',
+        description: 'Output path for receipt file',
+        default: 'receipt.json',
+        type: 'string',
+      },
+      interactive: {
+        description: 'Run in interactive mode',
+        boolean: true,
+        default: true,
+      },
+    },
+    async (args) => {
+      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion));
+    }
+  )
+  .command(
+    'remove',
+    'Removes Airnode deployment',
+    {
+      receipt: {
+        alias: 'r',
+        description: 'Path to receipt file',
+        type: 'string',
+      },
+      airnodeIdShort: {
+        alias: 'a',
+        description: 'Airnode ID (short version)',
+        type: 'string',
+      },
+      stage: {
+        alias: 's',
+        description: 'Stage (environment)',
+        type: 'string',
+      },
+      cloudProvider: {
+        alias: 'c',
+        description: 'Cloud provider',
+        type: 'string',
+      },
+      region: {
+        alias: 'e',
+        description: 'Region',
+        type: 'string',
+      },
+    },
+    async (args) => {
+      const receiptRemove = !!args.receipt;
+      const descriptiveArgs = ['airnodeIdShort', 'stage', 'cloudProvider', 'region'];
+      const descriptiveArgsProvided = _.intersection(descriptiveArgs, _.keys(args));
+      const descriptiveArgsMissing = _.difference(descriptiveArgs, descriptiveArgsProvided);
+
+      if (receiptRemove && !_.isEmpty(descriptiveArgsProvided)) {
+        yargs.showHelp();
+        console.log("\nCan't mix data from receipt and data from command line arguments.");
+        return;
+      }
+
+      if (receiptRemove) {
+        await runCommand(() => removeWithReceipt(args.receipt!));
+        return;
+      }
+
+      if (_.isEmpty(descriptiveArgsMissing)) {
+        await runCommand(() => remove(args.airnodeIdShort!, args.stage!, args.cloudProvider!, args.region!));
+        return;
+      }
+
+      if (!_.isEmpty(descriptiveArgsProvided)) {
+        yargs.showHelp();
+        console.log(`\nMissing arguments: ${_.join(descriptiveArgsMissing, ', ')}.`);
+        return;
+      }
+
+      yargs.showHelp();
+      console.log(
+        `\nMissing arguments. You have to provide either receipt file or describe the Airnode deployment with ${_.join(
+          descriptiveArgs,
+          ', '
+        )}.`
+      );
+    }
+  )
+  .help().argv;

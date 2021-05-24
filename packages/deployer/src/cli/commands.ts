@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import ora from 'ora';
-import { parseConfigFile, parseSecretsFile, parseReceiptFile } from './config';
-import { checkAirnodeParameters } from './evm/evm';
+import { parseConfigFile, parseSecretsFile, parseReceiptFile } from '../config';
+import { checkAirnodeParameters } from '../evm/evm';
 import {
   deriveAirnodeId,
   deriveMasterWalletAddress,
@@ -11,10 +11,10 @@ import {
   generateMnemonic,
   shortenAirnodeId,
   validateMnemonic,
-} from './evm/util';
-import { deployAirnode, removeAirnode } from './infrastructure';
-import { verifyMnemonic } from './io';
-import { Configuration } from './config';
+} from '../evm/util';
+import { deployAirnode, removeAirnode } from '../infrastructure';
+import { verifyMnemonic } from '../io';
+import { Configuration } from '../config';
 
 interface Receipt {
   airnodeId: string;
@@ -30,7 +30,7 @@ export async function deploy(
   configPath: string,
   secretsPath: string,
   outputFilename: string,
-  nonStop: boolean,
+  interactive: boolean,
   nodeVersion: string
 ) {
   const configs = parseConfigFile(configPath, nodeVersion);
@@ -40,7 +40,7 @@ export async function deploy(
     ora().warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');
     ora().info('Generating new mnemonic');
     const mnemonic = generateMnemonic();
-    if (!nonStop) {
+    if (interactive) {
       ora().warn('Write down the 12 word-mnemonic below on a piece of paper and keep it in a safe place\n');
       await verifyMnemonic(mnemonic);
     }

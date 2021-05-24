@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('../src/deployer-cli');
+require('../src/cli');
