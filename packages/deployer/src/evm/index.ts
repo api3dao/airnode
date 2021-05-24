@@ -28,7 +28,7 @@ export async function checkAirnodeParameters(
   for (chainType in providerUrls) {
     const chain = providerUrls[chainType];
     for (const chainId in chain) {
-      const chainName = chainIdsToNames[chainId] || `${chainId}`;
+      const chainName = chainIdsToNames[chainId] || chainId;
       spinner = ora(`Checking Airnode parameters on chain: ${chainName} (${chainType})`).start();
       let checkSuccesful = false;
       for (const providerUrl of chain[chainId]) {
@@ -47,6 +47,7 @@ export async function checkAirnodeParameters(
           break;
         } catch {
           // continue
+          spinner.warn(`Couldn't connect via ${providerUrl} provider`);
         }
       }
       if (!checkSuccesful) {

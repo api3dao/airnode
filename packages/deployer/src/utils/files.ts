@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import ora from 'ora';
-import { Configurations } from 'src/types';
+import { Configurations, Receipts } from 'src/types';
 
 export function parseConfigFile(configPath: string, nodeVersion: string) {
   let configs: Configurations;
@@ -39,7 +39,7 @@ export function parseSecretsFile(secretsPath: string) {
 
 export function parseReceiptFile(receiptFilename: string) {
   try {
-    return JSON.parse(fs.readFileSync(receiptFilename, 'utf8'));
+    return JSON.parse(fs.readFileSync(receiptFilename, 'utf8')) as Receipts;
   } catch (e) {
     ora().fail('Failed to parse receipt file');
     throw e;

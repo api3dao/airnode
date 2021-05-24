@@ -19,14 +19,14 @@ import {
 import { Receipts } from 'src/types';
 
 export async function deploy(
-  configPath: string,
-  secretsPath: string,
-  outputFilename: string,
+  configFile: string,
+  secretsFile: string,
+  receiptFile: string,
   interactive: boolean,
   nodeVersion: string
 ) {
-  const configs = parseConfigFile(configPath, nodeVersion);
-  const secrets = parseSecretsFile(secretsPath);
+  const configs = parseConfigFile(configFile, nodeVersion);
+  const secrets = parseSecretsFile(secretsFile);
 
   if (!secrets.MASTER_KEY_MNEMONIC) {
     ora().warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');
@@ -39,10 +39,12 @@ export async function deploy(
     secrets.MASTER_KEY_MNEMONIC = mnemonic;
   } else if (!validateMnemonic(secrets.MASTER_KEY_MNEMONIC)) {
     ora().fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
+    throw new Error('Invalid mnemonic');
   }
+
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
-  const secretsFile = path.join(tmpDir, 'secrets.json');
-  fs.writeFileSync(secretsFile, JSON.stringify(secrets, null, 2));
+  const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
+  fs.writeFileSync(tmpSecretsFile, JSON.stringify(secrets, null, 2));
 
   const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
   const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
@@ -57,8 +59,8 @@ export async function deploy(
         config.nodeSettings.stage,
         config.nodeSettings.cloudProvider,
         config.nodeSettings.region,
-        configPath,
-        secretsFile
+        configFile,
+        tmpSecretsFile
       );
       receipts.push({
         airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
@@ -71,8 +73,8 @@ export async function deploy(
       ora().warn(`Failed deploying configuration ${config.id}, skipping`);
     }
   }
-  fs.writeFileSync(outputFilename, JSON.stringify(receipts, null, 2));
-  ora().info(`Outputted ${outputFilename}\n` + '  This file does not contain any sensitive information.');
+  fs.writeFileSync(receiptFile, JSON.stringify(receipts, null, 2));
+  ora().info(`Outputted ${receiptFile}\n` + '  This file does not contain any sensitive information.');
 }
 
 export async function remove(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
@@ -80,10 +82,10 @@ export async function remove(airnodeIdShort: string, stage: string, cloudProvide
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
-  const receipts = await parseReceiptFile(receiptFilename);
+  const receipts = parseReceiptFile(receiptFilename);
   for (const receipt of receipts) {
     try {
-      await removeAirnode(
+      await remove(
         receipt.airnodeIdShort,
         receipt.config.nodeSettings.stage,
         receipt.config.nodeSettings.cloudProvider,

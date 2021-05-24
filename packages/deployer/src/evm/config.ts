@@ -7,7 +7,7 @@ type ProviderUrls = {
   [key in ChainType]?: Record<string, string[]>;
 };
 
-type AirnodeRrrpAddresses = {
+type AirnodeRrpAddresses = {
   [key in ChainType]?: Record<string, string>;
 };
 
@@ -46,7 +46,7 @@ export function findProviderUrls(configs: Configurations, secrets: Record<string
 }
 
 export function findAirnodeRrpAddresses(configs: Configurations) {
-  const airnodeRrpAddresses: AirnodeRrrpAddresses = {};
+  const airnodeRrpAddresses: AirnodeRrpAddresses = {};
   for (const config of configs) {
     for (const configChain of config.chains) {
       const chains = airnodeRrpAddresses[configChain.type];

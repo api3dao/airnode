@@ -22,12 +22,12 @@ export async function deployAirnode(
   configPath: string,
   secretsPath: string
 ) {
-  const spinner = ora(`Deploying Airnode ${airnodeIdShort} ${stage} at ${cloudProvider} ${region}`).start();
+  const spinner = ora(`Deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`).start();
   try {
     await deploy(airnodeIdShort, stage, region, configPath, secretsPath);
-    spinner.succeed(`Deployed Airnode ${airnodeIdShort} ${stage} at ${cloudProvider} ${region}`);
+    spinner.succeed(`Deployed Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
   } catch (e) {
-    spinner.fail(`Failed deploying Airnode ${airnodeIdShort} ${stage} at ${cloudProvider} ${region}`);
+    spinner.fail(`Failed deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
     throw e;
   }
 }
@@ -63,12 +63,12 @@ async function deploy(airnodeIdShort: string, stage: string, region: string, con
 }
 
 export async function removeAirnode(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
-  const spinner = ora(`Removing Airnode ${airnodeIdShort} ${stage} at ${cloudProvider} ${region}`).start();
+  const spinner = ora(`Removing Airnode ${airnodeIdShort} ${stage} from ${cloudProvider} ${region}`).start();
   try {
     await remove(airnodeIdShort, stage, region);
-    spinner.succeed(`Removed Airnode ${airnodeIdShort} ${stage} at ${cloudProvider} ${region}`);
+    spinner.succeed(`Removed Airnode ${airnodeIdShort} ${stage} from ${cloudProvider} ${region}`);
   } catch (e) {
-    spinner.fail(`Failed removing Airnode ${airnodeIdShort} ${stage} at ${cloudProvider} ${region}`);
+    spinner.fail(`Failed removing Airnode ${airnodeIdShort} ${stage} from ${cloudProvider} ${region}`);
     throw e;
   }
 }
