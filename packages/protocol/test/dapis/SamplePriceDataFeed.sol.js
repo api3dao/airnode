@@ -137,15 +137,17 @@ describe('addTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.admin)
-        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
-      expect(templateIds).to.include(newTemplateId);
+      const [, , , previousTemplateIds] = await rrpDapiServer.getDapi(previousDapiId);
+      expect(previousTemplateIds).to.have.same.members([templateId1, templateId2, templateId3]);
+      const [, , , newTemplateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(newTemplateIds).to.have.same.members([templateId1, templateId2, templateId3, newTemplateId]);
     });
   });
   context('Caller is an super admin', function () {
@@ -162,15 +164,19 @@ describe('addTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.superAdmin)
-        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.superAdmin)
+          .addTemplate(previousDapiId, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
-      expect(templateIds).to.include(newTemplateId);
+      const [, , , previousTemplateIds] = await rrpDapiServer.getDapi(previousDapiId);
+      expect(previousTemplateIds).to.have.same.members([templateId1, templateId2, templateId3]);
+      const [, , , newTemplateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(newTemplateIds).to.have.same.members([templateId1, templateId2, templateId3, newTemplateId]);
     });
   });
   context('Caller is the meta admin', function () {
@@ -194,15 +200,19 @@ describe('addTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.metaAdmin)
-        .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.metaAdmin)
+          .addTemplate(previousDapiId, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-      const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
-      expect(templateIds).to.include(newTemplateId);
+      const [, , , previousTemplateIds] = await rrpDapiServer.getDapi(previousDapiId);
+      expect(previousTemplateIds).to.have.same.members([templateId1, templateId2, templateId3]);
+      const [, , , newTemplateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(newTemplateIds).to.have.same.members([templateId1, templateId2, templateId3, newTemplateId]);
     });
   });
   context('Caller is unauthorized', function () {
@@ -231,50 +241,56 @@ describe('addTemplate', function () {
   });
   context('Caller has updated the dapi and cooldown period has elapsed', function () {
     it('adds a new templateId to dapi', async function () {
-      const endpointId1 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-      const templateParameters1 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
-      await airnodeRrp.createTemplate(airnodeId, endpointId1, templateParameters1);
-      const templateId1 = ethers.utils.keccak256(
+      const endpointId4 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const templateParameters4 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, endpointId4, templateParameters4);
+      const templateId4 = ethers.utils.keccak256(
         ethers.utils.defaultAbiCoder.encode(
           ['bytes32', 'bytes32', 'bytes'],
-          [airnodeId, endpointId1, templateParameters1]
+          [airnodeId, endpointId4, templateParameters4]
         )
       );
 
       let nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       let previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId1, designatedWallet.address);
+      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId4, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       let newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-      let [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
-      expect(templateIds).to.include(templateId1);
+      let [, , , previousTemplateIds] = await rrpDapiServer.getDapi(previousDapiId);
+      expect(previousTemplateIds).to.have.same.members([templateId1, templateId2, templateId3]);
+      let [, , , newTemplateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(newTemplateIds).to.have.same.members([templateId1, templateId2, templateId3, templateId4]);
 
       // Time travel
       const days = 2;
       ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
       ethers.provider.send('evm_mine');
 
-      const endpointId2 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-      const templateParameters2 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
-      await airnodeRrp.createTemplate(airnodeId, endpointId2, templateParameters2);
-      const templateId2 = ethers.utils.keccak256(
+      const endpointId5 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+      const templateParameters5 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
+      await airnodeRrp.createTemplate(airnodeId, endpointId5, templateParameters5);
+      const templateId5 = ethers.utils.keccak256(
         ethers.utils.defaultAbiCoder.encode(
           ['bytes32', 'bytes32', 'bytes'],
-          [airnodeId, endpointId2, templateParameters2]
+          [airnodeId, endpointId5, templateParameters5]
         )
       );
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId2, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed.connect(roles.admin).addTemplate(previousDapiId, templateId5, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       newDapiId = await samplePriceDataFeed.latestDapiId();
       expect(newDapiId).not.to.eq(previousDapiId);
-      [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
-      expect(templateIds).to.include(templateId2);
+      [, , , previousTemplateIds] = await rrpDapiServer.getDapi(previousDapiId);
+      expect(previousTemplateIds).to.have.same.members([templateId1, templateId2, templateId3, templateId4]);
+      [, , , newTemplateIds] = await rrpDapiServer.getDapi(newDapiId);
+      expect(newTemplateIds).to.have.same.members([templateId1, templateId2, templateId3, templateId4, templateId5]);
     });
   });
   context('Caller has updated the dapi within cooldown period', function () {
@@ -368,7 +384,10 @@ describe('removeTemplate', function () {
     it('removes a templateId from dapi (begining of array)', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId1);
+      await expect(samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId1)).to.emit(
+        samplePriceDataFeed,
+        'DapiUpdated'
+      );
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -380,7 +399,10 @@ describe('removeTemplate', function () {
     it('removes a templateId from dapi (middle of array)', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId2);
+      await expect(samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId2)).to.emit(
+        samplePriceDataFeed,
+        'DapiUpdated'
+      );
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -392,7 +414,10 @@ describe('removeTemplate', function () {
     it('removes a templateId from dapi (end of array)', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId3);
+      await expect(samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId3)).to.emit(
+        samplePriceDataFeed,
+        'DapiUpdated'
+      );
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -425,7 +450,10 @@ describe('removeTemplate', function () {
     it('removes a templateId from dapi', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.superAdmin).removeTemplate(previousDapiId, templateId1);
+      await expect(samplePriceDataFeed.connect(roles.superAdmin).removeTemplate(previousDapiId, templateId1)).to.emit(
+        samplePriceDataFeed,
+        'DapiUpdated'
+      );
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -446,7 +474,10 @@ describe('removeTemplate', function () {
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.metaAdmin).removeTemplate(previousDapiId, templateId1);
+      await expect(samplePriceDataFeed.connect(roles.metaAdmin).removeTemplate(previousDapiId, templateId1)).to.emit(
+        samplePriceDataFeed,
+        'DapiUpdated'
+      );
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -488,7 +519,10 @@ describe('removeTemplate', function () {
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId2);
+      await expect(samplePriceDataFeed.connect(roles.admin).removeTemplate(previousDapiId, templateId2)).to.emit(
+        samplePriceDataFeed,
+        'DapiUpdated'
+      );
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -536,7 +570,9 @@ describe('removeTemplate', function () {
 
         nextDapiIndex = await rrpDapiServer.nextDapiIndex();
         previousDapiId = await samplePriceDataFeed.latestDapiId();
-        await samplePriceDataFeed.connect(roles.anotherAdmin).removeTemplate(previousDapiId, templateId2);
+        await expect(
+          samplePriceDataFeed.connect(roles.anotherAdmin).removeTemplate(previousDapiId, templateId2)
+        ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
         expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
         newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -563,9 +599,11 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.admin)
-        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -587,9 +625,11 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.admin)
-        .updateTemplate(previousDapiId, templateId2, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, templateId2, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -611,9 +651,11 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.admin)
-        .updateTemplate(previousDapiId, templateId3, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, templateId3, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -658,9 +700,11 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.superAdmin)
-        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.superAdmin)
+          .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -691,9 +735,11 @@ describe('updateTemplate', function () {
         )
       );
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.metaAdmin)
-        .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.metaAdmin)
+          .updateTemplate(previousDapiId, templateId1, newTemplateId, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       const newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -759,9 +805,11 @@ describe('updateTemplate', function () {
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
-      await samplePriceDataFeed
-        .connect(roles.admin)
-        .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address);
+      await expect(
+        samplePriceDataFeed
+          .connect(roles.admin)
+          .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address)
+      ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
       newDapiId = await samplePriceDataFeed.latestDapiId();
@@ -838,9 +886,11 @@ describe('updateTemplate', function () {
 
         nextDapiIndex = await rrpDapiServer.nextDapiIndex();
         previousDapiId = await samplePriceDataFeed.latestDapiId();
-        await samplePriceDataFeed
-          .connect(roles.anotherAdmin)
-          .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address);
+        await expect(
+          samplePriceDataFeed
+            .connect(roles.anotherAdmin)
+            .updateTemplate(previousDapiId, newTemplateId, templateId1, designatedWallet.address)
+        ).to.emit(samplePriceDataFeed, 'DapiUpdated');
 
         expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
         newDapiId = await samplePriceDataFeed.latestDapiId();
