@@ -25,7 +25,7 @@ contract SamplePriceDataFeed is Api3Adminship {
   }
 
   constructor(address _rrpDapiServer, address _metaAdmin) Api3Adminship(_metaAdmin) {
-    require(_rrpDapiServer != address(0), ERROR_ZERO_ADDRESS);
+    require(_rrpDapiServer != address(0), "Zero address");
     rrpDapiServer = RrpDapiServer(_rrpDapiServer);
     // TODO: should we set superadmin status to technical team deploying the contract?
     // this.setAdminStatus(msg.sender, AdminStatus.SuperAdmin);
