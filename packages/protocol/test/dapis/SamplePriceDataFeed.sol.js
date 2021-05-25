@@ -175,6 +175,13 @@ describe('addTemplate', function () {
   });
   context('Caller is the meta admin', function () {
     it('adds a new templateId to dapi', async function () {
+      // Because in the test setup we call SamplePriceDataFeed.setDapi() function
+      // that updates the cooldown timestamp then we must increase the block time
+      // in order to be able to call SamplePriceDataFeed.removeTemplate() as metaAdmin
+      const days = 2;
+      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
+      ethers.provider.send('evm_mine');
+
       const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
       await airnodeRrp.createTemplate(airnodeId, newEndpointId, newTemplateParameters);
@@ -188,7 +195,7 @@ describe('addTemplate', function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await samplePriceDataFeed
-        .connect(roles.superAdmin)
+        .connect(roles.metaAdmin)
         .addTemplate(previousDapiId, newTemplateId, designatedWallet.address);
 
       expect(nextDapiIndex).to.eq((await rrpDapiServer.nextDapiIndex()) - 1);
@@ -430,6 +437,13 @@ describe('removeTemplate', function () {
   });
   context('Caller is the meta admin', function () {
     it('removes a templateId from dapi', async function () {
+      // Because in the test setup we call SamplePriceDataFeed.setDapi() function
+      // that updates the cooldown timestamp then we must increase the block time
+      // in order to be able to call SamplePriceDataFeed.removeTemplate() as metaAdmin
+      const days = 2;
+      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
+      ethers.provider.send('evm_mine');
+
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
       await samplePriceDataFeed.connect(roles.metaAdmin).removeTemplate(previousDapiId, templateId1);
@@ -659,6 +673,13 @@ describe('updateTemplate', function () {
   });
   context('Caller is the meta admin', function () {
     it('updates templateId in a dapi', async function () {
+      // Because in the test setup we call SamplePriceDataFeed.setDapi() function
+      // that updates the cooldown timestamp then we must increase the block time
+      // in order to be able to call SamplePriceDataFeed.removeTemplate() as metaAdmin
+      const days = 2;
+      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
+      ethers.provider.send('evm_mine');
+
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));

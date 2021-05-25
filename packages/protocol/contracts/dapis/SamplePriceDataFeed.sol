@@ -31,9 +31,10 @@ contract SamplePriceDataFeed is Api3Adminship {
     // this.setAdminStatus(msg.sender, AdminStatus.SuperAdmin);
   }
 
-  function setDapi(
-    bytes16 dapiId // onlyOwner
-  ) external {
+  function setDapi(bytes16 dapiId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
+    // Update dapiLastUpdated timestamp
+    adminToDapiLastUpdated[msg.sender] = uint64(block.timestamp);
+    // Update latestDapiId
     latestDapiId = dapiId;
   }
 
