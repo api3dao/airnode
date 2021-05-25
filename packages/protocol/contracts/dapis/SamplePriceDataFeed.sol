@@ -24,6 +24,8 @@ contract SamplePriceDataFeed is Api3Adminship {
     _;
   }
 
+  event DapiUpdated(bytes16 dapiId);
+
   constructor(address _rrpDapiServer, address _metaAdmin) Api3Adminship(_metaAdmin) {
     require(_rrpDapiServer != address(0), "Zero address");
     rrpDapiServer = RrpDapiServer(_rrpDapiServer);
@@ -31,11 +33,14 @@ contract SamplePriceDataFeed is Api3Adminship {
     // this.setAdminStatus(msg.sender, AdminStatus.SuperAdmin);
   }
 
-  function setDapi(bytes16 dapiId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
-    // Update dapiLastUpdated timestamp
+  function _setDapiId(bytes16 _dapiId) internal {
     adminToDapiLastUpdated[msg.sender] = uint64(block.timestamp);
-    // Update latestDapiId
-    latestDapiId = dapiId;
+    latestDapiId = _dapiId;
+    emit DapiUpdated(_dapiId);
+  }
+
+  function setDapi(bytes16 _dapiId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
+    _setDapiId(_dapiId);
   }
 
   function addTemplate(
@@ -43,7 +48,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     bytes32 _templateId,
     address _designatedWallet
   ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
-    // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
+    // Fetches current dAPI parameters from RrpDapiServer
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -80,17 +85,11 @@ contract SamplePriceDataFeed is Api3Adminship {
         requestIndexResetter
       );
 
-    // Update dapiLastUpdated timestamp
-    adminToDapiLastUpdated[msg.sender] = uint64(block.timestamp);
-
-    // Record the returned dapiId
-    latestDapiId = newDapiId;
-
-    // TODO: publish TemplateAdded event?
+    _setDapiId(newDapiId);
   }
 
   function removeTemplate(bytes16 _dapiId, bytes32 _templateId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
-    // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
+    // Fetches current dAPI parameters from RrpDapiServer
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -136,13 +135,7 @@ contract SamplePriceDataFeed is Api3Adminship {
         requestIndexResetter
       );
 
-    // Update dapiLastUpdated timestamp
-    adminToDapiLastUpdated[msg.sender] = uint64(block.timestamp);
-
-    // Record the returned dapiId
-    latestDapiId = newDapiId;
-
-    // TODO: publish TemplateRemoved event?
+    _setDapiId(newDapiId);
   }
 
   function updateTemplate(
@@ -151,7 +144,7 @@ contract SamplePriceDataFeed is Api3Adminship {
     bytes32 _templateId2,
     address _designatedWallet
   ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
-    // PriceDataFeed fetches the current dAPI parameters from RrpDapiServer
+    // Fetches current dAPI parameters from RrpDapiServer
     (
       uint256 noResponsesToReduce,
       uint256 toleranceInPercentages,
@@ -193,13 +186,7 @@ contract SamplePriceDataFeed is Api3Adminship {
         requestIndexResetter
       );
 
-    // Update dapiLastUpdated timestamp
-    adminToDapiLastUpdated[msg.sender] = uint64(block.timestamp);
-
-    // Record the returned dapiId
-    latestDapiId = newDapiId;
-
-    // TODO: publish TemplateUpdated event?
+    _setDapiId(newDapiId);
   }
 
   function makeDapiRequest() external // onlyOwner
