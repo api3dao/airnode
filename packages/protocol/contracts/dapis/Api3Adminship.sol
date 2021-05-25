@@ -5,10 +5,6 @@ import "./interfaces/IApi3Adminship.sol";
 
 /// @title Adminship contract controlled by the API3 DAO
 contract Api3Adminship is IApi3Adminship {
-  string internal constant ERROR_UNAUTHORIZED = "Unauthorized";
-  string internal constant ERROR_ZERO_ADDRESS = "Zero address";
-  string internal constant ERROR_EXPIRATION_NOT_EXTENDED = "Expiration not extended";
-
   /// @dev Meta admin sets the admin statuses of addresses and has super
   /// admin privileges
   address public metaAdmin;
@@ -16,21 +12,21 @@ contract Api3Adminship is IApi3Adminship {
 
   /// @dev Reverts if the caller is not the meta admin or has admin/superadmin priviliges
   modifier onlyAdminOrMetaAdmin() {
-    require(adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
+    require(adminStatuses[msg.sender] >= AdminStatus.Admin || msg.sender == metaAdmin, "Unauthorized");
     _;
   }
 
   /// @param _metaAdmin Address that will be set as the meta admin
   constructor(address _metaAdmin) {
-    require(_metaAdmin != address(0), ERROR_ZERO_ADDRESS);
+    require(_metaAdmin != address(0), "Zero address");
     metaAdmin = _metaAdmin;
   }
 
   /// @notice Called by the meta admin to set the meta admin
   /// @param _metaAdmin Address that will be set as the meta admin
   function setMetaAdmin(address _metaAdmin) external override {
-    require(msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
-    require(_metaAdmin != address(0), ERROR_ZERO_ADDRESS);
+    require(msg.sender == metaAdmin, "Unauthorized");
+    require(_metaAdmin != address(0), "Zero address");
     metaAdmin = _metaAdmin;
     emit SetMetaAdmin(metaAdmin);
   }
@@ -39,7 +35,7 @@ contract Api3Adminship is IApi3Adminship {
   /// @param admin Address whose admin status will be set
   /// @param status Admin status
   function setAdminStatus(address admin, AdminStatus status) external override {
-    require(msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
+    require(msg.sender == metaAdmin, "Unauthorized");
     adminStatuses[admin] = status;
     emit SetAdminStatus(admin, status);
   }
@@ -53,7 +49,7 @@ contract Api3Adminship is IApi3Adminship {
   /// This method cannot be used by the meta admin to renounce their meta
   /// adminship.
   function renounceAdminStatus() external override {
-    require(adminStatuses[msg.sender] > AdminStatus.Unauthorized, ERROR_UNAUTHORIZED);
+    require(adminStatuses[msg.sender] > AdminStatus.Unauthorized, "Unauthorized");
     adminStatuses[msg.sender] = AdminStatus.Unauthorized;
     emit RenouncedAdminStatus(msg.sender);
   }
