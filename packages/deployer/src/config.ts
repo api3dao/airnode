@@ -67,6 +67,11 @@ export function generateServerlessSecretsFile(providerIdShort, apiCredentials) {
   secrets['LOG_LEVEL'] = 'debug';
   for (const oisTitle in apiCredentials) {
     for (const securityScheme of apiCredentials[oisTitle]) {
+      if (oisTitle.includes('-') || securityScheme.securitySchemeName.includes('-')) {
+        throw new Error(
+          "The apiCredentials.<OISTITLE> or apiCredentials.<OISTITLE>.securitySchemeName cannot contain a '-' "
+        );
+      }
       secrets[`${oisTitle}_${securityScheme.securitySchemeName}`] = securityScheme.value;
     }
   }
