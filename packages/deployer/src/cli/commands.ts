@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import ora from 'ora';
 import { checkAirnodeParameters } from '../evm';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
@@ -16,6 +15,7 @@ import {
   validateMnemonic,
   verifyMnemonic,
 } from '../utils';
+import * as logger from '../utils/logger';
 import { Receipts } from 'src/types';
 
 export async function deploy(
@@ -29,19 +29,19 @@ export async function deploy(
   const secrets = parseSecretsFile(secretsFile);
 
   if (!secrets.MASTER_KEY_MNEMONIC) {
-    ora().warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');
-    ora().info('Generating new mnemonic');
+    logger.warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');
     const mnemonic = generateMnemonic();
     if (interactive) {
-      ora().warn('Write down the 12 word-mnemonic below on a piece of paper and keep it in a safe place\n');
+      logger.warn('Write down the 12 word-mnemonic below on a piece of paper and keep it in a safe place\n');
       await verifyMnemonic(mnemonic);
     }
     secrets.MASTER_KEY_MNEMONIC = mnemonic;
   } else if (!validateMnemonic(secrets.MASTER_KEY_MNEMONIC)) {
-    ora().fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
+    logger.fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
     throw new Error('Invalid mnemonic');
   }
 
+  logger.debug('Creating a temporary secrets.json file');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
   fs.writeFileSync(tmpSecretsFile, JSON.stringify(secrets, null, 2));
@@ -69,12 +69,21 @@ export async function deploy(
         masterWalletAddress,
         xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
       });
-    } catch {
-      ora().warn(`Failed deploying configuration ${config.id}, skipping`);
+    } catch (err) {
+      logger.warn(`Failed deploying configuration ${config.id}, skipping`);
+      logger.debug(err.toString());
     }
   }
+
+  logger.debug('Deleting a temporary secrets.json file');
+  // TODO: Use fs.rmSync once moved to node 14+
+  // fs.rmSync(tmpDir, {recursive: true});
+  fs.unlinkSync(tmpSecretsFile);
+  fs.rmdirSync(tmpDir);
+
+  logger.debug('Writing receipt.json file');
   fs.writeFileSync(receiptFile, JSON.stringify(receipts, null, 2));
-  ora().info(`Outputted ${receiptFile}\n` + '  This file does not contain any sensitive information.');
+  logger.info(`Outputted ${receiptFile}\n` + '  This file does not contain any sensitive information.');
 }
 
 export async function remove(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
@@ -91,8 +100,9 @@ export async function removeWithReceipt(receiptFilename: string) {
         receipt.config.nodeSettings.cloudProvider,
         receipt.config.nodeSettings.region
       );
-    } catch {
-      ora().warn(`Failed removing configuration ${receipt.config.id}, skipping`);
+    } catch (err) {
+      logger.warn(`Failed removing configuration ${receipt.config.id}, skipping`);
+      logger.debug(err.toString());
     }
   }
 }

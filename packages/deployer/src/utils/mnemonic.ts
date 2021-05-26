@@ -1,8 +1,9 @@
 import readline, { Interface } from 'readline';
 import shuffle from 'lodash/shuffle';
-import ora from 'ora';
+import * as logger from '../utils/logger';
 
 export async function verifyMnemonic(mnemonic: string) {
+  logger.debug('Mnemonic verification');
   const mnemonics = mnemonic.split(' ');
   const shuffledIndexedMnemonics = shuffle(
     mnemonics.map((element, index) => {
@@ -15,7 +16,7 @@ export async function verifyMnemonic(mnemonic: string) {
     output: process.stdout,
   });
 
-  ora().info(
+  logger.info(
     'When you press Enter, the mnemonic below will disappear and you will be asked to provide 3 of the words selected at random.\n'
   );
   await ask(rl, mnemonic);
@@ -29,7 +30,7 @@ export async function verifyMnemonic(mnemonic: string) {
       clearLine();
     }
   }
-  ora().succeed('Mnemonic verified successfully');
+  logger.succeed('Mnemonic verified successfully');
   rl.close();
 }
 

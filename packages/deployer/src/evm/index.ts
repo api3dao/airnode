@@ -1,9 +1,9 @@
 import * as ethers from 'ethers';
 import _ from 'lodash';
-import ora from 'ora';
 import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
 import { ChainType, Configurations } from '../types';
+import * as logger from '../utils/logger';
 
 const chainIdsToNames: Record<string, string> = {
   1: 'mainnet',
@@ -20,6 +20,7 @@ export async function checkAirnodeParameters(
   airnodeId: string,
   masterWalletAddress: string
 ) {
+  logger.debug('Checking Airnode parameters');
   const providerUrls = findProviderUrls(configs, secrets);
   const airnodeRrpAddresses = findAirnodeRrpAddresses(configs);
 
@@ -29,7 +30,7 @@ export async function checkAirnodeParameters(
     const chain = providerUrls[chainType];
     for (const chainId in chain) {
       const chainName = chainIdsToNames[chainId] || chainId;
-      spinner = ora(`Checking Airnode parameters on chain: ${chainName} (${chainType})`).start();
+      spinner = logger.spinner(`Checking Airnode parameters on chain: ${chainName} (${chainType})`);
       let checkSuccesful = false;
       for (const providerUrl of chain[chainId]) {
         try {
@@ -45,9 +46,10 @@ export async function checkAirnodeParameters(
           }
           checkSuccesful = true;
           break;
-        } catch {
-          // continue
+        } catch (err) {
+          // Continue
           spinner.warn(`Couldn't connect via ${providerUrl} provider`);
+          logger.debug(err.toString());
         }
       }
       if (!checkSuccesful) {
@@ -62,7 +64,7 @@ async function checkMasterWalletBalance(
   masterWalletAddress: string,
   chainName: string
 ) {
-  const spinner = ora(`Checking master wallet balance on chain: ${chainName}`).start();
+  const spinner = logger.spinner(`Checking master wallet balance on chain: ${chainName}`);
   try {
     const balance = await provider.getBalance(masterWalletAddress);
     // Overestimate the required ETH
@@ -71,13 +73,14 @@ async function checkMasterWalletBalance(
       `Balance of ${masterWalletAddress} is ${ethers.utils.formatEther(balance)} ETH on chain: ${chainName}`
     );
     if (txCost.gt(balance)) {
-      ora().warn(
+      logger.warn(
         `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to set your Airnode parameters`
       );
     } else {
-      ora().succeed('Master wallet balance is enough to set your Airnode parameters');
+      logger.succeed('Master wallet balance is enough to set your Airnode parameters');
     }
-  } catch {
+  } catch (err) {
     spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);
+    logger.debug(err.toString());
   }
 }

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { deploy, removeWithReceipt, remove } from './commands';
+import * as logger from '../utils/logger';
 
 // TODO: Get nodeVersion from the package
 const nodeVersion = '0.1.0';
@@ -28,8 +29,17 @@ async function runCommand(command: () => Promise<void>) {
   }
 }
 
+function longArguments(args: Record<string, any>) {
+  return JSON.stringify(_.omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
+}
+
 drawHeader();
 yargs(hideBin(process.argv))
+  .option('debug', {
+    description: 'Run in debug mode',
+    default: false,
+    type: 'boolean',
+  })
   .command(
     'deploy',
     'Executes Airnode deployments specified in the config file',
@@ -59,6 +69,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion));
     }
   )
@@ -93,6 +105,8 @@ yargs(hideBin(process.argv))
       },
     },
     async (args) => {
+      logger.debugMode(args.debug as boolean);
+      logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       const receiptRemove = !!args.receipt;
       const descriptiveArgs = ['airnodeIdShort', 'stage', 'cloudProvider', 'region'];
       const descriptiveArgsProvided = _.intersection(descriptiveArgs, _.keys(args));
