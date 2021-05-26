@@ -71,7 +71,7 @@ export async function deploy(
       });
     } catch (err) {
       logger.warn(`Failed deploying configuration ${config.id}, skipping`);
-      logger.debug(err.toString());
+      logger.warn(err.toString());
     }
   }
 
@@ -102,7 +102,7 @@ export async function removeWithReceipt(receiptFilename: string) {
       );
     } catch (err) {
       logger.warn(`Failed removing configuration ${receipt.config.id}, skipping`);
-      logger.debug(err.toString());
+      logger.warn(err.toString());
     }
   }
 }

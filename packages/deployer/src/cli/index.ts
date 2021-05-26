@@ -113,9 +113,7 @@ yargs(hideBin(process.argv))
       const descriptiveArgsMissing = _.difference(descriptiveArgs, descriptiveArgsProvided);
 
       if (receiptRemove && !_.isEmpty(descriptiveArgsProvided)) {
-        yargs.showHelp();
-        console.log("\nCan't mix data from receipt and data from command line arguments.");
-        return;
+        throw "Can't mix data from receipt and data from command line arguments.";
       }
 
       if (receiptRemove) {
@@ -129,18 +127,15 @@ yargs(hideBin(process.argv))
       }
 
       if (!_.isEmpty(descriptiveArgsProvided)) {
-        yargs.showHelp();
-        console.log(`\nMissing arguments: ${_.join(descriptiveArgsMissing, ', ')}.`);
-        return;
+        throw `Missing arguments: ${_.join(descriptiveArgsMissing, ', ')}.`;
       }
 
-      yargs.showHelp();
-      console.log(
-        `\nMissing arguments. You have to provide either receipt file or describe the Airnode deployment with ${_.join(
-          descriptiveArgs,
-          ', '
-        )}.`
-      );
+      throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${_.join(
+        descriptiveArgs,
+        ', '
+      )}.`;
     }
   )
-  .help().argv;
+  .help()
+  .demandCommand(1)
+  .strict().argv;

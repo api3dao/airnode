@@ -24,8 +24,10 @@ async function runCommand(command: string, options: child.ExecOptions) {
     await exec(command, options);
     commandSpinner.succeed(`Finished command '${command}' with options ${stringifiedOptions}`);
   } catch (err) {
+    spinner.info();
     commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
-    throw err;
+    logger.fail(err.toString());
+    throw new Error(`Command failed: ${err.cmd}`);
   }
 }
 
@@ -49,7 +51,7 @@ export async function deployAirnode(
 
 async function deploy(airnodeIdShort: string, stage: string, region: string, configPath: string, secretsPath: string) {
   if (logger.inDebugMode()) {
-    spinner.stopAndPersist();
+    spinner.info();
   }
 
   const bucket = `airnode-${airnodeIdShort}-${stage}-terraform`;
@@ -97,7 +99,7 @@ export async function removeAirnode(airnodeIdShort: string, stage: string, cloud
 
 async function remove(airnodeIdShort: string, stage: string, region: string) {
   if (logger.inDebugMode()) {
-    spinner.stopAndPersist();
+    spinner.info();
   }
 
   const bucket = `airnode-${airnodeIdShort}-${stage}-terraform`;
