@@ -1,5 +1,10 @@
-import _ from 'lodash';
 import yargs from 'yargs';
+import intersection from 'lodash/intersection';
+import difference from 'lodash/difference';
+import keys from 'lodash/keys';
+import join from 'lodash/join';
+import omitBy from 'lodash/omitBy';
+import isEmpty from 'lodash/isEmpty';
 import { hideBin } from 'yargs/helpers';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
@@ -30,7 +35,7 @@ async function runCommand(command: () => Promise<void>) {
 }
 
 function longArguments(args: Record<string, any>) {
-  return JSON.stringify(_.omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
+  return JSON.stringify(omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
 }
 
 drawHeader();
@@ -109,10 +114,10 @@ yargs(hideBin(process.argv))
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
       const receiptRemove = !!args.receipt;
       const descriptiveArgs = ['airnodeIdShort', 'stage', 'cloudProvider', 'region'];
-      const descriptiveArgsProvided = _.intersection(descriptiveArgs, _.keys(args));
-      const descriptiveArgsMissing = _.difference(descriptiveArgs, descriptiveArgsProvided);
+      const descriptiveArgsProvided = intersection(descriptiveArgs, keys(args));
+      const descriptiveArgsMissing = difference(descriptiveArgs, descriptiveArgsProvided);
 
-      if (receiptRemove && !_.isEmpty(descriptiveArgsProvided)) {
+      if (receiptRemove && !isEmpty(descriptiveArgsProvided)) {
         throw "Can't mix data from receipt and data from command line arguments.";
       }
 
@@ -121,16 +126,16 @@ yargs(hideBin(process.argv))
         return;
       }
 
-      if (_.isEmpty(descriptiveArgsMissing)) {
+      if (isEmpty(descriptiveArgsMissing)) {
         await runCommand(() => remove(args.airnodeIdShort!, args.stage!, args.cloudProvider!, args.region!));
         return;
       }
 
-      if (!_.isEmpty(descriptiveArgsProvided)) {
-        throw `Missing arguments: ${_.join(descriptiveArgsMissing, ', ')}.`;
+      if (!isEmpty(descriptiveArgsProvided)) {
+        throw `Missing arguments: ${join(descriptiveArgsMissing, ', ')}.`;
       }
 
-      throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${_.join(
+      throw `Missing arguments. You have to provide either receipt file or describe the Airnode deployment with ${join(
         descriptiveArgs,
         ', '
       )}.`;

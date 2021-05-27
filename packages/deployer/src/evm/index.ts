@@ -1,5 +1,4 @@
 import * as ethers from 'ethers';
-import _ from 'lodash';
 import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
 import { ChainType, Configurations } from '../types';
