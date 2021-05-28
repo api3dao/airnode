@@ -7,10 +7,11 @@
   },
   "main": "./dist/bin/deployer.js",
   "scripts": {
-    "build": "yarn clean && yarn compile && yarn webpack && yarn copy:webpack",
+    "build": "yarn clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
     "clean": "rimraf -rf ./dist",
     "cli": "ts-node bin/deployer.ts",
     "compile": "tsc -p tsconfig.build.json",
+    "copy:terraform": "copyfiles terraform/**/**/*.tf dist/",
     "copy:webpack": "copyfiles .webpack/**/**/*.js dist/",
     "prepublishOnly": "yarn build",
     "webpack": "webpack"

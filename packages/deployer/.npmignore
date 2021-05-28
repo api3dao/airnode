@@ -5,3 +5,5 @@ webpack*
 
 *.json
 *.tgz
+
+/terraform
