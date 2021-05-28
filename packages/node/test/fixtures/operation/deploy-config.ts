@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Config } from '@airnode/operation';
+import { Config } from '@api3/operation';
 
 export function buildDeployConfig(config?: Partial<Config>): Config {
   return {

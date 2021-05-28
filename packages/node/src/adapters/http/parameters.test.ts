@@ -1,4 +1,4 @@
-import { Endpoint } from '@airnode/ois';
+import { Endpoint } from '@api3/ois';
 import * as parameters from './parameters';
 
 describe('RESERVED_PARAMETERS', () => {

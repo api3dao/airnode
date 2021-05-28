@@ -1,4 +1,4 @@
-import * as operation from '@airnode/operation';
+import * as operation from '@api3/operation';
 
 export async function deployAirnodeRrp(config: operation.Config): Promise<operation.Deployment> {
   const state1 = operation.buildDeployState(config);

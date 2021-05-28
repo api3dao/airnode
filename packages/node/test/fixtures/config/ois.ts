@@ -1,4 +1,4 @@
-import { OIS } from '@airnode/ois';
+import { OIS } from '@api3/ois';
 
 export function buildOIS(ois?: Partial<OIS>): OIS {
   return {

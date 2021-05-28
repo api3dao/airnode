@@ -1,4 +1,4 @@
-# Monorepo version: `@airnode/admin`
+# Monorepo version: `@api3/admin`
 # Stand-alone version: `@api3/airnode-admin`
 
 > A package/CLI tool to interact with the Airnode contracts across chains
@@ -27,7 +27,7 @@ You can also use the package programatically. The SDK exports respective functio
 well as helper functions for obtaining the contract instance on the targeted chain.
 
 ```js
-import { createRequester, getAirnodeRrpWithSigner } from '@airnode/admin';
+import { createRequester, getAirnodeRrpWithSigner } from '@api3/admin';
 
 // First obtain the contract instance on target chain
 const airnodeRrp = await getAirnodeRrpWithSigner(mnemonic, derivationPath, providerUrl, airnodeRrpAddress);
@@ -38,7 +38,7 @@ const requesterIndex = await createRequester(airnodeRrp, requesterAdmin);
 If you plan to use multiple commands it might be tedious to pass the contract instance to every function call. For this reason there is also class based `AdminSdk` which you initialize with `AirnodeRrp` contract only once.
 
 ```js
-import { AdminSdk } from '@airnode/admin';
+import { AdminSdk } from '@api3/admin';
 
 // First initialize the SDK with AirnodeRrp contract instance.
 // You can use static AdminSdk functions or provide your own instance.

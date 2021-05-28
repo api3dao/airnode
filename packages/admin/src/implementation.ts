@@ -1,6 +1,6 @@
 import { ethers, BigNumberish } from 'ethers';
-import * as airnodeAbi from '@airnode/airnode-abi';
-import { AirnodeRrp } from '@airnode/protocol';
+import * as airnodeAbi from '@api3/airnode-abi';
+import { AirnodeRrp } from '@api3/protocol';
 
 type Last<T extends any[]> = T extends [...infer _, infer L] ? L : never;
 const last = <T extends any[]>(array: T): Last<T> => array[array.length - 1];

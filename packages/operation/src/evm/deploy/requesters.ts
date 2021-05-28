@@ -1,4 +1,4 @@
-import { encode } from '@airnode/airnode-abi';
+import { encode } from '@api3/airnode-abi';
 import { deriveEndpointId, deriveAirnodeId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 

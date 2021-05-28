@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { encode } from '@airnode/airnode-abi';
-import { mocks } from '@airnode/protocol';
+import { encode } from '@api3/airnode-abi';
+import { mocks } from '@api3/protocol';
 import { deriveEndpointId, deriveAirnodeId, getDesignatedWallet } from '../utils';
 import { FullRequest, RegularRequest, RequestsState as State, RequestType, Withdrawal } from '../../types';
 

@@ -1,6 +1,6 @@
-import { OIS } from '@airnode/ois';
+import { OIS } from '@api3/ois';
 import { ethers } from 'ethers';
-import { AirnodeRrp, TypedEventFilter } from '@airnode/protocol';
+import { AirnodeRrp, TypedEventFilter } from '@api3/protocol';
 
 // ===========================================
 // State

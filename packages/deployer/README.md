@@ -1,4 +1,4 @@
-# @airnode/deployer
+# @api3/deployer
 
 > Deployment tools for Airnode
 

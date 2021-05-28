@@ -1,4 +1,4 @@
-import { EndpointParameter, FixedParameter } from '@airnode/ois';
+import { EndpointParameter, FixedParameter } from '@api3/ois';
 import * as fixtures from '../../test/fixtures';
 import * as parameters from './parameters';
 

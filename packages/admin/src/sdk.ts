@@ -1,4 +1,4 @@
-import { AirnodeRrp } from '@airnode/protocol';
+import { AirnodeRrp } from '@api3/protocol';
 import { BigNumberish } from 'ethers';
 import * as evm from './evm';
 import * as admin from './implementation';

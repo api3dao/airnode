@@ -1,4 +1,4 @@
-# @airnode/operation
+# @api3/operation
 
 > Development and testing utilities for Airnode
 
@@ -10,7 +10,7 @@ This package is currently not intended to be used in a standalone way. Instead y
 # Install and link dependencies
 yarn run bootstrap
 
-# Build each @airnode package
+# Build each @api3 package
 yarn run build
 ```
 
