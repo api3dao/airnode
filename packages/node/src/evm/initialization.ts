@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
 import { AirnodeRrpFactory } from './contracts';
-import { go, retryOperation } from '../utils/promise-utils';
+import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as utils from './utils';
 import * as wallet from './wallet';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
-import { OPERATION_RETRIES } from '../constants';
 
 interface AirnodeParametersExistOptions {
   airnodeAdmin: string;
@@ -59,12 +59,11 @@ export async function fetchAirnodeParametersWithData(
   fetchOptions: VerifyOptions
 ): Promise<LogsData<AirnodeParametersData | null>> {
   const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
-  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId);
-  const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
 
   const fetchLog = logger.pend('INFO', 'Fetching current block and Airnode parameters...');
 
-  const [err, res] = await go(retryableOperation);
+  const operation = () => airnodeRrp.getAirnodeParametersAndBlockNumber(fetchOptions.airnodeId);
+  const [err, res] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !res) {
     const errLog = logger.pend('ERROR', 'Unable to fetch current block and Airnode parameters', err);
     return [[fetchLog, errLog], null];
@@ -112,8 +111,7 @@ export async function setAirnodeParameters(
       gasLimit: 300_000,
       value: 1,
     });
-  const retryableGasEstimateOp = retryOperation(OPERATION_RETRIES, gasEstimateOp);
-  const [estimateErr, estimatedGasCost] = await go(retryableGasEstimateOp);
+  const [estimateErr, estimatedGasCost] = await go(gasEstimateOp, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (estimateErr || !estimatedGasCost) {
     const errLog = logger.pend('ERROR', 'Unable to estimate transaction cost', estimateErr);
     return [[log1, log2, errLog], null];
@@ -124,8 +122,7 @@ export async function setAirnodeParameters(
 
   // Fetch the current gas price
   const gasPriceOp = () => options.provider.getGasPrice();
-  const retryableGasPriceOp = retryOperation(OPERATION_RETRIES, gasPriceOp);
-  const [gasPriceErr, gasPrice] = await go(retryableGasPriceOp);
+  const [gasPriceErr, gasPrice] = await go(gasPriceOp, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (gasPriceErr || !gasPrice) {
     const errLog = logger.pend('ERROR', 'Unable to fetch gas price', gasPriceErr);
     return [[log1, log2, log3, errLog], null];
@@ -134,8 +131,7 @@ export async function setAirnodeParameters(
 
   // Get the balance for the master wallet
   const balanceOp = () => options.provider.getBalance(masterWallet.address);
-  const retryableBalanceOp = retryOperation(OPERATION_RETRIES, balanceOp);
-  const [balanceErr, masterWalletBalance] = await go(retryableBalanceOp);
+  const [balanceErr, masterWalletBalance] = await go(balanceOp, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (balanceErr || !masterWalletBalance) {
     const errLog = logger.pend('ERROR', 'Unable to fetch master wallet balance', balanceErr);
     return [[log1, log2, log3, log4, errLog], null];
@@ -178,8 +174,7 @@ export async function setAirnodeParameters(
       gasLimit,
       gasPrice,
     });
-  const retryableSetAirnodeParametersTx = retryOperation(OPERATION_RETRIES, setAirnodeParametersTx);
-  const [txErr, tx] = await go(retryableSetAirnodeParametersTx);
+  const [txErr, tx] = await go(setAirnodeParametersTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (txErr || !tx) {
     const errLog = logger.pend('ERROR', 'Unable to submit set Airnode parameters transaction', txErr);
     return [[log1, log2, log3, log4, log5, log6, errLog], null];

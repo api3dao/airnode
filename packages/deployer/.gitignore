@@ -15,3 +15,8 @@ coverage/
 
 # Packed package
 *.tgz
+
+# Terraform
+.terraform*
+terraform.tfstate*
+*.tfvars

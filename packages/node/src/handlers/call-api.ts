@@ -69,7 +69,7 @@ export async function callApi(
     adapter.buildAndExecuteRequest(options, adapterConfig)
   );
 
-  const [err, res] = await go(retryableCall);
+  const [err, res] = await go(() => retryableCall);
   if (err) {
     const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, err);
     return [[log], { errorCode: RequestErrorCode.ApiCallFailed }];
