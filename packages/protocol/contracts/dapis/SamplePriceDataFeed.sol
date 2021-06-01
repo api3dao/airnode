@@ -4,6 +4,8 @@ pragma solidity 0.8.4;
 import "./RrpDapiServer.sol";
 import "./Api3Adminship.sol";
 
+import "hardhat/console.sol";
+
 // A sample price data feed implemented as a dAPI client
 contract SamplePriceDataFeed is Api3Adminship {
   RrpDapiServer public rrpDapiServer;
@@ -102,25 +104,29 @@ contract SamplePriceDataFeed is Api3Adminship {
     ) = rrpDapiServer.getDapi(_dapiId);
     // TODO: check dAPI was found?
 
-    // Removes templateId from dAPI.templateIds (iterating over because array pop() is only available in storage arrays)
+    // Removes templateId from dAPI.templateIds
     // Also removes designatedWallet from dAPI.designatedWallets
-    bool found = false;
-    bytes32[] memory newTemplateIds = new bytes32[](templateIds.length - 1);
-    address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
-    for (uint256 i; i < templateIds.length; i++) {
-      // copy array without _templateId
-      if (templateIds[i] == _templateId) {
-        found = true;
-      }
-      uint256 j = found ? i + 1 : i;
-      if (i != templateIds.length - 1) {
-        newTemplateIds[i] = templateIds[j];
-        newDesignatedWallets[i] = designatedWallets[j];
-      }
-    }
+    // bool found = false;
+    // bytes32[] memory newTemplateIds = new bytes32[](templateIds.length - 1);
+    // address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
+    // for (uint256 i; i < templateIds.length; i++) {
+    //   // copy array without _templateId
+    //   if (templateIds[i] == _templateId) {
+    //     found = true;
+    //   }
+    //   uint256 j = found ? i + 1 : i;
+    //   if (i != templateIds.length - 1) {
+    //     newTemplateIds[i] = templateIds[j];
+    //     newDesignatedWallets[i] = designatedWallets[j];
+    //   }
+    // }
+    (uint256 index, bool found) = rrpDapiServer.getTemplateIdIndex(_dapiId, _templateId);
     if (!found) {
       revert("TemplateId was not found");
     }
+    // Memory arrays cannot be resized anymore so we just set it's value to default at index
+    delete templateIds[index];
+    delete designatedWallets[index];
 
     // Calls RrpDapiServer to create the new dAPI
     bytes16 newDapiId =
@@ -128,8 +134,8 @@ contract SamplePriceDataFeed is Api3Adminship {
         noResponsesToReduce,
         toleranceInPercentages,
         requesterIndex,
-        newTemplateIds,
-        newDesignatedWallets,
+        templateIds,
+        designatedWallets,
         reduceAddress,
         reduceFunctionId,
         requestIndexResetter
@@ -159,19 +165,23 @@ contract SamplePriceDataFeed is Api3Adminship {
 
     // Updates templateId1 with templateId2 in dAPI.templateIds
     // Also updates templatedId1 associated designatedWallet in dAPI.designatedWallets
-    bool found = false;
-    for (uint256 i; i < templateIds.length; i++) {
-      // update_templateId1 with _templateId2
-      if (templateIds[i] == _templateId1) {
-        templateIds[i] = _templateId2;
-        designatedWallets[i] = _designatedWallet;
-        found = true;
-        break;
-      }
-    }
+    // bool found = false;
+    // for (uint256 i; i < templateIds.length; i++) {
+    //   // update_templateId1 with _templateId2
+    //   if (templateIds[i] == _templateId1) {
+    //     templateIds[i] = _templateId2;
+    //     designatedWallets[i] = _designatedWallet;
+    //     found = true;
+    //     break;
+    //   }
+    // }
+    (uint256 index, bool found) = rrpDapiServer.getTemplateIdIndex(_dapiId, _templateId1);
+    // console.log("index: %d", index);
     if (!found) {
       revert("TemplateId was not found");
     }
+    templateIds[index] = _templateId2;
+    designatedWallets[index] = _designatedWallet;
 
     // Calls RrpDapiServer to create the new dAPI
     bytes16 newDapiId =

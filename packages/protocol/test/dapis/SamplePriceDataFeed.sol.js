@@ -394,7 +394,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId1);
-      expect(templateIds).to.have.same.members([templateId2, templateId3]);
+      expect(templateIds).to.have.same.members([ethers.constants.HashZero, templateId2, templateId3]);
     });
     it('removes a templateId from dapi (middle of array)', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
@@ -409,7 +409,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId2);
-      expect(templateIds).to.have.same.members([templateId1, templateId3]);
+      expect(templateIds).to.have.same.members([templateId1, ethers.constants.HashZero, templateId3]);
     });
     it('removes a templateId from dapi (end of array)', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
@@ -424,7 +424,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId3);
-      expect(templateIds).to.have.same.members([templateId1, templateId2]);
+      expect(templateIds).to.have.same.members([templateId1, templateId2, ethers.constants.HashZero]);
     });
     it('reverts if templateId was not found', async function () {
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
@@ -460,7 +460,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId1);
-      expect(templateIds).to.have.same.members([templateId2, templateId3]);
+      expect(templateIds).to.have.same.members([ethers.constants.HashZero, templateId2, templateId3]);
     });
   });
   context('Caller is the meta admin', function () {
@@ -484,7 +484,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       const [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId1);
-      expect(templateIds).to.have.same.members([templateId2, templateId3]);
+      expect(templateIds).to.have.same.members([ethers.constants.HashZero, templateId2, templateId3]);
     });
   });
   context('Caller is unauthorized', function () {
@@ -510,7 +510,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       let [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId1);
-      expect(templateIds).to.have.same.members([templateId2, templateId3]);
+      expect(templateIds).to.have.same.members([ethers.constants.HashZero, templateId2, templateId3]);
 
       // Time travel
       const days = 2;
@@ -529,7 +529,7 @@ describe('removeTemplate', function () {
       expect(newDapiId).not.to.eq(previousDapiId);
       [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
       expect(templateIds).not.to.include(templateId2);
-      expect(templateIds).to.have.same.members([templateId3]);
+      expect(templateIds).to.have.same.members([ethers.constants.HashZero, ethers.constants.HashZero, templateId3]);
     });
   });
   context('Caller has updated the dapi within cooldown period', function () {
@@ -551,7 +551,7 @@ describe('removeTemplate', function () {
       ).to.be.revertedWith('Cooldown period has not finished');
       expect(nextDapiIndex).to.eq(await rrpDapiServer.nextDapiIndex());
       [, , , templateIds] = await rrpDapiServer.getDapi(await samplePriceDataFeed.latestDapiId());
-      expect(templateIds).to.have.same.members([templateId2, templateId3]);
+      expect(templateIds).to.have.same.members([ethers.constants.HashZero, templateId2, templateId3]);
     });
   });
   context(
@@ -579,7 +579,7 @@ describe('removeTemplate', function () {
         expect(newDapiId).not.to.eq(previousDapiId);
         [, , , templateIds] = await rrpDapiServer.getDapi(newDapiId);
         expect(templateIds).not.to.include(templateId2);
-        expect(templateIds).to.have.same.members([templateId3]);
+        expect(templateIds).to.have.same.members([ethers.constants.HashZero, ethers.constants.HashZero, templateId3]);
       });
     }
   );
