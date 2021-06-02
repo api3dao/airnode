@@ -66,11 +66,11 @@ contract RrpDapiServer is MeanMedianHybrid {
   }
 
   function registerDapi(
+    bytes32[] calldata templateIds,
+    address[] calldata designatedWallets,
     uint256 noResponsesToReduce,
     uint256 toleranceInPercentages,
     uint256 requesterIndex,
-    bytes32[] calldata templateIds,
-    address[] calldata designatedWallets,
     address reduceAddress,
     bytes4 reduceFunctionId,
     address requestIndexResetter

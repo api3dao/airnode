@@ -45,8 +45,8 @@ contract SamplePriceDataFeed is Api3Adminship {
 
   function updateDapi(
     bytes16 _dapiId,
-    bytes32[] memory _templateIds,
-    address[] memory _designatedWallets
+    bytes32[] calldata _templateIds,
+    address[] calldata _designatedWallets
   ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // Fetches current dAPI parameters from RrpDapiServer
     (
@@ -71,11 +71,11 @@ contract SamplePriceDataFeed is Api3Adminship {
     // Calls RrpDapiServer to create the new dAPI
     bytes16 newDapiId =
       rrpDapiServer.registerDapi(
+        _templateIds,
+        _designatedWallets,
         noResponsesToReduce,
         toleranceInPercentages,
         requesterIndex,
-        _templateIds,
-        _designatedWallets,
         reduceAddress,
         reduceFunctionId,
         requestIndexResetter

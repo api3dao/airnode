@@ -93,11 +93,11 @@ beforeEach(async () => {
   defaultTemplateIds = [templateId1, templateId2, templateId3];
   // Register dapi
   const tx = await rrpDapiServer.registerDapi(
+    [templateId1, templateId2, templateId3],
+    Array(3).fill(designatedWallet.address),
     1 /* noResponsesToReduce */,
     10 /* toleranceInPercentages */,
     requesterIndex,
-    [templateId1, templateId2, templateId3],
-    Array(3).fill(designatedWallet.address),
     samplePriceDataFeed.address /* reduceAddress */,
     samplePriceDataFeed.interface.getSighash('reduce') /* reduceFunctionId */,
     ethers.constants.AddressZero /* requestIndexResetter */
