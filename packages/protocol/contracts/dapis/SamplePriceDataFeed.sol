@@ -43,10 +43,10 @@ contract SamplePriceDataFeed is Api3Adminship {
     _setDapiId(_dapiId);
   }
 
-  function addTemplate(
+  function updateDapi(
     bytes16 _dapiId,
-    bytes32 _templateId,
-    address _designatedWallet
+    bytes32[] memory _templateIds,
+    address[] memory _designatedWallets
   ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
     // Fetches current dAPI parameters from RrpDapiServer
     (
@@ -61,16 +61,12 @@ contract SamplePriceDataFeed is Api3Adminship {
     ) = rrpDapiServer.getDapi(_dapiId);
     // TODO: check dAPI was found?
 
-    // Adds templateId to dAPI.templateIds (iterating over because array push() is only available in storage arrays)
-    // Also add _designatedWallet to dAPI.designatedWallets
-    bytes32[] memory newTemplateIds = new bytes32[](templateIds.length + 1);
-    address[] memory newDesignatedWallets = new address[](designatedWallets.length + 1);
-    for (uint256 i; i < templateIds.length; i++) {
-      newTemplateIds[i] = templateIds[i];
-      newDesignatedWallets[i] = designatedWallets[i];
-    }
-    newTemplateIds[newTemplateIds.length - 1] = _templateId;
-    newDesignatedWallets[newDesignatedWallets.length - 1] = _designatedWallet;
+    // Check templateIds and/or designatedWallets are different
+    require(
+      keccak256(abi.encodePacked(templateIds, designatedWallets)) !=
+        keccak256(abi.encodePacked(_templateIds, _designatedWallets)),
+      "templateIds or designatedWallets must be different"
+    );
 
     // Calls RrpDapiServer to create the new dAPI
     bytes16 newDapiId =
@@ -78,109 +74,8 @@ contract SamplePriceDataFeed is Api3Adminship {
         noResponsesToReduce,
         toleranceInPercentages,
         requesterIndex,
-        newTemplateIds,
-        newDesignatedWallets,
-        reduceAddress,
-        reduceFunctionId,
-        requestIndexResetter
-      );
-
-    _setDapiId(newDapiId);
-  }
-
-  function removeTemplate(bytes16 _dapiId, bytes32 _templateId) external onlyAdminOrMetaAdmin cooldownTimeEnded {
-    // Fetches current dAPI parameters from RrpDapiServer
-    (
-      uint256 noResponsesToReduce,
-      uint256 toleranceInPercentages,
-      uint256 requesterIndex,
-      bytes32[] memory templateIds,
-      address[] memory designatedWallets,
-      address reduceAddress,
-      bytes4 reduceFunctionId,
-      address requestIndexResetter
-    ) = rrpDapiServer.getDapi(_dapiId);
-    // TODO: check dAPI was found?
-
-    // Removes templateId from dAPI.templateIds (iterating over because array pop() is only available in storage arrays)
-    // Also removes designatedWallet from dAPI.designatedWallets
-    bool found = false;
-    bytes32[] memory newTemplateIds = new bytes32[](templateIds.length - 1);
-    address[] memory newDesignatedWallets = new address[](designatedWallets.length - 1);
-    for (uint256 i; i < templateIds.length; i++) {
-      // copy array without _templateId
-      if (templateIds[i] == _templateId) {
-        found = true;
-      }
-      uint256 j = found ? i + 1 : i;
-      if (i != templateIds.length - 1) {
-        newTemplateIds[i] = templateIds[j];
-        newDesignatedWallets[i] = designatedWallets[j];
-      }
-    }
-    if (!found) {
-      revert("TemplateId was not found");
-    }
-
-    // Calls RrpDapiServer to create the new dAPI
-    bytes16 newDapiId =
-      rrpDapiServer.registerDapi(
-        noResponsesToReduce,
-        toleranceInPercentages,
-        requesterIndex,
-        newTemplateIds,
-        newDesignatedWallets,
-        reduceAddress,
-        reduceFunctionId,
-        requestIndexResetter
-      );
-
-    _setDapiId(newDapiId);
-  }
-
-  function updateTemplate(
-    bytes16 _dapiId,
-    bytes32 _templateId1,
-    bytes32 _templateId2,
-    address _designatedWallet
-  ) external onlyAdminOrMetaAdmin cooldownTimeEnded {
-    // Fetches current dAPI parameters from RrpDapiServer
-    (
-      uint256 noResponsesToReduce,
-      uint256 toleranceInPercentages,
-      uint256 requesterIndex,
-      bytes32[] memory templateIds,
-      address[] memory designatedWallets,
-      address reduceAddress,
-      bytes4 reduceFunctionId,
-      address requestIndexResetter
-    ) = rrpDapiServer.getDapi(_dapiId);
-    // TODO: check dAPI was found?
-
-    // Updates templateId1 with templateId2 in dAPI.templateIds
-    // Also updates templatedId1 associated designatedWallet in dAPI.designatedWallets
-    bool found = false;
-    for (uint256 i; i < templateIds.length; i++) {
-      // update_templateId1 with _templateId2
-      if (templateIds[i] == _templateId1) {
-        templateIds[i] = _templateId2;
-        designatedWallets[i] = _designatedWallet;
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      revert("TemplateId was not found");
-    }
-
-    // Calls RrpDapiServer to create the new dAPI
-    bytes16 newDapiId =
-      rrpDapiServer.registerDapi(
-        noResponsesToReduce,
-        toleranceInPercentages,
-        requesterIndex,
-        templateIds,
-        designatedWallets,
+        _templateIds,
+        _designatedWallets,
         reduceAddress,
         reduceFunctionId,
         requestIndexResetter
