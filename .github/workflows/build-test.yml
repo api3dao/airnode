@@ -42,7 +42,7 @@ jobs:
         run: yarn run lint
       - name: Prepare config
         run: |
-          cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json
+          cp packages/deployer/config/config.json.example packages/deployer/config/config.json
       - name: Build
         run: yarn run build
       - name: Slack Notification
