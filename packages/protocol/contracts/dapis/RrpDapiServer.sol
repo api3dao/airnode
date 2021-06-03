@@ -3,10 +3,9 @@ pragma solidity 0.8.4;
 
 import "../AirnodeRrp.sol";
 import "./reducers/MeanMedianHybrid.sol";
+import "./interfaces/IRrpDapiServer.sol";
 
-contract RrpDapiServer is MeanMedianHybrid {
-  event DapiRegistered(bytes16 indexed dapiId);
-
+contract RrpDapiServer is MeanMedianHybrid, IRrpDapiServer {
   struct Dapi {
     uint256 noResponsesToReduce;
     uint256 toleranceInPercentages;
@@ -30,7 +29,7 @@ contract RrpDapiServer is MeanMedianHybrid {
 
   AirnodeRrp public airnodeRrp;
   mapping(bytes16 => Dapi) private dapis;
-  // TODO: are we missing a dapiIds bytes16 array for getting all the dapi ids?
+  bytes16[] public dapiIds;
   uint256 public nextDapiIndex = 1;
   mapping(bytes32 => DapiRequestIdentifiers) private airnodeRequestIdToDapiRequestIdentifiers;
 
@@ -41,12 +40,13 @@ contract RrpDapiServer is MeanMedianHybrid {
   function getDapi(bytes16 dapiId)
     external
     view
+    override
     returns (
-      uint256,
-      uint256,
-      uint256,
       bytes32[] memory,
       address[] memory,
+      uint256,
+      uint256,
+      uint256,
       address,
       bytes4,
       address
@@ -54,11 +54,11 @@ contract RrpDapiServer is MeanMedianHybrid {
   {
     Dapi storage dapi = dapis[dapiId];
     return (
+      dapi.templateIds,
+      dapi.designatedWallets,
       dapi.noResponsesToReduce,
       dapi.toleranceInPercentages,
       dapi.requesterIndex,
-      dapi.templateIds,
-      dapi.designatedWallets,
       dapi.reduceAddress,
       dapi.reduceFunctionId,
       dapi.requestIndexResetter
@@ -74,7 +74,7 @@ contract RrpDapiServer is MeanMedianHybrid {
     address reduceAddress,
     bytes4 reduceFunctionId,
     address requestIndexResetter
-  ) external returns (bytes16 dapiId) {
+  ) external override returns (bytes16 dapiId) {
     require(templateIds.length == designatedWallets.length, "Parameter lengths do not match");
     require(noResponsesToReduce <= templateIds.length && noResponsesToReduce != 0, "Invalid no. responses to reduce");
 
@@ -102,22 +102,24 @@ contract RrpDapiServer is MeanMedianHybrid {
     dapis[dapiId].requestIndexResetter = requestIndexResetter;
     dapis[dapiId].nextRequestIndex = 1;
 
+    dapiIds.push(dapiId);
     nextDapiIndex++;
 
-    // TODO: move this into an interface? IRrpDapiServer.sol?
-    emit DapiRegistered(
-      dapiId /* , noResponsesToReduce, toleranceInPercentages, requesterIndex, templateIds, designatedWallets, reduceAddress, reduceFunctionId, requestIndexResetter, 1 */
-    );
+    emit DapiRegistered(dapiId);
   }
 
-  function resetDapiRequestIndex(bytes16 dapiId) external {
+  function resetDapiRequestIndex(bytes16 dapiId) external override {
     Dapi storage dapi = dapis[dapiId];
     require(msg.sender == dapi.requestIndexResetter, "Caller not resetter");
     dapi.nextRequestIndex = 1;
     dapi.requestIndexResetCount++;
   }
 
-  function makeDapiRequest(bytes16 dapiId, bytes calldata parameters) external returns (uint64 currDapiRequestIndex) {
+  function makeDapiRequest(bytes16 dapiId, bytes calldata parameters)
+    external
+    override
+    returns (uint64 currDapiRequestIndex)
+  {
     Dapi storage dapi = dapis[dapiId];
     currDapiRequestIndex = dapi.nextRequestIndex++;
     dapi.requestIndexToResponsesLength[currDapiRequestIndex] = 0;
@@ -155,7 +157,7 @@ contract RrpDapiServer is MeanMedianHybrid {
     bytes32 requestId,
     uint256 statusCode,
     bytes calldata data
-  ) external {
+  ) external override {
     require(address(airnodeRrp) == msg.sender, "Caller not AirnodeRrp");
     DapiRequestIdentifiers storage dapiRequestIdentifiers = airnodeRequestIdToDapiRequestIdentifiers[requestId];
     require(dapiRequestIdentifiers.dapiRequestIndex != 0, "Request ID invalid");
