@@ -11,7 +11,7 @@ contract SamplePriceDataFeed is Api3Adminship {
   bytes16 public latestDapiId;
   int256 public latestAnswer;
 
-  uint256 public cooldownTime = 1 days; // TODO: is this the right value?
+  uint256 public cooldownTime = 1 weeks;
   mapping(address => uint64) public adminToDapiLastUpdated;
 
   /// @dev Reverts if the caller tries to update a dAPI again before the cooldown period has elapsed

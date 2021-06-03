@@ -1,4 +1,5 @@
 const { expect } = require('chai');
+const { increaseBlockTime } = require('../utils/utils');
 
 const AdminStatus = {
   Unauthorized: 0,
@@ -384,9 +385,8 @@ describe('updateDapi', function () {
       // Because in the test setup we call SamplePriceDataFeed.setDapi() function
       // that updates the cooldown timestamp then we must increase the block time
       // in order to be able to call SamplePriceDataFeed.removeTemplate() as metaAdmin
-      const days = 2;
-      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
-      ethers.provider.send('evm_mine');
+      const days = 8;
+      increaseBlockTime(days);
 
       const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const newTemplateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
@@ -418,9 +418,8 @@ describe('updateDapi', function () {
       // Because in the test setup we call SamplePriceDataFeed.setDapi() function
       // that updates the cooldown timestamp then we must increase the block time
       // in order to be able to call SamplePriceDataFeed.removeTemplate() as metaAdmin
-      const days = 2;
-      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
-      ethers.provider.send('evm_mine');
+      const days = 8;
+      increaseBlockTime(days);
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const previousDapiId = await samplePriceDataFeed.latestDapiId();
@@ -441,9 +440,8 @@ describe('updateDapi', function () {
       // Because in the test setup we call SamplePriceDataFeed.setDapi() function
       // that updates the cooldown timestamp then we must increase the block time
       // in order to be able to call SamplePriceDataFeed.removeTemplate() as metaAdmin
-      const days = 2;
-      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
-      ethers.provider.send('evm_mine');
+      const days = 8;
+      increaseBlockTime(days);
 
       const nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       const newEndpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
@@ -563,9 +561,8 @@ describe('updateDapi', function () {
       expect(newTemplateIds).to.eql([templateId1, templateId2, templateId3, templateId4]);
 
       // Time travel
-      const days = 2;
-      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
-      ethers.provider.send('evm_mine');
+      const days = 8;
+      increaseBlockTime(days);
 
       const endpointId5 = ethers.utils.hexlify(ethers.utils.randomBytes(32));
       const templateParameters5 = ethers.utils.hexlify(ethers.utils.randomBytes(320));
@@ -612,9 +609,8 @@ describe('updateDapi', function () {
       expect(templateIds).to.eql([templateId2, templateId3]);
 
       // Time travel
-      const days = 2;
-      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
-      ethers.provider.send('evm_mine');
+      const days = 8;
+      increaseBlockTime(days);
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
@@ -654,9 +650,8 @@ describe('updateDapi', function () {
       expect(templateIds).to.eql([newTemplateId, templateId2, templateId3]);
 
       // Time travel
-      const days = 2;
-      ethers.provider.send('evm_increaseTime', [days * 24 * 60 * 60]);
-      ethers.provider.send('evm_mine');
+      const days = 8;
+      increaseBlockTime(days);
 
       nextDapiIndex = await rrpDapiServer.nextDapiIndex();
       previousDapiId = await samplePriceDataFeed.latestDapiId();
