@@ -99,4 +99,30 @@ describe('catch (docs)', () => {
 
     expect(validator.validateJson(specs, template)).toMatchObject({ valid: true, messages: [] });
   });
+
+  it('special keywords', () => {
+    const template = {
+      __keyRegexp: '^test',
+      __objectItem: {
+        name: {},
+        value: {
+          __regexp: '^[0-9]$',
+          __catch: {
+            __level: 'error',
+            __message: "__fullPath: Invalid value '__value'",
+          },
+        },
+      },
+    };
+
+    expect(validator.validateJson(specs, template)).toMatchObject({
+      valid: false,
+      messages: [
+        msg.keyFormattingMessage('example3', ['example3']),
+        msg.missingParamMessage(['test1', 'name']),
+        { level: 'error', message: "test2.value: Invalid value 'two'" },
+        msg.extraFieldMessage(['test1', 'title']),
+      ],
+    });
+  });
 });

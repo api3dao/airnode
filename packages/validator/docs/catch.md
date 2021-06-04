@@ -150,3 +150,47 @@ Messages can be also completely ignored by not providing `__catch` with `__level
 }
 ```
 ---
+
+## Special keywords
+
+Some keywords in `__message` will be replaced with certain values:
+
+- `__value` - if containing parameter is string in specification, `__value` will be replaced with its value
+- `__path` - path of the parameter in the current specification
+- `__prefix` - path to root parameter of the current template in case it is nested inside another template
+- `__path` - combination of `__prefix` and `__path`
+
+### Template
+
+```json
+{
+  "__keyRegexp": "^test",
+  "__objectItem": {
+    "name": {},
+    "value": {
+      "__regexp": "^[0-9]$",
+      "__catch": {
+        "__level": "error",
+        "__message": "__fullPath: Invalid value '__value'"
+      }
+    }
+  }
+}
+```
+
+
+### Expected output
+
+```json
+{
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Key example3 in example3 is formatted incorrectly" },
+    { "level": "error", "message": "Missing parameter test1.name" },
+    { "level": "error", "message": "test2.value: Invalid value 'two'" },
+    { "level": "warning", "message": "Extra field: test1.title" }
+  ]
+}
+```
+
+---
