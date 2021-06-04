@@ -3,7 +3,7 @@ import * as parameters from './parameters';
 
 describe('RESERVED_PARAMETERS', () => {
   it('returns the list of reserved parameters', () => {
-    expect(parameters.RESERVED_PARAMETERS).toEqual(['_path', '_times', '_type']);
+    expect(parameters.RESERVED_PARAMETERS).toEqual(['_path', '_times', '_type', '_relay_metadata']);
   });
 });
 

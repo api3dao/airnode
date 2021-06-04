@@ -43,6 +43,76 @@ describe('callApi', () => {
     );
   });
 
+  it('calls the adapter with the given parameters (with _relay_metadata set to v1)', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _relay_metadata: 'v1' };
+    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
+    const config = fixtures.buildConfig();
+    const [logs, res] = await callApi(config, aggregatedCall);
+    expect(logs).toEqual([]);
+    expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUSD',
+        ois: fixtures.buildOIS(),
+        parameters: {
+          from: 'ETH',
+          _airnode_airnode_id: aggregatedCall.airnodeId,
+          _airnode_client_address: aggregatedCall.clientAddress,
+          _airnode_designated_wallet: aggregatedCall.designatedWallet,
+          _airnode_endpoint_id: aggregatedCall.endpointId,
+          _airnode_requester_index: aggregatedCall.requesterIndex,
+          _airnode_request_id: aggregatedCall.id,
+          _airnode_chain_type: aggregatedCall.chainId,
+          _airnode_chain_id: config.chains[0].type,
+          _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
+        },
+        securitySchemes: [
+          {
+            in: 'query',
+            name: 'access_key',
+            securitySchemeName: 'My Security Scheme',
+            type: 'apiKey',
+            value: 'supersecret',
+          },
+        ],
+      },
+      { timeout: 20000 }
+    );
+  });
+
+  it('calls the adapter with the given parameters (with _relay_metadata set to false)', async () => {
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _relay_metadata: 'false' };
+    const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters });
+    const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);
+    expect(logs).toEqual([]);
+    expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUSD',
+        ois: fixtures.buildOIS(),
+        parameters: {
+          from: 'ETH',
+        },
+        securitySchemes: [
+          {
+            in: 'query',
+            name: 'access_key',
+            securitySchemeName: 'My Security Scheme',
+            type: 'apiKey',
+            value: 'supersecret',
+          },
+        ],
+      },
+      { timeout: 20000 }
+    );
+  });
+
   it('returns an error if no _type parameter is found', async () => {
     const aggregatedCall = fixtures.buildAggregatedApiCall();
     const [logs, res] = await callApi(fixtures.buildConfig(), aggregatedCall);

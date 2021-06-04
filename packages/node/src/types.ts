@@ -173,6 +173,11 @@ export interface ApiCallResponse {
 
 export interface AggregatedApiCall {
   readonly id: string;
+  readonly requesterIndex: string;
+  readonly airnodeId: string;
+  readonly clientAddress: string;
+  readonly designatedWallet: string;
+  readonly chainId: string;
   readonly endpointId: string;
   readonly endpointName?: string;
   readonly oisTitle?: string;

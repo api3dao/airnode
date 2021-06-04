@@ -1,7 +1,7 @@
 import { Endpoint } from '@api3/ois';
 import { ApiCallParameters } from '../../types';
 
-export const RESERVED_PARAMETERS = ['_path', '_times', '_type'];
+export const RESERVED_PARAMETERS = ['_path', '_times', '_type', '_relay_metadata'];
 
 export function getResponseParameterValue(
   name: string,

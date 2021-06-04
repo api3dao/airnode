@@ -71,6 +71,10 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
             name: '_times',
             default: '100000',
           },
+          {
+            name: '_metadata',
+            default: 'false',
+          },
         ],
         parameters: [
           {
