@@ -1,10 +1,9 @@
 import * as adapter from '@api3/adapter';
-import { OIS, SecurityScheme } from '@api3/ois';
-import { go, retryOnTimeout } from '../utils/promise-utils';
-import { removeKeys } from '../utils/object-utils';
-import { getEnvValue } from '../config';
-import * as logger from '../logger';
+import { OIS, ReservedParameterName, SecurityScheme } from '@api3/ois';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
+import { getEnvValue } from '../config';
+import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
+import * as logger from '../logger';
 import {
   AggregatedApiCall,
   ApiCallResponse,
@@ -14,7 +13,8 @@ import {
   RequestErrorCode,
   SecuritySchemeEnvironmentConfig,
 } from '../types';
-import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
+import { removeKeys } from '../utils/object-utils';
+import { go, retryOnTimeout } from '../utils/promise-utils';
 
 function buildOptions(
   chain: ChainConfig,
@@ -24,9 +24,10 @@ function buildOptions(
 ): adapter.BuildRequestOptions {
   let parameters = aggregatedApiCall.parameters;
   // Include airnode metadata based on _relay_metadata version number
-  // TODO: enum?
-  // TODO: revisit if condition
-  if ('_relay_metadata' in aggregatedApiCall.parameters && aggregatedApiCall.parameters['_relay_metadata'] == 'v1') {
+  if (
+    ReservedParameterName.RelayMetadata in aggregatedApiCall.parameters &&
+    aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata] == 'v1'
+  ) {
     parameters = {
       ...parameters,
       _airnode_airnode_id: aggregatedApiCall.airnodeId,

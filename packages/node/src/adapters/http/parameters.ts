@@ -1,10 +1,10 @@
-import { Endpoint } from '@api3/ois';
+import { Endpoint, ReservedParameterName } from '@api3/ois';
 import { ApiCallParameters } from '../../types';
 
-export const RESERVED_PARAMETERS = ['_path', '_times', '_type', '_relay_metadata'];
+export const RESERVED_PARAMETERS = Object.values(ReservedParameterName);
 
 export function getResponseParameterValue(
-  name: string,
+  name: ReservedParameterName,
   endpoint: Endpoint,
   requestParameters: ApiCallParameters
 ): string | undefined {
@@ -28,9 +28,9 @@ export function getResponseParameterValue(
 }
 
 export function getResponseParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
-  const _path = getResponseParameterValue('_path', endpoint, requestParameters);
-  const _times = getResponseParameterValue('_times', endpoint, requestParameters);
-  const _type = getResponseParameterValue('_type', endpoint, requestParameters);
+  const _path = getResponseParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
+  const _times = getResponseParameterValue(ReservedParameterName.Times, endpoint, requestParameters);
+  const _type = getResponseParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
 
   return { _type, _path, _times };
 }

@@ -74,10 +74,16 @@ export interface FixedParameter {
   value: string;
 }
 
+export enum ReservedParameterName {
+  Path = '_path',
+  Times = '_times',
+  Type = '_type',
+  RelayMetadata = '_relay_metadata',
+}
 export interface ReservedParameter {
   default?: string;
   fixed?: string;
-  name: string;
+  name: ReservedParameterName;
 }
 
 export interface Endpoint {

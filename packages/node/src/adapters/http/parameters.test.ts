@@ -1,4 +1,4 @@
-import { Endpoint } from '@api3/ois';
+import { Endpoint, ReservedParameterName } from '@api3/ois';
 import * as parameters from './parameters';
 
 describe('RESERVED_PARAMETERS', () => {
@@ -17,8 +17,8 @@ describe('getResponseParameterValue', () => {
       operation: { method: 'get', path: '/prices/latest' },
       parameters: [],
       reservedParameters: [
-        { name: '_type', fixed: 'int256' },
-        { name: '_path', default: 'prices.0.latest' },
+        { name: ReservedParameterName.Type, fixed: 'int256' },
+        { name: ReservedParameterName.Path, default: 'prices.0.latest' },
       ],
     };
   });
@@ -26,27 +26,27 @@ describe('getResponseParameterValue', () => {
   it('returns the reserved parameter from the Endpoint first', () => {
     // This should be ignored
     const requestParameters = { _type: 'bytes32' };
-    const res = parameters.getResponseParameterValue('_type', baseEndpoint, requestParameters);
+    const res = parameters.getResponseParameterValue(ReservedParameterName.Type, baseEndpoint, requestParameters);
     expect(res).toEqual('int256');
   });
 
   it('returns undefined if no reserved parameter exists', () => {
     const endpoint = { ...baseEndpoint, reservedParameters: [] };
     const requestParameters = { _type: 'bytes32' };
-    const res = parameters.getResponseParameterValue('_type', endpoint, requestParameters);
+    const res = parameters.getResponseParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
     expect(res).toEqual(undefined);
   });
 
   it('returns the default if the request parameter does not exist', () => {
     const endpoint = { ...baseEndpoint };
-    const res = parameters.getResponseParameterValue('_path', endpoint, {});
+    const res = parameters.getResponseParameterValue(ReservedParameterName.Path, endpoint, {});
     expect(res).toEqual('prices.0.latest');
   });
 
   it('overrides the default if the request parameter exists', () => {
     const endpoint = { ...baseEndpoint };
     const requestParameters = { _path: 'new.path' };
-    const res = parameters.getResponseParameterValue('_path', endpoint, requestParameters);
+    const res = parameters.getResponseParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
     expect(res).toEqual('new.path');
   });
 });
@@ -61,8 +61,8 @@ describe('getResponseParameters', () => {
       operation: { method: 'get', path: '/prices/latest' },
       parameters: [],
       reservedParameters: [
-        { name: '_type', fixed: 'int256' },
-        { name: '_path', default: 'prices.0.latest' },
+        { name: ReservedParameterName.Type, fixed: 'int256' },
+        { name: ReservedParameterName.Path, default: 'prices.0.latest' },
       ],
     };
   });
