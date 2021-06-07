@@ -8,8 +8,10 @@ import { Log, Roots } from '../types';
  * @returns specs object with replaced "__match" instances
  */
 export function replaceConditionalMatch(match: string, template: any): any {
+  match = match.replace(/[\.\\\[\]\(\)]/g, '\\$&');
+
   const substitute = (toReplace: string) => {
-    return toReplace.replace(/__match/g, match.replace(/[\.\\\[\]\(\)]/g, '$&'));
+    return toReplace.replace(/__match/g, match);
   };
 
   return recursiveSubstitute(template, substitute, ['__conditions']);
