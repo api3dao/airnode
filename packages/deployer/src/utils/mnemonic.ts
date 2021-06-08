@@ -25,7 +25,7 @@ export async function verifyMnemonic(mnemonic: string) {
   for (const indexedMnemonic of shuffledIndexedMnemonics) {
     let word = await ask(rl, `Enter word #${indexedMnemonic.index}: `);
     clearLine();
-    while (word != indexedMnemonic.mnemonic) {
+    while (word !== indexedMnemonic.mnemonic) {
       word = await ask(rl, `Enter word #${indexedMnemonic.index} again, or exit and start over: `);
       clearLine();
     }
@@ -35,7 +35,7 @@ export async function verifyMnemonic(mnemonic: string) {
 }
 
 function ask(rl: Interface, question: string) {
-  return new Promise((resolve) => {
+  return new Promise<string>((resolve) => {
     rl.question(question, (answer) => resolve(answer));
   });
 }
