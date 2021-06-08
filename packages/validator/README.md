@@ -45,6 +45,7 @@ Validator behavior can be configured with validator templates, which are regular
 - [regular expressions](docs/regex.md)
 - [catch](docs/catch.md)
 - [conditions](docs/conditions.md)
+- [any](docs/any.md)
 - [optional parameters](docs/optional.md)
 
 
