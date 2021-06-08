@@ -86,7 +86,7 @@ describe('Catch validator', () => {
     it('Relative', () => {
       const template = {
         __catch: {
-          __message: 'Value of parameter is: [[outer.parameter]]',
+          __message: 'Value of parameter is: [["outer", "parameter"]]',
         },
       };
 
@@ -104,7 +104,7 @@ describe('Catch validator', () => {
     it('Absolute', () => {
       const template = {
         __catch: {
-          __message: 'Value of parameter is: [[/outer.inner.parameter]]',
+          __message: 'Value of parameter is: [[ "/", "outer", "inner", "parameter" ]]',
         },
       };
 
@@ -126,7 +126,7 @@ describe('Catch validator', () => {
   it('Parameter index and value', () => {
     const template = {
       __catch: {
-        __message: 'Value of {{1}} is: [[/{{0}}.inner.parameter]]',
+        __message: 'Value of {{1}} is: [[ "/", "{{0}}", "inner", "parameter" ]]',
       },
     };
 
