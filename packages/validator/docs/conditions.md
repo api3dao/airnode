@@ -1,89 +1,44 @@
 # Conditions
 
-### Basics
+## Basic condition
 
-Conditions are objects containing `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain any amount of condition objects. Object `__if` contains parameter name with regular expression, if the regular expression is matched in provided specification, validator will validate everything that's in the `__then` object. Here is an example of a very basic condition:
+Conditions consist of `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain any amount of condition objects. Object `__if` contains parameter name with regular expression, if the regular expression is matched in provided specification, validator will check if specification matches everything that's in the `__then` object.
 
-#### Template
+Even if evaluation of `__then` object takes place, all messages from this validation are discarded and replaced with single error message.
 
-```json
-{
-  "conditionsExample": {
-    "value": {},
-    "__conditions": [
-      {
-        "__if": {
-          "value": "^one$"
-        },
-        "__then": {
-          "one": {
-            "__regexp": "^This is required by one$"
-          }
-        }
-      },
-      {
-        "__if": {
-          "value": "^two$"
-        },
-        "__then": {
-          "two": {
-            "__regexp": "^This is required by two$"
-          }
-        }
-      }
-    ]
-  }
-}
-```
----
-#### Valid specification
-```json
-{
-  "conditionsExample": {
-    "value": "one",
-    "one": "This is required by one"
-  }
-}
-```
----
-#### Invalid specification
-```json
-{
-  "conditionsExample": {
-    "value": "two",
-    "one": "This is required by two"
-  }
-}
-```
-#### Expected output
+### Template
 
 ```json
 {
-  "valid": false,
-  "messages": [
-    { "level": "error", "message": "Missing parameter conditionsExample.two" },
-    { "level": "warning", "message": "Extra field: conditionsExample.one" }
-  ]
-}
-```
----
-
-In this example parameter `conditionsExample.value` is required, if it's value is `one`, first condition will be checked and specification must contain parameter `conditionsExample.one` with value `This is required by one`. If `conditionsExample.one` isn't in the specification, or it's value is not `This is required by one`, validation will return an error. In the valid specification example the second condition is not checked at all because value of `conditionsExample.value` is not `two`. In the invalid specification example the second condition is applied, but parameter `conditionsExample.two` is missing from specification and since first condition is ignored (`conditionsExample.value` is not `one`) and parameter `conditionsExample.one` is not required it is labeled as extra parameter.
-
-### Require
-
-`__require` consists of a parameter path that validator will check and throw error if it doesn't exist. The path is relative to the location of the parameter, unless it starts with `/`, in that case it is an absolute path starting in the root of the specification. So far the `__require` functionality can be achieved by simply including the parameter in the template, the strength of `__require` becomes apparent when combined with `__this_name` keyword. `__this_name` instances in the required parameter path will be replaced with name of the parameter the condition is nested in.
-
-#### Template
-```json
-{
-  "items": {
-    "__objectItem": {
-      "__keyRegexp": "^require[0-9]$",
+  "numbers": {
+    "__arrayItem": {
+      "value": {},
+      "description": {},
       "__conditions": [
         {
-          "__require": {
-            "/outer.__this_name.inner": {}
+          "__if": {
+            "value": "^one$"
+          },
+          "__then": {
+            "description": {
+              "__regexp": "^This is required by one$",
+              "__catch": {
+                "__level": "error"
+              }
+            }
+          }
+        },
+        {
+          "__if": {
+            "value": "^two$"
+          },
+          "__then": {
+            "description": {
+              "__regexp": "^This is required by two$",
+              "__catch": {
+                "__level": "error"
+              }
+            }
           }
         }
       ]
@@ -92,282 +47,397 @@ In this example parameter `conditionsExample.value` is required, if it's value i
 }
 ```
 ---
-#### Valid specification
+### Valid specification
+
 ```json
 {
-  "items": {
-    "require0": {},
-    "require5": {}
-  },
-  "outer": {
-    "require0": {
-      "inner": {}
+  "numbers": [
+    {
+      "value": "one",
+      "description": "This is required by one"
     },
-    "require5": {
-      "inner": {}
+    {
+      "value": "two",
+      "description": "This is required by two"
+    },
+    {
+      "value": "three",
+      "description": "No requirement for three"
     }
-  }
+  ]
 }
 ```
 ---
-#### Invalid specification
+### Invalid specification
 ```json
 {
-  "items": {
-    "require0": {},
-    "require5": {}
-  },
-  "outer": {
-    "require0": {},
-    "require1": {
-      "inner": {}
+  "numbers": [
+    {
+      "value": "one",
+      "description": "No requirement for one"
+    },
+    {
+      "value": "two",
+      "description": "This is required by one"
     }
-  }
+  ]
 }
 ```
-#### Expected output
+### Expected output
+
 ```json
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Missing parameter outer.require0.inner" },
-    { "level": "error", "message": "Missing parameter outer.require5.inner" },
-    { "level": "warning", "message": "Extra field: outer.require1" }
+    { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
+    { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
   ]
 }
 ```
 ---
 
-In this example parameters inside `items` must be named `require` followed by number from 0 to 9 (determined by `__keyRegexp` parameter), `__require` condition's parameter starts with `/`, this means required parameter will be evaluated from root of the specification not from object `items`, where the condition is nested in. In both specification examples are 2 items (`require0` and `require5`), this means `__this_name` in the require parameter path will be replaced with respective parameters, which results in 2 required parameters (`outer.require0.inner` and `outer.require5.inner`).
+## Matched pattern in `__then`
 
-### Root then
+Matched pattern of regular expression in `__if` object can be accessed with `__match` anywhere in `__then` object.
 
-`__require` conditions can be evaluated from root of the specification if required parameter name starts with `/` this behaviour can be achieved in if/then conditions as well, by replacing parameter `__then` with `__rootThen`
+### Template
 
-### Regular expression matches in if/then conditions
-
-Regular expressions are often used in `__if` parameter of condition, matched string from the regular expression can be access in `__then` object with keyword `__match`, in this case `__if` object must specify if it's matching key of parameter (`__this_name`), or it's value (`__this`).
-
-#### Template
 ```json
 {
-  "items": {
-    "__objectItem": {
+  "numbers": {
+    "__arrayItem": {
+      "value": {},
+      "description": {
+        "__objectItem": {}
+      },
       "__conditions": [
         {
           "__if": {
-            "__this": "^matchedValue$"
+            "value": ".*"
+          },
+          "__then": {
+            "description": {
+              "__match": {
+                "__regexp": "^This is required by __match$",
+                "__catch": {
+                  "__level": "error"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+---
+### Valid specification
+
+```json
+{
+  "numbers": [
+    {
+      "value": "one",
+      "description": {
+        "one": "This is required by one"
+      }
+    },
+    {
+      "value": "two",
+      "description": {
+        "two": "This is required by two"
+      }
+    }
+  ]
+}
+```
+---
+### Invalid specification
+```json
+{
+  "numbers": [
+    {
+      "value": "one",
+      "description": {
+        "one": "This is required by two"
+      }
+    },
+    {
+      "value": "two",
+      "description": {
+        "two": "This is required by three"
+      }
+    }
+  ]
+}
+```
+### Expected output
+
+```json
+{
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
+    { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+  ]
+}
+```
+---
+
+## `__catch` in condition
+
+As the default error message in conditions is not very specific, it can be replaced with custom message by adding [catch](catch.md) parameter into condition object.
+
+### Template
+
+```json
+{
+  "numbers": {
+    "__arrayItem": {
+      "value": {},
+      "description": {},
+      "__conditions": [
+        {
+          "__if": {
+            "value": "^one$"
+          },
+          "__then": {
+            "description": {
+              "__regexp": "^This is required by one$",
+              "__catch": {
+                "__level": "error"
+              }
+            }
+          },
+          "__catch": {
+            "__message": "__fullPath only allowed value is: 'This is required by one'"
+          }
+        },
+        {
+          "__if": {
+            "value": "^two$"
+          },
+          "__then": {
+            "description": {
+              "__regexp": "^This is required by two$",
+              "__catch": {
+                "__level": "error"
+              }
+            }
+          },
+          "__catch": {
+            "__message": "__fullPath only allowed value is: 'This is required by two'"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+---
+### Invalid specification
+```json
+{
+  "numbers": [
+    {
+      "value": "one",
+      "description": "No requirement for one"
+    },
+    {
+      "value": "two",
+      "description": "This is required by one"
+    }
+  ]
+}
+```
+### Expected output
+
+```json
+{
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
+    { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+  ]
+}
+```
+---
+
+## Root then
+
+Conditions can be evaluated from root of the template by using `__rootThen` in place of `__then`.
+
+### Template
+
+```json
+{
+  "itemsList": {
+    "__arrayItem": {
+      "name": {},
+      "__conditions": [
+        {
+          "__if": {
+            "name": ".*"
           },
           "__rootThen": {
-            "thenItems": {
-              "byValue": {
-                "__regexp": "^__match$"
+            "items": {
+              "__match": {}
+            }
+          }
+        }
+      ]
+    }
+  },
+  "items": {
+    "__objectItem": {}
+  }
+}
+```
+---
+### Valid specification
+
+```json
+{
+  "itemsList": [
+    {
+      "name": "item0"
+    },
+    {
+      "name": "item1"
+    }
+  ],
+  "items": {
+    "item0": {},
+    "item1": {}
+  }
+}
+```
+---
+### Invalid specification
+
+```json
+{
+  "itemsList": [
+    {
+      "name": "item0"
+    },
+    {
+      "name": "item1"
+    }
+  ],
+  "items": {
+    "item1": {}
+  }
+}
+```
+
+### Expected output
+```json
+{
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Condition in itemsList[0].name is not met with name" }
+  ]
+}
+```
+---
+
+## `__this` and `__this_name`
+
+`__if` contains name of the parameter, but it can contain keywords `__this` or `__this_name` as well. `__this` will be matching value of parameter, the condition is nested in, `__this_name` will be matching the key of the parameter.
+
+### Template
+
+```json
+{
+  "original": {
+    "version": {
+      "__conditions": [
+        {
+          "__if": {
+            "__this": ".*"
+          },
+          "__rootThen": {
+            "backup": {
+              "version": {
+                "__regexp": "^__match$",
+                "__catch": {
+                  "__level": "error"
+                }
               }
             }
           }
         }
       ]
     },
+    "__objectItem": {},
     "__conditions": [
       {
         "__if": {
-          "__this_name": "^matchedKey$"
+          "__this_name": ".*"
         },
         "__rootThen": {
-          "thenItems": {
-            "byKey": {
-              "__regexp": "^__match$"
-            }
+          "backup": {
+            "__match": {}
           }
         }
       }
     ]
   },
-  "thenItems": {}
-}
-```
----
-#### Valid specification
-
-```json
-{
-  "items": {
-    "item1": "matchedValue",
-    "matchedKey": "item2"
-  },
-  "thenItems": {
-    "byValue": "matchedValue",
-    "byKey": "matchedKey"
+  "backup": {
+    "__objectItem": {}
   }
 }
 ```
 ---
-#### Invalid specification
+### Valid specification
 
 ```json
 {
-  "items": {
-    "item1": "matchedValue",
-    "matchedKey": "item2"
+  "original": {
+    "version": "1.0.2",
+    "item0": "abc",
+    "item1": "def",
+    "item2": "ghi"
   },
-  "thenItems": {}
+  "backup": {
+    "version": "1.0.2",
+    "item0": "abc",
+    "item1": "def",
+    "item2": "ghi"
+  }
+}
+```
+---
+### Invalid specification
+
+```json
+{
+  "original": {
+    "version": "1.0.2",
+    "item0": "abc",
+    "item1": "def",
+    "item2": "ghi"
+  },
+  "backup": {
+    "version": "1.0.0",
+    "item0": "abc",
+    "item1": "456",
+    "item2": "ghi"
+  }
 }
 ```
 
-#### Expected output
+### Expected output
 ```json
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Missing parameter thenItems.byValue" },
-    { "level": "error", "message": "Missing parameter items.matchedKey" }
+    { "level": "error", "message": "Condition in original.version is not met with version" },
+    { "level": "error", "message": "Condition in original.item0 is not met with item0" },
+    { "level": "error", "message": "Condition in original.item2 is not met with item2" }
   ]
 }
 ```
 ---
-
-This example highlights differences between `__this` and `__this_name` in if/then conditions. First condition matches the value of parameter, if the value is `matchedValue`, parameter `thenItems.byValue` becomes required, since `__match` keyword was replaced with `matchedValue` in the then section. `__this_name` will match `matchedKey` and require `thenItems.byKey` parameter. Notice the different positions of both conditions, `__this` is evaluated for the object the condition is nested in, whereas `__this_name` is evaluated from object the parameter, which key will be evaluated is nested in.
-
-### Parameter values in then condition
-
-Value of any parameter in the specification can accessed by providing relative or absolute path to the parameter. Path can be provided anywhere in format `[[path]]`, in case of absolute path (evaluated from specifiaction root) it is `[[/path]]`.
-
-#### Template
-
-```json
-{
-  "container": {
-    "__conditions": [
-      {
-        "__if": {
-          "param": ".*"
-        },
-        "__rootThen": {
-          "[[/used.name]]": {
-            "__regexp": "^[[param]]$",
-            "__level": "error"
-          }
-        }
-      }
-    ]
-  },
-  "used": {
-    "name": {}
-  }
-}
-```
----
-#### Valid specification
-
-```json
-{
-  "container": {
-    "param": "value"
-  },
-  "used": {
-    "name": "thenParam"
-  },
-  "thenParam": "value"
-}
-```
----
-#### Invalid specification
-```json
-{
-  "container": {
-    "param": "value"
-  },
-  "used": {
-    "name": "thenParam"
-  },
-  "thenParam": "notValue"
-}
-```
-#### Expected output
-```json
-{
-  "valid": false,
-  "messages": [
-    { "level": "error", "message": "thenParam is not formatted correctly" }
-  ]
-}
-```
----
-
-### Any
-
-Section `__then` can contain keyword `__any`, on level where array or object is expected. Validator will check every nested item/object, if none of them satisfies the `__then` section of condition, the specs will be invalid.
-
-#### Template
-
-```json
-{
-  "items": {
-    "__objectItem": {
-      "__keyRegexp": ".*"
-    },
-    "__conditions": [
-      {
-        "__if": {
-          "__this_name": "^anyExample$"
-        },
-        "__rootThen": {
-          "thenItems": {
-            "__any": {
-              "valid": {}
-            }
-          }
-        }
-      }
-    ]
-  },
-  "thenItems": {
-    "item1": {},
-    "item2": {},
-    "item3": {}
-  }
-}
-```
----
-#### Valid specification
-
-```json
-{
-  "items": {
-    "anyExample": {}
-  },
-  "thenItems": {
-    "item1": {},
-    "item2": {
-      "valid": "true"
-    },
-    "item3": {}
-  }
-}
-```
----
-#### Invalid specification
-```json
-{
-  "items": {
-    "anyExample": {}
-  },
-  "thenItems": {
-    "item1": {},
-    "item2": {},
-    "item3": {}
-  }
-}
-```
-#### Expected output
-```json
-{
-  "valid": false,
-  "messages": [
-    { "level": "error", "message": "Condition in items.anyExample is not met with anyExample" }
-  ]
-}
-```
----
-
-This example template, will evaluate all nested objects in `thenItems`, if any of those objects is matching `__then` section of condition, the specification is valid, otherwise it will return condition not met error.
