@@ -41,14 +41,9 @@ export function validateCatch(
     message['__message'] = message['__message'].replace(/__value/g, specs);
   }
 
-  let prefixStr = paramPathPrefix.join('.');
-  prefixStr += prefixStr.length ? '.' : '';
-
-  const paramPathStr = paramPath.join('.');
-
-  message['__message'] = message['__message'].replace(/__fullPath/g, prefixStr + paramPathStr);
-  message['__message'] = message['__message'].replace(/__path/g, `${paramPathStr}${paramPathStr.length ? '.' : ''}`);
-  message['__message'] = message['__message'].replace(/__prefix/g, prefixStr);
+  message['__message'] = message['__message'].replace(/__fullPath/g, [...paramPathPrefix, ...paramPath].join('.'));
+  message['__message'] = message['__message'].replace(/__path/g, paramPath.join('.'));
+  message['__message'] = message['__message'].replace(/__prefix/g, paramPathPrefix.join('.'));
 
   return [{ message: message['__message'], level: message['__level'] ? message['__level'] : 'error' }];
 }

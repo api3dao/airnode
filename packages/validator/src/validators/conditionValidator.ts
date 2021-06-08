@@ -147,7 +147,7 @@ function validateConditionRegexInValue(
 
   messages.push(
     logger.error(
-      `Condition in ${[...paramPathPrefix, ...paramPath, paramName === '__this' ? '' : paramName].join(
+      `Condition in ${[...paramPathPrefix, ...paramPath, ...(paramName === '__this' ? [] : [paramName])].join(
         '.'
       )} is not met with ${paramName === '__this' ? paramPath[paramPath.length - 1] : paramName}`
     )
@@ -156,7 +156,7 @@ function validateConditionRegexInValue(
     specs,
     utils.replaceConditionalMatch(paramName === '__this' ? specs : specs[paramName], condition),
     messages,
-    [...paramPath, paramName === '__this' ? '' : paramName],
+    [...paramPath, ...(paramName === '__this' ? [] : [paramName])],
     paramPathPrefix,
     roots.specs
   );
