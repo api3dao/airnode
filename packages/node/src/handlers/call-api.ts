@@ -6,6 +6,7 @@ import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
 import {
   AggregatedApiCall,
+  ApiCallParameters,
   ApiCallResponse,
   ChainConfig,
   Config,
@@ -16,33 +17,43 @@ import {
 import { removeKeys } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
+function addMetadataParameters(
+  parameters: ApiCallParameters,
+  aggregatedApiCall: AggregatedApiCall,
+  chain: ChainConfig
+) {
+  switch (aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata]) {
+    case 'v1':
+      return {
+        ...parameters,
+        _airnode_airnode_id: aggregatedApiCall.airnodeId,
+        _airnode_client_address: aggregatedApiCall.clientAddress,
+        _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
+        _airnode_endpoint_id: aggregatedApiCall.endpointId,
+        _airnode_requester_index: aggregatedApiCall.requesterIndex,
+        _airnode_request_id: aggregatedApiCall.id,
+        _airnode_chain_type: aggregatedApiCall.chainId,
+        _airnode_chain_id: chain.type,
+        _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
+      };
+    default:
+      return parameters;
+  }
+}
+
 function buildOptions(
   chain: ChainConfig,
   ois: OIS,
   securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[],
   aggregatedApiCall: AggregatedApiCall
 ): adapter.BuildRequestOptions {
-  let parameters = aggregatedApiCall.parameters;
+  const parameters = aggregatedApiCall.parameters;
+
   // Include airnode metadata based on _relay_metadata version number
-  if (
-    ReservedParameterName.RelayMetadata in aggregatedApiCall.parameters &&
-    aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata] == 'v1'
-  ) {
-    parameters = {
-      ...parameters,
-      _airnode_airnode_id: aggregatedApiCall.airnodeId,
-      _airnode_client_address: aggregatedApiCall.clientAddress,
-      _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
-      _airnode_endpoint_id: aggregatedApiCall.endpointId,
-      _airnode_requester_index: aggregatedApiCall.requesterIndex,
-      _airnode_request_id: aggregatedApiCall.id,
-      _airnode_chain_type: aggregatedApiCall.chainId,
-      _airnode_chain_id: chain.type,
-      _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
-    };
-  }
+  const parametersWithMetadata = addMetadataParameters(parameters, aggregatedApiCall, chain);
+
   // Don't submit the reserved parameters to the API
-  parameters = removeKeys(parameters || {}, RESERVED_PARAMETERS);
+  const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
 
   // Fetch secrets and build a list of security schemes
   const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
@@ -58,7 +69,7 @@ function buildOptions(
 
   return {
     endpointName: aggregatedApiCall.endpointName!,
-    parameters,
+    parameters: sanitizedParameters,
     ois,
     securitySchemes,
   };

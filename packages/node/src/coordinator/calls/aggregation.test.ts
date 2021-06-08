@@ -21,7 +21,7 @@ describe('aggregate (API calls)', () => {
       fixtures.requests.buildApiCall({ endpointId }),
       fixtures.requests.buildApiCall({ endpointId }),
     ];
-    const res = aggregation.aggregate(fixtures.buildConfig({}), apiCalls);
+    const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
         requesterIndex: '3',
