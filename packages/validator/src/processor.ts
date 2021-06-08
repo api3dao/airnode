@@ -97,6 +97,8 @@ export function processSpecs(
           messages.push(...result.messages);
         }
 
+        paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(/\[[0-9]+\]$/, '');
+
         break;
 
       // in specs can be any parameter, should validate all of them according to whats in the template
