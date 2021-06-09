@@ -31,10 +31,7 @@ describe('callApi', () => {
         parameters: { from: 'ETH' },
         securitySchemes: [
           {
-            in: 'query',
-            name: 'access_key',
             securitySchemeName: 'My Security Scheme',
-            type: 'apiKey',
             value: 'supersecret',
           },
         ],
@@ -71,10 +68,7 @@ describe('callApi', () => {
         },
         securitySchemes: [
           {
-            in: 'query',
-            name: 'access_key',
             securitySchemeName: 'My Security Scheme',
-            type: 'apiKey',
             value: 'supersecret',
           },
         ],
@@ -101,10 +95,7 @@ describe('callApi', () => {
         },
         securitySchemes: [
           {
-            in: 'query',
-            name: 'access_key',
             securitySchemeName: 'My Security Scheme',
-            type: 'apiKey',
             value: 'supersecret',
           },
         ],

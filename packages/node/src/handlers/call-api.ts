@@ -17,11 +17,8 @@ import {
 import { removeKeys } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
-function addMetadataParameters(
-  parameters: ApiCallParameters,
-  aggregatedApiCall: AggregatedApiCall,
-  chain: ChainConfig
-) {
+function addMetadataParameters(aggregatedApiCall: AggregatedApiCall, chain: ChainConfig): ApiCallParameters {
+  const parameters = aggregatedApiCall.parameters;
   switch (aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata]) {
     case 'v1':
       return {
@@ -41,31 +38,36 @@ function addMetadataParameters(
   }
 }
 
+function buildSecuritySchemes(
+  ois: OIS,
+  securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[]
+): SecurityScheme[] {
+  const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
+  const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
+    const securitySchemeEnvironmentConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
+    if (!securitySchemeEnvironmentConfig) {
+      return { securitySchemeName, value: '' } as SecurityScheme;
+    }
+    const value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
+    return { securitySchemeName, value } as SecurityScheme;
+  });
+  return securitySchemes;
+}
+
 function buildOptions(
   chain: ChainConfig,
   ois: OIS,
   securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[],
   aggregatedApiCall: AggregatedApiCall
 ): adapter.BuildRequestOptions {
-  const parameters = aggregatedApiCall.parameters;
-
   // Include airnode metadata based on _relay_metadata version number
-  const parametersWithMetadata = addMetadataParameters(parameters, aggregatedApiCall, chain);
+  const parametersWithMetadata = addMetadataParameters(aggregatedApiCall, chain);
 
   // Don't submit the reserved parameters to the API
   const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
 
   // Fetch secrets and build a list of security schemes
-  const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
-  const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
-    const securityScheme = ois.apiSpecifications.components.securitySchemes[securitySchemeName];
-    const securitySchemeEnvironmentConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
-    if (!securitySchemeEnvironmentConfig) {
-      return { ...securityScheme, securitySchemeName, value: '' } as SecurityScheme;
-    }
-    const value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
-    return { ...securityScheme, securitySchemeName, value } as SecurityScheme;
-  });
+  const securitySchemes = buildSecuritySchemes(ois, securitySchemeEnvironmentConfigs);
 
   return {
     endpointName: aggregatedApiCall.endpointName!,
@@ -93,10 +95,10 @@ export async function callApi(
   }
 
   const options = buildOptions(chain, ois, securitySchemeEnvironmentConfigs, aggregatedApiCall);
+
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
   // maximum timeout is reached.
   const adapterConfig: adapter.Config = { timeout: API_CALL_TIMEOUT };
-
   // If the request times out, we attempt to call the API again. Any other errors will not result in retries
   const retryableCall = retryOnTimeout(API_CALL_TOTAL_TIMEOUT, () =>
     adapter.buildAndExecuteRequest(options, adapterConfig)
