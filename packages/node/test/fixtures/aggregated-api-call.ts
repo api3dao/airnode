@@ -7,7 +7,6 @@ export function buildAggregatedApiCall(params?: Partial<AggregatedApiCall>): Agg
     id: 'apiCallId',
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
-    type: 'request',
     ...params,
   };
 }

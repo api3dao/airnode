@@ -8,7 +8,6 @@ function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): A
     id: request.id,
     endpointId: request.endpointId!,
     parameters: request.parameters,
-    type: 'request',
     endpointName: trigger.endpointName,
     oisTitle: trigger.oisTitle,
   };
