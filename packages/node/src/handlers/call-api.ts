@@ -19,7 +19,7 @@ import { go, retryOnTimeout } from '../utils/promise-utils';
 
 function addMetadataParameters(aggregatedApiCall: AggregatedApiCall, chain: ChainConfig): ApiCallParameters {
   const parameters = aggregatedApiCall.parameters;
-  switch (aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata]) {
+  switch (aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata]?.toLocaleLowerCase()) {
     case 'v1':
       return {
         ...parameters,
