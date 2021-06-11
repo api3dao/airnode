@@ -111,13 +111,13 @@ export interface OIS {
 // ===========================================
 // Security
 // ===========================================
-export interface SecurityScheme {
+export interface SecuritySchemeSecret {
   securitySchemeName: string;
   value: string;
 }
 
 export interface ApiCredentials {
-  [key: string]: SecurityScheme[];
+  [key: string]: SecuritySchemeSecret[];
 }
 
 export interface SecuritySpecification {

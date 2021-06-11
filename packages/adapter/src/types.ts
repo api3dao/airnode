@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js';
-import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@api3/ois';
+import { Method, OIS, Operation, Endpoint, SecuritySchemeSecret } from '@api3/ois';
 
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
   readonly parameters: { [key: string]: string };
-  readonly securitySchemes?: SecurityScheme[];
+  readonly securitySchemeSecrets?: SecuritySchemeSecret[];
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {

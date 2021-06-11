@@ -74,10 +74,10 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     cookies: {},
   };
 
-  const { securitySchemes } = options;
+  const { securitySchemeSecrets } = options;
   // Security schemes originate from 'config.json' and contain all of the authentication details
   // but the actual secrets and values needed by the Airnode deployment will come from 'secrets.env'
-  if (!securitySchemes || isEmpty(securitySchemes)) {
+  if (!securitySchemeSecrets || isEmpty(securitySchemeSecrets)) {
     return initialParameters;
   }
 
@@ -93,13 +93,13 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     const apiSecurityScheme = apiSecuritySchemes[apiSecuritySchemeName];
 
     // If there are no credentials in `secrets.env`, ignore the scheme
-    const securityScheme = securitySchemes.find(
+    const securitySchemeSecret = securitySchemeSecrets.find(
       ({ securitySchemeName }) => securitySchemeName === apiSecuritySchemeName
     );
-    if (!securityScheme) {
+    if (!securitySchemeSecret) {
       return authentication;
     }
 
-    return addSchemeAuthentication(authentication, apiSecurityScheme, securityScheme.value);
+    return addSchemeAuthentication(authentication, apiSecurityScheme, securitySchemeSecret.value);
   }, initialParameters);
 }

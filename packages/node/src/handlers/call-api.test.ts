@@ -29,7 +29,7 @@ describe('callApi', () => {
         endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
-        securitySchemes: [
+        securitySchemeSecrets: [
           {
             securitySchemeName: 'My Security Scheme',
             value: 'supersecret',
@@ -45,6 +45,7 @@ describe('callApi', () => {
       ['Includes', 'v1', true],
       ['Includes', 'V1', true],
       ['Does not include', 'version1', false],
+      ['Does not include', '1', false],
       ['Does not include', '', false],
       ['Does not include', 'false', false],
       ['Does not include', undefined, false],
@@ -76,7 +77,7 @@ describe('callApi', () => {
               _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
             }),
           },
-          securitySchemes: [
+          securitySchemeSecrets: [
             {
               securitySchemeName: 'My Security Scheme',
               value: 'supersecret',

@@ -1,3 +1,5 @@
-import { SecurityScheme } from '@api3/ois';
+import { SecuritySchemeSecret } from '@api3/ois';
 
-export const securitySchemes: SecurityScheme[] = [{ securitySchemeName: 'myapiApiScheme', value: 'super-secret-key' }];
+export const securitySchemeSecrets: SecuritySchemeSecret[] = [
+  { securitySchemeName: 'myapiApiScheme', value: 'super-secret-key' },
+];

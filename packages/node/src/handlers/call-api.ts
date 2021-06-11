@@ -1,5 +1,5 @@
 import * as adapter from '@api3/adapter';
-import { OIS, ReservedParameterName, SecurityScheme } from '@api3/ois';
+import { OIS, ReservedParameterName, SecuritySchemeSecret } from '@api3/ois';
 import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { getEnvValue } from '../config';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
@@ -38,18 +38,18 @@ function addMetadataParameters(aggregatedApiCall: AggregatedApiCall, chain: Chai
   }
 }
 
-function buildSecuritySchemes(
+function buildSecuritySchemeSecrets(
   ois: OIS,
   securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[]
-): SecurityScheme[] {
+): SecuritySchemeSecret[] {
   const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
   const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
     const securitySchemeEnvironmentConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
-    if (!securitySchemeEnvironmentConfig) {
-      return { securitySchemeName, value: '' } as SecurityScheme;
+    let value = '';
+    if (securitySchemeEnvironmentConfig) {
+      value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
     }
-    const value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
-    return { securitySchemeName, value } as SecurityScheme;
+    return { securitySchemeName, value };
   });
   return securitySchemes;
 }
@@ -67,13 +67,13 @@ function buildOptions(
   const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
 
   // Fetch secrets and build a list of security schemes
-  const securitySchemes = buildSecuritySchemes(ois, securitySchemeEnvironmentConfigs);
+  const securitySchemeSecrets = buildSecuritySchemeSecrets(ois, securitySchemeEnvironmentConfigs);
 
   return {
     endpointName: aggregatedApiCall.endpointName!,
     parameters: sanitizedParameters,
     ois,
-    securitySchemes,
+    securitySchemeSecrets,
   };
 }
 
@@ -94,7 +94,12 @@ export async function callApi(
     return [[log], { errorCode: RequestErrorCode.ResponseParametersInvalid }];
   }
 
-  const options = buildOptions(chain, ois, securitySchemeEnvironmentConfigs, aggregatedApiCall);
+  const options: adapter.BuildRequestOptions = buildOptions(
+    chain,
+    ois,
+    securitySchemeEnvironmentConfigs,
+    aggregatedApiCall
+  );
 
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
   // maximum timeout is reached.
