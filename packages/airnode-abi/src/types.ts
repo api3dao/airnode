@@ -5,11 +5,11 @@ export type ABIParameterType = 'address' | 'bytes' | 'bytes32' | 'int256' | 'uin
 export type ABIParameterTypeShort = 'a' | 'B' | 'b' | 'i' | 'u' | 'S';
 
 export interface DecodedMap {
-  [key: string]: string;
+  readonly [key: string]: string;
 }
 
 export interface InputParameter {
-  name: string;
-  type: string;
-  value: string;
+  readonly name: string;
+  readonly type: string;
+  readonly value: string;
 }
