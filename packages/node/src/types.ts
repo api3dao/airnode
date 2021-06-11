@@ -23,7 +23,7 @@ export enum RequestErrorCode {
   UnknownOIS = 11,
   NoMatchingAggregatedCall = 12,
   ApiCallFailed = 13,
-  ResponseParametersInvalid = 14,
+  ReservedParametersInvalid = 14,
   ResponseValueNotFound = 15,
   ResponseValueNotCastable = 16,
   FulfillTransactionFailed = 17,

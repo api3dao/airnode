@@ -43,8 +43,9 @@ export type ValueType = string | BigNumber | boolean;
 
 export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32';
 
-export interface ResponseParameters {
+export interface ReservedParameters {
   readonly _path?: string;
   readonly _times?: string | BigNumber;
   readonly _type: ResponseType;
+  readonly _relay_metadata?: string;
 }

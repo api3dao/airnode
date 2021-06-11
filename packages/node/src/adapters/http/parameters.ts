@@ -3,7 +3,7 @@ import { ApiCallParameters } from '../../types';
 
 export const RESERVED_PARAMETERS = Object.values(ReservedParameterName);
 
-export function getResponseParameterValue(
+export function getReservedParameterValue(
   name: ReservedParameterName,
   endpoint: Endpoint,
   requestParameters: ApiCallParameters
@@ -27,10 +27,11 @@ export function getResponseParameterValue(
   return requestParameter;
 }
 
-export function getResponseParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
-  const _path = getResponseParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
-  const _times = getResponseParameterValue(ReservedParameterName.Times, endpoint, requestParameters);
-  const _type = getResponseParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
+export function getReservedParameters(endpoint: Endpoint, requestParameters: ApiCallParameters) {
+  const _path = getReservedParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
+  const _times = getReservedParameterValue(ReservedParameterName.Times, endpoint, requestParameters);
+  const _type = getReservedParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
+  const _relay_metadata = getReservedParameterValue(ReservedParameterName.RelayMetadata, endpoint, requestParameters);
 
-  return { _type, _path, _times };
+  return { _type, _path, _times, _relay_metadata };
 }

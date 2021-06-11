@@ -99,7 +99,7 @@ describe('callApi', () => {
       },
     ]);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.ResponseParametersInvalid,
+      errorCode: RequestErrorCode.ReservedParametersInvalid,
     });
   });
 

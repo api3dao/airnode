@@ -1,6 +1,6 @@
 import * as adapter from '@api3/adapter';
-import { OIS, ReservedParameterName, SecuritySchemeSecret } from '@api3/ois';
-import { getResponseParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
+import { OIS, SecuritySchemeSecret } from '@api3/ois';
+import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { getEnvValue } from '../config';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
@@ -17,9 +17,13 @@ import {
 import { removeKeys } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
-function addMetadataParameters(aggregatedApiCall: AggregatedApiCall, chain: ChainConfig): ApiCallParameters {
+function addMetadataParameters(
+  chain: ChainConfig,
+  aggregatedApiCall: AggregatedApiCall,
+  reservedParameters: adapter.ReservedParameters
+): ApiCallParameters {
   const parameters = aggregatedApiCall.parameters;
-  switch (aggregatedApiCall.parameters[ReservedParameterName.RelayMetadata]?.toLowerCase()) {
+  switch (reservedParameters._relay_metadata?.toLowerCase()) {
     case 'v1':
       return {
         ...parameters,
@@ -58,10 +62,11 @@ function buildOptions(
   chain: ChainConfig,
   ois: OIS,
   securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[],
-  aggregatedApiCall: AggregatedApiCall
+  aggregatedApiCall: AggregatedApiCall,
+  reservedParameters: adapter.ReservedParameters
 ): adapter.BuildRequestOptions {
   // Include airnode metadata based on _relay_metadata version number
-  const parametersWithMetadata = addMetadataParameters(aggregatedApiCall, chain);
+  const parametersWithMetadata = addMetadataParameters(chain, aggregatedApiCall, reservedParameters);
 
   // Don't submit the reserved parameters to the API
   const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
@@ -88,17 +93,18 @@ export async function callApi(
   const securitySchemeEnvironmentConfigs = config.environment.securitySchemes.filter((s) => s.oisTitle === oisTitle);
 
   // Check before making the API call in case the parameters are missing
-  const responseParameters = getResponseParameters(endpoint, aggregatedApiCall.parameters || {});
-  if (!responseParameters._type) {
+  const reservedParameters = getReservedParameters(endpoint, aggregatedApiCall.parameters || {});
+  if (!reservedParameters._type) {
     const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
-    return [[log], { errorCode: RequestErrorCode.ResponseParametersInvalid }];
+    return [[log], { errorCode: RequestErrorCode.ReservedParametersInvalid }];
   }
 
   const options: adapter.BuildRequestOptions = buildOptions(
     chain,
     ois,
     securitySchemeEnvironmentConfigs,
-    aggregatedApiCall
+    aggregatedApiCall,
+    reservedParameters as adapter.ReservedParameters
   );
 
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the
@@ -116,11 +122,11 @@ export async function callApi(
   }
 
   try {
-    const extracted = adapter.extractAndEncodeResponse(res?.data, responseParameters as adapter.ResponseParameters);
+    const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
     return [[], { value: extracted.encodedValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
-    const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${responseParameters._path}`);
+    const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);
     return [[log], { errorCode: RequestErrorCode.ResponseValueNotFound }];
   }
 }
