@@ -29,7 +29,6 @@ describe('aggregate (API calls)', () => {
         id: 'apiCallId',
         oisTitle: 'Currency Converter API',
         parameters: { from: 'ETH' },
-        type: 'request',
       },
     });
   });
@@ -48,7 +47,6 @@ describe('aggregate (API calls)', () => {
         id: 'apiCallId',
         oisTitle: 'Currency Converter API',
         parameters: { from: 'ETH' },
-        type: 'request',
       },
     });
   });

@@ -166,8 +166,6 @@ export interface AuthorizationByRequestId {
   readonly [requestId: string]: boolean;
 }
 
-export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
-
 export interface ApiCallResponse {
   readonly value?: string;
   readonly errorCode?: RequestErrorCode;
@@ -179,7 +177,6 @@ export interface AggregatedApiCall {
   readonly endpointName?: string;
   readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
-  readonly type: AggregatedApiCallType;
   readonly errorCode?: RequestErrorCode;
   readonly responseValue?: string;
 }
