@@ -46,6 +46,7 @@ Validator behavior can be configured with validator templates, which are regular
 - [catch](docs/catch.md)
 - [conditions](docs/conditions.md)
 - [any](docs/any.md)
+- [dynamic values and keys](docs/dynamic_params.md)
 - [optional parameters](docs/optional.md)
 
 

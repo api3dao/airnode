@@ -8,6 +8,7 @@ In the whole documentation unified terminology will be used, here is the definit
 - **template** - json structure, which defines format of valid specification
 - **parameter** - combination of key and value assigned to it, located somewhere in the json structure
 - **parameter path** - string of keys separated with `.`, contains all keys needed to access a parameter in the json structure from the most outer one to key of the parameter itself
+- **root** - refers to most outer json structure, parameter path of root is empty
 - other json related keywords like **json structure**, **key**, **object**, **array**, etc... Will stick to the standard [JSON terminology](https://www.json.org/json-en.html)
 
 ---
