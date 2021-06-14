@@ -44,5 +44,6 @@ module.exports = {
     'no-console': 0,
     'no-useless-escape': 0,
     semi: 2,
+    eqeqeq: ['error', 'smart'],
   },
 };

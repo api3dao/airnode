@@ -1,7 +1,7 @@
 import * as adapter from '@api3/adapter';
+import { RequestErrorCode } from 'src/types';
 import * as fixtures from 'test/fixtures';
 import { callApi } from './call-api';
-import { RequestErrorCode } from 'src/types';
 
 describe('callApi', () => {
   const OLD_ENV = process.env;
@@ -29,18 +29,64 @@ describe('callApi', () => {
         endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
-        securitySchemes: [
+        securitySchemeSecrets: [
           {
-            in: 'query',
-            name: 'access_key',
             securitySchemeName: 'My Security Scheme',
-            type: 'apiKey',
             value: 'supersecret',
           },
         ],
       },
       { timeout: 20000 }
     );
+  });
+
+  describe('with _relay_metadata set', () => {
+    it.each([
+      ['Includes', 'v1', true],
+      ['Includes', 'V1', true],
+      ['Does not include', 'version1', false],
+      ['Does not include', '1', false],
+      ['Does not include', '', false],
+      ['Does not include', 'false', false],
+      ['Does not include', undefined, false],
+    ])('%s Airnode metadata when _relay_metadata is set to: %s', async (_, _relay_metadata, expectMetadata) => {
+      const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+      spy.mockResolvedValueOnce({ data: { price: 1000 } });
+      const config = fixtures.buildConfig();
+      const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _relay_metadata };
+      const aggregatedCall = fixtures.buildAggregatedApiCall({ parameters } as any);
+      const [logs, res] = await callApi(config, aggregatedCall);
+      expect(logs).toEqual([]);
+      expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        {
+          endpointName: 'convertToUSD',
+          ois: fixtures.buildOIS(),
+          parameters: {
+            from: 'ETH',
+            ...(expectMetadata && {
+              _airnode_airnode_id: aggregatedCall.airnodeId,
+              _airnode_client_address: aggregatedCall.clientAddress,
+              _airnode_designated_wallet: aggregatedCall.designatedWallet,
+              _airnode_endpoint_id: aggregatedCall.endpointId,
+              _airnode_requester_index: aggregatedCall.requesterIndex,
+              _airnode_request_id: aggregatedCall.id,
+              _airnode_chain_type: aggregatedCall.chainId,
+              _airnode_chain_id: config.chains[0].type,
+              _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
+            }),
+          },
+          securitySchemeSecrets: [
+            {
+              securitySchemeName: 'My Security Scheme',
+              value: 'supersecret',
+            },
+          ],
+        },
+        { timeout: 20000 }
+      );
+    });
   });
 
   it('returns an error if no _type parameter is found', async () => {
@@ -53,7 +99,7 @@ describe('callApi', () => {
       },
     ]);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.ResponseParametersInvalid,
+      errorCode: RequestErrorCode.ReservedParametersInvalid,
     });
   });
 

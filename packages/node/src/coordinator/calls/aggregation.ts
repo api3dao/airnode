@@ -6,6 +6,11 @@ function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): A
 
   return {
     id: request.id,
+    requesterIndex: request.requesterIndex,
+    airnodeId: request.airnodeId!,
+    clientAddress: request.clientAddress,
+    designatedWallet: request.designatedWallet,
+    chainId: request.chainId,
     endpointId: request.endpointId!,
     parameters: request.parameters,
     endpointName: trigger.endpointName,

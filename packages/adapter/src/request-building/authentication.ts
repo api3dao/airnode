@@ -1,5 +1,5 @@
-import isEmpty from 'lodash/isEmpty';
 import { ApiSecurityScheme } from '@api3/ois';
+import isEmpty from 'lodash/isEmpty';
 import { CachedBuildRequestOptions, Parameters } from '../types';
 
 interface Authentication {
@@ -74,29 +74,32 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     cookies: {},
   };
 
-  const { securitySchemes } = options;
-  // Security schemes originate from 'security.json' and contain all of the authentication details
-  if (!securitySchemes || isEmpty(securitySchemes)) {
+  const { securitySchemeSecrets } = options;
+  // Security schemes originate from 'config.json' and contain all of the authentication details
+  // but the actual secrets and values needed by the Airnode deployment will come from 'secrets.env'
+  if (!securitySchemeSecrets || isEmpty(securitySchemeSecrets)) {
     return initialParameters;
   }
 
-  // API security schemes originate from 'config.json' and specify which schemes should be used
+  // API security schemes also originate from 'config.json' and specify which schemes should be used
   const apiSecuritySchemes = options.ois.apiSpecifications.components.securitySchemes;
   if (isEmpty(apiSecuritySchemes)) {
     return initialParameters;
   }
 
-  const apiSchemeNames = Object.keys(apiSecuritySchemes);
+  const apiSecuritySchemeNames = Object.keys(apiSecuritySchemes);
 
-  return apiSchemeNames.reduce((authentication, schemeName) => {
-    const apiSecurityScheme = apiSecuritySchemes[schemeName];
+  return apiSecuritySchemeNames.reduce((authentication, apiSecuritySchemeName) => {
+    const apiSecurityScheme = apiSecuritySchemes[apiSecuritySchemeName];
 
-    // If there are no credentials in `security.json`, ignore the scheme
-    const securityScheme = securitySchemes.find((scheme) => scheme.securitySchemeName === schemeName);
-    if (!securityScheme) {
+    // If there are no credentials in `secrets.env`, ignore the scheme
+    const securitySchemeSecret = securitySchemeSecrets.find(
+      ({ securitySchemeName }) => securitySchemeName === apiSecuritySchemeName
+    );
+    if (!securitySchemeSecret) {
       return authentication;
     }
 
-    return addSchemeAuthentication(authentication, apiSecurityScheme, securityScheme.value);
+    return addSchemeAuthentication(authentication, apiSecurityScheme, securitySchemeSecret.value);
   }, initialParameters);
 }

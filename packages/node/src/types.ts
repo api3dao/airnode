@@ -23,7 +23,7 @@ export enum RequestErrorCode {
   UnknownOIS = 11,
   NoMatchingAggregatedCall = 12,
   ApiCallFailed = 13,
-  ResponseParametersInvalid = 14,
+  ReservedParametersInvalid = 14,
   ResponseValueNotFound = 15,
   ResponseValueNotCastable = 16,
   FulfillTransactionFailed = 17,
@@ -173,6 +173,11 @@ export interface ApiCallResponse {
 
 export interface AggregatedApiCall {
   readonly id: string;
+  readonly requesterIndex: string;
+  readonly airnodeId: string;
+  readonly clientAddress: string;
+  readonly designatedWallet: string;
+  readonly chainId: string;
   readonly endpointId: string;
   readonly endpointName?: string;
   readonly oisTitle?: string;

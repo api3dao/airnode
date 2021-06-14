@@ -1,4 +1,4 @@
-import { OIS } from '@api3/ois';
+import { OIS, ReservedParameterName } from '@api3/ois';
 
 export function buildOIS(overrides?: Partial<OIS>): OIS {
   return {
@@ -66,15 +66,15 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
         ],
         reservedParameters: [
           {
-            name: '_type',
+            name: ReservedParameterName.Times,
             fixed: 'int256',
           },
           {
-            name: '_path',
+            name: ReservedParameterName.Path,
             fixed: 'result',
           },
           {
-            name: '_times',
+            name: ReservedParameterName.Times,
             default: '100000',
           },
         ],

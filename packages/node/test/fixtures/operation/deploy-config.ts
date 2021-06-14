@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { Config } from '@api3/operation';
+import { ReservedParameterName } from '@api3/ois';
 
 export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
@@ -22,9 +23,10 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
             oisTitle: 'Currency Converter API',
             parameters: [
               { type: 'bytes32', name: 'to', value: 'USD' },
-              { type: 'bytes32', name: '_type', value: 'uint256' },
-              { type: 'bytes32', name: '_path', value: 'result' },
-              { type: 'bytes32', name: '_times', value: '100000' },
+              { type: 'bytes32', name: ReservedParameterName.Type, value: 'uint256' },
+              { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
+              { type: 'bytes32', name: ReservedParameterName.Times, value: '100000' },
+              { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
             ],
           },
         },
@@ -71,9 +73,10 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         parameters: [
           { type: 'bytes32', name: 'from', value: 'ETH' },
           { type: 'bytes32', name: 'to', value: 'USD' },
-          { type: 'bytes32', name: '_type', value: 'int256' },
-          { type: 'bytes32', name: '_path', value: 'result' },
-          { type: 'bytes32', name: '_times', value: '100000' },
+          { type: 'bytes32', name: ReservedParameterName.Type, value: 'int256' },
+          { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
+          { type: 'bytes32', name: ReservedParameterName.Times, value: '100000' },
+          { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
         ],
       },
     ],

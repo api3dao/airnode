@@ -24,6 +24,11 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
+        requesterIndex: '3',
+        airnodeId: 'airnodeId',
+        clientAddress: 'clientAddress',
+        designatedWallet: 'designatedWallet',
+        chainId: '31337',
         endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
@@ -42,6 +47,11 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
+        requesterIndex: '3',
+        airnodeId: 'airnodeId',
+        clientAddress: 'clientAddress',
+        designatedWallet: 'designatedWallet',
+        chainId: '31337',
         endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
         endpointName: 'convertToUSD',
         id: 'apiCallId',
