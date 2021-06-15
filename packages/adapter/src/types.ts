@@ -1,11 +1,11 @@
+import { Endpoint, Method, OIS, Operation, SecuritySchemeSecret } from '@airnode/ois';
 import BigNumber from 'bignumber.js';
-import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/ois';
 
 export interface BuildRequestOptions {
   ois: OIS;
   endpointName: string;
   parameters: { [key: string]: string };
-  securitySchemes?: SecurityScheme[];
+  securitySchemeSecrets?: SecuritySchemeSecret[];
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {
@@ -43,8 +43,9 @@ export type ValueType = string | BigNumber | boolean;
 
 export type ResponseType = 'int256' | 'bool' | 'bytes32';
 
-export interface ResponseParameters {
+export interface ReservedParameters {
   _path?: string;
   _times?: string | BigNumber;
   _type: ResponseType;
+  _relay_metadata?: string;
 }

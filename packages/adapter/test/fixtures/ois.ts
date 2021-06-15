@@ -1,4 +1,4 @@
-import { OIS } from '@airnode/ois';
+import { OIS, ReservedParameterName } from '@airnode/ois';
 
 export function buildOIS(overrides?: Partial<OIS>): OIS {
   return {
@@ -66,16 +66,20 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
         ],
         reservedParameters: [
           {
-            name: 'eType',
+            name: ReservedParameterName.Type,
             fixed: 'uint256',
           },
           {
-            name: 'path',
+            name: ReservedParameterName.Path,
             fixed: 'result',
           },
           {
-            name: 'times',
+            name: ReservedParameterName.Times,
             default: '100000',
+          },
+          {
+            name: ReservedParameterName.RelayMetadata,
+            default: 'v1',
           },
         ],
         parameters: [

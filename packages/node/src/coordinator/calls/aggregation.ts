@@ -5,6 +5,12 @@ function createAggregatedCall(config: Config, request: ClientRequest<ApiCall>): 
 
   return {
     id: request.id,
+    requesterIndex: request.requesterIndex!,
+    providerId: request.providerId!,
+    clientAddress: request.clientAddress,
+    designatedWallet: request.designatedWallet!,
+    // Using ethereum mainnet id as placeholder because request does not provide chainId
+    chainId: '1',
     endpointId: request.endpointId!,
     parameters: request.parameters,
     type: 'request',
