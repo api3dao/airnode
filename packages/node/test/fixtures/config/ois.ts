@@ -71,7 +71,6 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
             name: ReservedParameterName.Times,
             default: '100000',
           },
-          { name: ReservedParameterName.RelayMetadata },
         ],
         parameters: [
           {

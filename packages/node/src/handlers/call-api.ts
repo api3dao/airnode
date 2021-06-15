@@ -33,8 +33,8 @@ function addMetadataParameters(
         _airnode_endpoint_id: aggregatedApiCall.endpointId,
         _airnode_requester_index: aggregatedApiCall.requesterIndex,
         _airnode_request_id: aggregatedApiCall.id,
-        _airnode_chain_type: aggregatedApiCall.chainId,
-        _airnode_chain_id: chain.type,
+        _airnode_chain_id: aggregatedApiCall.chainId,
+        _airnode_chain_type: chain.type,
         _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
       };
     default:
@@ -47,7 +47,7 @@ function buildSecuritySchemeSecrets(
   securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[]
 ): SecuritySchemeSecret[] {
   const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
-  const securitySchemes = securitySchemeNames.map((securitySchemeName) => {
+  const securitySchemeSecrets = securitySchemeNames.map((securitySchemeName) => {
     const securitySchemeEnvironmentConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
     let value = '';
     if (securitySchemeEnvironmentConfig) {
@@ -55,7 +55,7 @@ function buildSecuritySchemeSecrets(
     }
     return { securitySchemeName, value };
   });
-  return securitySchemes;
+  return securitySchemeSecrets;
 }
 
 function buildOptions(
