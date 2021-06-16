@@ -115,7 +115,7 @@ encodeValue(value: ValueType, type: ResponseType): string
 Extracts, casts, multiplies (if necessary) and encodes an arbitrary input in a single call as a convenience function.
 
 ```ts
-extractAndEncodeResponse(data: unknown, parameters: ResponseParameters): any
+extractAndEncodeResponse(data: unknown, parameters: ReservedParameters): any
 ```
 
 ## Conversion Behaviour

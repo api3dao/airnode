@@ -66,7 +66,7 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
         ],
         reservedParameters: [
           {
-            name: ReservedParameterName.Times,
+            name: ReservedParameterName.Type,
             fixed: 'int256',
           },
           {
@@ -76,6 +76,10 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
           {
             name: ReservedParameterName.Times,
             default: '100000',
+          },
+          {
+            name: ReservedParameterName.RelayMetadata,
+            default: 'v1',
           },
         ],
         parameters: [
