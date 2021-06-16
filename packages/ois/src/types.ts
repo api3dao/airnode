@@ -74,10 +74,17 @@ export interface FixedParameter {
   value: string;
 }
 
+export enum ReservedParameterName {
+  Path = '_path',
+  Times = '_times',
+  Type = '_type',
+  RelayMetadata = '_relay_metadata',
+}
+
 export interface ReservedParameter {
   default?: string;
   fixed?: string;
-  name: string;
+  name: ReservedParameterName;
 }
 
 export interface Endpoint {
@@ -105,13 +112,13 @@ export interface OIS {
 // ===========================================
 // Security
 // ===========================================
-export interface SecurityScheme {
+export interface SecuritySchemeSecret {
   securitySchemeName: string;
   value: string;
 }
 
 export interface ApiCredentials {
-  [key: string]: SecurityScheme[];
+  [key: string]: SecuritySchemeSecret[];
 }
 
 export interface SecuritySpecification {

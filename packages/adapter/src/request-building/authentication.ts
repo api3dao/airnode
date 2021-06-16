@@ -1,5 +1,5 @@
-import isEmpty from 'lodash/isEmpty';
 import { ApiSecurityScheme } from '@airnode/ois';
+import isEmpty from 'lodash/isEmpty';
 import { CachedBuildRequestOptions, Parameters } from '../types';
 
 interface Authentication {
@@ -74,9 +74,9 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     cookies: {},
   };
 
-  const { securitySchemes } = options;
+  const { securitySchemeSecrets } = options;
   // Security schemes originate from 'security.json' and contain all of the authentication details
-  if (!securitySchemes || isEmpty(securitySchemes)) {
+  if (!securitySchemeSecrets || isEmpty(securitySchemeSecrets)) {
     return initialParameters;
   }
 
@@ -86,17 +86,19 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     return initialParameters;
   }
 
-  const apiSchemeNames = Object.keys(apiSecuritySchemes);
+  const apiSecuritySchemeNames = Object.keys(apiSecuritySchemes);
 
-  return apiSchemeNames.reduce((authentication, schemeName) => {
-    const apiSecurityScheme = apiSecuritySchemes[schemeName];
+  return apiSecuritySchemeNames.reduce((authentication, apiSecuritySchemeName) => {
+    const apiSecurityScheme = apiSecuritySchemes[apiSecuritySchemeName];
 
     // If there are no credentials in `security.json`, ignore the scheme
-    const securityScheme = securitySchemes.find((scheme) => scheme.securitySchemeName === schemeName);
-    if (!securityScheme) {
+    const securitySchemeSecret = securitySchemeSecrets.find(
+      ({ securitySchemeName }) => securitySchemeName === apiSecuritySchemeName
+    );
+    if (!securitySchemeSecret) {
       return authentication;
     }
 
-    return addSchemeAuthentication(authentication, apiSecurityScheme, securityScheme.value);
+    return addSchemeAuthentication(authentication, apiSecurityScheme, securitySchemeSecret.value);
   }, initialParameters);
 }

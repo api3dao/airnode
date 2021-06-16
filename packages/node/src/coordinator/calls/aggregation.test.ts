@@ -23,6 +23,11 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
+        requesterIndex: '3',
+        providerId: 'providerId',
+        clientAddress: 'clientAddress',
+        designatedWallet: 'designatedWallet',
+        chainId: '1',
         endpointId: 'endpointId',
         endpointName: 'endpointName',
         id: 'apiCallId',
@@ -41,6 +46,11 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
+        requesterIndex: '3',
+        providerId: 'providerId',
+        clientAddress: 'clientAddress',
+        designatedWallet: 'designatedWallet',
+        chainId: '1',
         endpointId: 'endpointId',
         endpointName: 'endpointName',
         id: 'apiCallId',

@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import isUndefined from 'lodash/isUndefined';
 import * as casting from './casting';
 import * as encoding from './encoding';
-import { ResponseParameters } from '../types';
+import { ReservedParameters } from '../types';
 
 export function getRawValue(data: any, path?: string, defaultValue?: any) {
   // Some APIs return a simple value not in an object or array, like
@@ -35,7 +35,7 @@ export function extractValue(data: unknown, path?: string) {
   return rawValue;
 }
 
-export function extractAndEncodeResponse(data: unknown, parameters: ResponseParameters) {
+export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters) {
   const rawValue = extractValue(data, parameters._path);
   const value = casting.castValue(rawValue, parameters._type);
 

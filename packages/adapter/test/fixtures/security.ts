@@ -1,3 +1,5 @@
-import { SecurityScheme } from '@airnode/ois';
+import { SecuritySchemeSecret } from '@airnode/ois';
 
-export const securitySchemes: SecurityScheme[] = [{ securitySchemeName: 'myapiApiScheme', value: 'super-secret-key' }];
+export const securitySchemeSecrets: SecuritySchemeSecret[] = [
+  { securitySchemeName: 'myapiApiScheme', value: 'super-secret-key' },
+];
