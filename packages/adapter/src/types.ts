@@ -1,5 +1,5 @@
+import { Endpoint, Method, OIS, Operation, SecuritySchemeSecret } from '@api3/ois';
 import BigNumber from 'bignumber.js';
-import { Method, OIS, Operation, Endpoint, SecuritySchemeSecret } from '@api3/ois';
 
 export interface BuildRequestOptions {
   readonly ois: OIS;

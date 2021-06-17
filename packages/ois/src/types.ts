@@ -80,6 +80,7 @@ export enum ReservedParameterName {
   Type = '_type',
   RelayMetadata = '_relay_metadata',
 }
+
 export interface ReservedParameter {
   default?: string;
   fixed?: string;

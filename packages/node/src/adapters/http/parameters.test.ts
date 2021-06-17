@@ -51,7 +51,7 @@ describe('getResponseParameterValue', () => {
   });
 });
 
-describe('getResponseParameters', () => {
+describe('getReservedParameters', () => {
   let baseEndpoint: Endpoint;
 
   beforeEach(() => {
