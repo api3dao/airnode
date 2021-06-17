@@ -29,7 +29,7 @@
   "dependencies": {
     "@api3/airnode-abi": "^0.1.0",
     "@api3/protocol": "^0.1.0",
-    "ethers": "^5.3.1",
+    "ethers": "^5.1.4",
     "express": "^4.17.1",
     "hardhat": "^2.2.1",
     "morgan": "^1.10.0",

@@ -57,7 +57,7 @@
     "test:node:watch:debug": "(cd packages/node && yarn run test:watch:debug)"
   },
   "dependencies": {
-    "ethers": "^5.3.1",
+    "ethers": "^5.1.4",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
