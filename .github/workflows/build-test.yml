@@ -3,8 +3,8 @@ name: Continuous Build
 on:
   push:
   pull_request:
-    branches:
-    - master
+    branches: [master]
+    types: [opened, synchronize]
 
 jobs:
   documentation:
