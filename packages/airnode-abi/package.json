@@ -16,7 +16,7 @@
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
   "dependencies": {
-    "ethers": "^5.3.1",
+    "ethers": "^5.1.4",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
