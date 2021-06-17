@@ -6,7 +6,9 @@ export function execute(specs: any, template: any, currentPath: string[], roots:
     let targetPath;
 
     try {
-      targetPath = JSON.parse((action['__insert'] || action['__copy'])['__target'].replace(/'/g, '"')) as string[];
+      targetPath = JSON.parse(
+        (action['__insert'] || action['__copy'])['__target'].replace(/(?<!\\)[']/g, '"').replace(/\\'/g, "'")
+      ) as string[];
     } catch {
       continue;
     }
@@ -23,7 +25,11 @@ export function execute(specs: any, template: any, currentPath: string[], roots:
         break;
 
       case '__copy':
-        insertValue(replaceParamIndexWithName(targetPath, currentPath), roots, specs);
+        insertValue(
+          replacePathsWithValues(specs, roots.specs, replaceParamIndexWithName(targetPath, currentPath)),
+          roots,
+          specs
+        );
         break;
     }
   }
