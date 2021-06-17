@@ -25,6 +25,9 @@
     "test:extended": "EXTENDED_TEST=TRUE hardhat test",
     "test:gas": "REPORT_GAS=TRUE hardhat test"
   },
+  "dependencies": {
+    "ethers": "^5.3.1"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
@@ -39,8 +42,5 @@
     "solidity-coverage": "^0.7.16",
     "typechain": "^4.0.3",
     "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "ethers": "^5.1.4"
   }
 }
