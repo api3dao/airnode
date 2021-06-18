@@ -76,10 +76,7 @@ export async function deploy(
   }
 
   logger.debug('Deleting a temporary secrets.json file');
-  // TODO: Use fs.rmSync once moved to node 14+
-  // fs.rmSync(tmpDir, {recursive: true});
-  fs.unlinkSync(tmpSecretsFile);
-  fs.rmdirSync(tmpDir);
+  fs.rmSync(tmpDir, { recursive: true });
 
   logger.debug('Writing receipt.json file');
   fs.writeFileSync(receiptFile, JSON.stringify(receipts, null, 2));

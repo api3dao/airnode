@@ -1,5 +1,5 @@
 # Build preparation
-FROM node:12-alpine as buildPrep
+FROM node:14.17.1-alpine3.13 as buildPrep
 
 ARG yarnRegistry
 
@@ -32,7 +32,7 @@ ENV NODE_ENV production
 RUN yarn install --prod
 
 # Run image
-FROM node:12-alpine
+FROM node:14.17.1-alpine3.13
 
 ENV name="airnode-deployer" \
     terraformURL="https://releases.hashicorp.com/terraform/0.15.3/terraform_0.15.3_linux_amd64.zip" \
@@ -41,13 +41,13 @@ ENV name="airnode-deployer" \
     deployerDir="/app"
 
 LABEL application=${name} \
-      description="Arinode Deployer CLI"
+    description="Arinode Deployer CLI"
 
 COPY --from=buildBuild ${buildDeployerDir}/dist ${deployerDir}
 COPY --from=buildDependencies ${buildDeployerDir}/node_modules ${deployerDir}/node_modules
 COPY docker/entrypoint.sh /entrypoint.sh
 
-    # Install external dependencies
+# Install external dependencies
 RUN apk add --update --no-cache su-exec git && \
     # Download Terraform binary
     wget ${terraformURL} && \
