@@ -22,7 +22,7 @@ function validateConditionRegexInKey(
   templatePath: string,
   paramPathPrefix: string[]
 ): Log[] {
-  let messages: Log[] = [];
+  const messages: Log[] = [];
   const paramName = Object.keys(condition['__if'])[0];
   const paramValue = condition['__if'][paramName];
 
@@ -61,19 +61,22 @@ function validateConditionRegexInKey(
 
       if (result.messages.some((msg) => msg.level === 'error')) {
         // validateSpecs ended with errors => correct "then section" is not present in specs
-        messages.push(
+        let tmpMessages = [
           logger.error(
             `Condition in ${[...paramPathPrefix, ...paramPath, thisName].join('.')} is not met with ${param}`
-          )
-        );
-        messages = validateCatch(
+          ),
+        ];
+
+        tmpMessages = validateCatch(
           specs,
           utils.replaceConditionalMatch(param, condition),
-          messages,
+          tmpMessages,
           [...paramPath, thisName],
           paramPathPrefix,
           roots.specs
         );
+
+        messages.push(...tmpMessages);
       }
     }
   }
