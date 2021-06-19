@@ -1,20 +1,24 @@
-/*
 import * as validator from './validator';
 import {
-  conditionNotMetMessage,
   extraFieldMessage,
   formattingMessage,
   keyFormattingMessage,
   missingParamMessage,
-  requiredConditionNotMetMessage,
   sizeExceededMessage,
 } from './utils/messages';
 import fs from 'fs';
+import { getPath } from './commands/utils';
+import { error } from './utils/logger';
 
-const apiTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/apiSpecifications.json', 'utf8'));
-const endpointsTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/endpoints.json', 'utf8'));
-const oisTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/ois.json', 'utf8'));
-const configTemplate = JSON.parse(fs.readFileSync('templates/1.0.0/config.json', 'utf8'));
+const messages = [];
+
+const apiTemplate = JSON.parse(fs.readFileSync(getPath('apiSpecifications.json', messages), 'utf8'));
+const endpointsTemplate = JSON.parse(fs.readFileSync(getPath('endpoints.json', messages), 'utf8'));
+const oisTemplate = JSON.parse(fs.readFileSync(getPath('ois.json', messages), 'utf8'));
+
+describe('validator templates loaded', () => {
+  expect(messages).toStrictEqual([]);
+});
 
 const validAPISpecification = `{
 "servers": [
@@ -38,7 +42,7 @@ const validAPISpecification = `{
     }
   },
   "/myPath2": {
-    "get": {
+    "post": {
       "parameters": [
         {
           "name": "myParameter",
@@ -221,110 +225,6 @@ const invalidOISSpecification = `{
   "endpoints": ${invalidEndpointSpecification}
 }`;
 
-const validConfigSpecification = `
-{
-  "id": "abc123",
-  "ois": [ ${validOISSpecification} ],
-  "triggers": {
-    "request": [
-      {
-        "endpointId": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-        "oisTitle": "...",
-        "endpointName": "..."
-      }
-    ]
-  },
-  "nodeSettings": {
-    "providerIdShort": "9e5a89d",
-    "nodeVersion": "0.1.0",
-    "cloudProvider": "aws",
-    "region": "us-east-1",
-    "stage": "testnet",
-    "logFormat": "plain",
-    "chains": [
-      {
-        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-        "id": 1,
-        "type": "evm",
-        "providers": [
-          {
-            "name": "infura-mainnet",
-            "url": "https://mainnet.infura.io/v3/your_key",
-            "blockHistoryLimit": 600,
-            "minConfirmations": 6
-          }
-        ],
-        "contracts": {
-          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
-        }
-      },
-      {
-        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-        "id": 3,
-        "type": "evm",
-        "providers": [
-          {
-            "name": "infura-ropsten",
-            "url": "https://ropsten.infura.io/v3/your_key"
-          }
-        ],
-        "contracts": {
-          "Airnode": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
-        }
-      }
-    ]
-  }
-}
-`;
-
-const invalidConfigSpecification = `
-{
-  "id": "abc123",
-  "ois": [ ${invalidOISSpecification} ],
-  "triggers": {},
-  "nodeSettings": {
-    "providerIdShort": "9e5a89de",
-    "nodeVersion": "0.1.0",
-    "cloudProvider": ":aws",
-    "region": "us-east-1",
-    "stage": "testnet",
-    "logFormat": "jsonp",
-    "chains": [
-      {
-        "providerAdminForRecordCreation": "0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c",
-        "id": 1,
-        "type": "evm",
-        "providers": [
-          {
-            "name": "infura-mainnet",
-            "url": "https://mainnet.infura.io/v3/your_key",
-            "blockHistoryLimit": 600,
-            "minConfirmations": 6
-          }
-        ]
-      },
-      {
-        "providerAdminForRecordCreation": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-        "id": 3,
-        "type": "evm",
-        "providers": [
-          {
-            "name": "infura-ropsten",
-            "url": "https://ropsten.infura.io/v3/your_key"
-          }
-        ],
-        "contracts": {
-          "Airnod": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238",
-          "Convenience": "0x1Da10cDEc44538E1854791b8e71FA4Ef05b4b238"
-        }
-      }
-    ]
-  }
-}
-`;
-
 describe('validator', () => {
   describe('api specs', () => {
     it('valid specification', () => {
@@ -432,7 +332,7 @@ describe('validator', () => {
       const invalidUrlAPISpec = `{
         "servers": [
             {
-                "url":  "https:/myapi.com/api"
+                "url": "ftp:/#test"
             }
         ],
         "paths": {
@@ -462,13 +362,13 @@ describe('validator', () => {
       }`;
       expect(validator.validateJson(JSON.parse(invalidUrlAPISpec), apiTemplate)).toMatchObject({
         valid: true,
-        messages: [formattingMessage('servers[0].url')],
+        messages: [formattingMessage(['servers[0]', 'url'])],
       });
 
       const invalidFormattingAPISpec = `{
         "servers": [
             {
-                "url":  "https://myapi.com/api "
+                "url":  "https://myapi.com/api"
             }
         ],
         "paths": {
@@ -499,13 +399,12 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(invalidFormattingAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
-          formattingMessage('servers[0].url'),
-          keyFormattingMessage('myPath', 'paths.myPath'),
-          keyFormattingMessage('get ', 'paths.myPath.get '),
-          formattingMessage('paths.myPath.get .parameters[0].in'),
-          keyFormattingMessage('mySecurityScheme ', 'components.securitySchemes.mySecurityScheme '),
-          formattingMessage('components.securitySchemes.mySecurityScheme .in'),
-          keyFormattingMessage('mySecurityScheme ', 'security.mySecurityScheme '),
+          keyFormattingMessage('myPath', ['paths', 'myPath']),
+          error('paths.myPath.get : allowed methods are only "get" or "post" not "get "'),
+          error("Allowed values in paths.myPath.get .parameters[0].in are: 'path', 'query', 'header' or 'cookie'"),
+          keyFormattingMessage('mySecurityScheme ', ['components', 'securitySchemes', 'mySecurityScheme ']),
+          error('components.securitySchemes.mySecurityScheme .in: Allowed values are "query", "header" or "cookie"'),
+          keyFormattingMessage('mySecurityScheme ', ['security', 'mySecurityScheme ']),
         ],
       });
     });
@@ -565,7 +464,7 @@ describe('validator', () => {
               "mySecurityScheme2": {
                 "type": "http",
                 "in": "header",
-                "scheme": "Basic"
+                "scheme": "basic"
               }
             }
         },
@@ -647,34 +546,7 @@ describe('validator', () => {
       }`;
       expect(validator.validateJson(JSON.parse(exceededArraySizeAPISpec), apiTemplate)).toMatchObject({
         valid: false,
-        messages: [sizeExceededMessage('servers', 1)],
-      });
-    });
-
-    it('JSON validity test', () => {
-      const smallValidAPISpec = `{
-        "servers": [],
-        "paths": {},
-        "components": {
-            "securitySchemes": {}
-        },
-        "security": {}
-      }`;
-      expect(validator.validateJson(JSON.parse(smallValidAPISpec), apiTemplate)).toMatchObject({
-        valid: true,
-        messages: [],
-      });
-
-      const invalidJSONAPISpec = `{
-        "servers": [],
-        "paths": {},
-        "components": {
-            "securitySchemes": {}
-        },
-        "security": {}`;
-      expect(validator.validateJson(JSON.parse(invalidJSONAPISpec), apiTemplate)).toMatchObject({
-        valid: false,
-        messages: [{ level: 'error', message: 'SyntaxError: Unexpected end of JSON input' }],
+        messages: [sizeExceededMessage(['servers'], 1)],
       });
     });
 
@@ -695,12 +567,14 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(missingParametersAPISpec1), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
-          missingParamMessage('servers'),
-          missingParamMessage('paths./myPath.post.parameters'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
-          missingParamMessage('security.mySecurityScheme'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.in'),
-          missingParamMessage('security'),
+          missingParamMessage(['servers']),
+          missingParamMessage(['paths', '/myPath', 'post', 'parameters']),
+          error(
+            'Expected security scheme "mySecurityScheme" from components.securitySchemes.mySecurityScheme to be present in security'
+          ),
+          missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'type']),
+          missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'in']),
+          missingParamMessage(['security']),
         ],
       });
 
@@ -753,12 +627,12 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(missingParametersAPISpec2), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
-          missingParamMessage('paths./myPath.get.parameters[0].name'),
-          missingParamMessage('paths./myPath.get.parameters[0].in'),
-          missingParamMessage('paths./myPath2.post.parameters[0].name'),
-          missingParamMessage('paths./myPath2.post.parameters[2].in'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.type'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme.in'),
+          missingParamMessage(['paths', '/myPath', 'get', 'parameters[0]', 'name']),
+          missingParamMessage(['paths', '/myPath', 'get', 'parameters[0]', 'in']),
+          missingParamMessage(['paths', '/myPath2', 'post', 'parameters[0]', 'name']),
+          missingParamMessage(['paths', '/myPath2', 'post', 'parameters[2]', 'in']),
+          missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'type']),
+          missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'in']),
         ],
       });
 
@@ -766,10 +640,10 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(emptyJSON), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
-          missingParamMessage('servers'),
-          missingParamMessage('paths'),
-          missingParamMessage('components'),
-          missingParamMessage('security'),
+          missingParamMessage(['servers']),
+          missingParamMessage(['paths']),
+          missingParamMessage(['components']),
+          missingParamMessage(['security']),
         ],
       });
     });
@@ -822,17 +696,17 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(extraFieldsAPISpec), apiTemplate)).toMatchObject({
         valid: true,
         messages: [
-          extraFieldMessage('extra'),
-          extraFieldMessage('servers[0].extra'),
-          extraFieldMessage('paths./myPath.get.parameters[0].extra'),
-          extraFieldMessage('paths./myPath.get.others'),
-          extraFieldMessage('components.securitySchemes.mySecurityScheme.extra'),
-          extraFieldMessage('components.extra'),
+          extraFieldMessage(['extra']),
+          extraFieldMessage(['servers[0]', 'extra']),
+          extraFieldMessage(['paths', '/myPath', 'get', 'parameters[0]', 'extra']),
+          extraFieldMessage(['paths', '/myPath', 'get', 'others']),
+          extraFieldMessage(['components', 'securitySchemes', 'mySecurityScheme', 'extra']),
+          extraFieldMessage(['components', 'extra']),
         ],
       });
     });
 
-    it('conditions (if, then, require) test', () => {
+    it('conditions test', () => {
       const invalidSecuritySchemesAPISpec = `{
         "servers": [
             {
@@ -873,12 +747,19 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(invalidSecuritySchemesAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
-          formattingMessage('components.securitySchemes.mySecurityScheme.type', true),
-          missingParamMessage('components.securitySchemes.mySecurityScheme2.name'),
-          missingParamMessage('components.securitySchemes.mySecurityScheme3.name'),
-          formattingMessage('components.securitySchemes.mySecurityScheme4.scheme', true),
-          missingParamMessage('components.securitySchemes.mySecurityScheme5'),
-          extraFieldMessage('components.securitySchemes.mySecurityScheme3.scheme'),
+          error('components.securitySchemes.mySecurityScheme.type: Allowed values are "apiKey" or "http"'),
+          error(
+            'components.securitySchemes.mySecurityScheme2.type must contain "name" since value of "type" is "apiKey"'
+          ),
+          error(
+            'components.securitySchemes.mySecurityScheme3.type must contain "name" since value of "type" is "apiKey"'
+          ),
+          extraFieldMessage(['components', 'securitySchemes', 'mySecurityScheme3', 'scheme']),
+          formattingMessage(['components', 'securitySchemes', 'mySecurityScheme3', 'scheme'], true),
+          formattingMessage(['components', 'securitySchemes', 'mySecurityScheme4', 'scheme'], true),
+          error(
+            'Expected security scheme "mySecurityScheme5" from security.mySecurityScheme5 to be present in components.securitySchemes'
+          ),
         ],
       });
 
@@ -969,10 +850,16 @@ describe('validator', () => {
       expect(validator.validateJson(JSON.parse(invalidPathsAPISpec), apiTemplate)).toMatchObject({
         valid: false,
         messages: [
-          conditionNotMetMessage('paths./{myParam}', 'myParam'),
-          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}/subPath', 'myParam2'),
-          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam'),
-          conditionNotMetMessage('paths./{myParam}/myPath/{myParam2}', 'myParam2'),
+          error('Parameter myParam from paths./{myParam} must be in parameters of path /{myParam}'),
+          error(
+            'Parameter myParam2 from paths./{myParam}/myPath/{myParam2}/subPath must be in parameters of path /{myParam}/myPath/{myParam2}/subPath'
+          ),
+          error(
+            'Parameter myParam from paths./{myParam}/myPath/{myParam2} must be in parameters of path /{myParam}/myPath/{myParam2}'
+          ),
+          error(
+            'Parameter myParam2 from paths./{myParam}/myPath/{myParam2} must be in parameters of path /{myParam}/myPath/{myParam2}'
+          ),
         ],
       });
     });
@@ -1029,9 +916,7 @@ describe('validator', () => {
             "default": "",
             "description": "",
             "required": "",
-            "example": "",
-            "summary": "",
-            "externalDocs": ""
+            "example": ""
           },
           {
             "name": "correct",
@@ -1057,72 +942,48 @@ describe('validator', () => {
     expect(validator.validateJson(JSON.parse(invalidEndpointSpec), endpointsTemplate)).toMatchObject({
       valid: false,
       messages: [
-        missingParamMessage('[0].operation.path'),
-        formattingMessage('[0].operation.method'),
-        formattingMessage('[0].reservedParameters[0].name'),
-        formattingMessage('[0].parameters[0].name'),
-        missingParamMessage('[0].parameters[0].operationParameter'),
-        missingParamMessage('[1].name'),
-        missingParamMessage('[1].operation'),
-        missingParamMessage('[1].fixedOperationParameters[0].operationParameter.name'),
-        formattingMessage('[1].fixedOperationParameters[0].operationParameter.in'),
-        missingParamMessage('[1].reservedParameters'),
-        missingParamMessage('[1].parameters'),
-        extraFieldMessage('[1].extra'),
+        missingParamMessage(['[0]', 'operation', 'path']),
+        error('[0].operation.method can be either "get" or "post"'),
+        error('[0].reservedParameters[0].name: Reserved parameter can be only "_type", "_path" or "_times"'),
+        formattingMessage(['[0]', 'parameters[0]', 'name']),
+        missingParamMessage(['[0]', 'parameters[0]', 'operationParameter']),
+        missingParamMessage(['[1]', 'name']),
+        missingParamMessage(['[1]', 'operation']),
+        missingParamMessage(['[1]', 'fixedOperationParameters[0]', 'operationParameter', 'name']),
+        error(
+          "Allowed values in [1].fixedOperationParameters[0].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
+        ),
+        missingParamMessage(['[1]', 'reservedParameters']),
+        missingParamMessage(['[1]', 'parameters']),
+        extraFieldMessage(['[1]', 'extra']),
       ],
     });
   });
 
   it('ois specs', () => {
-    expect(validator.validateJson(JSON.parse(validOISSpecification), oisTemplate, 'templates/')).toMatchObject({
+    expect(validator.validateJson(JSON.parse(validOISSpecification), oisTemplate, 'templates/1.0.0/')).toMatchObject({
       valid: true,
       messages: [],
     });
 
-    expect(validator.validateJson(JSON.parse(invalidOISSpecification), oisTemplate, 'templates/')).toMatchObject({
+    expect(validator.validateJson(JSON.parse(invalidOISSpecification), oisTemplate, 'templates/1.0.0/')).toMatchObject({
       valid: false,
       messages: [
-        formattingMessage('oisFormat'),
-        formattingMessage('version'),
-        conditionNotMetMessage('apiSpecifications.paths./myPath2', '/myPath2'),
-        requiredConditionNotMetMessage('endpoints'),
-        requiredConditionNotMetMessage('endpoints'),
-        missingParamMessage('endpoints[0].fixedOperationParameters'),
-        missingParamMessage('endpoints[1].reservedParameters'),
-        missingParamMessage('apiSpecifications.paths./notMyPath'),
-        missingParamMessage('apiSpecifications.paths./notMyPath'),
-      ],
-    });
-  });
-
-  it('config & security specs', () => {
-    expect(validator.validateJson(JSON.parse(validConfigSpecification), configTemplate, 'templates/')).toMatchObject({
-      valid: true,
-      messages: [],
-    });
-
-    expect(validator.validateJson(JSON.parse(invalidConfigSpecification), configTemplate, 'templates/')).toMatchObject({
-      valid: false,
-      messages: [
-        formattingMessage('config.ois[0].oisFormat'),
-        formattingMessage('config.ois[0].version'),
-        conditionNotMetMessage('config.ois[0].apiSpecifications.paths./myPath2', '/myPath2'),
-        requiredConditionNotMetMessage('config.ois[0].endpoints'),
-        requiredConditionNotMetMessage('config.ois[0].endpoints'),
-        missingParamMessage('config.ois[0].endpoints[0].fixedOperationParameters'),
-        missingParamMessage('config.ois[0].endpoints[1].reservedParameters'),
-        missingParamMessage('config.ois[0].apiSpecifications.paths./notMyPath'),
-        missingParamMessage('config.ois[0].apiSpecifications.paths./notMyPath'),
-        formattingMessage('config.nodeSettings.providerIdShort'),
-        formattingMessage('config.nodeSettings.cloudProvider'),
-        formattingMessage('config.nodeSettings.logFormat'),
-        missingParamMessage('config.nodeSettings.chains[0].contracts'),
-        formattingMessage('config.nodeSettings.chains[0].providerAdminForRecordCreation'),
-        missingParamMessage('config.nodeSettings.chains[1].contracts.Airnode'),
-        formattingMessage('security.id', true),
-        extraFieldMessage('config.nodeSettings.chains[1].contracts.Airnod'),
+        formattingMessage(['oisFormat']),
+        formattingMessage(['version']),
+        error('Path "/myPath2" from apiSpecifications.paths./myPath2 must be included in endpoints array'),
+        error('Parameter "myParameter2" from "apiSpecifications.paths./myPath.get" must be included in "endpoints"'),
+        error('Parameter "myParameter" from "apiSpecifications.paths./myPath2.get" must be included in "endpoints"'),
+        missingParamMessage(['endpoints', '[0]', 'fixedOperationParameters']),
+        missingParamMessage(['endpoints', '[1]', 'reservedParameters']),
+        missingParamMessage(['endpoints[0]', 'fixedOperationParameters']),
+        error(
+          'Expected "apiSpecifications.paths./notMyPath.post" to exist as path "/notMyPath" with method "post" is defined in endpoints[1].operation.path'
+        ),
+        error(
+          'Properties of parameter "myParameter" from endpoints[1].parameters[0], must match it\'s properties in apiSpecifications.paths'
+        ),
       ],
     });
   });
 });
-*/
