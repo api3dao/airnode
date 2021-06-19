@@ -98,25 +98,47 @@
           },
           {
             "__if": {
-              "name": ".*"
+              "type": "^http$"
             },
             "__then": {
-              "type": {
-                "__regexp": "^apiKey$"
-              }
+              "scheme": {}
+            },
+            "__catch": {
+              "__message": "__fullPath must contain \"scheme\" since value of \"type\" is \"http\""
             }
           },
           {
             "__if": {
-              "type": "^http$"
+              "scheme": ".*"
             },
             "__then": {
-              "scheme": {
-                "__regexp": "^(basic|bearer)$",
+              "type": {
+                "__regexp": "^http$",
                 "__catch": {
-                  "__message": "__fullPath: Allowed values are \"basic\" or \"bearer\""
+                  "__level": "error"
                 }
               }
+            },
+            "__catch": {
+              "__level": "warning",
+              "__message": "Extra field: __fullPath"
+            }
+          },
+          {
+            "__if": {
+              "name": ".*"
+            },
+            "__then": {
+              "type": {
+                "__regexp": "^apiKey$",
+                "__catch": {
+                  "__level": "error"
+                }
+              }
+            },
+            "__catch": {
+              "__level": "warning",
+              "__message": "Extra field: __fullPath"
             }
           }
         ],
@@ -127,7 +149,13 @@
           }
         },
         "__optional": {
-          "name": {}
+          "name": {},
+          "scheme": {
+            "__regexp": "^(basic|bearer)$",
+            "__catch": {
+              "__level": "error"
+            }
+          }
         }
       }
     }
