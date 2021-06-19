@@ -183,7 +183,7 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
  */
 export function insertValue(paramPath: string[], roots: Roots, value: any) {
   if (!paramPath.length) {
-    roots.output = value;
+    roots.output = JSON.parse(JSON.stringify(value));
     return;
   }
 
