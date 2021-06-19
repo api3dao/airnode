@@ -147,7 +147,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
       return [...acc, ...warnExtraFields(nonRedundant[key], specs[key], [...paramPath, key])];
     }
 
-    return [...acc, logger.warn(`Extra field: ${paramPath.join('.')}.${key}`)];
+    return [...acc, logger.warn(`Extra field: ${[...paramPath, key].join('.')}`)];
   }, []);
 }
 
