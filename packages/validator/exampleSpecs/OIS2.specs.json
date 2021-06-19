@@ -110,7 +110,8 @@
 					"name": "_times"
 				}
 			],
-			"fixedOperationParameters": []
+			"fixedOperationParameters": [],
+			"parameters": []
 		},
 		{
 			"name": "/simple/price",
