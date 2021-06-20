@@ -48,7 +48,7 @@ Validator behavior can be configured with validator templates, which are regular
 - [any](docs/any.md)
 - [dynamic values and keys](docs/dynamic_params.md)
 - [optional parameters](docs/optional.md)
-
+- [nested templates](docs/template.md)
 
 # `@airnode/convertor`
 
