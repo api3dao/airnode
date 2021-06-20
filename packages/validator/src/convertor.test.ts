@@ -3,55 +3,54 @@ import { formattingMessage, missingParamMessage } from './utils/messages';
 import fs from 'fs';
 
 const generatedOIS = JSON.parse(fs.readFileSync('exampleSpecs/OIS2.specs.json').toString());
-const generatedCS = {
-  config: {
+const generatedConfig = [
+  {
+    chains: [],
+    environment: {
+      chainProviders: [],
+      securitySchemes: [
+        {
+          envName: 'ss_CoinGecko API V3_api_key',
+          name: 'api_key',
+          oisTitle: 'CoinGecko API V3',
+        },
+      ],
+    },
     id: '{FILL}',
     nodeSettings: {
-      providerIdShort: '{FILL}',
-      nodeVersion: '{FILL}',
-      cloudProvider: '{FILL}',
-      stage: '{FILL}',
-      region: '{FILL}',
+      cloudProvider: 'aws',
       logFormat: '{FILL}',
-      chains: [],
-      triggers: {
-        request: [
-          {
-            endpointName: '/ping',
-            oisTitle: 'CoinGecko API V3',
-            endpointId: '{FILL}',
-          },
-          {
-            endpointName: '/simple/price',
-            oisTitle: 'CoinGecko API V3',
-            endpointId: '{FILL}',
-          },
-          {
-            endpointName: '/simple/token_price/{id}',
-            oisTitle: 'CoinGecko API V3',
-            endpointId: '{FILL}',
-          },
-        ],
-      },
-      ois: [generatedOIS],
+      logLevel: '{FILL}',
+      nodeVersion: '{FILL}',
+      region: '{FILL}',
+      stage: '{FILL}',
     },
-  },
-  security: {
-    id: '{FILL}',
-    apiCredentials: {
-      'CoinGecko API V3': [
+    ois: [generatedOIS],
+    triggers: {
+      request: [
         {
-          securitySchemeName: 'api_key',
-          value: '{FILL}',
+          endpointId: '{FILL}',
+          endpointName: '/ping',
+          oisTitle: 'CoinGecko API V3',
+        },
+        {
+          endpointId: '{FILL}',
+          endpointName: '/simple/price',
+          oisTitle: 'CoinGecko API V3',
+        },
+        {
+          endpointId: '{FILL}',
+          endpointName: '/simple/token_price/{id}',
+          oisTitle: 'CoinGecko API V3',
         },
       ],
     },
   },
-};
+];
 
 describe('convertor', () => {
   it('OAS2OIS', () => {
-    expect(convert('exampleSpecs/OAS.specs.json', 'templates/OAS2OIS.json')).toEqual({
+    expect(convert('exampleSpecs/OAS.specs.json', 'templates/3.0.0/OAS2OIS.json')).toStrictEqual({
       valid: false,
       messages: [
         formattingMessage(['components', 'securitySchemes', 'petstore_auth', 'type']),
@@ -62,10 +61,10 @@ describe('convertor', () => {
   });
 
   it('OIS2C&S', () => {
-    expect(convert('exampleSpecs/OIS2.specs.json', 'templates/OIS2C&S.json')).toEqual({
+    expect(convert('exampleSpecs/OIS2.specs.json', 'templates/1.0.0/OIS2Config.json')).toStrictEqual({
       valid: true,
       messages: [],
-      output: generatedCS,
+      output: generatedConfig,
     });
   });
 });
