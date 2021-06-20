@@ -4,9 +4,9 @@ const fs = require('fs');
 
 export const templateVersions = fs
   .readdirSync('templates', { withFileTypes: true })
-  .filter((dirent) => dirent.isDirectory())
-  .map((dirent) => dirent.name)
-  .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+  .filter((dirent: { isDirectory: () => any }) => dirent.isDirectory())
+  .map((dirent: { name: any }) => dirent.name)
+  .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
 
 /**
  * Finds path to latest version of template

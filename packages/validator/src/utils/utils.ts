@@ -147,7 +147,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
     return messages;
   }
 
-  return Object.keys(specs).reduce((acc, key) => {
+  return Object.keys(specs).reduce((acc: Log[], key) => {
     if (nonRedundant['__noCheck']) {
       return acc;
     }
@@ -291,7 +291,7 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
  * @param insertPath - won't return null if paramPath is not in the specs, but insert all missing parameters into specs
  * @returns object located on paramPath in specs or null if object does not exists in specs
  */
-export function getSpecsFromPath(paramPath: string[], specs: object, insertPath = false) {
+export function getSpecsFromPath(paramPath: string[], specs: { [k: string]: any }, insertPath = false): any {
   let paramName = paramPath[0];
 
   const indexMatches = paramName.match(/(?<=\[)[0-9]+(?=\])/);

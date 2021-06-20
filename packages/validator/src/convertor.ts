@@ -17,7 +17,7 @@ export function convert(specsPath: string | undefined, templatePath: string | un
   let template, specs;
 
   try {
-    template = fs.readFileSync(templatePath);
+    template = fs.readFileSync(templatePath, 'utf-8');
   } catch (e) {
     return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)], output: {} };
   }
@@ -29,7 +29,7 @@ export function convert(specsPath: string | undefined, templatePath: string | un
   }
 
   try {
-    specs = fs.readFileSync(specsPath);
+    specs = fs.readFileSync(specsPath, 'utf-8');
   } catch (e) {
     return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
   }

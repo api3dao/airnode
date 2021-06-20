@@ -3,8 +3,8 @@ import * as utils from './utils';
 import { Log } from '../types';
 
 const templates = {
-  apiSpecifications: 'apiSpecifications.json',
-  apiSpecs: 'apiSpecifications.json',
+  apispecifications: 'apiSpecifications.json',
+  apispecs: 'apiSpecifications.json',
   config: 'config.json',
   endpoints: 'endpoints.json',
   ois: 'ois.json',
@@ -16,8 +16,8 @@ const version = process.env.npm_config_templateVersion || process.argv[4];
 
 const messages: Log[] = [];
 
-if (templates[template.toLowerCase()]) {
-  template = utils.getPath(templates[template.toLowerCase()], messages, version);
+if (templates[template.toLowerCase() as keyof typeof templates]) {
+  template = utils.getPath(templates[template.toLowerCase() as keyof typeof templates], messages, version);
 } else if (version) {
   messages.push({
     level: 'warning',

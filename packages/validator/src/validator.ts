@@ -17,7 +17,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   let template, specs;
 
   try {
-    template = fs.readFileSync(templatePath);
+    template = fs.readFileSync(templatePath, 'utf-8');
   } catch (e) {
     return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
   }
@@ -29,7 +29,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   }
 
   try {
-    specs = fs.readFileSync(specsPath);
+    specs = fs.readFileSync(specsPath, 'utf-8');
   } catch (e) {
     return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
   }
@@ -53,7 +53,7 @@ export function validate(specsPath: string | undefined, templatePath: string | u
  * @returns array of error and warning messages
  */
 export function validateJson(specs: object, template: object, templatePath = ''): Result {
-  const nonRedundant = template['__arrayItem'] ? [] : {};
+  const nonRedundant = template['__arrayItem' as keyof typeof template] ? [] : {};
 
   return processSpecs(
     specs,

@@ -24,7 +24,7 @@ It houses the following packages:
 
 [**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement Airnode RRP (request–response protocol)
 
-**validator**: A package that can be used to validate [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) and [security.json](https://github.com/api3dao/api3-docs/blob/master/airnode/security-json.md) files
+[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/validator) A package that can be used to validate [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) and [security.json](https://github.com/api3dao/api3-docs/blob/master/airnode/security-json.md) files
 
 ## Instructions
 

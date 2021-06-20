@@ -9,8 +9,9 @@ import {
 import fs from 'fs';
 import { getPath } from './commands/utils';
 import { error } from './utils/logger';
+import { Log } from './types';
 
-const messages = [];
+const messages: Log[] = [];
 
 const apiTemplate = JSON.parse(fs.readFileSync(getPath('apiSpecifications.json', messages), 'utf8'));
 const endpointsTemplate = JSON.parse(fs.readFileSync(getPath('endpoints.json', messages), 'utf8'));
