@@ -1,23 +1,23 @@
 import orderBy from 'lodash/orderBy';
 import fs from 'fs';
 import { ethers } from 'ethers';
-import { Airnode } from '../../../src/evm/contracts';
-import { ChainConfig } from '../../../src/types';
+import { AirnodeLogDescription, ChainConfig } from '../../../src/types';
+import { parseAirnodeRrpLog } from '../../../src/evm/requests/event-logs';
 
 export interface Contracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
   return {
-    providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
-      Airnode: contracts.Airnode,
+      AirnodeRrp: contracts.AirnodeRrp,
     },
     authorizers: [ethers.constants.AddressZero],
-    id: 31337,
+    id: '31337',
     type: 'evm',
-    providers: [{ name: 'evm-local', url: 'http://127.0.0.1:8545/' }],
+    providerNames: ['EVM local'],
   };
 }
 
@@ -25,17 +25,21 @@ export function buildProvider() {
   return new ethers.providers.StaticJsonRpcProvider('http://127.0.0.1:8545/');
 }
 
-export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, address: string) {
-  const airnodeInterface = new ethers.utils.Interface(Airnode.ABI);
+export async function fetchAllLogs(
+  provider: ethers.providers.JsonRpcProvider,
+  address: string
+  // NOTE: The return type could be typed better (e.g. unknown instead of any)
+  // but doing so would make the tests less readable.
+): Promise<AirnodeLogDescription<any>[]> {
   const filter: ethers.providers.Filter = {
     fromBlock: 0,
     address,
   };
   const rawLogs = await provider.getLogs(filter);
-  return rawLogs.map((log) => airnodeInterface.parseLog(log));
+  return rawLogs.map((log) => parseAirnodeRrpLog(log));
 }
 
-// We want to use a separate account each time we deploy Airnode. These accounts
+// We want to use a separate account each time we deploy RRP. These accounts
 // are assigned based on the feature file's index in the folder.
 export function getDeployerIndex(fullFilePath: string) {
   const features = orderBy(

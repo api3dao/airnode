@@ -2,11 +2,21 @@
 /dist
 /.serverless
 /.build
+/.webpack
 
 # Test files
 coverage/
 
 # Config files
-config.json
-security.json
-secrets.json
+*config.json
+*secrets.env
+*secrets.json
+*receipt.json
+
+# Packed package
+*.tgz
+
+# Terraform
+.terraform*
+terraform.tfstate*
+*.tfvars

@@ -1,5 +1,6 @@
-import { OIS } from '@airnode/ois';
+import { OIS } from '@api3/ois';
 import { ethers } from 'ethers';
+import { AirnodeRrp, TypedEventFilter } from '@api3/protocol';
 
 // ===========================================
 // State
@@ -18,11 +19,11 @@ export enum RequestErrorCode {
   AuthorizationNotFound = 7,
   Unauthorized = 8,
   PendingWithdrawal = 9,
-  UnknownOIS = 10,
-  UnknownEndpoint = 11,
+  UnknownEndpointId = 10,
+  UnknownOIS = 11,
   NoMatchingAggregatedCall = 12,
   ApiCallFailed = 13,
-  ResponseParametersInvalid = 14,
+  ReservedParametersInvalid = 14,
   ResponseValueNotFound = 15,
   ResponseValueNotCastable = 16,
   FulfillTransactionFailed = 17,
@@ -49,25 +50,28 @@ export interface RequestMetadata {
 }
 
 export type ClientRequest<T extends {}> = T & {
-  readonly designatedWallet: string | null;
+  readonly designatedWallet: string;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly requesterIndex: string | null;
+  readonly requesterIndex: string;
   readonly status: RequestStatus;
 };
 
 export type ApiCallType = 'regular' | 'full';
 
+// TODO: refactor these types such that there is user facing "ApiCall" which will get merged with
+// template and internal type that is the result of those two being merged.
 export interface ApiCall {
+  readonly airnodeId: string | null;
+  readonly chainId: string;
   readonly clientAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string | null;
-  readonly fulfillAddress: string | null;
-  readonly fulfillFunctionId: string | null;
+  readonly fulfillAddress: string;
+  readonly fulfillFunctionId: string;
   readonly parameters: ApiCallParameters;
-  readonly providerId: string | null;
   readonly requestCount: string;
   readonly responseValue?: string;
   readonly templateId: string | null;
@@ -75,15 +79,15 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
+  readonly airnodeId: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
   readonly id: string;
-  readonly providerId: string;
 }
 
 export interface Withdrawal {
+  readonly airnodeId: string;
   readonly destinationAddress: string;
-  readonly providerId: string;
   readonly requesterIndex: string;
 }
 
@@ -93,14 +97,14 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
+  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
-  readonly chainId: number;
+  readonly chainId: string;
   readonly chainType: ChainType;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly minConfirmations: number;
   readonly name: string;
-  readonly providerAdmin: string;
   readonly url: string;
   readonly xpub: string;
 }
@@ -119,9 +123,10 @@ export interface AggregatedApiCallsById {
 }
 
 export interface CoordinatorSettings {
-  readonly providerId: string;
-  readonly providerIdShort: string;
+  readonly airnodeId: string;
+  readonly airnodeIdShort: string;
   readonly logFormat: LogFormat;
+  readonly logLevel: LogLevel;
   readonly region: string;
   readonly stage: string;
 }
@@ -138,7 +143,7 @@ export interface CoordinatorState {
 // EVM specific
 // ===========================================
 export interface EVMContracts {
-  readonly Airnode: string;
+  readonly AirnodeRrp: string;
 }
 
 export interface EVMProviderState {
@@ -161,8 +166,6 @@ export interface AuthorizationByRequestId {
   readonly [requestId: string]: boolean;
 }
 
-export type AggregatedApiCallType = 'request' | 'flux' | 'aggregator';
-
 export interface ApiCallResponse {
   readonly value?: string;
   readonly errorCode?: RequestErrorCode;
@@ -170,11 +173,15 @@ export interface ApiCallResponse {
 
 export interface AggregatedApiCall {
   readonly id: string;
+  readonly requesterIndex: string;
+  readonly airnodeId: string;
+  readonly clientAddress: string;
+  readonly designatedWallet: string;
+  readonly chainId: string;
   readonly endpointId: string;
   readonly endpointName?: string;
   readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
-  readonly type: AggregatedApiCallType;
   readonly errorCode?: RequestErrorCode;
   readonly responseValue?: string;
 }
@@ -184,7 +191,7 @@ export interface AggregatedApiCall {
 // ===========================================
 export interface WorkerOptions {
   cloudProvider: NodeCloudProvider;
-  providerIdShort: string;
+  airnodeIdShort: string;
   region: string;
   stage: string;
 }
@@ -205,13 +212,60 @@ export interface WorkerResponse {
 // ===========================================
 // Events
 // ===========================================
-export interface EVMEventLogWithMetadata {
+interface EVMEventLogMetadata {
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
-  readonly parsedLog: ethers.utils.LogDescription;
   readonly transactionHash: string;
 }
+
+// Maybe there will be less hacky way to obtain this in the future.
+// See: https://github.com/ethereum-ts/TypeChain/issues/376
+// NOTE: I am also ignoring the typed tupple and only extracting the typed event object.
+type ExtractTypedEvent<T> = T extends TypedEventFilter<any, infer EventArgsObject> ? EventArgsObject : never;
+// NOTE: Picking only the events used by node code
+export type AirnodeRrpFilters = Pick<
+  InstanceType<typeof AirnodeRrp>['filters'],
+  | 'ClientRequestCreated'
+  | 'ClientFullRequestCreated'
+  | 'ClientRequestFulfilled'
+  | 'ClientRequestFailed'
+  | 'WithdrawalRequested'
+  | 'WithdrawalFulfilled'
+>;
+export type AirnodeRrpLog<T extends keyof AirnodeRrpFilters> = ExtractTypedEvent<ReturnType<AirnodeRrpFilters[T]>>;
+
+export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { args: T };
+
+export interface EVMFullApiRequestCreatedLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientFullRequestCreated'>>;
+}
+
+export interface EVMTemplateRequestCreatedLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientRequestCreated'>>;
+}
+
+export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequestCreatedLog;
+
+export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
+  parsedLog:
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+}
+
+export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalRequested'>>;
+}
+
+export interface EVMWithdrawalFulfilledLog extends EVMEventLogMetadata {
+  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalFulfilled'>>;
+}
+
+export type EVMEventLog =
+  | EVMRequestCreatedLog
+  | EVMRequestFulfilledLog
+  | EVMWithdrawalRequestLog
+  | EVMWithdrawalFulfilledLog;
 
 // ===========================================
 // Transactions
@@ -244,7 +298,7 @@ export type LogFormat = 'json' | 'plain';
 
 export interface LogMetadata {
   readonly coordinatorId?: string;
-  readonly chainId?: number;
+  readonly chainId?: string;
   readonly chainType?: ChainType;
   readonly providerName?: string;
 }
@@ -253,6 +307,7 @@ export interface LogOptions {
   readonly additional?: any;
   readonly error?: Error | null;
   readonly format: LogFormat;
+  readonly level: LogLevel;
   readonly meta: LogMetadata;
 }
 
@@ -281,41 +336,56 @@ export type LogsErrorData<T> = [PendingLog[], Error | null, T];
 export type ChainType = 'evm'; // Add other blockchain types here;
 
 export interface ChainContracts {
-  readonly Airnode: string;
-}
-
-export interface ChainProvider {
-  readonly name: string;
-  readonly url: string;
+  readonly AirnodeRrp: string;
 }
 
 export interface ChainConfig {
+  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
-  readonly id: number;
+  readonly id: string;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerAdmin: string;
-  readonly providers: ChainProvider[];
+  readonly providerNames: string[];
   readonly type: ChainType;
 }
 
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
-  readonly chains: ChainConfig[];
+  readonly airnodeIdShort?: string;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
+  readonly logLevel: LogLevel;
   readonly nodeVersion: string;
-  readonly providerIdShort?: string;
   readonly region: string;
   readonly stage: string;
 }
 
+export interface SecuritySchemeEnvironmentConfig {
+  readonly oisTitle: string;
+  readonly name: string;
+  readonly envName: string;
+}
+
+export interface ChainProviderEnvironmentConfig {
+  readonly chainType: ChainType;
+  readonly chainId: string;
+  readonly name: string;
+  readonly envName: string;
+}
+
+export interface EnvironmentConfig {
+  readonly securitySchemes: SecuritySchemeEnvironmentConfig[];
+  readonly chainProviders: ChainProviderEnvironmentConfig[];
+}
+
 export interface Config {
+  readonly chains: ChainConfig[];
+  readonly environment: EnvironmentConfig;
   readonly id: string;
-  readonly ois: OIS[];
   readonly nodeSettings: NodeSettings;
+  readonly ois: OIS[];
   readonly triggers: Triggers;
 }

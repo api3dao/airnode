@@ -1,4 +1,4 @@
-# @airnode/operation
+# @api3/operation
 
 > Development and testing utilities for Airnode
 
@@ -10,7 +10,7 @@ This package is currently not intended to be used in a standalone way. Instead y
 # Install and link dependencies
 yarn run bootstrap
 
-# Build each @airnode package
+# Build each @api3 package
 yarn run build
 ```
 
@@ -41,7 +41,7 @@ yarn run dev:eth-node
 # OR to start as a background process
 yarn run dev:eth-node:background
 
-# Deploy Airnode with API providers, templates, requesters etc. This creates a "deployment" file in a deployments/ folder.
+# Deploy Airnode RRP with Airnode parameters, templates, requesters etc. This creates a "deployment" file in a deployments/ folder.
 yarn run dev:eth-deploy
 
 # Make requests for Airnode to action
@@ -59,19 +59,19 @@ Start an Ethereum development node by running:
 yarn run dev:eth-node
 ```
 
-By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your `config.json` when running the Airnode node.
+By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your `config.json` when running the Airnode.
 
 This development node uses [Hardhat](https://hardhat.org/) behind the scenes. It creates no contracts by itself and only pre-funds a (configurable) number of accounts/addresses.
 
 ### Deploying Airnode
 
-After starting an Ethereum development node, you can deploy the Airnode contracts to it by running:
+After starting an Ethereum development node, you can deploy the Airnode RRP contracts to it by running:
 
 ```sh
 yarn run dev:eth-deploy
 ```
 
-Along with simply deploying the Airnode contracts, the above command will also set API provider parameters onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
+Along with simply deploying the Airnode RRP contracts, the above command will also set Airnode parameters onchain, deploy client contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
 
 Running this command will build and save a "deployment" file in a `./deployments` folder. This file contains the addresses for the relevant accounts and contracts that are created. This is necessary as subsequent scripts do not have context of what these addresses and contracts are. You do not need to edit this file yourself.
 
@@ -97,7 +97,7 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 ```json
 {
-  "apiProviders": { ... },
+  "airnodes": { ... },
   "authorizers": { ... },
   "clients": { ... },
   "requesters": [],
@@ -105,11 +105,11 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 }
 ```
 
-### 1. apiProviders
+### 1. airnodes
 
-`apiProviders` must have a unique name as the key.
+`airnodes` must have a unique name as the key.
 
-`mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the provider's master wallet. The master wallet address serves as the provider admin address. **DO NOT SEND REAL FUNDS TO A WALLET LINKED TO A TEST MNEMONIC**
+`mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's master wallet. The master wallet address also serves as the Airnode admin address. **DO NOT SEND REAL FUNDS TO A WALLET LINKED TO A TEST MNEMONIC**
 
 **Endpoints**
 
@@ -141,7 +141,7 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 ### 4. requesters
 
-Requesters represent an ordered list of entities making requests to a given API provider. Typically these would be individuals or businesses. You can find more information in the [Requester documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md).
+Requesters represent an ordered list of entities making requests to a given Airnode. Typically these would be individuals or businesses. You can find more information in the [Requester documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md).
 
 It is important to note that requesters is an array as they are assigned accounts in order. This is necessary as requesters need to use the same wallet when running each script.
 
@@ -149,7 +149,7 @@ Each requester object has the following structure:
 
 `id` - a unique string that can be used to identify the same requester between script runs
 
-`apiProviders.[name].ethBalance` - a string value that represents how much ETH should be deposited into the requester's designated wallet for the given API provider. Requesters have one designated wallet per API provider.
+`airnodes.[name].ethBalance` - a string value that represents how much ETH should be deposited into the requester's designated wallet for the given Airnode. Requesters have one designated wallet per Airnode.
 
 ### 5. requests
 
@@ -161,7 +161,7 @@ There are currently three types of requests that can be made. You can learn more
 
 `type` - "regular" or "full"
 
-`apiProvider` - the name of the API provider
+`airnode` - the name of the Airnode
 
 **Regular Requests**
 
@@ -177,7 +177,7 @@ There are currently three types of requests that can be made. You can learn more
 
 `client` - the name of the client contract
 
-`endpoint` - the name of the endpoint for the specific API provider
+`endpoint` - the name of the endpoint for the specific Airnode
 
 `fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would be `fulfill` or similar.
 
@@ -193,19 +193,19 @@ There are currently three types of requests that can be made. You can learn more
 
 ```json
 {
-  "apiProviders": {
-    "CurrencyConverterAPI": {
+  "airnodes": {
+    "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "endpoints": {
         "convertToUSD": {
           "authorizers": ["public"],
-          "oisTitle": "currency-converter-api"
+          "oisTitle": "Currency Converter API"
         }
       },
       "templates": {
         "template-1": {
           "endpoint": "convertToUSD",
-          "oisTitle": "currency-converter-api",
+          "oisTitle": "Currency Converter API",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
             { "type": "bytes32", "name": "_type", "value": "int256" },
@@ -220,19 +220,19 @@ There are currently three types of requests that can be made. You can learn more
     "public": "0x0000000000000000000000000000000000000000"
   },
   "clients": {
-    "MockAirnodeClient": { "endorsers": ["bob"] }
+    "MockAirnodeRrpClientFactory": { "endorsers": ["bob"] }
   },
   "requesters": [
     {
       "id": "alice",
-      "apiProviders": {
-        "CurrencyConverterAPI": { "ethBalance": "1" }
+      "airnodes": {
+        "CurrencyConverterAirnode": { "ethBalance": "1" }
       }
     },
     {
       "id": "bob",
-      "apiProviders": {
-        "CurrencyConverterAPI": { "ethBalance": "5" }
+      "airnodes": {
+        "CurrencyConverterAirnode": { "ethBalance": "5" }
       }
     }
   ],
@@ -240,9 +240,9 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "bob",
       "type": "regular",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "template": "template-1",
-      "client": "MockAirnodeClient",
+      "client": "MockAirnodeRrpClientFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" }
@@ -251,10 +251,10 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "bob",
       "type": "full",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "endpoint": "convertToUSD",
-      "oisTitle": "currency-converter-api",
-      "client": "MockAirnodeClient",
+      "oisTitle": "Currency Converter API",
+      "client": "MockAirnodeRrpClientFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" },
@@ -267,7 +267,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "requesterId": "alice",
       "type": "withdrawal",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "destination": "alice"
     }
   ]

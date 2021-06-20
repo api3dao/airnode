@@ -1,6 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
-import { goTimeout } from '../utils/promise-utils';
+import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import { buildEVMState } from '../providers/state';
 import { spawnNewProvider } from '../providers/worker';
@@ -11,12 +11,12 @@ async function initializeEVMProvider(
   state: ProviderState<EVMProviderState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
-  const initialization = spawnNewProvider(state, workerOpts);
+  const initialization = () => spawnNewProvider(state, workerOpts);
 
   // Each provider gets 20 seconds to initialize. If it fails to initialize
   // in this time, it is ignored. It is important to catch any potential errors
   // here as a single promise rejecting will cause Promise.all to reject
-  const [err, logsWithRes] = await goTimeout(WORKER_PROVIDER_INITIALIZATION_TIMEOUT, initialization);
+  const [err, logsWithRes] = await go(initialization, { timeoutMs: WORKER_PROVIDER_INITIALIZATION_TIMEOUT });
   if (err || !logsWithRes) {
     const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
     return [[log], null];
@@ -29,7 +29,7 @@ export async function initialize(
   config: Config,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderState>[]>> {
-  const { chains } = config.nodeSettings;
+  const { chains } = config;
 
   if (isEmpty(chains)) {
     throw new Error('One or more chains must be defined in the provided config');
@@ -41,8 +41,8 @@ export async function initialize(
   // to configure duplicate providers safely (if they want the added redundancy)
   const EVMInitializations = flatMap(
     EVMChains.map((chain) => {
-      return chain.providers.map(async (provider) => {
-        const state = buildEVMState(coordinatorId, chain, provider, config);
+      return chain.providerNames.map(async (providerName) => {
+        const state = buildEVMState(coordinatorId, chain, providerName, config);
         return initializeEVMProvider(state, workerOpts);
       });
     })

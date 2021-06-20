@@ -1,6 +1,7 @@
 import flatMap from 'lodash/flatMap';
+import isEmpty from 'lodash/isEmpty';
 import * as logger from '../../logger';
-import { goTimeout } from '../../utils/promise-utils';
+import { go } from '../../utils/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
 import { AggregatedApiCall, LogsData, LogOptions, RequestErrorCode, WorkerOptions } from '../../types';
 import { WORKER_CALL_API_TIMEOUT } from '../../constants';
@@ -10,24 +11,15 @@ async function execute(
   logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<AggregatedApiCall>> {
-  if (aggregatedApiCall.errorCode) {
-    const log = logger.pend(
-      'WARN',
-      `Not executing Request:${aggregatedApiCall.id} as it has error code:${aggregatedApiCall.errorCode}`
-    );
-    return [[log], aggregatedApiCall];
-  }
-
   const startedAt = new Date();
   const baseLogMsg = `API call to Endpoint:${aggregatedApiCall.endpointName}`;
 
   // NOTE: API calls are executed in separate (serverless) functions to avoid very large/malicious
   // responses from crashing the main coordinator process. We need to catch any errors here (like a timeout)
   // as a rejection here will cause Promise.all to fail
-  const [err, logData] = await goTimeout(
-    WORKER_CALL_API_TIMEOUT,
-    spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts)
-  );
+  const [err, logData] = await go(() => spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts), {
+    timeoutMs: WORKER_CALL_API_TIMEOUT,
+  });
   const resLogs = logData ? logData[0] : [];
 
   const finishedAt = new Date();
@@ -61,8 +53,17 @@ export async function callApis(
   logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<AggregatedApiCall[]>> {
-  // Execute all API calls concurrently
-  const calls = aggregatedApiCalls.map(async (aggregatedApiCall) => {
+  const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorCode);
+  const skippedAggregatedCalls = aggregatedApiCalls.filter((a) => a.errorCode);
+
+  if (isEmpty(pendingAggregatedCalls)) {
+    const log = logger.pend('INFO', 'No pending API calls to process. Skipping API calls...');
+    return [[log], skippedAggregatedCalls];
+  }
+  const processLog = logger.pend('INFO', `Processing ${pendingAggregatedCalls.length} pending API call(s)...`);
+
+  // Execute all pending API calls concurrently
+  const calls = pendingAggregatedCalls.map(async (aggregatedApiCall) => {
     return await execute(aggregatedApiCall, logOptions, workerOpts);
   });
 
@@ -76,6 +77,8 @@ export async function callApis(
   const erroredResponsesCount = responses.filter((r) => !!r.errorCode).length;
   const errorLog = logger.pend('INFO', `Received ${erroredResponsesCount} errored API call(s)`);
 
-  const logs = [...responseLogs, successLog, errorLog];
-  return [logs, responses];
+  const logs = [processLog, ...responseLogs, successLog, errorLog];
+  // Merge processed and skipped aggregated calls so that none are lost
+  const allCalls = [...responses, ...skippedAggregatedCalls];
+  return [logs, allCalls];
 }

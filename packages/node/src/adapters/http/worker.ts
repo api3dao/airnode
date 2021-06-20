@@ -21,7 +21,7 @@ export async function spawnNewApiCall(
     payload: { aggregatedApiCall, logOptions },
   };
 
-  const [err, res] = await go(workers.spawn(options));
+  const [err, res] = await go(() => workers.spawn(options));
   if (err || !res) {
     const log = logger.pend('ERROR', `Unable to call API endpoint:${aggregatedApiCall.endpointName}`, err);
     return [[log], null];

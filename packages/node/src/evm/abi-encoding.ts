@@ -1,4 +1,4 @@
-import { decode } from '@airnode/airnode-abi';
+import { decode } from '@api3/airnode-abi';
 import { ApiCallParameters } from '../types';
 
 export function safeDecode(encodedParameters: string): ApiCallParameters | null {

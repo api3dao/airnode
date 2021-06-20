@@ -1,19 +1,19 @@
 {
   "deployerIndex": 0,
-  "apiProviders": {
-    "CurrencyConverterAPI": {
-      "providerAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
+  "airnodes": {
+    "CurrencyConverterAirnode": {
+      "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "authorizers": ["public"],
       "endpoints": {
         "convertToUSD": {
-          "oisTitle": "currency-converter-ois"
+          "oisTitle": "Currency Converter API"
         }
       },
       "templates": {
         "template-1": {
           "endpoint": "convertToUSD",
-          "oisTitle": "currency-converter-ois",
+          "oisTitle": "Currency Converter API",
           "parameters": [
             { "type": "bytes32", "name": "to", "value": "USD" },
             { "type": "bytes32", "name": "_type", "value": "int256" },
@@ -28,19 +28,19 @@
     "public": "0x0000000000000000000000000000000000000000"
   },
   "clients": {
-    "MockAirnodeClient": { "endorsers": ["bob"] }
+    "MockAirnodeRrpClientFactory": { "endorsers": ["bob"] }
   },
   "requesters": [
     {
       "id": "alice",
-      "apiProviders": {
-        "CurrencyConverterAPI": { "ethBalance": "1" }
+      "airnodes": {
+        "CurrencyConverterAirnode": { "ethBalance": "1" }
       }
     },
     {
       "id": "bob",
-      "apiProviders": {
-        "CurrencyConverterAPI": { "ethBalance": "5" }
+      "airnodes": {
+        "CurrencyConverterAirnode": { "ethBalance": "5" }
       }
     }
   ],
@@ -48,9 +48,9 @@
     {
       "requesterId": "bob",
       "type": "regular",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "template": "template-1",
-      "client": "MockAirnodeClient",
+      "client": "MockAirnodeRrpClientFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" }
@@ -59,10 +59,10 @@
     {
       "requesterId": "bob",
       "type": "full",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "endpoint": "convertToUSD",
-      "oisTitle": "currency-converter-ois",
-      "client": "MockAirnodeClient",
+      "oisTitle": "Currency Converter API",
+      "client": "MockAirnodeRrpClientFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" },
@@ -75,7 +75,7 @@
     {
       "requesterId": "alice",
       "type": "withdrawal",
-      "apiProvider": "CurrencyConverterAPI",
+      "airnode": "CurrencyConverterAirnode",
       "destination": "alice"
     }
   ]

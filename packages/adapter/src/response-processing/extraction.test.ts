@@ -1,5 +1,5 @@
 import * as extraction from './extraction';
-import { ResponseParameters } from '../types';
+import { ReservedParameters } from '../types';
 
 describe('getRawValue', () => {
   it('returns the data as is if no path is provided', () => {
@@ -65,7 +65,7 @@ describe('extractAndEncodeValue', () => {
 
   it('extracts and encodes the value from complex objects', () => {
     const data = { a: { b: [{ c: 1 }, { d: '750.51' }] } };
-    const parameters: ResponseParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
+    const parameters: ReservedParameters = { _path: 'a.b.1.d', _type: 'int256', _times: '100' };
     const res = extraction.extractAndEncodeResponse(data, parameters);
     expect(res).toEqual({
       value: '75051',

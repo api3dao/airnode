@@ -15,14 +15,18 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   const state1 = state.create(config);
   const { id: coordinatorId } = state1;
-  const baseLogOptions = { format: config.nodeSettings.logFormat, meta: { coordinatorId } };
+  const baseLogOptions = {
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+    meta: { coordinatorId },
+  };
 
   const startedAt = new Date();
   logger.info(`Coordinator starting...`, baseLogOptions);
 
   const workerOpts: WorkerOptions = {
     cloudProvider: config.nodeSettings.cloudProvider,
-    providerIdShort: state1.settings.providerIdShort,
+    airnodeIdShort: state1.settings.airnodeIdShort,
     stage: config.nodeSettings.stage,
     region: config.nodeSettings.region,
   };
@@ -46,30 +50,18 @@ export async function startCoordinator(config: Config) {
   }
 
   // =================================================================
-  // STEP 3: Group unique API calls and validate
+  // STEP 3: Group API calls with respect to request IDs
   // =================================================================
   const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
-  const [validatedAggCallLogs, validatedAggApiCallsById] = calls.validateAggregatedApiCalls(
-    state2.config,
-    aggregatedApiCallsById
-  );
-  logger.logPending(validatedAggCallLogs, baseLogOptions);
-  const state3 = state.update(state2, { aggregatedApiCallsById: validatedAggApiCallsById });
+  const state3 = state.update(state2, { aggregatedApiCallsById });
 
   // =================================================================
   // STEP 4: Execute API calls and save the responses
   // =================================================================
   const aggregateCallIds = Object.keys(state3.aggregatedApiCallsById);
   const flatAggregatedCalls = flatMap(aggregateCallIds, (id) => state3.aggregatedApiCallsById[id]);
-  const pendingAggregatedCalls = flatAggregatedCalls.filter((a) => !a.errorCode);
-  logger.info(`Processing ${pendingAggregatedCalls.length} pending API call(s)...`, baseLogOptions);
-
-  const [callLogs, processedAggregatedApiCalls] = await calls.callApis(
-    pendingAggregatedCalls,
-    baseLogOptions,
-    workerOpts
-  );
+  const [callLogs, processedAggregatedApiCalls] = await calls.callApis(flatAggregatedCalls, baseLogOptions, workerOpts);
   logger.logPending(callLogs, baseLogOptions);
 
   const processedAggregatedApiCallsById = keyBy(processedAggregatedApiCalls, 'id');

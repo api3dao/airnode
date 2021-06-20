@@ -1,21 +1,29 @@
 {
-  "name": "airnode",
+  "name": "api3",
+  "version": "0.0.1",
   "license": "MIT",
   "engines": {
-    "node": "^12.13.1"
+    "node": "^14.17.1"
+  },
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
   },
   "scripts": {
     "bootstrap": "yarn install && lerna bootstrap",
     "build": "lerna run build --stream",
-    "build-all": "lerna run build --stream && yarn run build:deployer",
     "build:adapter": "(cd packages/adapter && yarn run build)",
     "build:admin": "(cd packages/admin && yarn run build)",
     "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
-    "build:deployer": "(cd packages/deployer && yarn run _build)",
+    "build:deployer": "(cd packages/deployer && yarn run build)",
     "build:node": "(cd packages/node && yarn run build)",
     "build:ois": "(cd packages/ois && yarn run build)",
+    "build:operation": "(cd packages/operation && yarn run build)",
     "build:protocol": "(cd packages/protocol && yarn run build)",
     "clean": "lerna run clean --stream",
+    "cli:deployer": "lerna run --scope @api3/deployer cli -- --",
     "dev:api": "(cd packages/operation && yarn run dev:api)",
     "dev:api:background": "(cd packages/operation && yarn run dev:api:background)",
     "dev:background": "(cd packages/operation && yarn run dev:background)",
@@ -30,49 +38,46 @@
     "lint": "yarn run lint:eslint && yarn run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:solhint": "solhint ./**/*.sol",
-    "prettify": "prettier --write ./**/*.{js,ts} --loglevel silent",
-    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|ts)\"",
+    "postinstall": "husky install",
+    "prettify": "prettier --write ./**/*.{js,sol,ts} --loglevel silent",
+    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|sol|ts)\"",
+    "publish": "lerna publish",
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && yarn run test)",
     "test:adapter:watch": "(cd packages/adapter && yarn run test:watch)",
     "test:airnode-abi": "(cd packages/airnode-abi && yarn run test)",
     "test:airnode-abi:watch": "(cd packages/airnode-abi && yarn run test:watch)",
-    "test:e2e": "(cd packages/node && yarn run test:e2e)",
-    "test:e2e:debug": "(cd packages/node && yarn run test:e2e:debug)",
+    "test:e2e": "lerna run test:e2e --stream",
+    "test:e2e-admin": "cd packages/admin && yarn run test:e2e",
+    "test:e2e-node": "cd packages/node && yarn run test:e2e",
+    "test:e2e-node:debug": "cd packages/node && yarn run test:e2e:debug",
     "test:protocol": "(cd packages/protocol && yarn run test)",
     "test:node": "(cd packages/node && yarn run test)",
     "test:node:watch": "(cd packages/node && yarn run test:watch)",
     "test:node:watch:debug": "(cd packages/node && yarn run test:watch:debug)"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.165",
-    "@types/node": "^14.10.2",
-    "@types/yargs": "^16.0.0",
-    "ethers": "^5.0.24",
-    "lerna": "^3.22.1",
-    "lodash": "^4.17.20",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.0.2",
-    "yargs": "^16.2.0"
+    "ethers": "^5.1.4",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
+    "@types/lodash": "^4.14.165",
+    "@types/node": "^15.12.2",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "dotenv": "^8.2.0",
     "eslint": "^7.9.0",
-    "husky": "^4.3.0",
+    "husky": "^6.0.0",
     "jest": "^26.4.2",
+    "lerna": "^4.0.0",
     "prettier": "^2.1.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.10",
     "pretty-quick": "^3.0.2",
+    "rimraf": "^3.0.2",
     "solhint": "^3.2.0",
     "ts-jest": "^26.3.0",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn run pretty-quick && yarn run lint"
-    }
+    "ts-node": "^10.0.0",
+    "typescript": "^4.2.4"
   }
 }

@@ -1,8 +1,9 @@
 import isNil from 'lodash/isNil';
 import { ethers } from 'ethers';
-import { go, retryOperation } from '../../utils/promise-utils';
+import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import {
   ApiCall,
   ClientRequest,
@@ -11,7 +12,7 @@ import {
   RequestStatus,
   TransactionOptions,
 } from '../../types';
-import { OPERATION_RETRIES } from '../../constants';
+import { AirnodeRrp } from '../contracts';
 
 const GAS_LIMIT = 500_000;
 
@@ -41,7 +42,7 @@ type SubmitResponse = ethers.Transaction | null;
 // Fulfillments
 // =================================================================
 async function testFulfill(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
@@ -53,9 +54,10 @@ async function testFulfill(
   );
 
   const operation = () =>
-    airnode.callStatic.fulfill(
+    airnodeRrp.callStatic.fulfill(
       request.id,
-      request.providerId,
+      // TODO: make sure airnodeId is not null
+      request.airnodeId!,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -66,8 +68,7 @@ async function testFulfill(
         nonce: request.nonce!,
       }
     );
-  const retryableOperation = retryOperation(OPERATION_RETRIES, operation);
-  const [err, res] = await go(retryableOperation);
+  const [err, res] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error attempting API call fulfillment for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
@@ -76,7 +77,7 @@ async function testFulfill(
 }
 
 async function submitFulfill(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
@@ -88,9 +89,10 @@ async function submitFulfill(
   );
 
   const tx = () =>
-    airnode.fulfill(
+    airnodeRrp.fulfill(
       request.id,
-      request.providerId,
+      // TODO: make sure airnodeId is not null
+      request.airnodeId!,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -101,8 +103,7 @@ async function submitFulfill(
         nonce: request.nonce!,
       }
     );
-  const retryableTx = retryOperation(OPERATION_RETRIES, tx);
-  const [err, res] = await go(retryableTx);
+  const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend(
       'ERROR',
@@ -115,12 +116,12 @@ async function submitFulfill(
 }
 
 async function testAndSubmitFulfill(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   // Should not throw
-  const [testLogs, testErr, testData] = await testFulfill(airnode, request, options);
+  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
     const updatedRequest = {
@@ -128,13 +129,13 @@ async function testAndSubmitFulfill(
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.FulfillTransactionFailed,
     };
-    const [submitLogs, submitErr, submitData] = await submitFail(airnode, updatedRequest, options);
+    const [submitLogs, submitErr, submitData] = await submitFail(airnodeRrp, updatedRequest, options);
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
 
   // We expect the transaction to be successful if submitted
   if (testData?.callSuccess) {
-    const [submitLogs, submitErr, submitData] = await submitFulfill(airnode, request, options);
+    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, options);
 
     // The transaction was submitted successfully
     if (submitData) {
@@ -155,20 +156,20 @@ async function testAndSubmitFulfill(
 // Failures
 // =================================================================
 async function submitFail(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = () =>
-    airnode.fail(request.id, request.providerId, request.fulfillAddress, request.fulfillFunctionId, {
+    // TODO: make sure airnodeId is not null
+    airnodeRrp.fail(request.id, request.airnodeId!, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
       gasPrice: options.gasPrice,
       nonce: request.nonce!,
     });
-  const retryableTx = retryOperation(OPERATION_RETRIES, tx);
-  const [err, res] = await go(retryableTx);
+  const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
@@ -180,7 +181,7 @@ async function submitFail(
 // Main functions
 // =================================================================
 export async function submitApiCall(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   request: ClientRequest<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
@@ -202,6 +203,6 @@ export async function submitApiCall(
   }
 
   // Should not throw
-  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnode, request, options);
+  const [submitLogs, submitErr, submitData] = await testAndSubmitFulfill(airnodeRrp, request, options);
   return [submitLogs, submitErr, submitData];
 }

@@ -13,6 +13,7 @@ import { LogOptions } from 'src/types';
 describe('spawnNewApiCall', () => {
   const logOptions: LogOptions = {
     format: 'plain',
+    level: 'DEBUG',
     meta: { coordinatorId: '837daEf231' },
   };
 
@@ -20,7 +21,7 @@ describe('spawnNewApiCall', () => {
     invokeMock.mockImplementationOnce((params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: true, data: { value: '0x123' } }) }) })
     );
-    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(logs).toEqual([]);
@@ -37,7 +38,7 @@ describe('spawnNewApiCall', () => {
 
   it('returns an error if the worker rejects', async () => {
     invokeMock.mockImplementationOnce((params, callback) => callback(new Error('Something went wrong'), null));
-    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(logs).toEqual([
@@ -59,7 +60,7 @@ describe('spawnNewApiCall', () => {
     invokeMock.mockImplementationOnce((params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false, errorLog }) }) })
     );
-    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(logs).toEqual([errorLog]);
@@ -78,7 +79,7 @@ describe('spawnNewApiCall', () => {
     invokeMock.mockImplementationOnce((params, callback) =>
       callback(null, { Payload: JSON.stringify({ body: JSON.stringify({ ok: false }) }) })
     );
-    const aggregatedApiCall = fixtures.createAggregatedApiCall();
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall();
     const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
     const [logs, res] = await worker.spawnNewApiCall(aggregatedApiCall, logOptions, workerOpts);
     expect(logs).toEqual([{ level: 'ERROR', message: 'Unable to call API endpoint:convertToUSD' }]);

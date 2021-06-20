@@ -17,13 +17,13 @@ describe('create', () => {
 describe('update', () => {
   it('updates and returns the new state', () => {
     const aggregatedApiCallsById: AggregatedApiCallsById = {
-      apiCallId: fixtures.createAggregatedApiCall(),
+      apiCallId: fixtures.buildAggregatedApiCall(),
     };
     const config = fixtures.buildConfig();
     const newState = state.create(config);
     const res = state.update(newState, { aggregatedApiCallsById });
     expect(Object.keys(res).sort()).toEqual(['EVMProviders', 'aggregatedApiCallsById', 'config', 'id', 'settings']);
-    expect(res.aggregatedApiCallsById).toEqual({ apiCallId: fixtures.createAggregatedApiCall() });
+    expect(res.aggregatedApiCallsById).toEqual({ apiCallId: fixtures.buildAggregatedApiCall() });
     expect(res.EVMProviders).toEqual([]);
     expect(res.id.length).toEqual(16);
     expect(res.config).toEqual(config);

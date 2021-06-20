@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/admin",
+  "name": "@api3/admin",
   "license": "MIT",
   "version": "0.1.0",
   "bin": "./cli-wrapper.js",
@@ -7,10 +7,25 @@
   "scripts": {
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist",
-    "compile": "tsc -p tsconfig.build.json"
+    "compile": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "yarn run build",
+    "test:e2e": "jest --selectProjects e2e",
+    "test:e2e:watch": "jest --coverage --watch --selectProjects e2e"
   },
   "dependencies": {
-    "@airnode/protocol": "^0.1.0",
-    "@airnode/airnode-abi": "^0.1.0"
+    "@api3/airnode-abi": "^0.1.0",
+    "@api3/protocol": "^0.1.0",
+    "ethers": "^5.1.4",
+    "lodash": "^4.17.21",
+    "yargs": "^17.0.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.169",
+    "@types/node": "^15.12.2",
+    "@types/yargs": "^16.0.0",
+    "jest": "^26.6.3",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.6",
+    "typescript": "^4.2.4"
   }
 }

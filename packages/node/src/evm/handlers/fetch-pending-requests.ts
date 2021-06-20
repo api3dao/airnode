@@ -12,16 +12,17 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
 
   const baseLogOptions = {
     format: state.settings.logFormat,
+    level: state.settings.logLevel,
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 
   const fetchOptions = {
-    address: state.contracts.Airnode,
+    address: state.contracts.AirnodeRrp,
+    airnodeId: state.settings.airnodeId,
     blockHistoryLimit: state.settings.blockHistoryLimit,
     currentBlock: state.currentBlock!,
     ignoreBlockedRequestsAfterBlocks: state.settings.ignoreBlockedRequestsAfterBlocks,
     provider: state.provider,
-    providerId: state.settings.providerId,
   };
   // Fetch event logs from the provider. Let this throw if something goes wrong.
   // We can't do anything if logs cannot be fetched or parsed successfully.

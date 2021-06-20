@@ -1,30 +1,32 @@
 import { ethers } from 'ethers';
-import { Config } from '@airnode/operation';
+import { Config } from '@api3/operation';
+import { ReservedParameterName } from '@api3/ois';
 
 export function buildDeployConfig(config?: Partial<Config>): Config {
   return {
     deployerIndex: 0,
-    apiProviders: {
-      CurrencyConverterAPI: {
-        providerAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+    airnodes: {
+      CurrencyConverterAirnode: {
+        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
         // We need to create a new mnemonic each time otherwise E2E tests
-        // will share the same API provider wallet
+        // will share the same Airnode wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
         authorizers: ['public'],
         endpoints: {
           convertToUSD: {
-            oisTitle: 'currency-converter-ois',
+            oisTitle: 'Currency Converter API',
           },
         },
         templates: {
           'template-1': {
             endpoint: 'convertToUSD',
-            oisTitle: 'currency-converter-ois',
+            oisTitle: 'Currency Converter API',
             parameters: [
               { type: 'bytes32', name: 'to', value: 'USD' },
-              { type: 'bytes32', name: '_type', value: 'uint256' },
-              { type: 'bytes32', name: '_path', value: 'result' },
-              { type: 'bytes32', name: '_times', value: '100000' },
+              { type: 'bytes32', name: ReservedParameterName.Type, value: 'uint256' },
+              { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
+              { type: 'bytes32', name: ReservedParameterName.Times, value: '100000' },
+              { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
             ],
           },
         },
@@ -34,19 +36,19 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       public: '0x0000000000000000000000000000000000000000',
     },
     clients: {
-      MockAirnodeClient: { endorsers: ['bob'] },
+      MockAirnodeRrpClientFactory: { endorsers: ['bob'] },
     },
     requesters: [
       {
         id: 'alice',
-        apiProviders: {
-          CurrencyConverterAPI: { ethBalance: '2' },
+        airnodes: {
+          CurrencyConverterAirnode: { ethBalance: '2' },
         },
       },
       {
         id: 'bob',
-        apiProviders: {
-          CurrencyConverterAPI: { ethBalance: '5' },
+        airnodes: {
+          CurrencyConverterAirnode: { ethBalance: '5' },
         },
       },
     ],
@@ -54,26 +56,27 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
       {
         requesterId: 'bob',
         type: 'regular',
-        apiProvider: 'CurrencyConverterAPI',
+        airnode: 'CurrencyConverterAirnode',
         template: 'template-1',
-        client: 'MockAirnodeClient',
+        client: 'MockAirnodeRrpClientFactory',
         fulfillFunctionName: 'fulfill',
         parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
       },
       {
         requesterId: 'bob',
         type: 'full',
-        apiProvider: 'CurrencyConverterAPI',
+        airnode: 'CurrencyConverterAirnode',
         endpoint: 'convertToUSD',
-        oisTitle: 'currency-converter-ois',
-        client: 'MockAirnodeClient',
+        oisTitle: 'Currency Converter API',
+        client: 'MockAirnodeRrpClientFactory',
         fulfillFunctionName: 'fulfill',
         parameters: [
           { type: 'bytes32', name: 'from', value: 'ETH' },
           { type: 'bytes32', name: 'to', value: 'USD' },
-          { type: 'bytes32', name: '_type', value: 'int256' },
-          { type: 'bytes32', name: '_path', value: 'result' },
-          { type: 'bytes32', name: '_times', value: '100000' },
+          { type: 'bytes32', name: ReservedParameterName.Type, value: 'int256' },
+          { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
+          { type: 'bytes32', name: ReservedParameterName.Times, value: '100000' },
+          { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
         ],
       },
     ],

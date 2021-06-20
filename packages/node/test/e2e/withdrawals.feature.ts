@@ -15,19 +15,19 @@ it('processes withdrawals only once', async () => {
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
 
-  const deployment = await e2e.deployAirnode(deployConfig);
+  const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.apiProviders.CurrencyConverterAPI.mnemonic;
+  // Overwrites the one injected by the jest setup script
+  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
 
   await e2e.makeRequests(deployConfig, deployment);
 
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const nodeSettings = fixtures.buildNodeSettings({ chains: [chain] });
-  const config = fixtures.buildConfig({ nodeSettings });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+  const config = fixtures.buildConfig({ chains: [chain] });
+  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
 
   // Check that the relevant withdrawal events are present
-  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
   const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
 
@@ -60,7 +60,7 @@ it('processes withdrawals only once', async () => {
   expect(postWithdrawalDesignatedBalance.lt(ethers.utils.parseEther('0.0005'))).toEqual(true);
 
   // Check that the relevant withdrawal events are present
-  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
   const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
 
@@ -71,7 +71,7 @@ it('processes withdrawals only once', async () => {
   await handlers.startCoordinator();
 
   // Withdrawals are not processed twice
-  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.Airnode);
+  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
   expect(run2Logs.length).toEqual(7);
 
   // Balances have not changed

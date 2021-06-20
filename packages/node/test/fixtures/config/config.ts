@@ -1,21 +1,60 @@
-import { Config } from '../../../src/types';
+import { Config, RequestTrigger } from '../../../src/types';
 import * as ois from './ois';
 import * as settings from './node-settings';
 
-export function buildConfig(config?: Partial<Config>): Config {
+export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigger {
   return {
-    id: 'test-config',
-    triggers: {
-      request: [
+    endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
+    endpointName: 'convertToUSD',
+    oisTitle: 'Currency Converter API',
+    ...overrides,
+  };
+}
+
+export function buildConfig(overrides?: Partial<Config>): Config {
+  const oisTitle = 'Currency Converter API';
+  const securitySchemeName = 'My Security Scheme';
+  const securitySchemeEnvName = 'SS_CURRENCY_CONVERTER_API_MY_SECURITY_SCHEME';
+  const chainType = 'evm';
+  const chainId = '31337';
+  const chainProviderName = 'EVM local';
+  const chainProviderEnvName = 'CP_EVM_31337_EVM_LOCAL';
+  return {
+    chains: [
+      {
+        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+        authorizers: ['0x0000000000000000000000000000000000000000'],
+        contracts: {
+          AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
+        },
+        id: '31337',
+        type: 'evm',
+        providerNames: ['EVM local'],
+      },
+    ],
+    environment: {
+      securitySchemes: [
         {
-          endpointId: '0x3c8e59646e688707ddd3b1f07c4dbc5ab55a0257362a18569ac2644ccf6faddb',
-          endpointName: 'convertToUSD',
-          oisTitle: 'currency-converter-ois',
+          oisTitle: oisTitle,
+          name: securitySchemeName,
+          envName: securitySchemeEnvName,
+        },
+      ],
+      chainProviders: [
+        {
+          chainType: chainType,
+          chainId: chainId,
+          name: chainProviderName,
+          envName: chainProviderEnvName,
         },
       ],
     },
-    ois: [ois.buildOIS()],
+    id: 'test-config',
     nodeSettings: settings.buildNodeSettings(),
-    ...config,
+    triggers: {
+      request: [buildTrigger()],
+    },
+    ois: [ois.buildOIS()],
+    ...overrides,
   };
 }

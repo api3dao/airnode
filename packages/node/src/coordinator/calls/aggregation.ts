@@ -1,16 +1,20 @@
 import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest, Config, RequestStatus } from '../../types';
 
-function createAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
-  const trigger = config.triggers.request.find((t) => t.endpointId === request.endpointId);
+function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
+  // The trigger should already be verified to exist at this point
+  const trigger = config.triggers.request.find((t) => t.endpointId === request.endpointId)!;
 
   return {
     id: request.id,
+    requesterIndex: request.requesterIndex,
+    airnodeId: request.airnodeId!,
+    clientAddress: request.clientAddress,
+    designatedWallet: request.designatedWallet,
+    chainId: request.chainId,
     endpointId: request.endpointId!,
     parameters: request.parameters,
-    type: 'request',
-    // If the trigger was not found, the request will be invalidated at validation time
-    endpointName: trigger?.endpointName,
-    oisTitle: trigger?.oisTitle,
+    endpointName: trigger.endpointName,
+    oisTitle: trigger.oisTitle,
   };
 }
 
@@ -24,7 +28,7 @@ export function aggregate(config: Config, flatApiCalls: ClientRequest<ApiCall>[]
 
     // If this is the first time we're seeing this API call, then create a new aggregated API call
     if (!existingAggregatedCall) {
-      const aggregatedCall = createAggregatedCall(config, request);
+      const aggregatedCall = buildAggregatedCall(config, request);
       return { ...acc, [request.id]: aggregatedCall };
     }
 

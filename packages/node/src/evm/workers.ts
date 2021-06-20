@@ -14,7 +14,7 @@ export async function spawnNewProvider(
     payload: { state },
   };
 
-  const [err, res] = await go(workers.spawn(options));
+  const [err, res] = await go(() => workers.spawn(options));
   if (err || !res) {
     const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
     return [[log], null];
@@ -42,7 +42,7 @@ export async function spawnProviderRequestProcessor(
     payload: { state },
   };
 
-  const [err, res] = await go(workers.spawn(options));
+  const [err, res] = await go(() => workers.spawn(options));
   if (err || !res) {
     const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`, err);
     return [[log], null];

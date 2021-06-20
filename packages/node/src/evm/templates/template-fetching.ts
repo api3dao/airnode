@@ -4,14 +4,14 @@ import flatMap from 'lodash/flatMap';
 import keyBy from 'lodash/keyBy';
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
-import { go, retryOperation } from '../../utils/promise-utils';
+import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
-import { Airnode } from '../contracts';
+import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
-import { OPERATION_RETRIES, CONVENIENCE_BATCH_SIZE } from '../../constants';
+import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 
 export interface FetchOptions {
-  airnodeAddress: string;
+  airnodeRrpAddress: string;
   provider: ethers.providers.JsonRpcProvider;
 }
 
@@ -20,13 +20,11 @@ interface ApiCallTemplatesById {
 }
 
 export async function fetchTemplate(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const contractCall = () => airnode.getTemplate(templateId) as Promise<any>;
-  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
-
-  const [err, rawTemplate] = await go(retryableContractCall);
+  const operation = () => airnodeRrp.getTemplate(templateId);
+  const [err, rawTemplate] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
     return [[log], null];
@@ -35,29 +33,27 @@ export async function fetchTemplate(
   const successLog = logger.pend('INFO', `Fetched API call template:${templateId}`);
 
   const template: ApiCallTemplate = {
+    airnodeId: rawTemplate.airnodeId,
     encodedParameters: rawTemplate.parameters,
     endpointId: rawTemplate.endpointId,
     id: templateId,
-    providerId: rawTemplate.providerId,
   };
   return [[successLog], template];
 }
 
 async function fetchTemplateGroup(
-  airnode: ethers.Contract,
+  airnodeRrp: AirnodeRrp,
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
-  const contractCall = () => airnode.getTemplates(templateIds) as Promise<any>;
-  const retryableContractCall = retryOperation(OPERATION_RETRIES, contractCall);
-
-  const [err, rawTemplates] = await go(retryableContractCall);
+  const contractCall = () => airnodeRrp.getTemplates(templateIds);
+  const [err, rawTemplates] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   // If we fail to fetch templates, the linked requests will be discarded and retried
   // on the next run
   if (err || !rawTemplates) {
     const groupLog = logger.pend('ERROR', 'Failed to fetch API call templates', err);
 
     // If the template group cannot be fetched, fallback to fetching templates individually
-    const promises = templateIds.map((id) => fetchTemplate(airnode, id));
+    const promises = templateIds.map((id) => fetchTemplate(airnodeRrp, id));
     const logsWithTemplates = await Promise.all(promises);
     const individualLogs = flatMap(logsWithTemplates, (v) => v[0]);
     const templates = logsWithTemplates.map((v) => v[1]).filter((v) => !!v) as ApiCallTemplate[];
@@ -70,10 +66,10 @@ async function fetchTemplateGroup(
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
+      airnodeId: rawTemplates.airnodeIds[index],
       encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
       id: templateId,
-      providerId: rawTemplates.providerIds[index],
     };
     return { ...acc, [templateId]: template };
   }, {});
@@ -91,13 +87,13 @@ export async function fetch(
   }
 
   // Requests are made for up to 10 templates at a time
-  const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE);
+  const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use
-  const airnode = new ethers.Contract(fetchOptions.airnodeAddress, Airnode.ABI, fetchOptions.provider);
+  const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all groups of templates in parallel
-  const promises = groupedTemplateIds.map((ids: string[]) => fetchTemplateGroup(airnode, ids));
+  const promises = groupedTemplateIds.map((ids) => fetchTemplateGroup(airnodeRrp, ids));
 
   const templateResponses = await Promise.all(promises);
   const templateResponseLogs = flatMap(templateResponses, (t) => t[0]);

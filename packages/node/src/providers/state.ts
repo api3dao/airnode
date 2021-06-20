@@ -1,26 +1,31 @@
 import * as evm from '../evm';
+import { getEnvValue } from '../config';
 import { removeKeys } from '../utils/object-utils';
-import {
-  ChainConfig,
-  ChainProvider,
-  ChainType,
-  EVMProviderState,
-  Config,
-  ProviderSettings,
-  ProviderState,
-} from '../types';
+import { ChainConfig, ChainType, EVMProviderState, Config, ProviderSettings, ProviderState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 
 export function buildEVMState(
   coordinatorId: string,
   chain: ChainConfig,
-  chainProvider: ChainProvider,
+  chainProviderName: string,
   config: Config
 ): ProviderState<EVMProviderState> {
   const masterHDNode = evm.getMasterHDNode();
-  const provider = evm.buildEVMProvider(chainProvider.url, chain.id);
+  const chainProviderEnvironmentConfig = config.environment.chainProviders.find(
+    (c) => c.chainType === chain.type && c.chainId === chain.id && c.name === chainProviderName
+  );
+  if (!chainProviderEnvironmentConfig) {
+    throw new Error(
+      `Chain provider URL environment variable name for type: ${chain.type}, ID: ${chain.id}, provider name: ${chainProviderName} must be defined in the provided config object`
+    );
+  }
+  const chainProviderUrl = getEnvValue(chainProviderEnvironmentConfig.envName) || '';
+  const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
 
   const providerSettings: ProviderSettings = {
+    airnodeAdmin: chain.airnodeAdmin,
+    airnodeId: evm.getAirnodeId(masterHDNode),
+    airnodeIdShort: evm.getAirnodeIdShort(masterHDNode),
     authorizers: chain.authorizers,
     // The number of blocks to look back for events to process
     blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,
@@ -29,14 +34,12 @@ export function buildEVMState(
     // If this number of blocks has passed, then ignore requests instead of blocking them
     ignoreBlockedRequestsAfterBlocks: chain.ignoreBlockedRequestsAfterBlocks || BLOCK_COUNT_IGNORE_LIMIT,
     logFormat: config.nodeSettings.logFormat,
+    logLevel: config.nodeSettings.logLevel,
     minConfirmations: chain.minConfirmations || BLOCK_MIN_CONFIRMATIONS,
-    name: chainProvider.name,
-    providerAdmin: chain.providerAdmin,
-    providerId: evm.getProviderId(masterHDNode),
-    providerIdShort: evm.getProviderIdShort(masterHDNode),
+    name: chainProviderName,
     region: config.nodeSettings.region,
     stage: config.nodeSettings.stage,
-    url: chainProvider.url,
+    url: chainProviderUrl,
     xpub: evm.getExtendedPublicKey(masterHDNode),
   };
 

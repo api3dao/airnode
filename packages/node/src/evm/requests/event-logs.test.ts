@@ -1,17 +1,15 @@
+import { mockEthers } from '../../../test/utils';
 const parseLogMock = jest.fn();
-jest.mock('ethers', () => {
-  const original = jest.requireActual('ethers');
-  return {
-    ethers: {
-      ...original,
-      utils: {
-        ...original.utils,
-        Interface: jest.fn().mockImplementation(() => ({
-          parseLog: parseLogMock,
-        })),
-      },
+const original = jest.requireActual('ethers');
+mockEthers({
+  ethersMocks: {
+    utils: {
+      ...original.utils,
+      Interface: jest.fn().mockImplementation(() => ({
+        parseLog: parseLogMock,
+      })),
     },
-  };
+  },
 });
 
 import { ethers } from 'ethers';
@@ -22,7 +20,7 @@ describe('EVM event logs - fetch', () => {
   it('returns all logs with metadata', async () => {
     const newApiCallEvent = {
       blockNumber: 10716082,
-      topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
+      topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf',
       transactionHash: '0x1',
     };
     const fulfilledApiCallEvent = {
@@ -49,11 +47,11 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
-      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
 
     const res = await eventLogs.fetch(fetchOptions);
@@ -62,7 +60,7 @@ describe('EVM event logs - fetch', () => {
         blockNumber: 10716082,
         currentBlock: 10716084,
         ignoreBlockedRequestsAfterBlocks: 20,
-        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+        parsedLog: { topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
         transactionHash: '0x1',
       },
       {
@@ -99,11 +97,11 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       blockHistoryLimit: 30,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
-      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     try {
       await eventLogs.fetch(fetchOptions);
@@ -132,11 +130,11 @@ describe('EVM event logs - fetch', () => {
 
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       blockHistoryLimit: 300,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
-      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     try {
       await eventLogs.fetch(fetchOptions);
@@ -150,11 +148,11 @@ describe('EVM event logs - fetch', () => {
     getLogs.mockResolvedValueOnce([]);
     const fetchOptions = {
       address: '0xe60b966B798f9a0C41724f111225A5586ff30656',
+      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       blockHistoryLimit: 99999999,
       currentBlock: 10716084,
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
-      providerId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
     };
     const res = await eventLogs.fetch(fetchOptions);
     expect(res).toEqual([]);
@@ -174,7 +172,7 @@ describe('EVM event logs - group', () => {
       // Request
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+        parsedLog: { topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
         transactionHash: '0x1',
       },
       // Fulfillment
@@ -196,7 +194,7 @@ describe('EVM event logs - group', () => {
       apiCalls: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b' },
+          parsedLog: { topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
           transactionHash: '0x1',
         },
         {

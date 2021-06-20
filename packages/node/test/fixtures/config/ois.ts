@@ -1,10 +1,10 @@
-import { OIS } from '@airnode/ois';
+import { OIS, ReservedParameterName } from '@api3/ois';
 
 export function buildOIS(ois?: Partial<OIS>): OIS {
   return {
     oisFormat: '1.0.0',
     version: '1.2.3',
-    title: 'currency-converter-ois',
+    title: 'Currency Converter API',
     apiSpecifications: {
       servers: [
         {
@@ -37,7 +37,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
       },
       components: {
         securitySchemes: {
-          myapiApiScheme: {
+          'My Security Scheme': {
             in: 'query',
             type: 'apiKey',
             name: 'access_key',
@@ -45,7 +45,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
         },
       },
       security: {
-        myapiApiScheme: [],
+        'My Security Scheme': [],
       },
     },
     endpoints: [
@@ -65,10 +65,10 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
           },
         ],
         reservedParameters: [
-          { name: '_type' },
-          { name: '_path' },
+          { name: ReservedParameterName.Type },
+          { name: ReservedParameterName.Path },
           {
-            name: '_times',
+            name: ReservedParameterName.Times,
             default: '100000',
           },
         ],

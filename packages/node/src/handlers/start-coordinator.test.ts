@@ -1,43 +1,41 @@
-import fs from 'fs';
-import { ethers } from 'ethers';
-import * as adapter from '@airnode/adapter';
-import { startCoordinator } from './start-coordinator';
-import * as fixtures from 'test/fixtures';
-
+import { mockEthers } from 'test/utils';
 const checkAuthorizationStatusesMock = jest.fn();
-const getProviderAndBlockNumberMock = jest.fn();
+const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
-jest.mock('ethers', () => ({
-  ethers: {
-    ...jest.requireActual('ethers'),
-    Contract: jest.fn().mockImplementation(() => ({
-      callStatic: {
-        fulfill: staticFulfillMock,
-      },
-      estimateGas: {
-        fulfillWithdrawal: estimateGasWithdrawalMock,
-      },
-      checkAuthorizationStatuses: checkAuthorizationStatusesMock,
-      fail: failMock,
-      fulfill: fulfillMock,
-      fulfillWithdrawal: fulfillWithdrawalMock,
-      getProviderAndBlockNumber: getProviderAndBlockNumberMock,
-      getTemplates: getTemplatesMock,
-    })),
+mockEthers({
+  airnodeRrpMocks: {
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: {
+      fulfillWithdrawal: estimateGasWithdrawalMock,
+    },
+    checkAuthorizationStatuses: checkAuthorizationStatusesMock,
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
+    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
+    getTemplates: getTemplatesMock,
   },
-}));
+});
+
+import fs from 'fs';
+import { ethers } from 'ethers';
+import * as adapter from '@api3/adapter';
+import { startCoordinator } from './start-coordinator';
+import * as fixtures from 'test/fixtures';
 
 describe('startCoordinator', () => {
   it('fetches and processes requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
 
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
@@ -55,7 +53,7 @@ describe('startCoordinator', () => {
       status: 200,
     });
 
-    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnode.getTemplates());
+    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
     const gasPrice = ethers.BigNumber.from(1000);
@@ -68,23 +66,22 @@ describe('startCoordinator', () => {
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
 
-    const contract = new ethers.Contract('address', ['ABI']);
-    (contract.estimateGas.fulfillWithdrawal as jest.Mock).mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    (contract.callStatic.fulfill as jest.Mock).mockResolvedValueOnce({ callSuccess: true });
-    contract.fulfill.mockResolvedValueOnce({
+    estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
+    fulfillMock.mockResolvedValueOnce({
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
     await startCoordinator(config);
 
     // API call was submitted
-    expect(contract.fulfill).toHaveBeenCalledTimes(1);
-    expect(contract.fulfill).toHaveBeenCalledWith(
-      '0xe4413447744dfa328f09ab5a4166f80d9e99a30a7984728f5d53dfb211a7dd7b',
+    expect(fulfillMock).toHaveBeenCalledTimes(1);
+    expect(fulfillMock).toHaveBeenCalledWith(
+      '0x676274e2d1979dbdbd0b6915276fcb2cc3fb3be32862eab9d1d201882edc8c93',
       '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       ethers.BigNumber.from('0'),
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',
-      '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+      '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       '0x48a4157c',
       { gasLimit: 500_000, gasPrice, nonce: 212 }
     );
@@ -92,9 +89,9 @@ describe('startCoordinator', () => {
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
 
-    getProviderAndBlockNumberMock.mockResolvedValueOnce({
+    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
@@ -105,7 +102,7 @@ describe('startCoordinator', () => {
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([]);
 
-    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnode.getTemplates());
+    getTemplatesMock.mockResolvedValueOnce(fixtures.evm.airnodeRrp.getTemplates());
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
 
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');

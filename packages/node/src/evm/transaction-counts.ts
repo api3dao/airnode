@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
 import uniq from 'lodash/uniq';
 import flatMap from 'lodash/flatMap';
-import { go, retryOperation } from '../utils/promise-utils';
+import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import * as wallet from './wallet';
+import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
-import { OPERATION_RETRIES } from '../constants';
 
 export interface TransactionCountByRequesterIndex {
   [index: string]: number;
@@ -22,9 +22,8 @@ async function getWalletTransactionCount(
   options: FetchOptions
 ): Promise<LogsData<TransactionCountByRequesterIndex | null>> {
   const address = wallet.deriveWalletAddressFromIndex(options.masterHDNode, requesterIndex);
-  const providerCall = () => options.provider.getTransactionCount(address, options.currentBlock);
-  const retryableCall = retryOperation(OPERATION_RETRIES, providerCall);
-  const [err, count] = await go(retryableCall);
+  const operation = () => options.provider.getTransactionCount(address, options.currentBlock);
+  const [err, count] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || count === null) {
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
     return [[log], null];

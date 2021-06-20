@@ -1,26 +1,30 @@
 name: Continuous Build
 
-on: push
+on:
+  push:
+  pull_request:
+    branches:
+      - master
 
 jobs:
   documentation:
     name: Check documentation
     runs-on: ubuntu-latest
     steps:
-    - name: Clone airnode
-      uses: actions/checkout@master
-    - name: Check hyperlinks
-      uses: gaurav-nelson/github-action-markdown-link-check@v1
-    - name: Slack Notification
-      uses: homoluctus/slatify@master
-      if: failure()
-      with:
-        channel: '#technical'
-        commit: true
-        job_name: 'Airnode - Documentation'
-        token: ${{ secrets.ACCESS_TOKEN }}
-        type: ${{ job.status }}
-        url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Clone airnode
+        uses: actions/checkout@master
+      - name: Check hyperlinks
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - Documentation'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   build:
     name: Build and lint Airnode
@@ -31,16 +35,26 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14.17.1'
       - name: Install Dependencies
         run: yarn run bootstrap
       - name: Lint code
         run: yarn run lint
       - name: Prepare config
         run: |
-          cp packages/deployer/src/config-data/config.json.example packages/deployer/src/config-data/config.json
+          cp packages/deployer/config/config.json.example packages/deployer/config/config.json
       - name: Build
         run: yarn run build
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - Build'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
       - uses: actions/cache@v2
         id: cache-build
         with:
@@ -48,7 +62,7 @@ jobs:
           key: ${{ github.sha }}
 
   test-adapter:
-    name: Test @airnode/adapter
+    name: Test @api3/adapter
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -60,21 +74,21 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14.17.1'
       - run: yarn run test:adapter
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/adapter'
+          job_name: 'Airnode - test @api3/adapter'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-airnode-abi:
-    name: Test @airnode/airnode-abi
+    name: Test @api3/airnode-abi
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -86,21 +100,21 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14.17.1'
       - run: yarn run test:airnode-abi
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/airnode-abi'
+          job_name: 'Airnode - test @api3/airnode-abi'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-node:
-    name: Test @airnode/node
+    name: Test @api3/node
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -112,21 +126,21 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14.17.1'
       - run: yarn run test:node
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/node'
+          job_name: 'Airnode - test @api3/node'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-protocol:
-    name: Test @airnode/protocol
+    name: Test @api3/protocol
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -138,15 +152,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14.17.1'
       - run: yarn run test:protocol
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
-          job_name: 'Airnode - test @airnode/protocol'
+          job_name: 'Airnode - test @api3/protocol'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -171,21 +185,20 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14.17.1'
       - name: Start background services
         run: yarn run dev:background
       - run: yarn run test:e2e
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: failure()
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - E2E tests'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-
 
   build-complete:
     name: All tests passed
@@ -194,13 +207,12 @@ jobs:
     steps:
       - run: exit 0
       - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: always()
+        uses: lazy-actions/slatify@master
+        if: ${{ always() && github.repository_owner == 'api3dao' }}
         with:
-          channel: '#technical'
+          channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - Continuous Build'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
-

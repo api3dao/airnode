@@ -15,7 +15,13 @@ import {
 
 type AnyRequest = ApiCall | Withdrawal;
 
-function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<ApiCall | Withdrawal>[] {
+interface AssignedNonces {
+  assignmentBlocked: boolean;
+  nextNonce: number;
+  requests: ClientRequest<AnyRequest>[];
+}
+
+function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<AnyRequest>[] {
   // Store the type as well temporarily so that requests can be ungrouped again
   const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, __type: RequestType.ApiCall }));
 
@@ -49,7 +55,7 @@ function assignWalletNonces(flatRequests: ClientRequest<AnyRequest>[], transacti
     requests: [],
   };
 
-  const withNonces = flatRequests.reduce((acc, request) => {
+  const withNonces = flatRequests.reduce((acc: AssignedNonces, request) => {
     // If a previous request has been blocked, then the requests after
     // it should not be assigned a nonce
     if (acc.assignmentBlocked) {
@@ -88,7 +94,7 @@ export function assign(state: ProviderState<EVMProviderState>): GroupedRequests 
   const requesterIndices = Object.keys(requestsByRequesterIndex);
 
   return requesterIndices.reduce(
-    (acc, requesterIndex) => {
+    (acc: GroupedRequests, requesterIndex) => {
       const requests = requestsByRequesterIndex[requesterIndex];
 
       // Ensure requests are sorted for we assign nonces

@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/ois",
+  "name": "@api3/ois",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index",
@@ -12,5 +12,9 @@
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
     "prepublishOnly": "yarn run build"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^4.2.4"
   }
 }

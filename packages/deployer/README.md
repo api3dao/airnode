@@ -1,16 +1,30 @@
-# @airnode/deployer
+# @api3/deployer
 
 > Deployment tools for Airnode
 
 *The recommended way to deploy Airnode is by using the deployment Docker image.
 This package simply implements the scripts used by that image and is not meant to be used directly by the end user.*
 
-*If you will be using the provided scripts locally, run `export-env.sh` to export your AWS credentials as environment variables first.*
+## Temporary instructions
+
+At the root
+```sh
+yarn run build-all
+```
+In this package
+```sh
+yarn run webpack
+yarn run webpack:copy-config
+yarn run command:deploy:nonstop
+yarn run command:remove-with-receipt
+```
+
+The information below is outdated.
 
 ## Setup
 
 - Download the [Terraform v0.13.* binary](https://www.terraform.io/downloads.html) and move it to your `PATH`
-- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `.env` in the package directory (refer to [`.env.example`](https://github.com/api3dao/airnode/blob/master/packages/deployer/.env.example))
+- Get an *Access Key ID* and *Secret Access Key* from AWS and insert into `.env` in the package directory (refer to `.env.example`)
 - Install Serverless Framework globally
 
 ```sh
@@ -32,14 +46,14 @@ For the following redeployments, mnemonic deployment must not be repeated.
 
 1. Use the `deploy-first-time` for your first deployment.
 Note down the displayed mnemonic.
-Keep the outputted receipt file, or send it to API3 if you are an API3 provider.
+Keep the outputted receipt file, or send it to API3 if you are an API3 partner.
 
-1. Fund the master wallet address with the displayed amount to set your provider parameters.
-This will be done for you if you are an API3 provider.
+1. Fund the master wallet address with the displayed amount to set your Airnode parameters.
+This will be done for you if you are an API3 partner.
 
 1. Use the `redeploy` command when you need to update your node.
-Note that your `providerIdShort` from your receipt file must be inserted into the `nodeSettings.providerIdShort` field of your `config.json` file.
-This will be done for you if you are an API3 provider.
+Note that your `airnodeIdShort` from your receipt file must be inserted into the `nodeSettings.airnodeIdShort` field of your `config.json` file.
+This will be done for you if you are an API3 partner.
 
 ## Commands
 
@@ -55,7 +69,7 @@ test -f .env && export $(egrep -v '^#' .env | xargs)
 Then, using `config.json` and `security.json`, deploys the serverless functions that implement Airnode.
 Outputs a receipt file.
 
-Your `config.json` file **must not** include a `nodeSettings.providerIdShort` field or this command will error.
+Your `config.json` file **must not** include a `nodeSettings.airnodeIdShort` field or this command will error.
 
 `--configPath, -c` (required): Path to the `config.json` file
 
@@ -66,7 +80,7 @@ Your `config.json` file **must not** include a `nodeSettings.providerIdShort` fi
 > Using `config.json` and `security.json`, deploys the serverless functions that implement Airnode.
 Outputs a receipt file.
 
-Your `config.json` file **must** include a `nodeSettings.providerIdShort` field or this command will error.
+Your `config.json` file **must** include a `nodeSettings.airnodeIdShort` field or this command will error.
 
 `--configPath, -c` (required): Path to the `config.json` file
 
@@ -100,7 +114,7 @@ Otherwise, you will not be able to `redeploy` your other associated deployments.
 The user does not need to use this command between redeployments.
 It should only be used when the user wants to remove Airnode completely.
 
-`--providerIdShort, -p` (required): `providerIdShort` from the receipt outputted at deployment
+`--airnodeIdShort, -p` (required): `airnodeIdShort` from the receipt outputted at deployment
 
 `--region, -r` (required): Region that the mnemonic to be removed is deployed at
 
@@ -111,7 +125,7 @@ It should only be used when the user wants to remove Airnode completely.
 The user does not need to use this command between redeployments.
 It should only be used when the user wants to remove Airnode completely.
 
-`--providerIdShort, -p` (required): `providerIdShort` from the receipt outputted at deployment
+`--airnodeIdShort, -p` (required): `airnodeIdShort` from the receipt outputted at deployment
 
 `--region, -r` (required): Region that the Airnode to be removed is deployed at
 

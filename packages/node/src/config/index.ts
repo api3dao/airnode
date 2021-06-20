@@ -1,4 +1,4 @@
-import { OIS } from '@airnode/ois';
+import { OIS } from '@api3/ois';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
 
@@ -26,6 +26,6 @@ export function getMasterKeyMnemonic(): string {
   return mnemonic;
 }
 
-export function getConfigSecret(oisTitle: string, securitySchemeName: string) {
-  return process.env[`${oisTitle}_${securitySchemeName}`];
+export function getEnvValue(envName: string) {
+  return process.env[envName];
 }

@@ -1,12 +1,11 @@
-import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
-import * as contracts from '../contracts';
 import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
 import * as wallet from '../wallet';
 import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from '../../types';
+import { AirnodeRrpFactory } from '../contracts';
 
 export interface Receipt {
   id: string;
@@ -21,11 +20,11 @@ export async function submit(state: ProviderState<EVMProviderState>) {
 
   const baseLogOptions = {
     format: state.settings.logFormat,
+    level: state.settings.logLevel,
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 
-  const { Airnode } = state.contracts;
-  const AirnodeABI = contracts.Airnode.ABI;
+  const { AirnodeRrp } = state.contracts;
 
   const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
 
@@ -35,7 +34,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     const requests = requestsByRequesterIndex[index];
     const signingWallet = wallet.deriveSigningWalletFromIndex(state.masterHDNode, index);
     const signer = signingWallet.connect(state.provider);
-    const contract = new ethers.Contract(Airnode, AirnodeABI, signer);
+    const contract = AirnodeRrpFactory.connect(AirnodeRrp, signer);
 
     const txOptions: TransactionOptions = {
       gasPrice: state.gasPrice!,

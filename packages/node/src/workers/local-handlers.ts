@@ -4,10 +4,19 @@ import * as handlers from '../handlers';
 import * as logger from '../logger';
 import * as state from '../providers/state';
 import { go } from '../utils/promise-utils';
-import { WorkerResponse } from '../types';
+import { AggregatedApiCall, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
+
+export interface ProviderArgs {
+  state: ProviderState<EVMProviderState>;
+}
+
+export interface CallApiArgs {
+  aggregatedApiCall: AggregatedApiCall;
+  logOptions: LogOptions;
+}
 
 function loadConfig() {
-  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))[0];
   return parseConfig(rawConfig);
 }
 
@@ -17,11 +26,11 @@ export async function startCoordinator(): Promise<WorkerResponse> {
   return { ok: true, data: { message: 'Coordinator completed' } };
 }
 
-export async function initializeProvider({ state: providerState }): Promise<WorkerResponse> {
+export async function initializeProvider({ state: providerState }: ProviderArgs): Promise<WorkerResponse> {
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
-  const [err, initializedState] = await go(handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider:${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);
@@ -32,18 +41,18 @@ export async function initializeProvider({ state: providerState }): Promise<Work
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions }): Promise<WorkerResponse> {
+export async function callApi({ aggregatedApiCall, logOptions }: CallApiArgs): Promise<WorkerResponse> {
   const config = loadConfig();
   const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }
 
-export async function processProviderRequests({ state: providerState }): Promise<WorkerResponse> {
+export async function processProviderRequests({ state: providerState }: ProviderArgs): Promise<WorkerResponse> {
   const config = loadConfig();
   const stateWithConfig = state.update(providerState, { config });
 
-  const [err, updatedState] = await go(handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests:${stateWithConfig.settings.name}`;
     const errorLog = logger.pend('ERROR', msg, err);

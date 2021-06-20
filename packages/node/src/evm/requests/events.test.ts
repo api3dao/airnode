@@ -3,8 +3,8 @@ import * as events from './events';
 describe('API call topics', () => {
   it('returns API_CALL_REQUEST_TOPICS', () => {
     expect(events.API_CALL_REQUEST_TOPICS).toEqual([
-      '0xaff6f5e5548953a11cbb1cfdd76562512f969b0eba0a2163f2420630d4dda97b',
-      '0x775e78a8e7375d14ad03d31edd0a27b29a055f732bca987abfe8082c16ed7e44',
+      '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf',
+      '0xe8ae99161b1547fd1c6ff3cb9660293fa4cd770fd52f72ff0362d64d8bccc08e',
     ]);
   });
 
@@ -33,14 +33,14 @@ describe('Withdrawal topics', () => {
 describe('isApiCallRequest', () => {
   it('returns true if the topic is an API call topic', () => {
     events.API_CALL_REQUEST_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isApiCallRequest(log)).toEqual(true);
     });
   });
 
   it('returns false if the topic is not an API call topic', () => {
     events.API_CALL_FULFILLED_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isApiCallRequest(log)).toEqual(false);
     });
   });
@@ -49,14 +49,14 @@ describe('isApiCallRequest', () => {
 describe('isApiCallFulfillment', () => {
   it('returns true if the topic is an API call fulfillment topic', () => {
     events.API_CALL_FULFILLED_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isApiCallFulfillment(log)).toEqual(true);
     });
   });
 
   it('returns false if the topic is not an API call topic', () => {
     events.API_CALL_REQUEST_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isApiCallFulfillment(log)).toEqual(false);
     });
   });
@@ -65,14 +65,14 @@ describe('isApiCallFulfillment', () => {
 describe('isWithdrawalRequest', () => {
   it('returns true if the topic is a withdrawal request topic', () => {
     events.WITHDRAWAL_REQUEST_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isWithdrawalRequest(log)).toEqual(true);
     });
   });
 
   it('returns false if the topic is not a withdrawal request topic', () => {
     events.WITHDRAWAL_FULFILLED_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isWithdrawalRequest(log)).toEqual(false);
     });
   });
@@ -81,14 +81,14 @@ describe('isWithdrawalRequest', () => {
 describe('isWithdrawalFulfillment', () => {
   it('returns true if the topic is a withdrawal fulfillment topic', () => {
     events.WITHDRAWAL_FULFILLED_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isWithdrawalFulfillment(log)).toEqual(true);
     });
   });
 
   it('returns false if the topic is not a withdrawal fulfillment topic', () => {
     events.WITHDRAWAL_REQUEST_TOPICS.forEach((topic) => {
-      const log: any = { topic };
+      const log: any = { parsedLog: { topic } };
       expect(events.isWithdrawalFulfillment(log)).toEqual(false);
     });
   });

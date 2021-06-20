@@ -11,7 +11,7 @@ export function deriveExtendedPublicKey(mnemonic: string): string {
   return hdNode.neuter().extendedKey;
 }
 
-export function deriveProviderId(masterWalletAddress: string): string {
+export function deriveAirnodeId(masterWalletAddress: string): string {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWalletAddress]));
 }
 
