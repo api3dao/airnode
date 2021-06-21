@@ -1,4 +1,4 @@
-import { AirnodeRrpFactory } from '@airnode/protocol';
+import { AirnodeRrpFactory } from '@api3/protocol';
 import { ethers } from 'ethers';
 import difference from 'lodash/difference';
 import * as admin from '../../src/implementation';

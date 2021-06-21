@@ -1,10 +1,11 @@
 import fs from 'fs';
 import { ethers } from 'ethers';
-import { encode } from '@airnode/airnode-abi';
+import { encode } from '@api3/airnode-abi';
 import * as handlers from '../../src/workers/local-handlers';
 import * as e2e from '../setup/e2e';
 import * as fixtures from '../fixtures';
 import { RequestErrorCode } from '../../src/types';
+import { ReservedParameterName } from '@api3/ois';
 
 it('sets the correct status code for both successful and failed requests', async () => {
   jest.setTimeout(45_000);
@@ -13,9 +14,10 @@ it('sets the correct status code for both successful and failed requests', async
 
   const baseParameters = [
     { type: 'bytes32', name: 'to', value: 'USD' },
-    { type: 'bytes32', name: '_type', value: 'int256' },
-    { type: 'bytes32', name: '_path', value: 'result' },
-    { type: 'bytes32', name: '_times', value: '1000000' },
+    { type: 'bytes32', name: ReservedParameterName.Type, value: 'int256' },
+    { type: 'bytes32', name: ReservedParameterName.Path, value: 'result' },
+    { type: 'bytes32', name: ReservedParameterName.Times, value: '1000000' },
+    { type: 'bytes32', name: ReservedParameterName.RelayMetadata, value: 'v1' },
   ];
   // Returns a 404
   const invalidParameters = [...baseParameters, { type: 'bytes32', name: 'from', value: 'UNKNOWN_COIN' }];

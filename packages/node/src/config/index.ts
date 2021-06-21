@@ -1,4 +1,4 @@
-import { OIS } from '@airnode/ois';
+import { OIS } from '@api3/ois';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
 

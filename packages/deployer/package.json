@@ -1,5 +1,5 @@
 {
-  "name": "@airnode/deployer",
+  "name": "@api3/deployer",
   "license": "MIT",
   "version": "0.1.0",
   "bin": {
@@ -7,19 +7,35 @@
   },
   "main": "./dist/bin/deployer.js",
   "scripts": {
-    "_build": "yarn run clean && yarn run compile && yarn webpack",
+    "build": "yarn clean && yarn compile && yarn webpack && yarn copy:webpack && yarn copy:terraform",
     "clean": "rimraf -rf ./dist",
-    "compile": "tsc -p tsconfig.build.json",
     "cli": "ts-node bin/deployer.ts",
+    "compile": "tsc -p tsconfig.build.json",
+    "copy:terraform": "copyfiles terraform/**/**/*.tf dist/",
+    "copy:webpack": "copyfiles .webpack/**/**/*.js dist/",
+    "prepublishOnly": "yarn build",
     "webpack": "webpack"
   },
   "dependencies": {
-    "@airnode/node": "^0.1.0",
-    "@airnode/protocol": "^0.1.0",
+    "@api3/node": "^0.1.0",
+    "@api3/ois": "^0.1.0",
+    "@api3/protocol": "^0.1.0",
     "dotenv": "^8.2.0",
+    "ethers": "^5.1.4",
+    "lodash": "^4.17.21",
     "ora": "^5.1.0",
-    "serverless": "^2.35.0",
+    "yargs": "^17.0.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.169",
+    "@types/node": "^15.12.2",
+    "@types/yargs": "^16.0.1",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.2.4",
     "webpack": "^5.31.2",
-    "webpack-cli": "^4.6.0"
+    "webpack-cli": "^4.6.0",
+    "yargs": "^17.0.1"
   }
 }

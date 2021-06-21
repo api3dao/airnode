@@ -1,9 +1,10 @@
 import * as ethers from 'ethers';
-import ora from 'ora';
-import { AirnodeRrpFactory } from '@airnode/protocol';
+import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
+import { ChainType, Configurations } from '../types';
+import * as logger from '../utils/logger';
 
-const chainIdsToNames = {
+const chainIdsToNames: Record<string, string> = {
   1: 'mainnet',
   3: 'ropsten',
   4: 'rinkeby',
@@ -12,20 +13,28 @@ const chainIdsToNames = {
   100: 'xdai',
 };
 
-export async function checkAirnodeParameters(configs, secrets, airnodeId, masterWalletAddress) {
+export async function checkAirnodeParameters(
+  configs: Configurations,
+  secrets: Record<string, string>,
+  airnodeId: string,
+  masterWalletAddress: string
+) {
+  logger.debug('Checking Airnode parameters');
   const providerUrls = findProviderUrls(configs, secrets);
   const airnodeRrpAddresses = findAirnodeRrpAddresses(configs);
 
   let spinner;
-  for (const chainType of Object.keys(providerUrls)) {
-    for (const chainId of Object.keys(providerUrls[chainType])) {
-      const chainName = chainIdsToNames[chainId] || `${chainId}`;
-      spinner = ora(`Checking Airnode parameters on chain: ${chainName} (${chainType})`).start();
+  let chainType: ChainType;
+  for (chainType in providerUrls) {
+    const chain = providerUrls[chainType];
+    for (const chainId in chain) {
+      const chainName = chainIdsToNames[chainId] || chainId;
+      spinner = logger.spinner(`Checking Airnode parameters on chain: ${chainName} (${chainType})`);
       let checkSuccesful = false;
-      for (const providerUrl of providerUrls[chainType][chainId]) {
+      for (const providerUrl of chain[chainId]) {
         try {
           const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-          const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType][chainId], provider);
+          const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType]![chainId], provider);
           const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
           if (airnodeParameters.xpub === '') {
             spinner.warn(`Airnode parameters not found on chain: ${chainName} (${chainType})`);
@@ -36,8 +45,10 @@ export async function checkAirnodeParameters(configs, secrets, airnodeId, master
           }
           checkSuccesful = true;
           break;
-        } catch {
-          // continue
+        } catch (err) {
+          // Continue
+          spinner.warn(`Couldn't connect via ${providerUrl} provider`);
+          logger.debug(err.toString());
         }
       }
       if (!checkSuccesful) {
@@ -47,8 +58,12 @@ export async function checkAirnodeParameters(configs, secrets, airnodeId, master
   }
 }
 
-async function checkMasterWalletBalance(provider, masterWalletAddress, chainName) {
-  const spinner = ora(`Checking master wallet balance on chain: ${chainName}`).start();
+async function checkMasterWalletBalance(
+  provider: ethers.providers.Provider,
+  masterWalletAddress: string,
+  chainName: string
+) {
+  const spinner = logger.spinner(`Checking master wallet balance on chain: ${chainName}`);
   try {
     const balance = await provider.getBalance(masterWalletAddress);
     // Overestimate the required ETH
@@ -57,13 +72,14 @@ async function checkMasterWalletBalance(provider, masterWalletAddress, chainName
       `Balance of ${masterWalletAddress} is ${ethers.utils.formatEther(balance)} ETH on chain: ${chainName}`
     );
     if (txCost.gt(balance)) {
-      ora().warn(
+      logger.warn(
         `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to set your Airnode parameters`
       );
     } else {
-      ora().succeed('Master wallet balance is enough to set your Airnode parameters');
+      logger.succeed('Master wallet balance is enough to set your Airnode parameters');
     }
-  } catch {
+  } catch (err) {
     spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);
+    logger.debug(err.toString());
   }
 }

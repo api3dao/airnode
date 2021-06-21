@@ -12,8 +12,8 @@ EOC
   }
 
   triggers = {
-    source_file_hash        = fileexists("${local.tmp_source_dir}/${var.source_file}") ? filesha256(var.source_file) : ""
-    configuration_file_hash = fileexists("${local.tmp_configuration_dir}/${var.configuration_file}") ? filesha256(var.configuration_file) : ""
+    // Run always
+    trigger = uuid()
   }
 }
 
@@ -55,7 +55,7 @@ resource "aws_lambda_function" "lambda" {
   ]
 
   environment {
-    variables = jsondecode(file(var.secrets_file))
+    variables = fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {}
   }
 }
 

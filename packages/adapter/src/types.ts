@@ -1,50 +1,51 @@
+import { Endpoint, Method, OIS, Operation, SecuritySchemeSecret } from '@api3/ois';
 import BigNumber from 'bignumber.js';
-import { Method, OIS, Operation, Endpoint, SecurityScheme } from '@airnode/ois';
 
 export interface BuildRequestOptions {
-  ois: OIS;
-  endpointName: string;
-  parameters: { [key: string]: string };
-  securitySchemes?: SecurityScheme[];
+  readonly ois: OIS;
+  readonly endpointName: string;
+  readonly parameters: { [key: string]: string };
+  readonly securitySchemeSecrets?: SecuritySchemeSecret[];
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {
-  operation: Operation;
-  endpoint: Endpoint;
+  readonly operation: Operation;
+  readonly endpoint: Endpoint;
 }
 
 export interface Parameters {
-  [key: string]: string;
+  readonly [key: string]: string;
 }
 
 export interface RequestParameters {
-  paths: { [key: string]: string };
-  query: { [key: string]: string };
-  headers: { [key: string]: string };
+  readonly paths: { [key: string]: string };
+  readonly query: { [key: string]: string };
+  readonly headers: { [key: string]: string };
 }
 
 export interface BuilderParameters extends RequestParameters {
-  cookies: { [key: string]: string };
+  readonly cookies: { [key: string]: string };
 }
 
 export interface Request {
-  baseUrl: string;
-  path: string;
-  method: Method;
-  headers: { [key: string]: string };
-  data: { [key: string]: string };
+  readonly baseUrl: string;
+  readonly path: string;
+  readonly method: Method;
+  readonly headers: { [key: string]: string };
+  readonly data: { [key: string]: string };
 }
 
 export interface Config {
-  timeout?: number;
+  readonly timeout?: number;
 }
 
 export type ValueType = string | BigNumber | boolean;
 
 export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32';
 
-export interface ResponseParameters {
-  _path?: string;
-  _times?: string | BigNumber;
-  _type: ResponseType;
+export interface ReservedParameters {
+  readonly _path?: string;
+  readonly _times?: string | BigNumber;
+  readonly _type: ResponseType;
+  readonly _relay_metadata?: string;
 }

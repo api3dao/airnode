@@ -2,11 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist",
-    // TODO: enable this once all of the errors have been fixed
-    "strict": false
+    "outDir": "dist"
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./src/**/*"
+  ],
   "exclude": [
     "dist/**/*",
     "node_modules/**/*"

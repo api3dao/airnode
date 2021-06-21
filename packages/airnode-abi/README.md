@@ -1,4 +1,4 @@
-# Monorepo version: `@airnode/airnode-abi`
+# Monorepo version: `@api3/airnode-abi`
 # Stand-alone version: `@api3/airnode-abi`
 
 > Encoding and decoding utilities intended for use with Airnode
@@ -17,10 +17,10 @@ You can install with either [npm](https://docs.npmjs.com/getting-started/install
 
 ```sh
 # npm
-npm install --save @airnode/airnode-abi
+npm install --save @api3/airnode-abi
 
 # Yarn
-yarn add @airnode/airnode-abi
+yarn add @api3/airnode-abi
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ yarn add @airnode/airnode-abi
 It is important to note that numeric values (`int256` and `uint256`) should be submitted as **strings** in order to preserve precision.
 
 ```ts
-import { encode } from '@airnode/airnode-abi';
+import { encode } from '@api3/airnode-abi';
 
 const parameters = [
   { type: 'bytes32', name: 'from', value: 'ETH' },
@@ -57,7 +57,7 @@ Decoding returns an object where the keys are the "names" and the values are the
 It is important to note that `int256` and `uint256` will be decoded back to strings.
 
 ```ts
-import { decode } from '@airnode/airnode-abi';
+import { decode } from '@api3/airnode-abi';
 
 const encodedData = '0x...';
 const decoded = decode(encodedData);

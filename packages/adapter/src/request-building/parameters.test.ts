@@ -1,4 +1,4 @@
-import { EndpointParameter, FixedParameter } from '@airnode/ois';
+import { EndpointParameter, FixedParameter } from '@api3/ois';
 import * as fixtures from '../../test/fixtures';
 import * as parameters from './parameters';
 
@@ -108,13 +108,14 @@ describe('user parameters', () => {
       { name: 'cookie_param', in: 'cookie' },
     ];
     // Add to the parameters that get sent at run-time from the user
-    options.parameters = {
+    const allParameters = {
       ...options.parameters,
       p: 'path-key',
       h: 'header-key',
       c: 'cookie-key',
     };
-    const res = parameters.buildParameters(options);
+    const updatedOptions = { ...options, parameters: allParameters };
+    const res = parameters.buildParameters(updatedOptions);
     expect(res).toEqual({
       paths: { path_param: 'path-key' },
       query: {

@@ -40,7 +40,7 @@ const addRandomDuplicates = (arr) => {
 const _median = (arr) => {
   const arrSorted = arr.slice(0).sort((a, b) => a - b);
   const n = arr.length;
-  if (n % 2 == 1) {
+  if (n % 2 === 1) {
     return arrSorted[Math.floor(n / 2)];
   } else {
     return (arrSorted[n / 2 - 1] + arrSorted[n / 2]) / 2;

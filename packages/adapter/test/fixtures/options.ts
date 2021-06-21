@@ -1,6 +1,6 @@
 import { BuildRequestOptions, CachedBuildRequestOptions } from '../../src/types';
 import { buildOIS } from './ois';
-import { securitySchemes } from './security';
+import { securitySchemeSecrets } from './security';
 
 export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): BuildRequestOptions {
   const ois = buildOIS();
@@ -8,7 +8,7 @@ export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): B
     ois: ois,
     endpointName: 'convertToUSD',
     parameters: { f: 'ETH', amount: '1' },
-    securitySchemes: securitySchemes,
+    securitySchemeSecrets,
     ...overrides,
   };
 }

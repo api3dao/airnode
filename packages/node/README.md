@@ -1,4 +1,4 @@
-# @airnode/node
+# @api3/node
 
 > The node part of Airnode that allows for connecting multiple blockchains to the rest of the world
 
@@ -22,7 +22,7 @@ git clone git@github.com:api3dao/airnode.git
 # Install and link dependencies (run from the monorepo root)
 yarn run bootstrap
 
-# Build each @airnode package (run from the monorepo root)
+# Build each @api3 package (run from the monorepo root)
 yarn run build
 ```
 

@@ -1,6 +1,9 @@
-import rawConfig from '../../config-data/config.json';
-import * as node from '@airnode/node';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as node from '@api3/node';
 
+const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
+const rawConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 const config = node.config.parseConfig(rawConfig[0]);
 
 function encodeBody(data: node.WorkerResponse): string {
@@ -16,7 +19,7 @@ export async function startCoordinator() {
 export async function initializeProvider(event: any) {
   const stateWithConfig = { ...event.state, config };
 
-  const [err, initializedState] = await node.promiseUtils.go(node.handlers.initializeProvider(stateWithConfig));
+  const [err, initializedState] = await node.promiseUtils.go(() => node.handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
     const msg = `Failed to initialize provider: ${stateWithConfig.settings.name}`;
     const errorLog = node.logger.pend('ERROR', msg, err);
@@ -39,7 +42,7 @@ export async function callApi(event: any) {
 export async function processProviderRequests(event: any) {
   const stateWithConfig = { ...event.state, config };
 
-  const [err, updatedState] = await node.promiseUtils.go(node.handlers.processTransactions(stateWithConfig));
+  const [err, updatedState] = await node.promiseUtils.go(() => node.handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
     const msg = `Failed to process provider requests: ${stateWithConfig.settings.name}`;
     const errorLog = node.logger.pend('ERROR', msg, err);
