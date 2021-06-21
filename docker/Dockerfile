@@ -7,7 +7,7 @@ ENV airnodeDir="/app/airnode"
 ENV deployerDir="${airnodeDir}/packages/deployer" \
     YARN_REGISTRY=${yarnRegistry}
 
-RUN apk add --update python make g++ && \
+RUN apk add --update python3 make g++ && \
     mkdir -p ${deployerDir}
 
 WORKDIR ${deployerDir}
