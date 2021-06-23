@@ -1,14 +1,6 @@
 import { validate } from '../validator';
 import * as utils from './utils';
-import { Log } from '../types';
-
-const templates = {
-  apispecifications: 'apiSpecifications.json',
-  apispecs: 'apiSpecifications.json',
-  config: 'config.json',
-  endpoints: 'endpoints.json',
-  ois: 'ois.json',
-};
+import { Log, templates } from '../types';
 
 let template = process.env.npm_config_template || process.argv[2];
 const specs = process.env.npm_config_specs || process.argv[3];
