@@ -1,5 +1,5 @@
 
-# Optional and level
+# Optional
 
 Some parameters in specification can be present but in case they are not there, it shouldn't be an issue as well. For this `__optional` is used, parameters inside it will not cause any extra parameter messages or missing parameter messages to show.
 

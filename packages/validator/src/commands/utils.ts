@@ -1,9 +1,10 @@
 import { Log } from '../types';
 
 const fs = require('fs');
+const path = require('path');
 
 export const templateVersions = fs
-  .readdirSync('templates', { withFileTypes: true })
+  .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })
   .filter((dirent: { isDirectory: () => any }) => dirent.isDirectory())
   .map((dirent: { name: any }) => dirent.name)
   .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
@@ -14,8 +15,8 @@ export const templateVersions = fs
  */
 function getLatestPath(template: string): string {
   for (const version of templateVersions) {
-    if (fs.existsSync(`templates/${version}/${template}`)) {
-      return `templates/${version}/${template}`;
+    if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
+      return path.resolve(__dirname, `../../templates/${version}/${template}`);
     }
   }
 
@@ -30,8 +31,8 @@ function getLatestPath(template: string): string {
  */
 export function getPath(template: string, messages: Log[], version = ''): string {
   if (version) {
-    if (fs.existsSync(`templates/${version}/${template}`)) {
-      return `templates/${version}/${template}`;
+    if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
+      return path.resolve(__dirname, `../../templates/${version}/${template}`);
     } else {
       messages.push({
         level: 'warning',

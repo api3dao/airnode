@@ -4,6 +4,8 @@ import { Log, Result, templates } from './types';
 import { processSpecs } from './processor';
 import * as utils from './commands/utils';
 
+const path = require('path');
+
 /**
  * Validates specification from provided file according to template file
  * @param specsPath - specification file to validate
@@ -19,9 +21,9 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   let template, specs;
 
   try {
-    template = fs.readFileSync(templatePath, 'utf-8');
+    template = fs.readFileSync(path.resolve(templatePath), 'utf-8');
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)] };
+    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(templatePath)}`)] };
   }
 
   try {
@@ -31,9 +33,9 @@ export function validate(specsPath: string | undefined, templatePath: string | u
   }
 
   try {
-    specs = fs.readFileSync(specsPath, 'utf-8');
+    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)] };
+    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)] };
   }
 
   try {
@@ -48,12 +50,12 @@ export function validate(specsPath: string | undefined, templatePath: string | u
 }
 
 /**
- * Validates specification with known template
+ * Validates JSON specification with known template
  * @param specs - specification to validate
  * @param templateName - name of the template (ois, config...)
  * @param returnJson - parsed JSON specification will be returned
  */
-export function validateWithTemplate(specs: object, templateName: string | undefined, returnJson = false): Result {
+export function validateJsonWithTemplate(specs: object, templateName: string | undefined, returnJson = false): Result {
   if (!templateName) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
@@ -83,6 +85,28 @@ export function validateWithTemplate(specs: object, templateName: string | undef
   const split = templatePath.split('/');
 
   return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', returnJson);
+}
+
+export function validateWithTemplate(specsPath: string | undefined, templateName: string | undefined) {
+  if (!specsPath) {
+    return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
+  }
+
+  let specs;
+
+  try {
+    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)] };
+  }
+
+  try {
+    specs = JSON.parse(specs);
+  } catch (e) {
+    return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
+  }
+
+  return validateJsonWithTemplate(specs, templateName);
 }
 
 /**

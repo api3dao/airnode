@@ -2,7 +2,7 @@
   "name": "@api3/validator",
   "license": "MIT",
   "version": "1.0.0",
-  "main": "src/validator.js",
+  "main": "src/validator.ts",
   "directories": {
     "lib": "src",
     "test": "__tests__"

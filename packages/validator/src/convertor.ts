@@ -3,6 +3,8 @@ import * as logger from './utils/logger';
 import fs from 'fs';
 import { processSpecs } from './processor';
 
+const path = require('path');
+
 /**
  * Converts specification from provided file into format the template specifies
  * @param specsPath - specification file to convert, root must be an object (not an array)
@@ -17,9 +19,9 @@ export function convert(specsPath: string | undefined, templatePath: string | un
   let template, specs;
 
   try {
-    template = fs.readFileSync(templatePath, 'utf-8');
+    template = fs.readFileSync(path.resolve(templatePath), 'utf-8');
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${templatePath}`)], output: {} };
+    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(templatePath)}`)], output: {} };
   }
 
   try {
@@ -29,9 +31,9 @@ export function convert(specsPath: string | undefined, templatePath: string | un
   }
 
   try {
-    specs = fs.readFileSync(specsPath, 'utf-8');
+    specs = fs.readFileSync(path.resolve(specsPath), 'utf-8');
   } catch (e) {
-    return { valid: false, messages: [logger.error(`Unable to read file ${specsPath}`)], output: {} };
+    return { valid: false, messages: [logger.error(`Unable to read file ${path.resolve(specsPath)}`)], output: {} };
   }
 
   try {
