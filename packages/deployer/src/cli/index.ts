@@ -52,13 +52,13 @@ yargs(hideBin(process.argv))
       configuration: {
         alias: ['c', 'config', 'conf'],
         description: 'Path to configuration file',
-        default: 'config/config.json',
+        default: 'config/config.json.example',
         type: 'string',
       },
       secrets: {
         alias: 's',
         description: 'Path to secrets file',
-        default: 'config/secrets.env',
+        default: 'config/secrets.env.example',
         type: 'string',
       },
       receipt: {
