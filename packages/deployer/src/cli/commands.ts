@@ -23,9 +23,10 @@ export async function deploy(
   secretsFile: string,
   receiptFile: string,
   interactive: boolean,
-  nodeVersion: string
+  nodeVersion: string,
+  debug: boolean
 ) {
-  const configs = parseConfigFile(configFile, nodeVersion);
+  const configs = parseConfigFile(configFile, nodeVersion, debug);
   const secrets = parseSecretsFile(secretsFile);
 
   if (!secrets.MASTER_KEY_MNEMONIC) {

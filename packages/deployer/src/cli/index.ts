@@ -76,7 +76,9 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion));
+      await runCommand(() =>
+        deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion, args.debug as boolean)
+      );
     }
   )
   .command(

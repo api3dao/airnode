@@ -4,7 +4,7 @@ import { Configurations, Receipts } from 'src/types';
 import * as logger from '../utils/logger';
 import { validateWithTemplate } from '@api3/validator';
 
-export function parseConfigFile(configPath: string, nodeVersion: string) {
+export function parseConfigFile(configPath: string, nodeVersion: string, debug: boolean) {
   logger.debug('Parsing configuration file');
 
   let configs: Configurations;
@@ -13,10 +13,13 @@ export function parseConfigFile(configPath: string, nodeVersion: string) {
   if (res.messages.length) {
     if (!res.valid) {
       logger.fail(JSON.stringify(res.messages));
-      throw new Error('Invalid config.json');
-    }
 
-    logger.warn(JSON.stringify(res.messages));
+      if (!debug) {
+        throw new Error('Invalid config.json');
+      }
+    } else {
+      logger.warn(JSON.stringify(res.messages));
+    }
   }
 
   try {
