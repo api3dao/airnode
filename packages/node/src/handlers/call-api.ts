@@ -48,12 +48,9 @@ function buildSecuritySchemeSecrets(
 ): SecuritySchemeSecret[] {
   const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
   const securitySchemeSecrets = securitySchemeNames.map((securitySchemeName) => {
-    const securitySchemeEnvironmentConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
-    let value = '';
-    if (securitySchemeEnvironmentConfig) {
-      value = getEnvValue(securitySchemeEnvironmentConfig.envName) || '';
-    }
-    return { securitySchemeName, value };
+    const securityEnvConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
+    const value = securityEnvConfig ? getEnvValue(securityEnvConfig.envName) : '';
+    return { securitySchemeName, value: value ?? '' };
   });
   return securitySchemeSecrets;
 }
