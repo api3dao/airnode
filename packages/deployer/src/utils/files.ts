@@ -2,23 +2,31 @@ import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { Configurations, Receipts } from 'src/types';
 import * as logger from '../utils/logger';
+import { validateWithTemplate } from '@api3/validator';
 
 export function parseConfigFile(configPath: string, nodeVersion: string) {
   logger.debug('Parsing configuration file');
+
   let configs: Configurations;
+  const res = validateWithTemplate(configPath, 'config', true);
+
+  if (res.messages.length) {
+    if (!res.valid) {
+      logger.fail(JSON.stringify(res.messages));
+      throw new Error('Invalid config.json');
+    }
+
+    logger.warn(JSON.stringify(res.messages));
+  }
+
   try {
-    configs = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    configs = res.specs as Configurations;
   } catch (e) {
     logger.fail('Failed to parse configuration file');
     throw e;
   }
-  // A more comprehensive validation should be done beforehand
-  // https://github.com/api3dao/airnode/issues/136
+
   for (const config of configs) {
-    if (config.nodeSettings.cloudProvider !== 'aws') {
-      logger.fail('cloudProvider under nodeSettings in config.json is not aws');
-      throw new Error('Attempted to use an unsupported cloud provider');
-    }
     if (nodeVersion !== config.nodeSettings.nodeVersion) {
       logger.fail(
         `nodeVersion under nodeSettings in config.json is ${config.nodeSettings.nodeVersion} while the deployer node version is ${nodeVersion}`
@@ -26,6 +34,7 @@ export function parseConfigFile(configPath: string, nodeVersion: string) {
       throw new Error('Attempted to deploy node configuration with the wrong node version');
     }
   }
+
   return configs;
 }
 
