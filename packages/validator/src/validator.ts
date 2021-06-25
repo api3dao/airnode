@@ -87,7 +87,17 @@ export function validateJsonWithTemplate(specs: object, templateName: string | u
   return validateJson(specs, template, split.slice(0, split.length - 1).join('/') + '/', returnJson);
 }
 
-export function validateWithTemplate(specsPath: string | undefined, templateName: string | undefined) {
+/**
+ * Validates specification on provided path with known template
+ * @param specsPath - path to specification that will be validated
+ * @param templateName - name of the template (ois, config...)
+ * @param returnJson - parsed JSON specification will be returned
+ */
+export function validateWithTemplate(
+  specsPath: string | undefined,
+  templateName: string | undefined,
+  returnJson = false
+) {
   if (!specsPath) {
     return { valid: false, messages: [logger.error('Specification and template file must be provided')] };
   }
@@ -106,7 +116,7 @@ export function validateWithTemplate(specsPath: string | undefined, templateName
     return { valid: false, messages: [logger.error(`${specsPath} is not valid JSON: ${e}`)] };
   }
 
-  return validateJsonWithTemplate(specs, templateName);
+  return validateJsonWithTemplate(specs, templateName, returnJson);
 }
 
 /**
