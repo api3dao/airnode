@@ -1,5 +1,6 @@
 import * as utils from './utils/utils';
 import * as logger from './utils/logger';
+import * as msg from './utils/messages';
 import { validateCondition } from './validators/conditionValidator';
 import { validateRegexp } from './validators/regexpValidator';
 import { validateOptional } from './validators/optionalValidator';
@@ -9,6 +10,7 @@ import { execute } from './utils/action';
 import { validateParameter } from './validators/parameterValidator';
 import { validateCatch } from './validators/catchValidator';
 import { validateTemplate } from './validators/templateValidator';
+import { validateType } from './validators/typeValidator';
 
 /**
  * Recursion validating provided specification against template
@@ -31,6 +33,15 @@ export function processSpecs(
   paramPathPrefix: string[] = []
 ): Result {
   let messages: Log[] = [];
+
+  if (template['__type'] !== undefined) {
+    const res = validateType(specs, template['__type'], paramPath, paramPathPrefix);
+
+    if (res.length) {
+      messages.push(...res);
+      return { valid: false, messages, output: roots.output };
+    }
+  }
 
   for (const key of Object.keys(template)) {
     if (key === '__ignore') {
@@ -70,6 +81,11 @@ export function processSpecs(
 
       // validate array
       case '__arrayItem':
+        if (!Array.isArray(specs)) {
+          messages.push(msg.incorrectType([...paramPathPrefix, ...paramPath], 'array', typeof specs));
+          break;
+        }
+
         // nonRedundantParams has to have the same structure as template
         if (!nonRedundantParams) {
           nonRedundantParams = [];
@@ -129,6 +145,7 @@ export function processSpecs(
         break;
 
       case '__catch':
+      case '__type':
         break;
 
       case '__any':

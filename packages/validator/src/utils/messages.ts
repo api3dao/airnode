@@ -31,3 +31,7 @@ export function requiredConditionNotMetMessage(paramPath: string[]): Log {
 export function invalidConversionMessage(from: string, to: string): Log {
   return { level: 'error', message: `Conversion from ${from} to ${to} is not valid conversion` };
 }
+
+export function incorrectType(paramPath: string[], expectedType: string, actualType: string): Log {
+  return { level: 'error', message: `${paramPath.join('.')}: Expected ${expectedType}, got ${actualType}` };
+}
