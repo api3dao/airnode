@@ -208,7 +208,9 @@ jobs:
       - run: exit 0
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ always() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ always() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
