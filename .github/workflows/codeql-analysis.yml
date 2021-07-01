@@ -68,7 +68,10 @@ jobs:
 
     - name: Slack Notification
       uses: lazy-actions/slatify@master
-      if: ${{ failure() && github.repository_owner == 'api3dao' }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      # env.SLACK_WEBHOOK_URL != null is a workaround dependabot not having access to secrets
+      if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
       with:
         channel: '#technical-notifications'
         commit: true
