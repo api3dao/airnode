@@ -26,10 +26,9 @@ interface IApi3Authorizer is IAuthorizer {
     bytes32 indexed airnodeId,
     address indexed clientAddress,
     uint256 expiration,
+    bool status,
     address indexed admin
   );
-
-  event SetBlacklistStatus(address indexed clientAddress, bool status, address indexed admin);
 
   function setMetaAdmin(address _metaAdmin) external;
 
@@ -46,8 +45,7 @@ interface IApi3Authorizer is IAuthorizer {
   function setWhitelistExpiration(
     bytes32 airnodeId,
     address clientAddress,
-    uint256 expiration
+    uint256 expiration,
+    bool status
   ) external;
-
-  function setBlacklistStatus(address clientAddress, bool status) external;
 }
