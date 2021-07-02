@@ -16,7 +16,7 @@ contract Api3Authorizer is IApi3Authorizer {
   address public metaAdmin;
   mapping(address => AdminStatus) public adminStatuses;
   mapping(bytes32 => mapping(address => uint256)) public airnodeIdToClientAddressToWhitelistExpiration;
-  mapping(bytes32 => mapping(address => bool)) public airnodeIdToClientAddressToWhitelist;
+  mapping(bytes32 => mapping(address => bool)) public airnodeIdToClientAddressToWhitelistStatus;
 
   /// @param _metaAdmin Address that will be set as the meta admin
   constructor(address _metaAdmin) {
@@ -72,7 +72,6 @@ contract Api3Authorizer is IApi3Authorizer {
       expiration > airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress],
       ERROR_EXPIRATION_NOT_EXTENDED
     );
-    airnodeIdToClientAddressToWhitelist[airnodeId][clientAddress] = true;
     airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = expiration;
     emit ExtendedWhitelistExpiration(airnodeId, clientAddress, expiration, msg.sender);
   }
@@ -85,13 +84,25 @@ contract Api3Authorizer is IApi3Authorizer {
   function setWhitelistExpiration(
     bytes32 airnodeId,
     address clientAddress,
-    uint256 expiration,
-    bool status
+    uint256 expiration
   ) external override {
     require(adminStatuses[msg.sender] == AdminStatus.SuperAdmin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
     airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] = expiration;
-    airnodeIdToClientAddressToWhitelist[airnodeId][clientAddress] = status;
-    emit SetWhitelistExpiration(airnodeId, clientAddress, expiration, status, msg.sender);
+    emit SetWhitelistExpiration(airnodeId, clientAddress, expiration, msg.sender);
+  }
+
+  /// @notice Called by a super admin to set the whitelist status of a client
+  /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
+  /// @param clientAddress Client address
+  /// @param status Whitelist status to be set
+  function setWhitelistStatus(
+    bytes32 airnodeId,
+    address clientAddress,
+    bool status
+  ) external override {
+    require(adminStatuses[msg.sender] == AdminStatus.SuperAdmin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
+    airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress] = status;
+    emit SetWhitelistStatus(airnodeId, clientAddress, status, msg.sender);
   }
 
   /// @notice Verifies the authorization status of a request
@@ -119,7 +130,7 @@ contract Api3Authorizer is IApi3Authorizer {
   ) external view override returns (bool) {
     return
       designatedWallet.balance != 0 &&
-      airnodeIdToClientAddressToWhitelist[airnodeId][clientAddress] &&
-      airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp;
+      (airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress] ||
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp);
   }
 }
