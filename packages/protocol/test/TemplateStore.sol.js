@@ -1,4 +1,5 @@
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
 let airnodeRrp;
 const airnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));

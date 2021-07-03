@@ -1,4 +1,5 @@
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
 const AdminStatus = {
   Unauthorized: 0,
@@ -29,13 +30,13 @@ beforeEach(async () => {
 });
 
 describe('constructor', function () {
-  context('Meta admin address is non-zero', function () {
+  describe('Meta admin address is non-zero', function () {
     it('initializes correctly', async function () {
       expect(await api3Authorizer.authorizerType()).to.equal(1);
       expect(await api3Authorizer.metaAdmin()).to.equal(roles.metaAdmin.address);
     });
   });
-  context('Meta admin address is zero', function () {
+  describe('Meta admin address is zero', function () {
     it('reverts', async function () {
       const api3AuthorizerFactory = await ethers.getContractFactory('Api3Authorizer', roles.deployer);
       await expect(api3AuthorizerFactory.deploy(ethers.constants.AddressZero)).to.be.revertedWith('Zero address');
@@ -44,15 +45,15 @@ describe('constructor', function () {
 });
 
 describe('setMetaAdmin', function () {
-  context('Caller is the meta admin', async function () {
-    context('Address to be set as meta admin is non-zero', async function () {
+  describe('Caller is the meta admin', async function () {
+    describe('Address to be set as meta admin is non-zero', async function () {
       it('transfers master adminship', async function () {
         await expect(api3Authorizer.connect(roles.metaAdmin).setMetaAdmin(roles.newMetaAdmin.address))
           .to.emit(api3Authorizer, 'SetMetaAdmin')
           .withArgs(roles.newMetaAdmin.address);
       });
     });
-    context('Address to be set as meta admin is non-zero', async function () {
+    describe('Address to be set as meta admin is non-zero', async function () {
       it('reverts', async function () {
         await expect(
           api3Authorizer.connect(roles.metaAdmin).setMetaAdmin(ethers.constants.AddressZero)
@@ -60,7 +61,7 @@ describe('setMetaAdmin', function () {
       });
     });
   });
-  context('Caller is not the meta admin', async function () {
+  describe('Caller is not the meta admin', async function () {
     it('reverts', async function () {
       await expect(
         api3Authorizer.connect(roles.randomPerson).setMetaAdmin(roles.newMetaAdmin.address)
@@ -70,7 +71,7 @@ describe('setMetaAdmin', function () {
 });
 
 describe('setAdminStatus', function () {
-  context('Caller is the meta admin', async function () {
+  describe('Caller is the meta admin', async function () {
     it('sets admin status', async function () {
       // Give admin status
       await expect(api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin))
@@ -102,7 +103,7 @@ describe('setAdminStatus', function () {
       expect(await api3Authorizer.adminStatuses(roles.superAdmin.address)).to.equal(AdminStatus.Unauthorized);
     });
   });
-  context('Caller is not the meta admin', async function () {
+  describe('Caller is not the meta admin', async function () {
     it('reverts', async function () {
       await expect(
         api3Authorizer.connect(roles.randomPerson).setAdminStatus(roles.admin.address, AdminStatus.Admin)
@@ -115,7 +116,7 @@ describe('setAdminStatus', function () {
 });
 
 describe('renounceAdminStatus', function () {
-  context('Caller is an admin', async function () {
+  describe('Caller is an admin', async function () {
     it('renounces admin status', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
       await expect(api3Authorizer.connect(roles.admin).renounceAdminStatus())
@@ -124,7 +125,7 @@ describe('renounceAdminStatus', function () {
       expect(await api3Authorizer.adminStatuses(roles.admin.address)).to.equal(AdminStatus.Unauthorized);
     });
   });
-  context('Caller is a super admin', async function () {
+  describe('Caller is a super admin', async function () {
     it('renounces admin status', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
       await expect(api3Authorizer.connect(roles.superAdmin).renounceAdminStatus())
@@ -133,7 +134,7 @@ describe('renounceAdminStatus', function () {
       expect(await api3Authorizer.adminStatuses(roles.superAdmin.address)).to.equal(AdminStatus.Unauthorized);
     });
   });
-  context('Caller is not an admin', async function () {
+  describe('Caller is not an admin', async function () {
     it('reverts', async function () {
       await expect(api3Authorizer.connect(roles.randomPerson).renounceAdminStatus()).to.be.revertedWith('Unauthorized');
     });
@@ -141,8 +142,8 @@ describe('renounceAdminStatus', function () {
 });
 
 describe('extendWhitelistExpiration', function () {
-  context('Caller is an admin', function () {
-    context('Provided expiration extends', function () {
+  describe('Caller is an admin', function () {
+    describe('Provided expiration extends', function () {
       it('extends whitelist expiration', async function () {
         await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
@@ -157,7 +158,7 @@ describe('extendWhitelistExpiration', function () {
         ).to.equal(expiration);
       });
     });
-    context('Provided expiration does not extend', function () {
+    describe('Provided expiration does not extend', function () {
       it('reverts', async function () {
         await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
@@ -169,8 +170,8 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Caller is a super admin', async function () {
-    context('Provided expiration extends', function () {
+  describe('Caller is a super admin', async function () {
+    describe('Provided expiration extends', function () {
       it('extends whitelist expiration', async function () {
         await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
@@ -187,7 +188,7 @@ describe('extendWhitelistExpiration', function () {
         ).to.equal(expiration);
       });
     });
-    context('Provided expiration does not extend', function () {
+    describe('Provided expiration does not extend', function () {
       it('reverts', async function () {
         await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
@@ -201,8 +202,8 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Caller is the meta admin', function () {
-    context('Provided expiration extends', function () {
+  describe('Caller is the meta admin', function () {
+    describe('Provided expiration extends', function () {
       it('extends whitelist expiration', async function () {
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
         const expiration = now + 100;
@@ -216,7 +217,7 @@ describe('extendWhitelistExpiration', function () {
         ).to.equal(expiration);
       });
     });
-    context('Provided expiration does not extend', function () {
+    describe('Provided expiration does not extend', function () {
       it('reverts', async function () {
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
         await api3Authorizer.connect(roles.metaAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, now);
@@ -227,7 +228,7 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Caller is not an admin', function () {
+  describe('Caller is not an admin', function () {
     it('reverts', async function () {
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       await expect(
@@ -238,7 +239,7 @@ describe('extendWhitelistExpiration', function () {
 });
 
 describe('setWhitelistExpiration', function () {
-  context('Caller is a super admin', async function () {
+  describe('Caller is a super admin', async function () {
     it('sets whitelist expiration', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
@@ -261,7 +262,7 @@ describe('setWhitelistExpiration', function () {
       ).to.equal(now);
     });
   });
-  context('Caller is the meta admin', async function () {
+  describe('Caller is the meta admin', async function () {
     it('sets whitelist expiration', async function () {
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       const expiration = now + 100;
@@ -281,7 +282,7 @@ describe('setWhitelistExpiration', function () {
       ).to.equal(now);
     });
   });
-  context('Caller is an admin', function () {
+  describe('Caller is an admin', function () {
     it('reverts', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
@@ -290,7 +291,7 @@ describe('setWhitelistExpiration', function () {
       ).to.be.revertedWith('Unauthorized');
     });
   });
-  context('Caller is not an admin', function () {
+  describe('Caller is not an admin', function () {
     it('reverts', async function () {
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       await expect(
@@ -301,7 +302,7 @@ describe('setWhitelistExpiration', function () {
 });
 
 describe('setBlacklistStatus', function () {
-  context('Caller is a super admin', async function () {
+  describe('Caller is a super admin', async function () {
     it('sets blacklist status', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
       await expect(api3Authorizer.connect(roles.superAdmin).setBlacklistStatus(roles.client.address, true))
@@ -314,7 +315,7 @@ describe('setBlacklistStatus', function () {
       expect(await api3Authorizer.clientAddressToBlacklistStatus(roles.client.address)).to.equal(false);
     });
   });
-  context('Caller is the meta admin', async function () {
+  describe('Caller is the meta admin', async function () {
     it('sets whitelist expiration', async function () {
       await expect(api3Authorizer.connect(roles.metaAdmin).setBlacklistStatus(roles.client.address, true))
         .to.emit(api3Authorizer, 'SetBlacklistStatus')
@@ -326,7 +327,7 @@ describe('setBlacklistStatus', function () {
       expect(await api3Authorizer.clientAddressToBlacklistStatus(roles.client.address)).to.equal(false);
     });
   });
-  context('Caller is an admin', function () {
+  describe('Caller is an admin', function () {
     it('reverts', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
       await expect(
@@ -334,7 +335,7 @@ describe('setBlacklistStatus', function () {
       ).to.be.revertedWith('Unauthorized');
     });
   });
-  context('Caller is not an admin', function () {
+  describe('Caller is not an admin', function () {
     it('reverts', async function () {
       await expect(
         api3Authorizer.connect(roles.randomPerson).setBlacklistStatus(roles.client.address, true)
@@ -344,9 +345,9 @@ describe('setBlacklistStatus', function () {
 });
 
 describe('isAuthorized', function () {
-  context('Designated wallet balance is not zero', function () {
-    context('Client is not blacklisted', function () {
-      context('Client whitelisting has not expired', function () {
+  describe('Designated wallet balance is not zero', function () {
+    describe('Client is not blacklisted', function () {
+      describe('Client whitelisting has not expired', function () {
         it('returns true', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
           await roles.client.sendTransaction({
@@ -368,7 +369,7 @@ describe('isAuthorized', function () {
           ).to.equal(true);
         });
       });
-      context('Client whitelisting has expired', function () {
+      describe('Client whitelisting has expired', function () {
         it('returns false', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
           await roles.client.sendTransaction({
@@ -388,7 +389,7 @@ describe('isAuthorized', function () {
         });
       });
     });
-    context('Client is blacklisted', function () {
+    describe('Client is blacklisted', function () {
       it('returns false', async function () {
         const designatedWallet = ethers.Wallet.createRandom();
         await roles.client.sendTransaction({
@@ -412,7 +413,7 @@ describe('isAuthorized', function () {
       });
     });
   });
-  context('Designated wallet balance is zero', function () {
+  describe('Designated wallet balance is zero', function () {
     it('returns false', async function () {
       const designatedWallet = ethers.Wallet.createRandom();
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;

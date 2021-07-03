@@ -1,4 +1,5 @@
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
 let airnodeRrpClient;
 let roles;
@@ -24,14 +25,14 @@ describe('constructor', function () {
 });
 
 describe('onlyAirnodeRrp', function () {
-  context('Caller is the Airnode RRP contract', async function () {
+  describe('Caller is the Airnode RRP contract', async function () {
     it('does not revert', async function () {
       await expect(
         airnodeRrpClient.connect(roles.airnodeRrp).fulfill(requestId, fulfillStatusCode, fulfillData)
       ).to.not.be.revertedWith('Caller not Airnode RRP');
     });
   });
-  context('Caller is not the Airnode RRP contract', async function () {
+  describe('Caller is not the Airnode RRP contract', async function () {
     it('reverts', async function () {
       await expect(
         airnodeRrpClient.connect(roles.randomPerson).fulfill(requestId, fulfillStatusCode, fulfillData)

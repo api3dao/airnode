@@ -1,4 +1,5 @@
-const { expect } = require('chai');
+import { ethers } from 'ethers';
+import { expect } from 'chai';
 
 let airnodeRrp, authorizerAlwaysTrue, authorizerAlwaysFalse;
 let roles;
@@ -63,7 +64,7 @@ describe('setAirnodeParameters', function () {
 });
 
 describe('requestWithdrawal', function () {
-  context('Caller is requester admin', async function () {
+  describe('Caller is requester admin', async function () {
     it('requests withdrawal', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
@@ -100,7 +101,7 @@ describe('requestWithdrawal', function () {
         );
     });
   });
-  context('Caller not requester admin', async function () {
+  describe('Caller not requester admin', async function () {
     it('reverts', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
@@ -121,8 +122,8 @@ describe('requestWithdrawal', function () {
 });
 
 describe('fulfillWithdrawal', function () {
-  context('Fulfillment parameters are correct', async function () {
-    context('Withdrawal destination is payable', async function () {
+  describe('Fulfillment parameters are correct', async function () {
+    describe('Withdrawal destination is payable', async function () {
       it('fulfills withdrawal request', async function () {
         // Generate random addresses as the authorizer contracts
         const authorizers = Array.from({ length: 5 }, () =>
@@ -183,7 +184,7 @@ describe('fulfillWithdrawal', function () {
         expect(await waffle.provider.getBalance(roles.requesterAdmin.address)).to.equal(expectedRequesterAdminBalance);
       });
     });
-    context('Withdrawal destination is not payable', async function () {
+    describe('Withdrawal destination is not payable', async function () {
       it('reverts', async function () {
         // Generate random addresses as the authorizer contracts
         const authorizers = Array.from({ length: 5 }, () =>
@@ -220,7 +221,7 @@ describe('fulfillWithdrawal', function () {
       });
     });
   });
-  context('Fulfillment parameters are incorrect', async function () {
+  describe('Fulfillment parameters are incorrect', async function () {
     it('reverts', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
@@ -289,7 +290,7 @@ describe('fulfillWithdrawal', function () {
       ).to.be.revertedWith('No such withdrawal request');
     });
   });
-  context('Fulfilling wallet is incorrect', async function () {
+  describe('Fulfilling wallet is incorrect', async function () {
     it('reverts', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
@@ -328,7 +329,7 @@ describe('fulfillWithdrawal', function () {
 });
 
 describe('checkAuthorizationStatus', function () {
-  context('authorizers array is empty', async function () {
+  describe('authorizers array is empty', async function () {
     it('returns false', async function () {
       const authorizers = [];
       // Set the Airnode parameters
@@ -348,7 +349,7 @@ describe('checkAuthorizationStatus', function () {
       ).to.equal(false);
     });
   });
-  context('All authorizers return false', async function () {
+  describe('All authorizers return false', async function () {
     it('returns false', async function () {
       const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysFalse.address, authorizerAlwaysFalse.address];
       // Set the Airnode parameters
@@ -368,7 +369,7 @@ describe('checkAuthorizationStatus', function () {
       ).to.equal(false);
     });
   });
-  context('authorizers array contains a zero address', async function () {
+  describe('authorizers array contains a zero address', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, ethers.constants.AddressZero];
       // Set the Airnode parameters
@@ -388,7 +389,7 @@ describe('checkAuthorizationStatus', function () {
       ).to.equal(true);
     });
   });
-  context('At least one of the authorizers returns true', async function () {
+  describe('At least one of the authorizers returns true', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysTrue.address, authorizerAlwaysFalse.address];
       // Set the Airnode parameters
