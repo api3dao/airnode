@@ -15,7 +15,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
   IAirnodeRrp public airnodeRrp;
   mapping(bytes32 => mapping(address => AdminStatus)) public airnodeIdToAdminStatuses;
   mapping(bytes32 => mapping(address => uint256)) public airnodeIdToClientAddressToWhitelistExpiration;
-  mapping(bytes32 => mapping(address => bool)) public airnodeIdToClientAddressToBlacklistStatus;
+  mapping(bytes32 => mapping(address => bool)) public airnodeIdToClientAddressToWhitelistStatus;
 
   /// @param _airnodeRrp Airnode RRP contract address
   constructor(address _airnodeRrp) {
@@ -95,11 +95,11 @@ contract SelfAuthorizer is ISelfAuthorizer {
     emit SetWhitelistExpiration(airnodeId, clientAddress, expiration, msg.sender);
   }
 
-  /// @notice Called by a super admin to set the blacklist status of a client
+  /// @notice Called by a super admin to set the whitelist status of a client
   /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
   /// @param clientAddress Client address
-  /// @param status Blacklist status to be set
-  function setBlacklistStatus(
+  /// @param status Whitelist status to be set
+  function setWhitelistStatus(
     bytes32 airnodeId,
     address clientAddress,
     bool status
@@ -109,8 +109,8 @@ contract SelfAuthorizer is ISelfAuthorizer {
       airnodeIdToAdminStatuses[airnodeId][msg.sender] == AdminStatus.SuperAdmin || msg.sender == airnodeAdmin,
       ERROR_UNAUTHORIZED
     );
-    airnodeIdToClientAddressToBlacklistStatus[airnodeId][clientAddress] = status;
-    emit SetBlacklistStatus(airnodeId, clientAddress, status, msg.sender);
+    airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress] = status;
+    emit SetWhitelistStatus(airnodeId, clientAddress, status, msg.sender);
   }
 
   /// @notice Verifies the authorization status of a request
@@ -138,7 +138,7 @@ contract SelfAuthorizer is ISelfAuthorizer {
   ) external view override returns (bool) {
     return
       designatedWallet.balance != 0 &&
-      !airnodeIdToClientAddressToBlacklistStatus[airnodeId][clientAddress] &&
-      airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp;
+      (airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress] ||
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp);
   }
 }
