@@ -1,7 +1,7 @@
 import * as adapter from '@api3/adapter';
 import { ReservedParameterName } from '@api3/ois';
-import { RequestErrorCode } from 'src/types';
-import * as fixtures from 'test/fixtures';
+import { RequestErrorCode } from '../types';
+import * as fixtures from '../../test/fixtures';
 import { callApi } from './call-api';
 
 describe('callApi', () => {

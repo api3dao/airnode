@@ -1,7 +1,7 @@
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
 import * as verification from './api-call-verification';
-import { RequestErrorCode, RequestStatus } from 'src/types';
+import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('verifyApiCallIds', () => {
   requests.getStatusNames().forEach((status) => {

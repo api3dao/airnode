@@ -8,9 +8,9 @@ jest.mock('./local-handlers', () => ({
   callApi: spawnLocalMock,
 }));
 
-import * as fixtures from 'test/fixtures';
 import * as workers from './index';
-import { WorkerFunctionName, WorkerParameters } from 'src/types';
+import * as fixtures from '../../test/fixtures';
+import { WorkerFunctionName, WorkerParameters } from '../types';
 
 describe('spawn', () => {
   it('spawns for aws', async () => {

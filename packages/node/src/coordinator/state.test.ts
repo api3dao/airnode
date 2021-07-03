@@ -1,5 +1,5 @@
-import * as fixtures from 'test/fixtures';
-import { AggregatedApiCallsById } from 'src/types';
+import * as fixtures from '../../test/fixtures';
+import { AggregatedApiCallsById } from '../types';
 import * as state from './state';
 
 describe('create', () => {

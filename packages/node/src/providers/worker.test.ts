@@ -3,7 +3,7 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
 }));
 
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 import * as worker from './worker';
 
 describe('spawnNewProvider', () => {

@@ -16,22 +16,34 @@ import { ethers } from 'ethers';
 import * as wallet from './wallet';
 import * as initialization from './initialization';
 
-const initializationFunctions = ['airnodeParametersMatch', 'airnodeParametersExistOnchain'] as const;
+const initializationFunctions = ['airnodeParametersMatch', 'airnodeParametersExistOnchain'] as Array<
+  keyof typeof initialization
+>;
 
 initializationFunctions.forEach((initFunction) => {
   describe(initFunction, () => {
     const options = {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      airnodeId: '0x15e7097beac1fd23c0d1e3f5a882a6f99ecbcf2e0c1011d1bd43707c6c0ec717',
+      airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       authorizers: [ethers.constants.AddressZero],
       masterHDNode: wallet.getMasterHDNode(),
+      provider: new ethers.providers.JsonRpcProvider(),
+      currentXpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      onchainData: {
+        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+        authorizers: [ethers.constants.AddressZero],
+        blockNumber: 12,
+        xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      },
     };
 
     const validData = {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     };
 
     it('is true if the Airnode onchain parameters match the expected data', () => {
@@ -76,8 +88,7 @@ describe('fetchAirnodeParametersWithData', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const [logs, res] = await initialization.fetchAirnodeParametersWithData(options);
     expect(logs).toEqual([
@@ -94,8 +105,7 @@ describe('fetchAirnodeParametersWithData', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledWith('0xairnodeId');
@@ -130,8 +140,7 @@ describe('fetchAirnodeParametersWithData', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const [logs, res] = await initialization.fetchAirnodeParametersWithData(options);
     expect(logs).toEqual([
@@ -148,8 +157,7 @@ describe('fetchAirnodeParametersWithData', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledTimes(2);
     expect(getAirnodeParametersAndBlockNumberMock.mock.calls).toEqual([['0xairnodeId'], ['0xairnodeId']]);
@@ -186,8 +194,7 @@ describe('setAirnodeParameters', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     },
   };
 
@@ -539,8 +546,7 @@ describe('verifyOrSetAirnodeParameters', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const [logs, res] = await initialization.verifyOrSetAirnodeParameters(options);
     expect(logs).toEqual([
@@ -562,8 +568,7 @@ describe('verifyOrSetAirnodeParameters', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledWith(

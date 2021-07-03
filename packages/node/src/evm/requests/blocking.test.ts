@@ -1,5 +1,5 @@
-import * as fixtures from 'test/fixtures';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
 import * as blocking from './blocking';
 
 describe('blockRequestsWithWithdrawals', () => {

@@ -16,7 +16,7 @@ import {
   verifyMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
-import { Receipts } from 'src/types';
+import { Receipts } from '../types';
 
 export async function deploy(
   configFile: string,

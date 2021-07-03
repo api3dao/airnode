@@ -1,10 +1,10 @@
-import { mockEthers } from 'test/utils/utils';
+import { mockEthers } from '../../../test/utils/utils';
 const getTemplateMock = jest.fn();
 const getTemplatesMock = jest.fn();
 mockEthers({ airnodeRrpMocks: { getTemplate: getTemplateMock, getTemplates: getTemplatesMock } });
 
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import { AirnodeRrp } from '../contracts';
 import * as templates from './template-fetching';
 
@@ -217,7 +217,7 @@ describe('fetchTemplate', () => {
   let airnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    airnodeRrp = (new ethers.Contract('address', ['ABI']) as unknown) as AirnodeRrp;
+    airnodeRrp = new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
   });
 
   it('fetches the individual template', async () => {

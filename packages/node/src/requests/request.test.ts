@@ -1,6 +1,6 @@
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 import * as request from './request';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
+import { GroupedRequests, RequestErrorCode, RequestStatus } from '../types';
 
 describe('blockdOrIgnored', () => {
   it('ignores requests that have passed the specified block limit', () => {

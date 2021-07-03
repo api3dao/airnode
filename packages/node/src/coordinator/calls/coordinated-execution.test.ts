@@ -3,7 +3,7 @@ jest.mock('fs');
 import fs from 'fs';
 import * as adapter from '@api3/adapter';
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import * as coordinatedExecution from './coordinated-execution';
 import * as workers from '../../workers/index';
 import { LogOptions, RequestErrorCode } from '../../types';

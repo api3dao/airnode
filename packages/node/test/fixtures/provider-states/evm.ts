@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig } from '../config';
-import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from 'src/types';
+import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from '../../../src/types';
 
 export function buildEVMProviderState(
   overrides?: Partial<ProviderState<EVMProviderState>>

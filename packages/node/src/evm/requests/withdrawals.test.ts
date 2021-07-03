@@ -1,6 +1,6 @@
 import * as withdrawals from './withdrawals';
-import * as fixtures from 'test/fixtures';
-import { RequestStatus } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { RequestStatus } from '../../types';
 import { parseAirnodeRrpLog } from './event-logs';
 
 describe('initialize (Withdrawal)', () => {

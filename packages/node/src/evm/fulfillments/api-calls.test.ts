@@ -13,13 +13,13 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import * as apiCalls from './api-calls';
 import * as wallet from '../wallet';
-import { RequestErrorCode, RequestStatus } from 'src/types';
+import { RequestErrorCode, RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
-const createAirnodeRrpFake = () => (new ethers.Contract('address', ['ABI']) as unknown) as AirnodeRrp;
+const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
 
 describe('submitApiCall', () => {
   const masterHDNode = wallet.getMasterHDNode();

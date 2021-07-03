@@ -1,7 +1,7 @@
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
 import * as verification from './template-verification';
-import { RequestErrorCode, RequestStatus } from 'src/types';
+import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('TEMPLATE_VALIDATION_FIELDS', () => {
   it('returns the list of validated template fields', () => {

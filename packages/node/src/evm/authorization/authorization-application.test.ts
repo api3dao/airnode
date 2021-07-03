@@ -1,5 +1,5 @@
-import * as fixtures from 'test/fixtures';
-import { RequestErrorCode, RequestStatus } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { RequestErrorCode, RequestStatus } from '../../types';
 import * as authorization from './authorization-application';
 
 describe('mergeAuthorizations', () => {

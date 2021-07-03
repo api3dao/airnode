@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
-import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from 'src/types';
+import * as fixtures from '../../test/fixtures';
+import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from '../types';
 import * as state from './state';
 
 describe('create', () => {
@@ -53,8 +53,7 @@ describe('create', () => {
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',
-        xpub:
-          'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+        xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
       config,
       coordinatorId: '837daEf231',
@@ -121,8 +120,7 @@ describe('create', () => {
         region: 'us-east-1',
         stage: 'test',
         url: 'http://localhost:4111',
-        xpub:
-          'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+        xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
       },
       config,
       coordinatorId: '837daEf231',

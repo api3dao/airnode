@@ -1,5 +1,5 @@
-import { GroupedRequests } from 'src/types';
-import * as fixtures from 'test/fixtures';
+import { GroupedRequests } from '../types';
+import * as fixtures from '../../test/fixtures';
 import * as grouping from './grouping';
 
 describe('mapUniqueRequesterIndices', () => {

@@ -1,4 +1,4 @@
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../types';
 import * as application from './template-application';
 

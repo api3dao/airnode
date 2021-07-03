@@ -23,8 +23,8 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
-import { EVMProviderState, GroupedRequests, ProviderState, RequestType } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { EVMProviderState, GroupedRequests, ProviderState, RequestType } from '../../types';
 import * as providerState from '../../providers/state';
 import * as fulfillments from './index';
 

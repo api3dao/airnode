@@ -17,8 +17,13 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
   ],
-  plugins: ['@typescript-eslint'],
+  plugins: [
+    '@typescript-eslint',
+    'import',
+  ],
   rules: {
     // TypeScript
     '@typescript-eslint/ban-ts-comment': 0,
@@ -37,6 +42,9 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', vars: 'all' }],
     '@typescript-eslint/no-use-before-define': 0,
     '@typescript-eslint/no-var-requires': 0,
+
+    // eslint-plugin-import
+    'import/namespace': [2, { allowComputed: true }],
 
     // ESLint
     'comma-dangle': [2, 'only-multiline'],

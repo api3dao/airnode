@@ -1,5 +1,5 @@
 import shuffle from 'lodash/shuffle';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 import * as sorting from './sorting';
 
 describe('sortGroupedRequests', () => {
