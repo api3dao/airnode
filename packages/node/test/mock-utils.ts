@@ -1,4 +1,4 @@
-// NOTE: This file is referenced by .eslintrc
+// NOTE: This file is referenced as a pathGroup pattern in .eslintrc (import/order)
 
 import { AirnodeRrp } from '@api3/protocol';
 
