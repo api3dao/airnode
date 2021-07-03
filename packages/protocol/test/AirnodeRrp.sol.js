@@ -1,5 +1,6 @@
-import { ethers } from 'ethers';
-import { expect } from 'chai';
+/* globals ethers */
+
+const { expect } = require('chai');
 
 let airnodeRrp, airnodeRrpClient;
 let roles;
