@@ -1,5 +1,5 @@
-import * as requests from '../../requests';
 import * as verification from './request-verification';
+import * as requests from '../../requests';
 import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
 import { RequestErrorCode, RequestStatus } from '../../types';

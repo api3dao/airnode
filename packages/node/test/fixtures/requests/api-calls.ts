@@ -1,5 +1,5 @@
-import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
 import { buildMetadata } from './metadata';
+import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
 
 export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
   const metadata = buildMetadata();

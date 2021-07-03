@@ -45,6 +45,10 @@ module.exports = {
 
     // eslint-plugin-import
     'import/namespace': [2, { allowComputed: true }],
+    'import/order': ['error', {
+      groups: ['builtin', 'external', 'internal', 'sibling', 'parent', 'index', 'object', 'type'],
+      pathGroups: [{ pattern: 'mock-utils', group: 'builtin', patternOptions: { matchBase: true, nocomment: true } }],
+    }],
 
     // ESLint
     'comma-dangle': [2, 'only-multiline'],

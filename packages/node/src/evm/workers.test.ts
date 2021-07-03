@@ -5,8 +5,8 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-import * as logger from '../logger';
 import * as worker from './workers';
+import * as logger from '../logger';
 import * as fixtures from '../../test/fixtures';
 
 const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as Array<keyof typeof worker>;

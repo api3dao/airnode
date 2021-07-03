@@ -1,8 +1,8 @@
 import * as adapter from '@api3/adapter';
 import { ReservedParameterName } from '@api3/ois';
+import { callApi } from './call-api';
 import { RequestErrorCode } from '../types';
 import * as fixtures from '../../test/fixtures';
-import { callApi } from './call-api';
 
 describe('callApi', () => {
   const OLD_ENV = process.env;

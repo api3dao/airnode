@@ -3,8 +3,8 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
 }));
 
-import * as fixtures from '../../test/fixtures';
 import * as worker from './worker';
+import * as fixtures from '../../test/fixtures';
 
 describe('spawnNewProvider', () => {
   it('returns an EVM provider state for AWS', async () => {

@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test/utils';
+import { mockEthers } from '../../test/mock-utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
 
@@ -9,11 +9,11 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 
 jest.mock('fs');
 
-import { ethers } from 'ethers';
 import fs from 'fs';
+import { ethers } from 'ethers';
+import * as providers from './initialize';
 import * as fixtures from '../../test/fixtures';
 import { ChainConfig, EnvironmentConfig } from '../types';
-import * as providers from './initialize';
 
 const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';

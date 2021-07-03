@@ -1,5 +1,5 @@
-import * as fixtures from '../../test/fixtures';
 import * as request from './request';
+import * as fixtures from '../../test/fixtures';
 import { GroupedRequests, RequestErrorCode, RequestStatus } from '../types';
 
 describe('blockdOrIgnored', () => {

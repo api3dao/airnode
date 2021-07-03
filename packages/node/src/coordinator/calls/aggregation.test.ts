@@ -1,5 +1,5 @@
-import * as fixtures from '../../../test/fixtures';
 import * as aggregation from './aggregation';
+import * as fixtures from '../../../test/fixtures';
 import { RequestStatus } from '../../types';
 
 describe('aggregate (API calls)', () => {

@@ -1,7 +1,7 @@
-import * as fixtures from '../../../test/fixtures';
 import * as apiCalls from './api-calls';
-import { EVMRequestCreatedLog, RequestErrorCode, RequestStatus } from '../../types';
 import { parseAirnodeRrpLog } from './event-logs';
+import { EVMRequestCreatedLog, RequestErrorCode, RequestStatus } from '../../types';
+import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {

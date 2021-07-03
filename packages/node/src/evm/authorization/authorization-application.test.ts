@@ -1,6 +1,6 @@
+import * as authorization from './authorization-application';
 import * as fixtures from '../../../test/fixtures';
 import { RequestErrorCode, RequestStatus } from '../../types';
-import * as authorization from './authorization-application';
 
 describe('mergeAuthorizations', () => {
   it('does nothing if the API call is already invalid', () => {

@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const checkAuthorizationStatusesMock = jest.fn();
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();

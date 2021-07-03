@@ -1,6 +1,6 @@
+import * as application from './template-application';
 import * as fixtures from '../../../test/fixtures';
 import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../types';
-import * as application from './template-application';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {

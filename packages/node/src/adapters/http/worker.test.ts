@@ -5,8 +5,8 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-import * as logger from '../../logger';
 import * as worker from './worker';
+import * as logger from '../../logger';
 import * as fixtures from '../../../test/fixtures';
 import { LogOptions } from '../../types';
 

@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const checkAuthorizationStatusMock = jest.fn();
 const checkAuthorizationStatusesMock = jest.fn();
 mockEthers({
@@ -9,8 +9,8 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from '../../../test/fixtures';
 import * as authorization from './authorization-fetching';
+import * as fixtures from '../../../test/fixtures';
 import { RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 

@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();

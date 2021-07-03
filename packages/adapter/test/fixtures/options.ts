@@ -1,6 +1,6 @@
-import { BuildRequestOptions, CachedBuildRequestOptions } from '../../src/types';
 import { buildOIS } from './ois';
 import { securitySchemeSecrets } from './security';
+import { BuildRequestOptions, CachedBuildRequestOptions } from '../../src/types';
 
 export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): BuildRequestOptions {
   const ois = buildOIS();

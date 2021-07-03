@@ -1,6 +1,6 @@
+import * as verification from './api-call-verification';
 import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
-import * as verification from './api-call-verification';
 import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('verifyApiCallIds', () => {

@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
 const staticFulfillMock = jest.fn();
@@ -13,8 +13,8 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from '../../../test/fixtures';
 import * as apiCalls from './api-calls';
+import * as fixtures from '../../../test/fixtures';
 import * as wallet from '../wallet';
 import { RequestErrorCode, RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';

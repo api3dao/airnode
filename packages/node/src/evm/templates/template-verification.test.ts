@@ -1,6 +1,6 @@
+import * as verification from './template-verification';
 import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
-import * as verification from './template-verification';
 import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('TEMPLATE_VALIDATION_FIELDS', () => {
