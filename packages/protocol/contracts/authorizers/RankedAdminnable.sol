@@ -8,7 +8,8 @@ contract RankedAdminnable is IRankedAdminnable {
   /// @notice Keeps the ranks of admins for each individual adminned entity
   /// @dev This contract implements adminship for a mapping of entities, rather
   /// than a single entity. However, the logic at the inheriting contract can
-  /// easily be adapted to use this contract to admin a single entity.
+  /// easily be adapted to use this contract to admin a single entity (see
+  /// Api3CwRrpAuthorizer.sol)
   mapping(bytes32 => mapping(address => uint256)) public adminnedIdToAdminToRank;
 
   /// @dev Reverts if the caller's rank is not greater than or equal to `rank`
@@ -28,19 +29,15 @@ contract RankedAdminnable is IRankedAdminnable {
     bytes32 adminnedId,
     address targetAdmin,
     uint256 newRank
-  ) external override onlyWithRank(adminnedId, max(adminnedIdToAdminToRank[adminnedId][targetAdmin], newRank) + 1) {
+  ) public override onlyWithRank(adminnedId, max(adminnedIdToAdminToRank[adminnedId][targetAdmin], newRank) + 1) {
     adminnedIdToAdminToRank[adminnedId][targetAdmin] = newRank;
     emit SetRank(adminnedId, targetAdmin, newRank, msg.sender);
   }
 
-  /// @notice Called by an admin to renounce its clearance level
+  /// @notice Called by an admin to decrease its rank
   /// @param adminnedId ID of the entity being adminned
   /// @param newRank Rank to be set
-  function decreaseSelfRank(bytes32 adminnedId, uint256 newRank)
-    external
-    override
-    onlyWithRank(adminnedId, newRank + 1)
-  {
+  function decreaseSelfRank(bytes32 adminnedId, uint256 newRank) public override onlyWithRank(adminnedId, newRank + 1) {
     adminnedIdToAdminToRank[adminnedId][msg.sender] = newRank;
     emit DecreasedSelfRank(adminnedId, msg.sender, newRank);
   }
@@ -59,7 +56,7 @@ contract RankedAdminnable is IRankedAdminnable {
   /// @param a First unsigned integer
   /// @param b Second unsigned integer
   /// @return Larger of the two unsigned integers
-  function max(uint256 a, uint256 b) private pure returns (uint256) {
+  function max(uint256 a, uint256 b) internal pure returns (uint256) {
     return a > b ? a : b;
   }
 }

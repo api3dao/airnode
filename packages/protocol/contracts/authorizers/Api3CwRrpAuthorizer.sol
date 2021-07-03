@@ -29,6 +29,24 @@ contract Api3CwRrpAuthorizer is ClientWhitelistRrpAuthorizer, IApi3CwRrpAuthoriz
     emit SetApi3Admin(_api3Admin);
   }
 
+  /// @notice Called by an admin of higher rank to set the rank of an admin of
+  /// lower rank
+  /// @dev Use this instead of `setRank(bytes32,address,uint256)` with
+  /// `adminnedId` of `bytes32(0)`
+  /// @param targetAdmin Target admin address
+  /// @param newRank Rank to be set
+  function setRank(address targetAdmin, uint256 newRank) external override {
+    setRank(bytes32(0), targetAdmin, newRank);
+  }
+
+  /// @notice Called by an admin to decrease its rank
+  /// @dev Use this instead of `setRank(bytes32,uint256)` with `adminnedId`
+  /// of `bytes32(0)`
+  /// @param newRank Rank to be set
+  function decreaseSelfRank(uint256 newRank) external override {
+    decreaseSelfRank(bytes32(0), newRank);
+  }
+
   /// @notice Called to get the rank of an admin for an adminned entity
   /// @dev Overriden to give the API3 admin full control and disable the
   /// Airnode ID-specific admin ranks (meaning that all admins are kept for ID
