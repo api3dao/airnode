@@ -7,24 +7,24 @@ export function isPromise(obj: any) {
   return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
 }
 
-type GoResult<T> = [Error, null] | [null, T];
+type GoResult<T> = readonly [Error, null] | readonly [null, T];
 
 export interface PromiseOptions {
-  retries?: number;
-  retryDelayMs?: number;
-  timeoutMs?: number;
+  readonly retries?: number;
+  readonly retryDelayMs?: number;
+  readonly timeoutMs?: number;
 }
 
 export interface RetryOptions extends PromiseOptions {
-  retries: number;
+  readonly retries: number;
 }
 
 // Go style async handling
 export function go<T>(fn: () => Promise<T>, options?: PromiseOptions): Promise<GoResult<T>> {
-  function successFn(value: T): [null, T] {
+  function successFn(value: T): readonly [null, T] {
     return [null, value];
   }
-  function errorFn(err: Error): [Error, null] {
+  function errorFn(err: Error): readonly [Error, null] {
     return [err, null];
   }
 
@@ -60,20 +60,20 @@ export async function retryOperation<T>(operation: () => Promise<T>, options: Re
 }
 
 export interface ContinuousRetryOptions {
-  delay?: number;
+  readonly delay?: number;
 }
 
 export function promiseTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-  let timeoutId: NodeJS.Timeout;
+  let mutableTimeoutId: NodeJS.Timeout;
   const timeout = new Promise((_res, reject) => {
-    timeoutId = setTimeout(() => {
+    mutableTimeoutId = setTimeout(() => {
       reject(new Error(`Operation timed out in ${ms} ms.`));
     }, ms);
   });
 
   const wrappedPromise = promise.finally(() => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
+    if (mutableTimeoutId) {
+      clearTimeout(mutableTimeoutId);
     }
   });
 

@@ -118,6 +118,7 @@ export async function callApi(
     return [[log], { errorCode: RequestErrorCode.ApiCallFailed }];
   }
 
+  // eslint-disable-next-line functional/no-try-statement
   try {
     const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
     return [[], { value: extracted.encodedValue }];

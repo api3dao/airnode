@@ -15,8 +15,8 @@ import {
 } from '../../types';
 
 export interface RequestsWithLogs {
-  logs: PendingLog[];
-  requests: GroupedRequests;
+  readonly logs: PendingLog[];
+  readonly requests: GroupedRequests;
 }
 
 function updateApiCallResponse(

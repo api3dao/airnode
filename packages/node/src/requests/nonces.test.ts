@@ -5,6 +5,7 @@ import * as providerState from '../providers/state';
 import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from '../types';
 
 describe('assign', () => {
+  // eslint-disable-next-line functional/no-let
   let initialState: ProviderState<EVMProviderState>;
 
   beforeEach(() => {

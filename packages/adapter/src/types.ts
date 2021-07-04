@@ -1,3 +1,5 @@
+/* eslint-disable functional/prefer-readonly-type */
+
 import { Endpoint, Method, OIS, Operation, SecuritySchemeSecret } from '@api3/ois';
 import { BigNumber } from 'bignumber.js';
 
@@ -5,7 +7,7 @@ export type BuildRequestOptions = {
   readonly ois: OIS;
   readonly endpointName: string;
   readonly parameters: { readonly [key: string]: string };
-  readonly securitySchemeSecrets?: readonly SecuritySchemeSecret[];
+  readonly securitySchemeSecrets?: SecuritySchemeSecret[];
 };
 
 export type CachedBuildRequestOptions = BuildRequestOptions & {
@@ -18,21 +20,21 @@ export type Parameters = {
 };
 
 export type RequestParameters = {
-  readonly paths: { readonly [key: string]: string };
-  readonly query: { readonly [key: string]: string };
-  readonly headers: { readonly [key: string]: string };
+  readonly paths: { [key: string]: string };
+  readonly query: { [key: string]: string };
+  readonly headers: { [key: string]: string };
 };
 
 export type BuilderParameters = RequestParameters & {
-  readonly cookies: { readonly [key: string]: string };
+  readonly cookies: { [key: string]: string };
 };
 
 export type Request = {
   readonly baseUrl: string;
   readonly path: string;
   readonly method: Method;
-  readonly headers: { readonly [key: string]: string };
-  readonly data: { readonly [key: string]: string };
+  readonly headers: { [key: string]: string };
+  readonly data: { [key: string]: string };
 };
 
 export type Config = {

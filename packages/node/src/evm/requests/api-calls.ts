@@ -83,8 +83,8 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
 }
 
 export interface UpdatedFulfilledRequests {
-  logs: PendingLog[];
-  requests: ClientRequest<ApiCall>[];
+  readonly logs: PendingLog[];
+  readonly requests: ClientRequest<ApiCall>[];
 }
 
 export function updateFulfilledRequests(
@@ -113,7 +113,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
+export function mapRequests(logsWithMetadata: readonly EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log)) as EVMRequestCreatedLog[];
   const fulfillmentLogs = logsWithMetadata.filter((log) =>
@@ -121,10 +121,10 @@ export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientReq
   ) as EVMRequestFulfilledLog[];
 
   // Cast raw logs to typed API request objects
-  const apiCallRequests = requestLogs.map((log) => initialize(log));
+  const apiCallRequests = requestLogs.map(initialize);
 
   // Decode and apply parameters for each API call
-  const parameterized = apiCallRequests.map((request) => applyParameters(request));
+  const parameterized = apiCallRequests.map(applyParameters);
   const parameterLogs = flatMap(parameterized, (p) => p[0]);
   const parameterizedRequests = flatMap(parameterized, (p) => p[1]);
 

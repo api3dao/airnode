@@ -3,10 +3,10 @@ import uniq from 'lodash/uniq';
 import { GroupedRequests } from '../types';
 
 export interface RequestsByRequesterIndex {
-  [requesterIndex: string]: GroupedRequests;
+  readonly [requesterIndex: string]: GroupedRequests;
 }
 
-export function mapUniqueRequesterIndices(requests: GroupedRequests): string[] {
+export function mapUniqueRequesterIndices(requests: GroupedRequests): readonly string[] {
   const apiCallIndices = requests.apiCalls.map((r) => r.requesterIndex!);
   const withdrawalIndices = requests.withdrawals.map((r) => r.requesterIndex!);
   return uniq([...apiCallIndices, ...withdrawalIndices]);

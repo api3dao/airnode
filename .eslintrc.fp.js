@@ -12,6 +12,9 @@ module.exports = {
     'functional/prefer-type-literal': 0,
     'functional/no-conditional-statement': 0,
     'functional/no-expression-statement': 0,
+    // variables prefixed with 'mutable' can be mutated
+    'functional/no-let': ['error', { ignorePattern: '^mutable' }],
     'functional/no-throw-statement': 0,
+    'functional/prefer-readonly-type': ['error', { ignoreCollections: true }],
   },
 };

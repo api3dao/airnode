@@ -15,17 +15,17 @@ import {
 } from '../../types';
 
 interface FetchOptions {
-  address: string;
-  airnodeId: string;
-  blockHistoryLimit: number;
-  currentBlock: number;
-  ignoreBlockedRequestsAfterBlocks: number;
-  provider: ethers.providers.JsonRpcProvider;
+  readonly address: string;
+  readonly airnodeId: string;
+  readonly blockHistoryLimit: number;
+  readonly currentBlock: number;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 interface GroupedLogs {
-  apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
-  withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
+  readonly apiCalls: readonly (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
+  readonly withdrawals: readonly (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
 }
 
 export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
@@ -36,7 +36,7 @@ export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
   return parsedLog as AirnodeLogDescription<AirnodeRrpLog<T>>;
 }
 
-export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
+export async function fetch(options: FetchOptions): Promise<readonly EVMEventLog[]> {
   // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
 
@@ -62,12 +62,12 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     transactionHash: log.transactionHash,
     // If the provider returns a bad response, mapping logs could also throw
     parsedLog: parseAirnodeRrpLog(log),
-  })) as EVMEventLog[];
+  })) as readonly EVMEventLog[];
 
   return logsWithBlocks;
 }
 
-export function group(logsWithMetadata: EVMEventLog[]): GroupedLogs {
+export function group(logsWithMetadata: readonly EVMEventLog[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
     withdrawals: [],

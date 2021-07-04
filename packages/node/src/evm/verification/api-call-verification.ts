@@ -4,8 +4,8 @@ import * as logger from '../../logger';
 import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 interface ValidatedField {
-  type: string;
-  value: any;
+  readonly type: string;
+  readonly value: any;
 }
 
 function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {

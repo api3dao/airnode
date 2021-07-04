@@ -12,6 +12,7 @@ export function weiToBigNumber(wei: string) {
   return ethers.BigNumber.from(wei);
 }
 
+// eslint-disable-next-line functional/prefer-readonly-type
 export function sortBigNumbers(bigNumbers: ethers.BigNumber[]) {
   // Puts the highest BigNumber first
   return bigNumbers.sort((a, b) => (a.gte(b) ? -1 : 1));

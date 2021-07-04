@@ -49,10 +49,10 @@ async function execute(
 }
 
 export async function callApis(
-  aggregatedApiCalls: AggregatedApiCall[],
+  aggregatedApiCalls: readonly AggregatedApiCall[],
   logOptions: LogOptions,
   workerOpts: WorkerOptions
-): Promise<LogsData<AggregatedApiCall[]>> {
+): Promise<LogsData<readonly AggregatedApiCall[]>> {
   const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorCode);
   const skippedAggregatedCalls = aggregatedApiCalls.filter((a) => a.errorCode);
 

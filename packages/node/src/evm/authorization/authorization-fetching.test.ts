@@ -15,10 +15,10 @@ import { RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 describe('fetch (authorizations)', () => {
-  let fetchOptions: any;
+  let mutableFetchOptions: any;
 
   beforeEach(() => {
-    fetchOptions = {
+    mutableFetchOptions = {
       address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       provider: new ethers.providers.JsonRpcProvider(),
@@ -27,7 +27,7 @@ describe('fetch (authorizations)', () => {
 
   it('returns an empty object if there are no pending API calls', async () => {
     const apiCalls = [fixtures.requests.buildApiCall({ status: RequestStatus.Blocked })];
-    const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await authorization.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});
   });
@@ -44,7 +44,7 @@ describe('fetch (authorizations)', () => {
       });
     });
 
-    const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await authorization.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['0']).toEqual(true);
@@ -80,7 +80,7 @@ describe('fetch (authorizations)', () => {
       fixtures.requests.buildApiCall({ id: '0xapiCallId-2' }),
     ];
 
-    const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await authorization.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       '0xapiCallId-0': true,
@@ -93,7 +93,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusesMock.mockRejectedValueOnce(new Error('Server says no'));
     checkAuthorizationStatusesMock.mockResolvedValueOnce([true]);
     const apiCalls = [fixtures.requests.buildApiCall({ id: '0xapiCallId' })];
-    const [logs, res] = await authorization.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await authorization.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({ '0xapiCallId': true });
   });
@@ -105,7 +105,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
 
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
+    const [logs, res] = await authorization.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
       { level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` },
@@ -121,7 +121,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
 
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
+    const [logs, res] = await authorization.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
       { level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` },
@@ -137,7 +137,7 @@ describe('fetch (authorizations)', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
 
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetch([apiCall], fetchOptions);
+    const [logs, res] = await authorization.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch group authorization details', error: new Error('Server says no') },
       {
@@ -152,16 +152,16 @@ describe('fetch (authorizations)', () => {
 
 describe('fetchAuthorizationStatus', () => {
   const airnodeId = '0xairnodeId';
-  let airnodeRrp: AirnodeRrp;
+  let mutableAirnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    airnodeRrp = new ethers.Contract('address', ['ABI']) as any as AirnodeRrp;
+    mutableAirnodeRrp = new ethers.Contract('address', ['ABI']) as any as AirnodeRrp;
   });
 
   it('fetches group authorization status if it can be fetched', async () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeId, apiCall);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(true);
   });
@@ -170,7 +170,7 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeId, apiCall);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(false);
   });
@@ -179,7 +179,7 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeId, apiCall);
     expect(logs).toEqual([
       {
         level: 'ERROR',
