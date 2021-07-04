@@ -1,5 +1,5 @@
 // TODO: Can't find the ethers.js type for ABIs
-export type ABI = readonly string[] | any;
+export type ABI = string[] | any;
 
 export interface Contract {
   readonly ABI: ABI;

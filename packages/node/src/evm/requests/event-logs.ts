@@ -24,8 +24,8 @@ interface FetchOptions {
 }
 
 interface GroupedLogs {
-  readonly apiCalls: readonly (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
-  readonly withdrawals: readonly (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
+  readonly apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
+  readonly withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
 }
 
 export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
@@ -36,7 +36,7 @@ export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
   return parsedLog as AirnodeLogDescription<AirnodeRrpLog<T>>;
 }
 
-export async function fetch(options: FetchOptions): Promise<readonly EVMEventLog[]> {
+export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
   // Protect against a potential negative fromBlock value
   const fromBlock = Math.max(0, options.currentBlock - options.blockHistoryLimit);
 
@@ -62,12 +62,12 @@ export async function fetch(options: FetchOptions): Promise<readonly EVMEventLog
     transactionHash: log.transactionHash,
     // If the provider returns a bad response, mapping logs could also throw
     parsedLog: parseAirnodeRrpLog(log),
-  })) as readonly EVMEventLog[];
+  })) as EVMEventLog[];
 
   return logsWithBlocks;
 }
 
-export function group(logsWithMetadata: readonly EVMEventLog[]): GroupedLogs {
+export function group(logsWithMetadata: EVMEventLog[]): GroupedLogs {
   const initialState: GroupedLogs = {
     apiCalls: [],
     withdrawals: [],

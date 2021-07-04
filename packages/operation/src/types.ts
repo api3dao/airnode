@@ -5,7 +5,7 @@ import { AirnodeRrp } from '@api3/protocol';
 // ===========================================
 // General
 // ===========================================
-export type DeployState = {
+export interface DeployState {
   readonly airnodesByName: { readonly [name: string]: Airnode };
   readonly authorizersByName: { readonly [name: string]: string };
   readonly clientsByName: { readonly [name: string]: ethers.Contract };
@@ -17,9 +17,9 @@ export type DeployState = {
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly requestersById: { readonly [name: string]: RequesterAccount };
   readonly templatesByName: { readonly [name: string]: Template };
-};
+}
 
-export type RequestsState = {
+export interface RequestsState {
   readonly config: Config;
   readonly contracts: {
     readonly AirnodeRrp: AirnodeRrp;
@@ -27,140 +27,140 @@ export type RequestsState = {
   readonly deployment: Deployment;
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;
-};
+}
 
-export type DesignatedWallet = {
+export interface DesignatedWallet {
   readonly address: string;
   readonly airnodeName: string;
   readonly wallet: ethers.Wallet;
-};
+}
 
-export type RequesterAccount = {
+export interface RequesterAccount {
   readonly address: string;
-  readonly designatedWallets: readonly DesignatedWallet[];
+  readonly designatedWallets: DesignatedWallet[];
   readonly requesterIndex: ethers.BigNumber;
   readonly signer: ethers.Wallet;
-};
+}
 
-export type Airnode = {
+export interface Airnode {
   readonly masterWalletAddress: string;
   readonly mnemonic: string;
   readonly signer: ethers.providers.JsonRpcSigner | ethers.Wallet;
   readonly xpub: string;
-};
+}
 
-export type Template = {
+export interface Template {
   readonly airnodeName: string;
   readonly hash: string;
-};
+}
 
 // ===========================================
 // Deployment
 // ===========================================
-export type DeployedEndpoint = {
+export interface DeployedEndpoint {
   readonly endpointId: string;
-};
+}
 
-export type DeployedTemplate = {
+export interface DeployedTemplate {
   readonly endpointId: string;
   readonly hash: string;
-};
+}
 
-export type DeployedAirnode = {
+export interface DeployedAirnode {
   readonly masterWalletAddress: string;
   readonly endpoints: { readonly [name: string]: DeployedEndpoint };
   readonly templates: { readonly [name: string]: DeployedTemplate };
-};
+}
 
-export type DeployedDesignatedWallet = {
+export interface DeployedDesignatedWallet {
   readonly address: string;
   readonly airnodeName: string;
-};
+}
 
-export type DeployedRequester = {
+export interface DeployedRequester {
   readonly address: string;
   readonly id: string;
   readonly privateKey: string;
   readonly requesterIndex: string;
-};
+}
 
 // Deployment should ideally mirror the structure of the config file, but with
 // different fields for addresses, hashes and other deployment data
-export type Deployment = {
+export interface Deployment {
   readonly airnodes: { readonly [name: string]: DeployedAirnode };
   readonly clients: { readonly [name: string]: string };
   readonly contracts: {
     readonly AirnodeRrp: string;
   };
-  readonly requesters: readonly DeployedRequester[];
-};
+  readonly requesters: DeployedRequester[];
+}
 
 // ===========================================
 // Configuration
 // ===========================================
-export type ConfigClient = {
-  readonly endorsers: readonly string[];
-};
+export interface ConfigClient {
+  readonly endorsers: string[];
+}
 
-export type ConfigEndpoint = {
+export interface ConfigEndpoint {
   readonly oisTitle: string;
-};
+}
 
-export type ConfigTemplate = {
+export interface ConfigTemplate {
   readonly endpoint: string;
   readonly oisTitle: string;
-  readonly parameters: readonly InputParameter[];
-};
+  readonly parameters: InputParameter[];
+}
 
-export type ConfigAirnode = {
+export interface ConfigAirnode {
   readonly airnodeAdmin: string;
-  readonly authorizers: readonly string[];
+  readonly authorizers: string[];
   readonly endpoints: { readonly [name: string]: ConfigEndpoint };
   readonly mnemonic: string;
   readonly templates: { readonly [name: string]: ConfigTemplate };
-};
+}
 
-export type ConfigRequesterAirnode = {
+export interface ConfigRequesterAirnode {
   readonly ethBalance: string;
-};
+}
 
-export type ConfigRequester = {
+export interface ConfigRequester {
   readonly id: string;
   readonly airnodes: { readonly [name: string]: ConfigRequesterAirnode };
-};
+}
 
 export type RequestType = 'regular' | 'full' | 'withdrawal';
 
-export type Request = {
+export interface Request {
   readonly airnode: string;
   readonly requesterId: string;
   readonly type: RequestType;
-};
+}
 
-export type RegularRequest = Request & {
+export interface RegularRequest extends Request {
   readonly client: string;
   readonly fulfillFunctionName: string;
-  readonly parameters: readonly InputParameter[];
+  readonly parameters: InputParameter[];
   readonly template: string;
-};
+}
 
-export type FullRequest = Request & {
+export interface FullRequest extends Request {
   readonly client: string;
   readonly endpoint: string;
   readonly fulfillFunctionName: string;
   readonly oisTitle: string;
-  readonly parameters: readonly InputParameter[];
-};
+  readonly parameters: InputParameter[];
+}
 
-export type Withdrawal = Request & {
+export interface Withdrawal extends Request {
   readonly destination: string;
-};
+}
 
-export type Config = {
+export interface Config {
   readonly airnodes: { readonly [name: string]: ConfigAirnode };
   readonly authorizers: { readonly [name: string]: string };
   readonly clients: { readonly [name: string]: ConfigClient };
   readonly deployerIndex: number;
-  readonly requesters: readonly ConfigRequester[];
-  readonly requests: ReadonlyArray<RegularRequest | FullRequest | Withdrawal>;
-};
+  readonly requesters: ConfigRequester[];
+  readonly requests: Array<RegularRequest | FullRequest | Withdrawal>;
+}

@@ -30,7 +30,7 @@ export async function fetchAllLogs(
   address: string
   // NOTE: The return type could be typed better (e.g. unknown instead of any)
   // but doing so would make the tests less readable.
-): Promise<readonly AirnodeLogDescription<any>[]> {
+): Promise<AirnodeLogDescription<any>[]> {
   const filter: ethers.providers.Filter = {
     fromBlock: 0,
     address,

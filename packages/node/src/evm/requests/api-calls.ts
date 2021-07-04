@@ -113,7 +113,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: readonly EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log)) as EVMRequestCreatedLog[];
   const fulfillmentLogs = logsWithMetadata.filter((log) =>

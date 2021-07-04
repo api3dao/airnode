@@ -57,7 +57,7 @@ async function fetchTemplateGroup(
     const promises = templateIds.map((id) => fetchTemplate(airnodeRrp, id));
     const logsWithTemplates = await Promise.all(promises);
     const individualLogs = flatMap(logsWithTemplates, (v) => v[0]);
-    const templates = logsWithTemplates.map((v) => v[1]).filter((v) => !!v) as readonly ApiCallTemplate[];
+    const templates = logsWithTemplates.map((v) => v[1]).filter((v) => !!v) as ApiCallTemplate[];
     const templatesById = keyBy(templates, 'id');
 
     return [[groupLog, ...individualLogs], templatesById];

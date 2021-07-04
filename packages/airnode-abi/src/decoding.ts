@@ -14,10 +14,7 @@ const TRANSFORMATIONS: TransformationReference = {
   uint256: (value: ethers.BigNumber) => value.toString(),
 };
 
-function buildDecodedMap(
-  types: readonly ABIParameterType[],
-  nameValuePairs: readonly (readonly [string, string])[]
-): DecodedMap {
+function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, string][]): DecodedMap {
   return nameValuePairs.reduce((acc, pair, index) => {
     const [encodedName, encodedValue] = pair;
     const name = ethers.utils.parseBytes32String(encodedName);
@@ -53,14 +50,14 @@ export function decode(encodedData: string): DecodedMap {
   const encodedParameterTypes = parsedHeader.substring(1);
 
   // Replace encoded types with full type names
-  const fullParameterTypes: readonly ABIParameterType[] = Array.from(encodedParameterTypes).map(
+  const fullParameterTypes: ABIParameterType[] = Array.from(encodedParameterTypes).map(
     (type) => PARAMETER_SHORT_TYPES[type as ABIParameterTypeShort]
   );
 
   // The first `bytes32` is the type encoding
-  const initialDecodedTypes: readonly ABIParameterType[] = ['bytes32'];
+  const initialDecodedTypes: ABIParameterType[] = ['bytes32'];
 
-  const decodingTypes = fullParameterTypes.reduce((acc: readonly string[], type) => {
+  const decodingTypes = fullParameterTypes.reduce((acc: string[], type) => {
     // Each parameter is expected to have a `bytes32` name
     return [...acc, 'bytes32' as const, type];
   }, initialDecodedTypes);

@@ -2,7 +2,7 @@ import { OIS } from '@api3/ois';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
 
-function parseOises(oises: readonly OIS[]): readonly OIS[] {
+function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
   return oises.map((ois) => {
     const endpoints = ois.endpoints.map((endpoint) => ({ ...endpoint, id: randomString(16) }));

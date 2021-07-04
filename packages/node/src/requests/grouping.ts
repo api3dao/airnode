@@ -6,7 +6,7 @@ export interface RequestsByRequesterIndex {
   readonly [requesterIndex: string]: GroupedRequests;
 }
 
-export function mapUniqueRequesterIndices(requests: GroupedRequests): readonly string[] {
+export function mapUniqueRequesterIndices(requests: GroupedRequests): string[] {
   const apiCallIndices = requests.apiCalls.map((r) => r.requesterIndex!);
   const withdrawalIndices = requests.withdrawals.map((r) => r.requesterIndex!);
   return uniq([...apiCallIndices, ...withdrawalIndices]);

@@ -2,11 +2,11 @@ import { ApiSecurityScheme } from '@api3/ois';
 import isEmpty from 'lodash/isEmpty';
 import { CachedBuildRequestOptions, Parameters } from '../types';
 
-type Authentication = {
+interface Authentication {
   readonly query: Parameters;
   readonly headers: Parameters;
   readonly cookies: Parameters;
-};
+}
 
 function addApiKeyAuth(
   authentication: Authentication,

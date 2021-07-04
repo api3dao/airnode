@@ -6,75 +6,75 @@
 export type Method = 'get' | 'post';
 export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie';
 
-export type OperationParameter = {
+export interface OperationParameter {
   in: ParameterTarget;
   name: string;
-};
+}
 
 // ===========================================
 // API Specification
 // ===========================================
-export type Server = {
+export interface Server {
   url: string;
-};
+}
 
-export type SecurityRequirement = {
+export interface SecurityRequirement {
   [key: string]: string[];
-};
+}
 
-export type Operation = {
+export interface Operation {
   parameters: OperationParameter[];
-};
+}
 
-export type Path = {
+export interface Path {
   [key: string]: Operation;
-};
+}
 
 export type SecuritySchemeName = 'bearer' | 'basic';
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
-export type ApiSecurityScheme = {
+export interface ApiSecurityScheme {
   in?: SecuritySchemeTarget;
   name?: string;
   scheme?: SecuritySchemeName;
   type: SecuritySchemeType;
-};
+}
 
-export type ApiComponents = {
+export interface ApiComponents {
   securitySchemes: {
     [key: string]: ApiSecurityScheme;
   };
-};
+}
 
-export type ApiSpecification = {
+export interface ApiSpecification {
   components: ApiComponents;
   paths: { [key: string]: Path };
   security: SecurityRequirement;
   servers: Server[];
-};
+}
 
 // ===========================================
 // Endpoint Specification
 // ===========================================
-export type EndpointOperation = {
+export interface EndpointOperation {
   method: Method;
   path: string;
-};
+}
 
-export type EndpointParameter = {
+export interface EndpointParameter {
   default?: string;
   description?: string;
   example?: string;
   name: string;
   operationParameter: OperationParameter;
   required?: boolean;
-};
+}
 
-export type FixedParameter = {
+export interface FixedParameter {
   operationParameter: OperationParameter;
   value: string;
-};
+}
 
 export enum ReservedParameterName {
   Path = '_path',
@@ -83,13 +83,13 @@ export enum ReservedParameterName {
   RelayMetadata = '_relay_metadata',
 }
 
-export type ReservedParameter = {
+export interface ReservedParameter {
   default?: string;
   fixed?: string;
   name: ReservedParameterName;
-};
+}
 
-export type Endpoint = {
+export interface Endpoint {
   description?: string;
   externalDocs?: string;
   fixedOperationParameters: FixedParameter[];
@@ -98,33 +98,33 @@ export type Endpoint = {
   parameters: EndpointParameter[];
   reservedParameters: ReservedParameter[];
   summary?: string;
-};
+}
 
 // ===========================================
 // OIS
 // ===========================================
-export type OIS = {
+export interface OIS {
   oisFormat: string;
   title: string;
   version: string;
   apiSpecifications: ApiSpecification;
   endpoints: Endpoint[];
-};
+}
 
 // ===========================================
 // Security
 // ===========================================
-export type SecuritySchemeSecret = {
+export interface SecuritySchemeSecret {
   securitySchemeName: string;
   value: string;
-};
+}
 
-export type ApiCredentials = {
+export interface ApiCredentials {
   [key: string]: SecuritySchemeSecret[];
-};
+}
 
-export type SecuritySpecification = {
+export interface SecuritySpecification {
   id: string;
   apiCredentials: ApiCredentials;
   masterKeyMnemonic: string;
-};
+}

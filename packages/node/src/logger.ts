@@ -95,7 +95,7 @@ export function pend(level: LogLevel, message: string, error?: Error | null): Pe
   return { level, message };
 }
 
-export function logPending(pendingLogs: readonly PendingLog[], options: LogOptions) {
+export function logPending(pendingLogs: PendingLog[], options: LogOptions) {
   pendingLogs.forEach((pendingLog) => {
     log(pendingLog.level, pendingLog.message, { ...options, error: pendingLog.error });
   });

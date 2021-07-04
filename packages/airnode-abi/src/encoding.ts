@@ -12,13 +12,13 @@ const TRANSFORMATIONS: TransformationReference = {
   bytes32: ethers.utils.formatBytes32String,
 };
 
-function buildSchemaHeader(types: readonly ABIParameterType[]): string {
+function buildSchemaHeader(types: ABIParameterType[]): string {
   const allShortTypes = Object.keys(PARAMETER_SHORT_TYPES);
 
   // Shorten all selected types with the corresponding "short" type
   // i.e. 'address' types get set as simply 'a' and 'bytes32' becomes
   // simply 'b' etc
-  const selectedShortTypes = types.reduce((acc: readonly string[], type) => {
+  const selectedShortTypes = types.reduce((acc: string[], type) => {
     const shortType = allShortTypes.find((st) => PARAMETER_SHORT_TYPES[st as ABIParameterTypeShort] === type);
     return [...acc, shortType!];
   }, []);
@@ -27,7 +27,7 @@ function buildSchemaHeader(types: readonly ABIParameterType[]): string {
   return `1${selectedShortTypes.join('')}`;
 }
 
-function buildNameValuePairs(parameters: readonly InputParameter[]): readonly string[] {
+function buildNameValuePairs(parameters: InputParameter[]): string[] {
   return flatMap(parameters, (parameter) => {
     const { name, value, type } = parameter;
     const transform = TRANSFORMATIONS[type];
@@ -41,8 +41,8 @@ function buildNameValuePairs(parameters: readonly InputParameter[]): readonly st
   });
 }
 
-export function encode(parameters: readonly InputParameter[]): string {
-  const types = parameters.map((parameter) => parameter.type) as readonly ABIParameterType[];
+export function encode(parameters: InputParameter[]): string {
+  const types = parameters.map((parameter) => parameter.type) as ABIParameterType[];
 
   // Each parameter name is represented by a `bytes32` string. The value
   // types are what the user provides
@@ -52,7 +52,7 @@ export function encode(parameters: readonly InputParameter[]): string {
   const allTypes = ['bytes32', ...nameTypePairs];
 
   // Build the schema which includes the version and the abbreviated list of parameters
-  const schemaHeader = buildSchemaHeader(types as readonly ABIParameterType[]);
+  const schemaHeader = buildSchemaHeader(types as ABIParameterType[]);
   const encodedHeader = ethers.utils.formatBytes32String(schemaHeader);
 
   // Map and encode each name/value pair where necessary

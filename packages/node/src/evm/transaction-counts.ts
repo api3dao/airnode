@@ -32,7 +32,7 @@ async function getWalletTransactionCount(
 }
 
 export async function fetchByRequesterIndex(
-  requesterIndices: readonly string[],
+  requesterIndices: string[],
   options: FetchOptions
 ): Promise<LogsData<TransactionCountByRequesterIndex>> {
   // Ensure that there are no duplicated addresses
@@ -44,7 +44,7 @@ export async function fetchByRequesterIndex(
   const logs = flatMap(logsWithCounts, (c) => c[0]);
   const countsByIndex = logsWithCounts.map((c) => c[1]);
 
-  const successfulResults = countsByIndex.filter((r) => !!r) as readonly TransactionCountByRequesterIndex[];
+  const successfulResults = countsByIndex.filter((r) => !!r) as TransactionCountByRequesterIndex[];
 
   // Merge all successful results into a single object
   const combinedResults = Object.assign({}, ...successfulResults);

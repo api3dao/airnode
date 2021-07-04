@@ -18,10 +18,10 @@ type AnyRequest = ApiCall | Withdrawal;
 interface AssignedNonces {
   readonly assignmentBlocked: boolean;
   readonly nextNonce: number;
-  readonly requests: readonly ClientRequest<AnyRequest>[];
+  readonly requests: ClientRequest<AnyRequest>[];
 }
 
-function flattenRequests(groupedRequests: GroupedRequests): readonly ClientRequest<AnyRequest>[] {
+function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<AnyRequest>[] {
   // Store the type as well temporarily so that requests can be ungrouped again
   const apiCalls = groupedRequests.apiCalls.map((apiCall) => ({ ...apiCall, __type: RequestType.ApiCall }));
 
@@ -36,7 +36,7 @@ function flattenRequests(groupedRequests: GroupedRequests): readonly ClientReque
   return [...apiCalls, ...withdrawals];
 }
 
-function groupRequests(flatRequests: readonly ClientRequest<any>[]): GroupedRequests {
+function groupRequests(flatRequests: ClientRequest<any>[]): GroupedRequests {
   const apiCalls = flatRequests
     .filter((request) => request.__type === RequestType.ApiCall)
     // eslint-disable-next-line functional/prefer-readonly-type
@@ -50,10 +50,7 @@ function groupRequests(flatRequests: readonly ClientRequest<any>[]): GroupedRequ
   return { apiCalls, withdrawals };
 }
 
-function assignWalletNonces(
-  flatRequests: readonly ClientRequest<AnyRequest>[],
-  transactionCount: number
-): readonly ClientRequest<any>[] {
+function assignWalletNonces(flatRequests: ClientRequest<AnyRequest>[], transactionCount: number): ClientRequest<any>[] {
   const initialState = {
     assignmentBlocked: false,
     nextNonce: transactionCount,

@@ -5,7 +5,7 @@ import * as encoding from './encoding';
 import { InputParameter } from './types';
 
 describe('encode', () => {
-  const inputParameters: readonly InputParameter[] = [
+  const inputParameters: InputParameter[] = [
     { type: 'bytes', name: 'TestBytesName', value: '0x123abc' },
     { type: 'bytes32', name: 'TestBytes32Name', value: 'Some bytes32 value' },
     { type: 'string', name: 'TestStringName', value: 'Some string value' },
