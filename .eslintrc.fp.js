@@ -6,9 +6,10 @@ module.exports = {
     'functional/immutable-data': [
       'error',
       {
-        ignoreAccessorPattern: ['module.exports*'],
+        ignoreAccessorPattern: ['module.exports*', 'process.env.**'],
       },
     ],
+    'functional/prefer-type-literal': 0,
     'functional/no-conditional-statement': 0,
     'functional/no-expression-statement': 0,
     'functional/no-throw-statement': 0,

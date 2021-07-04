@@ -71,7 +71,8 @@ export function decode(encodedData: string): DecodedMap {
   const decodedData = ethers.utils.defaultAbiCoder.decode(decodingTypes, encodedData);
 
   const [_version, ...decodedParameters] = decodedData;
-  const nameValuePairs = chunk(decodedParameters, 2) as readonly (readonly [string, string])[];
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const nameValuePairs = chunk(decodedParameters, 2) as [string, string][];
 
   return buildDecodedMap(fullParameterTypes, nameValuePairs);
 }

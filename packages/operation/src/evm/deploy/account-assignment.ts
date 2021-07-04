@@ -3,7 +3,8 @@ import { deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
 import { Airnode, DeployState as State, RequesterAccount } from '../../types';
 
 export async function assignAirnodeAccounts(state: State): Promise<State> {
-  const airnodesByName: { readonly [name: string]: Airnode } = {};
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const airnodesByName: { [name: string]: Airnode } = {};
   for (const airnodeName of Object.keys(state.config.airnodes)) {
     const airnode = state.config.airnodes[airnodeName];
     const airnodeWallet = deriveWalletFromPath(airnode.mnemonic, 'm', state.provider);
@@ -22,7 +23,8 @@ export async function assignAirnodeAccounts(state: State): Promise<State> {
 export async function assignRequesterAccounts(state: State): Promise<State> {
   const { AirnodeRrp } = state.contracts;
 
-  const requestersById: { readonly [id: string]: RequesterAccount } = {};
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
     const requesterWallet = ethers.Wallet.createRandom().connect(state.provider);
     const requesterAddress = requesterWallet.address;
@@ -51,7 +53,8 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
 }
 
 export async function assignDesignatedWallets(state: State) {
-  const requestersById: { readonly [id: string]: RequesterAccount } = {};
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
     const requester = state.requestersById[configRequester.id];
     const designatedAirnodeNames = Object.keys(configRequester.airnodes);
