@@ -5,13 +5,13 @@ import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
 import { ResponseType, ValueType } from '../types';
 
-interface SpecialNumber {
-  result: number;
-  value: any;
-}
+type SpecialNumber = {
+  readonly result: number;
+  readonly value: any;
+};
 
 // Any extra values that do not convert to numbers simply
-const SPECIAL_NUMBERS: SpecialNumber[] = [
+const SPECIAL_NUMBERS: readonly SpecialNumber[] = [
   { value: false, result: 0 },
   { value: 'false', result: 0 },
   { value: true, result: 1 },

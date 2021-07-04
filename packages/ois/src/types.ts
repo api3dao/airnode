@@ -4,75 +4,75 @@
 export type Method = 'get' | 'post';
 export type ParameterTarget = 'path' | 'query' | 'header' | 'cookie';
 
-export interface OperationParameter {
-  in: ParameterTarget;
-  name: string;
-}
+export type OperationParameter = {
+  readonly in: ParameterTarget;
+  readonly name: string;
+};
 
 // ===========================================
 // API Specification
 // ===========================================
-export interface Server {
-  url: string;
-}
+export type Server = {
+  readonly url: string;
+};
 
-export interface SecurityRequirement {
-  [key: string]: string[];
-}
+export type SecurityRequirement = {
+  readonly [key: string]: readonly string[];
+};
 
-export interface Operation {
-  parameters: OperationParameter[];
-}
+export type Operation = {
+  readonly parameters: readonly OperationParameter[];
+};
 
-export interface Path {
-  [key: string]: Operation;
-}
+export type Path = {
+  readonly [key: string]: Operation;
+};
 
 export type SecuritySchemeName = 'bearer' | 'basic';
 export type SecuritySchemeType = 'apiKey' | 'http'; // | 'oauth2' | 'openIdConnect';
 export type SecuritySchemeTarget = 'query' | 'header' | 'cookie';
 
-export interface ApiSecurityScheme {
-  in?: SecuritySchemeTarget;
-  name?: string;
-  scheme?: SecuritySchemeName;
-  type: SecuritySchemeType;
-}
+export type ApiSecurityScheme = {
+  readonly in?: SecuritySchemeTarget;
+  readonly name?: string;
+  readonly scheme?: SecuritySchemeName;
+  readonly type: SecuritySchemeType;
+};
 
-export interface ApiComponents {
-  securitySchemes: {
-    [key: string]: ApiSecurityScheme;
+export type ApiComponents = {
+  readonly securitySchemes: {
+    readonly [key: string]: ApiSecurityScheme;
   };
-}
+};
 
-export interface ApiSpecification {
-  components: ApiComponents;
-  paths: { [key: string]: Path };
-  security: SecurityRequirement;
-  servers: Server[];
-}
+export type ApiSpecification = {
+  readonly components: ApiComponents;
+  readonly paths: { readonly [key: string]: Path };
+  readonly security: SecurityRequirement;
+  readonly servers: readonly Server[];
+};
 
 // ===========================================
 // Endpoint Specification
 // ===========================================
-export interface EndpointOperation {
-  method: Method;
-  path: string;
-}
+export type EndpointOperation = {
+  readonly method: Method;
+  readonly path: string;
+};
 
-export interface EndpointParameter {
-  default?: string;
-  description?: string;
-  example?: string;
-  name: string;
-  operationParameter: OperationParameter;
-  required?: boolean;
-}
+export type EndpointParameter = {
+  readonly default?: string;
+  readonly description?: string;
+  readonly example?: string;
+  readonly name: string;
+  readonly operationParameter: OperationParameter;
+  readonly required?: boolean;
+};
 
-export interface FixedParameter {
-  operationParameter: OperationParameter;
-  value: string;
-}
+export type FixedParameter = {
+  readonly operationParameter: OperationParameter;
+  readonly value: string;
+};
 
 export enum ReservedParameterName {
   Path = '_path',
@@ -81,48 +81,48 @@ export enum ReservedParameterName {
   RelayMetadata = '_relay_metadata',
 }
 
-export interface ReservedParameter {
-  default?: string;
-  fixed?: string;
-  name: ReservedParameterName;
-}
+export type ReservedParameter = {
+  readonly default?: string;
+  readonly fixed?: string;
+  readonly name: ReservedParameterName;
+};
 
-export interface Endpoint {
-  description?: string;
-  externalDocs?: string;
-  fixedOperationParameters: FixedParameter[];
-  name: string;
-  operation: EndpointOperation;
-  parameters: EndpointParameter[];
-  reservedParameters: ReservedParameter[];
-  summary?: string;
-}
+export type Endpoint = {
+  readonly description?: string;
+  readonly externalDocs?: string;
+  readonly fixedOperationParameters: readonly FixedParameter[];
+  readonly name: string;
+  readonly operation: EndpointOperation;
+  readonly parameters: readonly EndpointParameter[];
+  readonly reservedParameters: readonly ReservedParameter[];
+  readonly summary?: string;
+};
 
 // ===========================================
 // OIS
 // ===========================================
-export interface OIS {
-  oisFormat: string;
-  title: string;
-  version: string;
-  apiSpecifications: ApiSpecification;
-  endpoints: Endpoint[];
-}
+export type OIS = {
+  readonly oisFormat: string;
+  readonly title: string;
+  readonly version: string;
+  readonly apiSpecifications: ApiSpecification;
+  readonly endpoints: readonly Endpoint[];
+};
 
 // ===========================================
 // Security
 // ===========================================
-export interface SecuritySchemeSecret {
-  securitySchemeName: string;
-  value: string;
-}
+export type SecuritySchemeSecret = {
+  readonly securitySchemeName: string;
+  readonly value: string;
+};
 
-export interface ApiCredentials {
-  [key: string]: SecuritySchemeSecret[];
-}
+export type ApiCredentials = {
+  readonly [key: string]: readonly SecuritySchemeSecret[];
+};
 
-export interface SecuritySpecification {
-  id: string;
-  apiCredentials: ApiCredentials;
-  masterKeyMnemonic: string;
-}
+export type SecuritySpecification = {
+  readonly id: string;
+  readonly apiCredentials: ApiCredentials;
+  readonly masterKeyMnemonic: string;
+};

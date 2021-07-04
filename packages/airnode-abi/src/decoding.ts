@@ -4,7 +4,7 @@ import { PARAMETER_SHORT_TYPES } from './utils';
 import { ABIParameterType, ABIParameterTypeShort, DecodedMap } from './types';
 
 type TransformationReference = {
-  [key: string]: (value: any) => string;
+  readonly [key: string]: (value: any) => string;
 };
 
 // Certain types need to be parsed after ABI decoding happens
@@ -14,7 +14,10 @@ const TRANSFORMATIONS: TransformationReference = {
   uint256: (value: ethers.BigNumber) => value.toString(),
 };
 
-function buildDecodedMap(types: ABIParameterType[], nameValuePairs: [string, string][]): DecodedMap {
+function buildDecodedMap(
+  types: readonly ABIParameterType[],
+  nameValuePairs: readonly (readonly [string, string])[]
+): DecodedMap {
   return nameValuePairs.reduce((acc, pair, index) => {
     const [encodedName, encodedValue] = pair;
     const name = ethers.utils.parseBytes32String(encodedName);
@@ -50,14 +53,14 @@ export function decode(encodedData: string): DecodedMap {
   const encodedParameterTypes = parsedHeader.substring(1);
 
   // Replace encoded types with full type names
-  const fullParameterTypes: ABIParameterType[] = Array.from(encodedParameterTypes).map(
+  const fullParameterTypes: readonly ABIParameterType[] = Array.from(encodedParameterTypes).map(
     (type) => PARAMETER_SHORT_TYPES[type as ABIParameterTypeShort]
   );
 
   // The first `bytes32` is the type encoding
-  const initialDecodedTypes: ABIParameterType[] = ['bytes32'];
+  const initialDecodedTypes: readonly ABIParameterType[] = ['bytes32'];
 
-  const decodingTypes = fullParameterTypes.reduce((acc: string[], type) => {
+  const decodingTypes = fullParameterTypes.reduce((acc: readonly string[], type) => {
     // Each parameter is expected to have a `bytes32` name
     return [...acc, 'bytes32' as const, type];
   }, initialDecodedTypes);
@@ -68,7 +71,7 @@ export function decode(encodedData: string): DecodedMap {
   const decodedData = ethers.utils.defaultAbiCoder.decode(decodingTypes, encodedData);
 
   const [_version, ...decodedParameters] = decodedData;
-  const nameValuePairs = chunk(decodedParameters, 2) as [string, string][];
+  const nameValuePairs = chunk(decodedParameters, 2) as readonly (readonly [string, string])[];
 
   return buildDecodedMap(fullParameterTypes, nameValuePairs);
 }

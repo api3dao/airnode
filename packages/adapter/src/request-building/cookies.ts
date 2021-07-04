@@ -1,9 +1,9 @@
 import isEmpty from 'lodash/isEmpty';
 import { Parameters } from '../types';
 
-interface CookieHeader {
-  Cookie: string;
-}
+type CookieHeader = {
+  readonly Cookie: string;
+};
 
 export function buildHeader(cookies: Parameters): CookieHeader | object {
   if (isEmpty(cookies)) {
@@ -16,7 +16,7 @@ export function buildHeader(cookies: Parameters): CookieHeader | object {
     const value = encodeURIComponent(cookies[key]);
     const cookie = `${key}=${value};`;
     return [...values, cookie];
-  }, [] as string[]);
+  }, [] as readonly string[]);
 
   return { Cookie: cookieValues.join(' ') };
 }

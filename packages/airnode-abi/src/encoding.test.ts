@@ -1,9 +1,11 @@
+/* eslint-disable functional/no-try-statement */
+
 import * as decoding from './decoding';
 import * as encoding from './encoding';
 import { InputParameter } from './types';
 
 describe('encode', () => {
-  const inputParameters: InputParameter[] = [
+  const inputParameters: readonly InputParameter[] = [
     { type: 'bytes', name: 'TestBytesName', value: '0x123abc' },
     { type: 'bytes32', name: 'TestBytes32Name', value: 'Some bytes32 value' },
     { type: 'string', name: 'TestStringName', value: 'Some string value' },

@@ -9,13 +9,15 @@ export function convertSignedIntegerToBytes32(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['int256'], [value]);
 }
 
-export function convertStringToBytes32(value: string) {
+function trimValue(value: string) {
   // We can't encode strings longer than 31 characters to bytes32.
   // Ethers need to keep room for null termination
-  if (value.length > 31) {
-    value = value.substring(0, 31);
-  }
-  const bytes32String = ethers.utils.formatBytes32String(value);
+  return value.length > 31 ? value.substring(0, 31) : value;
+}
+
+export function convertStringToBytes32(value: string) {
+  const trimmedValue = trimValue(value);
+  const bytes32String = ethers.utils.formatBytes32String(trimmedValue);
   return ethers.utils.defaultAbiCoder.encode(['bytes32'], [bytes32String]);
 }
 
