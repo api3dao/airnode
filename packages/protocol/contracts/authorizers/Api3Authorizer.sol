@@ -16,7 +16,7 @@ contract Api3Authorizer is IApi3Authorizer {
   address public metaAdmin;
   mapping(address => AdminStatus) public adminStatuses;
   mapping(bytes32 => mapping(address => uint256)) public airnodeIdToClientAddressToWhitelistExpiration;
-  mapping(address => bool) public clientAddressToBlacklistStatus;
+  mapping(bytes32 => mapping(address => bool)) public airnodeIdToClientAddressToWhitelistStatus;
 
   /// @param _metaAdmin Address that will be set as the meta admin
   constructor(address _metaAdmin) {
@@ -76,7 +76,7 @@ contract Api3Authorizer is IApi3Authorizer {
     emit ExtendedWhitelistExpiration(airnodeId, clientAddress, expiration, msg.sender);
   }
 
-  /// @notice Called by a super admin to extend the whitelisting of a client
+  /// @notice Called by a super admin to set the whitelisting of a client
   /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
   /// @param clientAddress Client address
   /// @param expiration Timestamp at which the whitelisting of the client
@@ -91,13 +91,18 @@ contract Api3Authorizer is IApi3Authorizer {
     emit SetWhitelistExpiration(airnodeId, clientAddress, expiration, msg.sender);
   }
 
-  /// @notice Called by a super admin to set the blacklist status of a client
+  /// @notice Called by a super admin to set the whitelist status of a client
+  /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
   /// @param clientAddress Client address
-  /// @param status Blacklist status to be set
-  function setBlacklistStatus(address clientAddress, bool status) external override {
+  /// @param status Whitelist status to be set
+  function setWhitelistStatus(
+    bytes32 airnodeId,
+    address clientAddress,
+    bool status
+  ) external override {
     require(adminStatuses[msg.sender] == AdminStatus.SuperAdmin || msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
-    clientAddressToBlacklistStatus[clientAddress] = status;
-    emit SetBlacklistStatus(clientAddress, status, msg.sender);
+    airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress] = status;
+    emit SetWhitelistStatus(airnodeId, clientAddress, status, msg.sender);
   }
 
   /// @notice Verifies the authorization status of a request
@@ -125,7 +130,7 @@ contract Api3Authorizer is IApi3Authorizer {
   ) external view override returns (bool) {
     return
       designatedWallet.balance != 0 &&
-      !clientAddressToBlacklistStatus[clientAddress] &&
-      airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp;
+      (airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress] ||
+        airnodeIdToClientAddressToWhitelistExpiration[airnodeId][clientAddress] > block.timestamp);
   }
 }

@@ -6,8 +6,12 @@ import "./IAuthorizer.sol";
 interface IApi3Authorizer is IAuthorizer {
   // Unauthorized (0):  Cannot do anything
   // Admin (1):         Can extend whitelistings
-  // Super admin (2):   Can set (i.e., extend or revoke) whitelistings, blacklist
-  enum AdminStatus { Unauthorized, Admin, SuperAdmin }
+  // Super admin (2):   Can set, extend, revoke whitelistings
+  enum AdminStatus {
+    Unauthorized,
+    Admin,
+    SuperAdmin
+  }
 
   event SetMetaAdmin(address metaAdmin);
 
@@ -29,7 +33,12 @@ interface IApi3Authorizer is IAuthorizer {
     address indexed admin
   );
 
-  event SetBlacklistStatus(address indexed clientAddress, bool status, address indexed admin);
+  event SetWhitelistStatus(
+    bytes32 indexed airnodeId,
+    address indexed clientAddress,
+    bool status,
+    address indexed admin
+  );
 
   function setMetaAdmin(address _metaAdmin) external;
 
@@ -49,5 +58,9 @@ interface IApi3Authorizer is IAuthorizer {
     uint256 expiration
   ) external;
 
-  function setBlacklistStatus(address clientAddress, bool status) external;
+  function setWhitelistStatus(
+    bytes32 airnodeId,
+    address clientAddress,
+    bool status
+  ) external;
 }
