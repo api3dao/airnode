@@ -18,7 +18,7 @@ export async function startCoordinator() {
 }
 
 export async function initializeProvider(event: any) {
-  const stateWithConfig = { ...event.state, parsedConfig };
+  const stateWithConfig = { ...event.state, config: parsedConfig };
 
   const [err, initializedState] = await promiseUtils.go(() => handlers.initializeProvider(stateWithConfig));
   if (err || !initializedState) {
@@ -41,7 +41,7 @@ export async function callApi(event: any) {
 }
 
 export async function processProviderRequests(event: any) {
-  const stateWithConfig = { ...event.state, parsedConfig };
+  const stateWithConfig = { ...event.state, config: parsedConfig };
 
   const [err, updatedState] = await promiseUtils.go(() => handlers.processTransactions(stateWithConfig));
   if (err || !updatedState) {
