@@ -330,40 +330,40 @@ describe('setWhitelistExpiration', function () {
   });
 });
 
-describe('setBlacklistStatus', function () {
+describe('setWhitelistStatus', function () {
   describe('Caller is a super admin', async function () {
-    it('sets blacklist status', async function () {
+    it('sets Whitelist status', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
         .setAdminStatus(airnodeId, roles.superAdmin.address, AdminStatus.SuperAdmin);
-      await expect(selfAuthorizer.connect(roles.superAdmin).setBlacklistStatus(airnodeId, roles.client.address, true))
-        .to.emit(selfAuthorizer, 'SetBlacklistStatus')
+      await expect(selfAuthorizer.connect(roles.superAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
+        .to.emit(selfAuthorizer, 'SetWhitelistStatus')
         .withArgs(airnodeId, roles.client.address, true, roles.superAdmin.address);
-      expect(await selfAuthorizer.airnodeIdToClientAddressToBlacklistStatus(airnodeId, roles.client.address)).to.equal(
+      expect(await selfAuthorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
         true
       );
-      await expect(selfAuthorizer.connect(roles.superAdmin).setBlacklistStatus(airnodeId, roles.client.address, false))
-        .to.emit(selfAuthorizer, 'SetBlacklistStatus')
+      await expect(selfAuthorizer.connect(roles.superAdmin).setWhitelistStatus(airnodeId, roles.client.address, false))
+        .to.emit(selfAuthorizer, 'SetWhitelistStatus')
         .withArgs(airnodeId, roles.client.address, false, roles.superAdmin.address);
-      expect(await selfAuthorizer.airnodeIdToClientAddressToBlacklistStatus(airnodeId, roles.client.address)).to.equal(
+      expect(await selfAuthorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
         false
       );
     });
   });
   describe('Caller is the Airnode admin', async function () {
     it('sets whitelist expiration', async function () {
-      await expect(selfAuthorizer.connect(roles.airnodeAdmin).setBlacklistStatus(airnodeId, roles.client.address, true))
-        .to.emit(selfAuthorizer, 'SetBlacklistStatus')
+      await expect(selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
+        .to.emit(selfAuthorizer, 'SetWhitelistStatus')
         .withArgs(airnodeId, roles.client.address, true, roles.airnodeAdmin.address);
-      expect(await selfAuthorizer.airnodeIdToClientAddressToBlacklistStatus(airnodeId, roles.client.address)).to.equal(
+      expect(await selfAuthorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
         true
       );
       await expect(
-        selfAuthorizer.connect(roles.airnodeAdmin).setBlacklistStatus(airnodeId, roles.client.address, false)
+        selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, false)
       )
-        .to.emit(selfAuthorizer, 'SetBlacklistStatus')
+        .to.emit(selfAuthorizer, 'SetWhitelistStatus')
         .withArgs(airnodeId, roles.client.address, false, roles.airnodeAdmin.address);
-      expect(await selfAuthorizer.airnodeIdToClientAddressToBlacklistStatus(airnodeId, roles.client.address)).to.equal(
+      expect(await selfAuthorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
         false
       );
     });
@@ -374,14 +374,14 @@ describe('setBlacklistStatus', function () {
         .connect(roles.airnodeAdmin)
         .setAdminStatus(airnodeId, roles.admin.address, AdminStatus.Admin);
       await expect(
-        selfAuthorizer.connect(roles.admin).setBlacklistStatus(airnodeId, roles.client.address, true)
+        selfAuthorizer.connect(roles.admin).setWhitelistStatus(airnodeId, roles.client.address, true)
       ).to.be.revertedWith('Unauthorized');
     });
   });
   describe('Caller is not an admin', function () {
     it('reverts', async function () {
       await expect(
-        selfAuthorizer.connect(roles.randomPerson).setBlacklistStatus(airnodeId, roles.client.address, true)
+        selfAuthorizer.connect(roles.randomPerson).setWhitelistStatus(airnodeId, roles.client.address, true)
       ).to.be.revertedWith('Unauthorized');
     });
   });
@@ -389,7 +389,7 @@ describe('setBlacklistStatus', function () {
 
 describe('isAuthorized', function () {
   describe('Designated wallet balance is not zero', function () {
-    describe('Client is not blacklisted', function () {
+    describe('Client is not Whitelisted', function () {
       describe('Client whitelisting has not expired', function () {
         it('returns true', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
@@ -414,7 +414,7 @@ describe('isAuthorized', function () {
           ).to.equal(true);
         });
       });
-      describe('Client whitelisting has expired', function () {
+      describe('Client whitelisting has expired and whitelisting has not been set', function () {
         it('returns false', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
           await roles.client.sendTransaction({
@@ -434,17 +434,25 @@ describe('isAuthorized', function () {
         });
       });
     });
-    describe('Client is blacklisted', function () {
+    describe('Client whitelisting was set then revoked', function () {
       it('returns false', async function () {
         const designatedWallet = ethers.Wallet.createRandom();
         await roles.client.sendTransaction({
           to: designatedWallet.address,
           value: 1,
         });
-        const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-        const expiration = now + 100;
-        selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistExpiration(airnodeId, roles.client.address, expiration);
-        selfAuthorizer.connect(roles.airnodeAdmin).setBlacklistStatus(airnodeId, roles.client.address, true);
+        await selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, true);
+        expect(
+          await selfAuthorizer.isAuthorized(
+            requestId,
+            airnodeId,
+            endpointId,
+            requesterIndex,
+            designatedWallet.address,
+            roles.client.address
+          )
+        ).to.equal(true);
+        await selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, false);
         expect(
           await selfAuthorizer.isAuthorized(
             requestId,

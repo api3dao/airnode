@@ -10,5 +10,6 @@
 **/.serverless/**
 **/coverage/**
 **/dist/**
+**/.webpack/**
 
 *.json

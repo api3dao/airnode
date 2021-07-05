@@ -6,8 +6,12 @@ import "./IAuthorizer.sol";
 interface ISelfAuthorizer is IAuthorizer {
   // Unauthorized (0):  Cannot do anything
   // Admin (1):         Can extend whitelistings
-  // Super admin (2):   Can set (i.e., extend or revoke) whitelistings, blacklist
-  enum AdminStatus { Unauthorized, Admin, SuperAdmin }
+  // Super admin (2):   Can set, extend or revoke whitelistings
+  enum AdminStatus {
+    Unauthorized,
+    Admin,
+    SuperAdmin
+  }
 
   event SetAdminStatus(bytes32 indexed airnodeId, address indexed admin, AdminStatus status);
 
@@ -27,7 +31,7 @@ interface ISelfAuthorizer is IAuthorizer {
     address indexed admin
   );
 
-  event SetBlacklistStatus(
+  event SetWhitelistStatus(
     bytes32 indexed airnodeId,
     address indexed clientAddress,
     bool status,
@@ -54,7 +58,7 @@ interface ISelfAuthorizer is IAuthorizer {
     uint256 expiration
   ) external;
 
-  function setBlacklistStatus(
+  function setWhitelistStatus(
     bytes32 airnodeId,
     address clientAddress,
     bool status
