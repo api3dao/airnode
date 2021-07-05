@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const checkAuthorizationStatusMock = jest.fn();
 const checkAuthorizationStatusesMock = jest.fn();
 mockEthers({
@@ -9,9 +9,9 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
 import * as authorization from './authorization-fetching';
-import { RequestStatus } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 describe('fetch (authorizations)', () => {
@@ -155,7 +155,7 @@ describe('fetchAuthorizationStatus', () => {
   let airnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    airnodeRrp = (new ethers.Contract('address', ['ABI']) as any) as AirnodeRrp;
+    airnodeRrp = new ethers.Contract('address', ['ABI']) as any as AirnodeRrp;
   });
 
   it('fetches group authorization status if it can be fetched', async () => {

@@ -1,3 +1,5 @@
+/* globals ethers */
+
 const { expect } = require('chai');
 
 const AdminStatus = {
@@ -37,13 +39,13 @@ beforeEach(async () => {
 });
 
 describe('constructor', function () {
-  context('Airnode RRP address is non-zero', function () {
+  describe('Airnode RRP address is non-zero', function () {
     it('initializes correctly', async function () {
       expect(await selfAuthorizer.authorizerType()).to.equal(2);
       expect(await selfAuthorizer.airnodeRrp()).to.equal(airnodeRrp.address);
     });
   });
-  context('Airnode RRP address is zero', function () {
+  describe('Airnode RRP address is zero', function () {
     it('reverts', async function () {
       const selfAuthorizerFactory = await ethers.getContractFactory('SelfAuthorizer', roles.deployer);
       await expect(selfAuthorizerFactory.deploy(ethers.constants.AddressZero)).to.be.revertedWith('Zero address');
@@ -52,7 +54,7 @@ describe('constructor', function () {
 });
 
 describe('setAdminStatus', function () {
-  context('Caller is the Airnode admin', async function () {
+  describe('Caller is the Airnode admin', async function () {
     it('sets admin status', async function () {
       // Give admin status
       await expect(
@@ -98,7 +100,7 @@ describe('setAdminStatus', function () {
       );
     });
   });
-  context('Caller is not the Airnode admin', async function () {
+  describe('Caller is not the Airnode admin', async function () {
     it('reverts', async function () {
       await expect(
         selfAuthorizer.connect(roles.randomPerson).setAdminStatus(airnodeId, roles.admin.address, AdminStatus.Admin)
@@ -113,7 +115,7 @@ describe('setAdminStatus', function () {
 });
 
 describe('renounceAdminStatus', function () {
-  context('Caller is an admin', async function () {
+  describe('Caller is an admin', async function () {
     it('renounces admin status', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
@@ -126,7 +128,7 @@ describe('renounceAdminStatus', function () {
       );
     });
   });
-  context('Caller is a super admin', async function () {
+  describe('Caller is a super admin', async function () {
     it('renounces admin status', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
@@ -139,7 +141,7 @@ describe('renounceAdminStatus', function () {
       );
     });
   });
-  context('Caller is not an admin', async function () {
+  describe('Caller is not an admin', async function () {
     it('reverts', async function () {
       await expect(selfAuthorizer.connect(roles.randomPerson).renounceAdminStatus(airnodeId)).to.be.revertedWith(
         'Unauthorized'
@@ -149,8 +151,8 @@ describe('renounceAdminStatus', function () {
 });
 
 describe('extendWhitelistExpiration', function () {
-  context('Caller is an admin', function () {
-    context('Provided expiration extends', function () {
+  describe('Caller is an admin', function () {
+    describe('Provided expiration extends', function () {
       it('extends whitelist expiration', async function () {
         await selfAuthorizer
           .connect(roles.airnodeAdmin)
@@ -167,7 +169,7 @@ describe('extendWhitelistExpiration', function () {
         ).to.equal(expiration);
       });
     });
-    context('Provided expiration does not extend', function () {
+    describe('Provided expiration does not extend', function () {
       it('reverts', async function () {
         await selfAuthorizer
           .connect(roles.airnodeAdmin)
@@ -181,8 +183,8 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Caller is a super admin', async function () {
-    context('Provided expiration extends', function () {
+  describe('Caller is a super admin', async function () {
+    describe('Provided expiration extends', function () {
       it('extends whitelist expiration', async function () {
         await selfAuthorizer
           .connect(roles.airnodeAdmin)
@@ -201,7 +203,7 @@ describe('extendWhitelistExpiration', function () {
         ).to.equal(expiration);
       });
     });
-    context('Provided expiration does not extend', function () {
+    describe('Provided expiration does not extend', function () {
       it('reverts', async function () {
         await selfAuthorizer
           .connect(roles.airnodeAdmin)
@@ -217,8 +219,8 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Caller is the Airnode admin', function () {
-    context('Provided expiration extends', function () {
+  describe('Caller is the Airnode admin', function () {
+    describe('Provided expiration extends', function () {
       it('extends whitelist expiration', async function () {
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
         const expiration = now + 100;
@@ -234,7 +236,7 @@ describe('extendWhitelistExpiration', function () {
         ).to.equal(expiration);
       });
     });
-    context('Provided expiration does not extend', function () {
+    describe('Provided expiration does not extend', function () {
       it('reverts', async function () {
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
         await selfAuthorizer
@@ -249,7 +251,7 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Caller is not an admin', function () {
+  describe('Caller is not an admin', function () {
     it('reverts', async function () {
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       await expect(
@@ -260,7 +262,7 @@ describe('extendWhitelistExpiration', function () {
 });
 
 describe('setWhitelistExpiration', function () {
-  context('Caller is a super admin', async function () {
+  describe('Caller is a super admin', async function () {
     it('sets whitelist expiration', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
@@ -285,7 +287,7 @@ describe('setWhitelistExpiration', function () {
       ).to.equal(now);
     });
   });
-  context('Caller is the Airnode admin', async function () {
+  describe('Caller is the Airnode admin', async function () {
     it('sets whitelist expiration', async function () {
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       const expiration = now + 100;
@@ -307,7 +309,7 @@ describe('setWhitelistExpiration', function () {
       ).to.equal(now);
     });
   });
-  context('Caller is an admin', function () {
+  describe('Caller is an admin', function () {
     it('reverts', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
@@ -318,7 +320,7 @@ describe('setWhitelistExpiration', function () {
       ).to.be.revertedWith('Unauthorized');
     });
   });
-  context('Caller is not an admin', function () {
+  describe('Caller is not an admin', function () {
     it('reverts', async function () {
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       await expect(
@@ -329,7 +331,7 @@ describe('setWhitelistExpiration', function () {
 });
 
 describe('setWhitelistStatus', function () {
-  context('Caller is a super admin', async function () {
+  describe('Caller is a super admin', async function () {
     it('sets Whitelist status', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
@@ -348,7 +350,7 @@ describe('setWhitelistStatus', function () {
       );
     });
   });
-  context('Caller is the Airnode admin', async function () {
+  describe('Caller is the Airnode admin', async function () {
     it('sets whitelist expiration', async function () {
       await expect(selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
         .to.emit(selfAuthorizer, 'SetWhitelistStatus')
@@ -366,7 +368,7 @@ describe('setWhitelistStatus', function () {
       );
     });
   });
-  context('Caller is an admin', function () {
+  describe('Caller is an admin', function () {
     it('reverts', async function () {
       await selfAuthorizer
         .connect(roles.airnodeAdmin)
@@ -376,7 +378,7 @@ describe('setWhitelistStatus', function () {
       ).to.be.revertedWith('Unauthorized');
     });
   });
-  context('Caller is not an admin', function () {
+  describe('Caller is not an admin', function () {
     it('reverts', async function () {
       await expect(
         selfAuthorizer.connect(roles.randomPerson).setWhitelistStatus(airnodeId, roles.client.address, true)
@@ -386,9 +388,9 @@ describe('setWhitelistStatus', function () {
 });
 
 describe('isAuthorized', function () {
-  context('Designated wallet balance is not zero', function () {
-    context('Client is not Whitelisted', function () {
-      context('Client whitelisting has not expired', function () {
+  describe('Designated wallet balance is not zero', function () {
+    describe('Client is not Whitelisted', function () {
+      describe('Client whitelisting has not expired', function () {
         it('returns true', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
           await roles.client.sendTransaction({
@@ -412,7 +414,7 @@ describe('isAuthorized', function () {
           ).to.equal(true);
         });
       });
-      context('Client whitelisting has expired and whitelisting has not been set', function () {
+      describe('Client whitelisting has expired and whitelisting has not been set', function () {
         it('returns false', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
           await roles.client.sendTransaction({
@@ -432,7 +434,7 @@ describe('isAuthorized', function () {
         });
       });
     });
-    context('Client whitelisting was set then revoked', function () {
+    describe('Client whitelisting was set then revoked', function () {
       it('returns false', async function () {
         const designatedWallet = ethers.Wallet.createRandom();
         await roles.client.sendTransaction({
@@ -464,7 +466,7 @@ describe('isAuthorized', function () {
       });
     });
   });
-  context('Designated wallet balance is zero', function () {
+  describe('Designated wallet balance is zero', function () {
     it('returns false', async function () {
       const designatedWallet = ethers.Wallet.createRandom();
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;

@@ -15,7 +15,7 @@ export async function deployClients(state: State): Promise<State> {
     const MockClient = new MockArtifact(state.deployer);
     const mockClient = await MockClient.deploy(state.contracts.AirnodeRrp!.address);
     await mockClient.deployed();
-    clientsByName[mockName] = (mockClient as unknown) as ethers.Contract;
+    clientsByName[mockName] = mockClient as unknown as ethers.Contract;
   }
   return { ...state, clientsByName };
 }

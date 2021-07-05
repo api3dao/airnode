@@ -1,6 +1,6 @@
-import * as fixtures from 'test/fixtures';
-import { AggregatedApiCallsById } from 'src/types';
 import * as state from './state';
+import * as fixtures from '../../test/fixtures';
+import { AggregatedApiCallsById } from '../types';
 
 describe('create', () => {
   it('returns a new coordinator state object', () => {

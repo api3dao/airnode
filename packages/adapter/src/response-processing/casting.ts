@@ -2,7 +2,7 @@ import isArray from 'lodash/isArray';
 import isFinite from 'lodash/isFinite';
 import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import { ResponseType, ValueType } from '../types';
 
 interface SpecialNumber {

@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test/utils';
+import { mockEthers } from '../../test/mock-utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
 
@@ -9,11 +9,11 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 
 jest.mock('fs');
 
-import { ethers } from 'ethers';
 import fs from 'fs';
-import * as fixtures from 'test/fixtures';
-import { ChainConfig, EnvironmentConfig } from 'src/types';
+import { ethers } from 'ethers';
 import * as providers from './initialize';
+import * as fixtures from '../../test/fixtures';
+import { ChainConfig, EnvironmentConfig } from '../types';
 
 const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
@@ -67,15 +67,13 @@ describe('initializeProviders', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from(123456),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from(987654),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogs.mockResolvedValueOnce([]);
@@ -104,8 +102,7 @@ describe('initializeProviders', () => {
           region: 'us-east-1',
           stage: 'test',
           url: 'https://mainnet.infura.io/v3/<key>',
-          xpub:
-            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+          xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         coordinatorId: 'abcdefg',
         currentBlock: 123456,
@@ -138,8 +135,7 @@ describe('initializeProviders', () => {
           region: 'us-east-1',
           stage: 'test',
           url: 'https://ropsten.infura.io/v3/<key>',
-          xpub:
-            'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+          xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
         },
         coordinatorId: 'abcdefg',
         currentBlock: 987654,

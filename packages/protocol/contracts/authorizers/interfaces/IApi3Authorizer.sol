@@ -7,7 +7,11 @@ interface IApi3Authorizer is IAuthorizer {
   // Unauthorized (0):  Cannot do anything
   // Admin (1):         Can extend whitelistings
   // Super admin (2):   Can set, extend, revoke whitelistings
-  enum AdminStatus { Unauthorized, Admin, SuperAdmin }
+  enum AdminStatus {
+    Unauthorized,
+    Admin,
+    SuperAdmin
+  }
 
   event SetMetaAdmin(address metaAdmin);
 

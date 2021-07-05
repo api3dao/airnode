@@ -1,6 +1,6 @@
-import * as fixtures from 'test/fixtures';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
 import * as blocking from './blocking';
+import * as fixtures from '../../../test/fixtures';
+import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
 
 describe('blockRequestsWithWithdrawals', () => {
   it('blocks API calls with pending withdrawals from the same wallet index', () => {

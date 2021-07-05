@@ -10,12 +10,12 @@
  *
  * The generated code "value exports" the factories, but "type exports" the contracts.
  */
-import AirnodeRrpArtifact from '../artifacts/contracts/AirnodeRrp.sol/AirnodeRrp.json';
-import MockAirnodeRrpClientArtifact from '../artifacts/contracts/mock/MockAirnodeRrpClient.sol/MockAirnodeRrpClient.json';
 import {
   MockAirnodeRrpClient__factory as MockAirnodeRrpClientFactory,
   AirnodeRrp__factory as AirnodeRrpFactory,
 } from './contracts';
+import AirnodeRrpArtifact from '../artifacts/contracts/AirnodeRrp.sol/AirnodeRrp.json';
+import MockAirnodeRrpClientArtifact from '../artifacts/contracts/mock/MockAirnodeRrpClient.sol/MockAirnodeRrpClient.json';
 import AirnodeRrpDeploymentRopsten from '../deployments/ropsten/AirnodeRrp.json';
 
 const AirnodeRrpAddresses: { [chainId: number]: string } = { 3: AirnodeRrpDeploymentRopsten.receipt.contractAddress };

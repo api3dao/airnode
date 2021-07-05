@@ -1,6 +1,6 @@
 import { processTransactions } from './process-transactions';
 import * as evmHandler from '../evm/handlers/process-transactions';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 
 describe('processTransactions', () => {
   it('processes EVM providers', () => {

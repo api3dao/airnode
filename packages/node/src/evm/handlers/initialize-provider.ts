@@ -1,8 +1,8 @@
+import { fetchPendingRequests } from './fetch-pending-requests';
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
 import * as initialization from '../initialization';
 import * as logger from '../../logger';
-import { fetchPendingRequests } from './fetch-pending-requests';
 import * as requests from '../../requests';
 import * as state from '../../providers/state';
 import * as templates from '../templates';

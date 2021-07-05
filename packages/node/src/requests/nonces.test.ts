@@ -1,8 +1,8 @@
 import shuffle from 'lodash/shuffle';
-import * as fixtures from 'test/fixtures';
-import * as providerState from '../providers/state';
 import * as nonces from './nonces';
-import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from 'src/types';
+import * as fixtures from '../../test/fixtures';
+import * as providerState from '../providers/state';
+import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from '../types';
 
 describe('assign', () => {
   let initialState: ProviderState<EVMProviderState>;

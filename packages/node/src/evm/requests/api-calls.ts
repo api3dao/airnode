@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
+import * as events from './events';
 import * as encoding from '../abi-encoding';
 import { airnodeRrpTopics } from '../contracts';
-import * as events from './events';
 import * as logger from '../../logger';
 import {
   ApiCall,

@@ -1,3 +1,5 @@
+/* globals ethers */
+
 const { expect } = require('chai');
 
 let airnodeRrp;
@@ -33,8 +35,8 @@ beforeEach(async () => {
 });
 
 describe('setAirnodeParametersAndForwardFunds', function () {
-  context('Called with non-zero value', async function () {
-    context('Airnode admin is payable', async function () {
+  describe('Called with non-zero value', async function () {
+    describe('Airnode admin is payable', async function () {
       it('sets the Airnode parameters and forwards funds', async function () {
         // Generate random addresses as the authorizer contracts
         const authorizers = Array.from({ length: 5 }, () =>
@@ -68,7 +70,7 @@ describe('setAirnodeParametersAndForwardFunds', function () {
         expect(await waffle.provider.getBalance(roles.airnodeAdmin.address)).to.equal(expectedAirnodeAdminBalance);
       });
     });
-    context('Airnode admin is not payable', async function () {
+    describe('Airnode admin is not payable', async function () {
       it('reverts', async function () {
         // Generate random addresses as the authorizer contracts
         const authorizers = Array.from({ length: 5 }, () =>
@@ -86,7 +88,7 @@ describe('setAirnodeParametersAndForwardFunds', function () {
       });
     });
   });
-  context('Called with zero value', async function () {
+  describe('Called with zero value', async function () {
     it('sets Airnode parameters', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
@@ -160,7 +162,7 @@ describe('getTemplates', function () {
 });
 
 describe('checkAuthorizationStatuses', function () {
-  context('Parameter lengths are equal', async function () {
+  describe('Parameter lengths are equal', async function () {
     it('returns authorization statuses', async function () {
       const authorizers = [ethers.constants.AddressZero];
       // Set Airnode parameters
@@ -186,7 +188,7 @@ describe('checkAuthorizationStatuses', function () {
       }
     });
   });
-  context('Parameter lengths are not equal', async function () {
+  describe('Parameter lengths are not equal', async function () {
     it('reverts', async function () {
       const authorizers = [ethers.constants.AddressZero];
       // Set Airnode parameters

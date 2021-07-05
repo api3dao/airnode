@@ -40,13 +40,13 @@ jobs:
           node-version: '14.17.1'
       - name: Install Dependencies
         run: yarn run bootstrap
-      - name: Lint code
-        run: yarn run lint
       - name: Prepare config
         run: |
           cp packages/deployer/config/config.json.example packages/deployer/config/config.json
       - name: Build
         run: yarn run build
+      - name: Lint code
+        run: yarn run lint
       - name: Slack Notification
         uses: lazy-actions/slatify@master
         env:
