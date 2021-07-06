@@ -1,4 +1,4 @@
-/* globals ethers */
+/* globals context ethers */
 
 const { expect } = require('chai');
 
@@ -40,7 +40,7 @@ describe('createRequester', function () {
 });
 
 describe('setRequesterAdmin', function () {
-  describe('Caller is requester admin', async function () {
+  context('Caller is requester admin', async function () {
     it('sets the requester admin', async function () {
       // Create the requester
       await airnodeRrp.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
@@ -56,7 +56,7 @@ describe('setRequesterAdmin', function () {
       expect(await airnodeRrp.requesterIndexToAdmin(requesterIndex1)).to.equal(roles.updatedRequesterAdmin1.address);
     });
   });
-  describe('Caller not requester admin', async function () {
+  context('Caller not requester admin', async function () {
     it('reverts', async function () {
       // Create the requester
       await airnodeRrp.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
@@ -69,7 +69,7 @@ describe('setRequesterAdmin', function () {
 });
 
 describe('setClientEndorsementStatus', function () {
-  describe('Caller is requester admin', async function () {
+  context('Caller is requester admin', async function () {
     it('sets the client endorsement status and initializes the client request nonce', async function () {
       // Create the requester
       await airnodeRrp.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
@@ -107,7 +107,7 @@ describe('setClientEndorsementStatus', function () {
       ).to.equal(false);
     });
   });
-  describe('Caller not requester admin', async function () {
+  context('Caller not requester admin', async function () {
     it('reverts', async function () {
       // Create the requester
       await airnodeRrp.connect(roles.requesterAdmin1).createRequester(roles.requesterAdmin1.address);
