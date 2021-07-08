@@ -2,7 +2,7 @@
 
 ## Retrieving key from parameter path
 
-Any key or value can contain a number surrounded by `{{}}`, which will be replaced by key located on given index in parameter path. For example `{{0}}` located in value with parameter path `outer.arr[2].inner` will be replaced with `outer`, similarly `{{1}}` will be replaced with `arr[2]` and so on.
+Any key or value can contain a number surrounded by {{}}, that is: `{{x}}` where `x` is an integer. This indicates that `{{x}}` will be replaced by the key located on the `x`-th index in the parameter path. For example `{{0}}` located in value with parameter path `outer.arr[2].inner` will be replaced with `outer`, similarly `{{1}}` will be replaced with `arr[2]` and so on.
 
 ### Template
 

@@ -1,6 +1,6 @@
 # Actions
 
-If any action is specified in template, object `output` will be returned when processing a specification. This object is at first empty, by inserting or copying parameters from specification it can construct desired specification.
+If any action is specified in template, object `output` will be returned when processing a specification. This object is at first empty. By inserting or copying parameters from the given specification, it can construct the desired specification.
 
 ## Copy action
 
