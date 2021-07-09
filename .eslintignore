@@ -9,3 +9,6 @@
 **/.serverless/**
 **/coverage/**
 **/dist/**
+
+# Ignore the TS wrappers created by Typechain
+packages/protocol/src/contracts
