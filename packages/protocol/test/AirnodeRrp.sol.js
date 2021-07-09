@@ -1,4 +1,4 @@
-/* globals ethers */
+/* globals context ethers */
 
 const { expect } = require('chai');
 
@@ -56,7 +56,7 @@ beforeEach(async () => {
 });
 
 describe('makeRequest', function () {
-  describe('Client is endorsed by requester', async function () {
+  context('Client is endorsed by requester', async function () {
     it('makes a regular request', async function () {
       // Have the requester endorse the client
       await airnodeRrp
@@ -100,7 +100,7 @@ describe('makeRequest', function () {
         );
     });
   });
-  describe('Client is not endorsed by requester', async function () {
+  context('Client is not endorsed by requester', async function () {
     it('reverts', async function () {
       await expect(
         airnodeRrpClient
@@ -119,7 +119,7 @@ describe('makeRequest', function () {
 });
 
 describe('makeFullRequest', function () {
-  describe('Client is endorsed by requester', async function () {
+  context('Client is endorsed by requester', async function () {
     it('makes a full request', async function () {
       // Have the requester endorse the client
       await airnodeRrp
@@ -164,7 +164,7 @@ describe('makeFullRequest', function () {
         );
     });
   });
-  describe('Client is not endorsed by requester', async function () {
+  context('Client is not endorsed by requester', async function () {
     it('reverts', async function () {
       await expect(
         airnodeRrpClient
@@ -184,8 +184,8 @@ describe('makeFullRequest', function () {
 });
 
 describe('fulfill', function () {
-  describe('Regular request has been made', async function () {
-    describe('Fulfillment parameters are correct', async function () {
+  context('Regular request has been made', async function () {
+    context('Fulfillment parameters are correct', async function () {
       it('fulfills', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -223,7 +223,7 @@ describe('fulfill', function () {
           .withArgs(airnodeId, requestId, fulfillStatusCode, fulfillData);
       });
     });
-    describe('Fulfillment parameters are incorrect', async function () {
+    context('Fulfillment parameters are incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -287,7 +287,7 @@ describe('fulfill', function () {
         ).to.be.revertedWith('No such request');
       });
     });
-    describe('Fulfilling wallet is incorrect', async function () {
+    context('Fulfilling wallet is incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -324,8 +324,8 @@ describe('fulfill', function () {
       });
     });
   });
-  describe('Full request has been made', async function () {
-    describe('Fulfillment parameters are correct', async function () {
+  context('Full request has been made', async function () {
+    context('Fulfillment parameters are correct', async function () {
       it('fulfills', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -364,7 +364,7 @@ describe('fulfill', function () {
           .withArgs(airnodeId, requestId, fulfillStatusCode, fulfillData);
       });
     });
-    describe('Fulfillment parameters are incorrect', async function () {
+    context('Fulfillment parameters are incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -429,7 +429,7 @@ describe('fulfill', function () {
         ).to.be.revertedWith('No such request');
       });
     });
-    describe('Fulfilling wallet is incorrect', async function () {
+    context('Fulfilling wallet is incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -470,8 +470,8 @@ describe('fulfill', function () {
 });
 
 describe('fail', function () {
-  describe('Regular request has been made', async function () {
-    describe('Fulfillment parameters are correct', async function () {
+  context('Regular request has been made', async function () {
+    context('Fulfillment parameters are correct', async function () {
       it('fails successfully', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -507,7 +507,7 @@ describe('fail', function () {
           .withArgs(airnodeId, requestId);
       });
     });
-    describe('Fulfillment parameters are incorrect', async function () {
+    context('Fulfillment parameters are incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -563,7 +563,7 @@ describe('fail', function () {
         ).to.be.revertedWith('No such request');
       });
     });
-    describe('Fulfilling wallet is incorrect', async function () {
+    context('Fulfilling wallet is incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -598,8 +598,8 @@ describe('fail', function () {
       });
     });
   });
-  describe('Full request has been made', async function () {
-    describe('Fulfillment parameters are correct', async function () {
+  context('Full request has been made', async function () {
+    context('Fulfillment parameters are correct', async function () {
       it('fails successfully', async function () {
         // Have the requester endorse the client
         await airnodeRrp
@@ -635,7 +635,7 @@ describe('fail', function () {
           .to.emit(airnodeRrp, 'ClientRequestFailed')
           .withArgs(airnodeId, requestId);
       });
-      describe('Fulfillment parameters are incorrect', async function () {
+      context('Fulfillment parameters are incorrect', async function () {
         it('reverts', async function () {
           // Have the requester endorse the client
           await airnodeRrp
@@ -691,7 +691,7 @@ describe('fail', function () {
               .fail(requestId, airnodeId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
           ).to.be.revertedWith('No such request');
         });
-        describe('Fulfilling wallet is incorrect', async function () {
+        context('Fulfilling wallet is incorrect', async function () {
           it('reverts', async function () {
             // Have the requester endorse the client
             await airnodeRrp
