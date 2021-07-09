@@ -3,7 +3,6 @@ import { deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
 import { Airnode, DeployState as State, RequesterAccount } from '../../types';
 
 export async function assignAirnodeAccounts(state: State): Promise<State> {
-  // eslint-disable-next-line functional/prefer-readonly-type
   const airnodesByName: { [name: string]: Airnode } = {};
   for (const airnodeName of Object.keys(state.config.airnodes)) {
     const airnode = state.config.airnodes[airnodeName];
@@ -23,7 +22,6 @@ export async function assignAirnodeAccounts(state: State): Promise<State> {
 export async function assignRequesterAccounts(state: State): Promise<State> {
   const { AirnodeRrp } = state.contracts;
 
-  // eslint-disable-next-line functional/prefer-readonly-type
   const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
     const requesterWallet = ethers.Wallet.createRandom().connect(state.provider);
@@ -53,7 +51,6 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
 }
 
 export async function assignDesignatedWallets(state: State) {
-  // eslint-disable-next-line functional/prefer-readonly-type
   const requestersById: { [id: string]: RequesterAccount } = {};
   for (const configRequester of state.config.requesters) {
     const requester = state.requestersById[configRequester.id];

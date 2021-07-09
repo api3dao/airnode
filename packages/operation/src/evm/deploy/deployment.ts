@@ -10,7 +10,6 @@ export async function deployAirnodeRrp(state: State): Promise<State> {
 }
 
 export async function deployClients(state: State): Promise<State> {
-  // eslint-disable-next-line functional/prefer-readonly-type
   const clientsByName: { [name: string]: ethers.Contract } = {};
   for (const [mockName, MockArtifact] of Object.entries(mocks)) {
     const MockClient = new MockArtifact(state.deployer);
@@ -22,7 +21,6 @@ export async function deployClients(state: State): Promise<State> {
 }
 
 export async function deployAuthorizers(state: State): Promise<State> {
-  // eslint-disable-next-line functional/prefer-readonly-type
   const authorizersByName: { [name: string]: string } = {};
   for (const [authorizerName, AuthorizerArtifact] of Object.entries(authorizers)) {
     const Authorizer = new (AuthorizerArtifact as any)(state.deployer);

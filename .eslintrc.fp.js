@@ -16,5 +16,6 @@ module.exports = {
     'functional/no-let': ['error', { ignorePattern: '^mutable' }],
     'functional/no-throw-statement': 0,
     'functional/prefer-readonly-type': ['error', { ignoreCollections: true }],
+    'functional/prefer-tacit': 0,
   },
 };

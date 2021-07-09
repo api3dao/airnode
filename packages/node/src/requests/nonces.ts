@@ -39,12 +39,10 @@ function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<AnyReq
 function groupRequests(flatRequests: ClientRequest<any>[]): GroupedRequests {
   const apiCalls = flatRequests
     .filter((request) => request.__type === RequestType.ApiCall)
-    // eslint-disable-next-line functional/prefer-readonly-type
     .map((request) => removeKey(request, '__type')) as ClientRequest<ApiCall>[];
 
   const withdrawals = flatRequests
     .filter((request) => request.__type === RequestType.Withdrawal)
-    // eslint-disable-next-line functional/prefer-readonly-type
     .map((request) => removeKey(request, '__type')) as ClientRequest<Withdrawal>[];
 
   return { apiCalls, withdrawals };

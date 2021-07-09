@@ -3,7 +3,9 @@ interface AnyObject {
 }
 
 export function removeKeys(obj: AnyObject, keys: readonly string[]) {
-  return keys.reduce(removeKey, obj);
+  return keys.reduce((acc, key) => {
+    return removeKey(acc, key);
+  }, obj);
 }
 
 // lodash has an 'omit' function but it's quite slow

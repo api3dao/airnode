@@ -26,7 +26,6 @@ export async function endorseClients(state: State): Promise<State> {
 export async function createTemplates(state: State): Promise<State> {
   const { AirnodeRrp } = state.contracts;
 
-  // eslint-disable-next-line functional/prefer-readonly-type
   const templatesByName: { [name: string]: Template } = {};
   for (const airnodeName of Object.keys(state.airnodesByName)) {
     const airnode = state.airnodesByName[airnodeName];
