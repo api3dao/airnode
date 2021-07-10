@@ -54,7 +54,8 @@
     "test:protocol": "(cd packages/protocol && yarn run test)",
     "test:node": "(cd packages/node && yarn run test)",
     "test:node:watch": "(cd packages/node && yarn run test:watch)",
-    "test:node:watch:debug": "(cd packages/node && yarn run test:watch:debug)"
+    "test:node:watch:debug": "(cd packages/node && yarn run test:watch:debug)",
+    "test:validator": "(cd packages/validator && yarn run test)"
   },
   "dependencies": {
     "ethers": "^5.1.4",
