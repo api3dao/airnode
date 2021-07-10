@@ -1,7 +1,8 @@
+import fs from 'fs';
+
+import * as utils from './utils';
 import { convert, convertJson } from '../convertor';
 import { Log, Result } from '../types';
-import * as utils from './utils';
-import fs from 'fs';
 import { invalidConversionMessage } from '../utils/messages';
 
 const oas2ois = 'OAS2OIS.json';

@@ -1,5 +1,5 @@
-import { validate } from '../validator';
 import * as utils from './utils';
+import { validate } from '../validator';
 import { Log, templates } from '../types';
 
 let template = process.env.npm_config_template || process.argv[2];
