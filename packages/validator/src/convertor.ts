@@ -1,6 +1,7 @@
+import fs from 'fs';
+
 import { Result } from './types';
 import * as logger from './utils/logger';
-import fs from 'fs';
 import { processSpecs } from './processor';
 
 const path = require('path');

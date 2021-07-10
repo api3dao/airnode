@@ -1,5 +1,5 @@
-import { Roots } from '../types';
 import { insertValue, replaceParamIndexWithName, replacePathsWithValues } from './utils';
+import { Roots } from '../types';
 
 export function execute(specs: any, template: any, currentPath: string[], roots: Roots) {
   for (const action of template) {

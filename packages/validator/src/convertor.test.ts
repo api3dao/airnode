@@ -1,6 +1,7 @@
+import fs from 'fs';
+
 import { convert } from './convertor';
 import { formattingMessage, missingParamMessage } from './utils/messages';
-import fs from 'fs';
 
 const generatedOIS = JSON.parse(fs.readFileSync('exampleSpecs/OIS2.specs.json').toString());
 const generatedConfig = [

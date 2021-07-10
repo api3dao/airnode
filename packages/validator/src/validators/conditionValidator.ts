@@ -1,8 +1,8 @@
+import { validateCatch } from './catchValidator';
 import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Log, Roots } from '../types';
-import { validateCatch } from './catchValidator';
 
 /**
  * Validates "if" condition in which regular expression is matched against the key in specification

@@ -1,6 +1,7 @@
+import fs from 'fs';
+
 import { Roots, Log } from '../types';
 import * as logger from '../utils/logger';
-import fs from 'fs';
 import { processSpecs } from '../processor';
 
 /**

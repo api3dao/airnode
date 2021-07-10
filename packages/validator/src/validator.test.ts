@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import * as validator from './validator';
 import {
   extraFieldMessage,
@@ -6,7 +8,6 @@ import {
   missingParamMessage,
   sizeExceededMessage,
 } from './utils/messages';
-import fs from 'fs';
 import { getPath } from './commands/utils';
 import { error } from './utils/logger';
 import { Log } from './types';
