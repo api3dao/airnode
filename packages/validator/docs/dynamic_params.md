@@ -1,6 +1,6 @@
 # Dynamic keys and values
 
-The validator can access both, keys from the parameter path and values from the specification. These dynamic parameters consist of placeholders that are on evaluation replaced with strings contained in other parts of the specification.
+The validator can access both keys from the parameter path and values from the specification. These dynamic parameters consist of placeholders that are on evaluation replaced with strings contained in other parts of the specification.
 
 ## Retrieving key from parameter path
 
