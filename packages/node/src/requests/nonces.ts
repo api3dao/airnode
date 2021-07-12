@@ -1,7 +1,7 @@
-import { removeKey } from '../utils/object-utils';
 import * as grouping from './grouping';
 import { blockedOrIgnored } from './request';
 import * as sorting from './sorting';
+import { removeKey } from '../utils/object-utils';
 import {
   ApiCall,
   ClientRequest,

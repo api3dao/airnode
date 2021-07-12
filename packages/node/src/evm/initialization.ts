@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
 import { AirnodeRrpFactory } from './contracts';
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
 import * as utils from './utils';
 import * as wallet from './wallet';
+import { go } from '../utils/promise-utils';
+import * as logger from '../logger';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 

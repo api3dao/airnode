@@ -1,6 +1,6 @@
-import { BuildRequestOptions, CachedBuildRequestOptions, Request } from '../types';
 import { buildParameters } from './parameters';
 import { parsePathWithParameters } from './path-parser';
+import { BuildRequestOptions, CachedBuildRequestOptions, Request } from '../types';
 
 function cacheRequestOptions(options: BuildRequestOptions): CachedBuildRequestOptions {
   const { ois } = options;

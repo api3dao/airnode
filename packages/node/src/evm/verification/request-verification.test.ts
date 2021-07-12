@@ -1,8 +1,8 @@
-import * as fixtures from 'test/fixtures';
-import * as requests from '../../requests';
 import * as verification from './request-verification';
+import * as requests from '../../requests';
 import * as wallet from '../wallet';
-import { RequestErrorCode, RequestStatus } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('verifyDesignatedWallets', () => {
   const masterHDNode = wallet.getMasterHDNode();

@@ -1,6 +1,6 @@
 import shuffle from 'lodash/shuffle';
-import * as fixtures from 'test/fixtures';
 import * as sorting from './sorting';
+import * as fixtures from '../../test/fixtures';
 
 describe('sortGroupedRequests', () => {
   it('sorts API calls by block number then by transaction hash', () => {

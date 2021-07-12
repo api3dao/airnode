@@ -1,7 +1,7 @@
 import { ParameterTarget } from '@api3/ois';
-import { BuilderParameters, CachedBuildRequestOptions, RequestParameters } from '../types';
 import * as authentication from './authentication';
 import * as cookies from './cookies';
+import { BuilderParameters, CachedBuildRequestOptions, RequestParameters } from '../types';
 
 function initalParameters(): BuilderParameters {
   return {

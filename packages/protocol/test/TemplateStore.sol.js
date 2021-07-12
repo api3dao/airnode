@@ -1,3 +1,5 @@
+/* globals ethers */
+
 const { expect } = require('chai');
 
 let airnodeRrp;

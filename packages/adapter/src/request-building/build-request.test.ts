@@ -1,5 +1,5 @@
 import * as build from './build-request';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 
 describe('buildingRequest', () => {
   it('builds and returns the request', () => {

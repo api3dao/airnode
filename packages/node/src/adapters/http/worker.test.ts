@@ -5,10 +5,10 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-import * as fixtures from 'test/fixtures';
-import * as logger from '../../logger';
 import * as worker from './worker';
-import { LogOptions } from 'src/types';
+import * as logger from '../../logger';
+import * as fixtures from '../../../test/fixtures';
+import { LogOptions } from '../../types';
 
 describe('spawnNewApiCall', () => {
   const logOptions: LogOptions = {

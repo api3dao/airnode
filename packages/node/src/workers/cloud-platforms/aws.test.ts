@@ -7,8 +7,8 @@ jest.mock('aws-sdk', () => ({
 
 import AWS from 'aws-sdk';
 import * as aws from './aws';
-import * as fixtures from 'test/fixtures';
-import { WorkerFunctionName } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { WorkerFunctionName } from '../../types';
 
 describe('spawn', () => {
   it('derives the function name, invokes and returns the response', async () => {
