@@ -367,7 +367,7 @@ export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
   readonly airnodeIdShort?: string;
-  readonly enableDeploymentReporting?: boolean;
+  readonly enableHeartbeat?: boolean;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;

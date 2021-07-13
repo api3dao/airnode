@@ -3,10 +3,10 @@ import keyBy from 'lodash/keyBy';
 import * as calls from '../coordinator/calls';
 import * as logger from '../logger';
 import * as providers from '../providers';
-import { reportDeployment } from '../reporting';
+import { reportHeartbeat } from '../reporting';
 import { hasNoActionableRequests } from '../requests/request';
 import * as state from '../coordinator/state';
-import { formatDateTime } from '../utils/date-utils';
+import { formatDateTime, go } from '../utils';
 import { Config, WorkerOptions } from '../types';
 
 export async function startCoordinator(config: Config) {
@@ -96,11 +96,11 @@ export async function startCoordinator(config: Config) {
   logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, baseLogOptions);
 
   // =================================================================
-  // STEP 8: Report healthcheck and statistics
+  // STEP 8: Report heartbeat and statistics
   // =================================================================
-  const reportingError = await reportDeployment(state6);
-  if (reportingError) {
-    logger.error('Failed to report coordinator statistics', { ...baseLogOptions, error: reportingError });
+  const [heartbeatError, _heartbeatRes] = await go(() => reportHeartbeat(state6));
+  if (heartbeatError) {
+    logger.error('Failed to send Airnode heartbeat', { ...baseLogOptions, error: heartbeatError });
   }
 
   return state5;
