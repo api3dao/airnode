@@ -8,10 +8,10 @@ import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from
 import { AirnodeRrpFactory } from '../contracts';
 
 export interface Receipt {
-  id: string;
-  data?: string;
-  error?: Error;
-  type: RequestType;
+  readonly id: string;
+  readonly data?: string;
+  readonly error?: Error;
+  readonly type: RequestType;
 }
 
 export async function submit(state: ProviderState<EVMProviderState>) {

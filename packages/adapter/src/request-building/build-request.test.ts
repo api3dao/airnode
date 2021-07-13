@@ -23,6 +23,7 @@ describe('buildingRequest', () => {
     expect.assertions(1);
     const ois = fixtures.buildOIS({ endpoints: [] });
     const options = fixtures.buildRequestOptions({ ois });
+    // eslint-disable-next-line functional/no-try-statement
     try {
       build.buildRequest(options);
     } catch (e) {

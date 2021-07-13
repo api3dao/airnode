@@ -16,9 +16,9 @@ import {
 type AnyRequest = ApiCall | Withdrawal;
 
 interface AssignedNonces {
-  assignmentBlocked: boolean;
-  nextNonce: number;
-  requests: ClientRequest<AnyRequest>[];
+  readonly assignmentBlocked: boolean;
+  readonly nextNonce: number;
+  readonly requests: ClientRequest<AnyRequest>[];
 }
 
 function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<AnyRequest>[] {

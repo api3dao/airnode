@@ -9,10 +9,10 @@ import * as fixtures from '../../../test/fixtures';
 import { AirnodeRrp } from '../contracts';
 
 describe('fetch (templates)', () => {
-  let fetchOptions: templates.FetchOptions;
+  let mutableFetchOptions: templates.FetchOptions;
 
   beforeEach(() => {
-    fetchOptions = {
+    mutableFetchOptions = {
       airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
@@ -41,7 +41,7 @@ describe('fetch (templates)', () => {
       });
     });
 
-    const [logs, res] = await templates.fetch(apiCalls, fetchOptions);
+    const [logs, res] = await templates.fetch(apiCalls, mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(Object.keys(res).length).toEqual(19);
     expect(res['templateId-0']['endpointId']).toEqual('endpointId-0');
@@ -63,7 +63,7 @@ describe('fetch (templates)', () => {
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
@@ -85,7 +85,7 @@ describe('fetch (templates)', () => {
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const apiCallDup = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const [logs, res] = await templates.fetch([apiCall, apiCallDup], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall, apiCallDup], mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
@@ -102,7 +102,7 @@ describe('fetch (templates)', () => {
 
   it('ignores API calls without a template ID', async () => {
     const apiCall = fixtures.requests.buildApiCall({ templateId: null });
-    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({});
     expect(getTemplatesMock).not.toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe('fetch (templates)', () => {
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
@@ -143,7 +143,7 @@ describe('fetch (templates)', () => {
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
       { level: 'INFO', message: `Fetched API call template:${apiCall.templateId}` },
@@ -173,7 +173,7 @@ describe('fetch (templates)', () => {
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
       { level: 'INFO', message: `Fetched API call template:${apiCall.templateId}` },
@@ -198,7 +198,7 @@ describe('fetch (templates)', () => {
     getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
-    const [logs, res] = await templates.fetch([apiCall], fetchOptions);
+    const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Failed to fetch API call templates', error: new Error('Server says no') },
       {
@@ -214,10 +214,10 @@ describe('fetch (templates)', () => {
 });
 
 describe('fetchTemplate', () => {
-  let airnodeRrp: AirnodeRrp;
+  let mutableAirnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
-    airnodeRrp = new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
+    mutableAirnodeRrp = new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
   });
 
   it('fetches the individual template', async () => {
@@ -229,7 +229,7 @@ describe('fetchTemplate', () => {
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
     const templateId = 'templateId';
-    const [logs, res] = await templates.fetchTemplate(airnodeRrp, templateId);
+    const [logs, res] = await templates.fetchTemplate(mutableAirnodeRrp, templateId);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
     expect(res).toEqual({
       airnodeId: 'airnodeId-0',
@@ -250,7 +250,7 @@ describe('fetchTemplate', () => {
     getTemplateMock.mockResolvedValueOnce(rawTemplate);
 
     const templateId = 'templateId';
-    const [logs, res] = await templates.fetchTemplate(airnodeRrp, templateId);
+    const [logs, res] = await templates.fetchTemplate(mutableAirnodeRrp, templateId);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
     expect(res).toEqual({
       airnodeId: 'airnodeId-0',
@@ -266,7 +266,7 @@ describe('fetchTemplate', () => {
     getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
 
     const templateId = 'templateId';
-    const [logs, res] = await templates.fetchTemplate(airnodeRrp, templateId);
+    const [logs, res] = await templates.fetchTemplate(mutableAirnodeRrp, templateId);
     expect(logs).toEqual([
       {
         level: 'ERROR',

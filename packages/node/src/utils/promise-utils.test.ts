@@ -1,3 +1,5 @@
+/* eslint-disable functional/no-try-statement */
+
 import { go, promiseTimeout, retryOnTimeout, retryOperation } from './promise-utils';
 
 describe('go', () => {

@@ -1,3 +1,5 @@
+/* eslint-disable functional/immutable-data */
+
 import { ApiSecurityScheme, ApiSpecification } from '@api3/ois';
 import * as authentication from './authentication';
 import * as fixtures from '../../test/fixtures';

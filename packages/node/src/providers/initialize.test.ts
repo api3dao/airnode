@@ -155,6 +155,7 @@ describe('initializeProviders', () => {
     expect.assertions(1);
     const config = fixtures.buildConfig({ chains: [] });
     const workerOpts = fixtures.buildWorkerOptions();
+    // eslint-disable-next-line functional/no-try-statement
     try {
       await providers.initialize('abcdefg', config, workerOpts);
     } catch (e) {

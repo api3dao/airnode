@@ -6,12 +6,12 @@ import { BigNumber } from 'bignumber.js';
 import { ResponseType, ValueType } from '../types';
 
 interface SpecialNumber {
-  result: number;
-  value: any;
+  readonly result: number;
+  readonly value: any;
 }
 
 // Any extra values that do not convert to numbers simply
-const SPECIAL_NUMBERS: SpecialNumber[] = [
+const SPECIAL_NUMBERS: readonly SpecialNumber[] = [
   { value: false, result: 0 },
   { value: 'false', result: 0 },
   { value: true, result: 1 },
@@ -30,6 +30,7 @@ function castNumber(value: any, type: ResponseType): BigNumber {
   }
 
   // We can't use ethers.js BigNumber.from here as it cannot handle decimals
+  // eslint-disable-next-line functional/no-try-statement
   try {
     return new BigNumber(value);
   } catch (e) {

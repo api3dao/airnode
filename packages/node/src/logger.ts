@@ -1,7 +1,7 @@
 import { formatDateTimeMs } from './utils/date-utils';
 import { LogLevel, LogOptions, PendingLog } from './types';
 
-const logLevels: { [key in LogLevel]: number } = {
+const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
   INFO: 1,
   WARN: 2,

@@ -46,6 +46,7 @@ describe('spawn', () => {
       functionName: 'some-function' as WorkerFunctionName,
       payload: { from: 'ETH', to: 'USD' },
     };
+    // eslint-disable-next-line functional/no-try-statement
     try {
       await aws.spawn(parameters);
     } catch (e) {
