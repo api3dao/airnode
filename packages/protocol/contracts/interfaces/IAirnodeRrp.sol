@@ -12,7 +12,7 @@ interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
     uint256 chainId,
     address clientAddress,
     bytes32 templateId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
@@ -26,7 +26,7 @@ interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
     uint256 chainId,
     address clientAddress,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
@@ -39,7 +39,7 @@ interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
 
   function makeRequest(
     bytes32 templateId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
@@ -49,7 +49,7 @@ interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
   function makeFullRequest(
     bytes32 airnodeId,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,

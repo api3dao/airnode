@@ -8,7 +8,7 @@ interface IAuthorizer {
     bytes32 requestId,
     bytes32 airnodeId,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address clientAddress
   ) external view returns (bool);
