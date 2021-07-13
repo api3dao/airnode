@@ -1,20 +1,20 @@
 import { ethers } from 'ethers';
 import uniq from 'lodash/uniq';
 import flatMap from 'lodash/flatMap';
+import * as wallet from './wallet';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
-import * as wallet from './wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 
 export interface TransactionCountByRequesterIndex {
-  [index: string]: number;
+  readonly [index: string]: number;
 }
 
 interface FetchOptions {
-  currentBlock: number;
-  masterHDNode: ethers.utils.HDNode;
-  provider: ethers.providers.JsonRpcProvider;
+  readonly currentBlock: number;
+  readonly masterHDNode: ethers.utils.HDNode;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 async function getWalletTransactionCount(

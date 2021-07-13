@@ -1,4 +1,4 @@
-import { mockEthers } from 'test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
@@ -20,7 +20,7 @@ mockEthers({
 
 import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests } from '../../types';
 
 describe('processTransactions', () => {

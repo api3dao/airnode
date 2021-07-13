@@ -1,17 +1,17 @@
 import flatMap from 'lodash/flatMap';
-import * as grouping from '../../requests/grouping';
-import * as logger from '../../logger';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
+import * as grouping from '../../requests/grouping';
+import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from '../../types';
 import { AirnodeRrpFactory } from '../contracts';
 
 export interface Receipt {
-  id: string;
-  data?: string;
-  error?: Error;
-  type: RequestType;
+  readonly id: string;
+  readonly data?: string;
+  readonly error?: Error;
+  readonly type: RequestType;
 }
 
 export async function submit(state: ProviderState<EVMProviderState>) {

@@ -6,17 +6,17 @@ import { AirnodeRrp } from '@api3/protocol';
 // General
 // ===========================================
 export interface DeployState {
-  readonly airnodesByName: { [name: string]: Airnode };
-  readonly authorizersByName: { [name: string]: string };
-  readonly clientsByName: { [name: string]: ethers.Contract };
+  readonly airnodesByName: { readonly [name: string]: Airnode };
+  readonly authorizersByName: { readonly [name: string]: string };
+  readonly clientsByName: { readonly [name: string]: ethers.Contract };
   readonly config: Config;
   readonly contracts: {
     readonly AirnodeRrp?: AirnodeRrp;
   };
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;
-  readonly requestersById: { [name: string]: RequesterAccount };
-  readonly templatesByName: { [name: string]: Template };
+  readonly requestersById: { readonly [name: string]: RequesterAccount };
+  readonly templatesByName: { readonly [name: string]: Template };
 }
 
 export interface RequestsState {
@@ -68,8 +68,8 @@ export interface DeployedTemplate {
 
 export interface DeployedAirnode {
   readonly masterWalletAddress: string;
-  readonly endpoints: { [name: string]: DeployedEndpoint };
-  readonly templates: { [name: string]: DeployedTemplate };
+  readonly endpoints: { readonly [name: string]: DeployedEndpoint };
+  readonly templates: { readonly [name: string]: DeployedTemplate };
 }
 
 export interface DeployedDesignatedWallet {

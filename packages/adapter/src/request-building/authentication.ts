@@ -3,9 +3,9 @@ import isEmpty from 'lodash/isEmpty';
 import { CachedBuildRequestOptions, Parameters } from '../types';
 
 interface Authentication {
-  query: Parameters;
-  headers: Parameters;
-  cookies: Parameters;
+  readonly query: Parameters;
+  readonly headers: Parameters;
+  readonly cookies: Parameters;
 }
 
 function addApiKeyAuth(

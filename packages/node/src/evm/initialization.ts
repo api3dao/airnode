@@ -1,41 +1,41 @@
 import { ethers } from 'ethers';
 import isEqual from 'lodash/isEqual';
 import { AirnodeRrpFactory } from './contracts';
-import { go } from '../utils/promise-utils';
-import * as logger from '../logger';
 import * as utils from './utils';
 import * as wallet from './wallet';
+import { go } from '../utils/promise-utils';
+import * as logger from '../logger';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 
 interface AirnodeParametersExistOptions {
-  airnodeAdmin: string;
-  authorizers: string[];
-  masterHDNode: ethers.utils.HDNode;
+  readonly airnodeAdmin: string;
+  readonly authorizers: string[];
+  readonly masterHDNode: ethers.utils.HDNode;
 }
 
 interface BaseFetchOptions {
-  airnodeAdmin: string;
-  airnodeRrpAddress: string;
-  authorizers: string[];
-  masterHDNode: ethers.utils.HDNode;
-  provider: ethers.providers.JsonRpcProvider;
+  readonly airnodeAdmin: string;
+  readonly airnodeRrpAddress: string;
+  readonly authorizers: string[];
+  readonly masterHDNode: ethers.utils.HDNode;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 interface VerifyOptions extends BaseFetchOptions {
-  airnodeId: string;
+  readonly airnodeId: string;
 }
 
 interface AirnodeParametersData {
-  airnodeAdmin: string;
-  authorizers: string[];
-  blockNumber: number;
-  xpub: string;
+  readonly airnodeAdmin: string;
+  readonly authorizers: string[];
+  readonly blockNumber: number;
+  readonly xpub: string;
 }
 
 interface SetAirnodeParametersOptions extends BaseFetchOptions {
-  currentXpub: string;
-  onchainData: AirnodeParametersData;
+  readonly currentXpub: string;
+  readonly onchainData: AirnodeParametersData;
 }
 
 export function airnodeParametersMatch(

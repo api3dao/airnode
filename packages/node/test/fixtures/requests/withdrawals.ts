@@ -1,5 +1,5 @@
-import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
 import { buildMetadata } from './metadata';
+import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
 
 export function buildWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
   const metadata = buildMetadata();

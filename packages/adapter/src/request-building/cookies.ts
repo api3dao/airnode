@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import { Parameters } from '../types';
 
 interface CookieHeader {
-  Cookie: string;
+  readonly Cookie: string;
 }
 
 export function buildHeader(cookies: Parameters): CookieHeader | object {

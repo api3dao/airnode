@@ -1,6 +1,6 @@
 import { initializeProvider } from './initialize-provider';
 import * as evmHandler from '../evm/handlers/initialize-provider';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 
 describe('initializeProvider', () => {
   it('initializes EVM providers', () => {

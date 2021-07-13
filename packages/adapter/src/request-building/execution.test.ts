@@ -2,9 +2,9 @@ const responseMock = jest.fn();
 jest.mock('axios', () => responseMock);
 
 import axios from 'axios';
+import * as execution from './execution';
 import { Request } from '../types';
 import * as fixtures from '../../test/fixtures';
-import * as execution from './execution';
 
 describe('executeRequest', () => {
   it('executes simple GET requests', async () => {

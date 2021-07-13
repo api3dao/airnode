@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { Configurations, Receipts } from 'src/types';
+import { Configurations, Receipts } from '../types';
 import * as logger from '../utils/logger';
 
 export function parseConfigFile(configPath: string, nodeVersion: string) {

@@ -5,7 +5,7 @@ import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 
 interface FetchOptions {
-  provider: ethers.providers.JsonRpcProvider;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 export async function getGasPrice(options: FetchOptions): Promise<LogsData<ethers.BigNumber | null>> {

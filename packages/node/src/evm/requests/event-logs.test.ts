@@ -1,4 +1,6 @@
-import { mockEthers } from '../../../test/utils';
+/* eslint-disable functional/no-try-statement */
+
+import { mockEthers } from '../../../test/mock-utils';
 const parseLogMock = jest.fn();
 const original = jest.requireActual('ethers');
 mockEthers({
@@ -13,8 +15,8 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import { removeKeys } from '../../utils/object-utils';
 import * as eventLogs from './event-logs';
+import { removeKeys } from '../../utils/object-utils';
 
 describe('EVM event logs - fetch', () => {
   it('returns all logs with metadata', async () => {
