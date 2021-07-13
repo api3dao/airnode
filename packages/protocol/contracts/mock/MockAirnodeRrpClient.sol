@@ -32,15 +32,14 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
     bytes4 fulfillFunctionId,
     bytes calldata parameters
   ) external {
-    bytes32 requestId =
-      airnodeRrp.makeRequest(
-        templateId,
-        requesterIndex,
-        designatedWallet,
-        fulfillAddress,
-        fulfillFunctionId,
-        parameters
-      );
+    bytes32 requestId = airnodeRrp.makeRequest(
+      templateId,
+      requesterIndex,
+      designatedWallet,
+      fulfillAddress,
+      fulfillFunctionId,
+      parameters
+    );
     incomingFulfillments[requestId] = true;
   }
 
@@ -64,16 +63,15 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
     bytes4 fulfillFunctionId,
     bytes calldata parameters
   ) external {
-    bytes32 requestId =
-      airnodeRrp.makeFullRequest(
-        airnodeId,
-        endpointId,
-        requesterIndex,
-        designatedWallet,
-        fulfillAddress,
-        fulfillFunctionId,
-        parameters
-      );
+    bytes32 requestId = airnodeRrp.makeFullRequest(
+      airnodeId,
+      endpointId,
+      requesterIndex,
+      designatedWallet,
+      fulfillAddress,
+      fulfillFunctionId,
+      parameters
+    );
     incomingFulfillments[requestId] = true;
   }
 

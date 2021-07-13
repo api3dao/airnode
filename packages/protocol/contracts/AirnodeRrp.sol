@@ -27,8 +27,9 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
     address fulfillAddress,
     bytes4 fulfillFunctionId
   ) {
-    bytes32 incomingFulfillmentParameters =
-      keccak256(abi.encodePacked(airnodeId, msg.sender, fulfillAddress, fulfillFunctionId));
+    bytes32 incomingFulfillmentParameters = keccak256(
+      abi.encodePacked(airnodeId, msg.sender, fulfillAddress, fulfillFunctionId)
+    );
     require(incomingFulfillmentParameters == requestIdToFulfillmentParameters[requestId], "No such request");
     _;
   }
