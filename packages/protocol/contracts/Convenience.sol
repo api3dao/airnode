@@ -8,25 +8,6 @@ import "./interfaces/IConvenience.sol";
 /// @title The contract that keeps the convenience methods that Airnodes use to
 /// make batch calls
 contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
-  /// @notice A convenience method for the Airnode to set its parameters
-  /// and forward the remaining funds in the master wallet to the Airnode
-  /// admin
-  /// @param admin Airnode admin
-  /// @param xpub Master public key of the Airnode
-  /// @param authorizers Authorizer contract addresses of the Airnode
-  /// @return airnodeId Airnode ID from AirnodeParameterStore
-  function setAirnodeParametersAndForwardFunds(
-    address admin,
-    string calldata xpub,
-    address[] calldata authorizers
-  ) external payable override returns (bytes32 airnodeId) {
-    airnodeId = setAirnodeParameters(xpub, authorizers);
-    if (msg.value > 0) {
-      (bool success, ) = admin.call{ value: msg.value }(""); // solhint-disable-line
-      require(success, "Transfer failed");
-    }
-  }
-
   /// @notice A convenience method to retrieve the Airnode parameters and
   /// the block number with a single call
   /// @param airnodeId Airnode ID from AirnodeParameterStore
