@@ -3,11 +3,10 @@ import keyBy from 'lodash/keyBy';
 import * as calls from '../coordinator/calls';
 import * as logger from '../logger';
 import * as providers from '../providers';
-import * as reporting from '../reporting';
-import * as request from '../requests/request';
+import { reportDeployment } from '../reporting';
+import { hasNoActionableRequests } from '../requests/request';
 import * as state from '../coordinator/state';
 import { formatDateTime } from '../utils/date-utils';
-import { spawnProviderRequestProcessor } from '../providers/worker';
 import { Config, WorkerOptions } from '../types';
 
 export async function startCoordinator(config: Config) {
@@ -35,16 +34,17 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 2: Get the initial state from each provider
   // =================================================================
-  const [initializeLogs, EVMProviders] = await providers.initialize(coordinatorId, config, workerOpts);
+  // Should not throw
+  const [initializeLogs, initializedStates] = await providers.initialize(coordinatorId, config, workerOpts);
   logger.logPending(initializeLogs, baseLogOptions);
 
-  const state2 = state.update(state1, { EVMProviders });
-  state2.EVMProviders.forEach((provider) => {
-    logger.info(`Initialized EVM provider:${provider.settings.name}`, baseLogOptions);
+  const state2 = state.update(state1, { providers: { evm: initializedStates.evm } });
+  state2.providers.evm.forEach((evmProvider) => {
+    logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, baseLogOptions);
   });
   logger.info('Forking to initialize providers complete', baseLogOptions);
 
-  const hasNoRequests = state2.EVMProviders.every((provider) => request.hasNoActionableRequests(provider!.requests));
+  const hasNoRequests = state2.providers.evm.every((evmProvider) => hasNoActionableRequests(evmProvider!.requests));
   if (hasNoRequests) {
     logger.info('No actionable requests detected. Returning...', baseLogOptions);
     return state2;
@@ -53,7 +53,7 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 3: Group API calls with respect to request IDs
   // =================================================================
-  const flatApiCalls = flatMap(state2.EVMProviders, (provider) => provider.requests.apiCalls);
+  const flatApiCalls = flatMap(state2.providers.evm, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
   const state3 = state.update(state2, { aggregatedApiCallsById });
 
@@ -73,24 +73,20 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   const [disaggregationLogs, providersWithAPIResponses] = calls.disaggregate(state4);
   logger.logPending(disaggregationLogs, baseLogOptions);
-  const state5 = state.update(state4, { EVMProviders: providersWithAPIResponses });
+  const state5 = state.update(state4, { providers: { evm: providersWithAPIResponses } });
 
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  const processProviders = state5.EVMProviders.map(async (providerState) => {
-    logger.info(`Forking to submit transactions for provider:${providerState.settings.name}...`, baseLogOptions);
-    return await spawnProviderRequestProcessor(providerState, workerOpts);
+  state5.providers.evm.map(async (evmProviderState) => {
+    logger.info(`Forking to submit transactions for EVM provider:${evmProviderState.settings.name}...`, baseLogOptions);
   });
-  const processedProviders = await Promise.all(processProviders);
+  // Should not throw
+  const [processedLogs, processedProviders] = await providers.processRequests(state5.providers, workerOpts);
+  logger.logPending(processedLogs, baseLogOptions);
 
-  const providerTxLogs = flatMap(processedProviders, (pr) => pr[0]);
-  logger.logPending(providerTxLogs, baseLogOptions);
+  const state6 = state.update(state5, { providers: processedProviders });
   logger.info('Forking to submit transactions complete', baseLogOptions);
-
-  // TODO:
-  // const processedProviderStates = flatMap(processedProviders, (pr) => pr[1]);
-  // const state6 = state.update(state5, { EVMProviders: processedProviderStates });
 
   // =================================================================
   // STEP 7: Log coordinator stats
@@ -102,8 +98,7 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 8: Report healthcheck and statistics
   // =================================================================
-  // TODO: use state6
-  const reportingError = await reporting.reportDeployment(state5);
+  const reportingError = await reportDeployment(state6);
   if (reportingError) {
     logger.error('Failed to report coordinator statistics', { ...baseLogOptions, error: reportingError });
   }

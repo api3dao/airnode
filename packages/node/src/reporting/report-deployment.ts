@@ -1,4 +1,4 @@
-import { execute } from '@airnode/adapter';
+import { execute } from '@api3/adapter';
 import { go } from '../utils/promise-utils';
 import { getEnvValue } from '../config';
 import { CoordinatorState } from '../types';
@@ -29,6 +29,6 @@ export async function reportDeployment(state: CoordinatorState) {
     timeout: 5_000,
   };
   // Catch any reporting errors
-  const [err, _res] = await go(execute(request));
+  const [err, _res] = await go(() => execute(request));
   return err;
 }

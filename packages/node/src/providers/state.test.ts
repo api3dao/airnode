@@ -59,6 +59,7 @@ describe('create', () => {
       coordinatorId: '837daEf231',
       currentBlock: null,
       gasPrice: null,
+      id: expect.anything(),
       masterHDNode: expect.any(ethers.utils.HDNode),
       provider: expect.any(ethers.providers.JsonRpcProvider),
       requests: {
@@ -126,6 +127,7 @@ describe('create', () => {
       coordinatorId: '837daEf231',
       currentBlock: null,
       gasPrice: null,
+      id: expect.anything(),
       masterHDNode: expect.any(ethers.utils.HDNode),
       provider: expect.any(ethers.providers.JsonRpcProvider),
       requests: {

@@ -26,7 +26,9 @@ describe('disaggregate - ClientRequests', () => {
 
     const config = fixtures.buildConfig();
     let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1, provider2] });
+
+    const providers = { evm: [provider0, provider1, provider2] };
+    state = coordinatorState.update(state, { aggregatedApiCallsById, providers });
 
     const [logs, res] = disaggregation.disaggregate(state);
     expect(logs).toEqual([]);
@@ -66,7 +68,9 @@ describe('disaggregate - ClientRequests', () => {
 
     const config = fixtures.buildConfig();
     let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1] });
+
+    const providers = { evm: [provider0, provider1] };
+    state = coordinatorState.update(state, { aggregatedApiCallsById, providers });
 
     const [logs, res] = disaggregation.disaggregate(state);
     expect(logs).toEqual([
@@ -97,7 +101,9 @@ describe('disaggregate - ClientRequests', () => {
 
     const config = fixtures.buildConfig();
     let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0] });
+
+    const providers = { evm: [provider0] };
+    state = coordinatorState.update(state, { aggregatedApiCallsById, providers });
 
     const [logs, res] = disaggregation.disaggregate(state);
     expect(logs).toEqual([
@@ -126,7 +132,9 @@ describe('disaggregate - ClientRequests', () => {
 
     const config = fixtures.buildConfig();
     let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1, provider2] });
+
+    const providers = { evm: [provider0, provider1, provider2] };
+    state = coordinatorState.update(state, { aggregatedApiCallsById, providers });
 
     const [logs, res] = disaggregation.disaggregate(state);
     expect(logs).toEqual([]);

@@ -118,6 +118,7 @@ export type ProviderState<T extends {}> = T & {
   readonly config?: Config;
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly id: string;
   readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
   readonly transactionCountsByRequesterIndex: { [requesterIndex: string]: number };
@@ -136,10 +137,14 @@ export interface CoordinatorSettings {
   readonly stage: string;
 }
 
+export interface ProviderStates {
+  readonly evm: ProviderState<EVMProviderState>[];
+}
+
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
-  readonly EVMProviders: ProviderState<EVMProviderState>[];
+  readonly providers: ProviderStates;
   readonly id: string;
   readonly settings: CoordinatorSettings;
 }
