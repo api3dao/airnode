@@ -10,7 +10,7 @@ interface IAirnodeParameterStore is IRequesterStore {
 
   event WithdrawalRequested(
     bytes32 indexed airnodeId,
-    uint256 indexed requesterIndex,
+    address indexed requester,
     bytes32 indexed withdrawalRequestId,
     address designatedWallet,
     address destination
@@ -18,7 +18,7 @@ interface IAirnodeParameterStore is IRequesterStore {
 
   event WithdrawalFulfilled(
     bytes32 indexed airnodeId,
-    uint256 indexed requesterIndex,
+    address indexed requester,
     bytes32 indexed withdrawalRequestId,
     address designatedWallet,
     address destination,
@@ -32,7 +32,6 @@ interface IAirnodeParameterStore is IRequesterStore {
 
   function requestWithdrawal(
     bytes32 airnodeId,
-    uint256 requesterIndex,
     address designatedWallet,
     address destination
   ) external;
@@ -40,7 +39,7 @@ interface IAirnodeParameterStore is IRequesterStore {
   function fulfillWithdrawal(
     bytes32 withdrawalRequestId,
     bytes32 airnodeId,
-    uint256 requesterIndex,
+    address requester,
     address destination
   ) external payable;
 
@@ -48,7 +47,7 @@ interface IAirnodeParameterStore is IRequesterStore {
     bytes32 airnodeId,
     bytes32 requestId,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address clientAddress
   ) external view returns (bool status);

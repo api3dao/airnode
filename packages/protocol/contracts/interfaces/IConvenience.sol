@@ -28,7 +28,7 @@ interface IConvenience {
     bytes32 airnodeId,
     bytes32[] calldata requestIds,
     bytes32[] calldata endpointIds,
-    uint256[] calldata requesterIndices,
+    address[] calldata requesters,
     address[] calldata designatedWallets,
     address[] calldata clientAddresses
   ) external view returns (bool[] memory statuses);
