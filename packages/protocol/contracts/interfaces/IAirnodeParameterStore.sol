@@ -23,11 +23,10 @@ interface IAirnodeParameterStore is IRequesterStore {
     uint256 amount
   );
 
-  function setAirnodeParameters(
-    address admin,
-    string calldata xpub,
-    address[] calldata authorizers
-  ) external payable returns (bytes32 airnodeId);
+  function setAirnodeParameters(string calldata xpub, address[] calldata authorizers)
+    external
+    payable
+    returns (bytes32 airnodeId);
 
   function requestWithdrawal(
     bytes32 airnodeId,

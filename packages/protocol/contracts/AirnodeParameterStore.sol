@@ -26,18 +26,18 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
   /// mismatch between it and the airnodeId can be detected off-chain.
   /// This needs to be payable to be callable by
   /// setAirnodeParametersAndForwardFunds().
-  /// @param admin Airnode admin
   /// @param xpub Master public key of the Airnode
   /// @param authorizers Authorizer contract addresses of the Airnode
   /// @return airnodeId Airnode ID
-  function setAirnodeParameters(
-    address admin,
-    string calldata xpub,
-    address[] calldata authorizers
-  ) public payable override returns (bytes32 airnodeId) {
+  function setAirnodeParameters(string calldata xpub, address[] calldata authorizers)
+    public
+    payable
+    override
+    returns (bytes32 airnodeId)
+  {
     airnodeId = keccak256(abi.encode(msg.sender));
-    airnodeParameters[airnodeId] = AirnodeParameter({ admin: admin, xpub: xpub, authorizers: authorizers });
-    emit AirnodeParametersSet(airnodeId, admin, xpub, authorizers);
+    airnodeParameters[airnodeId] = AirnodeParameter({ admin: msg.sender, xpub: xpub, authorizers: authorizers });
+    emit AirnodeParametersSet(airnodeId, msg.sender, xpub, authorizers);
   }
 
   /// @notice Called by the requester admin to create a request for the
