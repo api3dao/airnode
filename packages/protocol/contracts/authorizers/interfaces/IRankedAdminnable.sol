@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
 interface IRankedAdminnable {
   event SetRank(bytes32 indexed adminnedId, address indexed targetAdmin, uint256 newRank, address indexed callerAdmin);
