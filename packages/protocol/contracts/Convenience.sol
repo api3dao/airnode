@@ -20,7 +20,7 @@ contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
     string calldata xpub,
     address[] calldata authorizers
   ) external payable override returns (bytes32 airnodeId) {
-    airnodeId = setAirnodeParameters(admin, xpub, authorizers);
+    airnodeId = setAirnodeParameters(xpub, authorizers);
     if (msg.value > 0) {
       (bool success, ) = admin.call{ value: msg.value }(""); // solhint-disable-line
       require(success, "Transfer failed");
