@@ -1,3 +1,5 @@
+/* eslint-disable functional/no-try-statement */
+
 import { mockEthers } from '../../../test/mock-utils';
 const parseLogMock = jest.fn();
 const original = jest.requireActual('ethers');

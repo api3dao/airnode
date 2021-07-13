@@ -11,12 +11,12 @@ import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 
 export interface FetchOptions {
-  airnodeRrpAddress: string;
-  provider: ethers.providers.JsonRpcProvider;
+  readonly airnodeRrpAddress: string;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 interface ApiCallTemplatesById {
-  [id: string]: ApiCallTemplate;
+  readonly [id: string]: ApiCallTemplate;
 }
 
 export async function fetchTemplate(
@@ -43,6 +43,7 @@ export async function fetchTemplate(
 
 async function fetchTemplateGroup(
   airnodeRrp: AirnodeRrp,
+  // eslint-disable-next-line functional/prefer-readonly-type
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
@@ -87,6 +88,7 @@ export async function fetch(
   }
 
   // Requests are made for up to 10 templates at a time
+  // eslint-disable-next-line functional/prefer-readonly-type
   const groupedTemplateIds = chunk(uniq(templateIds), CONVENIENCE_BATCH_SIZE) as string[][];
 
   // Create an instance of the contract that we can re-use

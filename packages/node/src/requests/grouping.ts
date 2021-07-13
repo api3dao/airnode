@@ -3,7 +3,7 @@ import uniq from 'lodash/uniq';
 import { GroupedRequests } from '../types';
 
 export interface RequestsByRequesterIndex {
-  [requesterIndex: string]: GroupedRequests;
+  readonly [requesterIndex: string]: GroupedRequests;
 }
 
 export function mapUniqueRequesterIndices(requests: GroupedRequests): string[] {

@@ -12,7 +12,7 @@ import {
 } from '../../types';
 
 interface ApiCallTemplatesById {
-  [id: string]: ApiCallTemplate;
+  readonly [id: string]: ApiCallTemplate;
 }
 
 function applyTemplate(
