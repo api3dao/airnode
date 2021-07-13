@@ -3,7 +3,7 @@ pragma solidity 0.8.4;
 
 import "./RequesterStore.sol";
 import "./interfaces/IAirnodeParameterStore.sol";
-import "./authorizers/interfaces/IAuthorizer.sol";
+import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title The contract where the Airnode parameters are stored
 contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
@@ -57,12 +57,12 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
     address designatedWallet,
     address destination
   ) external override onlyRequesterAdmin(requesterIndex) {
-    bytes32 withdrawalRequestId =
-      keccak256(
-        abi.encodePacked(requesterIndexToNextWithdrawalRequestIndex[requesterIndex]++, block.chainid, requesterIndex)
-      );
-    bytes32 withdrawalParameters =
-      keccak256(abi.encodePacked(airnodeId, requesterIndex, designatedWallet, destination));
+    bytes32 withdrawalRequestId = keccak256(
+      abi.encodePacked(requesterIndexToNextWithdrawalRequestIndex[requesterIndex]++, block.chainid, requesterIndex)
+    );
+    bytes32 withdrawalParameters = keccak256(
+      abi.encodePacked(airnodeId, requesterIndex, designatedWallet, destination)
+    );
     withdrawalRequestIdToParameters[withdrawalRequestId] = withdrawalParameters;
     emit WithdrawalRequested(airnodeId, requesterIndex, withdrawalRequestId, designatedWallet, destination);
   }
@@ -122,7 +122,7 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
       if (authorizerAddress == address(0)) {
         return true;
       }
-      IAuthorizer authorizer = IAuthorizer(authorizerAddress);
+      IRrpAuthorizer authorizer = IRrpAuthorizer(authorizerAddress);
       if (authorizer.isAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet, clientAddress)) {
         return true;
       }

@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "../interfaces/IAuthorizer.sol";
+import "../interfaces/IRrpAuthorizer.sol";
 
 /// @title A mock authorizer that always returns false
-contract MockAuthorizerAlwaysFalse is IAuthorizer {
-  uint256 public immutable override authorizerType = 33;
+contract MockAuthorizerAlwaysFalse is IRrpAuthorizer {
+  uint256 public constant override AUTHORIZER_TYPE = 123;
 
   function isAuthorized(
-    bytes32 requestId, // solhint-disable-line
-    bytes32 airnodeId, // solhint-disable-line
-    bytes32 endpointId, // solhint-disable-line
-    uint256 requesterIndex, // solhint-disable-line
-    address designatedWallet, // solhint-disable-line
-    address clientAddress // solhint-disable-line
+    bytes32 requestId, // solhint-disable-line no-unused-vars
+    bytes32 airnodeId, // solhint-disable-line no-unused-vars
+    bytes32 endpointId, // solhint-disable-line no-unused-vars
+    uint256 requesterIndex, // solhint-disable-line no-unused-vars
+    address designatedWallet, // solhint-disable-line no-unused-vars
+    address clientAddress // solhint-disable-line no-unused-vars
   ) external view virtual override returns (bool status) {
     status = false;
   }
