@@ -5,12 +5,6 @@ pragma experimental ABIEncoderV2;
 import "./IAirnodeRrp.sol";
 
 interface IConvenience {
-  function setAirnodeParametersAndForwardFunds(
-    address admin,
-    string calldata xpub,
-    address[] calldata authorizers
-  ) external payable returns (bytes32 airnodeId);
-
   function getAirnodeParametersAndBlockNumber(bytes32 airnodeId)
     external
     view
