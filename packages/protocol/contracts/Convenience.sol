@@ -69,7 +69,7 @@ contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
   /// @param airnodeId Airnode ID from AirnodeParameterStore
   /// @param requestIds Request IDs
   /// @param endpointIds Endpoint IDs from EndpointStore
-  /// @param requesterIndices Requester indices from RequesterStore
+  /// @param requesters Requesters from RequesterStore
   /// @param designatedWallets Designated wallets
   /// @param clientAddresses Client addresses
   /// @return statuses Authorization statuses of the request
@@ -77,13 +77,13 @@ contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
     bytes32 airnodeId,
     bytes32[] calldata requestIds,
     bytes32[] calldata endpointIds,
-    uint256[] calldata requesterIndices,
+    address[] calldata requesters,
     address[] calldata designatedWallets,
     address[] calldata clientAddresses
   ) external view override returns (bool[] memory statuses) {
     require(
       requestIds.length == endpointIds.length &&
-        requestIds.length == requesterIndices.length &&
+        requestIds.length == requesters.length &&
         requestIds.length == designatedWallets.length &&
         requestIds.length == clientAddresses.length,
       "Unequal parameter lengths"
@@ -94,7 +94,7 @@ contract Convenience is AirnodeParameterStore, TemplateStore, IConvenience {
         airnodeId,
         requestIds[ind],
         endpointIds[ind],
-        requesterIndices[ind],
+        requesters[ind],
         designatedWallets[ind],
         clientAddresses[ind]
       );

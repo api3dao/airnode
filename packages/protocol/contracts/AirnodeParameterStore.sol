@@ -54,24 +54,20 @@ contract AirnodeParameterStore is Ownable, RequesterStore, IAirnodeParameterStor
   /// request ID hash to validate them at the node side because all of the
   /// parameters are used during fulfillment and will get validated on-chain
   /// @param airnodeId Airnode ID
-  /// @param requesterIndex Requester index from RequesterStore
   /// @param designatedWallet Designated wallet that the withdrawal is
   /// requested from
   /// @param destination Withdrawal destination
   function requestWithdrawal(
     bytes32 airnodeId,
-    uint256 requesterIndex,
     address designatedWallet,
     address destination
-  ) external override onlyRequesterAdmin(requesterIndex) {
+  ) external override {
     bytes32 withdrawalRequestId = keccak256(
-      abi.encodePacked(requesterIndexToNextWithdrawalRequestIndex[requesterIndex]++, block.chainid, requesterIndex)
+      abi.encodePacked(requesterToNextWithdrawalRequestIndex[msg.sender]++, block.chainid, msg.sender)
     );
-    bytes32 withdrawalParameters = keccak256(
-      abi.encodePacked(airnodeId, requesterIndex, designatedWallet, destination)
-    );
+    bytes32 withdrawalParameters = keccak256(abi.encodePacked(airnodeId, msg.sender, designatedWallet, destination));
     withdrawalRequestIdToParameters[withdrawalRequestId] = withdrawalParameters;
-    emit WithdrawalRequested(airnodeId, requesterIndex, withdrawalRequestId, designatedWallet, destination);
+    emit WithdrawalRequested(airnodeId, msg.sender, withdrawalRequestId, designatedWallet, destination);
   }
 
   /// @notice Called by the Airnode using the designated wallet to
@@ -79,18 +75,18 @@ contract AirnodeParameterStore is Ownable, RequesterStore, IAirnodeParameterStor
   /// @dev The Airnode sends the funds through this method to emit an
   /// event that indicates that the withdrawal request has been fulfilled
   /// @param airnodeId Airnode ID
-  /// @param requesterIndex Requester index from RequesterStore
+  /// @param requester Requester from RequesterStore
   /// @param destination Withdrawal destination
   function fulfillWithdrawal(
     bytes32 withdrawalRequestId,
     bytes32 airnodeId,
-    uint256 requesterIndex,
+    address requester,
     address destination
   ) external payable override {
-    bytes32 withdrawalParameters = keccak256(abi.encodePacked(airnodeId, requesterIndex, msg.sender, destination));
+    bytes32 withdrawalParameters = keccak256(abi.encodePacked(airnodeId, requester, msg.sender, destination));
     require(withdrawalRequestIdToParameters[withdrawalRequestId] == withdrawalParameters, "No such withdrawal request");
     delete withdrawalRequestIdToParameters[withdrawalRequestId];
-    emit WithdrawalFulfilled(airnodeId, requesterIndex, withdrawalRequestId, msg.sender, destination, msg.value);
+    emit WithdrawalFulfilled(airnodeId, requester, withdrawalRequestId, msg.sender, destination, msg.value);
     (bool success, ) = destination.call{ value: msg.value }(""); // solhint-disable-line
     require(success, "Transfer failed");
   }
@@ -110,7 +106,7 @@ contract AirnodeParameterStore is Ownable, RequesterStore, IAirnodeParameterStor
   /// @param airnodeId Airnode ID from AirnodeParameterStore
   /// @param requestId Request ID
   /// @param endpointId Endpoint ID from EndpointStore
-  /// @param requesterIndex Requester index from RequesterStore
+  /// @param requester Requester from RequesterStore
   /// @param designatedWallet Designated wallet
   /// @param clientAddress Client address
   /// @return status Authorization status of the request
@@ -118,7 +114,7 @@ contract AirnodeParameterStore is Ownable, RequesterStore, IAirnodeParameterStor
     bytes32 airnodeId,
     bytes32 requestId,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address clientAddress
   ) public view override returns (bool status) {
@@ -134,7 +130,7 @@ contract AirnodeParameterStore is Ownable, RequesterStore, IAirnodeParameterStor
         return true;
       }
       IRrpAuthorizer authorizer = IRrpAuthorizer(authorizerAddress);
-      if (authorizer.isAuthorized(requestId, airnodeId, endpointId, requesterIndex, designatedWallet, clientAddress)) {
+      if (authorizer.isAuthorized(requestId, airnodeId, endpointId, requester, designatedWallet, clientAddress)) {
         return true;
       }
     }

@@ -37,7 +37,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
   /// @notice Called by the client to make a regular request. A regular
   /// request refers to a template for the Airnode, endpoint and parameters.
   /// @param templateId Template ID from TemplateStore
-  /// @param requesterIndex Requester index from RequesterStore
+  /// @param requester Requester index from RequesterStore
   /// @param designatedWallet Designated wallet that is requested to fulfill
   /// the request
   /// @param fulfillAddress Address that will be called to fulfill
@@ -48,16 +48,13 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
   /// @return requestId Request ID
   function makeRequest(
     bytes32 templateId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
     bytes calldata parameters
   ) external override returns (bytes32 requestId) {
-    require(
-      requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
-      "Client not endorsed by requester"
-    );
+    require(requesterToClientAddressToEndorsementStatus[requester][msg.sender], "Client not endorsed by requester");
     uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
     requestId = keccak256(abi.encode(clientNoRequests, block.chainid, msg.sender, templateId, parameters));
     bytes32 airnodeId = templates[templateId].airnodeId;
@@ -71,7 +68,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
       block.chainid,
       msg.sender,
       templateId,
-      requesterIndex,
+      requester,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,
@@ -85,7 +82,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
   /// template.
   /// @param airnodeId Airnode ID from AirnodeParameterStore
   /// @param endpointId Endpoint ID from EndpointStore
-  /// @param requesterIndex Requester index from RequesterStore
+  /// @param requester Requester index from RequesterStore
   /// @param designatedWallet Designated wallet that is requested to fulfill
   /// the request
   /// @param fulfillAddress Address that will be called to fulfill
@@ -96,16 +93,13 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
   function makeFullRequest(
     bytes32 airnodeId,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
     bytes calldata parameters
   ) external override returns (bytes32 requestId) {
-    require(
-      requesterIndexToClientAddressToEndorsementStatus[requesterIndex][msg.sender],
-      "Client not endorsed by requester"
-    );
+    require(requesterToClientAddressToEndorsementStatus[requester][msg.sender], "Client not endorsed by requester");
     uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
     requestId = keccak256(abi.encode(clientNoRequests, block.chainid, msg.sender, endpointId, parameters));
     requestIdToFulfillmentParameters[requestId] = keccak256(
@@ -118,7 +112,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
       block.chainid,
       msg.sender,
       endpointId,
-      requesterIndex,
+      requester,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,
