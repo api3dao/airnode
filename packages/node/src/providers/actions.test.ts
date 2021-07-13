@@ -1,6 +1,24 @@
 import { mockEthers } from '../../test/mock-utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
-mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
+const estimateGasWithdrawalMock = jest.fn();
+const failMock = jest.fn();
+const fulfillMock = jest.fn();
+const fulfillWithdrawalMock = jest.fn();
+const staticFulfillMock = jest.fn();
+mockEthers({
+  airnodeRrpMocks: {
+    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
+    callStatic: {
+      fulfill: staticFulfillMock,
+    },
+    estimateGas: {
+      fulfillWithdrawal: estimateGasWithdrawalMock,
+    },
+    fail: failMock,
+    fulfill: fulfillMock,
+    fulfillWithdrawal: fulfillWithdrawalMock,
+  },
+});
 
 const spawnAwsMock = jest.fn();
 jest.mock('../workers/cloud-platforms/aws', () => ({
@@ -11,9 +29,9 @@ jest.mock('fs');
 
 import fs from 'fs';
 import { ethers } from 'ethers';
-import * as providers from './initialize';
+import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EnvironmentConfig } from '../types';
+import { ChainConfig, EnvironmentConfig, GroupedRequests, RequestStatus } from '../types';
 
 const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
@@ -58,7 +76,7 @@ const environmentConfig: EnvironmentConfig = {
   ],
 };
 
-describe('initializeProviders', () => {
+describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains, environment: environmentConfig });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
@@ -165,5 +183,43 @@ describe('initializeProviders', () => {
     } catch (e) {
       expect(e).toEqual(new Error('One or more chains must be defined in the provided config'));
     }
+  });
+});
+
+describe('processRequests', () => {
+  it('processes requests for each EVM providers', async () => {
+    const gasPrice = ethers.BigNumber.from(1000);
+    const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
+    gasPriceSpy.mockResolvedValue(gasPrice);
+
+    estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    staticFulfillMock.mockResolvedValue({ callSuccess: true });
+    fulfillMock.mockResolvedValue({
+      hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
+    });
+
+    const apiCall = fixtures.requests.buildApiCall({ responseValue: '0x123' });
+    const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
+
+    const transactionCountsByRequesterIndex = { [apiCall.requesterIndex]: 5 };
+    const provider0 = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const provider1 = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+
+    const allProviders = { evm: [provider0, provider1] };
+    const workerOpts = fixtures.buildWorkerOptions();
+    const [logs, res] = await providers.processRequests(allProviders, workerOpts);
+    expect(logs).toEqual([]);
+    expect(res.evm[0].requests.apiCalls[0]).toEqual({
+      ...apiCall,
+      fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
+      nonce: 5,
+      status: RequestStatus.Submitted,
+    });
+    expect(res.evm[1].requests.apiCalls[0]).toEqual({
+      ...apiCall,
+      fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
+      nonce: 5,
+      status: RequestStatus.Submitted,
+    });
   });
 });

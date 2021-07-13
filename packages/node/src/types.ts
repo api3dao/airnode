@@ -32,6 +32,7 @@ export enum RequestErrorCode {
 export enum RequestStatus {
   Pending = 'Pending',
   Fulfilled = 'Fulfilled',
+  Submitted = 'Submitted',
   Ignored = 'Ignored',
   Blocked = 'Blocked',
   Errored = 'Errored',

@@ -8,6 +8,7 @@ import {
   ClientRequest,
   EVMProviderState,
   ProviderState,
+  RequestStatus,
   RequestType,
   TransactionOptions,
   TransactionReceipt,
@@ -72,10 +73,16 @@ export async function submit(state: ProviderState<EVMProviderState>): Promise<Tr
 export function applyFulfillments<T>(requests: ClientRequest<T>[], receipts: TransactionReceipt[]) {
   return requests.reduce((acc, request) => {
     const receipt = receipts.find((r) => r.id === request.id);
+    // If the request was not submitted or the transaction doesn't have a hash, leave it as is
     if (!receipt || !receipt.data?.hash) {
       return [...acc, request];
     }
-    const updatedRequest = { ...request, fulfillment: { hash: receipt.data.hash } };
+
+    const updatedRequest = {
+      ...request,
+      fulfillment: { hash: receipt.data.hash },
+      status: RequestStatus.Submitted,
+    };
     return [...acc, updatedRequest];
   }, [] as ClientRequest<T>[]);
 }

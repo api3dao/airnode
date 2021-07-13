@@ -18,7 +18,7 @@
     "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
-    "test:watch:debug": "jest \"call-api.test\" --selectProjects unit --watch"
+    "test:watch:debug": "jest \"providers\/actions.test\" --selectProjects unit --watch"
   },
   "dependencies": {
     "@api3/adapter": "^0.1.0",
