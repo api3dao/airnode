@@ -116,7 +116,7 @@ contract Api3Authorizer is IApi3Authorizer {
   /// @param requestId Request ID
   /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
   /// @param endpointId Endpoint ID
-  /// @param requesterIndex Requester index from `RequesterStore.sol`
+  /// @param requester Requester from `RequesterStore.sol`
   /// @param designatedWallet Designated wallet
   /// @param clientAddress Client address
   /// @return Authorization status of the request
@@ -124,7 +124,7 @@ contract Api3Authorizer is IApi3Authorizer {
     bytes32 requestId, // solhint-disable-line
     bytes32 airnodeId,
     bytes32 endpointId, // solhint-disable-line
-    uint256 requesterIndex, // solhint-disable-line
+    address requester, // solhint-disable-line
     address designatedWallet,
     address clientAddress
   ) external view override returns (bool) {

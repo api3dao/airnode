@@ -15,7 +15,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
   /// @notice A wrapper for the respective method at AirnodeRrp.sol for
   /// testing
   /// @param templateId Template ID from TemplateStore
-  /// @param requesterIndex Requester index from RequesterStore
+  /// @param requester Requester from RequesterStore
   /// @param designatedWallet Designated wallet that is requested to fulfill
   /// the request
   /// @param fulfillAddress Address that will be called to fulfill
@@ -26,7 +26,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
   /// template)
   function makeRequest(
     bytes32 templateId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
@@ -34,7 +34,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
   ) external {
     bytes32 requestId = airnodeRrp.makeRequest(
       templateId,
-      requesterIndex,
+      requester,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,
@@ -47,7 +47,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
   /// testing
   /// @param airnodeId Airnode ID from AirnodeParameterStore
   /// @param endpointId Endpoint ID from EndpointStore
-  /// @param requesterIndex Requester index from RequesterStore
+  /// @param requester Requester from RequesterStore
   /// @param designatedWallet Designated wallet that is requested to fulfill
   /// the request
   /// @param fulfillAddress Address that will be called to fulfill
@@ -57,7 +57,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
   function makeFullRequest(
     bytes32 airnodeId,
     bytes32 endpointId,
-    uint256 requesterIndex,
+    address requester,
     address designatedWallet,
     address fulfillAddress,
     bytes4 fulfillFunctionId,
@@ -66,7 +66,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
     bytes32 requestId = airnodeRrp.makeFullRequest(
       airnodeId,
       endpointId,
-      requesterIndex,
+      requester,
       designatedWallet,
       fulfillAddress,
       fulfillFunctionId,
