@@ -49,7 +49,6 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
       ],
     },
-    id: 'test-config',
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
       request: [buildTrigger()],

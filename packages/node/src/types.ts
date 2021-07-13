@@ -384,7 +384,6 @@ export interface EnvironmentConfig {
 export interface Config {
   readonly chains: ChainConfig[];
   readonly environment: EnvironmentConfig;
-  readonly id: string;
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
