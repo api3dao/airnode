@@ -4,6 +4,8 @@ pragma solidity 0.8.6;
 import "./IRequesterStore.sol";
 
 interface IAirnodeParameterStore is IRequesterStore {
+  event SetDefaultAuthorizers(address[] defaultAuthorizers);
+
   event AirnodeParametersSet(bytes32 indexed airnodeId, address admin, string xpub, address[] authorizers);
 
   event WithdrawalRequested(

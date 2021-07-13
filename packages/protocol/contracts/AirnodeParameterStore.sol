@@ -1,20 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RequesterStore.sol";
 import "./interfaces/IAirnodeParameterStore.sol";
 import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title The contract where the Airnode parameters are stored
-contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
+contract AirnodeParameterStore is Ownable, RequesterStore, IAirnodeParameterStore {
   struct AirnodeParameter {
     address admin;
     string xpub;
     address[] authorizers;
   }
 
+  address[] public defaultAuthorizers;
   mapping(bytes32 => AirnodeParameter) internal airnodeParameters;
   mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
+
+  function setDefaultAuthorizers(address[] memory _defaultAuthorizers) external onlyOwner {
+    defaultAuthorizers = _defaultAuthorizers;
+    emit SetDefaultAuthorizers(_defaultAuthorizers);
+  }
 
   /// @notice Allows the master wallet (m) of the Airnode to set its
   /// parameters on this chain
@@ -117,6 +124,10 @@ contract AirnodeParameterStore is RequesterStore, IAirnodeParameterStore {
   ) public view override returns (bool status) {
     address[] memory authorizerAddresses = airnodeParameters[airnodeId].authorizers;
     uint256 noAuthorizers = authorizerAddresses.length;
+    if (noAuthorizers == 0) {
+      authorizerAddresses = defaultAuthorizers;
+      noAuthorizers = defaultAuthorizers.length;
+    }
     for (uint256 ind = 0; ind < noAuthorizers; ind++) {
       address authorizerAddress = authorizerAddresses[ind];
       if (authorizerAddress == address(0)) {
