@@ -145,7 +145,7 @@ export interface ProviderStates {
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
-  readonly providers: ProviderStates;
+  readonly providerStates: ProviderStates;
   readonly id: string;
   readonly settings: CoordinatorSettings;
 }

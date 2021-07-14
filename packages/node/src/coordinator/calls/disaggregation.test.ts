@@ -27,8 +27,8 @@ describe('disaggregate - ClientRequests', () => {
     const config = fixtures.buildConfig();
     let mutableState = coordinatorState.create(config);
 
-    const providers = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providers });
+    const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
 
     const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([]);
@@ -69,8 +69,8 @@ describe('disaggregate - ClientRequests', () => {
     const config = fixtures.buildConfig();
     let mutableState = coordinatorState.create(config);
 
-    const providers = { evm: [mutableProvider0, mutableProvider1] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providers });
+    const providerStates = { evm: [mutableProvider0, mutableProvider1] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
 
     const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([
@@ -102,8 +102,8 @@ describe('disaggregate - ClientRequests', () => {
     const config = fixtures.buildConfig();
     let mutableState = coordinatorState.create(config);
 
-    const providers = { evm: [mutableProvider0] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providers });
+    const providerStates = { evm: [mutableProvider0] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
 
     const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([
@@ -133,8 +133,8 @@ describe('disaggregate - ClientRequests', () => {
     const config = fixtures.buildConfig();
     let mutableState = coordinatorState.create(config);
 
-    const providers = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
-    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providers });
+    const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
 
     const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([]);

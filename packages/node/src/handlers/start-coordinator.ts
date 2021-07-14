@@ -38,13 +38,15 @@ export async function startCoordinator(config: Config) {
   const [initializeLogs, initializedStates] = await providers.initialize(coordinatorId, config, workerOpts);
   logger.logPending(initializeLogs, baseLogOptions);
 
-  const state2 = state.update(state1, { providers: { evm: initializedStates.evm } });
-  state2.providers.evm.forEach((evmProvider) => {
+  const state2 = state.update(state1, { providerStates: { evm: initializedStates.evm } });
+  state2.providerStates.evm.forEach((evmProvider) => {
     logger.info(`Initialized EVM provider:${evmProvider.settings.name}`, baseLogOptions);
   });
   logger.info('Forking to initialize providers complete', baseLogOptions);
 
-  const hasNoRequests = state2.providers.evm.every((evmProvider) => hasNoActionableRequests(evmProvider!.requests));
+  const hasNoRequests = state2.providerStates.evm.every((evmProvider) =>
+    hasNoActionableRequests(evmProvider!.requests)
+  );
   if (hasNoRequests) {
     logger.info('No actionable requests detected. Returning...', baseLogOptions);
     return state2;
@@ -53,7 +55,7 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   // STEP 3: Group API calls with respect to request IDs
   // =================================================================
-  const flatApiCalls = flatMap(state2.providers.evm, (provider) => provider.requests.apiCalls);
+  const flatApiCalls = flatMap(state2.providerStates.evm, (provider) => provider.requests.apiCalls);
   const aggregatedApiCallsById = calls.aggregate(state2.config, flatApiCalls);
   const state3 = state.update(state2, { aggregatedApiCallsById });
 
@@ -73,19 +75,19 @@ export async function startCoordinator(config: Config) {
   // =================================================================
   const [disaggregationLogs, providersWithAPIResponses] = calls.disaggregate(state4);
   logger.logPending(disaggregationLogs, baseLogOptions);
-  const state5 = state.update(state4, { providers: { evm: providersWithAPIResponses } });
+  const state5 = state.update(state4, { providerStates: { evm: providersWithAPIResponses } });
 
   // =================================================================
   // STEP 6: Initiate transactions for each provider
   // =================================================================
-  state5.providers.evm.map(async (evmProviderState) => {
+  state5.providerStates.evm.map(async (evmProviderState) => {
     logger.info(`Forking to submit transactions for EVM provider:${evmProviderState.settings.name}...`, baseLogOptions);
   });
   // Should not throw
-  const [processedLogs, processedProviders] = await providers.processRequests(state5.providers, workerOpts);
+  const [processedLogs, processedProviders] = await providers.processRequests(state5.providerStates, workerOpts);
   logger.logPending(processedLogs, baseLogOptions);
 
-  const state6 = state.update(state5, { providers: processedProviders });
+  const state6 = state.update(state5, { providerStates: processedProviders });
   logger.info('Forking to submit transactions complete', baseLogOptions);
 
   // =================================================================
