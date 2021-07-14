@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./RankedAdminnable.sol";
+import "./MetaAdminnable.sol";
 import "./interfaces/IClientWhitelistRrpAuthorizer.sol";
 
 /// @title Authorizer contract where client addresses are whitelisted until an
 /// expiration time or indefinitely (until the whitelisting is revoked)
-abstract contract ClientWhitelistRrpAuthorizer is RankedAdminnable, IClientWhitelistRrpAuthorizer {
+abstract contract ClientWhitelistRrpAuthorizer is MetaAdminnable, IClientWhitelistRrpAuthorizer {
   /// @notice Keeps the whitelisting statuses of clients for individual Airnodes
   mapping(bytes32 => mapping(address => WhitelistStatus)) public airnodeIdToClientAddressToWhitelistStatus;
 
