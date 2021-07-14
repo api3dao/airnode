@@ -98,7 +98,7 @@ export async function startCoordinator(config: Config) {
   logger.info(`Coordinator completed at ${formatDateTime(completedAt)}. Total time: ${durationMs}ms`, baseLogOptions);
 
   // =================================================================
-  // STEP 8: Report heartbeat and statistics
+  // STEP 8: Report heartbeat and metrics
   // =================================================================
   const [heartbeatError, _heartbeatRes] = await go(() => reportHeartbeat(state6));
   if (heartbeatError) {
