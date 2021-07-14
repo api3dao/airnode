@@ -8,25 +8,15 @@ import "./interfaces/IApi3CwRrpAuthorizer.sol";
 contract Api3CwRrpAuthorizer is ClientWhitelistRrpAuthorizer, IApi3CwRrpAuthorizer {
   /// @notice Authorizer contracts use `authorizerType` to signal their type
   uint256 public constant override AUTHORIZER_TYPE = 2;
-  /// @notice Address of the API3 meta-admin (e.g., the DAO Agent)
-  address public api3Admin;
-  /// @dev Highest rank precomputed to assign to the API3 admin. Note that the
-  /// API3 admin cannot assign other admins this rank.
-  uint256 private constant MAX_RANK = 2**256 - 1;
 
-  /// @param _api3Admin Address that will be set as the API3 meta-admin
-  constructor(address _api3Admin) {
-    api3Admin = msg.sender;
-    setApi3Admin(_api3Admin);
-  }
+  /// @param _api3MetaAdmin Address that will be set as the API3 meta-admin
+  constructor(address _api3MetaAdmin) MetaAdminnable(bytes32(0), _api3MetaAdmin) {}
 
-  /// @notice Called by the API3 meta-admin to set the API3 meta-admin
-  /// @param _api3Admin Address that will be set as the API3 meta-admin
-  function setApi3Admin(address _api3Admin) public override {
-    require(msg.sender == api3Admin, "Caller not API3 admin");
-    require(_api3Admin != address(0), "Zero address");
-    api3Admin = _api3Admin;
-    emit SetApi3Admin(_api3Admin);
+  /// @notice Called to get the api3MetaAdmin
+  /// @dev Use this instead of `getMetaAdmin(bytes32)` with
+  /// `adminnedId` of `bytes32(0)`
+  function getMetaAdmin() external override returns (address) {
+    return getMetaAdmin(bytes32(0));
   }
 
   /// @notice Called by an admin of higher rank to set the rank of an admin of
@@ -58,7 +48,7 @@ contract Api3CwRrpAuthorizer is ClientWhitelistRrpAuthorizer, IApi3CwRrpAuthoriz
   /// @return Admin rank
   // solhint-disable-next-line no-unused-vars
   function getRank(bytes32 adminnedId, address admin) public override returns (uint256) {
-    if (msg.sender == api3Admin) return MAX_RANK;
+    if (msg.sender == getMetaAdmin(bytes32(0))) return adminnedIdToAdminToRank[bytes32(0)][msg.sender];
     return adminnedIdToAdminToRank[bytes32(0)][admin];
   }
 }

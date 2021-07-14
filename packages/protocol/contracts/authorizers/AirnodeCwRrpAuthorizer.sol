@@ -15,10 +15,22 @@ contract AirnodeCwRrpAuthorizer is ClientWhitelistRrpAuthorizer, IAirnodeCwRrpAu
   /// the Airnode admin cannot assign other admins this rank.
   uint256 private constant MAX_RANK = 2**256 - 1;
 
+  /// @notice constructor sets the airnodeRrp and also sets caller as the metaAdmin
+  /// for ID 0
   /// @param _airnodeRrp Airnode RRP contract address
-  constructor(address _airnodeRrp) {
+  constructor(address _airnodeRrp) MetaAdminnable(bytes32(0), msg.sender) {
     require(_airnodeRrp != address(0), "Zero address");
     airnodeRrp = IAirnodeRrp(_airnodeRrp);
+  }
+
+  /// @notice called to get the address of a metaAdmin of an adminned entity
+  /// @dev Ovveriden to specify the Airnode Admin as the metaAdmin of the Airnode
+  /// @param adminnedId ID of the entity being adminned
+  /// @return Address of the metaAdmin of the adminned entity
+  function getMetaAdmin(bytes32 adminnedId) public override returns (address) {
+    if (adminnedId == bytes32(0)) return adminnedIdToMetaAdmin[bytes32(0)];
+    (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(adminnedId);
+    return airnodeAdmin;
   }
 
   /// @notice Called to get the rank of an admin for an adminned entity
