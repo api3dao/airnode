@@ -1,6 +1,7 @@
 /* globals context ethers */
 
 const { expect } = require('chai');
+const { addressToDerivationPath } = require('./utils');
 
 let airnodeRrp;
 let roles;
@@ -22,8 +23,8 @@ beforeEach(async () => {
   airnodeXpub = hdNode.neuter().extendedKey;
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
   airnodeId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
-  // TODO: derive wallet path from roles.requesterAdmin.address (20 bytes in chunks of 31 bits)
-  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/1`).connect(waffle.provider);
+  const derivationPath = addressToDerivationPath(roles.requesterAdmin.address);
+  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${derivationPath}`).connect(waffle.provider);
   // Fund the Airnode master wallet for it to be able to set the Airnode parameters
   await roles.deployer.sendTransaction({
     to: masterWallet.address,
