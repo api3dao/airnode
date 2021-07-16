@@ -15,7 +15,13 @@
       {
         "files": "*.sol",
         "options": {
-          "singleQuote": false
+          "compiler": "0.8.4",
+          "printWidth": 80,
+          "tabWidth": 4,
+          "useTabs": false,
+          "singleQuote": false,
+          "bracketSpacing": false,
+          "explicitTypes": "always"
         }
       }
     ]
