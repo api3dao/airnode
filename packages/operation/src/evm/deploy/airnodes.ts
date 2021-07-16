@@ -10,7 +10,7 @@ export async function setAirnodeParameters(state: State): Promise<State> {
 
     const tx = await state.contracts
       .AirnodeRrp!.connect(airnode.signer)
-      .setAirnodeParametersAndForwardFunds(configAirnode.airnodeAdmin, airnode.xpub, authorizers, {
+      .setAirnodeParameters(airnode.xpub, authorizers, {
         value: ethers.utils.parseEther('1'),
       });
 

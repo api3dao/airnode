@@ -38,7 +38,6 @@ export interface DesignatedWallet {
 export interface RequesterAccount {
   readonly address: string;
   readonly designatedWallets: DesignatedWallet[];
-  readonly requesterIndex: ethers.BigNumber;
   readonly signer: ethers.Wallet;
 }
 
@@ -81,7 +80,6 @@ export interface DeployedRequester {
   readonly address: string;
   readonly id: string;
   readonly privateKey: string;
-  readonly requesterIndex: string;
 }
 
 // Deployment should ideally mirror the structure of the config file, but with
