@@ -6,7 +6,7 @@ import { FullRequest, RegularRequest, RequestsState as State, RequestType, Withd
 
 export async function makeRegularRequest(state: State, request: RegularRequest) {
   const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  const { privateKey, requesterIndex } = requester!;
+  const { privateKey, address: requesterAddress } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
   const clientAddress = state.deployment.clients[request.client];
@@ -16,14 +16,14 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
   const templateId = state.deployment.airnodes[request.airnode].templates[request.template].hash;
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const designatedWallet = getDesignatedWallet(mnemonic, requesterIndex, state.provider);
+  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, requesterAddress, state.provider);
 
   const tx = await client
     .connect(signer)
     .makeRequest(
       templateId,
-      requesterIndex,
-      designatedWallet.address,
+      requesterAddress,
+      designatedWalletAddress,
       client.address,
       client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
@@ -33,7 +33,7 @@ export async function makeRegularRequest(state: State, request: RegularRequest) 
 
 export async function makeFullRequest(state: State, request: FullRequest) {
   const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  const { privateKey, requesterIndex } = requester!;
+  const { privateKey, address: requesterAddress } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
   const airnodeAddress = state.deployment.airnodes[request.airnode].masterWalletAddress;
@@ -45,15 +45,15 @@ export async function makeFullRequest(state: State, request: FullRequest) {
   const encodedParameters = encode(request.parameters);
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const designatedWallet = getDesignatedWallet(mnemonic, requesterIndex, state.provider);
+  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, requesterAddress, state.provider);
 
   const tx = await client
     .connect(signer)
     .makeFullRequest(
       airnodeId,
       endpointId,
-      requesterIndex,
-      designatedWallet.address,
+      requesterAddress,
+      designatedWalletAddress,
       client.address,
       client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
@@ -73,17 +73,17 @@ export async function makeWithdrawal(state: State, request: Withdrawal) {
   const { AirnodeRrp } = state.contracts;
 
   const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  const { privateKey, requesterIndex } = requester!;
+  const { privateKey, address: requesterAddress } = requester!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
   const airnodeAddress = state.deployment.airnodes[request.airnode].masterWalletAddress;
   const airnodeId = deriveAirnodeId(airnodeAddress);
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const designatedWallet = getDesignatedWallet(mnemonic, requesterIndex, state.provider);
+  const designatedWallet = getDesignatedWallet(mnemonic, requesterAddress, state.provider);
   const destination = getWithdrawalDestinationAddress(state, request);
 
-  await AirnodeRrp.connect(signer).requestWithdrawal(airnodeId, requesterIndex, designatedWallet.address, destination);
+  await AirnodeRrp.connect(signer).requestWithdrawal(airnodeId, designatedWallet.address, destination);
 }
 
 export async function makeRequests(state: State) {

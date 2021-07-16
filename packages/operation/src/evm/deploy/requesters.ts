@@ -12,9 +12,7 @@ export async function endorseClients(state: State): Promise<State> {
     for (const requesterId of configClient.endorsers) {
       const requester = state.requestersById[requesterId];
 
-      const tx = await AirnodeRrp!
-        .connect(requester.signer)
-        .setClientEndorsementStatus(requester.requesterIndex, client.address, true);
+      const tx = await AirnodeRrp!.connect(requester.signer).setClientEndorsementStatus(client.address, true);
 
       await tx.wait();
     }
