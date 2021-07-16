@@ -131,15 +131,61 @@ contract AirnodeParameterStore is
         (bool success, ) = destination.call{value: msg.value}(""); // solhint-disable-line
         require(success, "Transfer failed");
     }
-    for (uint256 ind = 0; ind < noAuthorizers; ind++) {
-      address authorizerAddress = authorizerAddresses[ind];
-      if (authorizerAddress == address(0)) {
-        return true;
-      }
-      IRrpAuthorizer authorizer = IRrpAuthorizer(authorizerAddress);
-      if (authorizer.isAuthorized(requestId, airnodeId, endpointId, requester, designatedWallet, clientAddress)) {
-        return true;
-      }
+
+    /// @notice Uses the authorizer contracts of an Airnode to decide if a
+    /// request is authorized. Once an Airnode receives a request, it calls
+    /// this method to determine if it should respond. Similarly, third parties
+    /// can use this method to determine if a particular request would be
+    /// authorized.
+    /// @dev This method is meant to be called off-chain by the Airnode to
+    /// decide if it should respond to a request. The requester can also call
+    /// it, yet this function returning true should not be taken as a guarantee
+    /// of the subsequent call request being fulfilled (as the Airnode may
+    /// update its authorizers in the meantime).
+    /// The Airnode authorizers being empty means all requests will be denied,
+    /// while any `address(0)` authorizer means all requests will be accepted.
+    /// @param airnodeId Airnode ID from AirnodeParameterStore
+    /// @param requestId Request ID
+    /// @param endpointId Endpoint ID from EndpointStore
+    /// @param requester Requester from RequesterStore
+    /// @param designatedWallet Designated wallet
+    /// @param clientAddress Client address
+    /// @return status Authorization status of the request
+    function checkAuthorizationStatus(
+        bytes32 airnodeId,
+        bytes32 requestId,
+        bytes32 endpointId,
+        address requester,
+        address designatedWallet,
+        address clientAddress
+    ) public view override returns (bool status) {
+        address[] memory authorizerAddresses = airnodeParameters[airnodeId]
+        .authorizers;
+        uint256 noAuthorizers = authorizerAddresses.length;
+        if (noAuthorizers == 0) {
+            authorizerAddresses = defaultAuthorizers;
+            noAuthorizers = defaultAuthorizers.length;
+        }
+        for (uint256 ind = 0; ind < noAuthorizers; ind++) {
+            address authorizerAddress = authorizerAddresses[ind];
+            if (authorizerAddress == address(0)) {
+                return true;
+            }
+            IRrpAuthorizer authorizer = IRrpAuthorizer(authorizerAddress);
+            if (
+                authorizer.isAuthorized(
+                    requestId,
+                    airnodeId,
+                    endpointId,
+                    requester,
+                    designatedWallet,
+                    clientAddress
+                )
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// @notice Retrieves the parameters of the Airnode addressed by the ID
