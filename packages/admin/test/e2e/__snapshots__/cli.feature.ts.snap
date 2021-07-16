@@ -4,9 +4,6 @@ exports[`CLI shows help 1`] = `
 "cli.js <command>
 
 Commands:
-  cli.js create-requester          Creates a requester and returns its index
-  cli.js requester-index-to-admin  Returns the admin of the requesterIndex
-  cli.js set-requester-admin       Sets the requester admin
   cli.js derive-designated-wallet  Derives the address of the designated wallet
                                    for a airnode-requester pair
   cli.js endorse-client            Endorses a client as a requester admin

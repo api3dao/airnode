@@ -1,4 +1,4 @@
-import { ethers, BigNumberish } from 'ethers';
+import { ethers } from 'ethers';
 import * as airnodeAbi from '@api3/airnode-abi';
 import { AirnodeRrp } from '@api3/protocol';
 
@@ -11,36 +11,31 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   }
 };
 
-export async function createRequester(airnodeRrp: AirnodeRrp, requesterAdmin: string) {
-  await airnodeRrp.createRequester(requesterAdmin);
-  const filter = airnodeRrp.filters.RequesterCreated(null, null);
+export const addressToDerivationPath = (address: string): string => {
+  const requesterBN = ethers.BigNumber.from(address);
+  const paths = [];
+  for (let i = 0; i < 6; i++) {
+    const shiftedRequesterBN = requesterBN.shr(31 * i);
+    paths.push(shiftedRequesterBN.mask(31).toString());
+  }
+  return paths.join('/');
+};
 
-  return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (requesterIndex) => {
-      resolve(requesterIndex.toString());
-    })
-  );
-}
-
-export async function setRequesterAdmin(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish, requesterAdmin: string) {
-  await airnodeRrp.setRequesterAdmin(requesterIndex, requesterAdmin, { gasLimit: 5000000 });
-  return requesterIndex;
-}
-
-export async function deriveDesignatedWallet(airnodeRrp: AirnodeRrp, airnodeId: string, requesterIndex: BigNumberish) {
+export async function deriveDesignatedWallet(airnodeRrp: AirnodeRrp, airnodeId: string, requester: string) {
   const airnode = await airnodeRrp.getAirnodeParameters(airnodeId);
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnode.xpub);
-  const designatedWalletNode = hdNode.derivePath(`m/0/${requesterIndex}`);
+  const derivationPath = addressToDerivationPath(requester);
+  const designatedWalletNode = hdNode.derivePath(`m/0/${derivationPath}`);
   return designatedWalletNode.address;
 }
 
-export async function endorseClient(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish, clientAddress: string) {
-  await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, true);
+export async function endorseClient(airnodeRrp: AirnodeRrp, clientAddress: string) {
+  await airnodeRrp.setClientEndorsementStatus(clientAddress, true);
   return clientAddress;
 }
 
-export async function unendorseClient(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish, clientAddress: string) {
-  await airnodeRrp.setClientEndorsementStatus(requesterIndex, clientAddress, false);
+export async function unendorseClient(airnodeRrp: AirnodeRrp, clientAddress: string) {
+  await airnodeRrp.setClientEndorsementStatus(clientAddress, false);
   return clientAddress;
 }
 
@@ -70,11 +65,11 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
 export async function requestWithdrawal(
   airnodeRrp: AirnodeRrp,
   airnodeId: string,
-  requesterIndex: BigNumberish,
+  requester: string,
   destination: string
 ) {
-  const designatedWalletAddress = await deriveDesignatedWallet(airnodeRrp, airnodeId, requesterIndex);
-  await airnodeRrp.requestWithdrawal(airnodeId, requesterIndex, designatedWalletAddress, destination);
+  const designatedWalletAddress = await deriveDesignatedWallet(airnodeRrp, airnodeId, requester);
+  await airnodeRrp.requestWithdrawal(airnodeId, designatedWalletAddress, destination);
   const filter = airnodeRrp.filters.WithdrawalRequested(null, null, null, null, null);
 
   return new Promise<string>((resolve) =>
@@ -94,17 +89,17 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: 
 
   const ethersLogParams = logs[0].args;
   // remove array parameters from ethers response
-  const { airnodeId, amount, designatedWallet, destination, requesterIndex, withdrawalRequestId } = ethersLogParams;
-  const logParams = { airnodeId, amount, designatedWallet, destination, requesterIndex, withdrawalRequestId };
+  const { airnodeId, amount, designatedWallet, destination, requester, withdrawalRequestId } = ethersLogParams;
+  const logParams = { airnodeId, amount, designatedWallet, destination, requester, withdrawalRequestId };
   assertAllParamsAreReturned(logParams, ethersLogParams);
 
   // cast ethers BigNumber for portability
-  return { ...logParams, amount: amount.toString(), requesterIndex: requesterIndex.toString() };
+  return { ...logParams, amount: amount.toString() };
 }
 
 const isEthersWallet = (signer: any): signer is ethers.Wallet => !!signer.mnemonic;
 
-export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeAdmin: string, authorizers: string[]) {
+export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, authorizers: string[]) {
   const wallet = airnodeRrp.signer;
 
   if (!isEthersWallet(wallet)) {
@@ -117,7 +112,7 @@ export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeAdmin:
     airnodeRrp.provider as ethers.providers.Provider
   );
   // Assuming masterWallet has funds to make the transaction below
-  await airnodeRrp.connect(masterWallet).setAirnodeParametersAndForwardFunds(airnodeAdmin, xpub, authorizers);
+  await airnodeRrp.connect(masterWallet).setAirnodeParameters(xpub, authorizers);
   const filter = airnodeRrp.filters.AirnodeParametersSet(null, null, null, null);
 
   return new Promise<string>((resolve) =>
@@ -139,8 +134,8 @@ export async function getAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeId: st
   const ethersParams = await airnodeRrp.getAirnodeParametersAndBlockNumber(airnodeId);
 
   // remove array parameters from ethers response
-  const { admin, authorizers, xpub, blockNumber } = ethersParams;
-  const params = { admin, authorizers, xpub, blockNumber };
+  const { admin, xpub, authorizers, blockNumber } = ethersParams;
+  const params = { admin, xpub, authorizers, blockNumber };
   assertAllParamsAreReturned(params, ethersParams);
 
   // cast ethers BigNumber for portability
@@ -174,26 +169,22 @@ export async function getTemplates(airnodeRrp: AirnodeRrp, templateIds: string[]
   return formattedTemplates;
 }
 
-export function requesterIndexToAdmin(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish) {
-  return airnodeRrp.requesterIndexToAdmin(requesterIndex);
-}
-
-export function requesterIndexToClientAddressToEndorsementStatus(
+export function requesterToClientAddressToEndorsementStatus(
   airnodeRrp: AirnodeRrp,
-  requesterIndex: BigNumberish,
+  requester: string,
   clientAddress: string
 ) {
-  return airnodeRrp.requesterIndexToClientAddressToEndorsementStatus(requesterIndex, clientAddress);
+  return airnodeRrp.requesterToClientAddressToEndorsementStatus(requester, clientAddress);
 }
 
-export async function requesterIndexToNextWithdrawalRequestIndex(airnodeRrp: AirnodeRrp, requesterIndex: BigNumberish) {
-  const requestsCount = await airnodeRrp.requesterIndexToNextWithdrawalRequestIndex(requesterIndex);
+export async function requesterToNextWithdrawalRequestIndex(airnodeRrp: AirnodeRrp, requester: string) {
+  const requestsCount = await airnodeRrp.requesterToNextWithdrawalRequestIndex(requester);
   return requestsCount.toString();
 }
 
 export interface FulfillWithdrawalReturnValue {
   airnodeId: string;
-  requesterIndex: string;
+  requester: string;
   designatedWallet: string;
   destination: string;
   amount: string;
@@ -204,30 +195,23 @@ export async function fulfillWithdrawal(
   airnodeRrp: AirnodeRrp,
   requestId: string,
   airnodeId: string,
-  requesterIndex: BigNumberish,
+  requester: string,
   destination: string,
   amount: string
 ) {
-  await airnodeRrp.fulfillWithdrawal(requestId, airnodeId, requesterIndex, destination, {
+  await airnodeRrp.fulfillWithdrawal(requestId, airnodeId, requester, destination, {
     value: ethers.utils.parseEther(amount),
   });
-  const filter = airnodeRrp.filters.WithdrawalFulfilled(
-    airnodeId,
-    ethers.BigNumber.from(requesterIndex),
-    requestId,
-    null,
-    null,
-    null
-  );
+  const filter = airnodeRrp.filters.WithdrawalFulfilled(airnodeId, requester, requestId, null, null, null);
 
   return new Promise<FulfillWithdrawalReturnValue>((resolve) =>
     airnodeRrp.once(filter, (...args) => {
       // remove array parameters from ethers response
-      const { airnodeId, requesterIndex, designatedWallet, destination, amount, withdrawalRequestId } = last(args).args;
-      const params = { airnodeId, requesterIndex, designatedWallet, destination, amount, withdrawalRequestId };
+      const { airnodeId, requester, designatedWallet, destination, amount, withdrawalRequestId } = last(args).args;
+      const params = { airnodeId, requester, designatedWallet, destination, amount, withdrawalRequestId };
 
       // cast ethers BigNumber for portability
-      resolve({ ...params, amount: amount.toString(), requesterIndex: requesterIndex.toString() });
+      resolve({ ...params, amount: amount.toString() });
     })
   );
 }

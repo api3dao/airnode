@@ -1,4 +1,5 @@
 # Monorepo version: `@api3/admin`
+
 # Stand-alone version: `@api3/airnode-admin`
 
 > A package/CLI tool to interact with the Airnode contracts across chains
@@ -13,10 +14,13 @@ Make sure that the wallet that is associated with the mnemonic is funded on the 
 The application will not exit until the transaction is confirmed.
 
 To see all commands:
+
 ```sh
 npx @api3/airnode-admin --help
 ```
+
 To see the parameters of a command:
+
 ```sh
 npx @api3/airnode-admin $COMMAND --help
 ```
@@ -57,31 +61,6 @@ Please, refer to the implementation for more details.
 
 ## Requester commands
 
-### `create-requester`
-
-Creates a [requester](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md) and returns a requester index.
-Note down your requester index because you will be using it in future interactions.
-
-```sh
-npx @api3/airnode-admin create-requester \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --requesterAdmin 0x5c17cb...
-```
-
-### `set-requester-admin`
-
-Sets the [requester admin](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md#requesteradmin).
-The account derived from the `mnemonic` you provide here has to belong to the previous requester admin.
-
-```sh
-npx @api3/airnode-admin set-requester-admin \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --requesterIndex 6 \
-  --requesterAdmin 0xe97301...
-```
-
 ### `derive-designated-wallet`
 
 Derives the address of the [wallet designated by an Airnode for a requester](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md).
@@ -90,43 +69,41 @@ Derives the address of the [wallet designated by an Airnode for a requester](htt
 npx @api3/airnode-admin derive-designated-wallet \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --airnodeId 0xe1e0dd... \
-  --requesterIndex 6
+  --requester 0x9Ec6C4...
 ```
 
 ### `endorse-client`
 
 [Endorses](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) a client contract so that its requests can be fulfilled by the requester's designated wallet.
-The account derived from the `mnemonic` you provide here has to belong to the requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the requester admin (master wallet).
 
 ```sh
 npx @api3/airnode-admin endorse-client \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --requesterIndex 6 \
   --clientAddress 0x2c2e12...
 ```
 
 ### `unendorse-client`
 
 Unendorses a client contract so that its requests can no longer be fulfilled by the requester's designated wallet.
-The account derived from the `mnemonic` you provide here has to belong to the requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the requester admin (master wallet).
 
 ```sh
 npx @api3/airnode-admin unendorse-client \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --requesterIndex 6 \
   --clientAddress 0x2c2e12...
 ```
 
 ### `get-endorsement-status`
 
-Returns the endorsement status for the given requester index and client (`true` if endorsed, `false` otherwise).
+Returns the endorsement status for the given requester and client (`true` if endorsed, `false` otherwise).
 
 ```sh
 npx @api3/airnode-admin get-endorsement-status \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --requesterIndex 6 \
+  --requester 0x9Ec6C4... \
   --clientAddress 0x2c2e12...
 ```
 
@@ -155,14 +132,14 @@ npx @api3/airnode-admin get-template \
 ### `request-withdrawal`
 
 Requests a [withdrawal](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md#withdrawals) from the wallet designated by an Airnode for a requester, and returns the request ID.
-The account derived from the `mnemonic` you provide here has to belong to the requester admin.
+The account derived from the `mnemonic` you provide here has to belong to the requester admin (master wallet).
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
   --airnodeId 0xe1e0dd... \
-  --requesterIndex 6 \
+  --requester 0x9Ec6C4... \
   --destination 0x98aaba...
 ```
 
@@ -190,7 +167,6 @@ Airnode will set its own parameters during [deployment](https://github.com/api3d
 npx @api3/airnode-admin set-airnode-parameters \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --airnodeAdmin 0xc2193d... \
   --authorizersFilePath ./authorizers.json
 ```
 
