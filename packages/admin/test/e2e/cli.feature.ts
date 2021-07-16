@@ -47,9 +47,10 @@ describe('CLI', () => {
     }
   };
 
-  const deriveDesignatedWallet = async (wallet: ethers.Wallet, requesterIndex: string) => {
+  const deriveDesignatedWallet = async (wallet: ethers.Wallet, requester: string) => {
     const airnodeMnemonic = wallet.mnemonic.phrase;
-    return ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(provider);
+    const derivationPath = admin.addressToDerivationPath(requester);
+    return ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${derivationPath}`).connect(provider);
   };
 
   beforeAll(() => {
@@ -91,90 +92,32 @@ describe('CLI', () => {
       // renamed to get-airnode-parameters (which calls this more generic version)
       'get-airnode-parameters-and-block-number',
       // renamed to get-endorsement-status
-      'requester-index-to-client-address-to-endorsement-status',
+      'requester-to-client-address-to-endorsement-status',
       // covered by endorse-client and unendrose-client commands
       'set-client-endorsement-status',
       // explicitely not implemented (not useful as of now)
       'get-templates',
       'check-authorization-status',
       'check-authorization-statuses',
+      'default-authorizers',
       'fail',
       'fulfill',
       'fulfill-withdrawal',
       'make-full-request',
       'make-request',
+      'owner',
+      'renounce-ownership',
       'request-with-id-has-failed',
-      'set-airnode-parameters-and-forward-funds',
       'client-address-to-no-requests',
-      'requester-index-to-next-withdrawal-request-index',
+      'requester-to-next-withdrawal-request-index',
+      'set-default-authorizers',
+      'transfer-ownership',
     ].sort();
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
-  it('creates requester', () => {
-    const out1 = execCommand(
-      'create-requester',
-      ['--mnemonic', mnemonic],
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address],
-      ['--requesterAdmin', alice.address]
-    );
-    const out2 = execCommand(
-      'create-requester',
-      ['--mnemonic', mnemonic],
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address],
-      ['--requesterAdmin', alice.address]
-    );
-    expect(out1).toEqual('Requester index: 1');
-    expect(out2).toEqual('Requester index: 2');
-  });
-
-  it('get requester admin from requester index', async () => {
-    const index1 = await admin.createRequester(airnodeRrp, alice.address);
-    const index2 = await admin.createRequester(airnodeRrp, bob.address);
-
-    const admin1 = execCommand(
-      'requester-index-to-admin',
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address],
-      ['--requesterIndex', index1]
-    );
-    const admin2 = execCommand(
-      'requester-index-to-admin',
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address],
-      ['--requesterIndex', index2]
-    );
-
-    expect(admin1).toBe(`Requester admin: ${alice.address}`);
-    expect(admin2).toBe(`Requester admin: ${bob.address}`);
-  });
-
-  it('sets requester admin', async () => {
-    const requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
-
-    const execSetRequesterAdmin = (derivationPath: string, to: ethers.Wallet) => {
-      return execCommand(
-        'set-requester-admin',
-        ['--mnemonic', mnemonic],
-        ['--derivationPath', derivationPath],
-        ['--providerUrl', PROVIDER_URL],
-        ['--requesterIndex', requesterIndex],
-        ['--requesterAdmin', to.address],
-        ['--airnodeRrp', airnodeRrp.address]
-      );
-    };
-
-    expect(() => execSetRequesterAdmin(bobDerivationPath, alice)).toThrow(
-      "VM Exception while processing transaction: reverted with reason string 'Caller not requester admin'"
-    );
-    expect(execSetRequesterAdmin(aliceDerivationPath, bob)).toBe(`Requester admin: ${requesterIndex}`);
-    expect(execSetRequesterAdmin(bobDerivationPath, alice)).toBe(`Requester admin: ${requesterIndex}`);
-  });
-
   it('derives the designated wallet', async () => {
-    const requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
+    const requester = alice.address;
     const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
     const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
     const masterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, 'm').connect(provider);
@@ -184,19 +127,19 @@ describe('CLI', () => {
       value: ethers.utils.parseEther('1'),
     });
     airnodeRrp = airnodeRrp.connect(airnodeWallet);
-    const airnodeId = await admin.setAirnodeParameters(airnodeRrp, bob.address, []);
+    const airnodeId = await admin.setAirnodeParameters(airnodeRrp, []);
 
     // Derive the wallet using CLI and admin SDK
     const out = execCommand(
       'derive-designated-wallet',
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
-      ['--requesterIndex', requesterIndex],
-      ['--airnodeId', airnodeId]
+      ['--airnodeId', airnodeId],
+      ['--requester', requester]
     );
 
     // Derive the wallet programatically
-    const designatedWallet = await deriveDesignatedWallet(airnodeWallet, requesterIndex);
+    const designatedWallet = await deriveDesignatedWallet(airnodeWallet, requester);
 
     // Check that they generate the same wallet address
     expect(out).toBe(`Designated wallet address: ${designatedWallet.address}`);
@@ -204,7 +147,7 @@ describe('CLI', () => {
 
   describe('endorsements', () => {
     it('endorses client', async () => {
-      const requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
+      const requester = alice.address;
       const clientAddress = bob.address;
 
       const out = execCommand(
@@ -213,27 +156,21 @@ describe('CLI', () => {
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--requesterIndex', requesterIndex],
         ['--clientAddress', clientAddress]
       );
       expect(out).toBe(`Client address: ${clientAddress}`);
 
-      const endorsed = await admin.requesterIndexToClientAddressToEndorsementStatus(
-        airnodeRrp,
-        requesterIndex,
-        clientAddress
-      );
+      const endorsed = await admin.requesterToClientAddressToEndorsementStatus(airnodeRrp, requester, clientAddress);
       expect(endorsed).toBe(true);
     });
 
     it('unendorses client', async () => {
-      const requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
+      const requester = alice.address;
       const clientAddress = bob.address;
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.endorseClient(airnodeRrp, requesterIndex, clientAddress);
+      await admin.endorseClient(airnodeRrp, clientAddress);
 
-      const isEndorsed = () =>
-        admin.requesterIndexToClientAddressToEndorsementStatus(airnodeRrp, requesterIndex, clientAddress);
+      const isEndorsed = () => admin.requesterToClientAddressToEndorsementStatus(airnodeRrp, requester, clientAddress);
 
       expect(await isEndorsed()).toBe(true);
       const out = execCommand(
@@ -242,7 +179,6 @@ describe('CLI', () => {
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--requesterIndex', requesterIndex],
         ['--clientAddress', clientAddress]
       );
       expect(out).toBe(`Client address: ${clientAddress}`);
@@ -250,7 +186,7 @@ describe('CLI', () => {
     });
 
     it('check endoresement status', async () => {
-      const requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
+      const requester = alice.address;
       const clientAddress = bob.address;
 
       const checkEndorsement = () =>
@@ -258,13 +194,13 @@ describe('CLI', () => {
           'get-endorsement-status',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
-          ['--requesterIndex', requesterIndex],
+          ['--requester', requester],
           ['--clientAddress', clientAddress]
         );
 
       expect(checkEndorsement()).toBe('Endorsment status: false');
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.endorseClient(airnodeRrp, requesterIndex, clientAddress);
+      await admin.endorseClient(airnodeRrp, clientAddress);
       expect(checkEndorsement()).toBe('Endorsment status: true');
     });
   });
@@ -309,7 +245,7 @@ describe('CLI', () => {
   });
 
   describe('withdrawal', () => {
-    let requesterIndex: string;
+    let requester: string;
     let airnodeMnemonic: string;
     let airnodeId: string;
     let designatedWallet: ethers.Wallet;
@@ -318,7 +254,7 @@ describe('CLI', () => {
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
-      requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
+      requester = alice.address;
       const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
       airnodeMnemonic = airnodeWallet.mnemonic.phrase;
       const masterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, 'm').connect(provider);
@@ -328,10 +264,10 @@ describe('CLI', () => {
         value: ethers.utils.parseEther('1'),
       });
       airnodeRrp = airnodeRrp.connect(airnodeWallet);
-      airnodeId = await admin.setAirnodeParameters(airnodeRrp, bob.address, []);
+      airnodeId = await admin.setAirnodeParameters(airnodeRrp, []);
 
       // Derive and fund the designated wallet
-      designatedWallet = await deriveDesignatedWallet(airnodeWallet, requesterIndex);
+      designatedWallet = await deriveDesignatedWallet(airnodeWallet, requester);
       await deployer.sendTransaction({
         to: designatedWallet.address,
         value: ethers.utils.parseEther('1'),
@@ -353,7 +289,7 @@ describe('CLI', () => {
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--airnodeId', airnodeId],
-        ['--requesterIndex', requesterIndex],
+        ['--requester', requester],
         ['--destination', destinationWallet.address]
       );
 
@@ -375,29 +311,12 @@ describe('CLI', () => {
         airnodeRrp,
         withdrawalRequestId,
         airnodeId,
-        requesterIndex,
+        requester,
         destinationWallet.address,
         '0.8'
       );
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
       expect(await destinationBalance()).toBe('800000000000000000');
-    });
-
-    it('only requester admin can withdraw', () => {
-      expect(() =>
-        execCommand(
-          'request-withdrawal',
-          ['--mnemonic', mnemonic],
-          ['--derivationPath', bobDerivationPath],
-          ['--providerUrl', PROVIDER_URL],
-          ['--airnodeRrp', airnodeRrp.address],
-          ['--airnodeId', airnodeId],
-          ['--requesterIndex', requesterIndex],
-          ['--destination', destinationWallet.address]
-        )
-      ).toThrowError(
-        "VM Exception while processing transaction: reverted with reason string 'Caller not requester admin'"
-      );
     });
   });
 
@@ -419,7 +338,6 @@ describe('CLI', () => {
       ['--derivationPath', 'm'],
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
-      ['--airnodeAdmin', bob.address],
       ['--authorizersFilePath', `${__dirname}/../fixtures/authorizers.json`]
     );
     expect(setAirnodeParametersOut).toMatch(new RegExp('Airnode ID: \\w+'));
@@ -434,7 +352,7 @@ describe('CLI', () => {
 
     const json = JSON.parse(getAirnodeParametersOut);
     expect(json).toEqual({
-      admin: bob.address,
+      admin: masterWallet.address,
       authorizers: ['0x0000000000000000000000000000000000000000'],
       xpub,
       blockNumber: expect.anything(),
@@ -453,30 +371,18 @@ describe('CLI', () => {
     expect(out).toBe(`Endpoint ID: ${expected}`);
   });
 
-  it('gets requester admin', async () => {
-    const requesterIndex = await admin.createRequester(airnodeRrp, alice.address);
-
-    const out = execCommand(
-      'requester-index-to-admin',
-      ['--providerUrl', PROVIDER_URL],
-      ['--requesterIndex', requesterIndex],
-      ['--airnodeRrp', airnodeRrp.address]
-    );
-
-    expect(out).toBe(`Requester admin: ${alice.address}`);
-  });
-
   describe('incorrect usage', () => {
     it('is missing command parameter', () => {
       expect(() =>
         execCommand(
-          'create-requester',
+          'endorse-client',
           ['--mnemonic', mnemonic],
+          ['--derivationPath', aliceDerivationPath],
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address]
-          // missing --requesterAdmin parameter
+          // missing ['--clientAddress', clientAddress]
         )
-      ).toThrow('Missing required argument: requesterAdmin');
+      ).toThrow('Missing required argument: clientAddress');
     });
 
     it('unknown command', () => {
