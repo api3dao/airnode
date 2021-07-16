@@ -74,7 +74,6 @@ export function buildSaveableDeployment(state: State): Deployment {
       address: requester.address,
       id: configRequester.id,
       privateKey: requester.signer.privateKey,
-      requesterIndex: requester.requesterIndex.toString(),
     };
     return [...acc, data];
   }, []);

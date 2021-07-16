@@ -21,10 +21,17 @@ export function deriveWalletFromPath(mnemonic: string, path: string, provider: e
   return new ethers.Wallet(designatorHdNode.privateKey, provider);
 }
 
-export function getDesignatedWallet(
-  mnemonic: string,
-  requesterIndex: string,
-  provider: ethers.providers.JsonRpcProvider
-) {
-  return deriveWalletFromPath(mnemonic, `m/0/${requesterIndex}`, provider);
+export function getDesignatedWallet(mnemonic: string, requester: string, provider: ethers.providers.JsonRpcProvider) {
+  return deriveWalletFromPath(mnemonic, `m/0/${addressToDerivationPath(requester)}`, provider);
+}
+
+export function addressToDerivationPath(address: string): string {
+  const requesterBN = ethers.BigNumber.from(address);
+  const paths = [];
+  // eslint-disable-next-line functional/no-let
+  for (let i = 0; i < 6; i++) {
+    const shiftedRequesterBN = requesterBN.shr(31 * i);
+    paths.push(shiftedRequesterBN.mask(31).toString());
+  }
+  return paths.join('/');
 }
