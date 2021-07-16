@@ -12,4 +12,9 @@ interface IRequesterStore {
         address clientAddress,
         bool endorsementStatus
     ) external;
+
+    function requesterToClientAddressToEndorsementStatus(
+        address requester,
+        address clientAddress
+    ) external view returns (bool endorsementStatus);
 }

@@ -9,7 +9,8 @@ import "./interfaces/IRequesterStore.sol";
 /// requests to be fulfilled by the respective requester's designated wallets.
 contract RequesterStore is IRequesterStore {
     mapping(address => mapping(address => bool))
-        public requesterToClientAddressToEndorsementStatus;
+        public
+        override requesterToClientAddressToEndorsementStatus;
     mapping(address => uint256) public clientAddressToNoRequests;
     mapping(address => uint256) public requesterToNextWithdrawalRequestIndex;
 
