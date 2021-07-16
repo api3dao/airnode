@@ -27,15 +27,10 @@ const COMMON_COMMAND_ARGUMENTS = {
       describe: 'Derivation path to be used for deriving the wallet account',
     },
   },
-  requesterAdmin: {
+  requester: {
     type: 'string',
     demandOption: true,
-    describe: 'Address of the requester admin',
-  },
-  requesterIndex: {
-    type: 'string',
-    demandOption: true,
-    describe: 'Requester index',
+    describe: 'Requester address',
   },
   airnodeId: {
     type: 'string',
@@ -59,83 +54,23 @@ const COMMON_COMMAND_ARGUMENTS = {
   },
 } as const;
 
-const {
-  airnodeRrpCommands,
-  mnemonicCommands,
-  requesterAdmin,
-  requesterIndex,
-  airnodeId,
-  clientAddress,
-  destination,
-  withdrawalRequestId,
-} = COMMON_COMMAND_ARGUMENTS;
+const { airnodeRrpCommands, mnemonicCommands, requester, airnodeId, clientAddress, destination, withdrawalRequestId } =
+  COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
 
 yargs
-  .command(
-    'create-requester',
-    'Creates a requester and returns its index',
-    {
-      ...airnodeRrpCommands,
-      ...mnemonicCommands,
-      requesterAdmin,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
-      const requesterIndex = await admin.createRequester(airnodeRrp, args.requesterAdmin);
-      console.log(`Requester index: ${requesterIndex}`);
-    }
-  )
-  .command(
-    'requester-index-to-admin',
-    'Returns the admin of the requesterIndex',
-    {
-      ...airnodeRrpCommands,
-      requesterIndex,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const requesterAdmin = await admin.requesterIndexToAdmin(airnodeRrp, args.requesterIndex);
-      console.log(`Requester admin: ${requesterAdmin}`);
-    }
-  )
-  .command(
-    'set-requester-admin',
-    'Sets the requester admin',
-    {
-      ...airnodeRrpCommands,
-      ...mnemonicCommands,
-      requesterIndex,
-      requesterAdmin,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
-      const requesterAdmin = await admin.setRequesterAdmin(airnodeRrp, args.requesterIndex, args.requesterAdmin);
-      console.log(`Requester admin: ${requesterAdmin}`);
-    }
-  )
   .command(
     'derive-designated-wallet',
     'Derives the address of the designated wallet for a airnode-requester pair',
     {
       ...airnodeRrpCommands,
       airnodeId,
-      requesterIndex,
+      requester,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const designatedWallet = await admin.deriveDesignatedWallet(airnodeRrp, args.airnodeId, args.requesterIndex);
+      const designatedWallet = await admin.deriveDesignatedWallet(airnodeRrp, args.airnodeId, args.requester);
       console.log(`Designated wallet address: ${designatedWallet}`);
     }
   )
@@ -145,7 +80,6 @@ yargs
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
-      requesterIndex,
       clientAddress,
     },
     async (args) => {
@@ -155,7 +89,7 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const client = await admin.endorseClient(airnodeRrp, args.requesterIndex, args.clientAddress);
+      const client = await admin.endorseClient(airnodeRrp, args.clientAddress);
       console.log(`Client address: ${client}`);
     }
   )
@@ -165,7 +99,6 @@ yargs
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
-      requesterIndex,
       clientAddress,
     },
     async (args) => {
@@ -175,7 +108,7 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const client = await admin.unendorseClient(airnodeRrp, args.requesterIndex, args.clientAddress);
+      const client = await admin.unendorseClient(airnodeRrp, args.clientAddress);
       console.log(`Client address: ${client}`);
     }
   )
@@ -184,14 +117,14 @@ yargs
     'Returns the endorsment status for the given requesterIndex and client',
     {
       ...airnodeRrpCommands,
-      requesterIndex,
+      requester,
       clientAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const status = await admin.requesterIndexToClientAddressToEndorsementStatus(
+      const status = await admin.requesterToClientAddressToEndorsementStatus(
         airnodeRrp,
-        args.requesterIndex,
+        args.requester,
         args.clientAddress
       );
       console.log(`Endorsment status: ${status}`);
@@ -245,7 +178,7 @@ yargs
       ...airnodeRrpCommands,
       ...mnemonicCommands,
       airnodeId,
-      requesterIndex,
+      requester,
       destination,
     },
     async (args) => {
@@ -258,7 +191,7 @@ yargs
       const withdrawalRequestId = await admin.requestWithdrawal(
         airnodeRrp,
         args.airnodeId,
-        args.requesterIndex,
+        args.requester,
         args.destination
       );
       console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
@@ -287,11 +220,6 @@ yargs
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
-      airnodeAdmin: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Address of the Airnode admin',
-      },
       authorizersFilePath: {
         type: 'string',
         demandOption: true,
@@ -306,7 +234,7 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const airnodeId = await admin.setAirnodeParameters(airnodeRrp, args.airnodeAdmin, authorizers);
+      const airnodeId = await admin.setAirnodeParameters(airnodeRrp, authorizers);
       console.log(`Airnode ID: ${airnodeId}`);
     }
   )
