@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
-import "../interfaces/IAuthorizer.sol";
+import "../interfaces/IRrpAuthorizer.sol";
 
 /// @title A mock authorizer that always returns false
-contract MockAuthorizerAlwaysFalse is IAuthorizer {
-    uint256 public immutable override authorizerType = 33;
+contract MockAuthorizerAlwaysFalse is IRrpAuthorizer {
+    uint256 public constant override AUTHORIZER_TYPE = 33;
 
     function isAuthorized(
         bytes32 requestId, // solhint-disable-line

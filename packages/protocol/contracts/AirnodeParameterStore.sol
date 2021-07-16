@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./RequesterStore.sol";
 import "./interfaces/IAirnodeParameterStore.sol";
-import "./authorizers/interfaces/IAuthorizer.sol";
+import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title The contract where the Airnode parameters are stored
 contract AirnodeParameterStore is
@@ -171,7 +171,7 @@ contract AirnodeParameterStore is
             if (authorizerAddress == address(0)) {
                 return true;
             }
-            IAuthorizer authorizer = IAuthorizer(authorizerAddress);
+            IRrpAuthorizer authorizer = IRrpAuthorizer(authorizerAddress);
             if (
                 authorizer.isAuthorized(
                     requestId,
