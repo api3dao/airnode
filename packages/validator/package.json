@@ -15,7 +15,7 @@
     "validate": "ts-node src/commands/validateCmd.ts",
     "convert": "ts-node src/commands/convertCmd.ts"
   },
-  "dependencies": {
+  "devDependencies": {
     "ts-node": "^9.0.0"
   }
 }
