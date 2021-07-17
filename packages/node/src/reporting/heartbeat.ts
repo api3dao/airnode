@@ -1,17 +1,21 @@
 import { execute } from '@api3/adapter';
 import { getEnvValue } from '../config';
-import { CoordinatorState } from '../types';
+import * as logger from '../logger';
+import { go } from '../utils';
+import { CoordinatorState, PendingLog } from '../types';
 
-export async function reportHeartbeat(state: CoordinatorState) {
+export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
   if (!state.config.nodeSettings.enableHeartbeat) {
-    return null;
+    const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.enableHeartbeat' is disabled`);
+    return [log];
   }
 
   const apiKey = getEnvValue('HEARTBEAT_API_KEY');
   const url = getEnvValue('HEARTBEAT_URL');
   const heartbeatId = getEnvValue('HEARTBEAT_ID');
   if (!apiKey || !url || !heartbeatId) {
-    return null;
+    const log = logger.pend('WARN', 'Unable to send heartbeat as HEARTBEAT_ environment variables are missing');
+    return [log];
   }
 
   // TODO: add statistics here
@@ -27,6 +31,12 @@ export async function reportHeartbeat(state: CoordinatorState) {
     },
     timeout: 5_000,
   };
-
-  return await execute(request);
+  const sendingLog = logger.pend('INFO', 'Sending heartbeat...');
+  const [err] = await go(() => execute(request));
+  if (err) {
+    const errLog = logger.pend('ERROR', 'Failed to send heartbeat', err);
+    return [sendingLog, errLog];
+  }
+  const successLog = logger.pend('INFO', 'Heartbeat sent successfully');
+  return [sendingLog, successLog];
 }

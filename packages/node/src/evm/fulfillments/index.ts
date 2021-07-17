@@ -1,3 +1,4 @@
+import find from 'lodash/find';
 import flatMap from 'lodash/flatMap';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
@@ -72,7 +73,7 @@ export async function submit(state: ProviderState<EVMProviderState>): Promise<Tr
 
 export function applyFulfillments<T>(requests: ClientRequest<T>[], receipts: TransactionReceipt[]) {
   return requests.reduce((acc, request) => {
-    const receipt = receipts.find((r) => r.id === request.id);
+    const receipt = find(receipts, ['id', request.id]);
     // If the request was not submitted or the transaction doesn't have a hash, leave it as is
     if (!receipt || !receipt.data?.hash) {
       return [...acc, request];

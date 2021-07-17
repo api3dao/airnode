@@ -18,10 +18,7 @@ describe('reportHeartbeat', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    process.env = { ...OLD_ENV };
-    (Object.keys(heartbeatConfig) as Array<keyof typeof heartbeatConfig>).forEach((key) => {
-      process.env[key] = heartbeatConfig[key];
-    });
+    process.env = { ...OLD_ENV, ...heartbeatConfig };
   });
 
   afterAll(() => {
@@ -33,7 +30,9 @@ describe('reportHeartbeat', () => {
     const config = fixtures.buildConfig({ nodeSettings });
     const state = coordinatorState.create(config);
     const res = await heartbeat.reportHeartbeat(state);
-    expect(res).toEqual(null);
+    expect(res).toEqual([
+      { level: 'INFO', message: `Not sending heartbeat as 'nodeSettings.enableHeartbeat' is disabled` },
+    ]);
     expect(executeMock).not.toHaveBeenCalled();
   });
 
@@ -44,18 +43,46 @@ describe('reportHeartbeat', () => {
       const config = fixtures.buildConfig({ nodeSettings });
       const state = coordinatorState.create(config);
       const res = await heartbeat.reportHeartbeat(state);
-      expect(res).toEqual(null);
+      expect(res).toEqual([
+        { level: 'WARN', message: 'Unable to send heartbeat as HEARTBEAT_ environment variables are missing' },
+      ]);
       expect(executeMock).not.toHaveBeenCalled();
     });
   });
 
-  it('sends the heartbeat', async () => {
-    executeMock.mockResolvedValueOnce({ received: true });
+  it('handles heartbeat errors', async () => {
+    executeMock.mockRejectedValueOnce(new Error('Server is down'));
     const nodeSettings = fixtures.buildNodeSettings({ enableHeartbeat: true });
     const config = fixtures.buildConfig({ nodeSettings });
     const state = coordinatorState.create(config);
     const res = await heartbeat.reportHeartbeat(state);
-    expect(res).toEqual({ received: true });
+    expect(res).toEqual([
+      { level: 'INFO', message: 'Sending heartbeat...' },
+      { level: 'ERROR', message: 'Failed to send heartbeat', error: new Error('Server is down') },
+    ]);
+    expect(executeMock).toHaveBeenCalledTimes(1);
+    expect(executeMock).toHaveBeenCalledWith({
+      url: 'https://example.com',
+      method: 'post',
+      data: {
+        api_key: '3a7af83f-6450-46d3-9937-5f9773ce2849',
+        deployment_id: '2d14a39a-9f6f-41af-9905-99abf0e5e1f0',
+        payload: {},
+      },
+      timeout: 5_000,
+    });
+  });
+
+  it('sends the heartbeat successfully', async () => {
+    executeMock.mockResolvedValueOnce({ received: true });
+    const nodeSettings = fixtures.buildNodeSettings({ enableHeartbeat: true });
+    const config = fixtures.buildConfig({ nodeSettings });
+    const state = coordinatorState.create(config);
+    const logs = await heartbeat.reportHeartbeat(state);
+    expect(logs).toEqual([
+      { level: 'INFO', message: 'Sending heartbeat...' },
+      { level: 'INFO', message: 'Heartbeat sent successfully' },
+    ]);
     expect(executeMock).toHaveBeenCalledTimes(1);
     expect(executeMock).toHaveBeenCalledWith({
       url: 'https://example.com',
