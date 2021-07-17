@@ -40,8 +40,7 @@ contract AirnodeCwRrpAuthorizer is ClientWhitelistRrpAuthorizer, IAirnodeCwRrpAu
   /// @param admin Admin address whose rank will be returned
   /// @return Admin rank for the adminned entity
   function getRank(bytes32 adminnedId, address admin) public override returns (uint256) {
-    (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(adminnedId);
-    if (msg.sender == airnodeAdmin) return MAX_RANK;
+    if (msg.sender == getMetaAdmin(adminnedId)) return MAX_RANK;
     return adminnedIdToAdminToRank[adminnedId][admin];
   }
 }
