@@ -1,6 +1,7 @@
 import fs from 'fs';
 
 import * as utils from './utils';
+import * as logger from '../utils/logger';
 import { convert, convertJson } from '../convertor';
 import { Log, Result } from '../types';
 import { invalidConversionMessage } from '../utils/messages';
@@ -17,14 +18,16 @@ if (process.env.npm_config_template) {
     )
   );
 } else {
-  const from = (process.env.npm_config_from || process.argv[2]).toLowerCase();
-  const to = (process.env.npm_config_to || process.argv[3]).toLowerCase();
+  const from = (process.env.npm_config_from || process.argv[2] || '').toLowerCase();
+  const to = (process.env.npm_config_to || process.argv[3] || '').toLowerCase();
   const specs = process.env.npm_config_specs || process.argv[4];
   const version = process.env.npm_config_fromVersion || process.argv[5];
   const messages: Log[] = [];
   let res: Result = { valid: false, messages: [], output: {} };
 
-  if (from === 'oas' && to === 'ois') {
+  if (!from || !to) {
+    res.messages.push(logger.error('Conversion source and target specification must be provided'));
+  } else if (from === 'oas' && to === 'ois') {
     res = convert(specs, utils.getPath(oas2ois, messages, version));
     res.messages.push(...messages);
   } else if (from === 'ois' && to === 'config') {
