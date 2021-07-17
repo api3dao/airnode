@@ -53,10 +53,7 @@ contract AirnodeCwRrpAuthorizer is
         override
         returns (uint256)
     {
-        (address airnodeAdmin, , ) = airnodeRrp.getAirnodeParameters(
-            adminnedId
-        );
-        if (msg.sender == airnodeAdmin) return MAX_RANK;
+        if (msg.sender == getMetaAdmin(adminnedId)) return MAX_RANK;
         return adminnedIdToAdminToRank[adminnedId][admin];
     }
 }
