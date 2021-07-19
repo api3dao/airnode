@@ -2,7 +2,11 @@
   "name": "@api3/validator",
   "license": "MIT",
   "version": "1.0.0",
-  "main": "src/validator.ts",
+  "main": "./dist/validator.js",
+  "bin": {
+    "validator": "./dist/validator.js",
+    "convertor": "./dist/convertor.js"
+  },
   "directories": {
     "lib": "src",
     "test": "__tests__"
@@ -13,9 +17,11 @@
   "scripts": {
     "test": "jest",
     "validate": "ts-node src/commands/validateCmd.ts",
-    "convert": "ts-node src/commands/convertCmd.ts"
+    "convert": "ts-node src/commands/convertCmd.ts",
+    "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "ts-node": "^9.0.0"
+    "ts-node": "^9.0.0",
+    "yargs": "^17.0.1"
   }
 }
