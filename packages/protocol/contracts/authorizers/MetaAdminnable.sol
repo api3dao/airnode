@@ -42,6 +42,6 @@ contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
         returns (uint256)
     {
         if (msg.sender == metaAdmin) return MAX_RANK;
-        return super.getRank(adminnedId, admin);
+        return RankedAdminnable.getRank(adminnedId, admin);
     }
 }
