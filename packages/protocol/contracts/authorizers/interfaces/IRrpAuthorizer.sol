@@ -11,6 +11,6 @@ interface IRrpAuthorizer {
         bytes32 endpointId,
         address requester,
         address designatedWallet,
-        address clientAddress
+        address client
     ) external view returns (bool);
 }

@@ -5,15 +5,15 @@ import "../interfaces/IRrpAuthorizer.sol";
 
 /// @title A mock authorizer that always returns false
 contract MockAuthorizerAlwaysFalse is IRrpAuthorizer {
-    uint256 public constant override AUTHORIZER_TYPE = 123;
+    uint256 public constant override AUTHORIZER_TYPE = 33;
 
     function isAuthorized(
-        bytes32 requestId, // solhint-disable-line no-unused-vars
-        bytes32 airnodeId, // solhint-disable-line no-unused-vars
-        bytes32 endpointId, // solhint-disable-line no-unused-vars
-        uint256 requester, // solhint-disable-line no-unused-vars
-        address designatedWallet, // solhint-disable-line no-unused-vars
-        address clientAddress // solhint-disable-line no-unused-vars
+        bytes32 requestId, // solhint-disable-line
+        bytes32 airnodeId, // solhint-disable-line
+        bytes32 endpointId, // solhint-disable-line
+        address requester, // solhint-disable-line
+        address designatedWallet, // solhint-disable-line
+        address clientAddress // solhint-disable-line
     ) external view virtual override returns (bool status) {
         status = false;
     }
