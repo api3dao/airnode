@@ -11,11 +11,7 @@ const ois2config = 'OIS2Config.json';
 
 if (process.env.npm_config_template) {
   console.log(
-    JSON.stringify(
-      convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template),
-      null,
-      '\t'
-    )
+    JSON.stringify(convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template), null, 2)
   );
 } else {
   const from = (process.env.npm_config_from || process.argv[2] || '').toLowerCase();
@@ -49,5 +45,5 @@ if (process.env.npm_config_template) {
   }
 
   res.messages.push(...messages);
-  console.log(JSON.stringify(res, null, '\t'));
+  console.log(JSON.stringify(res, null, 2));
 }
