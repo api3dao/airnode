@@ -2,7 +2,9 @@
 pragma solidity 0.8.6;
 
 import "./AirnodeRrpClient.sol";
-import "./interfaces/IAirnodeRrpBeaconServer.sol";
+import "./authorizers/ClientWhitelister.sol";
+import "./authorizers/MetaAdminnable.sol";
+import "./interfaces/IRrpBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
 /// @notice A beacon is a live data point associated with a template ID. This
@@ -14,7 +16,12 @@ import "./interfaces/IAirnodeRrpBeaconServer.sol";
 /// a problem (because the reported data may not fit into 224 bits or it is of
 /// a completely different type such as `bytes32`), do not use this contract
 /// and implement a customized version instead.
-contract AirnodeRrpBeaconServer is AirnodeRrpClient, IAirnodeRrpBeaconServer {
+contract RrpBeaconServer is
+    AirnodeRrpClient,
+    ClientWhitelister,
+    MetaAdminnable,
+    IAirnodeRrpBeaconServer
+{
     struct Beacon {
         int224 value;
         uint32 timestamp;
@@ -29,7 +36,11 @@ contract AirnodeRrpBeaconServer is AirnodeRrpClient, IAirnodeRrpBeaconServer {
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
     /// @param airnodeRrp_ Airnode RRP address
-    constructor(address airnodeRrp_) AirnodeRrpClient(airnodeRrp_) {}
+    /// @param metaAdmin_ Initial metaAdmin
+    constructor(address airnodeRrp_, address metaAdmin_)
+        AirnodeRrpClient(airnodeRrp_)
+        MetaAdminnable(metaAdmin_)
+    {}
 
     /// @notice Called to request a beacon to be updated
     /// @dev Anyone can request a beacon to be updated. This is because it is
@@ -49,7 +60,7 @@ contract AirnodeRrpBeaconServer is AirnodeRrpClient, IAirnodeRrpBeaconServer {
         bytes32 templateId,
         address requester,
         address designatedWallet
-    ) external {
+    ) external override {
         // Note that AirnodeRrp will also check if the requester has endorsed
         // this AirnodeRrpBeaconServer in the `makeRequest()` call
         require(
@@ -87,7 +98,7 @@ contract AirnodeRrpBeaconServer is AirnodeRrpClient, IAirnodeRrpBeaconServer {
         bytes32 requestId,
         uint256 statusCode,
         bytes calldata data
-    ) external onlyAirnodeRrp() {
+    ) external override onlyAirnodeRrp() {
         bytes32 templateId = requestIdToTemplateId[requestId];
         delete requestIdToTemplateId[requestId];
         if (statusCode == 0) {
@@ -119,17 +130,37 @@ contract AirnodeRrpBeaconServer is AirnodeRrpClient, IAirnodeRrpBeaconServer {
     /// @param templateId Template ID whose beacon will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
-    function getBeacon(bytes32 templateId)
+    function readBeacon(bytes32 templateId)
         external
         view
-        returns (
-            // TODO: onlyWhitelisted()
-            // We want only the authorized addresses to be able to call this
-            int224 value,
-            uint32 timestamp
-        )
+        override
+        returns (int224 value, uint32 timestamp)
     {
+
+            WhitelistStatus storage whitelistStatus
+         = serviceIdToClientToWhitelistStatus[templateId][msg.sender];
+        require(
+            whitelistStatus.whitelistPastExpiration ||
+                whitelistStatus.expirationTimestamp > block.timestamp,
+            "Not authorized to read beacon"
+        );
         Beacon storage beacon = templateIdToBeacon[templateId];
         return (beacon.value, beacon.timestamp);
+    }
+
+    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @dev Respects RankedAdminnable, except treats `metaAdmin` as the highest
+    /// authority
+    /// @param adminnedId ID of the entity being adminned
+    /// @param admin Admin address whose rank will be returned
+    /// @return Admin rank for the adminned entity
+    function getRank(bytes32 adminnedId, address admin)
+        public
+        view
+        virtual
+        override(RankedAdminnable, MetaAdminnable)
+        returns (uint256)
+    {
+        return MetaAdminnable.getRank(adminnedId, admin);
     }
 }
