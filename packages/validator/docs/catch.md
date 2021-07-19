@@ -158,7 +158,7 @@ Some keywords in `__message` will be replaced with certain values:
 - `__value` - if containing parameter is string in specification, `__value` will be replaced with its value
 - `__path` - path of the parameter in the current specification
 - `__prefix` - path to root parameter of the current template in case it is nested inside another template
-- `__path` - combination of `__prefix` and `__path`
+- `__fullPath` - combination of `__prefix` and `__path`
 
 ### Template
 
