@@ -1,62 +1,63 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./MetaAdminnable.sol";
-import "./interfaces/IClientWhitelistRrpAuthorizer.sol";
+import "./RankedAdminnable.sol";
+import "./interfaces/IClientRrpAuthorizer.sol";
 
-/// @title Authorizer contract where client addresses are whitelisted until an
+/// @title Authorizer contract where clients are whitelisted until an
 /// expiration time or indefinitely (until the whitelisting is revoked)
-abstract contract ClientWhitelistRrpAuthorizer is MetaAdminnable, IClientWhitelistRrpAuthorizer {
-  /// @notice Keeps the whitelisting statuses of clients for individual Airnodes
-  mapping(bytes32 => mapping(address => WhitelistStatus)) public airnodeIdToClientAddressToWhitelistStatus;
+abstract contract ClientRrpAuthorizer is RankedAdminnable, IClientRrpAuthorizer {
+  /// @notice Keeps the whitelisting statuses of clients for individual
+  /// Airnodes
+  mapping(bytes32 => mapping(address => WhitelistStatus)) public override airnodeIdToClientToWhitelistStatus;
 
   /// @notice Called by an admin to extend the whitelist expiration of a
   /// client
-  /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
-  /// @param clientAddress Client address
+  /// @param airnodeId Airnode ID
+  /// @param client Client
   /// @param expirationTimestamp Timestamp at which the client will no longer
   /// be whitelisted
   function extendWhitelistExpiration(
     bytes32 airnodeId,
-    address clientAddress,
+    address client,
     uint64 expirationTimestamp
   ) external override onlyWithRank(airnodeId, uint256(AdminRank.Admin)) {
     require(
-      expirationTimestamp > airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress].expirationTimestamp,
+      expirationTimestamp > airnodeIdToClientToWhitelistStatus[airnodeId][client].expirationTimestamp,
       "Expiration not extended"
     );
-    airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress].expirationTimestamp = expirationTimestamp;
-    emit ExtendedWhitelistExpiration(airnodeId, clientAddress, expirationTimestamp, msg.sender);
+    airnodeIdToClientToWhitelistStatus[airnodeId][client].expirationTimestamp = expirationTimestamp;
+    emit ExtendedWhitelistExpiration(airnodeId, client, expirationTimestamp, msg.sender);
   }
 
-  /// @notice Called by a super admin to set the whitelisting  expiration of a
+  /// @notice Called by a super admin to set the whitelisting expiration of a
   /// client
   /// @dev Unlike `extendWhitelistExpiration()`, this can hasten the expiration
-  /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
-  /// @param clientAddress Client address
+  /// @param airnodeId Airnode ID
+  /// @param client Client
   /// @param expirationTimestamp Timestamp at which the whitelisting of the
   /// client will expire
   function setWhitelistExpiration(
     bytes32 airnodeId,
-    address clientAddress,
+    address client,
     uint64 expirationTimestamp
   ) external override onlyWithRank(airnodeId, uint256(AdminRank.SuperAdmin)) {
-    airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress].expirationTimestamp = expirationTimestamp;
-    emit SetWhitelistExpiration(airnodeId, clientAddress, expirationTimestamp, msg.sender);
+    airnodeIdToClientToWhitelistStatus[airnodeId][client].expirationTimestamp = expirationTimestamp;
+    emit SetWhitelistExpiration(airnodeId, client, expirationTimestamp, msg.sender);
   }
 
   /// @notice Called by a super admin to set the whitelist status of a client
   /// past expiration
-  /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
-  /// @param clientAddress Client address
+  /// @param airnodeId Airnode ID
+  /// @param client Client
   /// @param status Whitelist status that the client will have past expiration
   function setWhitelistStatusPastExpiration(
     bytes32 airnodeId,
-    address clientAddress,
+    address client,
     bool status
   ) external override onlyWithRank(airnodeId, uint256(AdminRank.SuperAdmin)) {
-    airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress].whitelistPastExpiration = status;
-    emit SetWhitelistStatusPastExpiration(airnodeId, clientAddress, status, msg.sender);
+    airnodeIdToClientToWhitelistStatus[airnodeId][client].whitelistPastExpiration = status;
+    emit SetWhitelistStatusPastExpiration(airnodeId, client, status, msg.sender);
   }
 
   /// @notice Verifies the authorization status of a request
@@ -68,11 +69,11 @@ abstract contract ClientWhitelistRrpAuthorizer is MetaAdminnable, IClientWhiteli
   /// has enough funds to fulfill the request. However, that is not a
   /// condition that can be checked deterministically.
   /// @param requestId Request ID
-  /// @param airnodeId Airnode ID from `AirnodeParameterStore.sol`
+  /// @param airnodeId Airnode ID
   /// @param endpointId Endpoint ID
-  /// @param requesterIndex Requester index from `RequesterStore.sol`
+  /// @param requesterIndex Requester index
   /// @param designatedWallet Designated wallet
-  /// @param clientAddress Client address
+  /// @param client Client
   /// @return Authorization status of the request
   function isAuthorized(
     bytes32 requestId, // solhint-disable-line no-unused-vars
@@ -80,9 +81,9 @@ abstract contract ClientWhitelistRrpAuthorizer is MetaAdminnable, IClientWhiteli
     bytes32 endpointId, // solhint-disable-line no-unused-vars
     uint256 requesterIndex, // solhint-disable-line no-unused-vars
     address designatedWallet,
-    address clientAddress
+    address client
   ) external view override returns (bool) {
-    WhitelistStatus storage whitelistStatus = airnodeIdToClientAddressToWhitelistStatus[airnodeId][clientAddress];
+    WhitelistStatus storage whitelistStatus = airnodeIdToClientToWhitelistStatus[airnodeId][client];
     return
       designatedWallet.balance != 0 &&
       (whitelistStatus.whitelistPastExpiration || whitelistStatus.expirationTimestamp > block.timestamp);

@@ -13,4 +13,6 @@ interface IRankedAdminnable {
   ) external;
 
   function decreaseSelfRank(bytes32 adminnedId, uint256 newRank) external;
+
+  function getRank(bytes32 adminnedId, address admin) external returns (uint256);
 }
