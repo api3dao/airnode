@@ -3,13 +3,13 @@ pragma solidity 0.8.6;
 
 import "../interfaces/IAirnodeRrp.sol";
 import "./ClientRrpAuthorizer.sol";
-import "./interfaces/IAirnodeClientRrpAuthorizer.sol";
+import "./interfaces/ISelfClientRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists clients where each Airnode is
 /// adminned by themselves
-contract AirnodeClientRrpAuthorizer is
+contract SelfClientRrpAuthorizer is
     ClientRrpAuthorizer,
-    IAirnodeClientRrpAuthorizer
+    ISelfClientRrpAuthorizer
 {
     /// @notice Authorizer contracts use `authorizerType` to signal their type
     uint256 public constant override AUTHORIZER_TYPE = 1;
