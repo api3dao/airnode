@@ -12,14 +12,14 @@ export const templateVersions = fs
  * Finds path to latest version of template
  * @param template
  */
-function getLatestPath(template: string): string {
+function getLatestPath(template: string): string | null {
   for (const version of templateVersions) {
     if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
       return path.resolve(__dirname, `../../templates/${version}/${template}`);
     }
   }
 
-  return '';
+  return null;
 }
 
 /**
