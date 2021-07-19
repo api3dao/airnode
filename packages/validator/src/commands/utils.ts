@@ -1,7 +1,6 @@
 import { Log } from '../types';
-
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
 
 export const templateVersions = fs
   .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })

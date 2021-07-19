@@ -3,8 +3,7 @@ import * as logger from './utils/logger';
 import { Log, Result, templates } from './types';
 import { processSpecs } from './processor';
 import * as utils from './commands/utils';
-
-const path = require('path');
+import * as path from 'path';
 
 /**
  * Validates specification from provided file according to template file
