@@ -45,5 +45,7 @@ if (process.env.npm_config_template) {
   }
 
   res.messages.push(...messages);
-  console.log(JSON.stringify(res, null, 2));
+  console.log(
+    JSON.stringify(process.env.npm_config_specs_only || process.env.npm_config_so ? res.output : res, null, 2)
+  );
 }

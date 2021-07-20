@@ -91,6 +91,8 @@ On top of validator output, convertor provides an `output` object, which contain
 }
 ```
 
+Alternatively command can be ran with argument `--specs_only` or just `--so`, which will return only the converted specification.
+
 ## Templates
 
 Convertor uses same templates as validator, resulting specification can be written into `output` object with [actions](docs/actions.md).
