@@ -1,10 +1,10 @@
 /* globals context ethers */
 
 const { expect } = require('chai');
+const { addressToDerivationPath } = require('./utils');
 
 let airnodeRrp, airnodeRrpClient;
 let roles;
-const requesterIndex = 1;
 let airnodeId, masterWallet, designatedWallet;
 const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
@@ -18,26 +18,24 @@ beforeEach(async () => {
   const accounts = await ethers.getSigners();
   roles = {
     deployer: accounts[0],
-    airnodeAdmin: accounts[1],
-    requesterAdmin: accounts[2],
-    clientUser: accounts[3],
+    requesterAdmin: accounts[1],
+    clientUser: accounts[2],
     randomPerson: accounts[9],
   };
   const airnodeRrpFactory = await ethers.getContractFactory('AirnodeRrp', roles.deployer);
   airnodeRrp = await airnodeRrpFactory.deploy();
   const airnodeRrpClientFactory = await ethers.getContractFactory('MockAirnodeRrpClient', roles.deployer);
   airnodeRrpClient = await airnodeRrpClientFactory.deploy(airnodeRrp.address);
-  // Create the requester
-  await airnodeRrp.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
   // Generate the Airnode private key and derive the related parameters
   const airnodeWallet = ethers.Wallet.createRandom();
   const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
   const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
   masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
   airnodeId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
-  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
+  const derivationPath = addressToDerivationPath(roles.requesterAdmin.address);
+  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${derivationPath}`).connect(waffle.provider);
   // Fund the Airnode master wallet for it to be able to set the Airnode parameters
-  await roles.airnodeAdmin.sendTransaction({
+  await roles.deployer.sendTransaction({
     to: masterWallet.address,
     value: ethers.utils.parseEther('1'),
   });
@@ -59,9 +57,7 @@ describe('makeRequest', function () {
   context('Client is endorsed by requester', async function () {
     it('makes a regular request', async function () {
       // Have the requester endorse the client
-      await airnodeRrp
-        .connect(roles.requesterAdmin)
-        .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+      await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
       // Calculate the expected request ID
       const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
       const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -77,7 +73,7 @@ describe('makeRequest', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -92,7 +88,7 @@ describe('makeRequest', function () {
           chainId,
           airnodeRrpClient.address,
           templateId,
-          requesterIndex,
+          roles.requesterAdmin.address,
           designatedWallet.address,
           fulfillAddress,
           fulfillFunctionId,
@@ -107,7 +103,7 @@ describe('makeRequest', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -122,9 +118,7 @@ describe('makeFullRequest', function () {
   context('Client is endorsed by requester', async function () {
     it('makes a full request', async function () {
       // Have the requester endorse the client
-      await airnodeRrp
-        .connect(roles.requesterAdmin)
-        .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+      await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
       // Calculate the expected request ID
       const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
       const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -141,7 +135,7 @@ describe('makeFullRequest', function () {
           .makeFullRequest(
             airnodeId,
             endpointId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -156,7 +150,7 @@ describe('makeFullRequest', function () {
           chainId,
           airnodeRrpClient.address,
           endpointId,
-          requesterIndex,
+          roles.requesterAdmin.address,
           designatedWallet.address,
           fulfillAddress,
           fulfillFunctionId,
@@ -172,7 +166,7 @@ describe('makeFullRequest', function () {
           .makeFullRequest(
             airnodeId,
             endpointId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -188,9 +182,7 @@ describe('fulfill', function () {
     context('Fulfillment parameters are correct', async function () {
       it('fulfills', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -205,7 +197,7 @@ describe('fulfill', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -226,9 +218,7 @@ describe('fulfill', function () {
     context('Fulfillment parameters are incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -243,7 +233,7 @@ describe('fulfill', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -290,9 +280,7 @@ describe('fulfill', function () {
     context('Fulfilling wallet is incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -307,7 +295,7 @@ describe('fulfill', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -328,9 +316,7 @@ describe('fulfill', function () {
     context('Fulfillment parameters are correct', async function () {
       it('fulfills', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -346,7 +332,7 @@ describe('fulfill', function () {
           .makeFullRequest(
             airnodeId,
             endpointId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -367,9 +353,7 @@ describe('fulfill', function () {
     context('Fulfillment parameters are incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -385,7 +369,7 @@ describe('fulfill', function () {
           .makeFullRequest(
             airnodeId,
             endpointId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -432,9 +416,7 @@ describe('fulfill', function () {
     context('Fulfilling wallet is incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -450,7 +432,7 @@ describe('fulfill', function () {
           .makeFullRequest(
             airnodeId,
             endpointId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -474,9 +456,7 @@ describe('fail', function () {
     context('Fulfillment parameters are correct', async function () {
       it('fails successfully', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -491,7 +471,7 @@ describe('fail', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -510,9 +490,7 @@ describe('fail', function () {
     context('Fulfillment parameters are incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -527,7 +505,7 @@ describe('fail', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -566,9 +544,7 @@ describe('fail', function () {
     context('Fulfilling wallet is incorrect', async function () {
       it('reverts', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -583,7 +559,7 @@ describe('fail', function () {
           .connect(roles.clientUser)
           .makeRequest(
             templateId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -602,9 +578,7 @@ describe('fail', function () {
     context('Fulfillment parameters are correct', async function () {
       it('fails successfully', async function () {
         // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+        await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
         // Calculate the expected request ID
         const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
         const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -620,7 +594,7 @@ describe('fail', function () {
           .makeFullRequest(
             airnodeId,
             endpointId,
-            requesterIndex,
+            roles.requesterAdmin.address,
             designatedWallet.address,
             fulfillAddress,
             fulfillFunctionId,
@@ -638,9 +612,7 @@ describe('fail', function () {
       context('Fulfillment parameters are incorrect', async function () {
         it('reverts', async function () {
           // Have the requester endorse the client
-          await airnodeRrp
-            .connect(roles.requesterAdmin)
-            .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+          await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
           // Calculate the expected request ID
           const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
           const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -656,7 +628,7 @@ describe('fail', function () {
             .makeFullRequest(
               airnodeId,
               endpointId,
-              requesterIndex,
+              roles.requesterAdmin.address,
               designatedWallet.address,
               fulfillAddress,
               fulfillFunctionId,
@@ -694,9 +666,7 @@ describe('fail', function () {
         context('Fulfilling wallet is incorrect', async function () {
           it('reverts', async function () {
             // Have the requester endorse the client
-            await airnodeRrp
-              .connect(roles.requesterAdmin)
-              .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
+            await airnodeRrp.connect(roles.requesterAdmin).setClientEndorsementStatus(airnodeRrpClient.address, true);
             // Calculate the expected request ID
             const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
             const chainId = (await ethers.provider.getNetwork()).chainId;
@@ -712,7 +682,7 @@ describe('fail', function () {
               .makeFullRequest(
                 airnodeId,
                 endpointId,
-                requesterIndex,
+                roles.requesterAdmin.address,
                 designatedWallet.address,
                 fulfillAddress,
                 fulfillFunctionId,
