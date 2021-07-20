@@ -128,20 +128,22 @@ export function validateWithTemplate(
  */
 export function validateJson(specs: object, template: object, templatePath = '', returnJson = false): Result {
   const nonRedundant = template['__arrayItem' as keyof typeof template] ? [] : {};
+  const result = processSpecs(
+    specs,
+    template,
+    [],
+    nonRedundant,
+    {
+      specs: specs,
+      nonRedundantParams: nonRedundant,
+      output: {},
+    },
+    templatePath
+  );
 
   return {
-    ...processSpecs(
-      specs,
-      template,
-      [],
-      nonRedundant,
-      {
-        specs: specs,
-        nonRedundantParams: nonRedundant,
-        output: {},
-      },
-      templatePath
-    ),
+    valid: result.valid,
+    messages: result.messages,
     specs: returnJson ? specs : undefined,
   };
 }
