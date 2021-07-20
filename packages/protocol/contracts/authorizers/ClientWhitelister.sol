@@ -6,7 +6,7 @@ import "./interfaces/IClientWhitelister.sol";
 
 /// @title Authorizer contract where clients are whitelisted until an
 /// expiration time or indefinitely (until the whitelisting is revoked)
-abstract contract ClientWhitelister is RankedAdminnable, IClientWhitelister {
+contract ClientWhitelister is RankedAdminnable, IClientWhitelister {
     /// @notice Keeps the whitelisting statuses of clients for individual
     /// services (could be Airnodes, dAPIs, beacons, etc.)
     mapping(bytes32 => mapping(address => WhitelistStatus))
