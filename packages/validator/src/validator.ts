@@ -1,9 +1,9 @@
+import * as path from 'path';
 import fs from 'fs';
 import * as logger from './utils/logger';
 import { Log, Result, templates } from './types';
 import { processSpecs } from './processor';
 import * as utils from './commands/utils';
-import * as path from 'path';
 
 /**
  * Validates specification from provided file according to template file
