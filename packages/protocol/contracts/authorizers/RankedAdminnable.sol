@@ -3,24 +3,17 @@ pragma solidity 0.8.6;
 
 import "./interfaces/IRankedAdminnable.sol";
 
-/// @title Contract that implements multiple ranks of admins
+/// @title Contract that implements independent and multiple levels of admins
+/// for multiple entities
 contract RankedAdminnable is IRankedAdminnable {
-    /// @notice Keeps the ranks of admins for each individual adminned entity
-    /// @dev This contract implements adminship for a mapping of entities, rather
-    /// than a single entity. However, the logic at the inheriting contract can
-    /// easily be adapted to use this contract to admin a single entity (see
-    /// Api3CwRrpAuthorizer.sol)
     mapping(bytes32 => mapping(address => uint256))
-        public adminnedIdToAdminToRank;
+        private adminnedIdToAdminToRank;
 
     /// @dev Reverts if the caller's rank is not greater than or equal to `rank`
     /// @param adminnedId ID of the entity being adminned
     /// @param rank Rank caller's rank will be compared to
     modifier onlyWithRank(bytes32 adminnedId, uint256 rank) {
-        require(
-            getRank(adminnedId, msg.sender) >= rank,
-            "Caller is ranked low"
-        );
+        require(getRank(adminnedId, msg.sender) >= rank, "Caller ranked low");
         _;
     }
 
@@ -34,7 +27,7 @@ contract RankedAdminnable is IRankedAdminnable {
         address targetAdmin,
         uint256 newRank
     )
-        public
+        external
         override
         onlyWithRank(
             adminnedId,
@@ -49,7 +42,7 @@ contract RankedAdminnable is IRankedAdminnable {
     /// @param adminnedId ID of the entity being adminned
     /// @param newRank Rank to be set
     function decreaseSelfRank(bytes32 adminnedId, uint256 newRank)
-        public
+        external
         override
         onlyWithRank(adminnedId, newRank + 1)
     {
@@ -64,7 +57,9 @@ contract RankedAdminnable is IRankedAdminnable {
     /// @return Admin rank for the adminned entity
     function getRank(bytes32 adminnedId, address admin)
         public
+        view
         virtual
+        override
         returns (uint256)
     {
         return adminnedIdToAdminToRank[adminnedId][admin];
@@ -75,7 +70,7 @@ contract RankedAdminnable is IRankedAdminnable {
     /// @param a First unsigned integer
     /// @param b Second unsigned integer
     /// @return Larger of the two unsigned integers
-    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+    function max(uint256 a, uint256 b) private pure returns (uint256) {
         return a > b ? a : b;
     }
 }

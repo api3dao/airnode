@@ -22,4 +22,21 @@ interface IAirnodeRrpBeaconServer {
         bytes32 requestId,
         uint256 statusCode
     );
+
+    function requestBeaconUpdate(
+        bytes32 templateId,
+        address requester,
+        address designatedWallet
+    ) external;
+
+    function fulfill(
+        bytes32 requestId,
+        uint256 statusCode,
+        bytes calldata data
+    ) external;
+
+    function readBeacon(bytes32 templateId)
+        external
+        view
+        returns (int224 value, uint32 timestamp);
 }
