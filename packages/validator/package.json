@@ -21,7 +21,6 @@
     "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "ts-node": "^9.0.0",
-    "yargs": "^17.0.1"
+    "ts-node": "^9.0.0"
   }
 }
