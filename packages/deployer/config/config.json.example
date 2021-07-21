@@ -35,6 +35,7 @@
     },
     "nodeSettings": {
       "cloudProvider": "aws",
+      "enableHeartbeat": true,
       "logFormat": "plain",
       "logLevel": "INFO",
       "nodeVersion": "0.1.0",

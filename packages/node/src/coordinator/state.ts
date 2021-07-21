@@ -20,7 +20,7 @@ export function create(config: Config): CoordinatorState {
     config,
     settings,
     aggregatedApiCallsById: {},
-    EVMProviders: [],
+    providerStates: { evm: [] },
   };
 }
 

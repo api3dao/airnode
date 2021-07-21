@@ -65,8 +65,8 @@ function mapEVMProviderState(
 }
 
 export function disaggregate(state: CoordinatorState): LogsData<ProviderState<EVMProviderState>[]> {
-  const logsWithProviderStates = state.EVMProviders.map((provider) => {
-    return mapEVMProviderState(provider, state.aggregatedApiCallsById);
+  const logsWithProviderStates = state.providerStates.evm.map((evmProvider) => {
+    return mapEVMProviderState(evmProvider, state.aggregatedApiCallsById);
   });
 
   const logs = flatMap(logsWithProviderStates, (ps) => ps[0]);

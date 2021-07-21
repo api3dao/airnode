@@ -32,6 +32,7 @@ export enum RequestErrorCode {
 export enum RequestStatus {
   Pending = 'Pending',
   Fulfilled = 'Fulfilled',
+  Submitted = 'Submitted',
   Ignored = 'Ignored',
   Blocked = 'Blocked',
   Errored = 'Errored',
@@ -49,10 +50,15 @@ export interface RequestMetadata {
   readonly transactionHash: string;
 }
 
+export interface RequestFulfillment {
+  readonly hash: string;
+}
+
 export type ClientRequest<T extends {}> = T & {
   readonly designatedWallet: string;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
+  readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly requesterIndex: string;
@@ -113,6 +119,7 @@ export type ProviderState<T extends {}> = T & {
   readonly config?: Config;
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly id: string;
   readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
   readonly transactionCountsByRequesterIndex: { readonly [requesterIndex: string]: number };
@@ -131,10 +138,14 @@ export interface CoordinatorSettings {
   readonly stage: string;
 }
 
+export interface ProviderStates {
+  readonly evm: ProviderState<EVMProviderState>[];
+}
+
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
-  readonly EVMProviders: ProviderState<EVMProviderState>[];
+  readonly providerStates: ProviderStates;
   readonly id: string;
   readonly settings: CoordinatorSettings;
 }
@@ -272,7 +283,8 @@ export type EVMEventLog =
 // ===========================================
 export interface TransactionReceipt {
   readonly id: string;
-  readonly transactionHash: string;
+  readonly data?: ethers.Transaction;
+  readonly error?: Error;
   readonly type: RequestType;
 }
 
@@ -355,6 +367,7 @@ export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
   readonly airnodeIdShort?: string;
+  readonly enableHeartbeat?: boolean;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;

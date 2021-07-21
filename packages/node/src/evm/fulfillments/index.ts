@@ -4,17 +4,18 @@ import { submitWithdrawal } from './withdrawals';
 import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { EVMProviderState, ProviderState, RequestType, TransactionOptions } from '../../types';
+import {
+  ClientRequest,
+  EVMProviderState,
+  ProviderState,
+  RequestStatus,
+  RequestType,
+  TransactionOptions,
+  TransactionReceipt,
+} from '../../types';
 import { AirnodeRrpFactory } from '../contracts';
 
-export interface Receipt {
-  readonly id: string;
-  readonly data?: string;
-  readonly error?: Error;
-  readonly type: RequestType;
-}
-
-export async function submit(state: ProviderState<EVMProviderState>) {
+export async function submit(state: ProviderState<EVMProviderState>): Promise<TransactionReceipt[]> {
   const { chainId, chainType, name: providerName } = state.settings;
   const { coordinatorId } = state;
 
@@ -65,7 +66,23 @@ export async function submit(state: ProviderState<EVMProviderState>) {
     return [...submittedApiCalls, ...submittedWithdrawals];
   });
 
-  const responses = await Promise.all(promises);
+  const receipts = (await Promise.all(promises)) as TransactionReceipt[];
+  return receipts;
+}
 
-  return responses;
+export function applyFulfillments<T>(requests: ClientRequest<T>[], receipts: TransactionReceipt[]) {
+  return requests.reduce((acc, request) => {
+    const receipt = receipts.find((r) => r.id === request.id);
+    // If the request was not submitted or the transaction doesn't have a hash, leave it as is
+    if (!receipt || !receipt.data?.hash) {
+      return [...acc, request];
+    }
+
+    const updatedRequest = {
+      ...request,
+      fulfillment: { hash: receipt.data.hash },
+      status: RequestStatus.Submitted,
+    };
+    return [...acc, updatedRequest];
+  }, [] as ClientRequest<T>[]);
 }
