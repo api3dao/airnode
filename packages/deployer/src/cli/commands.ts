@@ -65,12 +65,12 @@ export async function deploy(
       receipts.push({
         airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
         airnodeIdShort,
-        config: { id: config.id, chains: config.chains, nodeSettings: config.nodeSettings },
+        config: { chains: config.chains, nodeSettings: config.nodeSettings },
         masterWalletAddress,
         xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
       });
     } catch (err) {
-      logger.warn(`Failed deploying configuration ${config.id}, skipping`);
+      logger.warn(`Failed deploying configuration, skipping`);
       logger.warn(err.toString());
     }
   }
@@ -98,7 +98,7 @@ export async function removeWithReceipt(receiptFilename: string) {
         receipt.config.nodeSettings.region
       );
     } catch (err) {
-      logger.warn(`Failed removing configuration ${receipt.config.id}, skipping`);
+      logger.warn(`Failed removing configuration, skipping`);
       logger.warn(err.toString());
     }
   }

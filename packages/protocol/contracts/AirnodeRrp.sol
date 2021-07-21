@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
 import "./Convenience.sol";
 import "./interfaces/IAirnodeRrp.sol";
@@ -27,8 +27,9 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
     address fulfillAddress,
     bytes4 fulfillFunctionId
   ) {
-    bytes32 incomingFulfillmentParameters =
-      keccak256(abi.encodePacked(airnodeId, msg.sender, fulfillAddress, fulfillFunctionId));
+    bytes32 incomingFulfillmentParameters = keccak256(
+      abi.encodePacked(airnodeId, msg.sender, fulfillAddress, fulfillFunctionId)
+    );
     require(incomingFulfillmentParameters == requestIdToFulfillmentParameters[requestId], "No such request");
     _;
   }
