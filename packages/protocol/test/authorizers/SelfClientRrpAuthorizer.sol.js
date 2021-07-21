@@ -45,11 +45,25 @@ describe('constructor', function () {
 describe('getRank', function () {
   context('Caller is the SelfClientRrpAuthorizer deployer', async function () {
     it('returns zero if admin rank has not been set', async function () {
+      expect(
+        await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.airnodeMasterWallet.address)
+      ).to.equal(0);
       expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(0);
+      expect(
+        await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.randomPerson.address)
+      ).to.equal(0);
     });
   });
   context('Caller is the AirnodeRrp master wallet', async function () {
     it('returns MAX_RANK', async function () {
+      expect(
+        await selfClientRrpAuthorizer
+          .connect(roles.airnodeMasterWallet)
+          .getRank(airnodeId, roles.airnodeMasterWallet.address)
+      ).to.equal(ethers.BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'));
+      expect(
+        await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).getRank(airnodeId, roles.admin.address)
+      ).to.equal(ethers.BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'));
       expect(
         await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).getRank(airnodeId, roles.randomPerson.address)
       ).to.equal(ethers.BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'));
@@ -59,24 +73,37 @@ describe('getRank', function () {
 
 describe('setRank', function () {
   context('Caller is the AirnodeRrp master wallet', async function () {
-    it('returns admin rank', async function () {
+    it('sets admin rank', async function () {
+      // Sets rank 1
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 1);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(1);
+
+      // Back to 0
       await expect(
-        selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 1)
+        selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 0)
       )
         .to.emit(selfClientRrpAuthorizer, 'SetRank')
-        .withArgs(airnodeId, roles.admin.address, 1, roles.airnodeMasterWallet.address);
+        .withArgs(airnodeId, roles.admin.address, 0, roles.airnodeMasterWallet.address);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(0);
+    });
+    it('sets admin rank but this time checks that airnodeMasterWallet has higher rank than previous rank set', async function () {
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(
+        10
+      );
 
-      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(1);
+      // new rank is 9 but onlyWithRank modifier will check against 10 since it's higher
+      await expect(
+        selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 9)
+      )
+        .to.emit(selfClientRrpAuthorizer, 'SetRank')
+        .withArgs(airnodeId, roles.admin.address, 9, roles.airnodeMasterWallet.address);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(9);
     });
   });
   context('Caller is an admin with higher rank', async function () {
-    it('returns client rank', async function () {
-      await expect(
-        selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10)
-      )
-        .to.emit(selfClientRrpAuthorizer, 'SetRank')
-        .withArgs(airnodeId, roles.admin.address, 10, roles.airnodeMasterWallet.address);
-
+    it('sets client rank', async function () {
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10);
       expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(
         10
       );
@@ -98,18 +125,67 @@ describe('setRank', function () {
   });
   context('Caller is an admin with lower rank', async function () {
     it('revers', async function () {
-      await expect(
-        selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10)
-      )
-        .to.emit(selfClientRrpAuthorizer, 'SetRank')
-        .withArgs(airnodeId, roles.admin.address, 10, roles.airnodeMasterWallet.address);
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(
+        10
+      );
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.client.address, 9);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.client.address)).to.equal(
+        9
+      );
 
+      await expect(
+        selfClientRrpAuthorizer.connect(roles.client).setRank(airnodeId, roles.admin.address, 100)
+      ).to.be.revertedWith('Caller ranked low');
+    });
+  });
+  context('Caller is a randomPerson for which no rank has been set', async function () {
+    it('reverts', async function () {
+      await expect(
+        selfClientRrpAuthorizer.connect(roles.randomPerson).setRank(airnodeId, roles.admin.address, 1)
+      ).to.be.revertedWith('Caller ranked low');
+    });
+  });
+});
+
+describe('decreaseSelfRank', function () {
+  context('Caller is the AirnodeRrp master wallet', async function () {
+    it('decreases self rank', async function () {
+      await expect(selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).decreaseSelfRank(airnodeId, 1))
+        .to.emit(selfClientRrpAuthorizer, 'DecreasedSelfRank')
+        .withArgs(airnodeId, roles.airnodeMasterWallet.address, 1);
+      expect(
+        await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.airnodeMasterWallet.address)
+      ).to.equal(1);
+    });
+  });
+  context('Caller is an admin', async function () {
+    it('decreases self rank', async function () {
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10);
       expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(
         10
       );
 
+      await expect(selfClientRrpAuthorizer.connect(roles.admin).decreaseSelfRank(airnodeId, 9))
+        .to.emit(selfClientRrpAuthorizer, 'DecreasedSelfRank')
+        .withArgs(airnodeId, roles.admin.address, 9);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(9);
+    });
+    it('reverts when new rank is higher than current', async function () {
+      await selfClientRrpAuthorizer.connect(roles.airnodeMasterWallet).setRank(airnodeId, roles.admin.address, 10);
+      expect(await selfClientRrpAuthorizer.connect(roles.deployer).getRank(airnodeId, roles.admin.address)).to.equal(
+        10
+      );
+
+      await expect(selfClientRrpAuthorizer.connect(roles.admin).decreaseSelfRank(airnodeId, 11)).to.be.revertedWith(
+        'Caller ranked low'
+      );
+    });
+  });
+  context('Caller is a randomPerson for which no rank has been set', async function () {
+    it('reverts', async function () {
       await expect(
-        selfClientRrpAuthorizer.connect(roles.admin).setRank(airnodeId, roles.client.address, 100)
+        selfClientRrpAuthorizer.connect(roles.randomPerson).decreaseSelfRank(airnodeId, 1)
       ).to.be.revertedWith('Caller ranked low');
     });
   });
