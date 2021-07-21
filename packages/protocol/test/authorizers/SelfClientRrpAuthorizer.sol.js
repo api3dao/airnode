@@ -12,8 +12,8 @@ let roles;
 let selfClientRrpAuthorizer;
 let airnodeRrp;
 let airnodeId;
-// const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-// const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+const requestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 
 beforeEach(async () => {
   const accounts = await ethers.getSigners();
@@ -557,101 +557,113 @@ describe('setWhitelistStatusPastExpiration', function () {
   });
 });
 
-// describe('isAuthorized', function () {
-//   context('Designated wallet balance is not zero', function () {
-//     context('Client is not Whitelisted', function () {
-//       context('Client whitelisting has not expired', function () {
-//         it('returns true', async function () {
-//           const designatedWallet = ethers.Wallet.createRandom();
-//           await roles.client.sendTransaction({
-//             to: designatedWallet.address,
-//             value: 1,
-//           });
-//           const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-//           const expiration = now + 100;
-//           selfAuthorizer
-//             .connect(roles.airnodeAdmin)
-//             .setWhitelistExpiration(airnodeId, roles.client.address, expiration);
-//           expect(
-//             await selfAuthorizer.isAuthorized(
-//               requestId,
-//               airnodeId,
-//               endpointId,
-//               requesterIndex,
-//               designatedWallet.address,
-//               roles.client.address
-//             )
-//           ).to.equal(true);
-//         });
-//       });
-//       context('Client whitelisting has expired and whitelisting has not been set', function () {
-//         it('returns false', async function () {
-//           const designatedWallet = ethers.Wallet.createRandom();
-//           await roles.client.sendTransaction({
-//             to: designatedWallet.address,
-//             value: 1,
-//           });
-//           expect(
-//             await selfAuthorizer.isAuthorized(
-//               requestId,
-//               airnodeId,
-//               endpointId,
-//               requesterIndex,
-//               designatedWallet.address,
-//               roles.client.address
-//             )
-//           ).to.equal(false);
-//         });
-//       });
-//     });
-//     context('Client whitelisting was set then revoked', function () {
-//       it('returns false', async function () {
-//         const designatedWallet = ethers.Wallet.createRandom();
-//         await roles.client.sendTransaction({
-//           to: designatedWallet.address,
-//           value: 1,
-//         });
-//         await selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, true);
-//         expect(
-//           await selfAuthorizer.isAuthorized(
-//             requestId,
-//             airnodeId,
-//             endpointId,
-//             requesterIndex,
-//             designatedWallet.address,
-//             roles.client.address
-//           )
-//         ).to.equal(true);
-//         await selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistStatus(airnodeId, roles.client.address, false);
-//         expect(
-//           await selfAuthorizer.isAuthorized(
-//             requestId,
-//             airnodeId,
-//             endpointId,
-//             requesterIndex,
-//             designatedWallet.address,
-//             roles.client.address
-//           )
-//         ).to.equal(false);
-//       });
-//     });
-//   });
-//   context('Designated wallet balance is zero', function () {
-//     it('returns false', async function () {
-//       const designatedWallet = ethers.Wallet.createRandom();
-//       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-//       const expiration = now + 100;
-//       selfAuthorizer.connect(roles.airnodeAdmin).setWhitelistExpiration(airnodeId, roles.client.address, expiration);
-//       expect(
-//         await selfAuthorizer.isAuthorized(
-//           requestId,
-//           airnodeId,
-//           endpointId,
-//           requesterIndex,
-//           designatedWallet.address,
-//           roles.client.address
-//         )
-//       ).to.equal(false);
-//     });
-//   });
-// });
+describe('isAuthorized', function () {
+  context('Designated wallet balance is not zero', function () {
+    context('Client is not Whitelisted', function () {
+      context('Client whitelisting has not expired', function () {
+        it('returns true', async function () {
+          const designatedWallet = ethers.Wallet.createRandom();
+          await roles.client.sendTransaction({
+            to: designatedWallet.address,
+            value: 1,
+          });
+          const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+          const expiration = now + 100;
+          await selfClientRrpAuthorizer
+            .connect(roles.airnodeMasterWallet)
+            .setRank(airnodeId, roles.admin.address, AdminRank.SuperAdmin);
+          await selfClientRrpAuthorizer
+            .connect(roles.admin)
+            .setWhitelistExpiration(airnodeId, roles.client.address, expiration);
+          expect(
+            await selfClientRrpAuthorizer.isAuthorized(
+              requestId,
+              airnodeId,
+              endpointId,
+              roles.admin.address,
+              designatedWallet.address,
+              roles.client.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Client whitelisting has expired and whitelisting has not been set', function () {
+        it('returns false', async function () {
+          const designatedWallet = ethers.Wallet.createRandom();
+          await roles.client.sendTransaction({
+            to: designatedWallet.address,
+            value: 1,
+          });
+          expect(
+            await selfClientRrpAuthorizer.isAuthorized(
+              requestId,
+              airnodeId,
+              endpointId,
+              roles.admin.address,
+              designatedWallet.address,
+              roles.client.address
+            )
+          ).to.equal(false);
+        });
+      });
+    });
+    context('Client whitelisting was set then revoked', function () {
+      it('returns false', async function () {
+        const designatedWallet = ethers.Wallet.createRandom();
+        await roles.client.sendTransaction({
+          to: designatedWallet.address,
+          value: 1,
+        });
+        await selfClientRrpAuthorizer
+          .connect(roles.airnodeMasterWallet)
+          .setRank(airnodeId, roles.admin.address, AdminRank.SuperAdmin);
+        await selfClientRrpAuthorizer
+          .connect(roles.admin)
+          .setWhitelistStatusPastExpiration(airnodeId, roles.client.address, true);
+        expect(
+          await selfClientRrpAuthorizer.isAuthorized(
+            requestId,
+            airnodeId,
+            endpointId,
+            roles.admin.address,
+            designatedWallet.address,
+            roles.client.address
+          )
+        ).to.equal(true);
+        await selfClientRrpAuthorizer
+          .connect(roles.admin)
+          .setWhitelistStatusPastExpiration(airnodeId, roles.client.address, false);
+        expect(
+          await selfClientRrpAuthorizer.isAuthorized(
+            requestId,
+            airnodeId,
+            endpointId,
+            roles.admin.address,
+            designatedWallet.address,
+            roles.client.address
+          )
+        ).to.equal(false);
+      });
+    });
+  });
+  context('Designated wallet balance is zero', function () {
+    it('returns false', async function () {
+      const designatedWallet = ethers.Wallet.createRandom();
+      const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+      const expiration = now + 100;
+      await selfClientRrpAuthorizer
+        .connect(roles.airnodeMasterWallet)
+        .setWhitelistExpiration(airnodeId, roles.client.address, expiration);
+      expect(
+        await selfClientRrpAuthorizer.isAuthorized(
+          requestId,
+          airnodeId,
+          endpointId,
+          roles.airnodeMasterWallet.address,
+          designatedWallet.address,
+          roles.client.address
+        )
+      ).to.equal(false);
+    });
+  });
+});
