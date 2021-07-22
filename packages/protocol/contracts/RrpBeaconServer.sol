@@ -98,7 +98,7 @@ contract RrpBeaconServer is
         bytes32 requestId,
         uint256 statusCode,
         bytes calldata data
-    ) external override onlyAirnodeRrp() {
+    ) external override onlyAirnodeRrp {
         bytes32 templateId = requestIdToTemplateId[requestId];
         delete requestIdToTemplateId[requestId];
         if (statusCode == 0) {
@@ -136,9 +136,10 @@ contract RrpBeaconServer is
         override
         returns (int224 value, uint32 timestamp)
     {
-
-            WhitelistStatus storage whitelistStatus
-         = serviceIdToClientToWhitelistStatus[templateId][msg.sender];
+        WhitelistStatus
+            storage whitelistStatus = serviceIdToClientToWhitelistStatus[
+                templateId
+            ][msg.sender];
         require(
             whitelistStatus.whitelistPastExpiration ||
                 whitelistStatus.expirationTimestamp > block.timestamp,

@@ -86,7 +86,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
         bytes32 requestId,
         uint256 statusCode,
         bytes calldata data
-    ) external onlyAirnodeRrp() {
+    ) external onlyAirnodeRrp {
         require(incomingFulfillments[requestId], "No such request made");
         delete incomingFulfillments[requestId];
         emit RequestFulfilled(requestId, statusCode, data);
@@ -101,7 +101,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
         bytes32, /* requestId */
         uint256, /* statusCode */
         bytes calldata /* data */
-    ) external view onlyAirnodeRrp() {
+    ) external view onlyAirnodeRrp {
         revert("Expected revert");
     }
 
@@ -114,7 +114,7 @@ contract MockAirnodeRrpClient is AirnodeRrpClient {
         bytes32, /* requestId */
         uint256, /* statusCode */
         bytes calldata /* data */
-    ) external view onlyAirnodeRrp() {
+    ) external view onlyAirnodeRrp {
         while (true) {}
         // solhint-disable-previous-line no-empty-blocks
     }
