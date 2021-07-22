@@ -10,7 +10,10 @@
     "compile": "tsc -p tsconfig.build.json",
     "prepublishOnly": "yarn run build",
     "test:e2e": "jest --selectProjects e2e",
-    "test:e2e:watch": "jest --coverage --watch --selectProjects e2e"
+    "test:e2e:watch": "jest --coverage --watch --selectProjects e2e",
+    "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
+    "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
+    "test:watch:debug": "jest \"implementation.test\" --selectProjects unit --watch"
   },
   "dependencies": {
     "@api3/airnode-abi": "^0.1.0",

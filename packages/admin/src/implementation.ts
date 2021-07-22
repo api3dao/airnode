@@ -11,8 +11,23 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   }
 };
 
+/**
+ * HD wallets allow us to create multiple accounts from a single mnemonic.
+ * Each requester creates a designated wallet for each provider to use
+ * in order for them to be able to respond to the requests their clients make.
+ *
+ * By convention derivation paths start with a master index
+ * followed by child indexes that can be any integer up to 2^31.
+ *
+ * Since addresses can be represented as 160bits (20bytes) we can then
+ * split it in chunks of 31bits and create a path with the following pattern:
+ * m/0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
+ *
+ * @param address A string representing a 20bytes hex address
+ * @returns The path derived from the address
+ */
 export const addressToDerivationPath = (address: string): string => {
-  const requesterBN = ethers.BigNumber.from(address);
+  const requesterBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
   const paths = [];
   for (let i = 0; i < 6; i++) {
     const shiftedRequesterBN = requesterBN.shr(31 * i);
