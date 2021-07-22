@@ -41,7 +41,7 @@ export function getDesignatedWallet(mnemonic: string, requester: string, provide
  * @returns The path derived from the address
  */
 export function addressToDerivationPath(address: string): string {
-  const requesterBN = ethers.BigNumber.from(address);
+  const requesterBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
   const paths = [];
   // eslint-disable-next-line functional/no-let
   for (let i = 0; i < 6; i++) {

@@ -31,12 +31,12 @@ You can also use the package programatically. The SDK exports respective functio
 well as helper functions for obtaining the contract instance on the targeted chain.
 
 ```js
-import { createRequester, getAirnodeRrpWithSigner } from '@api3/admin';
+import { endorseClient, getAirnodeRrpWithSigner } from '@api3/admin';
 
 // First obtain the contract instance on target chain
 const airnodeRrp = await getAirnodeRrpWithSigner(mnemonic, derivationPath, providerUrl, airnodeRrpAddress);
 // Pass the contract instance as the first argument to the SDK function
-const requesterIndex = await createRequester(airnodeRrp, requesterAdmin);
+const client = await endorseClient(airnodeRrp, clientAddress);
 ```
 
 If you plan to use multiple commands it might be tedious to pass the contract instance to every function call. For this reason there is also class based `AdminSdk` which you initialize with `AirnodeRrp` contract only once.
@@ -50,7 +50,7 @@ const airnodeRrp = await AdminSdk.getAirnodeRrpWithSigner(mnemonic, derivationPa
 // Create sdk instance
 const adminSdk = new AdminSdk(airnodeRrp);
 // Call the method you need
-const requesterIndex = await adminSdk.createRequester(requesterAdmin);
+const client = await adminSdk.endorseClient(clientAddress);
 
 // You can switch the contract instance anytime. E.g. if you are using ethers
 adminSdk.airnodeRrp = airnodeRrp.connect(someOtherWallet);

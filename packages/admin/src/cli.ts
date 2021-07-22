@@ -114,7 +114,7 @@ yargs
   )
   .command(
     'get-endorsement-status',
-    'Returns the endorsment status for the given requesterIndex and client',
+    'Returns the endorsment status for the given requester and client',
     {
       ...airnodeRrpCommands,
       requester,
