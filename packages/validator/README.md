@@ -1,6 +1,6 @@
 # `@airnode/validator`
 
-Package for json specifications validation. Validation process can be configured with validator templates.
+Package for JSON specifications validation. Validation process can be configured with validator templates.
 
 ## Usage
 
