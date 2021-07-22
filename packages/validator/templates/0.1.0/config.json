@@ -43,8 +43,12 @@
 					"endpointId": {
 						"__regexp": "^0x[a-fA-F0-9]{64}$"
 					},
-					"oisTitle": {},
-					"endpointName": {},
+					"oisTitle": {
+						"__type": "string"
+					},
+					"endpointName": {
+						"__type": "string"
+					},
 					"__conditions": [
 						{
 							"__if": {
@@ -78,7 +82,9 @@
 		},
 		"chains": {
 			"__arrayItem": {
-				"id": {},
+				"id": {
+					"__type": "string"
+				},
 				"type": {
 					"__regexp": "^evm$",
 					"__catch": {
@@ -126,9 +132,15 @@
 					}
 				},
 				"__optional": {
-					"blockHistoryLimit": {},
-					"minConfirmations": {},
-					"ignoreBlockedRequestsAfterBlocks": {}
+					"blockHistoryLimit": {
+						"__type": "number"
+					},
+					"minConfirmations": {
+						"__type": "number"
+					},
+					"ignoreBlockedRequestsAfterBlocks": {
+						"__type": "number"
+					}
 				}
 			}
 		},
@@ -142,7 +154,9 @@
 					"__message": "__fullPath: Currently only \"aws\" is supported"
 				}
 			},
-			"region": {},
+			"region": {
+				"__type": "string"
+			},
 			"stage": {
 				"__regexp": "^[a-zA-Z0-9-_]{1,16}$",
 				"__catch": {
@@ -165,8 +179,12 @@
 		"environment": {
 			"securitySchemes": {
 				"__arrayItem": {
-					"oisTitle": {},
-					"name": {},
+					"oisTitle": {
+						"__type": "string"
+					},
+					"name": {
+						"__type": "string"
+					},
 					"envName": {
 						"__regexp": "^[a-zA-Z0-9_]+$",
 						"__catch": {
@@ -205,9 +223,15 @@
 			},
 			"chainProviders": {
 				"__arrayItem": {
-					"chainType": {},
-					"chainId": {},
-					"name": {},
+					"chainType": {
+						"__type": "string"
+					},
+					"chainId": {
+						"__type": "string"
+					},
+					"name": {
+						"__type": "string"
+					},
 					"envName": {
 						"__regexp": "^[a-zA-Z0-9_]+$",
 						"__catch": {

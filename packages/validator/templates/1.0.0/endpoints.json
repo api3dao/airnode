@@ -1,6 +1,8 @@
 {
   "__arrayItem": {
-    "name": {},
+    "name": {
+      "__type": "string"
+    },
     "operation": {
       "path": {
         "__regexp": "^\\/[^\\s'\"\\\\]+$"
@@ -15,7 +17,9 @@
     "fixedOperationParameters": {
       "__arrayItem": {
         "operationParameter": {
-          "name": {},
+          "name": {
+            "__type": "string"
+          },
           "in": {
             "__regexp": "^(query|header|path|cookie)$",
             "__catch": {
@@ -46,7 +50,9 @@
           "__regexp": "^[^\\s'\"_][^\\s'\"]+$"
         },
         "operationParameter": {
-          "name": {},
+          "name": {
+            "__type": "string"
+          },
           "in": {
             "__regexp": "^(path|query|header|cookie)$",
             "__catch": {

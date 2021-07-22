@@ -47,7 +47,9 @@
       "__objectItem": {
         "parameters": {
           "__arrayItem": {
-            "name": {},
+            "name": {
+              "__type": "string"
+            },
             "in": {
               "__regexp": "^(path|query|header|cookie)$",
               "__catch": {
@@ -149,7 +151,9 @@
           }
         },
         "__optional": {
-          "name": {},
+          "name": {
+            "__type": "string"
+          },
           "scheme": {
             "__regexp": "^(basic|bearer)$",
             "__catch": {
