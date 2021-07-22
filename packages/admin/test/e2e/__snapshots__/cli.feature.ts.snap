@@ -9,7 +9,7 @@ Commands:
   cli.js endorse-client            Endorses a client as a requester admin
   cli.js unendorse-client          Unendorses a client as a requester admin
   cli.js get-endorsement-status    Returns the endorsment status for the given
-                                   requesterIndex and client
+                                   requester and client
   cli.js create-template           Creates a template and returns its ID
   cli.js get-template              Returns the template for the given templateId
   cli.js request-withdrawal        Requests withdrawal from the designated

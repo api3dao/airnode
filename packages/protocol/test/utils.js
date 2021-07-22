@@ -2,7 +2,7 @@ const { ethers } = require('ethers');
 
 module.exports = {
   addressToDerivationPath: (address) => {
-    const requesterBN = ethers.BigNumber.from(address);
+    const requesterBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
     const paths = [];
     for (let i = 0; i < 6; i++) {
       const shiftedRequesterBN = requesterBN.shr(31 * i);
