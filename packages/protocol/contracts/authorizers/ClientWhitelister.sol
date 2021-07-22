@@ -27,11 +27,11 @@ contract ClientWhitelister is RankedAdminnable, IClientWhitelister {
         require(
             expirationTimestamp >
                 serviceIdToClientToWhitelistStatus[serviceId][client]
-                .expirationTimestamp,
+                    .expirationTimestamp,
             "Expiration not extended"
         );
         serviceIdToClientToWhitelistStatus[serviceId][client]
-        .expirationTimestamp = expirationTimestamp;
+            .expirationTimestamp = expirationTimestamp;
         emit ExtendedWhitelistExpiration(
             serviceId,
             client,
@@ -53,7 +53,7 @@ contract ClientWhitelister is RankedAdminnable, IClientWhitelister {
         uint64 expirationTimestamp
     ) external override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
         serviceIdToClientToWhitelistStatus[serviceId][client]
-        .expirationTimestamp = expirationTimestamp;
+            .expirationTimestamp = expirationTimestamp;
         emit SetWhitelistExpiration(
             serviceId,
             client,
@@ -73,7 +73,7 @@ contract ClientWhitelister is RankedAdminnable, IClientWhitelister {
         bool status
     ) external override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
         serviceIdToClientToWhitelistStatus[serviceId][client]
-        .whitelistPastExpiration = status;
+            .whitelistPastExpiration = status;
         emit SetWhitelistStatusPastExpiration(
             serviceId,
             client,

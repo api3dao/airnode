@@ -160,7 +160,7 @@ contract AirnodeParameterStore is
         address clientAddress
     ) public view override returns (bool status) {
         address[] memory authorizerAddresses = airnodeParameters[airnodeId]
-        .authorizers;
+            .authorizers;
         uint256 noAuthorizers = authorizerAddresses.length;
         if (noAuthorizers == 0) {
             authorizerAddresses = defaultAuthorizers;
