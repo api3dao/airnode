@@ -52,13 +52,13 @@ yargs(hideBin(process.argv))
       configuration: {
         alias: ['c', 'config', 'conf'],
         description: 'Path to configuration file',
-        default: 'config/config.json',
+        default: 'config/config.json.example',
         type: 'string',
       },
       secrets: {
         alias: 's',
         description: 'Path to secrets file',
-        default: 'config/secrets.env',
+        default: 'config/secrets.env.example',
         type: 'string',
       },
       receipt: {
@@ -76,7 +76,9 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion));
+      await runCommand(() =>
+        deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion, args.debug as boolean)
+      );
     }
   )
   .command(

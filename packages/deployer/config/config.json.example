@@ -7,7 +7,7 @@
           "0x0000000000000000000000000000000000000000"
         ],
         "contracts": {
-          "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+          "AirnodeRRP": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
         },
         "id": "31337",
         "providerNames": [
@@ -28,7 +28,7 @@
       "securitySchemes": [
         {
           "oisTitle": "Currency Converter API",
-          "name": "Currency Converter Security Scheme",
+          "name": "Currency_Converter_Security_Scheme",
           "envName": "SS_CURRENCY_CONVERTER_API_CURRENCY_CONVERTER_SECURITY_SCHEME"
         }
       ]
@@ -57,9 +57,6 @@
         "version": "1.2.3",
         "title": "Currency Converter API",
         "apiSpecifications": {
-          "info": {
-            "title": "Currency Converter API"
-          },
           "servers": [
             {
               "url": "http://localhost:5000"
@@ -91,18 +88,16 @@
           },
           "components": {
             "securitySchemes": {
-              "Currency Converter Security Scheme": {
+              "Currency_Converter_Security_Scheme": {
                 "in": "query",
                 "type": "apiKey",
                 "name": "access_key"
               }
             }
           },
-          "security": [
-            {
-              "Currency Converter Security Scheme": []
-            }
-          ]
+          "security": {
+            "Currency_Converter_Security_Scheme": []
+          }
         },
         "endpoints": [
           {
@@ -132,10 +127,6 @@
               {
                 "name": "_times",
                 "default": "1000000"
-              },
-              {
-                "name": "_relay_metadata",
-                "default": "v1"
               }
             ],
             "parameters": [
@@ -152,6 +143,13 @@
                 "default": "1",
                 "operationParameter": {
                   "name": "amount",
+                  "in": "query"
+                }
+              },
+              {
+                "name": "date",
+                "operationParameter": {
+                  "name": "date",
                   "in": "query"
                 }
               }
