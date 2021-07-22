@@ -33,9 +33,10 @@ abstract contract ClientRrpAuthorizer is
         address designatedWallet,
         address client
     ) external view override returns (bool) {
-
-            WhitelistStatus storage whitelistStatus
-         = serviceIdToClientToWhitelistStatus[airnodeId][client];
+        WhitelistStatus
+            storage whitelistStatus = serviceIdToClientToWhitelistStatus[
+                airnodeId
+            ][client];
         return
             designatedWallet.balance != 0 &&
             (whitelistStatus.whitelistPastExpiration ||
