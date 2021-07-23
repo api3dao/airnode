@@ -1,5 +1,6 @@
 import * as utils from './utils/utils';
 import * as logger from './utils/logger';
+import { regexList } from './utils/globals';
 import { validateCondition } from './validators/conditionValidator';
 import { validateRegexp } from './validators/regexpValidator';
 import { validateOptional } from './validators/optionalValidator';
@@ -83,7 +84,8 @@ export function processSpecs(
         for (let i = 0; i < specs.length; i++) {
           nonRedundantParams.push({});
 
-          paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(/\[[0-9]+\]$/, '') + `[${i}]`;
+          paramPath[paramPath.length - 1] =
+            paramPath[paramPath.length - 1].replace(regexList.arrayIndex, '') + `[${i}]`;
 
           const result = processSpecs(
             specs[i],
@@ -97,7 +99,7 @@ export function processSpecs(
           messages.push(...result.messages);
         }
 
-        paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(/\[[0-9]+\]$/, '');
+        paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(regexList.arrayIndex, '');
 
         break;
 

@@ -1,5 +1,6 @@
 import { insertValue, replaceParamIndexWithName, replacePathsWithValues } from './utils';
 import { Roots } from '../types';
+import { regexList } from './globals';
 
 export function execute(specs: any, template: any, currentPath: string[], roots: Roots) {
   for (const action of template) {
@@ -7,7 +8,9 @@ export function execute(specs: any, template: any, currentPath: string[], roots:
 
     try {
       targetPath = JSON.parse(
-        (action['__insert'] || action['__copy'])['__target'].replace(/(?<!\\)[']/g, '"').replace(/\\'/g, "'")
+        (action['__insert'] || action['__copy'])['__target']
+          .replace(regexList.noEscapeApostrophe, '"')
+          .replace(/\\'/g, "'")
       ) as string[];
     } catch {
       continue;

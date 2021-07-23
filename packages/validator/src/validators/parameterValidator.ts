@@ -2,6 +2,7 @@ import { Log, Roots } from '../types';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { processSpecs } from '../processor';
+import { regexList } from '../utils/globals';
 
 /**
  * Validates parameter from template, that is not a validator keyword
@@ -25,7 +26,7 @@ export function validateParameter(
   templatePath = '',
   paramPathPrefix: string[] = []
 ): Log[] {
-  const arrayIndex = param.match(/\[([0-9]+)\]$/);
+  const arrayIndex = param.match(regexList.arrayIndex);
 
   if (arrayIndex) {
     // parameter is array, item on specified index should be processed
