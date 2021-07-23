@@ -14,7 +14,7 @@ import { validateTemplate } from './validators/templateValidator';
 /**
  * Validates provided specification against template
  * @param specs - specification that is being validated
- * @param template - template the specification is validated against
+ * @param template - template against which the specification is validated
  * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string is root)
  * @param nonRedundantParams - object containing all required and optional parameters that are being used
  * @param roots - roots of specs and nonRedundantParams
