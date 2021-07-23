@@ -2,7 +2,7 @@
 
 ## Basic condition
 
-Conditions consist of `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain any amount of condition objects. Object `__if` contains parameter name with regular expression, if the regular expression is matched in provided specification, validator will check if specification matches everything that's in the `__then` object.
+Conditions consist of `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain any amount of conditional objects. Object `__if` contains parameter name with regular expression, if the regular expression is matched in provided specification, validator will check if specification matches everything that's in the `__then` object.
 
 Even if evaluation of `__then` object takes place, all messages from this validation are discarded and replaced with single error message.
 
