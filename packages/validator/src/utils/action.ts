@@ -1,6 +1,6 @@
+import { regexList } from './globals';
 import { insertValue, replaceParamIndexWithName, replacePathsWithValues } from './utils';
 import { Roots } from '../types';
-import { regexList } from './globals';
 
 export function execute(specs: any, template: any, currentPath: string[], roots: Roots) {
   for (const action of template) {
