@@ -3,6 +3,7 @@ import { processSpecs } from '../processor';
 import * as logger from '../utils/logger';
 import * as utils from '../utils/utils';
 import { Log, Roots } from '../types';
+import { keywords } from '../utils/globals';
 
 /**
  * Validates "if" condition in which regular expression is matched against the key in specification
@@ -23,13 +24,13 @@ function validateConditionRegexInKey(
   paramPathPrefix: string[]
 ): Log[] {
   const messages: Log[] = [];
-  const paramName = Object.keys(condition['__if'])[0];
-  const paramValue = condition['__if'][paramName];
+  const paramName = Object.keys(condition[keywords.if])[0];
+  const paramValue = condition[keywords.if][paramName];
 
   // In case of '__rootThen' validate from root
-  const thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
-  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
-  const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
+  const thenCondition = condition[keywords.rootThen] ? condition[keywords.rootThen] : condition[keywords.then];
+  const currentSpecs = condition[keywords.rootThen] ? roots.specs : specs;
+  const currentParamPath = condition[keywords.rootThen] ? paramPathPrefix : paramPath;
 
   // check all keys of children for a match with provided regex
   for (const thisName of Object.keys(specs)) {
@@ -51,9 +52,9 @@ function validateConditionRegexInKey(
       template = utils.replacePathsWithValues(specs, roots.specs, template);
 
       const result = processSpecs(
-        condition['__rootThen'] ? currentSpecs : currentSpecs[thisName],
+        condition[keywords.rootThen] ? currentSpecs : currentSpecs[thisName],
         template,
-        condition['__rootThen'] ? [] : [...currentParamPath, thisName],
+        condition[keywords.rootThen] ? [] : [...currentParamPath, thisName],
         tmpNonRedundantParams,
         { specs: roots.specs, nonRedundantParams: tmpNonRedundantParams, output: roots.output },
         templatePath
@@ -103,15 +104,15 @@ function validateConditionRegexInValue(
   paramPathPrefix: string[]
 ): Log[] {
   let messages: Log[] = [];
-  const paramName = Object.keys(condition['__if'])[0];
-  const paramValue = condition['__if'][paramName];
+  const paramName = Object.keys(condition[keywords.if])[0];
+  const paramValue = condition[keywords.if][paramName];
 
   // In case of '__rootThen' validate from root
-  let thenCondition = condition['__rootThen'] ? condition['__rootThen'] : condition['__then'];
-  const currentSpecs = condition['__rootThen'] ? roots.specs : specs;
-  const currentParamPath = condition['__rootThen'] ? paramPathPrefix : paramPath;
+  let thenCondition = condition[keywords.rootThen] ? condition[keywords.rootThen] : condition[keywords.then];
+  const currentSpecs = condition[keywords.rootThen] ? roots.specs : specs;
+  const currentParamPath = condition[keywords.rootThen] ? paramPathPrefix : paramPath;
 
-  if (paramName === '__this') {
+  if (paramName === keywords.this) {
     if (!specs.match(new RegExp(paramValue))) {
       return [];
     }
@@ -150,16 +151,16 @@ function validateConditionRegexInValue(
 
   messages.push(
     logger.error(
-      `Condition in ${[...paramPathPrefix, ...paramPath, ...(paramName === '__this' ? [] : [paramName])].join(
+      `Condition in ${[...paramPathPrefix, ...paramPath, ...(paramName === keywords.this ? [] : [paramName])].join(
         '.'
-      )} is not met with ${paramName === '__this' ? paramPath[paramPath.length - 1] : paramName}`
+      )} is not met with ${paramName === keywords.this ? paramPath[paramPath.length - 1] : paramName}`
     )
   );
   messages = validateCatch(
     specs,
-    utils.replaceConditionalMatch(paramName === '__this' ? specs : specs[paramName], condition),
+    utils.replaceConditionalMatch(paramName === keywords.this ? specs : specs[paramName], condition),
     messages,
-    [...paramPath, ...(paramName === '__this' ? [] : [paramName])],
+    [...paramPath, ...(paramName === keywords.this ? [] : [paramName])],
     paramPathPrefix,
     roots.specs
   );
@@ -186,11 +187,11 @@ export function validateCondition(
   paramPathPrefix: string[]
 ): Log[] {
   const messages: Log[] = [];
-  const paramName = Object.keys(condition['__if'])[0];
+  const paramName = Object.keys(condition[keywords.if])[0];
 
-  if (paramName === '__this_name') {
+  if (paramName === keywords.thisName) {
     messages.push(...validateConditionRegexInKey(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
-  } else if (specs[paramName] || paramName === '__this') {
+  } else if (specs[paramName] || paramName === keywords.this) {
     messages.push(...validateConditionRegexInValue(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
   }
 

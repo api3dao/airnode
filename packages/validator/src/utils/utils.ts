@@ -1,6 +1,6 @@
 import * as logger from './logger';
 import { Log, Roots } from '../types';
-import { regexList } from './globals';
+import { keywords, regexList } from './globals';
 
 /**
  * Replaces all "__match" instances in provided object and all it's children, except children of "__conditions"
@@ -12,10 +12,10 @@ export function replaceConditionalMatch(match: string, template: any): any {
   match = match.replace(regexList.regexTokens, '\\$&');
 
   const substitute = (toReplace: string) => {
-    return toReplace.replace(/__match/g, match);
+    return toReplace.replace(new RegExp(keywords.match, 'g'), match);
   };
 
-  return recursiveSubstitute(template, substitute, ['__conditions']);
+  return recursiveSubstitute(template, substitute, [keywords.conditions]);
 }
 
 /**
@@ -58,7 +58,7 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
     return toReplace;
   };
 
-  return recursiveSubstitute(template, substitute, ['__conditions']);
+  return recursiveSubstitute(template, substitute, [keywords.conditions]);
 }
 
 /**
@@ -76,7 +76,7 @@ export function replaceParamIndexWithName(specs: any, paramPath: string[]): any 
     return toReplace;
   };
 
-  return recursiveSubstitute(specs, substitute, ['__conditions']);
+  return recursiveSubstitute(specs, substitute, [keywords.conditions]);
 }
 
 /**
@@ -149,7 +149,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }
 
   return Object.keys(specs).reduce((acc: Log[], key) => {
-    if (nonRedundant['__noCheck']) {
+    if (nonRedundant[keywords.noCheck]) {
       return acc;
     }
 
@@ -175,9 +175,9 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
   }
 
   if (
-    '__arrayItem' in (template[param] || {}) ||
-    '__arrayItem' in (template['__objectItem'] || {}) ||
-    ('__any' in (template[param] || {}) && Array.isArray(specs))
+    keywords.arrayItem in (template[param] || {}) ||
+    keywords.arrayItem in (template[keywords.objectItem] || {}) ||
+    (keywords.any in (template[param] || {}) && Array.isArray(specs))
   ) {
     return [];
   }
@@ -215,7 +215,7 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
     return;
   }
 
-  if (param === '__all') {
+  if (param === keywords.all) {
     paramPath = paramPath.slice(1);
 
     if (Array.isArray(spec)) {
