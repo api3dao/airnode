@@ -4,10 +4,10 @@ pragma solidity 0.8.6;
 interface IAirnodeRrpBeaconServer {
     event RequestedBeaconUpdate(
         bytes32 indexed templateId,
+        address indexed sponsor,
         address indexed requester,
-        address designatedWallet,
-        address indexed caller,
-        bytes32 requestId
+        bytes32 requestId,
+        address sponsorWallet
     );
 
     event FulfilledBeaconUpdate(
