@@ -12,7 +12,7 @@ import { validateCatch } from './validators/catchValidator';
 import { validateTemplate } from './validators/templateValidator';
 
 /**
- * Recursion validating provided specification against template
+ * Validates provided specification against template
  * @param specs - specification that is being validated
  * @param template - template the specification is validated against
  * @param paramPath - string of parameters separated by ".", representing path to current specs location (empty string is root)
