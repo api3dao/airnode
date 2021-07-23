@@ -1,82 +1,50 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./IAirnodeParameterStore.sol";
-import "./ITemplateStore.sol";
+import "./IRequestUtils.sol";
+import "./IWithdrawalUtils.sol";
 
-interface IAirnodeRrp is IAirnodeParameterStore, ITemplateStore {
-    event ClientRequestCreated(
-        bytes32 indexed airnodeId,
-        bytes32 indexed requestId,
-        uint256 noRequests,
-        uint256 chainId,
-        address clientAddress,
-        bytes32 templateId,
-        address requester,
-        address designatedWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        bytes parameters
+interface IAirnodeRrp is IRequestUtils, IWithdrawalUtils {
+    event SetAirnodeAnnouncement(
+        address airnode,
+        string xpub,
+        address[] authorizers
     );
 
-    event ClientFullRequestCreated(
-        bytes32 indexed airnodeId,
-        bytes32 indexed requestId,
-        uint256 noRequests,
-        uint256 chainId,
-        address clientAddress,
-        bytes32 endpointId,
-        address requester,
-        address designatedWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        bytes parameters
-    );
-
-    event ClientRequestFulfilled(
-        bytes32 indexed airnodeId,
-        bytes32 indexed requestId,
-        uint256 statusCode,
-        bytes data
-    );
-
-    event ClientRequestFailed(
-        bytes32 indexed airnodeId,
-        bytes32 indexed requestId
-    );
-
-    function makeRequest(
-        bytes32 templateId,
-        address requester,
-        address designatedWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        bytes calldata parameters
-    ) external returns (bytes32 requestId);
-
-    function makeFullRequest(
-        bytes32 airnodeId,
-        bytes32 endpointId,
-        address requester,
-        address designatedWallet,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId,
-        bytes calldata parameters
-    ) external returns (bytes32 requestId);
-
-    function fulfill(
-        bytes32 requestId,
-        bytes32 airnodeId,
-        uint256 statusCode,
-        bytes calldata data,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId
-    ) external returns (bool callSuccess, bytes memory callData);
-
-    function fail(
-        bytes32 requestId,
-        bytes32 airnodeId,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId
+    function setAirnodeAnnouncement(
+        string calldata xpub,
+        address[] calldata authorizers
     ) external;
+
+    function getAirnodeAnnouncement(address airnode)
+        external
+        view
+        returns (string memory xpub, address[] memory authorizers);
+
+    function getTemplates(bytes32[] calldata templateIds)
+        external
+        view
+        returns (
+            address[] memory airnodes,
+            bytes32[] memory endpointIds,
+            bytes[] memory parameters
+        );
+
+    function checkAuthorizationStatus(
+        address[] calldata authorizers,
+        address airnode,
+        bytes32 requestId,
+        bytes32 endpointId,
+        address sponsor,
+        address requester
+    ) external view returns (bool status);
+
+    function checkAuthorizationStatuses(
+        address[] calldata authorizers,
+        address airnode,
+        bytes32[] calldata requestIds,
+        bytes32[] calldata endpointIds,
+        address[] calldata sponsors,
+        address[] calldata requesters
+    ) external view returns (bool[] memory statuses);
 }
