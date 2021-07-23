@@ -1,3 +1,7 @@
+locals {
+  name_prefix = "${var.infrastructure_name}-${var.airnode_id_short}-${var.stage}"
+}
+
 variable "aws_region" {
   description = "AWS region for deployment"
   default     = "us-east-1"
