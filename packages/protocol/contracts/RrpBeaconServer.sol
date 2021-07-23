@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./AirnodeRrpClient.sol";
+import "./AirnodeRrpRequester.sol";
 import "./authorizers/ClientWhitelister.sol";
 import "./authorizers/MetaAdminnable.sol";
 import "./interfaces/IRrpBeaconServer.sol";
@@ -17,7 +17,7 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// a completely different type such as `bytes32`), do not use this contract
 /// and implement a customized version instead.
 contract RrpBeaconServer is
-    AirnodeRrpClient,
+    AirnodeRrpRequester,
     ClientWhitelister,
     MetaAdminnable,
     IAirnodeRrpBeaconServer
@@ -38,42 +38,42 @@ contract RrpBeaconServer is
     /// @param airnodeRrp_ Airnode RRP address
     /// @param metaAdmin_ Initial metaAdmin
     constructor(address airnodeRrp_, address metaAdmin_)
-        AirnodeRrpClient(airnodeRrp_)
+        AirnodeRrpRequester(airnodeRrp_)
         MetaAdminnable(metaAdmin_)
     {}
 
     /// @notice Called to request a beacon to be updated
     /// @dev Anyone can request a beacon to be updated. This is because it is
-    /// assumed that a beacon update request is always desirable and the
-    /// requester is paying for all the gas cost.
-    /// The requester must endorse both the caller of this function, and this
+    /// assumed that a beacon update request is always desirable, and the
+    /// requester and sponsor are paying for the gas cost.
+    /// The sponsor must sponsor both the caller of this function, and this
     /// very AirnodeRrpBeaconServer contract for the Airnode to fulfill this
     /// request.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned (because this is what `fulfill()` expects).
     /// @param templateId Template ID of the beacon to be updated
-    /// @param requester Requester whose designated wallet will be used to
-    /// fulfill this request
-    /// @param designatedWallet Designated wallet that will be used to fulfill
-    /// this request
+    /// @param sponsor Sponsor whose wallet will be used to fulfill this
+    /// request
+    /// @param sponsorWallet Sponsor wallet that will be used to fulfill this
+    /// request
     function requestBeaconUpdate(
         bytes32 templateId,
-        address requester,
-        address designatedWallet
+        address sponsor,
+        address sponsorWallet
     ) external override {
         // Note that AirnodeRrp will also check if the requester has endorsed
         // this AirnodeRrpBeaconServer in the `makeRequest()` call
         require(
-            airnodeRrp.requesterToClientAddressToEndorsementStatus(
-                requester,
+            airnodeRrp.sponsorToRequesterToSponsorshipStatus(
+                sponsor,
                 msg.sender
             ),
-            "Caller not endorsed by requester"
+            "Caller not sponsored"
         );
-        bytes32 requestId = airnodeRrp.makeRequest(
+        bytes32 requestId = airnodeRrp.makeTemplateRequest(
             templateId,
-            requester,
-            designatedWallet,
+            sponsor,
+            sponsorWallet,
             address(this),
             this.fulfill.selector,
             "0x"
@@ -81,10 +81,10 @@ contract RrpBeaconServer is
         requestIdToTemplateId[requestId] = templateId;
         emit RequestedBeaconUpdate(
             templateId,
-            requester,
-            designatedWallet,
+            sponsor,
             msg.sender,
-            requestId
+            requestId,
+            sponsorWallet
         );
     }
 
@@ -126,7 +126,8 @@ contract RrpBeaconServer is
         }
     }
 
-    /// @notice Called by a client contract to get the current beacon
+    /// @notice Called to read the current beacon
+    /// @dev The caller must be whitelisted
     /// @param templateId Template ID whose beacon will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
@@ -134,24 +135,15 @@ contract RrpBeaconServer is
         external
         view
         override
+        onlyIfCallerIsWhitelisted(templateId)
         returns (int224 value, uint32 timestamp)
     {
-        WhitelistStatus
-            storage whitelistStatus = serviceIdToClientToWhitelistStatus[
-                templateId
-            ][msg.sender];
-        require(
-            whitelistStatus.whitelistPastExpiration ||
-                whitelistStatus.expirationTimestamp > block.timestamp,
-            "Not authorized to read beacon"
-        );
         Beacon storage beacon = templateIdToBeacon[templateId];
         return (beacon.value, beacon.timestamp);
     }
 
     /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Respects RankedAdminnable, except treats `metaAdmin` as the highest
-    /// authority
+    /// @dev Explictly specifies the overriding `getRank()` implementation
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank for the adminned entity

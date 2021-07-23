@@ -52,6 +52,11 @@ interface IClientWhitelister {
         bool status
     ) external;
 
+    function clientIsWhitelisted(bytes32 serviceId, address client)
+        external
+        view
+        returns (bool isWhitelisted);
+
     function serviceIdToClientToWhitelistStatus(
         bytes32 serviceId,
         address client
