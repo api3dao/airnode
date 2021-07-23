@@ -14,7 +14,8 @@
     "copy:terraform": "copyfiles terraform/**/**/*.tf dist/",
     "copy:webpack": "copyfiles .webpack/**/**/*.js dist/",
     "prepublishOnly": "yarn build",
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "webpack:dev": "webpack --mode development"
   },
   "dependencies": {
     "@api3/node": "^0.1.0",
