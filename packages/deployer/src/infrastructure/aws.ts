@@ -55,10 +55,10 @@ export async function removeDeployment(region: string, bucket: string, dynamodbT
   await deleteDynamodbTable(dynamoDb, dynamodbTable);
 }
 
-async function fileExists(s3: AWS.S3, bucket: string, file: string) {
+async function bucketExists(s3: AWS.S3, bucket: string) {
   try {
-    logger.debug(`Fetching file ${file} from S3 bucket ${bucket}`);
-    await s3.headObject({ Bucket: bucket, Key: file }).promise();
+    logger.debug(`Fetching S3 bucket ${bucket}`);
+    await s3.headBucket({ Bucket: bucket }).promise();
 
     return true;
   } catch (err) {
@@ -87,5 +87,5 @@ export async function stateExists(region: string, bucket: string, dynamodbTable:
   const s3 = new AWS.S3();
   const dynamoDb = new AWS.DynamoDB();
 
-  return (await fileExists(s3, bucket, 'terraform.tfstate')) && (await dynamodbTableExists(dynamoDb, dynamodbTable));
+  return (await bucketExists(s3, bucket)) && (await dynamodbTableExists(dynamoDb, dynamodbTable));
 }
