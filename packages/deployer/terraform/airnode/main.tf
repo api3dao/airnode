@@ -51,3 +51,34 @@ module "startCoordinator" {
 
   depends_on = [module.initializeProvider, module.callApi, module.processProviderRequests]
 }
+
+module "testApi" {
+  source = "./modules/function"
+
+  name               = "${local.name_prefix}-testApi"
+  handler            = "handlers/aws/index.testApi"
+  source_file        = var.handler_file
+  timeout            = 30
+  configuration_file = var.configuration_file
+  secrets_file       = var.secrets_file
+
+  invoke_targets = [module.callApi.lambda_arn]
+  depends_on     = [module.callApi]
+}
+
+module "testApiGateway" {
+  source = "./modules/apigateway"
+  count  = var.api_key == null ? 0 : 1
+
+  name          = "${local.name_prefix}-testApiGateway"
+  stage         = "v1"
+  template_file = "./templates/apigateway.yaml.tpl"
+  template_variables = {
+    proxy_lambda = module.testApi.lambda_arn
+    region       = var.aws_region
+  }
+  lambdas = [
+    module.testApi.lambda_arn
+  ]
+  api_key = var.api_key
+}

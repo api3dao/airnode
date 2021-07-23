@@ -32,3 +32,9 @@ variable "secrets_file" {
 variable "handler_file" {
   description = "Airnode handler source code file"
 }
+
+variable "api_key" {
+  description = "API key to access Airnode Test Gateway"
+  type        = string
+  default     = null
+}
