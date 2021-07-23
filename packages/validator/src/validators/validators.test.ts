@@ -1,3 +1,4 @@
+import fs from 'fs';
 import * as validator from '../validator';
 import {
   extraFieldMessage,
@@ -7,7 +8,6 @@ import {
   sizeExceededMessage,
 } from '../utils/messages';
 import { error } from '../utils/logger';
-import fs from 'fs';
 import { getPath } from '../commands/utils';
 import { Log } from '../types';
 

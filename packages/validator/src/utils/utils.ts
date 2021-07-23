@@ -1,6 +1,6 @@
 import * as logger from './logger';
-import { Log, Roots } from '../types';
 import { keywords, regexList } from './globals';
+import { Log, Roots } from '../types';
 
 /**
  * Replaces all "__match" instances in provided object and all it's children, except children of "__conditions"
