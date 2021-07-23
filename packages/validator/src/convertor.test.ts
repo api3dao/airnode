@@ -50,7 +50,7 @@ const generatedConfig = [
 ];
 
 describe('convertor', () => {
-  it('OAS2OIS', () => {
+  it('Converts from OAS to OIS', () => {
     expect(convert('exampleSpecs/OAS.specs.json', 'templates/3.0.0/OAS2OIS.json')).toEqual({
       valid: false,
       messages: [
@@ -61,7 +61,7 @@ describe('convertor', () => {
     });
   });
 
-  it('OIS2C&S', () => {
+  it('Converts from OIS to config', () => {
     expect(convert('exampleSpecs/OIS2.specs.json', 'templates/1.0.0/OIS2Config.json')).toEqual({
       valid: true,
       messages: [],
