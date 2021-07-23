@@ -124,7 +124,7 @@ In case `__catch` contains only `__level`, messages will not be replaced but the
 
 ## Ignoring messages
 
-Messages can be also completely ignored by not providing `__catch` with `__level` nor `__message`.
+Messages can be also completely ignored by providing `__catch` without both `__level` and `__message`.
 
 ### Template
 
