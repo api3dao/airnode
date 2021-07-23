@@ -7,7 +7,7 @@ import { processSpecs } from './processor';
 const path = require('path');
 
 /**
- * Converts specification from provided file into format the template specifies
+ * Converts a specification according to the template
  * @param specsPath - specification file to convert, root must be an object (not an array)
  * @param templatePath - template json file
  * @returns array of messages and converted specification
