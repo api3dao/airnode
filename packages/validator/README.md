@@ -95,4 +95,4 @@ Alternatively command can be ran with argument `--specs_only`, which will return
 
 ## Templates
 
-Convertor uses same templates as validator, resulting specification can be written into `output` object with [actions](docs/actions.md).
+Convertor uses the same templates as validator. The resulting specification can be written into `output` object with [actions](docs/actions.md).
