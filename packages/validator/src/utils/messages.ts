@@ -31,3 +31,10 @@ export function requiredConditionNotMetMessage(paramPath: string[]): Log {
 export function invalidConversionMessage(from: string, to: string): Log {
   return { level: 'error', message: `Conversion from ${from} to ${to} is not valid conversion` };
 }
+
+export function typeMismatch(paramPath: string[], expectedType: string): Log {
+  return {
+    level: 'error',
+    message: `Type mismatch: parameter ${paramPath.join('.')} is expected to be ${expectedType}`,
+  };
+}
