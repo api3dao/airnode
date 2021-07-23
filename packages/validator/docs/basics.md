@@ -13,7 +13,7 @@ In the whole documentation unified terminology will be used, here is the definit
 
 ---
 
-Most basic validator template can simply include keys of all required parameters, which will result in validator accepting any specification that has exactly these keys with any values. As validator does not take order of the parameters into consideration, parameters in the specification can be in any order, and it won't change output of the validator.
+Most basic validator template can simply include keys of all required parameters with `{}` as value, which will result in validator accepting any specification that has exactly these keys with any primitive values. As validator does not take order of the parameters into consideration, parameters in the specification can be in any order, and it won't change output of the validator.
 
 ### Template
 ```json
