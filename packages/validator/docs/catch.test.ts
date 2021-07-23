@@ -28,7 +28,7 @@ describe('catch (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(specs, template)).toMatchObject({
+    expect(validator.validateJson(specs, template)).toEqual({
       valid: false,
       messages: [
         msg.keyFormattingMessage('example3', ['example3']),
@@ -54,7 +54,7 @@ describe('catch (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(specs, template)).toMatchObject({
+    expect(validator.validateJson(specs, template)).toEqual({
       valid: false,
       messages: [{ level: 'error', message: 'Please write better specification' }],
     });
@@ -74,7 +74,7 @@ describe('catch (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(specs, template)).toMatchObject({
+    expect(validator.validateJson(specs, template)).toEqual({
       valid: true,
       messages: [
         { level: 'warning', message: 'Key example3 in example3 is formatted incorrectly' },
@@ -97,7 +97,7 @@ describe('catch (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(specs, template)).toMatchObject({ valid: true, messages: [] });
+    expect(validator.validateJson(specs, template)).toEqual({ valid: true, messages: [] });
   });
 
   it('special keywords', () => {
@@ -115,7 +115,7 @@ describe('catch (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(specs, template)).toMatchObject({
+    expect(validator.validateJson(specs, template)).toEqual({
       valid: false,
       messages: [
         msg.keyFormattingMessage('example3', ['example3']),

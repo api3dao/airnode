@@ -17,8 +17,8 @@ it('nested templates (docs)', () => {
     },
   };
 
-  expect(validator.validateJson(validSpecs, template, 'docs/')).toMatchObject({ valid: true, messages: [] });
-  expect(validator.validateJson(invalidSpecs, template, 'docs/')).toMatchObject({
+  expect(validator.validateJson(validSpecs, template, 'docs/')).toEqual({ valid: true, messages: [] });
+  expect(validator.validateJson(invalidSpecs, template, 'docs/')).toEqual({
     valid: false,
     messages: [
       { level: 'error', message: 'Error in root template' },

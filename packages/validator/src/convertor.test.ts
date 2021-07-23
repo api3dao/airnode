@@ -51,7 +51,7 @@ const generatedConfig = [
 
 describe('convertor', () => {
   it('OAS2OIS', () => {
-    expect(convert('exampleSpecs/OAS.specs.json', 'templates/3.0.0/OAS2OIS.json')).toStrictEqual({
+    expect(convert('exampleSpecs/OAS.specs.json', 'templates/3.0.0/OAS2OIS.json')).toEqual({
       valid: false,
       messages: [
         formattingMessage(['components', 'securitySchemes', 'petstore_auth', 'type']),
@@ -62,7 +62,7 @@ describe('convertor', () => {
   });
 
   it('OIS2C&S', () => {
-    expect(convert('exampleSpecs/OIS2.specs.json', 'templates/1.0.0/OIS2Config.json')).toStrictEqual({
+    expect(convert('exampleSpecs/OIS2.specs.json', 'templates/1.0.0/OIS2Config.json')).toEqual({
       valid: true,
       messages: [],
       output: generatedConfig,

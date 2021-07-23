@@ -32,8 +32,8 @@ it('regular expressions (docs)', () => {
     },
   };
 
-  expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-  expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+  expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+  expect(validator.validateJson(invalidSpecs, template)).toEqual({
     valid: false,
     messages: [
       msg.formattingMessage(['string']),

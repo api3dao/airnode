@@ -70,8 +70,8 @@ describe('conditions (docs)', () => {
       ],
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.conditionNotMetMessage(['numbers[0]', 'value'], 'value'),
@@ -143,8 +143,8 @@ describe('conditions (docs)', () => {
       ],
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.conditionNotMetMessage(['numbers[0]', 'value'], 'value'),
@@ -210,7 +210,7 @@ describe('conditions (docs)', () => {
       ],
     };
 
-    expect(validator.validateJson(specs, template)).toMatchObject({
+    expect(validator.validateJson(specs, template)).toEqual({
       valid: false,
       messages: [
         { level: 'error', message: "numbers[0].value only allowed value is: 'This is required by one'" },
@@ -272,8 +272,8 @@ describe('conditions (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [msg.conditionNotMetMessage(['itemsList[0]', 'name'], 'name')],
     });
@@ -349,8 +349,8 @@ describe('conditions (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.conditionNotMetMessage(['original', 'version'], 'version'),

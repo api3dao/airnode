@@ -36,8 +36,8 @@ describe('basics (docs)', () => {
       component: {},
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.missingParamMessage(['server', 'url']),
@@ -70,8 +70,8 @@ describe('basics (docs)', () => {
       specification: {},
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.missingParamMessage(['invalid', 'name']),
@@ -148,8 +148,8 @@ describe('basics (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.sizeExceededMessage(['arrayParameter'], 2),
