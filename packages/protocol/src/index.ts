@@ -15,7 +15,7 @@ import {
   AirnodeRrp__factory as AirnodeRrpFactory,
 } from './contracts';
 import AirnodeRrpArtifact from '../artifacts/contracts/AirnodeRrp.sol/AirnodeRrp.json';
-import MockAirnodeRrpRequesterArtifact from '../artifacts/contracts/mock/MockAirnodeRrpRequester.sol/MockAirnodeRrpRequester.json';
+import MockAirnodeRrpRequesterArtifact from '../artifacts/contracts/requesters/mock/MockAirnodeRrpRequester.sol/MockAirnodeRrpRequester.json';
 import AirnodeRrpDeploymentRopsten from '../deployments/ropsten/AirnodeRrp.json';
 
 const AirnodeRrpAddresses: { [chainId: number]: string } = { 3: AirnodeRrpDeploymentRopsten.receipt.contractAddress };
