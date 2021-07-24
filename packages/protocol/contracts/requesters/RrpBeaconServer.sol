@@ -2,8 +2,8 @@
 pragma solidity 0.8.6;
 
 import "./AirnodeRrpRequester.sol";
-import "./authorizers/ClientWhitelister.sol";
-import "./authorizers/MetaAdminnable.sol";
+import "../authorizers/ClientWhitelister.sol";
+import "../authorizers/MetaAdminnable.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
@@ -20,7 +20,7 @@ contract RrpBeaconServer is
     AirnodeRrpRequester,
     ClientWhitelister,
     MetaAdminnable,
-    IAirnodeRrpBeaconServer
+    IRrpBeaconServer
 {
     struct Beacon {
         int224 value;
@@ -45,10 +45,9 @@ contract RrpBeaconServer is
     /// @notice Called to request a beacon to be updated
     /// @dev Anyone can request a beacon to be updated. This is because it is
     /// assumed that a beacon update request is always desirable, and the
-    /// requester and sponsor are paying for the gas cost.
+    /// requester and sponsor will pay for the gas cost.
     /// The sponsor must sponsor both the caller of this function, and this
-    /// very AirnodeRrpBeaconServer contract for the Airnode to fulfill this
-    /// request.
+    /// very RrpBeaconServer contract for the Airnode to fulfill this request.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned (because this is what `fulfill()` expects).
     /// @param templateId Template ID of the beacon to be updated
@@ -62,7 +61,7 @@ contract RrpBeaconServer is
         address sponsorWallet
     ) external override {
         // Note that AirnodeRrp will also check if the requester has endorsed
-        // this AirnodeRrpBeaconServer in the `makeRequest()` call
+        // this RrpBeaconServer in the `makeRequest()` call
         require(
             airnodeRrp.sponsorToRequesterToSponsorshipStatus(
                 sponsor,
@@ -76,7 +75,7 @@ contract RrpBeaconServer is
             sponsorWallet,
             address(this),
             this.fulfill.selector,
-            "0x"
+            ""
         );
         requestIdToTemplateId[requestId] = templateId;
         emit RequestedBeaconUpdate(
@@ -115,7 +114,7 @@ contract RrpBeaconServer is
                 value: int224(decodedData),
                 timestamp: uint32(block.timestamp)
             });
-            emit FulfilledBeaconUpdate(
+            emit UpdatedBeacon(
                 templateId,
                 requestId,
                 int224(decodedData),
@@ -126,7 +125,7 @@ contract RrpBeaconServer is
         }
     }
 
-    /// @notice Called to read the current beacon
+    /// @notice Called to read the beacon
     /// @dev The caller must be whitelisted
     /// @param templateId Template ID whose beacon will be returned
     /// @return value Beacon value
