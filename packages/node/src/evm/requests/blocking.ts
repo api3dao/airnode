@@ -11,8 +11,8 @@ import {
 } from '../../types';
 
 interface ApiCallsWithLogs {
-  apiCalls: ClientRequest<ApiCall>[];
-  logs: PendingLog[];
+  readonly apiCalls: ClientRequest<ApiCall>[];
+  readonly logs: PendingLog[];
 }
 
 export function blockRequestsWithWithdrawals(requests: GroupedRequests): LogsData<GroupedRequests> {

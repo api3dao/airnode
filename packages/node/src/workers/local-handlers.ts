@@ -7,12 +7,12 @@ import { go } from '../utils/promise-utils';
 import { AggregatedApiCall, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
 
 export interface ProviderArgs {
-  state: ProviderState<EVMProviderState>;
+  readonly state: ProviderState<EVMProviderState>;
 }
 
 export interface CallApiArgs {
-  aggregatedApiCall: AggregatedApiCall;
-  logOptions: LogOptions;
+  readonly aggregatedApiCall: AggregatedApiCall;
+  readonly logOptions: LogOptions;
 }
 
 function loadConfig() {

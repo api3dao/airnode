@@ -1,3 +1,5 @@
+/* globals context ethers */
+
 const { expect } = require('chai');
 
 const AdminStatus = {
@@ -146,6 +148,7 @@ describe('extendWhitelistExpiration', function () {
       it('extends whitelist expiration', async function () {
         await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+        await api3Authorizer.connect(roles.admin).extendWhitelistExpiration(airnodeId, roles.client.address, now);
         const expiration = now + 100;
         await expect(
           api3Authorizer.connect(roles.admin).extendWhitelistExpiration(airnodeId, roles.client.address, expiration)
@@ -174,6 +177,7 @@ describe('extendWhitelistExpiration', function () {
       it('extends whitelist expiration', async function () {
         await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
         const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+        await api3Authorizer.connect(roles.superAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, now);
         const expiration = now + 100;
         await expect(
           api3Authorizer
@@ -202,28 +206,35 @@ describe('extendWhitelistExpiration', function () {
     });
   });
   context('Caller is the meta admin', function () {
-    context('Provided expiration extends', function () {
-      it('extends whitelist expiration', async function () {
-        const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-        const expiration = now + 100;
-        await expect(
-          api3Authorizer.connect(roles.metaAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, expiration)
-        )
-          .to.emit(api3Authorizer, 'ExtendedWhitelistExpiration')
-          .withArgs(airnodeId, roles.client.address, expiration, roles.metaAdmin.address);
-        expect(
-          await api3Authorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)
-        ).to.equal(expiration);
+    context('Provided airnodeId-clientAddress pair is whitelisted', function () {
+      context('Provided expiration extends', function () {
+        it('extends whitelist expiration', async function () {
+          const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+          await api3Authorizer.connect(roles.metaAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, now);
+          const expiration = now + 100;
+          await expect(
+            api3Authorizer
+              .connect(roles.metaAdmin)
+              .extendWhitelistExpiration(airnodeId, roles.client.address, expiration)
+          )
+            .to.emit(api3Authorizer, 'ExtendedWhitelistExpiration')
+            .withArgs(airnodeId, roles.client.address, expiration, roles.metaAdmin.address);
+          expect(
+            await api3Authorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)
+          ).to.equal(expiration);
+        });
       });
-    });
-    context('Provided expiration does not extend', function () {
-      it('reverts', async function () {
-        const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-        await api3Authorizer.connect(roles.metaAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, now);
-        const expiration = now - 100;
-        await expect(
-          api3Authorizer.connect(roles.metaAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, expiration)
-        ).to.be.revertedWith('Expiration not extended');
+      context('Provided expiration does not extend', function () {
+        it('reverts', async function () {
+          const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+          await api3Authorizer.connect(roles.metaAdmin).extendWhitelistExpiration(airnodeId, roles.client.address, now);
+          const expiration = now - 100;
+          await expect(
+            api3Authorizer
+              .connect(roles.metaAdmin)
+              .extendWhitelistExpiration(airnodeId, roles.client.address, expiration)
+          ).to.be.revertedWith('Expiration not extended');
+        });
       });
     });
   });
@@ -241,6 +252,7 @@ describe('setWhitelistExpiration', function () {
   context('Caller is a super admin', async function () {
     it('sets whitelist expiration', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
+
       const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
       const expiration = now + 100;
       await expect(
@@ -251,14 +263,6 @@ describe('setWhitelistExpiration', function () {
       expect(
         await api3Authorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)
       ).to.equal(expiration);
-      await expect(
-        api3Authorizer.connect(roles.superAdmin).setWhitelistExpiration(airnodeId, roles.client.address, now)
-      )
-        .to.emit(api3Authorizer, 'SetWhitelistExpiration')
-        .withArgs(airnodeId, roles.client.address, now, roles.superAdmin.address);
-      expect(
-        await api3Authorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)
-      ).to.equal(now);
     });
   });
   context('Caller is the meta admin', async function () {
@@ -273,14 +277,9 @@ describe('setWhitelistExpiration', function () {
       expect(
         await api3Authorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)
       ).to.equal(expiration);
-      await expect(api3Authorizer.connect(roles.metaAdmin).setWhitelistExpiration(airnodeId, roles.client.address, now))
-        .to.emit(api3Authorizer, 'SetWhitelistExpiration')
-        .withArgs(airnodeId, roles.client.address, now, roles.metaAdmin.address);
-      expect(
-        await api3Authorizer.airnodeIdToClientAddressToWhitelistExpiration(airnodeId, roles.client.address)
-      ).to.equal(now);
     });
   });
+
   context('Caller is an admin', function () {
     it('reverts', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
@@ -300,52 +299,87 @@ describe('setWhitelistExpiration', function () {
   });
 });
 
-describe('setBlacklistStatus', function () {
+describe('setWhitelistStatus', function () {
   context('Caller is a super admin', async function () {
-    it('sets blacklist status', async function () {
+    it('sets whitelist status', async function () {
       await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
-      await expect(api3Authorizer.connect(roles.superAdmin).setBlacklistStatus(roles.client.address, true))
-        .to.emit(api3Authorizer, 'SetBlacklistStatus')
-        .withArgs(roles.client.address, true, roles.superAdmin.address);
-      expect(await api3Authorizer.clientAddressToBlacklistStatus(roles.client.address)).to.equal(true);
-      await expect(api3Authorizer.connect(roles.superAdmin).setBlacklistStatus(roles.client.address, false))
-        .to.emit(api3Authorizer, 'SetBlacklistStatus')
-        .withArgs(roles.client.address, false, roles.superAdmin.address);
-      expect(await api3Authorizer.clientAddressToBlacklistStatus(roles.client.address)).to.equal(false);
+
+      await expect(api3Authorizer.connect(roles.superAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
+        .to.emit(api3Authorizer, 'SetWhitelistStatus')
+        .withArgs(airnodeId, roles.client.address, true, roles.superAdmin.address);
+
+      expect(await api3Authorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
+        true
+      );
+    });
+    it('revokes whitelist', async function () {
+      await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.superAdmin.address, AdminStatus.SuperAdmin);
+
+      await expect(api3Authorizer.connect(roles.superAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
+        .to.emit(api3Authorizer, 'SetWhitelistStatus')
+        .withArgs(airnodeId, roles.client.address, true, roles.superAdmin.address);
+      expect(await api3Authorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
+        true
+      );
+
+      await expect(api3Authorizer.connect(roles.superAdmin).setWhitelistStatus(airnodeId, roles.client.address, false))
+        .to.emit(api3Authorizer, 'SetWhitelistStatus')
+        .withArgs(airnodeId, roles.client.address, false, roles.superAdmin.address);
+
+      expect(await api3Authorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
+        false
+      );
     });
   });
-  context('Caller is the meta admin', async function () {
-    it('sets whitelist expiration', async function () {
-      await expect(api3Authorizer.connect(roles.metaAdmin).setBlacklistStatus(roles.client.address, true))
-        .to.emit(api3Authorizer, 'SetBlacklistStatus')
-        .withArgs(roles.client.address, true, roles.metaAdmin.address);
-      expect(await api3Authorizer.clientAddressToBlacklistStatus(roles.client.address)).to.equal(true);
-      await expect(api3Authorizer.connect(roles.metaAdmin).setBlacklistStatus(roles.client.address, false))
-        .to.emit(api3Authorizer, 'SetBlacklistStatus')
-        .withArgs(roles.client.address, false, roles.metaAdmin.address);
-      expect(await api3Authorizer.clientAddressToBlacklistStatus(roles.client.address)).to.equal(false);
-    });
+});
+
+context('Caller is a meta admin', async function () {
+  it('sets whitelist status', async function () {
+    await expect(api3Authorizer.connect(roles.metaAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
+      .to.emit(api3Authorizer, 'SetWhitelistStatus')
+      .withArgs(airnodeId, roles.client.address, true, roles.metaAdmin.address);
+
+    expect(await api3Authorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
+      true
+    );
   });
-  context('Caller is an admin', function () {
-    it('reverts', async function () {
-      await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
-      await expect(
-        api3Authorizer.connect(roles.admin).setBlacklistStatus(roles.client.address, true)
-      ).to.be.revertedWith('Unauthorized');
-    });
+
+  it('revokes whitelist', async function () {
+    await expect(api3Authorizer.connect(roles.metaAdmin).setWhitelistStatus(airnodeId, roles.client.address, true))
+      .to.emit(api3Authorizer, 'SetWhitelistStatus')
+      .withArgs(airnodeId, roles.client.address, true, roles.metaAdmin.address);
+    expect(await api3Authorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
+      true
+    );
+
+    await expect(api3Authorizer.connect(roles.metaAdmin).setWhitelistStatus(airnodeId, roles.client.address, false))
+      .to.emit(api3Authorizer, 'SetWhitelistStatus')
+      .withArgs(airnodeId, roles.client.address, false, roles.metaAdmin.address);
+    expect(await api3Authorizer.airnodeIdToClientAddressToWhitelistStatus(airnodeId, roles.client.address)).to.equal(
+      false
+    );
   });
-  context('Caller is not an admin', function () {
-    it('reverts', async function () {
-      await expect(
-        api3Authorizer.connect(roles.randomPerson).setBlacklistStatus(roles.client.address, true)
-      ).to.be.revertedWith('Unauthorized');
-    });
+});
+
+context('Caller is an admin', function () {
+  it('reverts', async function () {
+    await api3Authorizer.connect(roles.metaAdmin).setAdminStatus(roles.admin.address, AdminStatus.Admin);
+    await expect(
+      api3Authorizer.connect(roles.admin).setWhitelistStatus(airnodeId, roles.client.address, true)
+    ).to.be.revertedWith('Unauthorized');
+  });
+});
+context('Caller is not an admin', function () {
+  it('reverts', async function () {
+    await expect(
+      api3Authorizer.connect(roles.randomPerson).setWhitelistStatus(airnodeId, roles.client.address, true)
+    ).to.be.revertedWith('Unauthorized');
   });
 });
 
 describe('isAuthorized', function () {
   context('Designated wallet balance is not zero', function () {
-    context('Client is not blacklisted', function () {
+    context('Client is whitelisted', function () {
       context('Client whitelisting has not expired', function () {
         it('returns true', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
@@ -368,7 +402,7 @@ describe('isAuthorized', function () {
           ).to.equal(true);
         });
       });
-      context('Client whitelisting has expired', function () {
+      context('Client whitelisting has expired and whitelist status has not been set', function () {
         it('returns false', async function () {
           const designatedWallet = ethers.Wallet.createRandom();
           await roles.client.sendTransaction({
@@ -388,17 +422,27 @@ describe('isAuthorized', function () {
         });
       });
     });
-    context('Client is blacklisted', function () {
+    context('Client whitelisting was set then revoked', function () {
       it('returns false', async function () {
         const designatedWallet = ethers.Wallet.createRandom();
         await roles.client.sendTransaction({
           to: designatedWallet.address,
           value: 1,
         });
-        const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
-        const expiration = now + 100;
-        api3Authorizer.connect(roles.metaAdmin).setWhitelistExpiration(airnodeId, roles.client.address, expiration);
-        api3Authorizer.connect(roles.metaAdmin).setBlacklistStatus(roles.client.address, true);
+        await api3Authorizer.connect(roles.metaAdmin).setWhitelistStatus(airnodeId, roles.client.address, true);
+        expect(
+          await api3Authorizer.isAuthorized(
+            requestId,
+            airnodeId,
+            endpointId,
+            requesterIndex,
+            designatedWallet.address,
+            roles.client.address
+          )
+        ).to.equal(true);
+
+        await api3Authorizer.connect(roles.metaAdmin).setWhitelistStatus(airnodeId, roles.client.address, false);
+
         expect(
           await api3Authorizer.isAuthorized(
             requestId,

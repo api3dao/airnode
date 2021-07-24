@@ -1,6 +1,6 @@
-import * as fixtures from 'test/fixtures';
-import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../types';
 import * as application from './template-application';
+import * as fixtures from '../../../test/fixtures';
+import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../types';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
@@ -18,7 +18,7 @@ describe('mergeApiCallsWithTemplates', () => {
       templateId: 'templateId-0',
     });
 
-    const templatesById: { [id: string]: ApiCallTemplate } = {
+    const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
         airnodeId: 'templateAirnodeId-0',
         encodedParameters:
@@ -48,7 +48,7 @@ describe('mergeApiCallsWithTemplates', () => {
       },
     });
 
-    const templatesById: { [id: string]: ApiCallTemplate } = {
+    const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
         airnodeId: 'templateAirnodeId-0',
         endpointId: 'templateEndpointId-0',
@@ -74,7 +74,7 @@ describe('mergeApiCallsWithTemplates', () => {
       parameters: { from: 'BTC', amount: '5000' },
     });
 
-    const templatesById: { [id: string]: ApiCallTemplate } = {
+    const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
         airnodeId: 'templateAirnodeId-0',
         endpointId: 'templateEndpointId-0',
@@ -102,7 +102,7 @@ describe('mergeApiCallsWithTemplates', () => {
   it('invalidates API calls with invalid template parameters', () => {
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
 
-    const templatesById: { [id: string]: ApiCallTemplate } = {
+    const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
         airnodeId: 'templateAirnodeId-0',
         endpointId: 'templateEndpointId-0',

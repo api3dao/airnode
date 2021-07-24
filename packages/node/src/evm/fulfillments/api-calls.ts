@@ -16,7 +16,7 @@ import { AirnodeRrp } from '../contracts';
 
 const GAS_LIMIT = 500_000;
 
-type StaticResponse = { callSuccess: boolean } | null;
+type StaticResponse = { readonly callSuccess: boolean } | null;
 
 type SubmitResponse = ethers.Transaction | null;
 

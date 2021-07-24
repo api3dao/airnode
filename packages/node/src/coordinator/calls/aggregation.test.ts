@@ -1,6 +1,6 @@
-import * as fixtures from 'test/fixtures';
 import * as aggregation from './aggregation';
-import { RequestStatus } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { RequestStatus } from '../../types';
 
 describe('aggregate (API calls)', () => {
   it('ignores requests that are not pending', () => {

@@ -76,7 +76,6 @@ export interface Configuration {
   chains: Chains;
   nodeSettings: NodeSettings;
   environment: Environment;
-  id: string;
 }
 
 export type Configurations = Configuration[];

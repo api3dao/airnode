@@ -1,3 +1,5 @@
+/* eslint-disable functional/no-try-statement */
+
 import { ethers } from 'ethers';
 import * as decoding from './decoding';
 

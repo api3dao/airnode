@@ -1,11 +1,11 @@
 import fs from 'fs';
 import { ethers } from 'ethers';
 import { encode } from '@api3/airnode-abi';
+import { ReservedParameterName } from '@api3/ois';
 import * as handlers from '../../src/workers/local-handlers';
 import * as e2e from '../setup/e2e';
 import * as fixtures from '../fixtures';
 import { RequestErrorCode } from '../../src/types';
-import { ReservedParameterName } from '@api3/ois';
 
 it('sets the correct status code for both successful and failed requests', async () => {
   jest.setTimeout(45_000);

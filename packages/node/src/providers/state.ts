@@ -1,6 +1,6 @@
 import * as evm from '../evm';
 import { getEnvValue } from '../config';
-import { removeKeys } from '../utils/object-utils';
+import { randomString, removeKeys } from '../utils';
 import { ChainConfig, ChainType, EVMProviderState, Config, ProviderSettings, ProviderState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 
@@ -44,6 +44,7 @@ export function buildEVMState(
   };
 
   return {
+    id: randomString(16),
     config,
     contracts: chain.contracts,
     coordinatorId,

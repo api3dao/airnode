@@ -1,7 +1,7 @@
-import * as fixtures from 'test/fixtures';
 import * as apiCalls from './api-calls';
-import { EVMRequestCreatedLog, RequestErrorCode, RequestStatus } from 'src/types';
 import { parseAirnodeRrpLog } from './event-logs';
+import { EVMRequestCreatedLog, RequestErrorCode, RequestStatus } from '../../types';
+import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {
@@ -65,12 +65,12 @@ describe('initialize (ApiCall)', () => {
 });
 
 describe('applyParameters', () => {
-  let parsedLogWithMetadata: EVMRequestCreatedLog;
+  let mutableParsedLogWithMetadata: EVMRequestCreatedLog;
 
   beforeEach(() => {
     const event = fixtures.evm.logs.buildClientRequest();
     const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
-    parsedLogWithMetadata = {
+    mutableParsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
       currentBlock: 10716085,
@@ -80,7 +80,7 @@ describe('applyParameters', () => {
   });
 
   it('does nothing if encodedParameters is falsey', () => {
-    const request = apiCalls.initialize(parsedLogWithMetadata);
+    const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '' };
     const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);
@@ -89,7 +89,7 @@ describe('applyParameters', () => {
   });
 
   it('decodes and adds the parameters to the request', () => {
-    const request = apiCalls.initialize(parsedLogWithMetadata);
+    const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const [logs, withDecodedParameters] = apiCalls.applyParameters(request);
     expect(logs).toEqual([]);
@@ -97,7 +97,7 @@ describe('applyParameters', () => {
   });
 
   it('sets the request to errored if the parameters cannot be decoded', () => {
-    const request = apiCalls.initialize(parsedLogWithMetadata);
+    const request = apiCalls.initialize(mutableParsedLogWithMetadata);
     expect(request.parameters).toEqual({});
     const withEncodedParams = { ...request, encodedParameters: '0xincorrectparameters' };
     const [logs, withDecodedParameters] = apiCalls.applyParameters(withEncodedParams);

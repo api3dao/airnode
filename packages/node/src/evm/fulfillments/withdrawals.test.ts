@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const estimateGasWithdrawalMock = jest.fn();
 const fulfillWithdrawalMock = jest.fn();
 const getBalanceMock = jest.fn();
@@ -19,13 +19,13 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
-import { RequestStatus } from 'src/types';
-import * as wallet from '../wallet';
 import * as withdrawals from './withdrawals';
+import * as fixtures from '../../../test/fixtures';
+import { RequestStatus } from '../../types';
+import * as wallet from '../wallet';
 import { AirnodeRrp } from '../contracts';
 
-const createAirnodeRrpFake = () => (new ethers.Contract('address', ['ABI']) as unknown) as AirnodeRrp;
+const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
 
 describe('submitWithdrawal', () => {
   const masterHDNode = wallet.getMasterHDNode();

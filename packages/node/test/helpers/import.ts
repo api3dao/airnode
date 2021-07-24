@@ -11,20 +11,20 @@ export const orDie = (arg: any) => {
 // and use this function as a workaround at the top of your test.
 //
 // Credit: https://github.com/facebook/jest/issues/6914#issuecomment-654710111
-export const unfreezeImport = <T>(module: T, key: keyof T): void => {
+export const unfreezeImport = <T>(module: T, key: keyof T) => {
   const meta = orDie(Object.getOwnPropertyDescriptor(module, key));
   const getter = orDie(meta.get);
 
   const originalValue = getter() as T[typeof key];
-  let currentValue = originalValue;
-  let isMocked = false;
+  let mutableCurrentValue = originalValue;
+  let mutableIsMocked = false;
 
   Object.defineProperty(module, key, {
     ...meta,
-    get: () => (isMocked ? currentValue : getter()),
+    get: () => (mutableIsMocked ? mutableCurrentValue : getter()),
     set(newValue: T[typeof key]) {
-      isMocked = newValue !== originalValue;
-      currentValue = newValue;
+      mutableIsMocked = newValue !== originalValue;
+      mutableCurrentValue = newValue;
     },
   });
 };

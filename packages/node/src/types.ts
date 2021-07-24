@@ -32,6 +32,7 @@ export enum RequestErrorCode {
 export enum RequestStatus {
   Pending = 'Pending',
   Fulfilled = 'Fulfilled',
+  Submitted = 'Submitted',
   Ignored = 'Ignored',
   Blocked = 'Blocked',
   Errored = 'Errored',
@@ -49,10 +50,15 @@ export interface RequestMetadata {
   readonly transactionHash: string;
 }
 
+export interface RequestFulfillment {
+  readonly hash: string;
+}
+
 export type ClientRequest<T extends {}> = T & {
   readonly designatedWallet: string;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
+  readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
   readonly requesterIndex: string;
@@ -113,9 +119,10 @@ export type ProviderState<T extends {}> = T & {
   readonly config?: Config;
   readonly coordinatorId: string;
   readonly currentBlock: number | null;
+  readonly id: string;
   readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
-  readonly transactionCountsByRequesterIndex: { [requesterIndex: string]: number };
+  readonly transactionCountsByRequesterIndex: { readonly [requesterIndex: string]: number };
 };
 
 export interface AggregatedApiCallsById {
@@ -131,10 +138,14 @@ export interface CoordinatorSettings {
   readonly stage: string;
 }
 
+export interface ProviderStates {
+  readonly evm: ProviderState<EVMProviderState>[];
+}
+
 export interface CoordinatorState {
   readonly aggregatedApiCallsById: AggregatedApiCallsById;
   readonly config: Config;
-  readonly EVMProviders: ProviderState<EVMProviderState>[];
+  readonly providerStates: ProviderStates;
   readonly id: string;
   readonly settings: CoordinatorSettings;
 }
@@ -190,23 +201,23 @@ export interface AggregatedApiCall {
 // Workers
 // ===========================================
 export interface WorkerOptions {
-  cloudProvider: NodeCloudProvider;
-  airnodeIdShort: string;
-  region: string;
-  stage: string;
+  readonly cloudProvider: NodeCloudProvider;
+  readonly airnodeIdShort: string;
+  readonly region: string;
+  readonly stage: string;
 }
 
 export type WorkerFunctionName = 'initializeProvider' | 'callApi' | 'processProviderRequests';
 
 export interface WorkerParameters extends WorkerOptions {
-  functionName: WorkerFunctionName;
-  payload: any;
+  readonly functionName: WorkerFunctionName;
+  readonly payload: any;
 }
 
 export interface WorkerResponse {
-  ok: boolean;
-  data?: any;
-  errorLog?: PendingLog;
+  readonly ok: boolean;
+  readonly data?: any;
+  readonly errorLog?: PendingLog;
 }
 
 // ===========================================
@@ -235,30 +246,30 @@ export type AirnodeRrpFilters = Pick<
 >;
 export type AirnodeRrpLog<T extends keyof AirnodeRrpFilters> = ExtractTypedEvent<ReturnType<AirnodeRrpFilters[T]>>;
 
-export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { args: T };
+export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { readonly args: T };
 
 export interface EVMFullApiRequestCreatedLog extends EVMEventLogMetadata {
-  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientFullRequestCreated'>>;
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientFullRequestCreated'>>;
 }
 
 export interface EVMTemplateRequestCreatedLog extends EVMEventLogMetadata {
-  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientRequestCreated'>>;
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientRequestCreated'>>;
 }
 
 export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequestCreatedLog;
 
 export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
-  parsedLog:
+  readonly parsedLog:
     | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
     | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
 }
 
 export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
-  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalRequested'>>;
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalRequested'>>;
 }
 
 export interface EVMWithdrawalFulfilledLog extends EVMEventLogMetadata {
-  parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalFulfilled'>>;
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalFulfilled'>>;
 }
 
 export type EVMEventLog =
@@ -272,7 +283,8 @@ export type EVMEventLog =
 // ===========================================
 export interface TransactionReceipt {
   readonly id: string;
-  readonly transactionHash: string;
+  readonly data?: ethers.Transaction;
+  readonly error?: Error;
   readonly type: RequestType;
 }
 
@@ -327,8 +339,8 @@ export interface PendingLog {
 // error if one exists as ESLint will complain about unused variables. These types
 // are purposefully tuples (over an object with 'logs' and 'error' properties) for
 // this reason.
-export type LogsData<T> = [PendingLog[], T];
-export type LogsErrorData<T> = [PendingLog[], Error | null, T];
+export type LogsData<T> = readonly [PendingLog[], T];
+export type LogsErrorData<T> = readonly [PendingLog[], Error | null, T];
 
 // ===========================================
 // Config
@@ -355,6 +367,7 @@ export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
   readonly airnodeIdShort?: string;
+  readonly enableHeartbeat?: boolean;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
@@ -384,7 +397,6 @@ export interface EnvironmentConfig {
 export interface Config {
   readonly chains: ChainConfig[];
   readonly environment: EnvironmentConfig;
-  readonly id: string;
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;

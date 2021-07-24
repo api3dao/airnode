@@ -3,7 +3,7 @@ import * as local from './local-handlers';
 import * as handlers from '../handlers';
 import { scrub } from '../providers/state';
 import { PendingLog } from '../types';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
   it('starts the coordinator', async () => {

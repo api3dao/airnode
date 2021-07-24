@@ -1,4 +1,4 @@
-import { mockEthers } from '../../../test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const connectMock = jest.fn();
 const estimateWithdrawalGasMock = jest.fn();
 const failMock = jest.fn();
@@ -23,16 +23,16 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
-import { EVMProviderState, GroupedRequests, ProviderState, RequestType } from 'src/types';
+import * as fixtures from '../../../test/fixtures';
+import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus, RequestType } from '../../types';
 import * as providerState from '../../providers/state';
 import * as fulfillments from './index';
 
 describe('submit', () => {
-  let initialState: ProviderState<EVMProviderState>;
+  let mutableInitialState: ProviderState<EVMProviderState>;
 
   beforeEach(() => {
-    initialState = fixtures.buildEVMProviderState();
+    mutableInitialState = fixtures.buildEVMProviderState();
   });
 
   it('submits transactions for multiple wallets and returns the transactions', async () => {
@@ -45,7 +45,7 @@ describe('submit', () => {
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
-    const state = providerState.update(initialState, { gasPrice, provider, requests });
+    const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
 
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockResolvedValueOnce({ hash: '0xapicall_tx1' });
@@ -78,7 +78,7 @@ describe('submit', () => {
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
-    const state = providerState.update(initialState, { gasPrice, provider, requests });
+    const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
 
     staticFulfillMock.mockResolvedValue({ callSuccess: true });
     fulfillMock.mockRejectedValueOnce(new Error('Server did not respond'));
@@ -96,7 +96,7 @@ describe('submit', () => {
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
-    const state = providerState.update(initialState, { gasPrice, provider, requests });
+    const state = providerState.update(mutableInitialState, { gasPrice, provider, requests });
 
     const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
     balanceSpy.mockResolvedValue(ethers.BigNumber.from(250_000_000));
@@ -108,5 +108,41 @@ describe('submit', () => {
     expect(res).toEqual([
       { id: withdrawal.id, type: RequestType.Withdrawal, error: new Error('Server did not respond') },
     ]);
+  });
+});
+
+describe('applyFulfillments', () => {
+  it('does nothing to requests without a receipt', () => {
+    const apiCall = fixtures.requests.buildApiCall({ id: '0xapicallId' });
+    const receipt = fixtures.evm.receipts.buildTransactionReceipt({ id: '0xunknown' });
+    const res = fulfillments.applyFulfillments([apiCall], [receipt]);
+    expect(res[0]).toEqual(apiCall);
+  });
+
+  it('does nothing when receipts do not have a transaction hash', () => {
+    const apiCall = fixtures.requests.buildApiCall({ id: '0xapicallId' });
+    const receipt = fixtures.evm.receipts.buildTransactionReceipt({ id: '0xapicallId' });
+    // eslint-disable-next-line functional/immutable-data
+    receipt.data!.hash = undefined;
+    const res = fulfillments.applyFulfillments([apiCall], [receipt]);
+    expect(res[0]).toEqual(apiCall);
+  });
+
+  it('applies fulfillment data to API calls', () => {
+    const apiCall = fixtures.requests.buildApiCall({ id: '0xapicallId' });
+    const receipt = fixtures.evm.receipts.buildTransactionReceipt({ id: '0xapicallId' });
+    const res = fulfillments.applyFulfillments([apiCall], [receipt]);
+    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Submitted, fulfillment: { hash: '0xtransactionId' } });
+  });
+
+  it('applies fulfillment data to withdrawals', () => {
+    const withdrawal = fixtures.requests.buildWithdrawal({ id: '0xreceipt' });
+    const receipt = fixtures.evm.receipts.buildTransactionReceipt({ id: '0xreceipt' });
+    const res = fulfillments.applyFulfillments([withdrawal], [receipt]);
+    expect(res[0]).toEqual({
+      ...withdrawal,
+      status: RequestStatus.Submitted,
+      fulfillment: { hash: '0xtransactionId' },
+    });
   });
 });
