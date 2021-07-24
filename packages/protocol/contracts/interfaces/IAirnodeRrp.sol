@@ -21,15 +21,6 @@ interface IAirnodeRrp is IRequestUtils, IWithdrawalUtils {
         view
         returns (string memory xpub, address[] memory authorizers);
 
-    function getTemplates(bytes32[] calldata templateIds)
-        external
-        view
-        returns (
-            address[] memory airnodes,
-            bytes32[] memory endpointIds,
-            bytes[] memory parameters
-        );
-
     function checkAuthorizationStatus(
         address[] calldata authorizers,
         address airnode,

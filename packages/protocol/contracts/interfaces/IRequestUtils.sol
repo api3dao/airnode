@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IRequestUtils {
+import "./ITemplateUtils.sol";
+
+interface IRequestUtils is ITemplateUtils {
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
         bool sponsorshipStatus
-    );
-
-    event CreatedTemplate(
-        bytes32 indexed templateId,
-        address airnode,
-        bytes32 endpointId,
-        bytes parameters
     );
 
     event MadeTemplateRequest(
@@ -55,12 +50,6 @@ interface IRequestUtils {
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
-    function createTemplate(
-        address airnode,
-        bytes32 endpointId,
-        bytes calldata parameters
-    ) external returns (bytes32 templateId);
-
     function makeTemplateRequest(
         bytes32 templateId,
         address sponsor,
@@ -100,15 +89,6 @@ interface IRequestUtils {
         address sponsor,
         address requester
     ) external view returns (bool sponsorshipStatus);
-
-    function templates(bytes32 templateId)
-        external
-        view
-        returns (
-            address airnode,
-            bytes32 endpointId,
-            bytes memory parameters
-        );
 
     function requesterToRequestCountPlusOne(address requester)
         external

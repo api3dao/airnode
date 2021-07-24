@@ -54,33 +54,6 @@ contract AirnodeRrp is RequestUtils, WithdrawalUtils, IAirnodeRrp {
         return (announcement.xpub, announcement.authorizers);
     }
 
-    /// @notice A convenience method to retrieve multiple templates with a
-    /// single call
-    /// @param templateIds Request template IDs
-    /// @return airnodes Array of Airnode addresses
-    /// @return endpointIds Array of endpoint IDs
-    /// @return parameters Array of request parameters
-    function getTemplates(bytes32[] calldata templateIds)
-        external
-        view
-        override
-        returns (
-            address[] memory airnodes,
-            bytes32[] memory endpointIds,
-            bytes[] memory parameters
-        )
-    {
-        airnodes = new address[](templateIds.length);
-        endpointIds = new bytes32[](templateIds.length);
-        parameters = new bytes[](templateIds.length);
-        for (uint256 ind = 0; ind < templateIds.length; ind++) {
-            Template storage template = templates[templateIds[ind]];
-            airnodes[ind] = template.airnode;
-            endpointIds[ind] = template.endpointId;
-            parameters[ind] = template.parameters;
-        }
-    }
-
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
