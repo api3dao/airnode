@@ -1,134 +1,283 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./RequestUtils.sol";
+import "./ConvenienceUtils.sol";
+import "./TemplateUtils.sol";
 import "./WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrp.sol";
 import "./authorizers/interfaces/IRrpAuthorizerNew.sol";
 
 /// @title Contract that implements the Airnode request–response protocol
-/// @dev The main functionality is implemented in RequestUtils, this contract
-/// implements some additional convenience functions
-contract AirnodeRrp is RequestUtils, WithdrawalUtils, IAirnodeRrp {
-    struct Announcement {
-        string xpub;
-        address[] authorizers;
-    }
+contract AirnodeRrp is
+    ConvenienceUtils,
+    TemplateUtils,
+    WithdrawalUtils,
+    IAirnodeRrp
+{
+    /// @notice Called to get the sponsorship status for a sponsor–requester
+    /// pair
+    mapping(address => mapping(address => bool))
+        public
+        override sponsorToRequesterToSponsorshipStatus;
 
-    mapping(address => Announcement) private airnodeToAnnouncement;
+    /// @notice Called to get the request count of the requester plus one
+    /// @dev Could be used to predict the ID of the next request the requester
+    /// will make
+    mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
-    /// @notice Called by the Airnode operator to set announcement
-    /// @dev It is expected for the Airnode operator to call this function with
-    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// This announcement does not need to be made for the protocol to be used,
-    /// it is mainly for convenience.
-    /// @param xpub Extended public key of the Airnode
-    /// @param authorizers Authorizer contract addresses that Airnode uses
-    function setAirnodeAnnouncement(
-        string calldata xpub,
-        address[] calldata authorizers
-    ) external override {
-        airnodeToAnnouncement[msg.sender] = Announcement({
-            xpub: xpub,
-            authorizers: authorizers
-        });
-        emit SetAirnodeAnnouncement(msg.sender, xpub, authorizers);
-    }
+    /// @notice Called to check if the fulfillment of a request has failed
+    /// @dev Request fulfillments are considered to have failed if the
+    /// fulfillment call will revert
+    mapping(bytes32 => bool) public override requestWithIdHasFailed;
 
-    /// @notice Called to get the Airnode announcement
-    /// @dev The information announced with this function is not trustless.
-    /// It is up to the user to verify that the announced `xpub` is correct by
-    /// checking if its default BIP 44 wallet matches the Airnode address.
-    /// It is not possible to verify the correctness of `authorizers` (i.e.,
-    /// that the Airnode will use these contracts to check for authorization).
-    /// @param airnode Airnode address
-    /// @return xpub Extended public key of the Airnode
-    /// @return authorizers Authorizer contract addresses
-    function getAirnodeAnnouncement(address airnode)
-        external
-        view
-        override
-        returns (string memory xpub, address[] memory authorizers)
-    {
-        Announcement storage announcement = airnodeToAnnouncement[airnode];
-        return (announcement.xpub, announcement.authorizers);
-    }
+    /// @dev Hash of expected fulfillment parameters are kept to verify that
+    /// the fulfillment will be done with the correct parameters
+    mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
-    /// @notice Uses the authorizer contracts of an Airnode to decide if a
-    /// request is authorized. Once an Airnode receives a request, it calls
-    /// this method to determine if it should respond. Similarly, third parties
-    /// can use this method to determine if a particular request would be
-    /// authorized.
-    /// @dev This method is meant to be called off-chain by the Airnode to
-    /// decide if it should respond to a request. The requester can also call
-    /// it, yet this function returning true should not be taken as a guarantee
-    /// of the subsequent request being fulfilled.
-    /// It is enough for only one of the authorizer contracts to return true
-    /// for the request to be authorized.
-    /// @param authorizers Authorizer contract addresses
-    /// @param airnode Airnode address
+    /// @dev Reverts if the incoming fulfillment parameters do not match the
+    /// ones provided in the request
     /// @param requestId Request ID
+    /// @param airnode Airnode address
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    modifier onlyCorrectFulfillmentParameters(
+        bytes32 requestId,
+        address airnode,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
+    ) {
+        require(
+            keccak256(
+                abi.encodePacked(
+                    airnode,
+                    msg.sender,
+                    fulfillAddress,
+                    fulfillFunctionId
+                )
+            ) == requestIdToFulfillmentParameters[requestId],
+            "Invalid request fulfillment"
+        );
+        _;
+    }
+
+    /// @notice Called by the sponsor to set the sponsorship status of a
+    /// requester, i.e., allow or disallow a requester to make requests that
+    /// will be fulfilled by the sponsor wallet
+    /// @dev This is not Airnode-specific, i.e., the sponsor allows the
+    /// requester's requests to be fulfilled through its sponsor wallets across
+    /// all Airnodes
+    /// @param requester Requester address
+    /// @param sponsorshipStatus Sponsorship status
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+        external
+        override
+    {
+        // Initialize the requester request count for consistent request gas cost
+        if (requesterToRequestCountPlusOne[requester] == 0) {
+            requesterToRequestCountPlusOne[requester] = 1;
+        }
+        sponsorToRequesterToSponsorshipStatus[msg.sender][
+            requester
+        ] = sponsorshipStatus;
+        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
+    }
+
+    /// @notice Called by the requester to make a request that refers to a
+    /// template for the Airnode address, endpoint ID and parameters
+    /// @param templateId Template ID
+    /// @param sponsor Sponsor address
+    /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
+    /// request
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
+    /// @return requestId Request ID
+    function makeTemplateRequest(
+        bytes32 templateId,
+        address sponsor,
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external override returns (bytes32 requestId) {
+        require(
+            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            "Requester not sponsored"
+        );
+        uint256 requesterRequestCount = requesterToRequestCountPlusOne[
+            msg.sender
+        ];
+        requestId = keccak256(
+            abi.encodePacked(
+                requesterRequestCount,
+                block.chainid,
+                msg.sender,
+                templateId,
+                parameters
+            )
+        );
+        address airnode = templates[templateId].airnode;
+        requestIdToFulfillmentParameters[requestId] = keccak256(
+            abi.encodePacked(
+                airnode,
+                sponsorWallet,
+                fulfillAddress,
+                fulfillFunctionId
+            )
+        );
+        emit MadeTemplateRequest(
+            airnode,
+            requestId,
+            requesterRequestCount,
+            block.chainid,
+            msg.sender,
+            templateId,
+            sponsor,
+            sponsorWallet,
+            fulfillAddress,
+            fulfillFunctionId,
+            parameters
+        );
+        requesterToRequestCountPlusOne[msg.sender]++;
+    }
+
+    /// @notice Called by the requester to make a full request, which provides
+    /// all of its parameters as arguments and does not refer to a template
+    /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param sponsor Sponsor address
-    /// @param requester Requester address
-    /// @return status Authorization status of the request
-    function checkAuthorizationStatus(
-        address[] calldata authorizers,
+    /// @param sponsorWallet Sponsor wallet that is requested to fulfill
+    /// the request
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @param parameters All request parameters
+    /// @return requestId Request ID
+    function makeFullRequest(
         address airnode,
-        bytes32 requestId,
         bytes32 endpointId,
         address sponsor,
-        address requester
-    ) public view override returns (bool status) {
-        for (uint256 ind = 0; ind < authorizers.length; ind++) {
-            IRrpAuthorizerNew authorizer = IRrpAuthorizerNew(authorizers[ind]);
-            if (
-                authorizer.isAuthorized(
-                    requestId,
-                    airnode,
-                    endpointId,
-                    sponsor,
-                    requester
-                )
-            ) {
-                return true;
-            }
-        }
-        return false;
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external override returns (bytes32 requestId) {
+        require(
+            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            "Requester not sponsored"
+        );
+        uint256 requesterRequestCount = requesterToRequestCountPlusOne[
+            msg.sender
+        ];
+        requestId = keccak256(
+            abi.encodePacked(
+                requesterRequestCount,
+                block.chainid,
+                msg.sender,
+                endpointId,
+                parameters
+            )
+        );
+        requestIdToFulfillmentParameters[requestId] = keccak256(
+            abi.encodePacked(
+                airnode,
+                sponsorWallet,
+                fulfillAddress,
+                fulfillFunctionId
+            )
+        );
+        emit MadeFullRequest(
+            airnode,
+            requestId,
+            requesterRequestCount,
+            block.chainid,
+            msg.sender,
+            endpointId,
+            sponsor,
+            sponsorWallet,
+            fulfillAddress,
+            fulfillFunctionId,
+            parameters
+        );
+        requesterToRequestCountPlusOne[msg.sender]++;
     }
 
-    /// @notice A convenience function to make multiple authorization status
-    /// checks with a single call
+    /// @notice Called by Airnode to fulfill the request (template or full)
+    /// @dev `statusCode` being zero indicates a successful fulfillment, while
+    /// non-zero values indicate error. The meaning of these values are
+    /// implementation-dependent.
+    /// The data is ABI-encoded as a `bytes` type, with its format depending on
+    /// the request specifications.
+    /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param requestIds Request IDs
-    /// @param endpointIds Endpoint IDs
-    /// @param sponsors Sponsor addresses
-    /// @param requesters Requester addresses
-    /// @return statuses Authorization statuses of the request
-    function checkAuthorizationStatuses(
-        address[] calldata authorizers,
+    /// @param statusCode Status code of the fulfillment
+    /// @param data Fulfillment data
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    /// @return callSuccess If the fulfillment call succeeded
+    /// @return callData Data returned by the fulfillment call (if there is
+    /// any)
+    function fulfill(
+        bytes32 requestId,
         address airnode,
-        bytes32[] calldata requestIds,
-        bytes32[] calldata endpointIds,
-        address[] calldata sponsors,
-        address[] calldata requesters
-    ) external view override returns (bool[] memory statuses) {
-        require(
-            requestIds.length == endpointIds.length &&
-                requestIds.length == sponsors.length &&
-                requestIds.length == requesters.length,
-            "Unequal parameter lengths"
+        uint256 statusCode,
+        bytes calldata data,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
+    )
+        external
+        override
+        onlyCorrectFulfillmentParameters(
+            requestId,
+            airnode,
+            fulfillAddress,
+            fulfillFunctionId
+        )
+        returns (bool callSuccess, bytes memory callData)
+    {
+        delete requestIdToFulfillmentParameters[requestId];
+        emit FulfilledRequest(airnode, requestId, statusCode, data);
+        (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
+            abi.encodeWithSelector(
+                fulfillFunctionId,
+                requestId,
+                statusCode,
+                data
+            )
         );
-        statuses = new bool[](requestIds.length);
-        for (uint256 ind = 0; ind < requestIds.length; ind++) {
-            statuses[ind] = checkAuthorizationStatus(
-                authorizers,
-                airnode,
-                requestIds[ind],
-                endpointIds[ind],
-                sponsors[ind],
-                requesters[ind]
-            );
-        }
+        require(callSuccess, "Fulfillment failed");
+    }
+
+    /// @notice Called by Airnode if the request cannot be fulfilled
+    /// @dev Airnode should fall back to this if a request cannot be fulfilled
+    /// because fulfill() reverts
+    /// @param requestId Request ID
+    /// @param airnode Airnode address
+    /// @param fulfillAddress Address that will be called to fulfill
+    /// @param fulfillFunctionId Signature of the function that will be called
+    /// to fulfill
+    function fail(
+        bytes32 requestId,
+        address airnode,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
+    )
+        external
+        override
+        onlyCorrectFulfillmentParameters(
+            requestId,
+            airnode,
+            fulfillAddress,
+            fulfillFunctionId
+        )
+    {
+        delete requestIdToFulfillmentParameters[requestId];
+        // Failure is recorded so that it can be checked externally
+        requestWithIdHasFailed[requestId] = true;
+        emit FailedRequest(airnode, requestId);
     }
 }

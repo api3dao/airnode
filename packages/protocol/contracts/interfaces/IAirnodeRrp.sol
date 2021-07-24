@@ -1,41 +1,104 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./IRequestUtils.sol";
+import "./IConvenienceUtils.sol";
+import "./ITemplateUtils.sol";
 import "./IWithdrawalUtils.sol";
 
-interface IAirnodeRrp is IRequestUtils, IWithdrawalUtils {
-    event SetAirnodeAnnouncement(
-        address airnode,
-        string xpub,
-        address[] authorizers
+interface IAirnodeRrp is IConvenienceUtils, ITemplateUtils, IWithdrawalUtils {
+    event SetSponsorshipStatus(
+        address indexed sponsor,
+        address indexed requester,
+        bool sponsorshipStatus
     );
 
-    function setAirnodeAnnouncement(
-        string calldata xpub,
-        address[] calldata authorizers
-    ) external;
+    event MadeTemplateRequest(
+        address indexed airnode,
+        bytes32 indexed requestId,
+        uint256 requesterRequestCount,
+        uint256 chainId,
+        address requester,
+        bytes32 templateId,
+        address sponsor,
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes parameters
+    );
 
-    function getAirnodeAnnouncement(address airnode)
-        external
-        view
-        returns (string memory xpub, address[] memory authorizers);
-
-    function checkAuthorizationStatus(
-        address[] calldata authorizers,
-        address airnode,
-        bytes32 requestId,
+    event MadeFullRequest(
+        address indexed airnode,
+        bytes32 indexed requestId,
+        uint256 requesterRequestCount,
+        uint256 chainId,
+        address requester,
         bytes32 endpointId,
         address sponsor,
-        address requester
-    ) external view returns (bool status);
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes parameters
+    );
 
-    function checkAuthorizationStatuses(
-        address[] calldata authorizers,
+    event FulfilledRequest(
+        address indexed airnode,
+        bytes32 indexed requestId,
+        uint256 statusCode,
+        bytes data
+    );
+
+    event FailedRequest(address indexed airnode, bytes32 indexed requestId);
+
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+        external;
+
+    function makeTemplateRequest(
+        bytes32 templateId,
+        address sponsor,
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external returns (bytes32 requestId);
+
+    function makeFullRequest(
         address airnode,
-        bytes32[] calldata requestIds,
-        bytes32[] calldata endpointIds,
-        address[] calldata sponsors,
-        address[] calldata requesters
-    ) external view returns (bool[] memory statuses);
+        bytes32 endpointId,
+        address sponsor,
+        address sponsorWallet,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId,
+        bytes calldata parameters
+    ) external returns (bytes32 requestId);
+
+    function fulfill(
+        bytes32 requestId,
+        address airnode,
+        uint256 statusCode,
+        bytes calldata data,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
+    ) external returns (bool callSuccess, bytes memory callData);
+
+    function fail(
+        bytes32 requestId,
+        address airnode,
+        address fulfillAddress,
+        bytes4 fulfillFunctionId
+    ) external;
+
+    function sponsorToRequesterToSponsorshipStatus(
+        address sponsor,
+        address requester
+    ) external view returns (bool sponsorshipStatus);
+
+    function requesterToRequestCountPlusOne(address requester)
+        external
+        view
+        returns (uint256 requestCountPlusOne);
+
+    function requestWithIdHasFailed(bytes32 requestId)
+        external
+        view
+        returns (bool hasFailed);
 }
