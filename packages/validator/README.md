@@ -1,10 +1,10 @@
 # `@airnode/validator`
 
-Package for json specifications validation, validation process can be configured with validator templates.
+Package for JSON specifications validation. Validation process can be configured with validator templates.
 
 ## Usage
 
-The validator can be run as an NPM script, by providing template of specification, and the path to the JSON file of specification that will be validated:
+The validator can be run as an npm script, by providing template of specification, and the path to the JSON file of specification that will be validated:
 ```sh
 npm run validate --template="[template]" --specs="[specsFile]"
 ```
@@ -47,7 +47,7 @@ Validator behavior can be configured with validator templates, which are regular
 - [catch](docs/catch.md)
 - [conditions](docs/conditions.md)
 - [any](docs/any.md)
-- [dynamic values and keys](docs/dynamic_params.md)
+- [dynamic keys and values](docs/dynamic_params.md)
 - [optional parameters](docs/optional.md)
 - [nested templates](docs/template.md)
 
@@ -92,6 +92,8 @@ On top of validator output, convertor provides an `output` object, which contain
 }
 ```
 
+Alternatively command can be ran with argument `--specs_only`, which will return only the converted specification.
+
 ## Templates
 
-Convertor uses same templates as validator, resulting specification can be written into `output` object with [actions](docs/actions.md).
+Convertor uses the same templates as validator. The resulting specification can be written into `output` object with [actions](docs/actions.md).

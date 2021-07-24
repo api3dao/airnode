@@ -2,6 +2,7 @@ import * as utils from '../utils/utils';
 import { processSpecs } from '../processor';
 import { Log, Roots } from '../types';
 import * as logger from '../utils/logger';
+import * as msg from '../utils/messages';
 
 /**
  * Checks if at least one param exists in provided specification conforming the validator specification structure
@@ -22,7 +23,7 @@ export function validateAny(
   templatePath: string
 ): Log[] {
   if (!specs || typeof specs !== 'object') {
-    return [logger.error(`Required conditions not met in ${paramPath.join('.')}`)];
+    return [msg.requiredConditionNotMetMessage(paramPath)];
   }
 
   if (Array.isArray(specs)) {

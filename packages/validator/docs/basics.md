@@ -8,12 +8,12 @@ In the whole documentation unified terminology will be used, here is the definit
 - **template** - json structure, which defines format of valid specification
 - **parameter** - combination of key and value assigned to it, located somewhere in the json structure
 - **parameter path** - string of keys separated with `.`, contains all keys needed to access a parameter in the json structure from the most outer one to key of the parameter itself
-- **root** - refers to most outer json structure, parameter path of root is empty
+- **root** - refers to the most outer json structure, parameter path of root is empty
 - other json related keywords like **json structure**, **key**, **object**, **array**, etc... Will stick to the standard [JSON terminology](https://www.json.org/json-en.html)
 
 ---
 
-Most basic validator template can simply include keys of all required parameters, which will result in validator accepting any specification that has exactly these keys with any values. As validator does not take order of the parameters into consideration, parameters in the specification can be in any order, and it won't change output of the validator.
+Most basic validator template can simply include keys of all required parameters with `{}` as value, which will result in validator accepting any specification that has exactly these keys with any primitive values. As validator does not take order of the parameters into consideration, parameters in the specification can be in any order, and it won't change output of the validator.
 
 ### Template
 ```json

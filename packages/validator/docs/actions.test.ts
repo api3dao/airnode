@@ -33,7 +33,7 @@ describe('actions (docs)', () => {
       ],
     };
 
-    expect(convertor.convertJson(specs, template)).toStrictEqual({
+    expect(convertor.convertJson(specs, template)).toEqual({
       valid: true,
       messages: [],
       output: {
@@ -80,7 +80,7 @@ describe('actions (docs)', () => {
       original: {},
     };
 
-    expect(convertor.convertJson(specs, template)).toMatchObject({
+    expect(convertor.convertJson(specs, template)).toEqual({
       valid: true,
       messages: [],
       output: {
@@ -135,7 +135,7 @@ describe('actions (docs)', () => {
       },
     };
 
-    expect(convertor.convertJson(specs, template)).toStrictEqual({
+    expect(convertor.convertJson(specs, template)).toEqual({
       valid: true,
       messages: [],
       output: {
@@ -206,7 +206,7 @@ describe('actions (docs)', () => {
       },
     };
 
-    expect(convertor.convertJson(specs, template)).toStrictEqual({
+    expect(convertor.convertJson(specs, template)).toEqual({
       valid: true,
       messages: [],
       output: {

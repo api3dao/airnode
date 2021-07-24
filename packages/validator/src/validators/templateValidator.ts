@@ -1,7 +1,9 @@
+import fs from 'fs';
+
 import { Roots, Log } from '../types';
 import * as logger from '../utils/logger';
-import fs from 'fs';
 import { processSpecs } from '../processor';
+import { keywords } from '../utils/globals';
 
 /**
  * Recursion validating provided specification against template
@@ -27,7 +29,7 @@ export function validateTemplate(
     return [logger.error(`${templatePath}${nestedTemplatePath} is not validator template`)];
   }
 
-  const roots: Roots = { specs, nonRedundantParams: '__arrayItem' in template ? [] : {}, output: {} };
+  const roots: Roots = { specs, nonRedundantParams: keywords.arrayItem in template ? [] : {}, output: {} };
   const split = nestedTemplatePath.split('/');
   nestedTemplatePath = split.slice(0, split.length - 1).join('/');
 

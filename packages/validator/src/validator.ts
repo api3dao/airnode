@@ -1,10 +1,10 @@
+import * as path from 'path';
 import fs from 'fs';
 import * as logger from './utils/logger';
 import { Log, Result, templates } from './types';
 import { processSpecs } from './processor';
 import * as utils from './commands/utils';
-
-const path = require('path');
+import { keywords } from './utils/globals';
 
 /**
  * Validates specification from provided file according to template file
@@ -128,21 +128,23 @@ export function validateWithTemplate(
  * @returns array of error and warning messages
  */
 export function validateJson(specs: object, template: object, templatePath = '', returnJson = false): Result {
-  const nonRedundant = template['__arrayItem' as keyof typeof template] ? [] : {};
+  const nonRedundant = template[keywords.arrayItem as keyof typeof template] ? [] : {};
+  const result = processSpecs(
+    specs,
+    template,
+    [],
+    nonRedundant,
+    {
+      specs: specs,
+      nonRedundantParams: nonRedundant,
+      output: {},
+    },
+    templatePath
+  );
 
   return {
-    ...processSpecs(
-      specs,
-      template,
-      [],
-      nonRedundant,
-      {
-        specs: specs,
-        nonRedundantParams: nonRedundant,
-        output: {},
-      },
-      templatePath
-    ),
+    valid: result.valid,
+    messages: result.messages,
     specs: returnJson ? specs : undefined,
   };
 }
