@@ -1,24 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "./TemplateUtils.sol";
 import "./interfaces/IRequestUtils.sol";
 
 /// @title Contract that implements request and sponsorship logic
-contract RequestUtils is IRequestUtils {
-    struct Template {
-        address airnode;
-        bytes32 endpointId;
-        bytes parameters;
-    }
-
+contract RequestUtils is TemplateUtils, IRequestUtils {
     /// @notice Called to get the sponsorship status for a sponsor–requester
     /// pair
     mapping(address => mapping(address => bool))
         public
         override sponsorToRequesterToSponsorshipStatus;
-
-    /// @notice Called to get a template
-    mapping(bytes32 => Template) public override templates;
 
     /// @notice Called to get the request count of the requester plus one
     /// @dev Could be used to predict the ID of the next request the requester
@@ -81,36 +73,6 @@ contract RequestUtils is IRequestUtils {
             requester
         ] = sponsorshipStatus;
         emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
-    }
-
-    /// @notice Creates a request template with the given parameters,
-    /// addressable by the ID it returns
-    /// @dev A specific set of request parameters will always have the same ID.
-    /// This means a few things: (1) You can compute the expected ID of a set
-    /// of parameters off-chain, (2) Creating a new template with the same
-    /// parameters will overwrite the old one and return the same ID, (3) After
-    /// you query a template with its ID, you can verify its integrity by
-    /// applying the hash and comparing the result with the ID.
-    /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
-    /// @param parameters Static request parameters (i.e., parameters that will
-    /// not change between requests, unlike the dynamic parameters determined
-    /// at request-time)
-    /// @return templateId Request template ID
-    function createTemplate(
-        address airnode,
-        bytes32 endpointId,
-        bytes calldata parameters
-    ) external override returns (bytes32 templateId) {
-        templateId = keccak256(
-            abi.encodePacked(airnode, endpointId, parameters)
-        );
-        templates[templateId] = Template({
-            airnode: airnode,
-            endpointId: endpointId,
-            parameters: parameters
-        });
-        emit CreatedTemplate(templateId, airnode, endpointId, parameters);
     }
 
     /// @notice Called by the requester to make a request that refers to a

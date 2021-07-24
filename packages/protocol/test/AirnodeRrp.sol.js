@@ -62,35 +62,6 @@ describe('getAirnodeAnnouncement', function () {
   });
 });
 
-describe('getTemplates', function () {
-  it('gets templates', async function () {
-    // Create the templates
-    const noTemplates = 10;
-    const airnodes = Array.from({ length: noTemplates }, () => utils.generateRandomAddress());
-    const endpointIds = Array.from({ length: noTemplates }, () => utils.generateRandomBytes32());
-    const parameters = Array.from({ length: noTemplates }, () => utils.generateRandomBytes32());
-    const templateIds = [];
-    for (let i = 0; i < noTemplates; i++) {
-      await airnodeRrp.createTemplate(airnodes[i], endpointIds[i], parameters[i]);
-      templateIds.push(
-        hre.ethers.utils.keccak256(
-          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodes[i], endpointIds[i], parameters[i]])
-        )
-      );
-    }
-    // Get the templates and verify them
-    const templates = await airnodeRrp.getTemplates(templateIds);
-    expect(templates.airnodes.length).to.equal(noTemplates);
-    expect(templates.endpointIds.length).to.equal(noTemplates);
-    expect(templates.parameters.length).to.equal(noTemplates);
-    for (let i = 0; i < noTemplates; i++) {
-      expect(templates.airnodes[i]).to.equal(airnodes[i]);
-      expect(templates.endpointIds[i]).to.equal(endpointIds[i]);
-      expect(templates.parameters[i]).to.equal(parameters[i]);
-    }
-  });
-});
-
 describe('checkAuthorizationStatus', function () {
   context('authorizers array is empty', function () {
     it('returns false', async function () {

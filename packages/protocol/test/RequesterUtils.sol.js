@@ -52,27 +52,6 @@ describe('setSponsorshipStatus', function () {
   });
 });
 
-describe('createTemplate', function () {
-  it('creates template', async function () {
-    const endpointId = utils.generateRandomBytes32();
-    const parameters = utils.generateRandomBytes();
-    const templateId = hre.ethers.utils.keccak256(
-      hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-    );
-    const templateBeforeCreation = await airnodeRrp.templates(templateId);
-    expect(templateBeforeCreation.airnode).to.equal(hre.ethers.constants.AddressZero);
-    expect(templateBeforeCreation.endpointId).to.equal(hre.ethers.constants.HashZero);
-    expect(templateBeforeCreation.parameters).to.equal('0x');
-    await expect(airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters))
-      .to.emit(airnodeRrp, 'CreatedTemplate')
-      .withArgs(templateId, airnodeAddress, endpointId, parameters);
-    const templateAfterCreation = await airnodeRrp.templates(templateId);
-    expect(templateAfterCreation.airnode).to.equal(airnodeAddress);
-    expect(templateAfterCreation.endpointId).to.equal(endpointId);
-    expect(templateAfterCreation.parameters).to.equal(parameters);
-  });
-});
-
 describe('makeTemplateRequest', function () {
   context('Requester is sponsored', function () {
     it('makes template request', async function () {
