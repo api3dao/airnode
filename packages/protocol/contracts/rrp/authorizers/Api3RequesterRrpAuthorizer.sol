@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./MetaAdminnable.sol";
+import "../../admin/MetaAdminnable.sol";
 import "./RequesterRrpAuthorizer.sol";
 import "./interfaces/IApi3RequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists requesters where the API3 DAO is
 /// the metaAdmin
 contract Api3RequesterRrpAuthorizer is
-    RequesterRrpAuthorizer,
     MetaAdminnable,
+    RequesterRrpAuthorizer,
     IApi3RequesterRrpAuthorizer
 {
     /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type
@@ -26,7 +26,7 @@ contract Api3RequesterRrpAuthorizer is
     function getRank(bytes32 adminnedId, address admin)
         public
         view
-        override(MetaAdminnable, RankedAdminnable)
+        override(MetaAdminnable, RankedAdminnable, IRankedAdminnable)
         returns (uint256)
     {
         return MetaAdminnable.getRank(adminnedId, admin);

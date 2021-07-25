@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./Whitelister.sol";
+import "../../admin/Whitelister.sol";
 import "./interfaces/IRequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract where requesters are whitelisted until an

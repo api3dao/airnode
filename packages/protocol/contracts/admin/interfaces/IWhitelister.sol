@@ -1,18 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IWhitelister {
-    enum AdminRank {
-        Unauthorized,
-        Admin,
-        SuperAdmin
-    }
+import "./IRankedAdminnable.sol";
 
-    struct WhitelistStatus {
-        uint64 expirationTimestamp;
-        bool whitelistedPastExpiration;
-    }
-
+interface IWhitelister is IRankedAdminnable{
     event ExtendedWhitelistExpiration(
         bytes32 indexed serviceId,
         address indexed user,

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../interfaces/IAirnodeRrp.sol";
 import "./RequesterRrpAuthorizer.sol";
 import "./interfaces/ISelfRequesterRrpAuthorizer.sol";
+import "../interfaces/IAirnodeRrp.sol";
 
 /// @title Authorizer contract that whitelists requesters where each Airnode is
 /// adminned by themselves
@@ -25,7 +25,7 @@ contract SelfRequesterRrpAuthorizer is
     function getRank(bytes32 adminnedId, address admin)
         public
         view
-        override
+        override(RankedAdminnable, IRankedAdminnable)
         returns (uint256)
     {
         // Airnodes are identified by addresses. Since Whitelister identifies

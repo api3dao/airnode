@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IRrpBeaconServer {
+import "../../../admin/interfaces/IMetaAdminnable.sol";
+import "../../../admin/interfaces/IWhitelister.sol";
+
+interface IRrpBeaconServer is IMetaAdminnable, IWhitelister {
     event RequestedBeaconUpdate(
         bytes32 indexed templateId,
         address indexed sponsor,
