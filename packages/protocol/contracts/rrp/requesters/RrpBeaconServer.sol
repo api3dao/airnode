@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "../../admin/MetaAdminnable.sol";
+import "../../admin/Whitelister.sol";
 import "./AirnodeRrpRequester.sol";
-import "../authorizers/MetaAdminnable.sol";
-import "../authorizers/Whitelister.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
@@ -17,9 +17,9 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// a completely different type such as `bytes32`), do not use this contract
 /// and implement a customized version instead.
 contract RrpBeaconServer is
-    AirnodeRrpRequester,
     MetaAdminnable,
     Whitelister,
+    AirnodeRrpRequester,
     IRrpBeaconServer
 {
     struct Beacon {
@@ -150,7 +150,7 @@ contract RrpBeaconServer is
         public
         view
         virtual
-        override(RankedAdminnable, MetaAdminnable)
+        override(RankedAdminnable, MetaAdminnable, IRankedAdminnable)
         returns (uint256)
     {
         return MetaAdminnable.getRank(adminnedId, admin);

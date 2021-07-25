@@ -7,6 +7,17 @@ import "./interfaces/IWhitelister.sol";
 /// @title Contract where users are whitelisted until an expiration time or
 /// indefinitely (until the whitelisting is revoked)
 contract Whitelister is RankedAdminnable, IWhitelister {
+    enum AdminRank {
+        Unauthorized,
+        Admin,
+        SuperAdmin
+    }
+
+    struct WhitelistStatus {
+        uint64 expirationTimestamp;
+        bool whitelistedPastExpiration;
+    }
+
     /// @notice Keeps the whitelisting statuses of users for individual
     /// services (could be Airnodes, dAPIs, beacons, etc.)
     mapping(bytes32 => mapping(address => WhitelistStatus))

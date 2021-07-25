@@ -84,12 +84,7 @@ export async function requestWithdrawal(
   destination: string
 ) {
   const designatedWalletAddress = await deriveDesignatedWallet(airnodeRrp, airnodeId, requester);
-<<<<<<< HEAD
   const tx = await airnodeRrp.requestWithdrawal(airnodeId, designatedWalletAddress, destination);
-=======
-  await airnodeRrp.requestWithdrawal(airnodeId, designatedWalletAddress, destination);
-  const filter = airnodeRrp.filters.WithdrawalRequested(null, null, null, null, null);
->>>>>>> ae70189b... Merge branch 'beta-protocol' into authorizer-tests-combined
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
@@ -132,12 +127,7 @@ export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, authorizers: 
     airnodeRrp.provider as ethers.providers.Provider
   );
   // Assuming masterWallet has funds to make the transaction below
-<<<<<<< HEAD
   const tx = await airnodeRrp.connect(masterWallet).setAirnodeParameters(xpub, authorizers);
-=======
-  await airnodeRrp.connect(masterWallet).setAirnodeParameters(xpub, authorizers);
-  const filter = airnodeRrp.filters.AirnodeParametersSet(null, null, null, null);
->>>>>>> ae70189b... Merge branch 'beta-protocol' into authorizer-tests-combined
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
