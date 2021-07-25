@@ -112,7 +112,7 @@ describe('fulfillWithdrawal', function () {
               destinationAddress,
               {
                 value: 1,
-                gasLimit: 250000,
+                gasLimit: 500000,
               }
             );
           const gasPrice = await hre.ethers.provider.getGasPrice();
@@ -168,7 +168,7 @@ describe('fulfillWithdrawal', function () {
               .connect(sponsorWallet)
               .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, destinationAddress, {
                 value: 1,
-                gasLimit: 250000,
+                gasLimit: 500000,
               })
           ).to.be.revertedWith('Transfer failed');
         });
@@ -195,7 +195,7 @@ describe('fulfillWithdrawal', function () {
               destinationAddress,
               {
                 value: 1,
-                gasLimit: 250000,
+                gasLimit: 500000,
               }
             )
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
@@ -232,7 +232,7 @@ describe('fulfillWithdrawal', function () {
               destinationAddress,
               {
                 value: 1,
-                gasLimit: 250000,
+                gasLimit: 500000,
               }
             )
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
@@ -269,7 +269,7 @@ describe('fulfillWithdrawal', function () {
               destinationAddress,
               {
                 value: 1,
-                gasLimit: 250000,
+                gasLimit: 500000,
               }
             )
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
@@ -306,7 +306,7 @@ describe('fulfillWithdrawal', function () {
               hre.ethers.constants.AddressZero,
               {
                 value: 1,
-                gasLimit: 250000,
+                gasLimit: 500000,
               }
             )
         ).to.be.revertedWith('Invalid withdrawal fulfillment');
@@ -336,7 +336,7 @@ describe('fulfillWithdrawal', function () {
           .connect(roles.randomPerson)
           .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, destinationAddress, {
             value: 1,
-            gasLimit: 250000,
+            gasLimit: 500000,
           })
       ).to.be.revertedWith('Invalid withdrawal fulfillment');
     });

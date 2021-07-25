@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../interfaces/IRrpAuthorizerNew.sol";
+import "../interfaces/IRrpAuthorizer.sol";
 
-/// @title A mock authorizer that always returns true
-contract MockAuthorizerAlwaysTrue is IRrpAuthorizerNew {
+/// @title A mock authorizer that always returns false
+contract MockRrpAuthorizerAlwaysFalse is IRrpAuthorizer {
     uint256 public constant override AUTHORIZER_TYPE = 333;
 
     function isAuthorized(
@@ -14,6 +14,6 @@ contract MockAuthorizerAlwaysTrue is IRrpAuthorizerNew {
         address sponsor, // solhint-disable-line
         address requester // solhint-disable-line
     ) external view virtual override returns (bool status) {
-        status = true;
+        status = false;
     }
 }

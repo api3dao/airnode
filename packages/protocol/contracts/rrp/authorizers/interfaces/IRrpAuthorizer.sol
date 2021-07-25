@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IRrpAuthorizerNew {
+interface IRrpAuthorizer {
     // solhint-disable-next-line func-name-mixedcase
     function AUTHORIZER_TYPE() external view returns (uint256);
 
