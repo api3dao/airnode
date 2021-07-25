@@ -7,10 +7,9 @@ interface IRrpAuthorizer {
 
     function isAuthorized(
         bytes32 requestId,
-        bytes32 airnodeId,
+        address airnode,
         bytes32 endpointId,
-        address requester,
-        address designatedWallet,
-        address client
+        address sponsor,
+        address requester
     ) external view returns (bool);
 }

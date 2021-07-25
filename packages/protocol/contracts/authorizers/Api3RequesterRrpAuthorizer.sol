@@ -2,17 +2,17 @@
 pragma solidity 0.8.6;
 
 import "./MetaAdminnable.sol";
-import "./ClientRrpAuthorizer.sol";
-import "./interfaces/IApi3ClientRrpAuthorizer.sol";
+import "./RequesterRrpAuthorizer.sol";
+import "./interfaces/IApi3RequesterRrpAuthorizer.sol";
 
-/// @title Authorizer contract that whitelists clients where the API3 DAO is
+/// @title Authorizer contract that whitelists requesters where the API3 DAO is
 /// the metaAdmin
-contract Api3ClientRrpAuthorizer is
-    ClientRrpAuthorizer,
+contract Api3RequesterRrpAuthorizer is
+    RequesterRrpAuthorizer,
     MetaAdminnable,
-    IApi3ClientRrpAuthorizer
+    IApi3RequesterRrpAuthorizer
 {
-    /// @notice Authorizer contracts use `authorizerType` to signal their type
+    /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type
     uint256 public constant override AUTHORIZER_TYPE = 2;
 
     /// @param metaAdmin_ Address that will be set as the API3 metaAdmin

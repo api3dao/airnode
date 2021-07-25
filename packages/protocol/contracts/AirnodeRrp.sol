@@ -5,7 +5,6 @@ import "./ConvenienceUtils.sol";
 import "./TemplateUtils.sol";
 import "./WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrp.sol";
-import "./authorizers/interfaces/IRrpAuthorizerNew.sol";
 
 /// @title Contract that implements the Airnode request–response protocol
 contract AirnodeRrp is

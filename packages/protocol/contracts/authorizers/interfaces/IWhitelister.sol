@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IClientWhitelister {
+interface IWhitelister {
     enum AdminRank {
         Unauthorized,
         Admin,
@@ -10,58 +10,55 @@ interface IClientWhitelister {
 
     struct WhitelistStatus {
         uint64 expirationTimestamp;
-        bool whitelistPastExpiration;
+        bool whitelistedPastExpiration;
     }
 
     event ExtendedWhitelistExpiration(
         bytes32 indexed serviceId,
-        address indexed client,
+        address indexed user,
         uint256 expiration,
         address indexed admin
     );
 
     event SetWhitelistExpiration(
         bytes32 indexed serviceId,
-        address indexed client,
+        address indexed user,
         uint256 expiration,
         address indexed admin
     );
 
     event SetWhitelistStatusPastExpiration(
         bytes32 indexed serviceId,
-        address indexed client,
+        address indexed user,
         bool status,
         address indexed admin
     );
 
     function extendWhitelistExpiration(
         bytes32 serviceId,
-        address client,
+        address user,
         uint64 expirationTimestamp
     ) external;
 
     function setWhitelistExpiration(
         bytes32 serviceId,
-        address client,
+        address user,
         uint64 expirationTimestamp
     ) external;
 
     function setWhitelistStatusPastExpiration(
         bytes32 serviceId,
-        address client,
+        address user,
         bool status
     ) external;
 
-    function clientIsWhitelisted(bytes32 serviceId, address client)
+    function userIsWhitelisted(bytes32 serviceId, address user)
         external
         view
         returns (bool isWhitelisted);
 
-    function serviceIdToClientToWhitelistStatus(
-        bytes32 serviceId,
-        address client
-    )
+    function serviceIdToUserToWhitelistStatus(bytes32 serviceId, address user)
         external
         view
-        returns (uint64 expirationTimestamp, bool whitelistPastExpiration);
+        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);
 }
