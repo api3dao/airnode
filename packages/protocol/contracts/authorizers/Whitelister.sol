@@ -2,112 +2,111 @@
 pragma solidity 0.8.6;
 
 import "./RankedAdminnable.sol";
-import "./interfaces/IClientWhitelister.sol";
+import "./interfaces/IWhitelister.sol";
 
-/// @title Authorizer contract where clients are whitelisted until an
-/// expiration time or indefinitely (until the whitelisting is revoked)
-contract ClientWhitelister is RankedAdminnable, IClientWhitelister {
-    /// @notice Keeps the whitelisting statuses of clients for individual
+/// @title Contract where users are whitelisted until an expiration time or
+/// indefinitely (until the whitelisting is revoked)
+contract Whitelister is RankedAdminnable, IWhitelister {
+    /// @notice Keeps the whitelisting statuses of users for individual
     /// services (could be Airnodes, dAPIs, beacons, etc.)
     mapping(bytes32 => mapping(address => WhitelistStatus))
         public
-        override serviceIdToClientToWhitelistStatus;
+        override serviceIdToUserToWhitelistStatus;
 
     /// @dev Reverts if the caller is not whitelisted for the service
     /// @param serviceId Service ID
     modifier onlyIfCallerIsWhitelisted(bytes32 serviceId) {
         require(
-            clientIsWhitelisted(serviceId, msg.sender),
+            userIsWhitelisted(serviceId, msg.sender),
             "Caller not whitelisted"
         );
         _;
     }
 
-    /// @notice Called by an admin to extend the whitelist expiration of a
-    /// client
+    /// @notice Called by an admin to extend the whitelist expiration of a user
     /// @param serviceId Service ID
-    /// @param client Client
-    /// @param expirationTimestamp Timestamp at which the client will no longer
+    /// @param user User address
+    /// @param expirationTimestamp Timestamp at which the user will no longer
     /// be whitelisted
     function extendWhitelistExpiration(
         bytes32 serviceId,
-        address client,
+        address user,
         uint64 expirationTimestamp
     ) external override onlyWithRank(serviceId, uint256(AdminRank.Admin)) {
         require(
             expirationTimestamp >
-                serviceIdToClientToWhitelistStatus[serviceId][client]
+                serviceIdToUserToWhitelistStatus[serviceId][user]
                     .expirationTimestamp,
             "Expiration not extended"
         );
-        serviceIdToClientToWhitelistStatus[serviceId][client]
+        serviceIdToUserToWhitelistStatus[serviceId][user]
             .expirationTimestamp = expirationTimestamp;
         emit ExtendedWhitelistExpiration(
             serviceId,
-            client,
+            user,
             expirationTimestamp,
             msg.sender
         );
     }
 
     /// @notice Called by a super admin to set the whitelisting expiration of a
-    /// client
+    /// user
     /// @dev Unlike `extendWhitelistExpiration()`, this can hasten the expiration
     /// @param serviceId Service ID
-    /// @param client Client
+    /// @param user User address
     /// @param expirationTimestamp Timestamp at which the whitelisting of the
-    /// client will expire
+    /// user will expire
     function setWhitelistExpiration(
         bytes32 serviceId,
-        address client,
+        address user,
         uint64 expirationTimestamp
     ) external override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
-        serviceIdToClientToWhitelistStatus[serviceId][client]
+        serviceIdToUserToWhitelistStatus[serviceId][user]
             .expirationTimestamp = expirationTimestamp;
         emit SetWhitelistExpiration(
             serviceId,
-            client,
+            user,
             expirationTimestamp,
             msg.sender
         );
     }
 
-    /// @notice Called by a super admin to set the whitelist status of a client
+    /// @notice Called by a super admin to set the whitelist status of a user
     /// past expiration
     /// @param serviceId Service ID
-    /// @param client Client
-    /// @param status Whitelist status that the client will have past expiration
+    /// @param user User address
+    /// @param status Whitelist status that the user will have past expiration
     function setWhitelistStatusPastExpiration(
         bytes32 serviceId,
-        address client,
+        address user,
         bool status
     ) external override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
-        serviceIdToClientToWhitelistStatus[serviceId][client]
-            .whitelistPastExpiration = status;
+        serviceIdToUserToWhitelistStatus[serviceId][user]
+            .whitelistedPastExpiration = status;
         emit SetWhitelistStatusPastExpiration(
             serviceId,
-            client,
+            user,
             status,
             msg.sender
         );
     }
 
-    /// @notice Called to check if a client is whitelisted to use a service
+    /// @notice Called to check if a user is whitelisted to use a service
     /// @param serviceId Service ID
-    /// @param client Client address
+    /// @param user User address
     /// @return isWhitelisted If the user is whitelisted
-    function clientIsWhitelisted(bytes32 serviceId, address client)
+    function userIsWhitelisted(bytes32 serviceId, address user)
         public
         view
         override
         returns (bool isWhitelisted)
     {
         WhitelistStatus
-            storage whitelistStatus = serviceIdToClientToWhitelistStatus[
+            storage whitelistStatus = serviceIdToUserToWhitelistStatus[
                 serviceId
-            ][client];
+            ][user];
         return
-            whitelistStatus.whitelistPastExpiration ||
+            whitelistStatus.whitelistedPastExpiration ||
             whitelistStatus.expirationTimestamp > block.timestamp;
     }
 }
