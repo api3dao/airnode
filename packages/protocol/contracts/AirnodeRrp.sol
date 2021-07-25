@@ -1,114 +1,155 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./Convenience.sol";
+import "./ConvenienceUtils.sol";
+import "./TemplateUtils.sol";
+import "./WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrp.sol";
+import "./authorizers/interfaces/IRrpAuthorizerNew.sol";
 
-/// @title The contract used to make and fulfill requests
-/// @notice Clients use this contract to make requests and Airnodes use it to
-/// fulfill them. In addition, it inherits from the contracts that keep records
-/// or Airnodes, requesters and templates. It also includes some convenience
-/// methods that Airnodes use to reduce the number of calls they make to
-/// blockchain providers.
-contract AirnodeRrp is Convenience, IAirnodeRrp {
+/// @title Contract that implements the Airnode request–response protocol
+contract AirnodeRrp is
+    ConvenienceUtils,
+    TemplateUtils,
+    WithdrawalUtils,
+    IAirnodeRrp
+{
+    /// @notice Called to get the sponsorship status for a sponsor–requester
+    /// pair
+    mapping(address => mapping(address => bool))
+        public
+        override sponsorToRequesterToSponsorshipStatus;
+
+    /// @notice Called to get the request count of the requester plus one
+    /// @dev Could be used to predict the ID of the next request the requester
+    /// will make
+    mapping(address => uint256) public override requesterToRequestCountPlusOne;
+
+    /// @notice Called to check if the fulfillment of a request has failed
+    /// @dev Request fulfillments are considered to have failed if the
+    /// fulfillment call will revert
+    mapping(bytes32 => bool) public override requestWithIdHasFailed;
+
+    /// @dev Hash of expected fulfillment parameters are kept to verify that
+    /// the fulfillment will be done with the correct parameters
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
-    mapping(bytes32 => bool) public requestWithIdHasFailed;
 
     /// @dev Reverts if the incoming fulfillment parameters do not match the
     /// ones provided in the request
     /// @param requestId Request ID
-    /// @param airnodeId Airnode ID from AirnodeParameterStore
+    /// @param airnode Airnode address
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     modifier onlyCorrectFulfillmentParameters(
         bytes32 requestId,
-        bytes32 airnodeId,
+        address airnode,
         address fulfillAddress,
         bytes4 fulfillFunctionId
     ) {
-        bytes32 incomingFulfillmentParameters = keccak256(
-            abi.encodePacked(
-                airnodeId,
-                msg.sender,
-                fulfillAddress,
-                fulfillFunctionId
-            )
-        );
         require(
-            incomingFulfillmentParameters ==
-                requestIdToFulfillmentParameters[requestId],
-            "No such request"
+            keccak256(
+                abi.encodePacked(
+                    airnode,
+                    msg.sender,
+                    fulfillAddress,
+                    fulfillFunctionId
+                )
+            ) == requestIdToFulfillmentParameters[requestId],
+            "Invalid request fulfillment"
         );
         _;
     }
 
-    /// @notice Called by the client to make a regular request. A regular
-    /// request refers to a template for the Airnode, endpoint and parameters.
-    /// @param templateId Template ID from TemplateStore
-    /// @param requester Requester index from RequesterStore
-    /// @param designatedWallet Designated wallet that is requested to fulfill
-    /// the request
+    /// @notice Called by the sponsor to set the sponsorship status of a
+    /// requester, i.e., allow or disallow a requester to make requests that
+    /// will be fulfilled by the sponsor wallet
+    /// @dev This is not Airnode-specific, i.e., the sponsor allows the
+    /// requester's requests to be fulfilled through its sponsor wallets across
+    /// all Airnodes
+    /// @param requester Requester address
+    /// @param sponsorshipStatus Sponsorship status
+    function setSponsorshipStatus(address requester, bool sponsorshipStatus)
+        external
+        override
+    {
+        // Initialize the requester request count for consistent request gas cost
+        if (requesterToRequestCountPlusOne[requester] == 0) {
+            requesterToRequestCountPlusOne[requester] = 1;
+        }
+        sponsorToRequesterToSponsorshipStatus[msg.sender][
+            requester
+        ] = sponsorshipStatus;
+        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);
+    }
+
+    /// @notice Called by the requester to make a request that refers to a
+    /// template for the Airnode address, endpoint ID and parameters
+    /// @param templateId Template ID
+    /// @param sponsor Sponsor address
+    /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
+    /// request
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
-    /// @param parameters Parameters provided by the client in addition to the
-    /// parameters in the template.
+    /// @param parameters Parameters provided by the requester in addition to
+    /// the parameters in the template
     /// @return requestId Request ID
-    function makeRequest(
+    function makeTemplateRequest(
         bytes32 templateId,
-        address requester,
-        address designatedWallet,
+        address sponsor,
+        address sponsorWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         require(
-            requesterToClientAddressToEndorsementStatus[requester][msg.sender],
-            "Client not endorsed by requester"
+            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            "Requester not sponsored"
         );
-        uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
+        uint256 requesterRequestCount = requesterToRequestCountPlusOne[
+            msg.sender
+        ];
         requestId = keccak256(
-            abi.encode(
-                clientNoRequests,
+            abi.encodePacked(
+                requesterRequestCount,
                 block.chainid,
                 msg.sender,
                 templateId,
                 parameters
             )
         );
-        bytes32 airnodeId = templates[templateId].airnodeId;
+        address airnode = templates[templateId].airnode;
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
-                airnodeId,
-                designatedWallet,
+                airnode,
+                sponsorWallet,
                 fulfillAddress,
                 fulfillFunctionId
             )
         );
-        emit ClientRequestCreated(
-            airnodeId,
+        emit MadeTemplateRequest(
+            airnode,
             requestId,
-            clientNoRequests,
+            requesterRequestCount,
             block.chainid,
             msg.sender,
             templateId,
-            requester,
-            designatedWallet,
+            sponsor,
+            sponsorWallet,
             fulfillAddress,
             fulfillFunctionId,
             parameters
         );
-        clientAddressToNoRequests[msg.sender]++;
+        requesterToRequestCountPlusOne[msg.sender]++;
     }
 
-    /// @notice Called by the client to make a full request. A full request
-    /// provides all of its parameters as arguments and does not refer to a
-    /// template.
-    /// @param airnodeId Airnode ID from AirnodeParameterStore
-    /// @param endpointId Endpoint ID from EndpointStore
-    /// @param requester Requester index from RequesterStore
-    /// @param designatedWallet Designated wallet that is requested to fulfill
+    /// @notice Called by the requester to make a full request, which provides
+    /// all of its parameters as arguments and does not refer to a template
+    /// @param airnode Airnode address
+    /// @param endpointId Endpoint ID
+    /// @param sponsor Sponsor address
+    /// @param sponsorWallet Sponsor wallet that is requested to fulfill
     /// the request
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
@@ -116,22 +157,24 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
     /// @param parameters All request parameters
     /// @return requestId Request ID
     function makeFullRequest(
-        bytes32 airnodeId,
+        address airnode,
         bytes32 endpointId,
-        address requester,
-        address designatedWallet,
+        address sponsor,
+        address sponsorWallet,
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         require(
-            requesterToClientAddressToEndorsementStatus[requester][msg.sender],
-            "Client not endorsed by requester"
+            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
+            "Requester not sponsored"
         );
-        uint256 clientNoRequests = clientAddressToNoRequests[msg.sender];
+        uint256 requesterRequestCount = requesterToRequestCountPlusOne[
+            msg.sender
+        ];
         requestId = keccak256(
-            abi.encode(
-                clientNoRequests,
+            abi.encodePacked(
+                requesterRequestCount,
                 block.chainid,
                 msg.sender,
                 endpointId,
@@ -140,36 +183,36 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
         );
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
-                airnodeId,
-                designatedWallet,
+                airnode,
+                sponsorWallet,
                 fulfillAddress,
                 fulfillFunctionId
             )
         );
-        emit ClientFullRequestCreated(
-            airnodeId,
+        emit MadeFullRequest(
+            airnode,
             requestId,
-            clientNoRequests,
+            requesterRequestCount,
             block.chainid,
             msg.sender,
             endpointId,
-            requester,
-            designatedWallet,
+            sponsor,
+            sponsorWallet,
             fulfillAddress,
             fulfillFunctionId,
             parameters
         );
-        clientAddressToNoRequests[msg.sender]++;
+        requesterToRequestCountPlusOne[msg.sender]++;
     }
 
-    /// @notice Called by Airnode to fulfill the request (regular or full)
+    /// @notice Called by Airnode to fulfill the request (template or full)
     /// @dev `statusCode` being zero indicates a successful fulfillment, while
-    /// non-zero values indicate error (the meanings of these values are
-    /// implementation-dependent).
+    /// non-zero values indicate error. The meaning of these values are
+    /// implementation-dependent.
     /// The data is ABI-encoded as a `bytes` type, with its format depending on
     /// the request specifications.
     /// @param requestId Request ID
-    /// @param airnodeId Airnode ID from AirnodeParameterStore
+    /// @param airnode Airnode address
     /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
@@ -180,7 +223,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
     /// any)
     function fulfill(
         bytes32 requestId,
-        bytes32 airnodeId,
+        address airnode,
         uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
@@ -190,15 +233,15 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            airnodeId,
+            airnode,
             fulfillAddress,
             fulfillFunctionId
         )
         returns (bool callSuccess, bytes memory callData)
     {
         delete requestIdToFulfillmentParameters[requestId];
-        emit ClientRequestFulfilled(airnodeId, requestId, statusCode, data);
-        (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line
+        emit FulfilledRequest(airnode, requestId, statusCode, data);
+        (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(
                 fulfillFunctionId,
                 requestId,
@@ -206,19 +249,20 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
                 data
             )
         );
+        require(callSuccess, "Fulfillment failed");
     }
 
     /// @notice Called by Airnode if the request cannot be fulfilled
     /// @dev Airnode should fall back to this if a request cannot be fulfilled
     /// because fulfill() reverts
     /// @param requestId Request ID
-    /// @param airnodeId Airnode ID from AirnodeParameterStore
+    /// @param airnode Airnode address
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     function fail(
         bytes32 requestId,
-        bytes32 airnodeId,
+        address airnode,
         address fulfillAddress,
         bytes4 fulfillFunctionId
     )
@@ -226,7 +270,7 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
         override
         onlyCorrectFulfillmentParameters(
             requestId,
-            airnodeId,
+            airnode,
             fulfillAddress,
             fulfillFunctionId
         )
@@ -234,6 +278,6 @@ contract AirnodeRrp is Convenience, IAirnodeRrp {
         delete requestIdToFulfillmentParameters[requestId];
         // Failure is recorded so that it can be checked externally
         requestWithIdHasFailed[requestId] = true;
-        emit ClientRequestFailed(airnodeId, requestId);
+        emit FailedRequest(airnode, requestId);
     }
 }

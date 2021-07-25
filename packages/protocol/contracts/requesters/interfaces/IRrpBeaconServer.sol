@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IAirnodeRrpBeaconServer {
+interface IRrpBeaconServer {
     event RequestedBeaconUpdate(
         bytes32 indexed templateId,
+        address indexed sponsor,
         address indexed requester,
-        address designatedWallet,
-        address indexed caller,
-        bytes32 requestId
+        bytes32 requestId,
+        address sponsorWallet
     );
 
-    event FulfilledBeaconUpdate(
+    event UpdatedBeacon(
         bytes32 indexed templateId,
         bytes32 requestId,
         int224 value,

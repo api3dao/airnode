@@ -1,5 +1,4 @@
 import { AirnodeRrp } from '@api3/protocol';
-import { BigNumberish } from 'ethers';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -10,33 +9,26 @@ export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;
   static getAirnodeRrpWithSigner = evm.getAirnodeRrpWithSigner;
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
+  static addressToDerivationPath = (address: string) => admin.addressToDerivationPath(address);
 
   constructor(public airnodeRrp: AirnodeRrp) {}
 
-  createRequester = (requesterAdmin: string) => admin.createRequester(this.airnodeRrp, requesterAdmin);
+  deriveDesignatedWallet = (airnodeId: string, requester: string) =>
+    admin.deriveDesignatedWallet(this.airnodeRrp, airnodeId, requester);
 
-  setRequesterAdmin = (requesterIndex: BigNumberish, requesterAdmin: string) =>
-    admin.setRequesterAdmin(this.airnodeRrp, requesterIndex, requesterAdmin);
+  endorseClient = (clientAddress: string) => admin.endorseClient(this.airnodeRrp, clientAddress);
 
-  deriveDesignatedWallet = (airnodeId: string, requesterIndex: BigNumberish) =>
-    admin.deriveDesignatedWallet(this.airnodeRrp, airnodeId, requesterIndex);
-
-  endorseClient = (requesterIndex: BigNumberish, clientAddress: string) =>
-    admin.endorseClient(this.airnodeRrp, requesterIndex, clientAddress);
-
-  unendorseClient = (requesterIndex: BigNumberish, clientAddress: string) =>
-    admin.unendorseClient(this.airnodeRrp, requesterIndex, clientAddress);
+  unendorseClient = (clientAddress: string) => admin.unendorseClient(this.airnodeRrp, clientAddress);
 
   createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
 
-  requestWithdrawal = (airnodeId: string, requesterIndex: BigNumberish, destination: string) =>
-    admin.requestWithdrawal(this.airnodeRrp, airnodeId, requesterIndex, destination);
+  requestWithdrawal = (airnodeId: string, requester: string, destination: string) =>
+    admin.requestWithdrawal(this.airnodeRrp, airnodeId, requester, destination);
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
 
-  setAirnodeParameters = (airnodeAdmin: string, authorizers: string[]) =>
-    admin.setAirnodeParameters(this.airnodeRrp, airnodeAdmin, authorizers);
+  setAirnodeParameters = (authorizers: string[]) => admin.setAirnodeParameters(this.airnodeRrp, authorizers);
 
   clientAddressToNoRequests = (clientAddress: string) =>
     admin.clientAddressToNoRequests(this.airnodeRrp, clientAddress);
@@ -47,20 +39,12 @@ export class AdminSdk {
 
   getTemplates = (templateIds: string[]) => admin.getTemplates(this.airnodeRrp, templateIds);
 
-  requesterIndexToAdmin = (requesterIndex: BigNumberish) =>
-    admin.requesterIndexToAdmin(this.airnodeRrp, requesterIndex);
+  requesterToClientAddressToEndorsementStatus = (requester: string, clientAddress: string) =>
+    admin.requesterToClientAddressToEndorsementStatus(this.airnodeRrp, requester, clientAddress);
 
-  requesterIndexToClientAddressToEndorsementStatus = (requesterIndex: BigNumberish, clientAddress: string) =>
-    admin.requesterIndexToClientAddressToEndorsementStatus(this.airnodeRrp, requesterIndex, clientAddress);
+  requesterToNextWithdrawalRequestIndex = (requester: string) =>
+    admin.requesterToNextWithdrawalRequestIndex(this.airnodeRrp, requester);
 
-  requesterIndexToNextWithdrawalRequestIndex = (requesterIndex: BigNumberish) =>
-    admin.requesterIndexToNextWithdrawalRequestIndex(this.airnodeRrp, requesterIndex);
-
-  fulfillWithdrawal = (
-    requestId: string,
-    airnodeId: string,
-    requesterIndex: BigNumberish,
-    destination: string,
-    amount: string
-  ) => admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeId, requesterIndex, destination, amount);
+  fulfillWithdrawal = (requestId: string, airnodeId: string, requester: string, destination: string, amount: string) =>
+    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeId, requester, destination, amount);
 }

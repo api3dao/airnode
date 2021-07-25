@@ -28,7 +28,6 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts": "^4.2.0",
     "@typechain/ethers-v5": "^6.0.5",
     "chai": "^4.2.0",
     "copyfiles": "^2.4.1",
