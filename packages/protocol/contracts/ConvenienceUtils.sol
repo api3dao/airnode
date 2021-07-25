@@ -2,7 +2,7 @@
 pragma solidity 0.8.6;
 
 import "./interfaces/IConvenienceUtils.sol";
-import "./authorizers/interfaces/IRrpAuthorizerNew.sol";
+import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title Contract that implements convenience functions
 contract ConvenienceUtils is IConvenienceUtils {
@@ -77,7 +77,7 @@ contract ConvenienceUtils is IConvenienceUtils {
         address requester
     ) public view override returns (bool status) {
         for (uint256 ind = 0; ind < authorizers.length; ind++) {
-            IRrpAuthorizerNew authorizer = IRrpAuthorizerNew(authorizers[ind]);
+            IRrpAuthorizer authorizer = IRrpAuthorizer(authorizers[ind]);
             if (
                 authorizer.isAuthorized(
                     requestId,

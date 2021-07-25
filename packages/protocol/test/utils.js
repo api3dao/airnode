@@ -1,4 +1,4 @@
-const { ethers } = require('ethers');
+const ethers = require('ethers');
 
 function deriveWalletPathFromSponsorAddress(sponsorAddress) {
   const sponsorAddressBN = ethers.BigNumber.from(sponsorAddress);

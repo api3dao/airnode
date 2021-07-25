@@ -2,8 +2,8 @@
 pragma solidity 0.8.6;
 
 import "./AirnodeRrpRequester.sol";
-import "../authorizers/ClientWhitelister.sol";
 import "../authorizers/MetaAdminnable.sol";
+import "../authorizers/Whitelister.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
@@ -18,8 +18,8 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// and implement a customized version instead.
 contract RrpBeaconServer is
     AirnodeRrpRequester,
-    ClientWhitelister,
     MetaAdminnable,
+    Whitelister,
     IRrpBeaconServer
 {
     struct Beacon {
