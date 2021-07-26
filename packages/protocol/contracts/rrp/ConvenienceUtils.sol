@@ -6,48 +6,64 @@ import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title Contract that implements convenience functions
 contract ConvenienceUtils is IConvenienceUtils {
-    struct Announcement {
-        string xpub;
-        address[] authorizers;
-    }
+    mapping(address => string) private airnodeToPublicKey;
+    mapping(address => address[]) private airnodeToAuthorizers;
 
-    mapping(address => Announcement) private airnodeToAnnouncement;
-
-    /// @notice Called by the Airnode operator to set announcement
+    /// @notice Called by the Airnode operator to set it's public key
     /// @dev It is expected for the Airnode operator to call this function with
     /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// This announcement does not need to be made for the protocol to be used,
+    /// This public key set does not need to be made for the protocol to be used,
     /// it is mainly for convenience.
     /// @param xpub Extended public key of the Airnode
-    /// @param authorizers Authorizer contract addresses that Airnode uses
-    function setAirnodeAnnouncement(
-        string calldata xpub,
-        address[] calldata authorizers
-    ) external override {
-        airnodeToAnnouncement[msg.sender] = Announcement({
-            xpub: xpub,
-            authorizers: authorizers
-        });
-        emit SetAirnodeAnnouncement(msg.sender, xpub, authorizers);
+    function setAirnodePublicKey(string calldata xpub) external override {
+        airnodeToPublicKey[msg.sender] = xpub;
+        emit SetAirnodePublicKey(msg.sender, xpub);
     }
 
-    /// @notice Called to get the Airnode announcement
+    /// @notice Called by the Airnode operator to set authorizers
+    /// @dev It is expected for the Airnode operator to call this function with
+    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
+    /// This authorizers set does not need to be made for the protocol to be used,
+    /// it is mainly for convenience. This is only to allow the Airnode operator
+    /// to announce the authorizers it will be using. It is a trusted on-chain
+    /// announcement similar to xpub.
+    /// @param authorizers Authorizer contract addresses that Airnode uses
+    function setAirnodeAuthorizers(address[] calldata authorizers)
+        external
+        override
+    {
+        airnodeToAuthorizers[msg.sender] = authorizers;
+        emit SetAirnodeAuthorizers(msg.sender, authorizers);
+    }
+
+    /// @notice Called to get the Airnode public key
     /// @dev The information announced with this function is not trustless.
     /// It is up to the user to verify that the announced `xpub` is correct by
     /// checking if its default BIP 44 wallet matches the Airnode address.
-    /// It is not possible to verify the correctness of `authorizers` (i.e.,
-    /// that the Airnode will use these contracts to check for authorization).
     /// @param airnode Airnode address
     /// @return xpub Extended public key of the Airnode
-    /// @return authorizers Authorizer contract addresses
-    function getAirnodeAnnouncement(address airnode)
+    function getAirnodePublicKey(address airnode)
         external
         view
         override
-        returns (string memory xpub, address[] memory authorizers)
+        returns (string memory xpub)
     {
-        Announcement storage announcement = airnodeToAnnouncement[airnode];
-        return (announcement.xpub, announcement.authorizers);
+        return airnodeToPublicKey[airnode];
+    }
+
+    /// @notice Called to get the Airnode authorizers
+    /// @dev The information announced with this function is not trustless.
+    /// It is not possible to verify the correctness of `authorizers` (i.e.,
+    /// that the Airnode will use these contracts to check for authorization).
+    /// @param airnode Airnode address
+    /// @return authorizers Authorizer contract addresses
+    function getAirnodeAuthorizers(address airnode)
+        external
+        view
+        override
+        returns (address[] memory authorizers)
+    {
+        return airnodeToAuthorizers[airnode];
     }
 
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
