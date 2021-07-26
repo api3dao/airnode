@@ -5,7 +5,7 @@ import * as node from '@api3/node';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
 const rawConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-const parsedConfig = config.parseConfig(rawConfig[0]);
+const parsedConfig = config.parseConfig(rawConfig);
 
 function encodeBody(data: node.WorkerResponse): string {
   return JSON.stringify(data);

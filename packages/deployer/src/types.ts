@@ -78,8 +78,6 @@ export interface Configuration {
   environment: Environment;
 }
 
-export type Configurations = Configuration[];
-
 // ===========================================
 // Receipt file
 // ===========================================
@@ -91,5 +89,3 @@ export interface Receipt {
   masterWalletAddress: string;
   config: Omit<Configuration, 'ois' | 'triggers' | 'environment'>;
 }
-
-export type Receipts = Receipt[];

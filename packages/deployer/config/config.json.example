@@ -1,164 +1,162 @@
-[
-  {
-    "chains": [
+{
+  "chains": [
+    {
+      "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
+      "authorizers": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "contracts": {
+        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      },
+      "id": "31337",
+      "providerNames": [
+        "EVM local"
+      ],
+      "type": "evm"
+    }
+  ],
+  "environment": {
+    "chainProviders": [
       {
-        "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
-        "authorizers": [
-          "0x0000000000000000000000000000000000000000"
-        ],
-        "contracts": {
-          "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-        },
-        "id": "31337",
-        "providerNames": [
-          "EVM local"
-        ],
-        "type": "evm"
+        "chainType": "evm",
+        "chainId": "31337",
+        "name": "EVM local",
+        "envName": "CP_EVM_31337_EVM_LOCAL"
       }
     ],
-    "environment": {
-      "chainProviders": [
-        {
-          "chainType": "evm",
-          "chainId": "31337",
-          "name": "EVM local",
-          "envName": "CP_EVM_31337_EVM_LOCAL"
-        }
-      ],
-      "securitySchemes": [
-        {
-          "oisTitle": "Currency Converter API",
-          "name": "Currency Converter Security Scheme",
-          "envName": "SS_CURRENCY_CONVERTER_API_CURRENCY_CONVERTER_SECURITY_SCHEME"
-        }
-      ]
-    },
-    "nodeSettings": {
-      "cloudProvider": "aws",
-      "enableHeartbeat": true,
-      "logFormat": "plain",
-      "logLevel": "INFO",
-      "nodeVersion": "0.1.0",
-      "region": "us-east-1",
-      "stage": "dev"
-    },
-    "triggers": {
-      "request": [
-        {
-          "endpointId": "0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353",
-          "oisTitle": "Currency Converter API",
-          "endpointName": "convertToUSD"
-        }
-      ]
-    },
-    "ois": [
+    "securitySchemes": [
       {
-        "oisFormat": "1.0.0",
-        "version": "1.2.3",
-        "title": "Currency Converter API",
-        "apiSpecifications": {
-          "info": {
-            "title": "Currency Converter API"
-          },
-          "servers": [
-            {
-              "url": "http://localhost:5000"
-            }
-          ],
-          "paths": {
-            "/convert": {
-              "get": {
-                "parameters": [
-                  {
-                    "in": "query",
-                    "name": "from"
-                  },
-                  {
-                    "in": "query",
-                    "name": "to"
-                  },
-                  {
-                    "in": "query",
-                    "name": "amount"
-                  },
-                  {
-                    "in": "query",
-                    "name": "date"
-                  }
-                ]
-              }
-            }
-          },
-          "components": {
-            "securitySchemes": {
-              "Currency Converter Security Scheme": {
-                "in": "query",
-                "type": "apiKey",
-                "name": "access_key"
-              }
-            }
-          },
-          "security": [
-            {
-              "Currency Converter Security Scheme": []
-            }
-          ]
+        "oisTitle": "Currency Converter API",
+        "name": "Currency Converter Security Scheme",
+        "envName": "SS_CURRENCY_CONVERTER_API_CURRENCY_CONVERTER_SECURITY_SCHEME"
+      }
+    ]
+  },
+  "nodeSettings": {
+    "cloudProvider": "aws",
+    "enableHeartbeat": true,
+    "logFormat": "plain",
+    "logLevel": "INFO",
+    "nodeVersion": "0.1.0",
+    "region": "us-east-1",
+    "stage": "dev"
+  },
+  "triggers": {
+    "request": [
+      {
+        "endpointId": "0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353",
+        "oisTitle": "Currency Converter API",
+        "endpointName": "convertToUSD"
+      }
+    ]
+  },
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.2.3",
+      "title": "Currency Converter API",
+      "apiSpecifications": {
+        "info": {
+          "title": "Currency Converter API"
         },
-        "endpoints": [
+        "servers": [
           {
-            "name": "convertToUSD",
-            "operation": {
-              "method": "get",
-              "path": "/convert"
-            },
-            "fixedOperationParameters": [
-              {
-                "operationParameter": {
+            "url": "http://localhost:5000"
+          }
+        ],
+        "paths": {
+          "/convert": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "from"
+                },
+                {
                   "in": "query",
                   "name": "to"
                 },
-                "value": "USD"
-              }
-            ],
-            "reservedParameters": [
-              {
-                "name": "_type",
-                "fixed": "int256"
-              },
-              {
-                "name": "_path",
-                "fixed": "result"
-              },
-              {
-                "name": "_times",
-                "default": "1000000"
-              },
-              {
-                "name": "_relay_metadata",
-                "default": "v1"
-              }
-            ],
-            "parameters": [
-              {
-                "name": "from",
-                "default": "EUR",
-                "operationParameter": {
+                {
                   "in": "query",
-                  "name": "from"
+                  "name": "amount"
+                },
+                {
+                  "in": "query",
+                  "name": "date"
                 }
-              },
-              {
-                "name": "amount",
-                "default": "1",
-                "operationParameter": {
-                  "name": "amount",
-                  "in": "query"
-                }
-              }
-            ]
+              ]
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {
+            "Currency Converter Security Scheme": {
+              "in": "query",
+              "type": "apiKey",
+              "name": "access_key"
+            }
+          }
+        },
+        "security": [
+          {
+            "Currency Converter Security Scheme": []
           }
         ]
-      }
-    ]
-  }
-]
+      },
+      "endpoints": [
+        {
+          "name": "convertToUSD",
+          "operation": {
+            "method": "get",
+            "path": "/convert"
+          },
+          "fixedOperationParameters": [
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "to"
+              },
+              "value": "USD"
+            }
+          ],
+          "reservedParameters": [
+            {
+              "name": "_type",
+              "fixed": "int256"
+            },
+            {
+              "name": "_path",
+              "fixed": "result"
+            },
+            {
+              "name": "_times",
+              "default": "1000000"
+            },
+            {
+              "name": "_relay_metadata",
+              "default": "v1"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "from",
+              "default": "EUR",
+              "operationParameter": {
+                "in": "query",
+                "name": "from"
+              }
+            },
+            {
+              "name": "amount",
+              "default": "1",
+              "operationParameter": {
+                "name": "amount",
+                "in": "query"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

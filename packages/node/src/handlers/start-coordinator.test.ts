@@ -33,7 +33,7 @@ import * as fixtures from '../../test/fixtures';
 describe('startCoordinator', () => {
   it('fetches and processes requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
     getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
@@ -88,7 +88,7 @@ describe('startCoordinator', () => {
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
     getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
