@@ -36,7 +36,7 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
 
   const chain = e2e.buildChainConfig(deployment.contracts);
   const config = fixtures.buildConfig({ chains: [chain] });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   await handlers.startCoordinator();
 
@@ -93,7 +93,7 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
 
   const chain = e2e.buildChainConfig(deployment.contracts);
   const config = fixtures.buildConfig({ chains: [chain] });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   await handlers.startCoordinator();
 

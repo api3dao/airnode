@@ -16,7 +16,6 @@ import {
   verifyMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
-import { Receipts } from '../types';
 
 export async function deploy(
   configFile: string,
@@ -25,7 +24,7 @@ export async function deploy(
   interactive: boolean,
   nodeVersion: string
 ) {
-  const configs = parseConfigFile(configFile, nodeVersion);
+  const config = parseConfigFile(configFile, nodeVersion);
   const secrets = parseSecretsFile(secretsFile);
 
   if (!secrets.MASTER_KEY_MNEMONIC) {
@@ -48,38 +47,36 @@ export async function deploy(
 
   const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
   const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
-  await checkAirnodeParameters(configs, secrets, airnodeId, masterWalletAddress);
+  await checkAirnodeParameters(config, secrets, airnodeId, masterWalletAddress);
 
   const airnodeIdShort = shortenAirnodeId(airnodeId);
-  const receipts: Receipts = [];
-  for (const config of configs) {
-    try {
-      await deployAirnode(
-        airnodeIdShort,
-        config.nodeSettings.stage,
-        config.nodeSettings.cloudProvider,
-        config.nodeSettings.region,
-        configFile,
-        tmpSecretsFile
-      );
-      receipts.push({
-        airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
-        airnodeIdShort,
-        config: { chains: config.chains, nodeSettings: config.nodeSettings },
-        masterWalletAddress,
-        xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
-      });
-    } catch (err) {
-      logger.warn(`Failed deploying configuration, skipping`);
-      logger.warn(err.toString());
-    }
+  try {
+    await deployAirnode(
+      airnodeIdShort,
+      config.nodeSettings.stage,
+      config.nodeSettings.cloudProvider,
+      config.nodeSettings.region,
+      configFile,
+      tmpSecretsFile
+    );
+  } catch (err) {
+    logger.warn(`Failed deploying configuration, skipping`);
+    logger.warn(err.toString());
   }
+
+  const receipt = {
+    airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
+    airnodeIdShort,
+    config: { chains: config.chains, nodeSettings: config.nodeSettings },
+    masterWalletAddress,
+    xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
+  };
 
   logger.debug('Deleting a temporary secrets.json file');
   fs.rmSync(tmpDir, { recursive: true });
 
   logger.debug('Writing receipt.json file');
-  fs.writeFileSync(receiptFile, JSON.stringify(receipts, null, 2));
+  fs.writeFileSync(receiptFile, JSON.stringify(receipt, null, 2));
   logger.info(`Outputted ${receiptFile}\n` + '  This file does not contain any sensitive information.');
 }
 
@@ -88,18 +85,16 @@ export async function remove(airnodeIdShort: string, stage: string, cloudProvide
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
-  const receipts = parseReceiptFile(receiptFilename);
-  for (const receipt of receipts) {
-    try {
-      await remove(
-        receipt.airnodeIdShort,
-        receipt.config.nodeSettings.stage,
-        receipt.config.nodeSettings.cloudProvider,
-        receipt.config.nodeSettings.region
-      );
-    } catch (err) {
-      logger.warn(`Failed removing configuration, skipping`);
-      logger.warn(err.toString());
-    }
+  const receipt = parseReceiptFile(receiptFilename);
+  try {
+    await remove(
+      receipt.airnodeIdShort,
+      receipt.config.nodeSettings.stage,
+      receipt.config.nodeSettings.cloudProvider,
+      receipt.config.nodeSettings.region
+    );
+  } catch (err) {
+    logger.warn(`Failed removing configuration, skipping`);
+    logger.warn(err.toString());
   }
 }

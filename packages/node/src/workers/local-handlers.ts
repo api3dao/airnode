@@ -16,7 +16,7 @@ export interface CallApiArgs {
 }
 
 function loadConfig() {
-  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))[0];
+  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
   return parseConfig(rawConfig);
 }
 
