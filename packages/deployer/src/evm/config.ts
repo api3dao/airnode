@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import mergeWith from 'lodash/mergeWith';
 import merge from 'lodash/merge';
-import { Configuration, ChainType } from '../types';
+import { Config, ChainType } from '@api3/node';
 import * as logger from '../utils/logger';
 
 type ProviderUrls = {
@@ -22,7 +22,7 @@ function mergeCustomizer(objValue: any, srcValue: any) {
 // I'd say that these checks (both from `findProviderUrls` and `findAirnodeRrpAddresses`) should
 // be done by the validator in the future
 
-export function findProviderUrls(config: Configuration, secrets: Record<string, string>) {
+export function findProviderUrls(config: Config, secrets: Record<string, string>) {
   logger.debug('Retrieving provider URLs');
   const providerUrls: ProviderUrls = {};
   for (const configChain of config.chains) {
@@ -48,7 +48,7 @@ export function findProviderUrls(config: Configuration, secrets: Record<string, 
   return providerUrls;
 }
 
-export function findAirnodeRrpAddresses(config: Configuration) {
+export function findAirnodeRrpAddresses(config: Config) {
   logger.debug('Checking Airnode RRP addresses');
   const airnodeRrpAddresses: AirnodeRrpAddresses = {};
   for (const configChain of config.chains) {

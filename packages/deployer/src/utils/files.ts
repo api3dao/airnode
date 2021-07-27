@@ -1,11 +1,12 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { Configuration, Receipt } from '../types';
+import { Config } from '@api3/node';
+import { Receipt } from '../types';
 import * as logger from '../utils/logger';
 
 export function parseConfigFile(configPath: string, nodeVersion: string) {
   logger.debug('Parsing configuration file');
-  let config: Configuration;
+  let config: Config;
   try {
     config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   } catch (e) {
