@@ -6,27 +6,29 @@ import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title Contract that implements convenience functions
 contract ConvenienceUtils is IConvenienceUtils {
-    mapping(address => string) private airnodeToPublicKey;
+    /// @notice Called to get the extended public key of the Airnode
+    mapping(address => string) public override airnodeToXpub;
+
     mapping(address => address[]) private airnodeToAuthorizers;
 
-    /// @notice Called by the Airnode operator to set it's public key
+    /// @notice Called by the Airnode operator to announce its extended public
+    /// key
     /// @dev It is expected for the Airnode operator to call this function with
     /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// This public key set does not need to be made for the protocol to be used,
-    /// it is mainly for convenience.
+    /// This extended public key does not need to be announced on-chain for the
+    /// protocol to be used, it is mainly for convenience.
     /// @param xpub Extended public key of the Airnode
-    function setAirnodePublicKey(string calldata xpub) external override {
-        airnodeToPublicKey[msg.sender] = xpub;
-        emit SetAirnodePublicKey(msg.sender, xpub);
+    function setAirnodeXpub(string calldata xpub) external override {
+        airnodeToXpub[msg.sender] = xpub;
+        emit SetAirnodeXpub(msg.sender, xpub);
     }
 
-    /// @notice Called by the Airnode operator to set authorizers
+    /// @notice Called by the Airnode operator to announce the addresses of the
+    /// authorizer contracts it uses
     /// @dev It is expected for the Airnode operator to call this function with
     /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// This authorizers set does not need to be made for the protocol to be used,
-    /// it is mainly for convenience. This is only to allow the Airnode operator
-    /// to announce the authorizers it will be using. It is a trusted on-chain
-    /// announcement similar to xpub.
+    /// These authorizer contract addresses do not need to be announced
+    /// on-chain for the protocol to be used, it is mainly for convenience.
     /// @param authorizers Authorizer contract addresses that Airnode uses
     function setAirnodeAuthorizers(address[] calldata authorizers)
         external
@@ -34,21 +36,6 @@ contract ConvenienceUtils is IConvenienceUtils {
     {
         airnodeToAuthorizers[msg.sender] = authorizers;
         emit SetAirnodeAuthorizers(msg.sender, authorizers);
-    }
-
-    /// @notice Called to get the Airnode public key
-    /// @dev The information announced with this function is not trustless.
-    /// It is up to the user to verify that the announced `xpub` is correct by
-    /// checking if its default BIP 44 wallet matches the Airnode address.
-    /// @param airnode Airnode address
-    /// @return xpub Extended public key of the Airnode
-    function getAirnodePublicKey(address airnode)
-        external
-        view
-        override
-        returns (string memory xpub)
-    {
-        return airnodeToPublicKey[airnode];
     }
 
     /// @notice Called to get the Airnode authorizers
