@@ -2,18 +2,13 @@
 pragma solidity 0.8.6;
 
 interface IConvenienceUtils {
-    event SetAirnodePublicKey(address indexed airnode, string xpub);
+    event SetAirnodeXpub(address indexed airnode, string xpub);
 
     event SetAirnodeAuthorizers(address indexed airnode, address[] authorizers);
 
-    function setAirnodePublicKey(string calldata xpub) external;
+    function setAirnodeXpub(string calldata xpub) external;
 
     function setAirnodeAuthorizers(address[] calldata authorizers) external;
-
-    function getAirnodePublicKey(address airnode)
-        external
-        view
-        returns (string memory xpub);
 
     function getAirnodeAuthorizers(address airnode)
         external
@@ -37,4 +32,9 @@ interface IConvenienceUtils {
         address[] calldata sponsors,
         address[] calldata requesters
     ) external view returns (bool[] memory statuses);
+
+    function airnodeToXpub(address airnode)
+        external
+        view
+        returns (string memory xpub);
 }
