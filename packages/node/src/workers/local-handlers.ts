@@ -12,6 +12,7 @@ export interface ProviderArgs {
 export interface CallApiArgs {
   readonly aggregatedApiCall: AggregatedApiCall;
   readonly logOptions: LogOptions;
+  readonly encodeResponse?: boolean;
 }
 
 function loadConfig() {
@@ -39,9 +40,9 @@ export async function initializeProvider({ state: providerState }: ProviderArgs)
   return { ok: true, data: scrubbedState };
 }
 
-export async function callApi({ aggregatedApiCall, logOptions }: CallApiArgs): Promise<WorkerResponse> {
+export async function callApi({ aggregatedApiCall, logOptions, encodeResponse }: CallApiArgs): Promise<WorkerResponse> {
   const config = loadConfig();
-  const [logs, response] = await handlers.callApi(config, aggregatedApiCall);
+  const [logs, response] = await handlers.callApi(config, aggregatedApiCall, encodeResponse);
   logger.logPending(logs, logOptions);
   return { ok: true, data: response };
 }
@@ -59,4 +60,14 @@ export async function processProviderRequests({ state: providerState }: Provider
 
   const scrubbedState = state.scrub(updatedState);
   return { ok: true, data: scrubbedState };
+}
+
+export async function testApi(endpointName: string, parameters: any) {
+  const config = loadConfig();
+  const [err, result] = await handlers.testApi(config, endpointName, parameters);
+  if (err) {
+    throw err;
+  }
+
+  return result;
 }

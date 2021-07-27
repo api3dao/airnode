@@ -1,5 +1,6 @@
 import * as adapter from '@api3/adapter';
 import { OIS } from '@api3/ois';
+import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
@@ -62,7 +63,8 @@ function buildOptions(
 
 export async function callApi(
   config: Config,
-  aggregatedApiCall: AggregatedApiCall
+  aggregatedApiCall: AggregatedApiCall,
+  encodeResponse = true
 ): Promise<LogsData<ApiCallResponse>> {
   const { chainId, endpointName, oisTitle } = aggregatedApiCall;
   const chain = config.chains.find((c) => c.id === chainId)!;
@@ -100,7 +102,9 @@ export async function callApi(
   // eslint-disable-next-line functional/no-try-statement
   try {
     const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
-    return [[], { value: extracted.encodedValue }];
+    const value = encodeResponse ? extracted.encodedValue : extracted.value;
+    const printableValue = BigNumber.isBigNumber(value) ? adapter.bigNumberToString(value) : value;
+    return [[], { value: printableValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
     const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);

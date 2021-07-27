@@ -13,12 +13,13 @@ import {
 export async function spawnNewApiCall(
   aggregatedApiCall: AggregatedApiCall,
   logOptions: LogOptions,
-  workerOpts: WorkerOptions
+  workerOpts: WorkerOptions,
+  encodeResponse = true
 ): Promise<LogsData<ApiCallResponse | null>> {
   const options = {
     ...workerOpts,
     functionName: 'callApi' as WorkerFunctionName,
-    payload: { aggregatedApiCall, logOptions },
+    payload: { aggregatedApiCall, logOptions, encodeResponse },
   };
 
   const [err, res] = await go(() => workers.spawn(options));

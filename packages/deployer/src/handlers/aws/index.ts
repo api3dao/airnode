@@ -30,8 +30,8 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions } = event;
-  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
+  const { aggregatedApiCall, logOptions, encodeResponse } = event;
+  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall, encodeResponse);
   logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
@@ -50,4 +50,16 @@ export async function processProviderRequests(event: any) {
 
   const body = encodeBody({ ok: true, data: providerState.scrub(updatedState) });
   return { statusCode: 200, body };
+}
+
+export async function testApi(event: any) {
+  const parameters = JSON.parse(event.body).parameters;
+  const endpointName = event.pathParameters.endpointName;
+
+  const [err, result] = await handlers.testApi(parsedConfig, endpointName, parameters);
+  if (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
+  }
+
+  return { statusCode: 200, body: JSON.stringify(result) };
 }

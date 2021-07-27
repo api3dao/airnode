@@ -12,6 +12,7 @@
     "clean": "rimraf -rf ./dist",
     "compile": "tsc -p tsconfig.build.json",
     "dev:invoke": "(cd __dev__ && ts-node invoke.ts)",
+    "dev:testApi": "cd __dev__ && ts-node test-api.ts",
     "prepublishOnly": "yarn run build",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
     "test:e2e:debug": "jest \"client-fulfill.feature\" --selectProjects e2e",
@@ -37,9 +38,11 @@
     "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.169",
     "@types/node": "^15.12.2",
+    "@types/yargs": "^16.0.1",
     "jest": "^26.6.3",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.5.6",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "yargs": "^17.0.1"
   }
 }
