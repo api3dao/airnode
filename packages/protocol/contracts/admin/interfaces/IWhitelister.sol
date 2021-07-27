@@ -3,7 +3,7 @@ pragma solidity 0.8.6;
 
 import "./IRankedAdminnable.sol";
 
-interface IWhitelister is IRankedAdminnable{
+interface IWhitelister is IRankedAdminnable {
     event ExtendedWhitelistExpiration(
         bytes32 indexed serviceId,
         address indexed user,
