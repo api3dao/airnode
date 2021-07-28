@@ -33,8 +33,8 @@ export function initialize(logWithMetadata: EVMWithdrawalRequestLog): ClientRequ
 }
 
 export interface UpdatedFulfilledRequests {
-  logs: PendingLog[];
-  requests: ClientRequest<Withdrawal>[];
+  readonly logs: PendingLog[];
+  readonly requests: ClientRequest<Withdrawal>[];
 }
 
 export function updateFulfilledRequests(
@@ -70,7 +70,7 @@ export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientReq
   ) as EVMWithdrawalFulfilledLog[];
 
   // Cast raw logs to typed WithdrawalRequest objects
-  const withdrawalRequests = requestLogs.map((log) => initialize(log));
+  const withdrawalRequests = requestLogs.map(initialize);
 
   // Update the status of requests that have already been fulfilled
   const fulfilledRequestIds = fulfillmentLogs.map((fl) => fl.parsedLog.args.withdrawalRequestId);

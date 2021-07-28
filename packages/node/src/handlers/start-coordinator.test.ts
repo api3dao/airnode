@@ -1,4 +1,4 @@
-import { mockEthers } from 'test/utils';
+import { mockEthers } from '../../test/mock-utils';
 const checkAuthorizationStatusesMock = jest.fn();
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
@@ -28,19 +28,18 @@ import fs from 'fs';
 import { ethers } from 'ethers';
 import * as adapter from '@api3/adapter';
 import { startCoordinator } from './start-coordinator';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
   it('fetches and processes requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
     getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
 
     const regularRequest = fixtures.evm.logs.buildClientRequest();
@@ -89,14 +88,13 @@ describe('startCoordinator', () => {
 
   it('returns early if there are no processable requests', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
     getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
 
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');

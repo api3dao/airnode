@@ -24,7 +24,7 @@ it('processes withdrawals only once', async () => {
 
   const chain = e2e.buildChainConfig(deployment.contracts);
   const config = fixtures.buildConfig({ chains: [chain] });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   // Check that the relevant withdrawal events are present
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);

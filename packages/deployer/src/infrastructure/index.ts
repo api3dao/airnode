@@ -3,9 +3,9 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
+import ora from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
-import ora from 'ora';
 
 const exec = util.promisify(child.exec);
 // TODO:

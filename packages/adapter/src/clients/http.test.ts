@@ -1,8 +1,8 @@
 jest.mock('axios', () => jest.fn());
 
 import axios from 'axios';
-import { Request } from '../types';
 import * as http from './http';
+import { Request } from '../types';
 
 describe('get', () => {
   it('makes a GET request with the specified details', () => {

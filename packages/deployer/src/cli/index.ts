@@ -81,7 +81,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'remove',
-    'Removes Airnode deployment',
+    'Removes a deployed Airnode instance',
     {
       receipt: {
         alias: 'r',
@@ -143,4 +143,5 @@ yargs(hideBin(process.argv))
   )
   .help()
   .demandCommand(1)
-  .strict().argv;
+  .strict()
+  .wrap(120).argv;

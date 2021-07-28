@@ -3,6 +3,8 @@
 //
 // Credit: https://github.com/facebook/jest/issues/6914#issuecomment-654710111
 const { defineProperty } = Object;
+
+// eslint-disable-next-line functional/immutable-data
 Object.defineProperty = function (object, name, meta) {
   if (meta.get && !meta.configurable) {
     // it might be an ES6 exports object

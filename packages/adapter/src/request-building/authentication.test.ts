@@ -1,6 +1,8 @@
+/* eslint-disable functional/immutable-data */
+
 import { ApiSecurityScheme, ApiSpecification } from '@api3/ois';
-import * as fixtures from '../../test/fixtures';
 import * as authentication from './authentication';
+import * as fixtures from '../../test/fixtures';
 
 describe('building empty parameters', () => {
   it('returns no parameters if securitySchemeSecrets is empty', () => {

@@ -1,8 +1,8 @@
 interface AnyObject {
-  [key: string]: any;
+  readonly [key: string]: any;
 }
 
-export function removeKeys(obj: AnyObject, keys: string[]) {
+export function removeKeys(obj: AnyObject, keys: readonly string[]) {
   return keys.reduce((acc, key) => {
     return removeKey(acc, key);
   }, obj);

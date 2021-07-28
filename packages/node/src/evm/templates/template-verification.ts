@@ -4,7 +4,7 @@ import * as logger from '../../logger';
 import { ApiCall, ApiCallTemplate, ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 interface ApiCallTemplatesById {
-  [id: string]: ApiCallTemplate;
+  readonly [id: string]: ApiCallTemplate;
 }
 
 export const TEMPLATE_VALIDATION_FIELDS = ['airnodeId', 'endpointId', 'encodedParameters'];

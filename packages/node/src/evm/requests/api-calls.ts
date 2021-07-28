@@ -1,7 +1,7 @@
 import flatMap from 'lodash/flatMap';
+import * as events from './events';
 import * as encoding from '../abi-encoding';
 import { airnodeRrpTopics } from '../contracts';
-import * as events from './events';
 import * as logger from '../../logger';
 import {
   ApiCall,
@@ -83,8 +83,8 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
 }
 
 export interface UpdatedFulfilledRequests {
-  logs: PendingLog[];
-  requests: ClientRequest<ApiCall>[];
+  readonly logs: PendingLog[];
+  readonly requests: ClientRequest<ApiCall>[];
 }
 
 export function updateFulfilledRequests(
@@ -121,10 +121,10 @@ export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientReq
   ) as EVMRequestFulfilledLog[];
 
   // Cast raw logs to typed API request objects
-  const apiCallRequests = requestLogs.map((log) => initialize(log));
+  const apiCallRequests = requestLogs.map(initialize);
 
   // Decode and apply parameters for each API call
-  const parameterized = apiCallRequests.map((request) => applyParameters(request));
+  const parameterized = apiCallRequests.map(applyParameters);
   const parameterLogs = flatMap(parameterized, (p) => p[0]);
   const parameterizedRequests = flatMap(parameterized, (p) => p[1]);
 

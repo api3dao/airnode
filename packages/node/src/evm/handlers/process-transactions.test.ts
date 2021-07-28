@@ -1,4 +1,4 @@
-import { mockEthers } from 'test/utils';
+import { mockEthers } from '../../../test/mock-utils';
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
@@ -20,8 +20,8 @@ mockEthers({
 
 import { ethers } from 'ethers';
 import { processTransactions } from './process-transactions';
-import * as fixtures from 'test/fixtures';
-import { GroupedRequests } from '../../types';
+import * as fixtures from '../../../test/fixtures';
+import { GroupedRequests, RequestStatus } from '../../types';
 
 describe('processTransactions', () => {
   it('fetches the gas price, assigns nonces and submits transactions', async () => {
@@ -33,8 +33,11 @@ describe('processTransactions', () => {
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
 
     estimateGasWithdrawalMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
+    fulfillWithdrawalMock.mockResolvedValueOnce({
+      hash: '0xcbb3f9dc6a24e8b6f5427dcf960b1da01c3df0636cb25a292f8dcaad78755c8d',
+    });
     staticFulfillMock.mockResolvedValueOnce({ callSuccess: true });
-    staticFulfillMock.mockResolvedValueOnce({
+    fulfillMock.mockResolvedValueOnce({
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
@@ -48,8 +51,18 @@ describe('processTransactions', () => {
     const state = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
 
     const res = await processTransactions(state);
-    expect(res.requests.apiCalls[0]).toEqual({ ...apiCall, nonce: 79 });
-    expect(res.requests.withdrawals[0]).toEqual({ ...withdrawal, nonce: 212 });
+    expect(res.requests.apiCalls[0]).toEqual({
+      ...apiCall,
+      nonce: 79,
+      fulfillment: { hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3' },
+      status: RequestStatus.Submitted,
+    });
+    expect(res.requests.withdrawals[0]).toEqual({
+      ...withdrawal,
+      nonce: 212,
+      fulfillment: { hash: '0xcbb3f9dc6a24e8b6f5427dcf960b1da01c3df0636cb25a292f8dcaad78755c8d' },
+      status: RequestStatus.Submitted,
+    });
     expect(res.gasPrice).toEqual(ethers.BigNumber.from('1000'));
 
     // Withdrawal was submitted

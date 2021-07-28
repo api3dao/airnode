@@ -1,6 +1,6 @@
-import { Config, RequestTrigger } from '../../../src/types';
 import * as ois from './ois';
 import * as settings from './node-settings';
+import { Config, RequestTrigger } from '../../../src/types';
 
 export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigger {
   return {
@@ -49,7 +49,6 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
       ],
     },
-    id: 'test-config',
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
       request: [buildTrigger()],

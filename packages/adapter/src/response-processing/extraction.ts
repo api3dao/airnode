@@ -1,4 +1,4 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import isUndefined from 'lodash/isUndefined';
 import * as casting from './casting';
 import * as encoding from './encoding';
@@ -16,6 +16,7 @@ export function getRawValue(data: any, path?: string, defaultValue?: any) {
   // We could use lodash#get, but it's slow and we want to control the
   // exact behaviour ourselves.
   return path.split('.').reduce((acc, segment) => {
+    // eslint-disable-next-line functional/no-try-statement
     try {
       const nextValue = acc[segment];
       return nextValue === undefined ? defaultValue : nextValue;

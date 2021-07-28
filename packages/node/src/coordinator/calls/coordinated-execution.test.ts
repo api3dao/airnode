@@ -3,8 +3,8 @@ jest.mock('fs');
 import fs from 'fs';
 import * as adapter from '@api3/adapter';
 import { ethers } from 'ethers';
-import * as fixtures from 'test/fixtures';
 import * as coordinatedExecution from './coordinated-execution';
+import * as fixtures from '../../../test/fixtures';
 import * as workers from '../../workers/index';
 import { LogOptions, RequestErrorCode } from '../../types';
 
@@ -27,7 +27,7 @@ describe('callApis', () => {
 
   it('returns each API call with the response if successful', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const parameters = { _type: 'int256', _path: 'prices.1' };
@@ -54,7 +54,7 @@ describe('callApis', () => {
 
   it('returns an error if the adapter fails to extract and encode the response value', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValueOnce({ data: { prices: ['443.76381', '441.83723'] } });
     const extractSpy = jest.spyOn(adapter, 'extractAndEncodeResponse') as jest.SpyInstance;
@@ -85,7 +85,7 @@ describe('callApis', () => {
 
   it('returns an error if the API call fails', async () => {
     const config = fixtures.buildConfig();
-    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     spy.mockRejectedValueOnce(new Error('API call failed'));
     const parameters = { _type: 'int256', _path: 'prices.1' };

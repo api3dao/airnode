@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
 interface ITemplateStore {
   event TemplateCreated(bytes32 indexed templateId, bytes32 airnodeId, bytes32 endpointId, bytes parameters);
