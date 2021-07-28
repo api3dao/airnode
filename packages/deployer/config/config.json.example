@@ -17,15 +17,6 @@
       "type": "evm"
     }
   ],
-  "environment": {
-    "securitySchemes": [
-      {
-        "oisTitle": "Currency Converter API",
-        "name": "Currency Converter Security Scheme",
-        "envName": "SS_CURRENCY_CONVERTER_API_CURRENCY_CONVERTER_SECURITY_SCHEME"
-      }
-    ]
-  },
   "nodeSettings": {
     "cloudProvider": "aws",
     "enableHeartbeat": true,
@@ -90,12 +81,7 @@
               "name": "access_key"
             }
           }
-        },
-        "security": [
-          {
-            "Currency Converter Security Scheme": []
-          }
-        ]
+        }
       },
       "endpoints": [
         {

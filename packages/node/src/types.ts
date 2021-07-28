@@ -380,19 +380,8 @@ export interface NodeSettings {
   readonly stage: string;
 }
 
-export interface SecuritySchemeEnvironmentConfig {
-  readonly oisTitle: string;
-  readonly name: string;
-  readonly envName: string;
-}
-
-export interface EnvironmentConfig {
-  readonly securitySchemes: SecuritySchemeEnvironmentConfig[];
-}
-
 export interface Config {
   readonly chains: ChainConfig[];
-  readonly environment: EnvironmentConfig;
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
