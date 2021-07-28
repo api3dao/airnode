@@ -1,7 +1,7 @@
+import { validateType } from './typeValidator';
 import * as logger from '../utils/logger';
 import { Log } from '../types';
 import * as utils from '../utils/utils';
-import { validateType } from './typeValidator';
 import { keywords } from '../utils/globals';
 
 /**
