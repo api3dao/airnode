@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { config as nodeConfig } from '@api3/node';
 import { checkAirnodeParameters } from '../evm';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
@@ -8,10 +9,10 @@ import {
   deriveMasterWalletAddress,
   deriveXpub,
   generateMnemonic,
-  parseConfigFile,
   parseReceiptFile,
   parseSecretsFile,
   shortenAirnodeId,
+  validateConfig,
   validateMnemonic,
   verifyMnemonic,
 } from '../utils';
@@ -24,8 +25,9 @@ export async function deploy(
   interactive: boolean,
   nodeVersion: string
 ) {
-  const config = parseConfigFile(configFile, nodeVersion);
   const secrets = parseSecretsFile(secretsFile);
+  const config = nodeConfig.parseConfig(configFile, secrets);
+  validateConfig(config, nodeVersion);
 
   if (!secrets.MASTER_KEY_MNEMONIC) {
     logger.warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');

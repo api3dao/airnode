@@ -1,34 +1,7 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { Config } from '@api3/node';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
-
-export function parseConfigFile(configPath: string, nodeVersion: string) {
-  logger.debug('Parsing configuration file');
-  let config: Config;
-  try {
-    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch (e) {
-    logger.fail('Failed to parse configuration file');
-    throw e;
-  }
-
-  // A more comprehensive validation should be done beforehand
-  // https://github.com/api3dao/airnode/issues/136
-  if (config.nodeSettings.cloudProvider !== 'aws') {
-    logger.fail('cloudProvider under nodeSettings in config.json is not aws');
-    throw new Error('Attempted to use an unsupported cloud provider');
-  }
-  if (nodeVersion !== config.nodeSettings.nodeVersion) {
-    logger.fail(
-      `nodeVersion under nodeSettings in config.json is ${config.nodeSettings.nodeVersion} while the deployer node version is ${nodeVersion}`
-    );
-    throw new Error('Attempted to deploy node configuration with the wrong node version');
-  }
-
-  return config;
-}
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');

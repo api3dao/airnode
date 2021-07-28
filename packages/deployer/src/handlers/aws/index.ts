@@ -1,13 +1,10 @@
-import * as fs from 'fs';
 import * as path from 'path';
-import { config, handlers, logger, promiseUtils, providerState } from '@api3/node';
-import * as node from '@api3/node';
+import { config, handlers, logger, promiseUtils, providerState, WorkerResponse } from '@api3/node';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const rawConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-const parsedConfig = config.parseConfig(rawConfig);
+const parsedConfig = config.parseConfig(configFile, process.env);
 
-function encodeBody(data: node.WorkerResponse): string {
+function encodeBody(data: WorkerResponse): string {
   return JSON.stringify(data);
 }
 

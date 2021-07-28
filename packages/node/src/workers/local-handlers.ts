@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { parseConfig } from '../config';
 import * as handlers from '../handlers';
 import * as logger from '../logger';
@@ -16,8 +15,7 @@ export interface CallApiArgs {
 }
 
 function loadConfig() {
-  const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-  return parseConfig(rawConfig);
+  return parseConfig('./config.json', process.env);
 }
 
 export async function startCoordinator(): Promise<WorkerResponse> {
