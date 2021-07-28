@@ -37,5 +37,6 @@ export const keywords = {
   then: '__then',
   this: '__this',
   thisName: '__this_name',
+  type: '__type',
   value: '__value',
 };

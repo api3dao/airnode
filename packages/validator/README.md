@@ -43,6 +43,7 @@ Validator behavior can be configured with validator templates, which are regular
 
 - [basics](docs/basics.md)
 - [regular expressions](docs/regex.md)
+- [type checking](docs/type.md)
 - [catch](docs/catch.md)
 - [conditions](docs/conditions.md)
 - [any](docs/any.md)

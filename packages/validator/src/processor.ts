@@ -1,5 +1,6 @@
 import * as utils from './utils/utils';
 import * as logger from './utils/logger';
+import * as msg from './utils/messages';
 import { keywords, regexList } from './utils/globals';
 import { validateCondition } from './validators/conditionValidator';
 import { validateRegexp } from './validators/regexpValidator';
@@ -10,6 +11,7 @@ import { execute } from './utils/action';
 import { validateParameter } from './validators/parameterValidator';
 import { validateCatch } from './validators/catchValidator';
 import { validateTemplate } from './validators/templateValidator';
+import { validateType } from './validators/typeValidator';
 
 /**
  * Validates provided specification against template
@@ -32,6 +34,15 @@ export function processSpecs(
   paramPathPrefix: string[] = []
 ): Result {
   let messages: Log[] = [];
+
+  if (template[keywords.type]) {
+    const res = validateType(specs, template[keywords.type], paramPath, paramPathPrefix);
+
+    if (res.length) {
+      messages.push(...res);
+      return { valid: false, messages, output: roots.output };
+    }
+  }
 
   for (const key of Object.keys(template)) {
     if (key === keywords.ignore) {
@@ -71,6 +82,11 @@ export function processSpecs(
 
       // validate array
       case keywords.arrayItem:
+        if (!Array.isArray(specs)) {
+          messages.push(msg.typeMismatch([...paramPathPrefix, ...paramPath], 'array'));
+          break;
+        }
+
         // nonRedundantParams has to have the same structure as template
         if (!nonRedundantParams) {
           nonRedundantParams = [];
@@ -131,6 +147,7 @@ export function processSpecs(
         break;
 
       case keywords.catch:
+      case keywords.type:
         break;
 
       case keywords.any:

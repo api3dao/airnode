@@ -1,3 +1,4 @@
+import { validateType } from './typeValidator';
 import * as logger from '../utils/logger';
 import { Log } from '../types';
 import * as utils from '../utils/utils';
@@ -20,6 +21,14 @@ export function validateRegexp(
   isKeyRegexp = false
 ): Log[] {
   const messages: Log[] = [];
+
+  if (!isKeyRegexp) {
+    const res = validateType(specs, 'string', paramPath, []);
+
+    if (res.length) {
+      return res;
+    }
+  }
 
   template = utils.replaceParamIndexWithName(template, paramPath);
   template = utils.replacePathsWithValues(specs, rootSpecs, template);
