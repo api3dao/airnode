@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig } from '../config';
-import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from '../../../src/types';
+import { ChainConfig, EVMProviderState, ProviderState } from '../../../src/types';
 
 export function buildEVMProviderState(
   overrides?: Partial<ProviderState<EVMProviderState>>
@@ -24,10 +24,7 @@ export function buildEVMProviderState(
       },
     },
   };
-  const environmentConfig: EnvironmentConfig = {
-    securitySchemes: [],
-  };
-  const config = buildConfig({ chains: [chainConfig], environment: environmentConfig });
+  const config = buildConfig({ chains: [chainConfig] });
   const state = buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
   return {
     ...state,

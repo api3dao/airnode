@@ -12,9 +12,6 @@ export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigge
 }
 
 export function buildConfig(overrides?: Partial<Config>): Config {
-  const oisTitle = 'Currency Converter API';
-  const securitySchemeName = 'My Security Scheme';
-  const securitySchemeEnvName = 'SS_CURRENCY_CONVERTER_API_MY_SECURITY_SCHEME';
   return {
     chains: [
       {
@@ -32,15 +29,6 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
       },
     ],
-    environment: {
-      securitySchemes: [
-        {
-          oisTitle: oisTitle,
-          name: securitySchemeName,
-          envName: securitySchemeEnvName,
-        },
-      ],
-    },
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
       request: [buildTrigger()],

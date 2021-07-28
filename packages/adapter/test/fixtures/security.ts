@@ -1,5 +1,9 @@
-import { SecuritySchemeSecret } from '@api3/ois';
+import { ApiCredentials } from '@api3/ois';
 
-export const securitySchemeSecrets: SecuritySchemeSecret[] = [
-  { securitySchemeName: 'myapiApiScheme', value: 'super-secret-key' },
-];
+export function buildCredentials(overrides?: Partial<ApiCredentials>): ApiCredentials {
+  return {
+    securityScheme: 'myapiApiScheme',
+    value: 'super-secret-key',
+    ...overrides,
+  };
+}

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from '../types';
+import { ChainConfig, EVMProviderState, ProviderState } from '../types';
 
 describe('create', () => {
   it('returns a clean state with defaults', () => {
@@ -23,10 +23,7 @@ describe('create', () => {
       },
       type: chainType,
     };
-    const environmentConfig: EnvironmentConfig = {
-      securitySchemes: [],
-    };
-    const config = fixtures.buildConfig({ environment: environmentConfig });
+    const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
@@ -86,10 +83,7 @@ describe('create', () => {
       },
       type: chainType,
     };
-    const environmentConfig: EnvironmentConfig = {
-      securitySchemes: [],
-    };
-    const config = fixtures.buildConfig({ environment: environmentConfig });
+    const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {

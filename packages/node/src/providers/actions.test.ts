@@ -31,7 +31,7 @@ import fs from 'fs';
 import { ethers } from 'ethers';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EnvironmentConfig, GroupedRequests, RequestStatus } from '../types';
+import { ChainConfig, GroupedRequests, RequestStatus } from '../types';
 
 const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
@@ -66,13 +66,9 @@ const chains: ChainConfig[] = [
   },
 ];
 
-const environmentConfig: EnvironmentConfig = {
-  securitySchemes: [],
-};
-
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
-    const config = fixtures.buildConfig({ chains, environment: environmentConfig });
+    const config = fixtures.buildConfig({ chains });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
