@@ -22,6 +22,7 @@ describe('CLI', () => {
   let alice: ethers.Wallet;
   const bobDerivationPath = "m/44'/60'/0'/0/2";
   let bob: ethers.Wallet;
+  let airnodeWallet: ethers.Wallet;
   let airnodeRrp: AirnodeRrp;
   // https://hardhat.org/hardhat-network/#hardhat-network-initial-state
   const mnemonic = 'test test test test test test test test test test test junk';
@@ -47,10 +48,10 @@ describe('CLI', () => {
     }
   };
 
-  const deriveDesignatedWallet = async (wallet: ethers.Wallet, requester: string) => {
+  const deriveSponsorWallet = async (wallet: ethers.Wallet, sponsor: string) => {
     const airnodeMnemonic = wallet.mnemonic.phrase;
-    const derivationPath = admin.addressToDerivationPath(requester);
-    return ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${derivationPath}`).connect(provider);
+    const derivationPath = admin.deriveWalletPathFromAddress(sponsor);
+    return ethers.Wallet.fromMnemonic(airnodeMnemonic, derivationPath).connect(provider);
   };
 
   beforeAll(() => {
@@ -59,7 +60,7 @@ describe('CLI', () => {
     expect(existsSync(`${CLI_EXECUTABLE}`)).toBe(true);
 
     provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
-    deployer = provider.getSigner(0);
+    deployer = provider.getSigner();
     alice = ethers.Wallet.fromMnemonic(mnemonic, aliceDerivationPath).connect(provider);
     bob = ethers.Wallet.fromMnemonic(mnemonic, bobDerivationPath).connect(provider);
   });
@@ -67,6 +68,12 @@ describe('CLI', () => {
   beforeEach(async () => {
     airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
     expect(airnodeRrp.address).toBeDefined();
+
+    airnodeWallet = ethers.Wallet.createRandom().connect(provider);
+    await deployer.sendTransaction({
+      to: airnodeWallet.address,
+      value: ethers.utils.parseEther('1'),
+    });
   });
 
   it('shows help', () => {
@@ -88,118 +95,98 @@ describe('CLI', () => {
 
     const sdkCliDiff = difference(allFunctions, allCommands);
     const uncoveredFunctions = [
-      // renamed to get-airnode-parameters (which calls this more generic version)
-      'get-airnode-parameters-and-block-number',
-      // renamed to get-endorsement-status
-      'requester-to-client-address-to-endorsement-status',
-      // covered by endorse-client and unendrose-client commands
-      'set-client-endorsement-status',
-      // explicitely not implemented (not useful as of now)
+      'airnode-to-xpub',
+      'sponsor-to-requester-to-sponsorship-status',
+      'set-sponsorship-status',
       'get-templates',
       'check-authorization-status',
       'check-authorization-statuses',
-      'default-authorizers',
       'fail',
       'fulfill',
       'fulfill-withdrawal',
       'make-full-request',
-      'make-request',
-      'owner',
-      'renounce-ownership',
+      'make-template-request',
       'request-with-id-has-failed',
-      'client-address-to-no-requests',
-      'requester-to-next-withdrawal-request-index',
-      'set-default-authorizers',
-      'transfer-ownership',
+      'requester-to-request-count-plus-one',
+      'sponsor-to-withdrawal-request-count',
+      'templates',
     ].sort();
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
-  it('derives the designated wallet', async () => {
-    const requester = alice.address;
-    const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
-    const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
-    const masterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, 'm').connect(provider);
-    // Fund the master wallet - which will be used to set the airnode parameters
-    await deployer.sendTransaction({
-      to: masterWallet.address,
-      value: ethers.utils.parseEther('1'),
-    });
-    airnodeRrp = airnodeRrp.connect(airnodeWallet);
-    const airnodeId = await admin.setAirnodeParameters(airnodeRrp, []);
+  it('derives the sponsor wallet', async () => {
+    const sponsor = alice.address;
 
     // Derive the wallet using CLI and admin SDK
     const out = execCommand(
-      'derive-designated-wallet',
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address],
-      ['--airnodeId', airnodeId],
-      ['--requester', requester]
+      'derive-sponsor-wallet',
+      ['--mnemonic', airnodeWallet.mnemonic.phrase],
+      ['--sponsor', sponsor]
     );
 
     // Derive the wallet programatically
-    const designatedWallet = await deriveDesignatedWallet(airnodeWallet, requester);
+    const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor);
 
     // Check that they generate the same wallet address
-    expect(out).toBe(`Designated wallet address: ${designatedWallet.address}`);
+    expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
   });
 
   describe('endorsements', () => {
-    it('endorses client', async () => {
-      const requester = alice.address;
-      const clientAddress = bob.address;
+    it('endorses requester', async () => {
+      const sponsor = alice.address;
+      const requester = bob.address;
 
       const out = execCommand(
-        'endorse-client',
-        ['--mnemonic', mnemonic],
-        ['--derivationPath', aliceDerivationPath],
+        'endorse-requester',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--clientAddress', clientAddress]
+        ['--mnemonic', mnemonic],
+        ['--derivationPath', aliceDerivationPath],
+        ['--requester', requester]
       );
-      expect(out).toBe(`Client address: ${clientAddress}`);
+      expect(out).toBe(`Requester address: ${requester}`);
 
-      const endorsed = await admin.requesterToClientAddressToEndorsementStatus(airnodeRrp, requester, clientAddress);
+      const endorsed = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
       expect(endorsed).toBe(true);
     });
 
-    it('unendorses client', async () => {
-      const requester = alice.address;
-      const clientAddress = bob.address;
+    it('unendorses requester', async () => {
+      const sponsor = alice.address;
+      const requester = bob.address;
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.endorseClient(airnodeRrp, clientAddress);
+      await admin.endorseRequester(airnodeRrp, requester);
 
-      const isEndorsed = () => admin.requesterToClientAddressToEndorsementStatus(airnodeRrp, requester, clientAddress);
+      const isEndorsed = () => admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
 
       expect(await isEndorsed()).toBe(true);
       const out = execCommand(
-        'unendorse-client',
+        'unendorse-requester',
         ['--mnemonic', mnemonic],
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--clientAddress', clientAddress]
+        ['--requester', requester]
       );
-      expect(out).toBe(`Client address: ${clientAddress}`);
+      expect(out).toBe(`Requester address: ${requester}`);
       expect(await isEndorsed()).toBe(false);
     });
 
     it('check endoresement status', async () => {
-      const requester = alice.address;
-      const clientAddress = bob.address;
+      const sponsor = alice.address;
+      const requester = bob.address;
 
       const checkEndorsement = () =>
         execCommand(
           'get-endorsement-status',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
-          ['--requester', requester],
-          ['--clientAddress', clientAddress]
+          ['--sponsor', sponsor],
+          ['--requester', requester]
         );
 
       expect(checkEndorsement()).toBe('Endorsment status: false');
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.endorseClient(airnodeRrp, clientAddress);
+      await admin.endorseRequester(airnodeRrp, requester);
       expect(checkEndorsement()).toBe('Endorsment status: true');
     });
   });
@@ -235,7 +222,7 @@ describe('CLI', () => {
       );
 
       expect(JSON.parse(out)).toEqual({
-        airnodeId: '0x15e7097beac1fd23c0d1e3f5a882a6f99ecbcf2e0c1011d1bd43707c6c0ec717',
+        airnode: '0x4a1dF2859279Fa92A41Fd7d487A3c2b76ac8570b',
         endpointId: '0x2605589dfc93c8f9c35eecdfe1e666c2193df30a8b13e1e0dd72941f59f9064c',
         parameters:
           '0x31537500000000000000000000000000000000000000000000000000000000006e616d653100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a06e616d653200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000000676616c7565310000000000000000000000000000000000000000000000000000',
@@ -244,31 +231,19 @@ describe('CLI', () => {
   });
 
   describe('withdrawal', () => {
-    let requester: string;
-    let airnodeMnemonic: string;
-    let airnodeId: string;
-    let designatedWallet: ethers.Wallet;
+    let sponsor: string;
+    let sponsorWallet: ethers.Wallet;
     let destinationWallet: ethers.Wallet;
     const destinationBalance = async () => (await destinationWallet.getBalance()).toString();
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
-      requester = alice.address;
-      const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
-      airnodeMnemonic = airnodeWallet.mnemonic.phrase;
-      const masterWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, 'm').connect(provider);
-      // Fund the master wallet - which will be used to set the airnode parameters
-      await deployer.sendTransaction({
-        to: masterWallet.address,
-        value: ethers.utils.parseEther('1'),
-      });
-      airnodeRrp = airnodeRrp.connect(airnodeWallet);
-      airnodeId = await admin.setAirnodeParameters(airnodeRrp, []);
+      sponsor = alice.address;
 
-      // Derive and fund the designated wallet
-      designatedWallet = await deriveDesignatedWallet(airnodeWallet, requester);
+      // Derive and fund the designated sponsor wallet
+      sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor);
       await deployer.sendTransaction({
-        to: designatedWallet.address,
+        to: sponsorWallet.address,
         value: ethers.utils.parseEther('1'),
       });
 
@@ -284,8 +259,8 @@ describe('CLI', () => {
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--airnodeId', airnodeId],
-        ['--requester', requester],
+        ['--airnode', airnodeWallet.address],
+        ['--sponsorWallet', sponsorWallet.address],
         ['--destination', destinationWallet.address]
       );
 
@@ -302,12 +277,12 @@ describe('CLI', () => {
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
 
-      airnodeRrp = airnodeRrp.connect(designatedWallet);
+      airnodeRrp = airnodeRrp.connect(sponsorWallet);
       await admin.fulfillWithdrawal(
         airnodeRrp,
         withdrawalRequestId,
-        airnodeId,
-        requester,
+        airnodeWallet.address,
+        sponsor,
         destinationWallet.address,
         '0.8'
       );
@@ -316,43 +291,51 @@ describe('CLI', () => {
     });
   });
 
-  it('can set/get airnode parameters', async () => {
-    const airnodeWallet = ethers.Wallet.createRandom().connect(provider);
-    const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
-    const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
-    const xpub = hdNode.neuter().extendedKey;
-    const masterWallet = new ethers.Wallet(hdNode.privateKey, provider);
-    // Fund the master wallet - which will be used to set the airnode parameters
-    await deployer.sendTransaction({
-      to: masterWallet.address,
-      value: ethers.utils.parseEther('1'),
-    });
+  it('can set/get airnode xpub', async () => {
+    const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
+    const airnodeXpub = airnodeHdNode.neuter().extendedKey;
 
-    const setAirnodeParametersOut = execCommand(
-      'set-airnode-parameters',
-      ['--mnemonic', airnodeMnemonic],
-      ['--derivationPath', 'm'],
+    const setAirnodeXpubOut = execCommand(
+      'set-airnode-xpub',
+      ['--mnemonic', airnodeWallet.mnemonic.phrase],
+      ['--derivationPath', airnodeWallet.mnemonic.path],
+      ['--providerUrl', PROVIDER_URL],
+      ['--airnodeRrp', airnodeRrp.address]
+    );
+    expect(setAirnodeXpubOut).toMatch(new RegExp('Airnode xpub: \\w+'));
+
+    const getAirnodeXpubOut = execCommand(
+      'get-airnode-xpub',
+      ['--providerUrl', PROVIDER_URL],
+      ['--airnodeRrp', airnodeRrp.address],
+      ['--airnode', airnodeWallet.address]
+    );
+
+    const xpub = JSON.parse(getAirnodeXpubOut);
+    expect(xpub).toEqual(airnodeXpub);
+  });
+
+  it('can set/get airnode authorizers', async () => {
+    const setAirnodeAuthorizersOut = execCommand(
+      'set-airnode-authorizers',
+      ['--mnemonic', airnodeWallet.mnemonic.phrase],
+      ['--derivationPath', airnodeWallet.mnemonic.path],
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
       ['--authorizersFilePath', `${__dirname}/../fixtures/authorizers.json`]
     );
-    expect(setAirnodeParametersOut).toMatch(new RegExp('Airnode ID: \\w+'));
+    expect(setAirnodeAuthorizersOut).toMatch(new RegExp('Airnode authorizers: \\w+'));
 
-    const airnodeId = setAirnodeParametersOut.split('Airnode ID: ')[1];
-    const getAirnodeParametersOut = execCommand(
-      'get-airnode-parameters',
+    const expected = setAirnodeAuthorizersOut.split('Airnode authorizers: ')[1];
+    const getAirnodeAuthorizersOut = execCommand(
+      'get-airnode-authorizers',
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
-      ['--airnodeId', airnodeId]
+      ['--airnode', airnodeWallet.address]
     );
 
-    const json = JSON.parse(getAirnodeParametersOut);
-    expect(json).toEqual({
-      admin: masterWallet.address,
-      authorizers: ['0x0000000000000000000000000000000000000000'],
-      xpub,
-      blockNumber: expect.anything(),
-    });
+    const authorizers = JSON.parse(getAirnodeAuthorizersOut);
+    expect(authorizers.join(',')).toEqual(expected);
   });
 
   it('derives endpoint ID', () => {
@@ -371,14 +354,14 @@ describe('CLI', () => {
     it('is missing command parameter', () => {
       expect(() =>
         execCommand(
-          'endorse-client',
+          'endorse-requester',
           ['--mnemonic', mnemonic],
-          ['--derivationPath', aliceDerivationPath],
+          ['--derivationPath', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address]
-          // missing ['--clientAddress', clientAddress]
+          // missing ['--requester', requester]
         )
-      ).toThrow('Missing required argument: clientAddress');
+      ).toThrow('Missing required argument: requester');
     });
 
     it('unknown command', () => {
