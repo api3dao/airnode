@@ -35,7 +35,7 @@ export function processSpecs(
 ): Result {
   let messages: Log[] = [];
 
-  if (template[keywords.type] !== undefined) {
+  if (template[keywords.type]) {
     const res = validateType(specs, template[keywords.type], paramPath, paramPathPrefix);
 
     if (res.length) {
