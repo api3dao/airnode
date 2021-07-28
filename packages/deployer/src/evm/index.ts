@@ -13,14 +13,9 @@ const chainIdsToNames: Record<string, string> = {
   100: 'xdai',
 };
 
-export async function checkAirnodeParameters(
-  config: Config,
-  secrets: Record<string, string>,
-  airnodeId: string,
-  masterWalletAddress: string
-) {
+export async function checkAirnodeParameters(config: Config, airnodeId: string, masterWalletAddress: string) {
   logger.debug('Checking Airnode parameters');
-  const providerUrls = findProviderUrls(config, secrets);
+  const providerUrls = findProviderUrls(config);
   const airnodeRrpAddresses = findAirnodeRrpAddresses(config);
 
   let spinner;

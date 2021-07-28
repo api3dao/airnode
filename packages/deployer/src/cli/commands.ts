@@ -49,7 +49,7 @@ export async function deploy(
 
   const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
   const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
-  await checkAirnodeParameters(config, secrets, airnodeId, masterWalletAddress);
+  await checkAirnodeParameters(config, airnodeId, masterWalletAddress);
 
   const airnodeIdShort = shortenAirnodeId(airnodeId);
   try {

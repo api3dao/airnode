@@ -1,5 +1,6 @@
 import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
+import map from 'lodash/map';
 import { go } from '../utils/promise-utils';
 import * as logger from '../logger';
 import { buildEVMState } from '../providers/state';
@@ -41,7 +42,7 @@ export async function initialize(
   // to configure duplicate providers safely (if they want the added redundancy)
   const evmInitializations = flatMap(
     evmChains.map((chain) => {
-      return chain.providerNames.map(async (providerName) => {
+      return map(chain.providers, async (_, providerName) => {
         const state = buildEVMState(coordinatorId, chain, providerName, config);
         return initializeEVMProvider(state, workerOpts);
       });
