@@ -178,6 +178,32 @@ jobs:
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
+  test-validator:
+    name: Test @api3/validator
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.17.1'
+      - run: yarn run test:validator
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - test @api3/validator'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
   unit-tests-pass:
     name: Unit tests passed
     runs-on: ubuntu-latest
