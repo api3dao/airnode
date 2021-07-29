@@ -65,12 +65,12 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  await airnodeRrp.createTemplate(template.airnode, template.endpointId, encodedParameters);
-  const filter = airnodeRrp.filters.CreatedTemplate(null, null, null, null);
+  const tx = await airnodeRrp.createTemplate(template.airnode, template.endpointId, encodedParameters);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (templateId) => {
-      resolve(templateId);
+    airnodeRrp.provider.once(tx.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+      resolve(parsedLog.args.templateId);
     })
   );
 }
@@ -81,12 +81,12 @@ export async function requestWithdrawal(
   sponsorWallet: string,
   destination: string
 ) {
-  await airnodeRrp.requestWithdrawal(airnode, sponsorWallet, destination);
-  const filter = airnodeRrp.filters.RequestedWithdrawal(null, null, null, null, null);
+  const tx = await airnodeRrp.requestWithdrawal(airnode, sponsorWallet, destination);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (_, __, withdrawalRequestId) => {
-      resolve(withdrawalRequestId);
+    airnodeRrp.provider.once(tx.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+      resolve(parsedLog.args.withdrawalRequestId);
     })
   );
 }
@@ -121,12 +121,12 @@ export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
   const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
   const xpub = hdNode.neuter().extendedKey;
 
-  await airnodeRrp.setAirnodeXpub(xpub);
-  const filter = airnodeRrp.filters.SetAirnodeXpub(null, null);
+  const tx = await airnodeRrp.setAirnodeXpub(xpub);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (_, xpub) => {
-      resolve(xpub);
+    airnodeRrp.provider.once(tx.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+      resolve(parsedLog.args.xpub);
     })
   );
 }
@@ -136,12 +136,12 @@ export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnode: string) {
 }
 
 export async function setAirnodeAuthorizers(airnodeRrp: AirnodeRrp, authorizers: string[]) {
-  await airnodeRrp.setAirnodeAuthorizers(authorizers);
-  const filter = airnodeRrp.filters.SetAirnodeAuthorizers(null, null);
+  const tx = await airnodeRrp.setAirnodeAuthorizers(authorizers);
 
   return new Promise<string[]>((resolve) =>
-    airnodeRrp.once(filter, (_, authorizers) => {
-      resolve(authorizers);
+    airnodeRrp.provider.once(tx.hash, (tx) => {
+      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+      resolve(parsedLog.args.authorizers);
     })
   );
 }
