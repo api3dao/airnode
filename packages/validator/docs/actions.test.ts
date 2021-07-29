@@ -1,24 +1,8 @@
+import * as data from './data/actions';
 import * as convertor from '../src/convertor';
 
 describe('actions (docs)', () => {
   it('copy action', () => {
-    const template = {
-      company: {},
-      inventory: {
-        __arrayItem: {
-          name: {},
-          quantity: {},
-        },
-        __actions: [
-          {
-            __copy: {
-              __target: "[ 'backups', '[[ \\'/\\', \\'company\\' ]]' ]",
-            },
-          },
-        ],
-      },
-    };
-
     const specs = {
       company: 'anon',
       inventory: [
@@ -33,7 +17,7 @@ describe('actions (docs)', () => {
       ],
     };
 
-    expect(convertor.convertJson(specs, template)).toEqual({
+    expect(convertor.convertJson(specs, data.copyTemplate)).toEqual({
       valid: true,
       messages: [],
       output: {

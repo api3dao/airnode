@@ -8,24 +8,7 @@ If any action is specified in template, object `output` will be returned when pr
 
 ### Template
 
-```json
-{
-  "company": {},
-  "inventory": {
-    "__arrayItem": {
-      "name": {},
-      "quantity": {}
-    },
-    "__actions": [
-      {
-        "__copy": {
-          "__target": "[ 'backups', '[[ \\'/\\', \\'company\\' ]]' ]"
-        }
-      }
-    ]
-  }
-};
-```
+<snippet id='actions-copy-template'/>
 ---
 ### Input
 

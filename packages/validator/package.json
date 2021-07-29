@@ -18,9 +18,11 @@
     "test": "jest",
     "validate": "ts-node src/commands/validateCmd.ts",
     "convert": "ts-node src/commands/convertCmd.ts",
-    "compile": "tsc -p tsconfig.build.json"
+    "compile": "tsc -p tsconfig.build.json",
+    "docs": "ts-node docs/genDocs.ts"
   },
   "devDependencies": {
-    "ts-node": "^9.0.0"
+    "ts-node": "^9.0.0",
+    "markdown-snippet-injector": "^0.2.4"
   }
 }
