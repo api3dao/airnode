@@ -1,7 +1,9 @@
+import fs from 'fs';
+
+import * as utils from './utils';
+import * as logger from '../utils/logger';
 import { convert, convertJson } from '../convertor';
 import { Log, Result } from '../types';
-import * as utils from './utils';
-import fs from 'fs';
 import { invalidConversionMessage } from '../utils/messages';
 
 const oas2ois = 'OAS2OIS.json';
@@ -9,21 +11,19 @@ const ois2config = 'OIS2Config.json';
 
 if (process.env.npm_config_template) {
   console.log(
-    JSON.stringify(
-      convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template),
-      null,
-      '\t'
-    )
+    JSON.stringify(convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template), null, 2)
   );
 } else {
-  const from = (process.env.npm_config_from || process.argv[2]).toLowerCase();
-  const to = (process.env.npm_config_to || process.argv[3]).toLowerCase();
+  const from = (process.env.npm_config_from || process.argv[2] || '').toLowerCase();
+  const to = (process.env.npm_config_to || process.argv[3] || '').toLowerCase();
   const specs = process.env.npm_config_specs || process.argv[4];
   const version = process.env.npm_config_fromVersion || process.argv[5];
   const messages: Log[] = [];
   let res: Result = { valid: false, messages: [], output: {} };
 
-  if (from === 'oas' && to === 'ois') {
+  if (!from || !to) {
+    res.messages.push(logger.error('Conversion source and target specification must be provided'));
+  } else if (from === 'oas' && to === 'ois') {
     res = convert(specs, utils.getPath(oas2ois, messages, version));
     res.messages.push(...messages);
   } else if (from === 'ois' && to === 'config') {
@@ -45,5 +45,5 @@ if (process.env.npm_config_template) {
   }
 
   res.messages.push(...messages);
-  console.log(JSON.stringify(res, null, '\t'));
+  console.log(JSON.stringify(process.env.npm_config_specs_only ? res.output : res, null, 2));
 }

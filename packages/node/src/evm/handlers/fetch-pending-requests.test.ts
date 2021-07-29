@@ -3,7 +3,7 @@ import { fetchPendingRequests } from './fetch-pending-requests';
 import * as blocking from '../requests/blocking';
 import * as verification from '../verification';
 import { unfreezeImport } from '../../../test/helpers';
-import * as fixtures from 'test/fixtures';
+import * as fixtures from '../../../test/fixtures';
 
 unfreezeImport(verification, 'verifyApiCallIds');
 

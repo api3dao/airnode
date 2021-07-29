@@ -10,7 +10,7 @@ import { Log } from '../types';
  */
 export function validateType(specs: any, type: string, paramPath: string[], paramPathPrefix: string[]): Log[] {
   if (typeof specs !== type) {
-    return [msg.incorrectType([...paramPathPrefix, ...paramPath], type, typeof specs)];
+    return [msg.typeMismatch([...paramPathPrefix, ...paramPath], type)];
   }
 
   return [];

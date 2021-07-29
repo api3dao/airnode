@@ -1,7 +1,8 @@
+import { validateType } from './typeValidator';
 import * as logger from '../utils/logger';
 import { Log } from '../types';
 import * as utils from '../utils/utils';
-import { validateType } from './typeValidator';
+import { keywords } from '../utils/globals';
 
 /**
  * Checks if key or value matches regular expression in template
@@ -34,7 +35,7 @@ export function validateRegexp(
 
   if (isKeyRegexp) {
     for (const item of Object.keys(specs)) {
-      if (!item.match(new RegExp(template['__keyRegexp']))) {
+      if (!item.match(new RegExp(template[keywords.keyRegexp]))) {
         messages.push(logger.error(`Key ${item} in ${[...paramPath, item].join('.')} is formatted incorrectly`));
       }
     }
@@ -42,7 +43,7 @@ export function validateRegexp(
     return messages;
   }
 
-  if (typeof specs !== 'string' || !specs.match(new RegExp(template['__regexp']))) {
+  if (typeof specs !== 'string' || !specs.match(new RegExp(template[keywords.regexp]))) {
     messages.push(logger.warn(`${paramPath.join('.')} is not formatted correctly`));
   }
 

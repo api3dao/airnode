@@ -1,6 +1,8 @@
+/* eslint-disable functional/immutable-data */
+
 import { EndpointParameter, FixedParameter } from '@api3/ois';
-import * as fixtures from '../../test/fixtures';
 import * as parameters from './parameters';
+import * as fixtures from '../../test/fixtures';
 
 describe('building parameters', () => {
   it('returns parameters', () => {

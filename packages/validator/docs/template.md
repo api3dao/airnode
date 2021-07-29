@@ -1,6 +1,6 @@
 # Nested templates
 
-In case a template contains another template, the nested template doesn't have to be copied, relative path to the template can be provided in `__template` and parameter will be evaluated using provided template.
+Templates can be recursive. That is, a template can contain a pointer to another template in the form of a relative path provided in `__template`.
 
 ## `docs/template.json`
 ```json

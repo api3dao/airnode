@@ -44,10 +44,10 @@ it('type checking (docs)', () => {
   expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
     valid: false,
     messages: [
-      msg.incorrectType(['list'], 'array', 'object'),
-      msg.incorrectType(['str'], 'string', 'number'),
-      msg.incorrectType(['regex'], 'string', 'object'),
-      msg.incorrectType(['num'], 'number', 'string'),
+      msg.typeMismatch(['list'], 'array'),
+      msg.typeMismatch(['str'], 'string'),
+      msg.typeMismatch(['regex'], 'string'),
+      msg.typeMismatch(['num'], 'number'),
       extraFieldMessage(['list', 'item']),
     ],
   });

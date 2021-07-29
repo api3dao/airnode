@@ -15,17 +15,17 @@ import {
 } from '../../types';
 
 interface FetchOptions {
-  address: string;
-  airnodeId: string;
-  blockHistoryLimit: number;
-  currentBlock: number;
-  ignoreBlockedRequestsAfterBlocks: number;
-  provider: ethers.providers.JsonRpcProvider;
+  readonly address: string;
+  readonly airnodeId: string;
+  readonly blockHistoryLimit: number;
+  readonly currentBlock: number;
+  readonly ignoreBlockedRequestsAfterBlocks: number;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 interface GroupedLogs {
-  apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
-  withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
+  readonly apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
+  readonly withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
 }
 
 export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(

@@ -46,8 +46,8 @@ describe('dynamic params (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [
         msg.keyFormattingMessage('plane1', ['bus', 'plane1']),
@@ -143,8 +143,8 @@ describe('dynamic params (docs)', () => {
       },
     };
 
-    expect(validator.validateJson(validSpecs, template)).toMatchObject({ valid: true, messages: [] });
-    expect(validator.validateJson(invalidSpecs, template)).toMatchObject({
+    expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(invalidSpecs, template)).toEqual({
       valid: false,
       messages: [msg.conditionNotMetMessage(['bus[0]', 'name'], 'name'), msg.formattingMessage(['bus[1]', 'owner'])],
     });

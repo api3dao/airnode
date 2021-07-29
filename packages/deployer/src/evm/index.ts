@@ -1,7 +1,7 @@
 import * as ethers from 'ethers';
 import { AirnodeRrpFactory } from '@api3/protocol';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
-import { ChainType, Configurations } from '../types';
+import { ChainType, Configuration } from '../types';
 import * as logger from '../utils/logger';
 
 const chainIdsToNames: Record<string, string> = {
@@ -14,14 +14,14 @@ const chainIdsToNames: Record<string, string> = {
 };
 
 export async function checkAirnodeParameters(
-  configs: Configurations,
+  config: Configuration,
   secrets: Record<string, string>,
   airnodeId: string,
   masterWalletAddress: string
 ) {
   logger.debug('Checking Airnode parameters');
-  const providerUrls = findProviderUrls(configs, secrets);
-  const airnodeRrpAddresses = findAirnodeRrpAddresses(configs);
+  const providerUrls = findProviderUrls(config, secrets);
+  const airnodeRrpAddresses = findAirnodeRrpAddresses(config);
 
   let spinner;
   let chainType: ChainType;

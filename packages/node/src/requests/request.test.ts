@@ -1,6 +1,6 @@
-import * as fixtures from 'test/fixtures';
 import * as request from './request';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
+import * as fixtures from '../../test/fixtures';
+import { GroupedRequests, RequestErrorCode, RequestStatus } from '../types';
 
 describe('blockdOrIgnored', () => {
   it('ignores requests that have passed the specified block limit', () => {
@@ -148,7 +148,7 @@ describe('hasNoActionableRequests', () => {
 
 describe('getStatusNames', () => {
   it('returns a list of all status names', () => {
-    expect(request.getStatusNames()).toEqual(['Pending', 'Fulfilled', 'Ignored', 'Blocked', 'Errored']);
+    expect(request.getStatusNames()).toEqual(['Pending', 'Fulfilled', 'Submitted', 'Ignored', 'Blocked', 'Errored']);
   });
 });
 

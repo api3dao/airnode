@@ -1,9 +1,9 @@
+import { execSync } from 'child_process';
+import { existsSync } from 'fs';
+import difference from 'lodash/difference';
 import { AirnodeRrp, AirnodeRrpFactory } from '@api3/protocol';
 import { ethers } from 'ethers';
 import * as admin from '../../src';
-import { execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { difference } from 'lodash';
 
 const PROVIDER_URL = 'http://127.0.0.1:8545/';
 const CLI_EXECUTABLE = `${__dirname}/../../dist/cli.js`;

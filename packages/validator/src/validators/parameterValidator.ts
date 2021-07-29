@@ -1,7 +1,9 @@
 import { Log, Roots } from '../types';
 import * as logger from '../utils/logger';
+import * as msg from '../utils/messages';
 import * as utils from '../utils/utils';
 import { processSpecs } from '../processor';
+import { regexList } from '../utils/globals';
 
 /**
  * Validates parameter from template, that is not a validator keyword
@@ -25,7 +27,7 @@ export function validateParameter(
   templatePath = '',
   paramPathPrefix: string[] = []
 ): Log[] {
-  const arrayIndex = param.match(/\[([0-9]+)\]$/);
+  const arrayIndex = param.match(regexList.arrayIndex);
 
   if (arrayIndex) {
     // parameter is array, item on specified index should be processed
@@ -50,11 +52,7 @@ export function validateParameter(
     }
 
     if (!Array.isArray(currentSpecs)) {
-      return [
-        logger.error(
-          `Type mismatch: parameter ${[...paramPathPrefix, ...paramPath].join('.')} is expected to be an array`
-        ),
-      ];
+      return [msg.typeMismatch([...paramPathPrefix, ...paramPath], 'array')];
     }
 
     if (index >= currentSpecs.length) {

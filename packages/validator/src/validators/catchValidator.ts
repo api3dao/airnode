@@ -1,3 +1,4 @@
+import { keywords } from '../utils/globals';
 import { Log } from '../types';
 import * as utils from '../utils/utils';
 
@@ -19,31 +20,37 @@ export function validateCatch(
   paramPathPrefix: string[],
   rootSpecs: any
 ): Log[] {
-  if (!messages.length || !template['__catch']) {
+  if (!messages.length || !template[keywords.catch]) {
     return messages;
   }
 
-  let message = utils.replaceParamIndexWithName(template['__catch'], paramPath);
+  let message = utils.replaceParamIndexWithName(template[keywords.catch], paramPath);
   message = utils.replacePathsWithValues(specs, rootSpecs, message);
 
-  if (!message['__message']) {
-    if (!message['__level']) {
+  if (!message[keywords.message]) {
+    if (!message[keywords.level]) {
       return [];
     }
 
     return messages.map((msg) => {
-      msg['level'] = message['__level'];
+      msg['level'] = message[keywords.level];
       return msg;
     });
   }
 
   if (typeof specs === 'string') {
-    message['__message'] = message['__message'].replace(/__value/g, specs);
+    message[keywords.message] = message[keywords.message].replace(new RegExp(keywords.value, 'g'), specs);
   }
 
-  message['__message'] = message['__message'].replace(/__fullPath/g, [...paramPathPrefix, ...paramPath].join('.'));
-  message['__message'] = message['__message'].replace(/__path/g, paramPath.join('.'));
-  message['__message'] = message['__message'].replace(/__prefix/g, paramPathPrefix.join('.'));
+  message[keywords.message] = message[keywords.message].replace(
+    new RegExp(keywords.fullPath, 'g'),
+    [...paramPathPrefix, ...paramPath].join('.')
+  );
+  message[keywords.message] = message[keywords.message].replace(new RegExp(keywords.path, 'g'), paramPath.join('.'));
+  message[keywords.message] = message[keywords.message].replace(
+    new RegExp(keywords.prefix, 'g'),
+    paramPathPrefix.join('.')
+  );
 
-  return [{ message: message['__message'], level: message['__level'] ? message['__level'] : 'error' }];
+  return [{ message: message[keywords.message], level: message[keywords.level] ? message[keywords.level] : 'error' }];
 }

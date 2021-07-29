@@ -1,14 +1,14 @@
 import shuffle from 'lodash/shuffle';
-import * as fixtures from 'test/fixtures';
-import * as providerState from '../providers/state';
 import * as nonces from './nonces';
-import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from 'src/types';
+import * as fixtures from '../../test/fixtures';
+import * as providerState from '../providers/state';
+import { EVMProviderState, GroupedRequests, ProviderState, RequestStatus } from '../types';
 
 describe('assign', () => {
-  let initialState: ProviderState<EVMProviderState>;
+  let mutableInitialState: ProviderState<EVMProviderState>;
 
   beforeEach(() => {
-    initialState = fixtures.buildEVMProviderState();
+    mutableInitialState = fixtures.buildEVMProviderState();
   });
 
   it('sorts and assigns nonces requests API calls', () => {
@@ -40,7 +40,7 @@ describe('assign', () => {
       withdrawals: [],
     };
     const transactionCountsByRequesterIndex = { 5: 3 };
-    const state = providerState.update(initialState, { requests, transactionCountsByRequesterIndex });
+    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 3 });
     expect(res.apiCalls[1]).toEqual({ ...second, nonce: 4 });
@@ -76,7 +76,7 @@ describe('assign', () => {
       withdrawals: shuffle([first, third, second]),
     };
     const transactionCountsByRequesterIndex = { 7: 11 };
-    const state = providerState.update(initialState, { requests, transactionCountsByRequesterIndex });
+    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
     const res = nonces.assign(state);
     expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
     expect(res.withdrawals[1]).toEqual({ ...second, nonce: 12 });
@@ -93,7 +93,7 @@ describe('assign', () => {
       withdrawals: [],
     };
     const transactionCountsByRequesterIndex = { 7: 11, 8: 11, 9: 7 };
-    const state = providerState.update(initialState, { requests, transactionCountsByRequesterIndex });
+    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
     const res = nonces.assign(state);
     expect(res.apiCalls.find((a) => a.id === '0x1')!.nonce).toEqual(11);
     expect(res.apiCalls.find((a) => a.id === '0x2')!.nonce).toEqual(11);
@@ -132,7 +132,7 @@ describe('assign', () => {
       withdrawals: [],
     };
     const transactionCountsByRequesterIndex = { 3: 7 };
-    const state = providerState.update(initialState, {
+    const state = providerState.update(mutableInitialState, {
       requests,
       transactionCountsByRequesterIndex,
     });
@@ -174,7 +174,7 @@ describe('assign', () => {
       withdrawals: [],
     };
     const transactionCountsByRequesterIndex = { 3: 7 };
-    const state = providerState.update(initialState, {
+    const state = providerState.update(mutableInitialState, {
       requests,
       transactionCountsByRequesterIndex,
     });
@@ -216,7 +216,7 @@ describe('assign', () => {
       withdrawals: shuffle([first, third, second]),
     };
     const transactionCountsByRequesterIndex = { 7: 11 };
-    const state = providerState.update(initialState, { requests, transactionCountsByRequesterIndex });
+    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
     const res = nonces.assign(state);
     expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
     expect(res.withdrawals[1]).toEqual({ ...second, nonce: undefined });

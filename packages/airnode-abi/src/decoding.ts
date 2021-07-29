@@ -4,7 +4,7 @@ import { PARAMETER_SHORT_TYPES } from './utils';
 import { ABIParameterType, ABIParameterTypeShort, DecodedMap } from './types';
 
 type TransformationReference = {
-  [key: string]: (value: any) => string;
+  readonly [key: string]: (value: any) => string;
 };
 
 // Certain types need to be parsed after ABI decoding happens
@@ -68,6 +68,7 @@ export function decode(encodedData: string): DecodedMap {
   const decodedData = ethers.utils.defaultAbiCoder.decode(decodingTypes, encodedData);
 
   const [_version, ...decodedParameters] = decodedData;
+  // eslint-disable-next-line functional/prefer-readonly-type
   const nameValuePairs = chunk(decodedParameters, 2) as [string, string][];
 
   return buildDecodedMap(fullParameterTypes, nameValuePairs);

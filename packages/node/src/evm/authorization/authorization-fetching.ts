@@ -10,9 +10,9 @@ import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constant
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 
 interface FetchOptions {
-  airnodeId: string;
-  airnodeRrpAddress: string;
-  provider: ethers.providers.JsonRpcProvider;
+  readonly airnodeId: string;
+  readonly airnodeRrpAddress: string;
+  readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 export async function fetchAuthorizationStatus(
@@ -68,16 +68,18 @@ async function fetchAuthorizationStatuses(
     const groupLog = logger.pend('ERROR', 'Failed to fetch group authorization details', err);
 
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
-    const promises: Promise<LogsData<{ id: string; authorized: boolean | null }>>[] = apiCalls.map(async (apiCall) => {
-      const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
-      const data = { id: apiCall.id, authorized };
-      const result: LogsData<{ id: string; authorized: boolean | null }> = [logs, data];
-      return result;
-    });
+    const promises: Promise<LogsData<{ readonly id: string; readonly authorized: boolean | null }>>[] = apiCalls.map(
+      async (apiCall) => {
+        const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
+        const data = { id: apiCall.id, authorized };
+        const result: LogsData<{ readonly id: string; readonly authorized: boolean | null }> = [logs, data];
+        return result;
+      }
+    );
     const results = await Promise.all(promises);
     const allLogs = flatMap(results, (r) => r[0]);
     const authorizationsWithId = results.filter((r) => !isNil(r[1].authorized)).map((r) => r[1]);
-    const authorizationsById: { [id: string]: boolean } = authorizationsWithId.reduce((acc, status) => {
+    const authorizationsById: { readonly [id: string]: boolean } = authorizationsWithId.reduce((acc, status) => {
       return { ...acc, [status.id]: status.authorized };
     }, {});
 

@@ -1,6 +1,6 @@
 import { ABIParameterType, ABIParameterTypeShort } from './types';
 
-export const PARAMETER_SHORT_TYPES: { [name in ABIParameterTypeShort]: ABIParameterType } = {
+export const PARAMETER_SHORT_TYPES: { readonly [name in ABIParameterTypeShort]: ABIParameterType } = {
   B: 'bytes',
   S: 'string',
   a: 'address',

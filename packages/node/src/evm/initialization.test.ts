@@ -1,4 +1,4 @@
-import { mockEthers } from '../../test/utils';
+import { mockEthers } from '../../test/mock-utils';
 const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const setAirnodeParametersMock = jest.fn();
 const estimateSetAirnodeParametersMock = jest.fn();
@@ -16,45 +16,57 @@ import { ethers } from 'ethers';
 import * as wallet from './wallet';
 import * as initialization from './initialization';
 
-const initializationFunctions = ['airnodeParametersMatch', 'airnodeParametersExistOnchain'] as const;
+const initializationFunctions = ['airnodeParametersMatch', 'airnodeParametersExistOnchain'] as ReadonlyArray<
+  keyof typeof initialization
+>;
 
 initializationFunctions.forEach((initFunction) => {
   describe(initFunction, () => {
-    const options = {
+    const mutableOptions = {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      airnodeId: '0x15e7097beac1fd23c0d1e3f5a882a6f99ecbcf2e0c1011d1bd43707c6c0ec717',
+      airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
       authorizers: [ethers.constants.AddressZero],
       masterHDNode: wallet.getMasterHDNode(),
+      provider: new ethers.providers.JsonRpcProvider(),
+      currentXpub:
+        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      onchainData: {
+        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+        authorizers: [ethers.constants.AddressZero],
+        blockNumber: 12,
+        xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      },
     };
 
     const validData = {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     };
 
     it('is true if the Airnode onchain parameters match the expected data', () => {
-      const res = initialization[initFunction](options, validData);
+      const res = initialization[initFunction](mutableOptions, validData);
       expect(res).toEqual(true);
     });
 
     it('is false if the Airnode admin does not exist', () => {
       const invalidData = { ...validData, airnodeAdmin: '' };
-      const res = initialization[initFunction](options, invalidData);
+      const res = initialization[initFunction](mutableOptions, invalidData);
       expect(res).toEqual(false);
     });
 
     it('is false if the authorizers do not match', () => {
       const invalidData = { ...validData, authorizers: ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'] };
-      const res = initialization[initFunction](options, invalidData);
+      const res = initialization[initFunction](mutableOptions, invalidData);
       expect(res).toEqual(false);
     });
 
     if (initFunction === 'airnodeParametersExistOnchain') {
       it('is false if the extended public key does not match', () => {
         const invalidData = { ...validData, xpub: '' };
-        const res = initialization[initFunction](options, invalidData);
+        const res = initialization[initFunction](mutableOptions, invalidData);
         expect(res).toEqual(false);
       });
     }
@@ -62,7 +74,7 @@ initializationFunctions.forEach((initFunction) => {
 });
 
 describe('fetchAirnodeParametersWithData', () => {
-  const options = {
+  const mutableOptions = {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeId: '0xairnodeId',
     airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
@@ -76,10 +88,9 @@ describe('fetchAirnodeParametersWithData', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await initialization.fetchAirnodeParametersWithData(options);
+    const [logs, res] = await initialization.fetchAirnodeParametersWithData(mutableOptions);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and Airnode parameters...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -94,8 +105,7 @@ describe('fetchAirnodeParametersWithData', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledWith('0xairnodeId');
@@ -108,7 +118,7 @@ describe('fetchAirnodeParametersWithData', () => {
       blockNumber: ethers.BigNumber.from('12'),
       xpub: '',
     });
-    const [logs, res] = await initialization.fetchAirnodeParametersWithData(options);
+    const [logs, res] = await initialization.fetchAirnodeParametersWithData(mutableOptions);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and Airnode parameters...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -130,10 +140,9 @@ describe('fetchAirnodeParametersWithData', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await initialization.fetchAirnodeParametersWithData(options);
+    const [logs, res] = await initialization.fetchAirnodeParametersWithData(mutableOptions);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and Airnode parameters...' },
       { level: 'INFO', message: 'Current block:12' },
@@ -148,8 +157,7 @@ describe('fetchAirnodeParametersWithData', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledTimes(2);
     expect(getAirnodeParametersAndBlockNumberMock.mock.calls).toEqual([['0xairnodeId'], ['0xairnodeId']]);
@@ -158,7 +166,7 @@ describe('fetchAirnodeParametersWithData', () => {
   it('returns null if the retries are exhausted', async () => {
     getAirnodeParametersAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getAirnodeParametersAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
-    const [logs, res] = await initialization.fetchAirnodeParametersWithData(options);
+    const [logs, res] = await initialization.fetchAirnodeParametersWithData(mutableOptions);
     expect(logs).toEqual([
       { level: 'INFO', message: 'Fetching current block and Airnode parameters...' },
       {
@@ -174,7 +182,7 @@ describe('fetchAirnodeParametersWithData', () => {
 });
 
 describe('setAirnodeParameters', () => {
-  const options = {
+  const mutableOptions = {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
@@ -186,8 +194,7 @@ describe('setAirnodeParameters', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     },
   };
 
@@ -198,7 +205,7 @@ describe('setAirnodeParameters', () => {
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     setAirnodeParametersMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await initialization.setAirnodeParameters(options);
+    const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'INFO',
@@ -234,7 +241,7 @@ describe('setAirnodeParameters', () => {
   it('returns null if the gas limit estimate fails', async () => {
     estimateSetAirnodeParametersMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
     estimateSetAirnodeParametersMock.mockRejectedValueOnce(new Error('Unable to estimate gas limit'));
-    const [logs, res] = await initialization.setAirnodeParameters(options);
+    const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'INFO',
@@ -257,7 +264,7 @@ describe('setAirnodeParameters', () => {
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     gasPriceSpy.mockRejectedValueOnce(new Error('Failed to fetch gas price'));
     estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await initialization.setAirnodeParameters(options);
+    const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'INFO',
@@ -279,7 +286,7 @@ describe('setAirnodeParameters', () => {
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     balanceSpy.mockRejectedValueOnce(new Error('Failed to fetch balance'));
     estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-    const [logs, res] = await initialization.setAirnodeParameters(options);
+    const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'INFO',
@@ -303,7 +310,7 @@ describe('setAirnodeParameters', () => {
     estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     setAirnodeParametersMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
     setAirnodeParametersMock.mockRejectedValueOnce(new Error('Failed to submit tx'));
-    const [logs, res] = await initialization.setAirnodeParameters(options);
+    const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'INFO',
@@ -338,13 +345,14 @@ describe('setAirnodeParameters', () => {
 
   describe('insufficient funds in the master wallet', () => {
     it('warns the user if the onchain Airnode parameters would be updated', async () => {
-      options.onchainData.authorizers = ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'];
+      // eslint-disable-next-line functional/immutable-data
+      mutableOptions.onchainData.authorizers = ['0xD5659F26A72A8D718d1955C42B3AE418edB001e0'];
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
       estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
-      const [logs, res] = await initialization.setAirnodeParameters(options);
+      const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
       expect(logs).toEqual([
         {
           level: 'INFO',
@@ -373,14 +381,15 @@ describe('setAirnodeParameters', () => {
     });
 
     it('does not warn if there are no onchain Airnode parameters but fails to set the Airnode parameters', async () => {
-      options.onchainData.xpub = '';
+      // eslint-disable-next-line functional/immutable-data
+      mutableOptions.onchainData.xpub = '';
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
       estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
       setAirnodeParametersMock.mockRejectedValue(new Error('Insufficient funds'));
-      const [logs, res] = await initialization.setAirnodeParameters(options);
+      const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
       expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
       expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
         {
@@ -395,14 +404,15 @@ describe('setAirnodeParameters', () => {
     });
 
     it('does not warn if the onchain xpub is different', async () => {
-      options.onchainData.xpub = '0xanotherxpub';
+      // eslint-disable-next-line functional/immutable-data
+      mutableOptions.onchainData.xpub = '0xanotherxpub';
       const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
       gasPriceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1000));
       const balanceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBalance');
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
       estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
       setAirnodeParametersMock.mockRejectedValue(new Error('Insufficient funds'));
-      const [logs, res] = await initialization.setAirnodeParameters(options);
+      const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
       expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
       expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
         {
@@ -423,7 +433,7 @@ describe('setAirnodeParameters', () => {
       balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(1_000));
       estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
       setAirnodeParametersMock.mockRejectedValue(new Error('Insufficient funds'));
-      const [logs, res] = await initialization.setAirnodeParameters(options);
+      const [logs, res] = await initialization.setAirnodeParameters(mutableOptions);
       expect(logs.filter((l) => l.level === 'WARN')).toEqual([]);
       expect(logs.filter((l) => l.level === 'ERROR')).toEqual([
         {
@@ -440,7 +450,7 @@ describe('setAirnodeParameters', () => {
 });
 
 describe('verifyOrSetAirnodeParameters', () => {
-  const options = {
+  const mutableOptions = {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     airnodeRrpAddress: '0xe60b966B798f9a0C41724f111225A5586ff30656',
     authorizers: [ethers.constants.AddressZero],
@@ -451,7 +461,7 @@ describe('verifyOrSetAirnodeParameters', () => {
   it('returns null if it fails to get the Airnode parameters and block data', async () => {
     getAirnodeParametersAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
     getAirnodeParametersAndBlockNumberMock.mockRejectedValueOnce(new Error('Server says no'));
-    const [logs, res] = await initialization.verifyOrSetAirnodeParameters(options);
+    const [logs, res] = await initialization.verifyOrSetAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -485,7 +495,7 @@ describe('verifyOrSetAirnodeParameters', () => {
     balanceSpy.mockResolvedValueOnce(ethers.BigNumber.from(250_000_000));
     estimateSetAirnodeParametersMock.mockResolvedValueOnce(ethers.BigNumber.from(50_000));
     setAirnodeParametersMock.mockResolvedValueOnce({ hash: '0xsuccessful' });
-    const [logs, res] = await initialization.verifyOrSetAirnodeParameters(options);
+    const [logs, res] = await initialization.verifyOrSetAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -539,10 +549,9 @@ describe('verifyOrSetAirnodeParameters', () => {
       admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: ethers.BigNumber.from('12'),
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
-    const [logs, res] = await initialization.verifyOrSetAirnodeParameters(options);
+    const [logs, res] = await initialization.verifyOrSetAirnodeParameters(mutableOptions);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -562,8 +571,7 @@ describe('verifyOrSetAirnodeParameters', () => {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       authorizers: [ethers.constants.AddressZero],
       blockNumber: 12,
-      xpub:
-        'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledTimes(1);
     expect(getAirnodeParametersAndBlockNumberMock).toHaveBeenCalledWith(

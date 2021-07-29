@@ -1,7 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { Log } from '../types';
-
-const fs = require('fs');
-const path = require('path');
 
 export const templateVersions = fs
   .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })
@@ -13,14 +12,14 @@ export const templateVersions = fs
  * Finds path to latest version of template
  * @param template
  */
-function getLatestPath(template: string): string {
+function getLatestPath(template: string): string | null {
   for (const version of templateVersions) {
     if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
       return path.resolve(__dirname, `../../templates/${version}/${template}`);
     }
   }
 
-  return '';
+  return null;
 }
 
 /**

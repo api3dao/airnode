@@ -5,15 +5,17 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-import * as fixtures from 'test/fixtures';
-import * as logger from '../logger';
 import * as worker from './workers';
+import * as logger from '../logger';
+import * as fixtures from '../../test/fixtures';
 
-const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as const;
+const workers = ['spawnNewProvider', 'spawnProviderRequestProcessor'] as ReadonlyArray<keyof typeof worker>;
+
 const functionNameForWorker = {
   spawnNewProvider: 'airnode-19255a4-test-initializeProvider',
   spawnProviderRequestProcessor: 'airnode-19255a4-test-processProviderRequests',
 } as const;
+
 const providerErrorForWorker = {
   spawnNewProvider: 'Unable to initialize provider:Ganache test',
   spawnProviderRequestProcessor: 'Unable to process provider requests:Ganache test',

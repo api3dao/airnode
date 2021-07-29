@@ -1,4 +1,5 @@
 import * as logger from './logger';
+import { keywords, regexList } from './globals';
 import { Log, Roots } from '../types';
 
 /**
@@ -8,13 +9,13 @@ import { Log, Roots } from '../types';
  * @returns specs object with replaced "__match" instances
  */
 export function replaceConditionalMatch(match: string, template: any): any {
-  match = match.replace(/[\.\\\[\]\(\)]/g, '\\$&');
+  match = match.replace(regexList.regexTokens, '\\$&');
 
   const substitute = (toReplace: string) => {
-    return toReplace.replace(/__match/g, match);
+    return toReplace.replace(new RegExp(keywords.match, 'g'), match);
   };
 
-  return recursiveSubstitute(template, substitute, ['__conditions']);
+  return recursiveSubstitute(template, substitute, [keywords.conditions]);
 }
 
 /**
@@ -25,7 +26,7 @@ export function replaceConditionalMatch(match: string, template: any): any {
  */
 export function replacePathsWithValues(specs: any, rootSpecs: any, template: any): any {
   const substitute = (toReplace: string) => {
-    const matches = toReplace.match(/(?<=\[)\[.+?\](?=\])/g);
+    const matches = toReplace.match(regexList.parameterValuePath);
 
     if (!matches) {
       return toReplace;
@@ -57,7 +58,7 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
     return toReplace;
   };
 
-  return recursiveSubstitute(template, substitute, ['__conditions']);
+  return recursiveSubstitute(template, substitute, [keywords.conditions]);
 }
 
 /**
@@ -67,7 +68,7 @@ export function replacePathsWithValues(specs: any, rootSpecs: any, template: any
  */
 export function replaceParamIndexWithName(specs: any, paramPath: string[]): any {
   const substitute = (toReplace: string) => {
-    for (const match of toReplace.match(/\{\{([0-9]+?)\}\}/g) || []) {
+    for (const match of toReplace.match(regexList.parameterNameIndex) || []) {
       const index = parseInt(match.match('[0-9]+')![0]);
       toReplace = toReplace.replace(new RegExp(`\\{\\{${index}\\}\\}`, 'g'), paramPath[index]);
     }
@@ -75,7 +76,7 @@ export function replaceParamIndexWithName(specs: any, paramPath: string[]): any 
     return toReplace;
   };
 
-  return recursiveSubstitute(specs, substitute, ['__conditions']);
+  return recursiveSubstitute(specs, substitute, [keywords.conditions]);
 }
 
 /**
@@ -134,8 +135,8 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
 
     for (let i = 0; i < specs.length; i++) {
       if (nonRedundant[i] !== undefined) {
-        if (paramPath[paramPath.length - 1].match(/\[[0-9]+\]$/g)) {
-          paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(/\[[0-9]+\]$/g, `[${i}]`);
+        if (paramPath[paramPath.length - 1].match(regexList.arrayIndex)) {
+          paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(regexList.arrayIndex, `[${i}]`);
         } else {
           paramPath[paramPath.length - 1] += `[${i}]`;
         }
@@ -148,7 +149,7 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   }
 
   return Object.keys(specs).reduce((acc: Log[], key) => {
-    if (nonRedundant['__noCheck']) {
+    if (nonRedundant[keywords.noCheck]) {
       return acc;
     }
 
@@ -174,9 +175,9 @@ export function getEmptyNonRedundantParam(param: string, template: any, nonRedun
   }
 
   if (
-    '__arrayItem' in (template[param] || {}) ||
-    '__arrayItem' in (template['__objectItem'] || {}) ||
-    ('__any' in (template[param] || {}) && Array.isArray(specs))
+    keywords.arrayItem in (template[param] || {}) ||
+    keywords.arrayItem in (template[keywords.objectItem] || {}) ||
+    (keywords.any in (template[param] || {}) && Array.isArray(specs))
   ) {
     return [];
   }
@@ -214,7 +215,7 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
     return;
   }
 
-  if (param === '__all') {
+  if (param === keywords.all) {
     paramPath = paramPath.slice(1);
 
     if (Array.isArray(spec)) {
@@ -230,18 +231,18 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
     return;
   }
 
-  if (param.match(/\[([0-9]*|_)\]$/)) {
+  if (param.match(regexList.convertorArrayOperation)) {
     let index = -1;
 
-    if (param.match(/\[([0-9]+)\]$/)) {
-      index = parseInt(param.match(/\[([0-9]+)\]$/)![1]);
+    if (param.match(regexList.arrayIndex)) {
+      index = parseInt(param.match(regexList.arrayIndex)![1]);
     }
 
     if (param.match(/\[_\]$/)) {
       index = -2;
     }
 
-    param = param.replace(/\[([0-9]*|_)\]$/, '');
+    param = param.replace(regexList.convertorArrayOperation, '');
 
     if (param) {
       if (!spec[param]) {
@@ -294,7 +295,7 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
 export function getSpecsFromPath(paramPath: string[], specs: { [k: string]: any }, insertPath = false): any {
   let paramName = paramPath[0];
 
-  const indexMatches = paramName.match(/(?<=\[)[0-9]+(?=\])/);
+  const indexMatches = paramName.match(regexList.arrayIndexOnly);
 
   if (indexMatches) {
     paramName = paramName.replace(`[${indexMatches[0]}]`, '');

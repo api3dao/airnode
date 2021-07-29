@@ -1,8 +1,8 @@
+import { fetchPendingRequests } from './fetch-pending-requests';
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
 import * as initialization from '../initialization';
 import * as logger from '../../logger';
-import { fetchPendingRequests } from './fetch-pending-requests';
 import * as requests from '../../requests';
 import * as state from '../../providers/state';
 import * as templates from '../templates';
@@ -10,7 +10,7 @@ import * as transactionCounts from '../transaction-counts';
 import * as verification from '../verification';
 import { EVMProviderState, PendingLog, ProviderState } from '../../types';
 
-type ParallelPromise = Promise<{ id: string; data: any; logs: PendingLog[] }>;
+type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readonly logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions = {
@@ -139,7 +139,10 @@ export async function initializeProvider(
   // STEP 6: Fetch authorizations and transaction counts
   // =================================================================
   // NOTE: None of these promises cannot fail otherwise Promise.all will reject
-  const authAndTxCountPromises: ParallelPromise[] = [fetchAuthorizations(state5), fetchTransactionCounts(state5)];
+  const authAndTxCountPromises: readonly ParallelPromise[] = [
+    fetchAuthorizations(state5),
+    fetchTransactionCounts(state5),
+  ];
   const authAndTxResults = await Promise.all(authAndTxCountPromises);
 
   // These promises can resolve in any order, so we need to find each one by it's key
