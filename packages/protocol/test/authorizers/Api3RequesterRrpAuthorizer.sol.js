@@ -1,4 +1,6 @@
 /* globals context */
+/* eslint-disable no-unexpected-multiline */
+
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
@@ -22,6 +24,7 @@ beforeEach(async () => {
     admin: accounts[2],
     superAdmin: accounts[3],
     user: accounts[4],
+    anotherSuperAdmin: accounts[5],
     randomPerson: accounts[9],
   };
   const api3RequesterRrpAuthorizerFactory = await hre.ethers.getContractFactory(
@@ -29,12 +32,17 @@ beforeEach(async () => {
     roles.deployer
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  adminnedId = hre.ethers.constants.HashZero;
   anotherId = utils.generateRandomBytes32();
-  await api3RequesterRrpAuthorizer.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
   await api3RequesterRrpAuthorizer
     .connect(roles.metaAdmin)
-    .setRank(adminnedId, roles.superAdmin.address, AdminRank.SuperAdmin);
+    ['setRank(address,uint256)'](roles.admin.address, AdminRank.Admin);
+  await api3RequesterRrpAuthorizer
+    .connect(roles.metaAdmin)
+    ['setRank(address,uint256)'](roles.superAdmin.address, AdminRank.SuperAdmin);
+  await api3RequesterRrpAuthorizer
+    .connect(roles.metaAdmin)
+    ['setRank(address,uint256)'](roles.anotherSuperAdmin.address, AdminRank.SuperAdmin);
 });
 
 describe('constructor', function () {
@@ -64,14 +72,89 @@ describe('getRank', function () {
         AdminRank.Unauthorized
       );
       expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.superAdmin.address)).to.be.equal(
-        AdminRank.Unauthorized
+        AdminRank.SuperAdmin
       );
-      expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.admin.address)).to.be.equal(
-        AdminRank.Unauthorized
-      );
+      expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.admin.address)).to.be.equal(AdminRank.Admin);
       expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.randomPerson.address)).to.be.equal(
         AdminRank.Unauthorized
       );
+    });
+  });
+});
+
+describe('setRank', function () {
+  context('Caller higher ranked than target admin', function () {
+    context('Caller higher ranked than set rank', function () {
+      it('sets rank for the adminned entity', async function () {
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            ['setRank(address,uint256)'](roles.randomPerson.address, AdminRank.Admin)
+        )
+          .to.emit(api3RequesterRrpAuthorizer, 'SetRank')
+          .withArgs(adminnedId, roles.randomPerson.address, AdminRank.Admin, roles.superAdmin.address);
+        expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.randomPerson.address)).to.be.equal(
+          AdminRank.Admin
+        );
+      });
+    });
+    context('Caller not higher ranked than set rank', function () {
+      it('reverts', async function () {
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.admin)
+            ['setRank(address,uint256)'](roles.randomPerson.address, AdminRank.Admin)
+        ).to.be.revertedWith('Caller ranked low');
+      });
+    });
+  });
+  context('Caller not higher ranked than target admin', function () {
+    it('reverts', async function () {
+      await expect(
+        api3RequesterRrpAuthorizer
+          .connect(roles.superAdmin)
+          ['setRank(address,uint256)'](roles.anotherSuperAdmin.address, AdminRank.Admin)
+      ).to.be.revertedWith('Caller ranked low');
+    });
+  });
+});
+
+describe('decreaseSelfRank', function () {
+  context('Caller higher ranked than target rank', function () {
+    it("decreases caller's rank", async function () {
+      await expect(api3RequesterRrpAuthorizer.connect(roles.superAdmin)['decreaseSelfRank(uint256)'](AdminRank.Admin))
+        .to.emit(api3RequesterRrpAuthorizer, 'DecreasedSelfRank')
+        .withArgs(adminnedId, roles.superAdmin.address, AdminRank.Admin);
+      expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.superAdmin.address)).to.be.equal(
+        AdminRank.Admin
+      );
+      await expect(
+        api3RequesterRrpAuthorizer.connect(roles.superAdmin)['decreaseSelfRank(uint256)'](AdminRank.Unauthorized)
+      )
+        .to.emit(api3RequesterRrpAuthorizer, 'DecreasedSelfRank')
+        .withArgs(adminnedId, roles.superAdmin.address, AdminRank.Unauthorized);
+      expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.superAdmin.address)).to.be.equal(
+        AdminRank.Unauthorized
+      );
+      await expect(api3RequesterRrpAuthorizer.connect(roles.admin)['decreaseSelfRank(uint256)'](AdminRank.Unauthorized))
+        .to.emit(api3RequesterRrpAuthorizer, 'DecreasedSelfRank')
+        .withArgs(adminnedId, roles.admin.address, AdminRank.Unauthorized);
+      expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.admin.address)).to.be.equal(
+        AdminRank.Unauthorized
+      );
+    });
+  });
+  context('Caller not higher ranked than target rank', function () {
+    it('reverts', async function () {
+      await expect(
+        api3RequesterRrpAuthorizer.connect(roles.superAdmin)['decreaseSelfRank(uint256)'](AdminRank.SuperAdmin)
+      ).to.be.revertedWith('Caller ranked low');
+      await expect(
+        api3RequesterRrpAuthorizer.connect(roles.admin)['decreaseSelfRank(uint256)'](AdminRank.SuperAdmin)
+      ).to.be.revertedWith('Caller ranked low');
+      await expect(
+        api3RequesterRrpAuthorizer.connect(roles.admin)['decreaseSelfRank(uint256)'](AdminRank.Admin)
+      ).to.be.revertedWith('Caller ranked low');
     });
   });
 });
