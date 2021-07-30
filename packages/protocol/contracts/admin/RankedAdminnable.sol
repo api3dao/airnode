@@ -27,7 +27,7 @@ contract RankedAdminnable is IRankedAdminnable {
         address targetAdmin,
         uint256 newRank
     )
-        external
+        public
         override
         onlyWithRank(
             adminnedId,
@@ -42,7 +42,7 @@ contract RankedAdminnable is IRankedAdminnable {
     /// @param adminnedId ID of the entity being adminned
     /// @param newRank Rank to be set
     function decreaseSelfRank(bytes32 adminnedId, uint256 newRank)
-        external
+        public
         override
         onlyWithRank(adminnedId, newRank + 1)
     {

@@ -1,4 +1,6 @@
 /* globals context */
+/* eslint-disable no-unexpected-multiline */
+
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
