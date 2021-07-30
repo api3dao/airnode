@@ -2,9 +2,6 @@ import * as airnodeAbi from '@api3/airnode-abi';
 import { AirnodeRrp } from '@api3/protocol';
 import { ethers } from 'ethers';
 
-type Last<T extends any[]> = T extends [...infer _, infer L] ? L : never;
-const last = <T extends any[]>(array: T): Last<T> => array[array.length - 1];
-
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   if (Object.keys(params).length !== ethersParams.length) {
     throw new Error(`SDK doesn't return some of the parameters!`);
@@ -68,8 +65,8 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   const tx = await airnodeRrp.createTemplate(template.airnode, template.endpointId, encodedParameters);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
       resolve(parsedLog.args.templateId);
     })
   );
@@ -84,8 +81,8 @@ export async function requestWithdrawal(
   const tx = await airnodeRrp.requestWithdrawal(airnode, sponsorWallet, destination);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
       resolve(parsedLog.args.withdrawalRequestId);
     })
   );
@@ -124,8 +121,8 @@ export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
   const tx = await airnodeRrp.setAirnodeXpub(xpub);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
       resolve(parsedLog.args.xpub);
     })
   );
@@ -215,19 +212,19 @@ export async function fulfillWithdrawal(
   destination: string,
   amount: string
 ) {
-  await airnodeRrp.fulfillWithdrawal(requestId, airnode, sponsor, destination, {
+  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnode, sponsor, destination, {
     value: ethers.utils.parseEther(amount),
   });
   const filter = airnodeRrp.filters.FulfilledWithdrawal(airnode, sponsor, requestId, null, null, null);
 
-  return new Promise<FulfillWithdrawalReturnValue>((resolve) =>
-    airnodeRrp.once(filter, (...args) => {
-      // remove array parameters from ethers response
-      const { airnode, sponsor, withdrawalRequestId, sponsorWallet, destination, amount } = last(args).args;
-      const params = { airnode, sponsor, withdrawalRequestId, sponsorWallet, destination, amount };
+  return new Promise<FulfillWithdrawalReturnValue | null>((resolve) =>
+    airnodeRrp.once(filter, (airnode, sponsor, withdrawalRequestId, sponsorWallet, destination, amount, event) => {
+      if (event.transactionHash !== tx.hash) {
+        resolve(null);
+      }
 
       // cast ethers BigNumber for portability
-      resolve({ ...params, amount: amount.toString() });
+      resolve({ airnode, sponsor, withdrawalRequestId, sponsorWallet, destination, amount: amount.toString() });
     })
   );
 }
