@@ -32,14 +32,12 @@ beforeEach(async () => {
     roles.deployer
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  adminnedId = hre.ethers.constants.HashZero;
   anotherId = utils.generateRandomBytes32();
+  await api3RequesterRrpAuthorizer.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
   await api3RequesterRrpAuthorizer
     .connect(roles.metaAdmin)
-    ['setRank(address,uint256)'](roles.admin.address, AdminRank.Admin);
-  await api3RequesterRrpAuthorizer
-    .connect(roles.metaAdmin)
-    ['setRank(address,uint256)'](roles.superAdmin.address, AdminRank.SuperAdmin);
+    .setRank(adminnedId, roles.superAdmin.address, AdminRank.SuperAdmin);
 });
 
 describe('extendWhitelistExpiration', function () {
