@@ -7,8 +7,6 @@ const docs = fs
   .filter((dirent: { isDirectory: () => any }) => !dirent.isDirectory())
   .map((dirent: { name: any }) => dirent.name);
 
-console.log(docs);
-
 for (const md of docs) {
   fs.copyFileSync(path.resolve(__dirname, `../.docs/${md}`), path.resolve(__dirname, md));
 }
