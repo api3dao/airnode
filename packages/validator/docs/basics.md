@@ -235,10 +235,10 @@ Contents of `__arrayItem` define structure of items that are inside the array, w
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Missing parameter moreArrays.array1[0].value" },
+    { "level": "error", "message": "arrayParameter must contain 2 or less items" },
     { "level": "error", "message": "Missing parameter arrayParameter[2].outer.inner" },
-    { "level": "warning", "message": "Extra field: moreArrays.array1[0].invalid" },
-    { "level": "warning", "message": "arrayParameter must contain 2 or less items" }
+    { "level": "error", "message": "Missing parameter moreArrays.array1[0].value" },
+    { "level": "warning", "message": "Extra field: moreArrays.array1[0].invalid" }
   ]
 }
 ```
