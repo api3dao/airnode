@@ -34,13 +34,15 @@ contract Api3RequesterRrpAuthorizer is
 
     /// @notice Called by an admin of higher rank to set the rank of an admin of
     /// lower rank
-    /// @param targetAdmin Target admin addressZ
+    /// @dev Use this instead of setRank(bytes32 adminnedId,address targetAdmin, uint256 newRank)
+    /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
     function setRank(address targetAdmin, uint256 newRank) public {
         RankedAdminnable.setRank(bytes32(0), targetAdmin, newRank);
     }
 
     /// @notice Called by an admin to decrease its rank
+    /// @dev Use this instead of setRank(bytes32 adminnedId, uint256 newRank)
     /// @param newRank Rank to be set
     function decreaseSelfRank(uint256 newRank) public {
         RankedAdminnable.decreaseSelfRank(bytes32(0), newRank);
