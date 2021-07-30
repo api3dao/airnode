@@ -11,10 +11,6 @@ function deriveWalletPathFromSponsorAddress(sponsorAddress) {
 }
 
 module.exports = {
-  timeTravel: async (_seconds) => {
-    await ethers.provider.send('evm_increaseTime', [_seconds]);
-    await ethers.provider.send('evm_mine');
-  },
   generateRandomAirnodeWallet: () => {
     const airnodeWallet = ethers.Wallet.createRandom();
     const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
