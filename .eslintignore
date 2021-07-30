@@ -12,3 +12,6 @@
 
 # Ignore the TS wrappers created by Typechain
 packages/protocol/src/contracts
+
+# Ignore json snippets injected into readme
+packages/validator/docs/data
