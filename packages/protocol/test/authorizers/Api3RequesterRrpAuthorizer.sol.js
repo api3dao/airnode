@@ -1,4 +1,6 @@
 /* globals context */
+/* eslint-disable no-unexpected-multiline */
+
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
@@ -22,6 +24,7 @@ beforeEach(async () => {
     admin: accounts[2],
     superAdmin: accounts[3],
     user: accounts[4],
+    anotherSuperAdmin: accounts[5],
     randomPerson: accounts[9],
   };
   const api3RequesterRrpAuthorizerFactory = await hre.ethers.getContractFactory(
@@ -29,12 +32,15 @@ beforeEach(async () => {
     roles.deployer
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  adminnedId = hre.ethers.constants.HashZero;
   anotherId = utils.generateRandomBytes32();
   await api3RequesterRrpAuthorizer.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
   await api3RequesterRrpAuthorizer
     .connect(roles.metaAdmin)
     .setRank(adminnedId, roles.superAdmin.address, AdminRank.SuperAdmin);
+  await api3RequesterRrpAuthorizer
+    .connect(roles.metaAdmin)
+    .setRank(adminnedId, roles.anotherSuperAdmin.address, AdminRank.SuperAdmin);
 });
 
 describe('constructor', function () {
@@ -64,11 +70,9 @@ describe('getRank', function () {
         AdminRank.Unauthorized
       );
       expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.superAdmin.address)).to.be.equal(
-        AdminRank.Unauthorized
+        AdminRank.SuperAdmin
       );
-      expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.admin.address)).to.be.equal(
-        AdminRank.Unauthorized
-      );
+      expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.admin.address)).to.be.equal(AdminRank.Admin);
       expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.randomPerson.address)).to.be.equal(
         AdminRank.Unauthorized
       );

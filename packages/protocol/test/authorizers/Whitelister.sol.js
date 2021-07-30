@@ -1,4 +1,6 @@
 /* globals context */
+/* eslint-disable no-unexpected-multiline */
+
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('../utils');
@@ -30,7 +32,7 @@ beforeEach(async () => {
     roles.deployer
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  adminnedId = hre.ethers.constants.HashZero;
   anotherId = utils.generateRandomBytes32();
   await api3RequesterRrpAuthorizer.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
   await api3RequesterRrpAuthorizer

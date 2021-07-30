@@ -19,8 +19,9 @@ contract Api3RequesterRrpAuthorizer is
     constructor(address metaAdmin_) MetaAdminnable(metaAdmin_) {}
 
     /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Overriden to use metaAdminned ranks
-    /// @param adminnedId ID of the entity being adminned
+    /// @dev Overriden to use the bytes32(0) as the only adminnedId
+    ///      Overriden to use metaAdminned ranks
+    /// @param adminnedId ID of the entity being adminned(not used)
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank
     function getRank(bytes32 adminnedId, address admin)
@@ -29,6 +30,6 @@ contract Api3RequesterRrpAuthorizer is
         override(MetaAdminnable, RankedAdminnable, IRankedAdminnable)
         returns (uint256)
     {
-        return MetaAdminnable.getRank(adminnedId, admin);
+        return MetaAdminnable.getRank(bytes32(0), admin);
     }
 }
