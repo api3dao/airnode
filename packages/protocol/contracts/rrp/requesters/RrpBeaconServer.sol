@@ -3,7 +3,7 @@ pragma solidity 0.8.6;
 
 import "../../admin/MetaAdminnable.sol";
 import "../../admin/Whitelister.sol";
-import "./AirnodeRrpRequester.sol";
+import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
@@ -19,7 +19,7 @@ import "./interfaces/IRrpBeaconServer.sol";
 contract RrpBeaconServer is
     MetaAdminnable,
     Whitelister,
-    AirnodeRrpRequester,
+    RrpRequester,
     IRrpBeaconServer
 {
     struct Beacon {
@@ -38,7 +38,7 @@ contract RrpBeaconServer is
     /// @param airnodeRrp_ Airnode RRP address
     /// @param metaAdmin_ Initial metaAdmin
     constructor(address airnodeRrp_, address metaAdmin_)
-        AirnodeRrpRequester(airnodeRrp_)
+        RrpRequester(airnodeRrp_)
         MetaAdminnable(metaAdmin_)
     {}
 
