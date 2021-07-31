@@ -4,7 +4,7 @@ pragma solidity 0.8.6;
 import "../interfaces/IAirnodeRrp.sol";
 
 /// @title The contract to be inherited from to use Airnode to make requests
-contract AirnodeRrpRequester {
+contract RrpRequester {
     IAirnodeRrp public immutable airnodeRrp;
 
     /// @dev Reverts if the caller is not the Airnode RRP contract
