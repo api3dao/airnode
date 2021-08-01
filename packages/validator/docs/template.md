@@ -63,8 +63,8 @@ Templates can be recursive. That is, a template can contain a pointer to another
 {
   "valid": false,
   "messages": [
-    { "level": "warning", "message": "Error in root template" },
-    { "level": "warning", "message": "Error in template nested in nested" }
+    { "level": "error", "message": "Error in root template" },
+    { "level": "error", "message": "Error in template nested in nested" }
   ]
 }
 ```
