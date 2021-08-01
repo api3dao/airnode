@@ -9,8 +9,6 @@ contract ConvenienceUtils is IConvenienceUtils {
     /// @notice Called to get the extended public key of the Airnode
     mapping(address => string) public override airnodeToXpub;
 
-    mapping(address => address[]) private airnodeToAuthorizers;
-
     /// @notice Called by the Airnode operator to announce its extended public
     /// key
     /// @dev It is expected for the Airnode operator to call this function with
@@ -21,36 +19,6 @@ contract ConvenienceUtils is IConvenienceUtils {
     function setAirnodeXpub(string calldata xpub) external override {
         airnodeToXpub[msg.sender] = xpub;
         emit SetAirnodeXpub(msg.sender, xpub);
-    }
-
-    /// @notice Called by the Airnode operator to announce the addresses of the
-    /// authorizer contracts it uses
-    /// @dev It is expected for the Airnode operator to call this function with
-    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// These authorizer contract addresses do not need to be announced
-    /// on-chain for the protocol to be used, it is mainly for convenience.
-    /// @param authorizers Authorizer contract addresses that Airnode uses
-    function setAirnodeAuthorizers(address[] calldata authorizers)
-        external
-        override
-    {
-        airnodeToAuthorizers[msg.sender] = authorizers;
-        emit SetAirnodeAuthorizers(msg.sender, authorizers);
-    }
-
-    /// @notice Called to get the Airnode authorizers
-    /// @dev The information announced with this function is not trustless.
-    /// It is not possible to verify the correctness of `authorizers` (i.e.,
-    /// that the Airnode will use these contracts to check for authorization).
-    /// @param airnode Airnode address
-    /// @return authorizers Authorizer contract addresses
-    function getAirnodeAuthorizers(address airnode)
-        external
-        view
-        override
-        returns (address[] memory authorizers)
-    {
-        return airnodeToAuthorizers[airnode];
     }
 
     /// @notice Uses the authorizer contracts of an Airnode to decide if a

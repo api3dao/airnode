@@ -46,30 +46,6 @@ describe('setAirnodeXpub', function () {
   });
 });
 
-describe('setAirnodeAuthorizers', function () {
-  it('sets Airnode authorizers', async function () {
-    const initialAuthorizers = await airnodeRrp.getAirnodeAuthorizers(airnodeAddress);
-    expect(initialAuthorizers.authorizers).to.be.undefined;
-    const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
-    const authorizers = Array.from({ length: 5 }, () => utils.generateRandomAddress());
-    await expect(airnodeRrp.connect(airnodeWallet).setAirnodeAuthorizers(authorizers, { gasLimit: 500000 }))
-      .to.emit(airnodeRrp, 'SetAirnodeAuthorizers')
-      .withArgs(airnodeAddress, authorizers);
-    const setAuthorizers = await airnodeRrp.getAirnodeAuthorizers(airnodeAddress);
-    expect(setAuthorizers).to.deep.equal(authorizers);
-  });
-});
-
-describe('getAirnodeAuthorizers', function () {
-  it('gets Airnode authorizers', async function () {
-    const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
-    const authorizers = Array.from({ length: 5 }, () => utils.generateRandomAddress());
-    await airnodeRrp.connect(airnodeWallet).setAirnodeAuthorizers(authorizers, { gasLimit: 500000 });
-    const setAuthorizers = await airnodeRrp.getAirnodeAuthorizers(airnodeAddress);
-    expect(setAuthorizers).to.deep.equal(authorizers);
-  });
-});
-
 describe('checkAuthorizationStatus', function () {
   context('authorizers array is empty', function () {
     it('returns false', async function () {
