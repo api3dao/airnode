@@ -3,6 +3,7 @@
 Templates can be recursive. That is, a template can contain a pointer to another template in the form of a relative path provided in `__template`.
 
 ## `docs/template.json`
+
 ```json
 {
   "path": {
@@ -17,7 +18,9 @@ Templates can be recursive. That is, a template can contain a pointer to another
   }
 }
 ```
+
 ## `docs/nested/template.json`
+
 ```json
 {
   "path": {
@@ -29,6 +32,7 @@ Templates can be recursive. That is, a template can contain a pointer to another
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -40,6 +44,7 @@ Templates can be recursive. That is, a template can contain a pointer to another
   }
 }
 ```
+
 ---
 ### Invalid specification
 
@@ -51,7 +56,9 @@ Templates can be recursive. That is, a template can contain a pointer to another
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -61,4 +68,5 @@ Templates can be recursive. That is, a template can contain a pointer to another
   ]
 }
 ```
+
 ---
