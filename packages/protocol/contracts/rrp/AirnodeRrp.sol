@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./ConvenienceUtils.sol";
+import "./AuthorizationUtils.sol";
 import "./TemplateUtils.sol";
 import "./WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrp.sol";
 
 /// @title Contract that implements the Airnode request–response protocol
 contract AirnodeRrp is
-    ConvenienceUtils,
+    AuthorizationUtils,
     TemplateUtils,
     WithdrawalUtils,
     IAirnodeRrp

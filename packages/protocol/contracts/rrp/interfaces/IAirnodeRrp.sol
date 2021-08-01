@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./IConvenienceUtils.sol";
+import "./IAuthorizationUtils.sol";
 import "./ITemplateUtils.sol";
 import "./IWithdrawalUtils.sol";
 
-interface IAirnodeRrp is IConvenienceUtils, ITemplateUtils, IWithdrawalUtils {
+interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
     event SetAirnodeXpub(address indexed airnode, string xpub);
 
     event SetSponsorshipStatus(
