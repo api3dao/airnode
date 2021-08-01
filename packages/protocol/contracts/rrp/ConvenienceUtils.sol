@@ -6,21 +6,6 @@ import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title Contract that implements convenience functions
 contract ConvenienceUtils is IConvenienceUtils {
-    /// @notice Called to get the extended public key of the Airnode
-    mapping(address => string) public override airnodeToXpub;
-
-    /// @notice Called by the Airnode operator to announce its extended public
-    /// key
-    /// @dev It is expected for the Airnode operator to call this function with
-    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// This extended public key does not need to be announced on-chain for the
-    /// protocol to be used, it is mainly for convenience.
-    /// @param xpub Extended public key of the Airnode
-    function setAirnodeXpub(string calldata xpub) external override {
-        airnodeToXpub[msg.sender] = xpub;
-        emit SetAirnodeXpub(msg.sender, xpub);
-    }
-
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
