@@ -1,0 +1,118 @@
+# Conditions
+
+## Basic condition
+
+Conditions consist of `__if` and `__then` objects, these objects are placed into array `__conditions`, which can contain any amount of conditional objects. Object `__if` contains parameter name with regular expression, if the regular expression is matched in provided specification, validator will check if specification matches everything that's in the `__then` object.
+
+Even if evaluation of `__then` object takes place, all messages from this validation are discarded and replaced with single error message.
+
+### Template
+
+<snippet id='conditions-basic-template'/>
+
+---
+### Valid specification
+
+<snippet id='conditions-basic-valid-specs'/>
+
+---
+### Invalid specification
+
+<snippet id='conditions-basic-invalid-specs'/>
+
+### Expected output
+
+<snippet id='conditions-basic-invalid-out'/>
+
+---
+
+## Matched pattern in `__then`
+
+Matched pattern of regular expression in `__if` object can be accessed with `__match` anywhere in `__then` object.
+
+### Template
+
+<snippet id='conditions-match-template'/>
+
+---
+### Valid specification
+
+<snippet id='conditions-match-valid-specs'/>
+
+---
+### Invalid specification
+
+<snippet id='conditions-match-invalid-specs'/>
+
+### Expected output
+
+<snippet id='conditions-match-invalid-out'/>
+
+---
+
+## `__catch` in condition
+
+As the default error message in conditions is not very specific, it can be replaced with custom message by adding [catch](catch.md) parameter into condition object.
+
+### Template
+
+<snippet id='conditions-catch-template'/>
+
+---
+### Invalid specification
+
+<snippet id='conditions-catch-invalid-specs'/>
+
+### Expected output
+
+<snippet id='conditions-catch-invalid-out'/>
+
+---
+
+## Root then
+
+Conditions can be evaluated from root of the template by using `__rootThen` in place of `__then`.
+
+### Template
+
+<snippet id='conditions-root-template'/>
+
+---
+### Valid specification
+
+<snippet id='conditions-root-valid-specs'/>
+
+---
+### Invalid specification
+
+<snippet id='conditions-root-invalid-specs'/>
+
+### Expected output
+
+<snippet id='conditions-root-invalid-out'/>
+
+---
+
+## `__this` and `__this_name`
+
+`__if` contains name of the parameter, but it can contain keywords `__this` or `__this_name` as well. `__this` will be matching value of parameter, the condition is nested in, `__this_name` will be matching the key of the parameter.
+
+### Template
+
+<snippet id='conditions-this-template'/>
+
+---
+### Valid specification
+
+<snippet id='conditions-this-valid-specs'/>
+
+---
+### Invalid specification
+
+<snippet id='conditions-this-invalid-specs'/>
+
+### Expected output
+
+<snippet id='conditions-this-invalid-out'/>
+
+---
