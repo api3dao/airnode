@@ -6,62 +6,21 @@ Regular expressions in templates are stored as a string, this means when validat
 
 ### Template
 
-```json
-{
-  "string": {
-    "__regexp": "^(string|char)$"
-  },
-  "numbers": {
-    "__keyRegexp": "^[0-9]+$",
-    "__objectItem": {
-      "__regexp": "^\\\\[a-z]+\\s$"
-    }
-  }
-}
-```
+<snippet id='regex-template'/>
 
 ---
 ### Valid specification
 
-```json
-{
-  "string": "string",
-  "numbers": {
-    "3": "\\three ",
-    "10": "\\ten ",
-    "42": "\\yes "
-  }
-}
-```
+<snippet id='regex-valid-specs'/>
 
 ---
 ### Invalid specification
 
-```json
-{
-  "string": "boolean",
-  "numbers": {
-    "string": "\\NaN ",
-    "5": "five ",
-    "1": "\\one"
-  }
-}
-```
+<snippet id='regex-invalid-specs'/>
 
 ### Expected output
 
-```json
-{
-  "valid": false,
-  "messages": [
-    { "level": "warning", "message": "string is not formatted correctly" },
-    { "level": "error", "message": "Key string in numbers.string is formatted incorrectly" },
-    { "level": "warning", "message": "numbers.1 is not formatted correctly" },
-    { "level": "warning", "message": "numbers.5 is not formatted correctly" },
-    { "level": "warning", "message": "numbers.string is not formatted correctly" }
-  ]
-}
-```
+<snippet id='regex-invalid-out'/>
 
 ---
 
