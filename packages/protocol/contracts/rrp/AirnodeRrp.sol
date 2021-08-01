@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./ConvenienceUtils.sol";
+import "./AuthorizationUtils.sol";
 import "./TemplateUtils.sol";
 import "./WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrp.sol";
 
 /// @title Contract that implements the Airnode request–response protocol
 contract AirnodeRrp is
-    ConvenienceUtils,
+    AuthorizationUtils,
     TemplateUtils,
     WithdrawalUtils,
     IAirnodeRrp
 {
+    /// @notice Called to get the extended public key of the Airnode
+    mapping(address => string) public override airnodeToXpub;
+
     /// @notice Called to get the sponsorship status for a sponsor–requester
     /// pair
     mapping(address => mapping(address => bool))
@@ -58,6 +61,18 @@ contract AirnodeRrp is
             "Invalid request fulfillment"
         );
         _;
+    }
+
+    /// @notice Called by the Airnode operator to announce its extended public
+    /// key
+    /// @dev It is expected for the Airnode operator to call this function with
+    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
+    /// This extended public key does not need to be announced on-chain for the
+    /// protocol to be used, this is mainly for convenience.
+    /// @param xpub Extended public key of the Airnode
+    function setAirnodeXpub(string calldata xpub) external override {
+        airnodeToXpub[msg.sender] = xpub;
+        emit SetAirnodeXpub(msg.sender, xpub);
     }
 
     /// @notice Called by the sponsor to set the sponsorship status of a

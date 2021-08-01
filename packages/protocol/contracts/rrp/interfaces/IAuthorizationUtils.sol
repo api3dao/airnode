@@ -1,20 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IConvenienceUtils {
-    event SetAirnodeXpub(address indexed airnode, string xpub);
-
-    event SetAirnodeAuthorizers(address indexed airnode, address[] authorizers);
-
-    function setAirnodeXpub(string calldata xpub) external;
-
-    function setAirnodeAuthorizers(address[] calldata authorizers) external;
-
-    function getAirnodeAuthorizers(address airnode)
-        external
-        view
-        returns (address[] memory authorizers);
-
+interface IAuthorizationUtils {
     function checkAuthorizationStatus(
         address[] calldata authorizers,
         address airnode,
@@ -32,9 +19,4 @@ interface IConvenienceUtils {
         address[] calldata sponsors,
         address[] calldata requesters
     ) external view returns (bool[] memory statuses);
-
-    function airnodeToXpub(address airnode)
-        external
-        view
-        returns (string memory xpub);
 }
