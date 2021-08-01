@@ -5,7 +5,7 @@ const utils = require('./utils');
 
 let roles;
 let airnodeRrp, authorizerAlwaysTrue, authorizerAlwaysFalse;
-let airnodeAddress, airnodeMnemonic, airnodeXpub;
+let airnodeAddress;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -26,24 +26,7 @@ beforeEach(async () => {
     roles.deployer
   );
   authorizerAlwaysFalse = await mockRrpAuthorizerAlwaysFalseFactory.deploy();
-  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
-  await roles.deployer.sendTransaction({
-    to: airnodeAddress,
-    value: hre.ethers.utils.parseEther('1'),
-  });
-});
-
-describe('setAirnodeXpub', function () {
-  it('sets Airnode public key', async function () {
-    const initialPublicKey = await airnodeRrp.airnodeToXpub(airnodeAddress);
-    expect(initialPublicKey).to.equal('');
-    const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
-    await expect(airnodeRrp.connect(airnodeWallet).setAirnodeXpub(airnodeXpub, { gasLimit: 500000 }))
-      .to.emit(airnodeRrp, 'SetAirnodeXpub')
-      .withArgs(airnodeAddress, airnodeXpub);
-    const setPublicKey = await airnodeRrp.airnodeToXpub(airnodeAddress);
-    expect(setPublicKey).to.equal(airnodeXpub);
-  });
+  ({ airnodeAddress: airnodeAddress } = utils.generateRandomAirnodeWallet());
 });
 
 describe('checkAuthorizationStatus', function () {
