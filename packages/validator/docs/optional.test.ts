@@ -1,30 +1,7 @@
+import * as data from './data/optional';
 import * as validator from '../src/validator';
-import * as msg from '../src/utils/messages';
 
 it('optional (docs)', () => {
-  const template = {
-    __optional: {
-      optionalExample: {
-        __regexp: 'optional',
-      },
-      outer: {
-        inner: {},
-      },
-    },
-  };
-
-  const validSpecs = {
-    optionalExample: 'This is optional',
-  };
-
-  const invalidSpecs = {
-    optionalExample: 'test',
-    outer: {},
-  };
-
-  expect(validator.validateJson(validSpecs, template)).toEqual({ valid: true, messages: [] });
-  expect(validator.validateJson(invalidSpecs, template)).toEqual({
-    valid: false,
-    messages: [msg.formattingMessage(['optionalExample']), msg.missingParamMessage(['outer', 'inner'])],
-  });
+  expect(validator.validateJson(data.validSpecs, data.template)).toEqual({ valid: true, messages: [] });
+  expect(validator.validateJson(data.invalidSpecs, data.template)).toEqual(data.invalidOut);
 });

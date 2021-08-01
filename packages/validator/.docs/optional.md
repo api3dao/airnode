@@ -7,48 +7,20 @@ If parameters are specified inside an `__optional` key in the template -- but ar
 
 ### Template
 
-```json
-{
-  "__optional": {
-    "optionalExample": {
-      "__regexp": "optional"
-    },
-    "outer": {
-      "inner": {}
-    }
-  }
-}
-```
+<snippet id='optional-template'/>
 
 ---
 ### Valid specification
 
-```json
-{
-  "optionalExample": "This is optional"
-}
-```
+<snippet id='optional-valid-specs'/>
 
 ---
 ### Invalid specification
 
-```json
-{
-  "optionalExample": "test",
-  "outer": {}
-}
-```
+<snippet id='optional-invalid-specs'/>
 
 ### Expected output
 
-```json
-{
-  "valid": false,
-  "messages": [
-    { "level": "warning", "message": "optionalExample is not formatted correctly" },
-    { "level": "error", "message": "Missing parameter outer.inner" }
-  ]
-}
-```
+<snippet id='optional-invalid-out'/>
 
 ---
