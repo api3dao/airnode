@@ -1,6 +1,6 @@
 /* globals context ethers */
 const { expect } = require('chai');
-const { timeTravel } = require('./utils');
+const { timeTravel } = require('../utils');
 
 const AdminStatus = {
   Unauthorized: 0,
