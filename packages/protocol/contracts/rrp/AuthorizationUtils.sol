@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./interfaces/IConvenienceUtils.sol";
+import "./interfaces/IAuthorizationUtils.sol";
 import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
 /// @title Contract that implements convenience functions
-contract ConvenienceUtils is IConvenienceUtils {
+contract AuthorizationUtils is IAuthorizationUtils {
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
