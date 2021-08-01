@@ -6,6 +6,8 @@ import "./ITemplateUtils.sol";
 import "./IWithdrawalUtils.sol";
 
 interface IAirnodeRrp is IConvenienceUtils, ITemplateUtils, IWithdrawalUtils {
+    event SetAirnodeXpub(address indexed airnode, string xpub);
+
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
@@ -49,6 +51,8 @@ interface IAirnodeRrp is IConvenienceUtils, ITemplateUtils, IWithdrawalUtils {
 
     event FailedRequest(address indexed airnode, bytes32 indexed requestId);
 
+    function setAirnodeXpub(string calldata xpub) external;
+
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
@@ -86,6 +90,11 @@ interface IAirnodeRrp is IConvenienceUtils, ITemplateUtils, IWithdrawalUtils {
         address fulfillAddress,
         bytes4 fulfillFunctionId
     ) external;
+
+    function airnodeToXpub(address airnode)
+        external
+        view
+        returns (string memory xpub);
 
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
