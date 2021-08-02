@@ -30,7 +30,7 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
 
     /// @dev Represents the locked amounts, periods and whitelist counts
     /// of a chainId-airnode-client pair
-    struct AirnodeClient {
+    struct AirnodeRequester {
         mapping(address => uint256) lockAmountAt;
         mapping(address => uint256) canUnlockAt;
         uint256 whitelistCount;
@@ -43,11 +43,11 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     mapping(address => AdminStatus) public adminStatuses;
 
     /// @dev Stores information about all token locks for chainId-airnode-client pair
-    mapping(uint256 => mapping(bytes32 => mapping(address => AirnodeClient)))
-        public tokenLocks;
+    mapping(uint256 => mapping(bytes32 => mapping(address => AirnodeRequester)))
+        public airnodeToRequesterToTokenLocks;
 
-    /// @dev Stores information for blacklisted clients
-    mapping(address => bool) public clientAddressToBlacklistStatus;
+    /// @dev Stores information for blacklisted requester
+    mapping(address => bool) public requesterToBlacklistStatus;
 
     /// @dev Sets the values for {_metaAdmin}, {_minimumLockingTime} and {_lockAmount}
     /// @param _metaAdmin The address that will be set as meta admin
@@ -66,10 +66,23 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
         metaAdmin = _metaAdmin;
     }
 
+    modifier onlyMetaAdmin() {
+        require(msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
+        _;
+    }
+
+    modifier onlyAdmin() {
+        require(
+            adminStatuses[msg.sender] == AdminStatus.Admin ||
+                msg.sender == metaAdmin,
+            ERROR_UNAUTHORIZED
+        );
+        _;
+    }
+
     /// @notice Called by the meta admin to set the meta admin
     /// @param _metaAdmin Address that will be set as the meta admin
-    function setMetaAdmin(address _metaAdmin) external override {
-        require(msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
+    function setMetaAdmin(address _metaAdmin) external override onlyMetaAdmin {
         require(_metaAdmin != address(0), ERROR_ZERO_ADDRESS);
         metaAdmin = _metaAdmin;
         emit SetMetaAdmin(metaAdmin);
@@ -81,19 +94,15 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     function setAdminStatus(address _admin, AdminStatus _status)
         external
         override
+        onlyMetaAdmin
     {
-        require(msg.sender == metaAdmin, ERROR_UNAUTHORIZED);
         adminStatuses[_admin] = _status;
         emit SetAdminStatus(_admin, _status);
     }
 
     /// @notice Called by admin to set the address of the API3 Token
     /// @param _api3Token Address of the new API3 Token
-    function setApi3Token(address _api3Token) external override {
-        require(
-            adminStatuses[msg.sender] == AdminStatus.Admin,
-            ERROR_UNAUTHORIZED
-        );
+    function setApi3Token(address _api3Token) external override onlyAdmin {
         require(_api3Token != address(0), ERROR_ZERO_ADDRESS);
         api3Token = _api3Token;
 
@@ -110,7 +119,7 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     function setMinimumLockingTime(uint256 _minimumLockingTime)
         external
         override
-        onlyOwner
+        onlyMetaAdmin
     {
         minimumLockingTime = _minimumLockingTime;
         emit SetMinimumLockingTime(_minimumLockingTime);
@@ -118,7 +127,11 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
 
     /// @notice Called by owner to set the locking amount
     /// @param _lockAmount The new lock amount
-    function setLockAmount(uint256 _lockAmount) external override onlyOwner {
+    function setLockAmount(uint256 _lockAmount)
+        external
+        override
+        onlyMetaAdmin
+    {
         require(_lockAmount != 0, ERROR_ZERO_AMOUNT);
         lockAmount = _lockAmount;
         emit SetLockAmount(_lockAmount);
@@ -130,9 +143,9 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     function setBlacklistStatus(address clientAddress, bool status)
         external
         override
-        onlyOwner
+        onlyMetaAdmin
     {
-        clientAddressToBlacklistStatus[clientAddress] = status;
+        requesterToBlacklistStatus[clientAddress] = status;
         emit SetBlacklistStatus(clientAddress, status, msg.sender);
     }
 
@@ -142,18 +155,18 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     /// the owners of the contract.
     /// @param _chainId The chain id
     /// @param _airnodeId The airnode id
-    /// @param _clientAddress The client address
+    /// @param _requesterAddress The client address
     function lock(
         uint256 _chainId,
         bytes32 _airnodeId,
-        address _clientAddress
+        address _requesterAddress
     ) external override {
-        AirnodeClient storage target = tokenLocks[_chainId][_airnodeId][
-            _clientAddress
-        ];
+        AirnodeRequester storage target = airnodeToRequesterToTokenLocks[
+            _chainId
+        ][_airnodeId][_requesterAddress];
         require(target.lockAmountAt[msg.sender] == 0, ERROR_ALREADY_LOCKED);
         require(
-            !clientAddressToBlacklistStatus[_clientAddress],
+            !requesterToBlacklistStatus[_requesterAddress],
             ERROR_CLIENT_BLACKLISTED
         );
 
@@ -174,12 +187,18 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
             emit Authorize(
                 _chainId,
                 _airnodeId,
-                _clientAddress,
+                _requesterAddress,
                 type(uint64).max
             );
         }
 
-        emit Lock(_chainId, _airnodeId, _clientAddress, msg.sender, lockAmount);
+        emit Lock(
+            _chainId,
+            _airnodeId,
+            _requesterAddress,
+            msg.sender,
+            lockAmount
+        );
     }
 
     /// @notice Unlocks the API3 tokens for a given airnode-client pair on a given chain.
@@ -189,15 +208,15 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     /// Transfers to msg.sender the locked amount.
     /// @param _chainId The chain id
     /// @param _airnodeId The airnode id
-    /// @param _clientAddress The client address
+    /// @param _requesterAddress The client address
     function unlock(
         uint256 _chainId,
         bytes32 _airnodeId,
-        address _clientAddress
+        address _requesterAddress
     ) external override {
-        AirnodeClient storage target = tokenLocks[_chainId][_airnodeId][
-            _clientAddress
-        ];
+        AirnodeRequester storage target = airnodeToRequesterToTokenLocks[
+            _chainId
+        ][_airnodeId][_requesterAddress];
         require(target.lockAmountAt[msg.sender] != 0, ERROR_NOT_LOCKED);
         require(target.canUnlockAt[msg.sender] != 0, ERROR_LOCK_PERIOD_ZERO);
         require(
@@ -205,7 +224,7 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
             ERROR_LOCK_PERIOD_NOT_EXPIRED
         );
         require(
-            !clientAddressToBlacklistStatus[_clientAddress],
+            !requesterToBlacklistStatus[_requesterAddress],
             ERROR_CLIENT_BLACKLISTED
         );
         uint256 amount = target.lockAmountAt[msg.sender];
@@ -215,49 +234,55 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
         target.whitelistCount--;
 
         if (target.whitelistCount == 0) {
-            emit Authorize(_chainId, _airnodeId, _clientAddress, 0);
+            emit Authorize(_chainId, _airnodeId, _requesterAddress, 0);
         }
 
         assert(IApi3Token(api3Token).transfer(msg.sender, amount));
 
-        emit Unlock(_chainId, _airnodeId, _clientAddress, msg.sender, amount);
+        emit Unlock(
+            _chainId,
+            _airnodeId,
+            _requesterAddress,
+            msg.sender,
+            amount
+        );
     }
 
     /// @notice User calls this when the lock amount has been decreased and wants
     /// to withdraw the redundantly locked tokens
     /// @param _chainId The chain id
     /// @param _airnodeId The airnode id
-    /// @param _clientAddress The client address
+    /// @param _requesterAddress The client address
     function withdraw(
         uint256 _chainId,
         bytes32 _airnodeId,
-        address _clientAddress
+        address _requesterAddress
     ) external override {
         require(
-            tokenLocks[_chainId][_airnodeId][_clientAddress].lockAmountAt[
-                msg.sender
-            ] > lockAmount,
+            airnodeToRequesterToTokenLocks[_chainId][_airnodeId][
+                _requesterAddress
+            ]
+            .lockAmountAt[msg.sender] > lockAmount,
             ERROR_INSUFFICIENT_AMOUNT
         );
         require(
-            !clientAddressToBlacklistStatus[_clientAddress],
+            !requesterToBlacklistStatus[_requesterAddress],
             ERROR_CLIENT_BLACKLISTED
         );
 
-        uint256 withdrawAmount = tokenLocks[_chainId][_airnodeId][
-            _clientAddress
-        ]
+        uint256 withdrawAmount = airnodeToRequesterToTokenLocks[_chainId][
+            _airnodeId
+        ][_requesterAddress]
         .lockAmountAt[msg.sender] - lockAmount;
-        tokenLocks[_chainId][_airnodeId][_clientAddress].lockAmountAt[
-            msg.sender
-        ] = lockAmount;
+        airnodeToRequesterToTokenLocks[_chainId][_airnodeId][_requesterAddress]
+        .lockAmountAt[msg.sender] = lockAmount;
 
         assert(IApi3Token(api3Token).transfer(msg.sender, withdrawAmount));
 
         emit Withdraw(
             _chainId,
             _airnodeId,
-            _clientAddress,
+            _requesterAddress,
             msg.sender,
             withdrawAmount
         );
@@ -274,23 +299,23 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
         address _fromClientAddress,
         address _toClientAddress
     ) external override {
-        AirnodeClient storage from = tokenLocks[_chainId][_airnodeId][
-            _fromClientAddress
-        ];
-        AirnodeClient storage to = tokenLocks[_chainId][_airnodeId][
-            _toClientAddress
-        ];
+        AirnodeRequester storage from = airnodeToRequesterToTokenLocks[
+            _chainId
+        ][_airnodeId][_fromClientAddress];
+        AirnodeRequester storage to = airnodeToRequesterToTokenLocks[_chainId][
+            _airnodeId
+        ][_toClientAddress];
         require(
             from.lockAmountAt[msg.sender] != 0,
             "locked amount must be != 0"
         );
         require(to.lockAmountAt[msg.sender] == 0, "locked amount must be 0");
         require(
-            !clientAddressToBlacklistStatus[_fromClientAddress],
+            !requesterToBlacklistStatus[_fromClientAddress],
             "From Client blacklisted"
         );
         require(
-            !clientAddressToBlacklistStatus[_toClientAddress],
+            !requesterToBlacklistStatus[_toClientAddress],
             "To Client blacklisted"
         );
 
@@ -332,20 +357,20 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
     /// Can only be done when the client is blacklisted.
     /// @param _chainId The chain id
     /// @param _airnodeId The airnode id
-    /// @param _clientAddress The client address
+    /// @param _requesterAddress The client address
     /// @param _burnTarget The address of the user
     function burn(
         uint256 _chainId,
         bytes32 _airnodeId,
-        address _clientAddress,
+        address _requesterAddress,
         address _burnTarget
-    ) external override {
-        AirnodeClient storage target = tokenLocks[_chainId][_airnodeId][
-            _clientAddress
-        ];
+    ) external override onlyMetaAdmin {
+        AirnodeRequester storage target = airnodeToRequesterToTokenLocks[
+            _chainId
+        ][_airnodeId][_requesterAddress];
         require(target.lockAmountAt[_burnTarget] != 0, ERROR_ZERO_AMOUNT);
         require(
-            clientAddressToBlacklistStatus[_clientAddress],
+            requesterToBlacklistStatus[_requesterAddress],
             ERROR_CLIENT_NOT_BLACKLISTED
         );
 
@@ -356,45 +381,47 @@ contract Api3TokenLockExternal is IApi3TokenLockExternal, Ownable {
         target.whitelistCount--;
 
         if (target.whitelistCount == 0) {
-            emit Authorize(_chainId, _airnodeId, _clientAddress, 0);
+            emit Authorize(_chainId, _airnodeId, _requesterAddress, 0);
         }
 
         IApi3Token(api3Token).burn(amount);
 
-        emit Burn(_chainId, _airnodeId, _clientAddress, _burnTarget);
+        emit Burn(_chainId, _airnodeId, _requesterAddress, _burnTarget);
     }
 
     /// @dev Returns the locked amount for a target address to a chainId-airnode-client
     /// @param _chainId The chain id
     /// @param _airnodeId The airnode id
-    /// @param _clientAddress The client address
+    /// @param _requesterAddress The client address
     /// @param _target The address of the user
     function lockAmountAt(
         uint256 _chainId,
         bytes32 _airnodeId,
-        address _clientAddress,
+        address _requesterAddress,
         address _target
     ) public view returns (uint256) {
         return
-            tokenLocks[_chainId][_airnodeId][_clientAddress].lockAmountAt[
-                _target
-            ];
+            airnodeToRequesterToTokenLocks[_chainId][_airnodeId][
+                _requesterAddress
+            ]
+                .lockAmountAt[_target];
     }
 
     /// @dev Returns the unlock period for a target address to a chainId-airnode-client
     /// @param _chainId The chain id
     /// @param _airnodeId The airnode id
-    /// @param _clientAddress The client address
+    /// @param _requesterAddress The client address
     /// @param _target The address of the user
     function canUnlockAt(
         uint256 _chainId,
         bytes32 _airnodeId,
-        address _clientAddress,
+        address _requesterAddress,
         address _target
     ) public view returns (uint256) {
         return
-            tokenLocks[_chainId][_airnodeId][_clientAddress].canUnlockAt[
-                _target
-            ];
+            airnodeToRequesterToTokenLocks[_chainId][_airnodeId][
+                _requesterAddress
+            ]
+                .canUnlockAt[_target];
     }
 }

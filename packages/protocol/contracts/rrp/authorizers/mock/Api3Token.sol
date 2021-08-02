@@ -24,7 +24,6 @@ contract Api3Token is ERC20, Ownable, IApi3Token {
     /// token contract
     /// @param mintingDestination Address that the tokens will be minted to
     constructor(address contractOwner, address mintingDestination)
-        public
         ERC20("API3", "API3")
     {
         transferOwnership(contractOwner);
@@ -80,19 +79,6 @@ contract Api3Token is ERC20, Ownable, IApi3Token {
     function burn(uint256 amount) external override {
         require(isBurner[msg.sender], "Only burners are allowed to burn");
         _burn(msg.sender, amount);
-    }
-
-    /// @notice Returns if an address is authorized to mint tokens
-    /// @param minterAddress Address whose minter authorization status will be
-    /// returned
-    /// @return minterStatus Minter authorization status
-    function getMinterStatus(address minterAddress)
-        external
-        view
-        override
-        returns (bool minterStatus)
-    {
-        minterStatus = isMinter[minterAddress];
     }
 
     /// @notice Returns if an address is authorized to burn tokens

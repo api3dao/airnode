@@ -232,25 +232,25 @@ describe('Api3TokenLock', async () => {
     describe('setMinimumLockingTime', async () => {
       const NEW_MINIMUM_LOCKING_TIME = 2 * ONE_MINUTE_IN_SECONDS;
 
-      context('caller is admin', async () => {
+      context('caller is metaAdmin', async () => {
         it('is set', async () => {
           // when:
-          await api3TokenLock.setMinimumLockingTime(NEW_MINIMUM_LOCKING_TIME);
+          await api3TokenLock.connect(metaAdmin).setMinimumLockingTime(NEW_MINIMUM_LOCKING_TIME);
           // then:
           expect(await api3TokenLock.minimumLockingTime()).to.equal(NEW_MINIMUM_LOCKING_TIME);
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.setMinimumLockingTime(NEW_MINIMUM_LOCKING_TIME))
+          await expect(api3TokenLock.connect(metaAdmin).setMinimumLockingTime(NEW_MINIMUM_LOCKING_TIME))
             .to.emit(api3TokenLock, 'SetMinimumLockingTime')
             .withArgs(NEW_MINIMUM_LOCKING_TIME);
         });
       });
 
-      context('caller is not admin', async () => {
+      context('caller is not metaAdmin', async () => {
         it('reverts', async () => {
           await expect(api3TokenLock.connect(unknown).setMinimumLockingTime(NEW_MINIMUM_LOCKING_TIME)).to.revertedWith(
-            'caller is not the owner'
+            Errors.Unauthorized
           );
         });
       });
@@ -259,55 +259,55 @@ describe('Api3TokenLock', async () => {
     describe('setLockAmount', async () => {
       const NEW_LOCK_AMOUNT = 2 * LOCK_AMOUNT;
 
-      context('caller is admin', async () => {
+      context('caller is metaAdmin', async () => {
         it('is set', async () => {
           // when:
-          await api3TokenLock.setLockAmount(NEW_LOCK_AMOUNT);
+          await api3TokenLock.connect(metaAdmin).setLockAmount(NEW_LOCK_AMOUNT);
           // then:
           expect(await api3TokenLock.lockAmount()).to.equal(NEW_LOCK_AMOUNT);
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.setLockAmount(NEW_LOCK_AMOUNT))
+          await expect(api3TokenLock.connect(metaAdmin).setLockAmount(NEW_LOCK_AMOUNT))
             .to.emit(api3TokenLock, 'SetLockAmount')
             .withArgs(NEW_LOCK_AMOUNT);
         });
 
         context('new lock amount is zero', async () => {
           it('reverts', async () => {
-            await expect(api3TokenLock.setLockAmount(0)).to.revertedWith(Errors.ZeroAmount);
+            await expect(api3TokenLock.connect(metaAdmin).setLockAmount(0)).to.revertedWith(Errors.ZeroAmount);
           });
         });
       });
 
-      context('caller is not admin', async () => {
+      context('caller is not metaAdmin', async () => {
         it('reverts', async () => {
           await expect(api3TokenLock.connect(unknown).setLockAmount(NEW_LOCK_AMOUNT)).to.revertedWith(
-            'caller is not the owner'
+            Errors.Unauthorized
           );
         });
       });
     });
 
     describe('setBlacklistStatus', async () => {
-      context('caller is owner', async () => {
+      context('caller is metaAdmin', async () => {
         it('is set', async () => {
           // when:
-          await api3TokenLock.setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
           // then:
-          expect(await api3TokenLock.clientAddressToBlacklistStatus(bobClient.address)).to.equal(true);
+          expect(await api3TokenLock.requesterToBlacklistStatus(bobClient.address)).to.equal(true);
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.setBlacklistStatus(bobClient.address, true))
+          await expect(api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true))
             .to.emit(api3TokenLock, 'SetBlacklistStatus')
-            .withArgs(bobClient.address, true, deployer.address);
+            .withArgs(bobClient.address, true, metaAdmin.address);
         });
       });
-      context('caller is not admin', async () => {
+      context('caller is not metaAdmin', async () => {
         it('reverts', async () => {
           await expect(api3TokenLock.connect(unknown).setBlacklistStatus(bobClient.address, true)).to.revertedWith(
-            'caller is not the owner'
+            Errors.Unauthorized
           );
         });
       });
@@ -346,7 +346,7 @@ describe('Api3TokenLock', async () => {
             expectedUnlockTime
           );
           expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(LOCK_AMOUNT);
-          expect(await api3TokenLock.tokenLocks(airnodeId, bobClient.address)).to.equal(1);
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(1);
 
           expect(
             (await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(airnodeId, bobClient.address))
@@ -377,7 +377,7 @@ describe('Api3TokenLock', async () => {
       context('client address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
           // then:
           await expect(api3TokenLock.connect(alice).lock(airnodeId, bobClient.address)).to.revertedWith(
             Errors.ClientBlacklisted
@@ -417,7 +417,7 @@ describe('Api3TokenLock', async () => {
           expect(afterBalance).to.equal(beforeBalance.add(LOCK_AMOUNT));
           expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
           expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.tokenLocks(airnodeId, bobClient.address)).to.equal(0);
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(0);
         });
 
         it('emits event', async () => {
@@ -452,7 +452,7 @@ describe('Api3TokenLock', async () => {
       context('client address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
           timeTravel(ONE_MINUTE_IN_SECONDS + 1000);
           // then:
           await expect(api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address)).to.revertedWith(
@@ -484,7 +484,7 @@ describe('Api3TokenLock', async () => {
 
       context('successful withdraws amount if it is set to a lower one', async () => {
         beforeEach(async () => {
-          await api3TokenLock.setLockAmount(NEW_LOCK_AMOUNT);
+          await api3TokenLock.connect(metaAdmin).setLockAmount(NEW_LOCK_AMOUNT);
         });
 
         it('withdraws', async () => {
@@ -508,8 +508,8 @@ describe('Api3TokenLock', async () => {
 
       context('client address is blacklisted', async () => {
         beforeEach(async () => {
-          await api3TokenLock.setLockAmount(NEW_LOCK_AMOUNT);
-          await api3TokenLock.setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setLockAmount(NEW_LOCK_AMOUNT);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
         });
 
         it('reverts', async () => {
@@ -551,19 +551,27 @@ describe('Api3TokenLock', async () => {
         it('is set', async () => {
           const lockPeriod = await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address);
           const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address);
-          const beforeBobWhitelistCount = await api3TokenLock.tokenLocks(airnodeId, bobClient.address);
-          const beforeCarolWhitelistCount = await api3TokenLock.tokenLocks(airnodeId, carolClient.address);
+          const beforeBobWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(
+            airnodeId,
+            bobClient.address
+          );
+          const beforeCarolWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(
+            airnodeId,
+            carolClient.address
+          );
 
           // when:
           await api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address);
           // then:
           expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
           expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.tokenLocks(airnodeId, bobClient.address)).to.equal(beforeBobWhitelistCount - 1);
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(
+            beforeBobWhitelistCount - 1
+          );
           // and:
           expect(await api3TokenLock.canUnlockAt(airnodeId, carolClient.address, alice.address)).to.equal(lockPeriod);
           expect(await api3TokenLock.lockAmountAt(airnodeId, carolClient.address, alice.address)).to.equal(lockAmount);
-          expect(await api3TokenLock.tokenLocks(airnodeId, carolClient.address)).to.equal(
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, carolClient.address)).to.equal(
             beforeCarolWhitelistCount + 1
           );
           // and:
@@ -611,7 +619,7 @@ describe('Api3TokenLock', async () => {
       context('fromClient address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
           // then:
           await expect(
             api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address)
@@ -622,7 +630,7 @@ describe('Api3TokenLock', async () => {
       context('toClient address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.setBlacklistStatus(carolClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(carolClient.address, true);
           // then:
           await expect(
             api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address)
@@ -651,17 +659,17 @@ describe('Api3TokenLock', async () => {
 
       context('successful burn of blacklisted client', async () => {
         beforeEach(async () => {
-          await api3TokenLock.setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
         });
 
         it('burns tokens', async () => {
           const beforeTotalSupply = await api3Token.totalSupply();
           const beforeTokenLockBalance = await api3Token.balanceOf(api3TokenLock.address);
           const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address);
-          const beforeWhitelistCount = await api3TokenLock.tokenLocks(airnodeId, bobClient.address);
+          const beforeWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address);
 
           // when:
-          await api3TokenLock.burn(airnodeId, bobClient.address, alice.address);
+          await api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, alice.address);
 
           // then:
           expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
@@ -669,11 +677,13 @@ describe('Api3TokenLock', async () => {
           // and:
           expect(await api3Token.balanceOf(api3TokenLock.address)).to.equal(beforeTokenLockBalance.sub(lockAmount));
           expect(await api3Token.totalSupply()).to.equal(beforeTotalSupply.sub(lockAmount));
-          expect(await api3TokenLock.tokenLocks(airnodeId, bobClient.address)).to.equal(beforeWhitelistCount.sub(1));
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(
+            beforeWhitelistCount.sub(1)
+          );
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.burn(airnodeId, bobClient.address, alice.address))
+          await expect(api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, alice.address))
             .to.emit(api3TokenLock, 'Burn')
             .withArgs(airnodeId, bobClient.address, alice.address);
         });
@@ -681,20 +691,20 @@ describe('Api3TokenLock', async () => {
 
       context('burn target has zero locked amount', async () => {
         it('reverts', async () => {
-          await expect(api3TokenLock.burn(airnodeId, bobClient.address, unknown.address)).to.revertedWith(
-            Errors.ZeroAmount
-          );
+          await expect(
+            api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, unknown.address)
+          ).to.revertedWith(Errors.ZeroAmount);
         });
       });
 
       context('client address is not blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.setBlacklistStatus(bobClient.address, false);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, false);
           // then:
-          await expect(api3TokenLock.burn(airnodeId, bobClient.address, alice.address)).to.revertedWith(
-            Errors.ClientNotBlacklisted
-          );
+          await expect(
+            api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, alice.address)
+          ).to.revertedWith(Errors.ClientNotBlacklisted);
         });
       });
     });
