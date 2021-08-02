@@ -29,9 +29,9 @@ components:
         response: {}
 
   examples:
-    EndpointNameParameterExample:
+    EndpointIdParameterExample:
       summary: Endpoint name
-      value: convertToUSD
+      value: 0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353
 
     TestEndpointRequestExample:
       summary: Test endpoint request example
@@ -41,16 +41,16 @@ components:
       value: { "response": 20 }
 
   parameters:
-    endpointName:
-      name: endpointName
+    endpointId:
+      name: endpointId
       in: path
-      description: Endpoint name
+      description: Endpoint ID
       required: true
       schema:
         type: string
       examples:
         example:
-          $ref: "#/components/examples/EndpointNameParameterExample"
+          $ref: "#/components/examples/EndpointIdParameterExample"
 
   securitySchemes:
     apiKey:
@@ -63,10 +63,10 @@ security:
   - apiKey: []
 
 paths:
-  /test/{endpointName}:
+  /test/{endpointId}:
     post:
       parameters:
-        - $ref: "#/components/parameters/endpointName"
+        - $ref: "#/components/parameters/endpointId"
       requestBody:
         content:
           application/json:

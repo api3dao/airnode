@@ -62,9 +62,9 @@ export async function processProviderRequests({ state: providerState }: Provider
   return { ok: true, data: scrubbedState };
 }
 
-export async function testApi(endpointName: string, parameters: any) {
+export async function testApi(endpointId: string, parameters: any) {
   const config = loadConfig();
-  const [err, result] = await handlers.testApi(config, endpointName, parameters);
+  const [err, result] = await handlers.testApi(config, endpointId, parameters);
   if (err) {
     throw err;
   }

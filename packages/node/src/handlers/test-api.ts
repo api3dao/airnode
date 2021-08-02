@@ -9,7 +9,7 @@ import { WORKER_CALL_API_TIMEOUT } from '../constants';
 
 export async function testApi(
   config: Config,
-  endpointName: string,
+  endpointId: string,
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallResponse]> {
   const testCallId = randomString(8);
@@ -17,9 +17,9 @@ export async function testApi(
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
 
-  const triggerRequest = find(config.triggers.request, ['endpointName', endpointName]);
+  const triggerRequest = find(config.triggers.request, ['endpointId', endpointId]);
   if (!triggerRequest) {
-    return [new Error(`No such endpoint '${endpointName}'`), null];
+    return [new Error(`No such endpoint with ID '${endpointId}'`), null];
   }
 
   const workerOpts: WorkerOptions = {
@@ -36,8 +36,8 @@ export async function testApi(
     clientAddress: '',
     designatedWallet: '',
     chainId: '',
-    endpointId: triggerRequest.endpointId,
-    endpointName,
+    endpointId,
+    endpointName: triggerRequest.endpointName,
     oisTitle: triggerRequest.oisTitle,
     parameters,
   };
