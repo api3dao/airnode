@@ -21,6 +21,6 @@
     "compile": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "ts-node": "^9.0.0"
+    "ts-node": "^10.1.0"
   }
 }
