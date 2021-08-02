@@ -22,6 +22,16 @@ export async function testApi(
     return [new Error(`No such endpoint with ID '${endpointId}'`), null];
   }
 
+  const endpoints = find(config.ois, ['title', triggerRequest.oisTitle])?.endpoints;
+  const endpoint = find(endpoints, ['name', triggerRequest.endpointName]);
+
+  if (!endpoint) {
+    return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
+  }
+  if (!endpoint.testable) {
+    return [new Error(`Endpoint with ID '${endpointId}' can't be tested`), null];
+  }
+
   const workerOpts: WorkerOptions = {
     cloudProvider: config.nodeSettings.cloudProvider,
     airnodeIdShort: wallet.getAirnodeIdShort(masterHDNode),
@@ -50,7 +60,7 @@ export async function testApi(
   logger.logPending(resLogs, logOptions);
 
   if (err || !logData || !logData[1]) {
-    return [err || new Error('An unkown error occurred'), null];
+    return [err || new Error('An unknown error occurred'), null];
   }
 
   return [null, logData[1]];

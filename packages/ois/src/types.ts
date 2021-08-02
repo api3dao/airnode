@@ -93,6 +93,7 @@ export interface Endpoint {
   parameters: EndpointParameter[];
   reservedParameters: ReservedParameter[];
   summary?: string;
+  testable?: boolean;
 }
 
 // ===========================================
