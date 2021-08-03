@@ -14,4 +14,4 @@
 packages/protocol/src/contracts
 
 # Ignore json snippets injected into readme
-packages/validator/docs/data
+packages/validator/test/fixtures
