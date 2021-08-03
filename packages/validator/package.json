@@ -19,7 +19,7 @@
     "validate": "ts-node src/commands/validateCmd.ts",
     "convert": "ts-node src/commands/convertCmd.ts",
     "compile": "tsc -p tsconfig.build.json",
-    "docs": "ts-node docs/genDocs.ts"
+    "docs": "ts-node docs/generate-docs.ts"
   },
   "devDependencies": {
     "ts-node": "^9.0.0",
