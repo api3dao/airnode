@@ -26,11 +26,12 @@ const Errors = {
 
 const airnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
 
-let deployer, metaAdmin, newMetaAdmin, admin, alice, bobClient, carolClient, unknown;
+let deployer, metaAdmin, newMetaAdmin, admin, sponsor, requester, carolClient, unknown, anotherSponsor;
 
 describe('Api3TokenLock', async () => {
   beforeEach(async () => {
-    [deployer, metaAdmin, newMetaAdmin, admin, alice, bobClient, carolClient, unknown] = await ethers.getSigners();
+    [deployer, metaAdmin, newMetaAdmin, admin, sponsor, requester, carolClient, unknown, anotherSponsor] =
+      await ethers.getSigners();
 
     api3TokenLockFactory = await ethers.getContractFactory('Api3TokenLock', deployer);
   });
@@ -80,7 +81,7 @@ describe('Api3TokenLock', async () => {
 
       const api3TokenFactory = await ethers.getContractFactory('Api3Token', deployer);
       // deploy Api3Token
-      api3Token = await api3TokenFactory.deploy(deployer.address, alice.address);
+      api3Token = await api3TokenFactory.deploy(deployer.address, sponsor.address);
 
       // set Api3TokenLock as admin
       await api3RequesterRrpAuthorizer
@@ -205,6 +206,12 @@ describe('Api3TokenLock', async () => {
             .withArgs(api3Token.address);
         });
 
+        it('sets the burner status', async () => {
+          expect(await api3Token.getBurnerStatus(api3TokenLock.address)).to.equal(false);
+          await api3TokenLock.connect(admin).setApi3Token(api3Token.address);
+          expect(await api3Token.getBurnerStatus(api3TokenLock.address)).to.equal(true);
+        });
+
         context('Api3Token is zero address', async () => {
           it('reverts', async () => {
             await expect(api3TokenLock.connect(admin).setApi3Token(ethers.constants.AddressZero)).to.revertedWith(
@@ -293,20 +300,20 @@ describe('Api3TokenLock', async () => {
       context('caller is metaAdmin', async () => {
         it('is set', async () => {
           // when:
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true);
           // then:
-          expect(await api3TokenLock.requesterToBlacklistStatus(bobClient.address)).to.equal(true);
+          expect(await api3TokenLock.requesterToBlacklistStatus(requester.address)).to.equal(true);
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true))
+          await expect(api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true))
             .to.emit(api3TokenLock, 'SetBlacklistStatus')
-            .withArgs(bobClient.address, true, metaAdmin.address);
+            .withArgs(requester.address, true, metaAdmin.address);
         });
       });
       context('caller is not metaAdmin', async () => {
         it('reverts', async () => {
-          await expect(api3TokenLock.connect(unknown).setBlacklistStatus(bobClient.address, true)).to.revertedWith(
+          await expect(api3TokenLock.connect(unknown).setBlacklistStatus(requester.address, true)).to.revertedWith(
             Errors.Unauthorized
           );
         });
@@ -328,47 +335,74 @@ describe('Api3TokenLock', async () => {
       context('caller is first time locking', async () => {
         beforeEach(async () => {
           // given:
-          await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+          await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
         });
 
         it('is set', async () => {
-          const beforeBalance = await api3Token.balanceOf(alice.address);
+          const beforeBalance = await api3Token.balanceOf(sponsor.address);
           // when:
-          await api3TokenLock.connect(alice).lock(airnodeId, bobClient.address);
+          await api3TokenLock.connect(sponsor).lock(airnodeId, requester.address);
           // then:
           const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
           const expectedUnlockTime = now + ONE_MINUTE_IN_SECONDS;
-          const afterBalance = await api3Token.balanceOf(alice.address);
+          const afterBalance = await api3Token.balanceOf(sponsor.address);
 
           expect(afterBalance).to.equal(beforeBalance.sub(LOCK_AMOUNT));
 
-          expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(
+          expect(await api3TokenLock.canUnlockAt(airnodeId, requester.address, sponsor.address)).to.equal(
             expectedUnlockTime
           );
-          expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(LOCK_AMOUNT);
-          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(1);
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address)).to.equal(LOCK_AMOUNT);
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address)).to.equal(1);
 
           expect(
-            (await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(airnodeId, bobClient.address))
+            (await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(airnodeId, requester.address))
               .expirationTimestamp
           ).to.equal(ethers.BigNumber.from('0xffffffffffffffff'));
         });
 
         it('emits event', async () => {
           // then:
-          await expect(api3TokenLock.connect(alice).lock(airnodeId, bobClient.address))
+          await expect(api3TokenLock.connect(sponsor).lock(airnodeId, requester.address))
             .to.emit(api3TokenLock, 'Lock')
-            .withArgs(airnodeId, bobClient.address, alice.address, LOCK_AMOUNT);
+            .withArgs(airnodeId, requester.address, sponsor.address, LOCK_AMOUNT);
         });
       });
 
       context('caller has already locked', async () => {
-        it('reverts', async () => {
-          // given:
-          await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
-          await api3TokenLock.connect(alice).lock(airnodeId, bobClient.address);
+        it('is set for different sponser', async () => {
+          await api3Token.connect(sponsor).transfer(anotherSponsor.address, LOCK_AMOUNT * 2);
+          await api3Token.connect(anotherSponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+          const beforeBalance = await api3Token.balanceOf(anotherSponsor.address);
+          // when:
+          await api3TokenLock.connect(anotherSponsor).lock(airnodeId, requester.address);
           // then:
-          await expect(api3TokenLock.connect(alice).lock(airnodeId, bobClient.address)).to.revertedWith(
+          const now = (await ethers.provider.getBlock(await ethers.provider.getBlockNumber())).timestamp;
+          const expectedUnlockTime = now + ONE_MINUTE_IN_SECONDS;
+          const afterBalance = await api3Token.balanceOf(anotherSponsor.address);
+
+          expect(afterBalance).to.equal(beforeBalance.sub(LOCK_AMOUNT));
+
+          expect(await api3TokenLock.canUnlockAt(airnodeId, requester.address, anotherSponsor.address)).to.equal(
+            expectedUnlockTime
+          );
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, anotherSponsor.address)).to.equal(
+            LOCK_AMOUNT
+          );
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address)).to.equal(1);
+
+          expect(
+            (await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(airnodeId, requester.address))
+              .expirationTimestamp
+          ).to.equal(ethers.BigNumber.from('0xffffffffffffffff'));
+        });
+
+        it('reverts for the same sponser', async () => {
+          // given:
+          await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+          await api3TokenLock.connect(sponsor).lock(airnodeId, requester.address);
+          // then:
+          await expect(api3TokenLock.connect(sponsor).lock(airnodeId, requester.address)).to.revertedWith(
             'Already locked'
           );
         });
@@ -377,9 +411,9 @@ describe('Api3TokenLock', async () => {
       context('client address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true);
           // then:
-          await expect(api3TokenLock.connect(alice).lock(airnodeId, bobClient.address)).to.revertedWith(
+          await expect(api3TokenLock.connect(sponsor).lock(airnodeId, requester.address)).to.revertedWith(
             Errors.ClientBlacklisted
           );
         });
@@ -397,10 +431,14 @@ describe('Api3TokenLock', async () => {
         // set api3 token
         await api3TokenLock.connect(admin).setApi3Token(api3Token.address);
 
+        await api3Token.connect(sponsor).transfer(anotherSponsor.address, LOCK_AMOUNT);
+
         // approve Api3TokenLock:
-        await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+        await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+        await api3Token.connect(anotherSponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
         // Lock:
-        await api3TokenLock.connect(alice).lock(airnodeId, bobClient.address);
+        await api3TokenLock.connect(sponsor).lock(airnodeId, requester.address);
+        await api3TokenLock.connect(anotherSponsor).lock(airnodeId, requester.address);
       });
 
       context('caller is unlocking successfully', async () => {
@@ -409,29 +447,40 @@ describe('Api3TokenLock', async () => {
         });
 
         it('is set', async () => {
-          const beforeBalance = await api3Token.balanceOf(alice.address);
+          const beforeBalance = await api3Token.balanceOf(sponsor.address);
           // when:
-          await api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address);
+          await api3TokenLock.connect(sponsor).unlock(airnodeId, requester.address);
           // then:
-          const afterBalance = await api3Token.balanceOf(alice.address);
+          const afterBalance = await api3Token.balanceOf(sponsor.address);
           expect(afterBalance).to.equal(beforeBalance.add(LOCK_AMOUNT));
-          expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(0);
+          expect(await api3TokenLock.canUnlockAt(airnodeId, requester.address, sponsor.address)).to.equal(0);
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address)).to.equal(0);
+          console.log(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address));
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address)).to.equal(1);
+
+          const beforeBalance2 = await api3Token.balanceOf(anotherSponsor.address);
+          // when:
+          await api3TokenLock.connect(anotherSponsor).unlock(airnodeId, requester.address);
+          // then:
+          const afterBalance2 = await api3Token.balanceOf(anotherSponsor.address);
+          expect(afterBalance2).to.equal(beforeBalance2.add(LOCK_AMOUNT));
+          expect(await api3TokenLock.canUnlockAt(airnodeId, requester.address, anotherSponsor.address)).to.equal(0);
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, anotherSponsor.address)).to.equal(0);
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address)).to.equal(0);
         });
 
         it('emits event', async () => {
           // then:
-          await expect(api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address))
+          await expect(api3TokenLock.connect(sponsor).unlock(airnodeId, requester.address))
             .to.emit(api3TokenLock, 'Unlock')
-            .withArgs(airnodeId, bobClient.address, alice.address, LOCK_AMOUNT);
+            .withArgs(airnodeId, requester.address, sponsor.address, LOCK_AMOUNT);
         });
       });
 
       context('caller period not expired', async () => {
         it('reverts', async () => {
           // then:
-          await expect(api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address)).to.revertedWith(
+          await expect(api3TokenLock.connect(sponsor).unlock(airnodeId, requester.address)).to.revertedWith(
             Errors.LockPeriodNotExpired
           );
         });
@@ -441,9 +490,9 @@ describe('Api3TokenLock', async () => {
         it('reverts', async () => {
           // given:
           timeTravel(ONE_MINUTE_IN_SECONDS + 1000);
-          await api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address);
+          await api3TokenLock.connect(sponsor).unlock(airnodeId, requester.address);
           // then:
-          await expect(api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address)).to.revertedWith(
+          await expect(api3TokenLock.connect(sponsor).unlock(airnodeId, requester.address)).to.revertedWith(
             'No amount locked'
           );
         });
@@ -452,10 +501,10 @@ describe('Api3TokenLock', async () => {
       context('client address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true);
           timeTravel(ONE_MINUTE_IN_SECONDS + 1000);
           // then:
-          await expect(api3TokenLock.connect(alice).unlock(airnodeId, bobClient.address)).to.revertedWith(
+          await expect(api3TokenLock.connect(sponsor).unlock(airnodeId, requester.address)).to.revertedWith(
             Errors.ClientBlacklisted
           );
         });
@@ -476,10 +525,14 @@ describe('Api3TokenLock', async () => {
         // set api3 token
         await api3TokenLock.connect(admin).setApi3Token(api3Token.address);
 
+        await api3Token.connect(sponsor).transfer(anotherSponsor.address, LOCK_AMOUNT);
+
         // approve Api3TokenLock:
-        await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+        await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+        await api3Token.connect(anotherSponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
         // Lock:
-        await api3TokenLock.connect(alice).lock(airnodeId, bobClient.address);
+        await api3TokenLock.connect(sponsor).lock(airnodeId, requester.address);
+        await api3TokenLock.connect(anotherSponsor).lock(airnodeId, requester.address);
       });
 
       context('successful withdraws amount if it is set to a lower one', async () => {
@@ -488,33 +541,43 @@ describe('Api3TokenLock', async () => {
         });
 
         it('withdraws', async () => {
-          const beforeBalance = await api3Token.balanceOf(alice.address);
+          const beforeBalance = await api3Token.balanceOf(sponsor.address);
           // when:
-          await api3TokenLock.connect(alice).withdraw(airnodeId, bobClient.address);
+          await api3TokenLock.connect(sponsor).withdraw(airnodeId, requester.address);
           // then:
-          const afterBalance = await api3Token.balanceOf(alice.address);
+          const afterBalance = await api3Token.balanceOf(sponsor.address);
           expect(afterBalance).to.equal(beforeBalance.add(expectedWithdrawnAmount));
-          expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address)).to.equal(
+            NEW_LOCK_AMOUNT
+          );
+
+          const beforeBalance2 = await api3Token.balanceOf(anotherSponsor.address);
+          // when:
+          await api3TokenLock.connect(anotherSponsor).withdraw(airnodeId, requester.address);
+          // then:
+          const afterBalance2 = await api3Token.balanceOf(anotherSponsor.address);
+          expect(afterBalance2).to.equal(beforeBalance2.add(expectedWithdrawnAmount));
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, anotherSponsor.address)).to.equal(
             NEW_LOCK_AMOUNT
           );
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.connect(alice).withdraw(airnodeId, bobClient.address))
+          await expect(api3TokenLock.connect(sponsor).withdraw(airnodeId, requester.address))
             .to.emit(api3TokenLock, 'Withdraw')
-            .withArgs(airnodeId, bobClient.address, alice.address, expectedWithdrawnAmount);
+            .withArgs(airnodeId, requester.address, sponsor.address, expectedWithdrawnAmount);
         });
       });
 
       context('client address is blacklisted', async () => {
         beforeEach(async () => {
           await api3TokenLock.connect(metaAdmin).setLockAmount(NEW_LOCK_AMOUNT);
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true);
         });
 
         it('reverts', async () => {
           // then:
-          await expect(api3TokenLock.connect(alice).withdraw(airnodeId, bobClient.address)).to.revertedWith(
+          await expect(api3TokenLock.connect(sponsor).withdraw(airnodeId, requester.address)).to.revertedWith(
             Errors.ClientBlacklisted
           );
         });
@@ -522,7 +585,7 @@ describe('Api3TokenLock', async () => {
 
       context('locked amount is not reduced', async () => {
         it('reverts', async () => {
-          await expect(api3TokenLock.connect(alice).withdraw(airnodeId, bobClient.address)).to.revertedWith(
+          await expect(api3TokenLock.connect(sponsor).withdraw(airnodeId, requester.address)).to.revertedWith(
             'Insufficient amount'
           );
         });
@@ -541,19 +604,19 @@ describe('Api3TokenLock', async () => {
         await api3TokenLock.connect(admin).setApi3Token(api3Token.address);
 
         // approve Api3TokenLock:
-        await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+        await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
 
         // Lock:
-        await api3TokenLock.connect(alice).lock(airnodeId, bobClient.address);
+        await api3TokenLock.connect(sponsor).lock(airnodeId, requester.address);
       });
 
       context('from one client to another', async () => {
         it('is set', async () => {
-          const lockPeriod = await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address);
-          const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address);
+          const lockPeriod = await api3TokenLock.canUnlockAt(airnodeId, requester.address, sponsor.address);
+          const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address);
           const beforeBobWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(
             airnodeId,
-            bobClient.address
+            requester.address
           );
           const beforeCarolWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(
             airnodeId,
@@ -561,22 +624,24 @@ describe('Api3TokenLock', async () => {
           );
 
           // when:
-          await api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address);
+          await api3TokenLock.connect(sponsor).transfer(airnodeId, requester.address, carolClient.address);
           // then:
-          expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(
+          expect(await api3TokenLock.canUnlockAt(airnodeId, requester.address, sponsor.address)).to.equal(0);
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address)).to.equal(0);
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address)).to.equal(
             beforeBobWhitelistCount - 1
           );
           // and:
-          expect(await api3TokenLock.canUnlockAt(airnodeId, carolClient.address, alice.address)).to.equal(lockPeriod);
-          expect(await api3TokenLock.lockAmountAt(airnodeId, carolClient.address, alice.address)).to.equal(lockAmount);
+          expect(await api3TokenLock.canUnlockAt(airnodeId, carolClient.address, sponsor.address)).to.equal(lockPeriod);
+          expect(await api3TokenLock.lockAmountAt(airnodeId, carolClient.address, sponsor.address)).to.equal(
+            lockAmount
+          );
           expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, carolClient.address)).to.equal(
             beforeCarolWhitelistCount + 1
           );
           // and:
           expect(
-            (await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(airnodeId, bobClient.address))
+            (await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(airnodeId, requester.address))
               .expirationTimestamp
           ).to.equal(0);
           expect(
@@ -586,12 +651,12 @@ describe('Api3TokenLock', async () => {
         });
 
         it('emits event', async () => {
-          const lockPeriod = await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address);
-          const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address);
+          const lockPeriod = await api3TokenLock.canUnlockAt(airnodeId, requester.address, sponsor.address);
+          const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address);
           // then:
-          await expect(api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address))
+          await expect(api3TokenLock.connect(sponsor).transfer(airnodeId, requester.address, carolClient.address))
             .to.emit(api3TokenLock, 'Transfer')
-            .withArgs(airnodeId, bobClient.address, carolClient.address, alice.address, lockAmount, lockPeriod);
+            .withArgs(airnodeId, requester.address, carolClient.address, sponsor.address, lockAmount, lockPeriod);
         });
       });
 
@@ -599,7 +664,7 @@ describe('Api3TokenLock', async () => {
         it('reverts', async () => {
           // then:
           await expect(
-            api3TokenLock.connect(unknown).transfer(airnodeId, bobClient.address, carolClient.address)
+            api3TokenLock.connect(unknown).transfer(airnodeId, requester.address, carolClient.address)
           ).to.revertedWith('locked amount must be != 0');
         });
       });
@@ -607,11 +672,11 @@ describe('Api3TokenLock', async () => {
       context('caller toClientAddress has existing locked amount', async () => {
         it('reverts', async () => {
           // given:
-          await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
-          await api3TokenLock.connect(alice).lock(airnodeId, carolClient.address);
+          await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+          await api3TokenLock.connect(sponsor).lock(airnodeId, carolClient.address);
           // then:
           await expect(
-            api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address)
+            api3TokenLock.connect(sponsor).transfer(airnodeId, requester.address, carolClient.address)
           ).to.revertedWith('locked amount must be 0');
         });
       });
@@ -619,10 +684,10 @@ describe('Api3TokenLock', async () => {
       context('fromClient address is blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true);
           // then:
           await expect(
-            api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address)
+            api3TokenLock.connect(sponsor).transfer(airnodeId, requester.address, carolClient.address)
           ).to.revertedWith(Errors.FromClientBlacklisted);
         });
       });
@@ -633,7 +698,7 @@ describe('Api3TokenLock', async () => {
           await api3TokenLock.connect(metaAdmin).setBlacklistStatus(carolClient.address, true);
           // then:
           await expect(
-            api3TokenLock.connect(alice).transfer(airnodeId, bobClient.address, carolClient.address)
+            api3TokenLock.connect(sponsor).transfer(airnodeId, requester.address, carolClient.address)
           ).to.revertedWith(Errors.ToClientBlacklisted);
         });
       });
@@ -651,48 +716,48 @@ describe('Api3TokenLock', async () => {
         await api3TokenLock.connect(admin).setApi3Token(api3Token.address);
 
         // approve Api3TokenLock:
-        await api3Token.connect(alice).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
+        await api3Token.connect(sponsor).approve(api3TokenLock.address, await api3TokenLock.lockAmount());
 
         // Lock:
-        await api3TokenLock.connect(alice).lock(airnodeId, bobClient.address);
+        await api3TokenLock.connect(sponsor).lock(airnodeId, requester.address);
       });
 
       context('successful burn of blacklisted client', async () => {
         beforeEach(async () => {
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, true);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, true);
         });
 
         it('burns tokens', async () => {
           const beforeTotalSupply = await api3Token.totalSupply();
           const beforeTokenLockBalance = await api3Token.balanceOf(api3TokenLock.address);
-          const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address);
-          const beforeWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address);
+          const lockAmount = await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address);
+          const beforeWhitelistCount = await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address);
 
           // when:
-          await api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, alice.address);
+          await api3TokenLock.connect(metaAdmin).burn(airnodeId, requester.address, sponsor.address);
 
           // then:
-          expect(await api3TokenLock.canUnlockAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
-          expect(await api3TokenLock.lockAmountAt(airnodeId, bobClient.address, alice.address)).to.equal(0);
+          expect(await api3TokenLock.canUnlockAt(airnodeId, requester.address, sponsor.address)).to.equal(0);
+          expect(await api3TokenLock.lockAmountAt(airnodeId, requester.address, sponsor.address)).to.equal(0);
           // and:
           expect(await api3Token.balanceOf(api3TokenLock.address)).to.equal(beforeTokenLockBalance.sub(lockAmount));
           expect(await api3Token.totalSupply()).to.equal(beforeTotalSupply.sub(lockAmount));
-          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, bobClient.address)).to.equal(
+          expect(await api3TokenLock.airnodeToRequesterToTokenLocks(airnodeId, requester.address)).to.equal(
             beforeWhitelistCount.sub(1)
           );
         });
 
         it('emits event', async () => {
-          await expect(api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, alice.address))
+          await expect(api3TokenLock.connect(metaAdmin).burn(airnodeId, requester.address, sponsor.address))
             .to.emit(api3TokenLock, 'Burn')
-            .withArgs(airnodeId, bobClient.address, alice.address);
+            .withArgs(airnodeId, requester.address, sponsor.address);
         });
       });
 
       context('burn target has zero locked amount', async () => {
         it('reverts', async () => {
           await expect(
-            api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, unknown.address)
+            api3TokenLock.connect(metaAdmin).burn(airnodeId, requester.address, unknown.address)
           ).to.revertedWith(Errors.ZeroAmount);
         });
       });
@@ -700,10 +765,10 @@ describe('Api3TokenLock', async () => {
       context('client address is not blacklisted', async () => {
         it('reverts', async () => {
           // given:
-          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(bobClient.address, false);
+          await api3TokenLock.connect(metaAdmin).setBlacklistStatus(requester.address, false);
           // then:
           await expect(
-            api3TokenLock.connect(metaAdmin).burn(airnodeId, bobClient.address, alice.address)
+            api3TokenLock.connect(metaAdmin).burn(airnodeId, requester.address, sponsor.address)
           ).to.revertedWith(Errors.ClientNotBlacklisted);
         });
       });
