@@ -1,4 +1,4 @@
-import * as data from './data/type';
+import * as data from './fixtures/type';
 import * as validator from '../src/validator';
 
 it('type checking (docs)', () => {

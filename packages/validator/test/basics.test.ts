@@ -1,4 +1,4 @@
-import * as data from './data/basics';
+import * as data from './fixtures/basics';
 import * as validator from '../src/validator';
 
 describe('basics (docs)', () => {

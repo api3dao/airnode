@@ -1,4 +1,4 @@
-import * as data from './data/catch';
+import * as data from './fixtures/catch';
 import * as validator from '../src/validator';
 
 describe('catch (docs)', () => {

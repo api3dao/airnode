@@ -1,4 +1,4 @@
-import * as data from './data/conditions';
+import * as data from './fixtures/conditions';
 import * as validator from '../src/validator';
 
 describe('conditions (docs)', () => {

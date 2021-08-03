@@ -1,4 +1,4 @@
-import * as data from './data/optional';
+import * as data from './fixtures/optional';
 import * as validator from '../src/validator';
 
 it('optional (docs)', () => {

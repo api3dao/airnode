@@ -1,4 +1,4 @@
-import * as data from './data/any';
+import * as data from './fixtures/any';
 import * as validator from '../src/validator';
 
 describe('any (docs)', () => {

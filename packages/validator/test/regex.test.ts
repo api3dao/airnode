@@ -1,4 +1,4 @@
-import * as data from './data/regex';
+import * as data from './fixtures/regex';
 import * as validator from '../src/validator';
 
 it('regular expressions (docs)', () => {

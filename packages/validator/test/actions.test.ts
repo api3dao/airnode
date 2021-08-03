@@ -1,4 +1,4 @@
-import * as data from './data/actions';
+import * as data from './fixtures/actions';
 import * as convertor from '../src/convertor';
 
 describe('actions (docs)', () => {

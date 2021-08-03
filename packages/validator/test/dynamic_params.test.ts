@@ -1,4 +1,4 @@
-import * as data from './data/dynamic_params';
+import * as data from './fixtures/dynamic_params';
 import * as validator from '../src/validator';
 
 describe('dynamic params (docs)', () => {
