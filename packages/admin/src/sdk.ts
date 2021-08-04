@@ -13,7 +13,8 @@ export class AdminSdk {
 
   constructor(public airnodeRrp: AirnodeRrp) {}
 
-  deriveSponsorWallet = (mnemonic: string, sponsor: string) => admin.deriveSponsorWallet(mnemonic, sponsor);
+  deriveSponsorWallet = (airnode: string, sponsor: string, xpub?: string) =>
+    admin.deriveSponsorWallet(this.airnodeRrp, airnode, sponsor, xpub);
 
   endorseRequester = (requester: string) => admin.endorseRequester(this.airnodeRrp, requester);
 
@@ -21,8 +22,8 @@ export class AdminSdk {
 
   createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
 
-  requestWithdrawal = (airnodeId: string, sponsorWallet: string, destination: string) =>
-    admin.requestWithdrawal(this.airnodeRrp, airnodeId, sponsorWallet, destination);
+  requestWithdrawal = (airnode: string, sponsorWallet: string, destination: string) =>
+    admin.requestWithdrawal(this.airnodeRrp, airnode, sponsorWallet, destination);
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
@@ -30,10 +31,6 @@ export class AdminSdk {
   setAirnodeXpub = () => admin.setAirnodeXpub(this.airnodeRrp);
 
   getAirnodeXpub = (airnode: string) => admin.getAirnodeXpub(this.airnodeRrp, airnode);
-
-  setAirnodeAuthorizers = (authorizers: string[]) => admin.setAirnodeAuthorizers(this.airnodeRrp, authorizers);
-
-  getAirnodeAuthorizers = (airnode: string) => admin.getAirnodeAuthorizers(this.airnodeRrp, airnode);
 
   requesterToRequestCountPlusOne = (requester: string) =>
     admin.requesterToRequestCountPlusOne(this.airnodeRrp, requester);
@@ -48,6 +45,6 @@ export class AdminSdk {
   sponsorToWithdrawalRequestCount = (sponsor: string) =>
     admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsor);
 
-  fulfillWithdrawal = (requestId: string, airnodeId: string, sponsor: string, destination: string, amount: string) =>
-    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeId, sponsor, destination, amount);
+  fulfillWithdrawal = (requestId: string, airnode: string, sponsor: string, destination: string, amount: string) =>
+    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnode, sponsor, destination, amount);
 }

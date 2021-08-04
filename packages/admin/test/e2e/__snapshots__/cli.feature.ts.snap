@@ -20,9 +20,6 @@ Commands:
   cli.js set-airnode-xpub          Sets the xpub of an Airnode
   cli.js get-airnode-xpub          Returns the Airnode xpub for the given
                                    airnode
-  cli.js set-airnode-authorizers   Sets the authorizers of an Airnode
-  cli.js get-airnode-authorizers   Returns the Airnode authorizers for the given
-                                   airnode
   cli.js derive-endpoint-id        Derives an endpoint ID using the OIS title
                                    and endpoint name
 

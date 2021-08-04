@@ -33,10 +33,15 @@ export const deriveWalletPathFromAddress = (address: string): string => {
   return `m/0/${paths.join('/')}`;
 };
 
-export async function deriveSponsorWallet(mnemonic: string, sponsor: string) {
-  const hdNodeFromMnemonic = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  const sponsorWalletHdNode = hdNodeFromMnemonic.derivePath(deriveWalletPathFromAddress(sponsor));
-  return sponsorWalletHdNode.address;
+export async function deriveSponsorWallet(airnodeRrp: AirnodeRrp, airnode: string, sponsor: string, xpub?: string) {
+  const airnodeXpub = xpub ?? (await airnodeRrp.airnodeToXpub(airnode));
+  if (!airnodeXpub) {
+    throw new Error('Airnode xpub is missing in AirnodeRrp contract');
+  }
+  const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+  const derivationPath = deriveWalletPathFromAddress(sponsor);
+  const designatedWalletNode = hdNode.derivePath(derivationPath);
+  return designatedWalletNode.address;
 }
 
 export async function endorseRequester(airnodeRrp: AirnodeRrp, requester: string) {
@@ -130,21 +135,6 @@ export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
 
 export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnode: string) {
   return airnodeRrp.airnodeToXpub(airnode);
-}
-
-export async function setAirnodeAuthorizers(airnodeRrp: AirnodeRrp, authorizers: string[]) {
-  const tx = await airnodeRrp.setAirnodeAuthorizers(authorizers);
-
-  return new Promise<string[]>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, (tx) => {
-      const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
-      resolve(parsedLog.args.authorizers);
-    })
-  );
-}
-
-export async function getAirnodeAuthorizers(airnodeRrp: AirnodeRrp, airnode: string) {
-  return airnodeRrp.getAirnodeAuthorizers(airnode);
 }
 
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {

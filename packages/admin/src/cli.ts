@@ -15,6 +15,10 @@ const COMMON_COMMAND_ARGUMENTS = {
       type: 'string',
       describe: 'Address of the deployed AirnodeRrp contract',
     },
+    xpub: {
+      type: 'string',
+      describe: 'Extended public key for the Airnode wallet',
+    },
   },
   mnemonicCommands: {
     mnemonic: {
@@ -77,11 +81,13 @@ yargs
     'derive-sponsor-wallet',
     'Derives the address of the wallet for an airnode-sponsor pair',
     {
-      ...mnemonicCommands,
+      ...airnodeRrpCommands,
+      airnode,
       sponsor,
     },
     async (args) => {
-      const sponsorWallet = await admin.deriveSponsorWallet(args.mnemonic, args.sponsor);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const sponsorWallet = await admin.deriveSponsorWallet(airnodeRrp, args.airnode, args.sponsor, args.xpub);
       console.log(`Sponsor wallet address: ${sponsorWallet}`);
     }
   )
@@ -249,44 +255,7 @@ yargs
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
       const xpub = await admin.getAirnodeXpub(airnodeRrp, args.airnode);
-      console.log(toJSON(xpub));
-    }
-  )
-  .command(
-    'set-airnode-authorizers',
-    'Sets the authorizers of an Airnode',
-    {
-      ...airnodeRrpCommands,
-      ...mnemonicCommands,
-      authorizersFilePath: {
-        type: 'string',
-        demandOption: true,
-        describe: 'Path of the authorizers JSON file',
-      },
-    },
-    async (args) => {
-      const authorizers = JSON.parse(fs.readFileSync(args.authorizersFilePath).toString());
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
-      const authorizersOut = await admin.setAirnodeAuthorizers(airnodeRrp, authorizers);
-      console.log(`Airnode authorizers: ${authorizersOut}`);
-    }
-  )
-  .command(
-    'get-airnode-authorizers',
-    'Returns the Airnode authorizers for the given airnode',
-    {
-      ...airnodeRrpCommands,
-      airnode,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const authorizers = await admin.getAirnodeAuthorizers(airnodeRrp, args.airnode);
-      console.log(toJSON(authorizers));
+      console.log(`Airnode xpub: ${xpub}`);
     }
   )
   .command(

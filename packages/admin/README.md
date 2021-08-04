@@ -8,7 +8,7 @@ Almost all commands require you to provide a `providerUrl` such as `https://rops
 The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract, which address is derived from the current chain.
 You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
 
-Commands that require `mnemonic` will make an on-chain transaction (with the exception of `derive-sponsor-wallet`).
+Commands that require `mnemonic` will make an on-chain transaction.
 The application will derive the account from the mnemonic with default ethereum derivation path `m/44'/60'/0'/0/0`, but you can override this by `derivationPath` flag.
 Make sure that the wallet that is associated with the mnemonic is funded on the target chain.
 The application will not exit until the transaction is confirmed.
@@ -62,6 +62,8 @@ Please, refer to the implementation for more details.
 ## Requester commands
 
 ### `derive-sponsor-wallet`
+
+<!-- TODO: update this link after docs have been updated -->
 
 Derives the address of the [wallet designated by an Airnode for a requester](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md).
 
@@ -131,6 +133,8 @@ npx @api3/airnode-admin get-template \
 
 ### `request-withdrawal`
 
+<!-- TODO: update this link after docs have been updated -->
+
 Requests a [withdrawal](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md#withdrawals) from the wallet designated by an Airnode for a sponsor, and returns the request ID.
 The account derived from the `mnemonic` you provide here has to belong to the sponsor.
 
@@ -157,15 +161,16 @@ npx @api3/airnode-admin check-withdrawal-request \
 
 ### `set-airnode-xpub`
 
+<!-- TODO: update this link after docs have been updated -->
+
 Sets the xpub of an [Airnode](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md).
 
 **This extended public key does not need to be announced on-chain for the protocol to be used, it is mainly for convenience.**
 
 ```sh
-npx @api3/airnode-admin set-airnode-parameters \
+npx @api3/airnode-admin set-airnode-xpub \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --authorizersFilePath ./authorizers.json
 ```
 
 The account derived from the `mnemonic` you provide here has to belong to the airnode.
@@ -176,32 +181,6 @@ Returns the Airnode xpub for the given `airnode`.
 
 ```sh
 npx @api3/airnode-admin get-airnode-xpub \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --airnode 0xe1e0dd...
-```
-
-### `set-airnode-authorizers`
-
-Sets the authorizers of an [Airnode](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md).
-See the `/example` directory for an example authorizers file.
-
-**These authorizer contract addresses do not need to be announced on-chain for the protocol to be used, it is mainly for convenience.**
-
-```sh
-npx @api3/airnode-admin set-airnode-authorizers \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --mnemonic "nature about salad..." \
-  --authorizersFilePath ./authorizers.json
-```
-
-The account derived from the mnemonic you provide here has to belong to the airnode.
-
-### `get-airnode-authorizers`
-
-Returns the Airnode authorizers for the given `airnode`.
-
-```sh
-npx @api3/airnode-admin get-airnode-authorizers \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --airnode 0xe1e0dd...
 ```
