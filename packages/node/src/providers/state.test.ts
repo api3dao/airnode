@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import * as state from './state';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from '../types';
+import { ChainConfig, EVMProviderState, ProviderState } from '../types';
 
 describe('create', () => {
   it('returns a clean state with defaults', () => {
@@ -9,7 +9,6 @@ describe('create', () => {
     const chainType = 'evm';
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
-    const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
     const chainConfig: ChainConfig = {
       airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
@@ -17,21 +16,14 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       id: chainId,
-      providerNames: [chainProviderName],
+      providers: {
+        [chainProviderName]: {
+          url: 'http://localhost:4111',
+        },
+      },
       type: chainType,
     };
-    const environmentConfig: EnvironmentConfig = {
-      securitySchemes: [],
-      chainProviders: [
-        {
-          chainType: chainType,
-          chainId: chainId,
-          name: chainProviderName,
-          envName: chainProviderEnvName,
-        },
-      ],
-    };
-    const config = fixtures.buildConfig({ environment: environmentConfig });
+    const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {
@@ -75,7 +67,6 @@ describe('create', () => {
     const chainType = 'evm';
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
-    const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
     const chainConfig: ChainConfig = {
       airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
@@ -85,21 +76,14 @@ describe('create', () => {
       },
       id: chainId,
       minConfirmations: 3,
-      providerNames: [chainProviderName],
+      providers: {
+        [chainProviderName]: {
+          url: 'http://localhost:4111',
+        },
+      },
       type: chainType,
     };
-    const environmentConfig: EnvironmentConfig = {
-      securitySchemes: [],
-      chainProviders: [
-        {
-          chainType: chainType,
-          chainId: chainId,
-          name: chainProviderName,
-          envName: chainProviderEnvName,
-        },
-      ],
-    };
-    const config = fixtures.buildConfig({ environment: environmentConfig });
+    const config = fixtures.buildConfig();
     const res = state.buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
     expect(res).toEqual({
       contracts: {

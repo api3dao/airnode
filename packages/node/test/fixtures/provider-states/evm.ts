@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig } from '../config';
-import { ChainConfig, EnvironmentConfig, EVMProviderState, ProviderState } from '../../../src/types';
+import { ChainConfig, EVMProviderState, ProviderState } from '../../../src/types';
 
 export function buildEVMProviderState(
   overrides?: Partial<ProviderState<EVMProviderState>>
@@ -10,7 +10,6 @@ export function buildEVMProviderState(
   const chainType = 'evm';
   const chainId = '1337';
   const chainProviderName = 'Ganache test';
-  const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
   const chainConfig: ChainConfig = {
     airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
@@ -19,20 +18,13 @@ export function buildEVMProviderState(
     },
     id: chainId,
     type: chainType,
-    providerNames: [chainProviderName],
-  };
-  const environmentConfig: EnvironmentConfig = {
-    securitySchemes: [],
-    chainProviders: [
-      {
-        chainType: chainType,
-        chainId: chainId,
-        name: chainProviderName,
-        envName: chainProviderEnvName,
+    providers: {
+      [chainProviderName]: {
+        url: 'http://localhost:4111',
       },
-    ],
+    },
   };
-  const config = buildConfig({ chains: [chainConfig], environment: environmentConfig });
+  const config = buildConfig({ chains: [chainConfig] });
   const state = buildEVMState(coordinatorId, chainConfig, chainProviderName, config);
   return {
     ...state,

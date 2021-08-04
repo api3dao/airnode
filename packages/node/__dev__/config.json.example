@@ -9,29 +9,14 @@
         "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },
       "id": "31337",
-      "providerNames": [
-        "evm-local"
-      ],
+      "providers": {
+        "local": {
+          "url": "${LOCAL_PROVIDER_URL}"
+        }
+      },
       "type": "evm"
     }
   ],
-  "environment": {
-    "chainProviders": [
-      {
-        "chainType": "evm",
-        "chainId": "31337",
-        "name": "evm-local",
-        "envName": "CP_EVM_31337_EVM_LOCAL"
-      }
-    ],
-    "securitySchemes": [
-      {
-        "oisTitle": "Currency Converter API",
-        "name": "Currency Converter Security Scheme",
-        "envName": "SS_CURRENCY_CONVERTER_API_CURRENCY_CONVERTER_SECURITY_SCHEME"
-      }
-    ]
-  },
   "nodeSettings": {
     "cloudProvider": "local",
     "enableHeartbeat": true,
@@ -56,6 +41,9 @@
       "version": "1.2.3",
       "title": "Currency Converter API",
       "apiSpecifications": {
+        "info": {
+          "title": "Currency Converter API"
+        },
         "servers": [
           {
             "url": "http://localhost:5000"
@@ -93,12 +81,7 @@
               "name": "access_key"
             }
           }
-        },
-        "security": [
-          {
-            "Currency Converter Security Scheme": []
-          }
-        ]
+        }
       },
       "endpoints": [
         {
@@ -153,7 +136,11 @@
             }
           ]
         }
-      ]
+      ],
+      "credentials": {
+        "securityScheme": "Currency Converter Security Scheme",
+        "value": "${SS_CURRENCY_CONVERTER_API_KEY}"
+      }
     }
   ]
 }

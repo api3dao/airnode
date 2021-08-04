@@ -1,6 +1,15 @@
+import * as fs from 'fs';
 import { OIS } from '@api3/ois';
+import template from 'lodash/template';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';
+
+// Regular expression that does not match anything, ensuring no escaping or interpolation happens
+// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L199
+const NO_MATCH_REGEXP = /($^)/;
+// Regular expression matching ES template literal delimiter (${}) with escaping
+// https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L175
+const ES_MATCH_REGEXP = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
 
 function parseOises(oises: OIS[]): OIS[] {
   // Assign unique identifiers to each API and Oracle specification.
@@ -12,9 +21,17 @@ function parseOises(oises: OIS[]): OIS[] {
   });
 }
 
-export function parseConfig(config: any): Config {
-  const ois = parseOises(config.ois);
-  return { ...config, ois };
+export function parseConfig(configPath: string, secrets: Record<string, string | undefined>): Config {
+  const config = fs.readFileSync(configPath, 'utf8');
+  const interpolatedConfig = template(config, {
+    escape: NO_MATCH_REGEXP,
+    evaluate: NO_MATCH_REGEXP,
+    interpolate: ES_MATCH_REGEXP,
+  })(secrets);
+  const parsedConfig = JSON.parse(interpolatedConfig);
+
+  const ois = parseOises(parsedConfig.ois);
+  return { ...parsedConfig, ois };
 }
 
 export function getMasterKeyMnemonic(): string {

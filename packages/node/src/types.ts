@@ -351,6 +351,10 @@ export interface ChainContracts {
   readonly AirnodeRrp: string;
 }
 
+export interface Provider {
+  readonly url: string;
+}
+
 export interface ChainConfig {
   readonly airnodeAdmin: string;
   readonly authorizers: string[];
@@ -359,8 +363,8 @@ export interface ChainConfig {
   readonly id: string;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerNames: string[];
   readonly type: ChainType;
+  readonly providers: Record<string, Provider>;
 }
 
 export type NodeCloudProvider = 'local' | 'aws';
@@ -376,27 +380,8 @@ export interface NodeSettings {
   readonly stage: string;
 }
 
-export interface SecuritySchemeEnvironmentConfig {
-  readonly oisTitle: string;
-  readonly name: string;
-  readonly envName: string;
-}
-
-export interface ChainProviderEnvironmentConfig {
-  readonly chainType: ChainType;
-  readonly chainId: string;
-  readonly name: string;
-  readonly envName: string;
-}
-
-export interface EnvironmentConfig {
-  readonly securitySchemes: SecuritySchemeEnvironmentConfig[];
-  readonly chainProviders: ChainProviderEnvironmentConfig[];
-}
-
 export interface Config {
   readonly chains: ChainConfig[];
-  readonly environment: EnvironmentConfig;
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
