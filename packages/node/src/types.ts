@@ -178,7 +178,7 @@ export interface AuthorizationByRequestId {
 }
 
 export interface ApiCallResponse {
-  readonly value?: string;
+  readonly value?: string | boolean;
   readonly errorCode?: RequestErrorCode;
 }
 
@@ -260,8 +260,8 @@ export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequ
 
 export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
   readonly parsedLog:
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
 }
 
 export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
@@ -313,6 +313,7 @@ export interface LogMetadata {
   readonly chainId?: string;
   readonly chainType?: ChainType;
   readonly providerName?: string;
+  readonly requestId?: string;
 }
 
 export interface LogOptions {
@@ -372,6 +373,7 @@ export type NodeCloudProvider = 'local' | 'aws';
 export interface NodeSettings {
   readonly airnodeIdShort?: string;
   readonly enableHeartbeat?: boolean;
+  readonly enableTestingGateway?: boolean;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;

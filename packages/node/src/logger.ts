@@ -1,5 +1,5 @@
 import { formatDateTimeMs } from './utils/date-utils';
-import { Config, CoordinatorState, LogLevel, LogOptions, PendingLog } from './types';
+import { Config, LogLevel, LogOptions, PendingLog, LogMetadata } from './types';
 
 const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
@@ -8,11 +8,11 @@ const logLevels: { readonly [key in LogLevel]: number } = {
   ERROR: 3,
 };
 
-export function buildBaseOptions(config: Config, state: CoordinatorState) {
+export function buildBaseOptions(config: Config, meta: LogMetadata) {
   return {
     format: config.nodeSettings.logFormat,
     level: config.nodeSettings.logLevel,
-    meta: { coordinatorId: state.id },
+    meta,
   };
 }
 

@@ -42,6 +42,14 @@ export async function deploy(
     throw new Error('Invalid mnemonic');
   }
 
+  let testingApiKey: string | undefined = undefined;
+  if (config.nodeSettings.enableTestingGateway) {
+    testingApiKey = secrets.ENDPOINT_TESTING_API_KEY;
+    if (!testingApiKey) {
+      throw new Error('Unable to deploy testing gateway as the ENDPOINT_TESTING_API_KEY secret is missing');
+    }
+  }
+
   logger.debug('Creating a temporary secrets.json file');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
@@ -58,6 +66,7 @@ export async function deploy(
       config.nodeSettings.stage,
       config.nodeSettings.cloudProvider,
       config.nodeSettings.region,
+      testingApiKey,
       configFile,
       tmpSecretsFile
     );
