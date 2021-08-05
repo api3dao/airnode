@@ -134,7 +134,8 @@
                 "in": "query"
               }
             }
-          ]
+          ],
+          "testable": true
         }
       ],
       "credentials": {

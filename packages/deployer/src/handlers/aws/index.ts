@@ -54,9 +54,9 @@ export async function processProviderRequests(event: any) {
 
 export async function testApi(event: any) {
   const parameters = JSON.parse(event.body).parameters;
-  const endpointName = event.pathParameters.endpointName;
+  const endpointId = event.pathParameters.endpointId;
 
-  const [err, result] = await handlers.testApi(parsedConfig, endpointName, parameters);
+  const [err, result] = await handlers.testApi(parsedConfig, endpointId, parameters);
   if (err) {
     return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
   }

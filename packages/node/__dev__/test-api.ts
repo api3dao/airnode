@@ -17,9 +17,9 @@ yargs(hideBin(process.argv))
     '$0',
     'Test API calls',
     {
-      'endpoint-name': {
+      'endpoint-id': {
         alias: 'e',
-        description: 'Endpoint name',
+        description: 'The ID of the endpoint to be tested, which is derived from the OIS title and endpoint name',
         type: 'string',
         required: true,
       },
@@ -36,7 +36,7 @@ yargs(hideBin(process.argv))
       if (!parameters) {
         throw new Error('Missing request parameters');
       }
-      console.log(JSON.stringify(await local.testApi(args['endpoint-name'], parameters)));
+      console.log(JSON.stringify(await local.testApi(args['endpoint-id'], parameters)));
     }
   )
   .help()

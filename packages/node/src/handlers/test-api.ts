@@ -9,7 +9,7 @@ import { WORKER_CALL_API_TIMEOUT } from '../constants';
 
 export async function testApi(
   config: Config,
-  endpointName: string,
+  endpointId: string,
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallResponse]> {
   const testCallId = randomString(8);
@@ -17,9 +17,19 @@ export async function testApi(
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
 
-  const triggerRequest = find(config.triggers.request, ['endpointName', endpointName]);
+  const triggerRequest = find(config.triggers.request, ['endpointId', endpointId]);
   if (!triggerRequest) {
-    return [new Error(`No such endpoint '${endpointName}'`), null];
+    return [new Error(`No such endpoint with ID '${endpointId}'`), null];
+  }
+
+  const endpoints = find(config.ois, ['title', triggerRequest.oisTitle])?.endpoints;
+  const endpoint = find(endpoints, ['name', triggerRequest.endpointName]);
+
+  if (!endpoint) {
+    return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
+  }
+  if (!endpoint.testable) {
+    return [new Error(`Endpoint with ID '${endpointId}' can't be tested`), null];
   }
 
   const workerOpts: WorkerOptions = {
@@ -36,8 +46,8 @@ export async function testApi(
     clientAddress: '',
     designatedWallet: '',
     chainId: '',
-    endpointId: triggerRequest.endpointId,
-    endpointName,
+    endpointId,
+    endpointName: triggerRequest.endpointName,
     oisTitle: triggerRequest.oisTitle,
     parameters,
   };
@@ -50,7 +60,7 @@ export async function testApi(
   logger.logPending(resLogs, logOptions);
 
   if (err || !logData || !logData[1]) {
-    return [err || new Error('An unkown error occurred'), null];
+    return [err || new Error('An unknown error occurred'), null];
   }
 
   return [null, logData[1]];
