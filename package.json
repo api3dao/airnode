@@ -38,7 +38,7 @@
     "lint": "yarn run lint:eslint && yarn run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:solhint": "solhint ./**/*.sol",
-    "postinstall": "husky install",
+    "postinstall": "husky install && yarn run build",
     "prettify": "prettier --write ./**/*.{js,sol,ts} --loglevel silent",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|sol|ts)\"",
     "publish": "lerna publish",

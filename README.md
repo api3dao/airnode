@@ -32,11 +32,6 @@ To install dependencies, run this at the repository root:
 yarn run bootstrap
 ```
 
-To build the project, run this at the repository root:
-```sh
-yarn run build
-```
-
 ## Contributing
 
 To request/propose new features, fixes, etc. create an issue.
