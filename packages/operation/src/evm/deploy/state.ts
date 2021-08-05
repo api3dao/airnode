@@ -1,14 +1,14 @@
 import { ethers } from 'ethers';
-import { deriveEndpointId } from '../utils';
 import {
   Config,
-  ConfigRequester,
-  DeployState as State,
+  ConfigSponsor,
   DeployedAirnode,
   DeployedEndpoint,
   DeployedTemplate,
   Deployment,
+  DeployState as State,
 } from '../../types';
+import { deriveEndpointId } from '../utils';
 
 export function buildDeployState(config: Config): State {
   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
@@ -17,12 +17,12 @@ export function buildDeployState(config: Config): State {
   return {
     airnodesByName: {},
     authorizersByName: {},
-    clientsByName: {},
+    requestersByName: {},
     config,
     contracts: {},
     deployer,
     provider,
-    requestersById: {},
+    sponsorsById: {},
     templatesByName: {},
   };
 }
@@ -51,7 +51,7 @@ function buildSaveableAirnode(state: State, airnodeName: string): DeployedAirnod
   const airnode = state.airnodesByName[airnodeName];
 
   return {
-    masterWalletAddress: airnode.masterWalletAddress,
+    airnodeWalletAddress: airnode.airnodeWalletAddress,
     endpoints,
     templates,
   };
@@ -62,18 +62,18 @@ export function buildSaveableDeployment(state: State): Deployment {
     AirnodeRrp: state.contracts.AirnodeRrp!.address,
   };
 
-  const clientNames = Object.keys(state.clientsByName);
-  const clients = clientNames.reduce((acc: any, name: string) => {
-    const client = state.clientsByName[name];
-    return { ...acc, [name]: client.address };
+  const requesterNames = Object.keys(state.requestersByName);
+  const requesters = requesterNames.reduce((acc: any, name: string) => {
+    const requester = state.requestersByName[name];
+    return { ...acc, [name]: requester.address };
   }, {});
 
-  const requesters = state.config.requesters.reduce((acc: any, configRequester: ConfigRequester) => {
-    const requester = state.requestersById[configRequester.id];
+  const sponsors = state.config.sponsors.reduce((acc: any, configRequester: ConfigSponsor) => {
+    const sponsor = state.sponsorsById[configRequester.id];
     const data = {
-      address: requester.address,
+      address: sponsor.address,
       id: configRequester.id,
-      privateKey: requester.signer.privateKey,
+      privateKey: sponsor.signer.privateKey,
     };
     return [...acc, data];
   }, []);
@@ -87,7 +87,7 @@ export function buildSaveableDeployment(state: State): Deployment {
   return {
     airnodes,
     contracts,
-    clients,
     requesters,
+    sponsors,
   };
 }

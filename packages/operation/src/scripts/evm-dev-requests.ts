@@ -1,14 +1,14 @@
 import * as requests from '../evm/requests';
 import * as io from '../evm/io';
-import { FullRequest, RegularRequest, RequestsState as State, RequestType, Withdrawal } from '../types';
+import { FullRequest, TemplateRequest, RequestsState as State, RequestType, Withdrawal } from '../types';
 
-type AnyRequest = RegularRequest | FullRequest | Withdrawal;
+type AnyRequest = TemplateRequest | FullRequest | Withdrawal;
 
 async function makeRequest(state: State, request: AnyRequest, index: number) {
   switch (request.type as RequestType) {
-    case 'regular':
-      await requests.makeRegularRequest(state, request as RegularRequest);
-      console.log(`--> Request #${index} made (regular)`);
+    case 'template':
+      await requests.makeTemplateRequest(state, request as TemplateRequest);
+      console.log(`--> Request #${index} made (template)`);
       break;
 
     case 'full':

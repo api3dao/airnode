@@ -6,29 +6,22 @@ export function deriveEndpointId(oisTitle: string, endpointName: string): string
 }
 
 export function deriveExtendedPublicKey(mnemonic: string): string {
-  const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-  const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
+  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
   return hdNode.neuter().extendedKey;
 }
 
-export function deriveAirnodeId(masterWalletAddress: string): string {
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWalletAddress]));
+export function deriveWalletFromPath(mnemonic: string, provider: ethers.providers.JsonRpcProvider, path?: string) {
+  return ethers.Wallet.fromMnemonic(mnemonic, path).connect(provider);
 }
 
-export function deriveWalletFromPath(mnemonic: string, path: string, provider: ethers.providers.JsonRpcProvider) {
-  const masterHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  const designatorHdNode = masterHdNode.derivePath(path);
-  return new ethers.Wallet(designatorHdNode.privateKey, provider);
-}
-
-export function getDesignatedWallet(mnemonic: string, requester: string, provider: ethers.providers.JsonRpcProvider) {
-  return deriveWalletFromPath(mnemonic, `m/0/${addressToDerivationPath(requester)}`, provider);
+export function getDesignatedWallet(mnemonic: string, provider: ethers.providers.JsonRpcProvider, sponsor: string) {
+  return deriveWalletFromPath(mnemonic, provider, deriveWalletPathFromAddress(sponsor));
 }
 
 /**
  * HD wallets allow us to create multiple accounts from a single mnemonic.
- * Each requester creates a designated wallet for each provider to use
- * in order for them to be able to respond to the requests their clients make.
+ * Each sponsor creates a designated wallet for each provider to use
+ * in order for them to be able to respond to the requests their requesters make.
  *
  * By convention derivation paths start with a master index
  * followed by child indexes that can be any integer up to 2^31.
@@ -40,13 +33,12 @@ export function getDesignatedWallet(mnemonic: string, requester: string, provide
  * @param address A string representing a 20bytes hex address
  * @returns The path derived from the address
  */
-export function addressToDerivationPath(address: string): string {
-  const requesterBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
+export const deriveWalletPathFromAddress = (address: string): string => {
+  const addressBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
   const paths = [];
-  // eslint-disable-next-line functional/no-let
   for (let i = 0; i < 6; i++) {
-    const shiftedRequesterBN = requesterBN.shr(31 * i);
-    paths.push(shiftedRequesterBN.mask(31).toString());
+    const shiftedAddressBN = addressBN.shr(31 * i);
+    paths.push(shiftedAddressBN.mask(31).toString());
   }
-  return paths.join('/');
-}
+  return `m/0/${paths.join('/')}`;
+};
