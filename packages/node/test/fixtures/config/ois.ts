@@ -87,6 +87,7 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
             },
           },
         ],
+        testable: true,
       },
     ],
     credentials: {
