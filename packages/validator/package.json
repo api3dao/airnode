@@ -22,7 +22,7 @@
     "docs": "ts-node docs/generate-docs.ts"
   },
   "devDependencies": {
-    "markdown-snippet-injector": "^0.2.4"
+    "markdown-snippet-injector": "^0.2.4",
     "ts-node": "^10.1.0"
   }
 }
