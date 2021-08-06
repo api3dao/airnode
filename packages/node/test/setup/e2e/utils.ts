@@ -17,7 +17,11 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     authorizers: [ethers.constants.AddressZero],
     id: '31337',
     type: 'evm',
-    providerNames: ['EVM local'],
+    providers: {
+      'EVM local': {
+        url: 'http://127.0.0.1:8545/',
+      },
+    },
   };
 }
 

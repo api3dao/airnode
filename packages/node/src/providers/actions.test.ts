@@ -31,7 +31,7 @@ import fs from 'fs';
 import { ethers } from 'ethers';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
-import { ChainConfig, EnvironmentConfig, GroupedRequests, RequestStatus } from '../types';
+import { ChainConfig, GroupedRequests, RequestStatus } from '../types';
 
 const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
@@ -43,7 +43,11 @@ const chains: ChainConfig[] = [
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
     },
     id: '1',
-    providerNames: [chainProviderName1],
+    providers: {
+      [chainProviderName1]: {
+        url: 'https://mainnet.infura.io/v3/<key>',
+      },
+    },
     type: 'evm',
   },
   {
@@ -53,32 +57,18 @@ const chains: ChainConfig[] = [
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
     },
     id: '3',
-    providerNames: [chainProviderName3],
+    providers: {
+      [chainProviderName3]: {
+        url: 'https://ropsten.infura.io/v3/<key>',
+      },
+    },
     type: 'evm',
   },
 ];
 
-const environmentConfig: EnvironmentConfig = {
-  securitySchemes: [],
-  chainProviders: [
-    {
-      chainType: 'evm',
-      chainId: '1',
-      name: chainProviderName1,
-      envName: 'CP_EVM_1_INFURA_MAINNET',
-    },
-    {
-      chainType: 'evm',
-      chainId: '3',
-      name: chainProviderName3,
-      envName: 'CP_EVM_3_INFURA_ROPSTEN',
-    },
-  ],
-};
-
 describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
-    const config = fixtures.buildConfig({ chains, environment: environmentConfig });
+    const config = fixtures.buildConfig({ chains });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const contract = new ethers.Contract('address', ['ABI']);
     contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({

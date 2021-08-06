@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { config as nodeConfig } from '@api3/node';
 import { checkAirnodeParameters } from '../evm';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
@@ -8,10 +9,10 @@ import {
   deriveMasterWalletAddress,
   deriveXpub,
   generateMnemonic,
-  parseConfigFile,
   parseReceiptFile,
   parseSecretsFile,
   shortenAirnodeId,
+  validateConfig,
   validateMnemonic,
   verifyMnemonic,
 } from '../utils';
@@ -24,8 +25,9 @@ export async function deploy(
   interactive: boolean,
   nodeVersion: string
 ) {
-  const config = parseConfigFile(configFile, nodeVersion);
   const secrets = parseSecretsFile(secretsFile);
+  const config = nodeConfig.parseConfig(configFile, secrets);
+  validateConfig(config, nodeVersion);
 
   if (!secrets.MASTER_KEY_MNEMONIC) {
     logger.warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');
@@ -40,6 +42,14 @@ export async function deploy(
     throw new Error('Invalid mnemonic');
   }
 
+  let testingApiKey: string | undefined = undefined;
+  if (config.nodeSettings.enableTestingGateway) {
+    testingApiKey = secrets.ENDPOINT_TESTING_API_KEY;
+    if (!testingApiKey) {
+      throw new Error('Unable to deploy testing gateway as the ENDPOINT_TESTING_API_KEY secret is missing');
+    }
+  }
+
   logger.debug('Creating a temporary secrets.json file');
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'airnode'));
   const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
@@ -47,7 +57,7 @@ export async function deploy(
 
   const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
   const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
-  await checkAirnodeParameters(config, secrets, airnodeId, masterWalletAddress);
+  await checkAirnodeParameters(config, airnodeId, masterWalletAddress);
 
   const airnodeIdShort = shortenAirnodeId(airnodeId);
   try {
@@ -56,6 +66,7 @@ export async function deploy(
       config.nodeSettings.stage,
       config.nodeSettings.cloudProvider,
       config.nodeSettings.region,
+      testingApiKey,
       configFile,
       tmpSecretsFile
     );

@@ -30,12 +30,10 @@ describe('callApi', () => {
         endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
-        securitySchemeSecrets: [
-          {
-            securitySchemeName: 'My Security Scheme',
-            value: 'supersecret',
-          },
-        ],
+        credentials: {
+          securityScheme: 'My Security Scheme',
+          value: 'supersecret',
+        },
       },
       { timeout: 20000 }
     );
@@ -89,12 +87,10 @@ describe('callApi', () => {
                 _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
               }),
             },
-            securitySchemeSecrets: [
-              {
-                securitySchemeName: 'My Security Scheme',
-                value: 'supersecret',
-              },
-            ],
+            credentials: {
+              securityScheme: 'My Security Scheme',
+              value: 'supersecret',
+            },
           },
           { timeout: 20000 }
         );

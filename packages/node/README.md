@@ -32,6 +32,8 @@ Before running Airnode, you will need to have a valid `config.json` and `securit
 
 ## Usage
 
+You must have a valid `config.json` file present in the `__dev__` folder. It is also recommended to use a `.env` file for handling secrets. See [Development](#Development) below for more details.
+
 ### Invoking
 
 Airnode does not yet have an stable API for usage. However, you can run Airnode locally, for development and test environments, by running the following command:
@@ -41,7 +43,15 @@ Airnode does not yet have an stable API for usage. However, you can run Airnode 
 yarn run dev:invoke
 ```
 
-You must have a valid `config.json` file present in the `__dev__` folder. It is also recommended to use a `.env` file for handling secrets. See [Development](#Development) below for more details.
+### Testing API
+
+You can test the endpoints specified in your `config.json` by running the following command:
+
+```sh
+# --endpoint-id Endpoint ID
+# --parameters Parameters as JSON
+yarn run dev:testApi --endpoint-id "0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353" --parameters '{"from": "EUR"}'
+```
 
 ## Behaviour
 

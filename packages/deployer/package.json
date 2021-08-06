@@ -14,13 +14,14 @@
     "copy:terraform": "copyfiles terraform/**/**/*.tf dist/",
     "copy:webpack": "copyfiles .webpack/**/**/*.js dist/",
     "prepublishOnly": "yarn build",
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "webpack:dev": "webpack --mode development"
   },
   "dependencies": {
     "@api3/node": "^0.1.0",
     "@api3/ois": "^0.1.0",
     "@api3/protocol": "^0.1.0",
-    "dotenv": "^8.2.0",
+    "dotenv": "^10.0.0",
     "ethers": "^5.1.4",
     "lodash": "^4.17.21",
     "ora": "^5.1.0",

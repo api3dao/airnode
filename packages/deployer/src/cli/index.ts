@@ -27,7 +27,7 @@ function drawHeader() {
 
 async function runCommand(command: () => Promise<void>) {
   try {
-    command();
+    await command();
   } catch (err) {
     console.error(err);
     process.exitCode = 1;

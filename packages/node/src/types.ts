@@ -178,7 +178,7 @@ export interface AuthorizationByRequestId {
 }
 
 export interface ApiCallResponse {
-  readonly value?: string;
+  readonly value?: string | boolean;
   readonly errorCode?: RequestErrorCode;
 }
 
@@ -260,8 +260,8 @@ export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequ
 
 export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
   readonly parsedLog:
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
 }
 
 export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
@@ -313,6 +313,7 @@ export interface LogMetadata {
   readonly chainId?: string;
   readonly chainType?: ChainType;
   readonly providerName?: string;
+  readonly requestId?: string;
 }
 
 export interface LogOptions {
@@ -351,6 +352,10 @@ export interface ChainContracts {
   readonly AirnodeRrp: string;
 }
 
+export interface Provider {
+  readonly url: string;
+}
+
 export interface ChainConfig {
   readonly airnodeAdmin: string;
   readonly authorizers: string[];
@@ -359,8 +364,8 @@ export interface ChainConfig {
   readonly id: string;
   readonly ignoreBlockedRequestsAfterBlocks?: number;
   readonly minConfirmations?: number;
-  readonly providerNames: string[];
   readonly type: ChainType;
+  readonly providers: Record<string, Provider>;
 }
 
 export type NodeCloudProvider = 'local' | 'aws';
@@ -368,6 +373,7 @@ export type NodeCloudProvider = 'local' | 'aws';
 export interface NodeSettings {
   readonly airnodeIdShort?: string;
   readonly enableHeartbeat?: boolean;
+  readonly enableTestingGateway?: boolean;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
@@ -376,27 +382,8 @@ export interface NodeSettings {
   readonly stage: string;
 }
 
-export interface SecuritySchemeEnvironmentConfig {
-  readonly oisTitle: string;
-  readonly name: string;
-  readonly envName: string;
-}
-
-export interface ChainProviderEnvironmentConfig {
-  readonly chainType: ChainType;
-  readonly chainId: string;
-  readonly name: string;
-  readonly envName: string;
-}
-
-export interface EnvironmentConfig {
-  readonly securitySchemes: SecuritySchemeEnvironmentConfig[];
-  readonly chainProviders: ChainProviderEnvironmentConfig[];
-}
-
 export interface Config {
   readonly chains: ChainConfig[];
-  readonly environment: EnvironmentConfig;
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;

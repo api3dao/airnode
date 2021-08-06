@@ -13,7 +13,7 @@ export async function startCoordinator(config: Config) {
   const startedAt = new Date();
 
   const endState = await coordinator(config);
-  const logOptions = logger.buildBaseOptions(config, endState);
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId: endState.id });
 
   const completedAt = new Date();
   const durationMs = Math.abs(completedAt.getTime() - startedAt.getTime());
@@ -31,7 +31,7 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   // =================================================================
   const state1 = state.create(config);
   const { id: coordinatorId } = state1;
-  const logOptions = logger.buildBaseOptions(config, state1);
+  const logOptions = logger.buildBaseOptions(config, { coordinatorId: state1.id });
 
   logger.info(`Coordinator starting...`, logOptions);
 

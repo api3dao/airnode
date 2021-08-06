@@ -12,13 +12,6 @@ export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigge
 }
 
 export function buildConfig(overrides?: Partial<Config>): Config {
-  const oisTitle = 'Currency Converter API';
-  const securitySchemeName = 'My Security Scheme';
-  const securitySchemeEnvName = 'SS_CURRENCY_CONVERTER_API_MY_SECURITY_SCHEME';
-  const chainType = 'evm';
-  const chainId = '31337';
-  const chainProviderName = 'EVM local';
-  const chainProviderEnvName = 'CP_EVM_31337_EVM_LOCAL';
   return {
     chains: [
       {
@@ -29,26 +22,13 @@ export function buildConfig(overrides?: Partial<Config>): Config {
         },
         id: '31337',
         type: 'evm',
-        providerNames: ['EVM local'],
+        providers: {
+          ['EVM local']: {
+            url: 'http://localhost:4111',
+          },
+        },
       },
     ],
-    environment: {
-      securitySchemes: [
-        {
-          oisTitle: oisTitle,
-          name: securitySchemeName,
-          envName: securitySchemeEnvName,
-        },
-      ],
-      chainProviders: [
-        {
-          chainType: chainType,
-          chainId: chainId,
-          name: chainProviderName,
-          envName: chainProviderEnvName,
-        },
-      ],
-    },
     nodeSettings: settings.buildNodeSettings(),
     triggers: {
       request: [buildTrigger()],

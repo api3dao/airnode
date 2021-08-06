@@ -1,4 +1,5 @@
 import { OIS, ReservedParameterName } from '@api3/ois';
+import { buildCredentials } from './security';
 
 export function buildOIS(overrides?: Partial<OIS>): OIS {
   return {
@@ -43,9 +44,6 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
             name: 'access_key',
           },
         },
-      },
-      security: {
-        myapiApiScheme: [],
       },
     },
     endpoints: [
@@ -102,6 +100,7 @@ export function buildOIS(overrides?: Partial<OIS>): OIS {
         ],
       },
     ],
+    credentials: buildCredentials(),
     ...overrides,
   };
 }
