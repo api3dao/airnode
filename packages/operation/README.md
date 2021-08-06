@@ -1,3 +1,5 @@
+<!-- TODO: update links after api3-docs had been updated and use https://docs.api3.org/ url instead -->
+
 # @api3/operation
 
 > Development and testing utilities for Airnode

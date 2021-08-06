@@ -4,6 +4,7 @@ import {
   ConfigSponsor,
   DeployedAirnode,
   DeployedEndpoint,
+  DeployedSponsor,
   DeployedTemplate,
   Deployment,
   DeployState as State,
@@ -31,7 +32,7 @@ function buildSaveableAirnode(state: State, airnodeName: string): DeployedAirnod
   const configAirnode = state.config.airnodes[airnodeName];
 
   const endpointNames = Object.keys(configAirnode.endpoints);
-  const endpoints = endpointNames.reduce((acc: any, name: string) => {
+  const endpoints: { [name: string]: DeployedEndpoint } = endpointNames.reduce((acc: any, name: string) => {
     const configEndpoint = configAirnode.endpoints[name];
     const endpointId = deriveEndpointId(configEndpoint.oisTitle, name);
     const data: DeployedEndpoint = { endpointId };
@@ -39,7 +40,7 @@ function buildSaveableAirnode(state: State, airnodeName: string): DeployedAirnod
   }, {});
 
   const templateNames = Object.keys(configAirnode.templates);
-  const templates = templateNames.reduce((acc: any, name: string) => {
+  const templates: { [name: string]: DeployedTemplate } = templateNames.reduce((acc: any, name: string) => {
     const key = `${airnodeName}-${name}`;
     const configTemplate = configAirnode.templates[name];
     const template = state.templatesByName[key];
@@ -63,12 +64,12 @@ export function buildSaveableDeployment(state: State): Deployment {
   };
 
   const requesterNames = Object.keys(state.requestersByName);
-  const requesters = requesterNames.reduce((acc: any, name: string) => {
+  const requesters: { [name: string]: string } = requesterNames.reduce((acc: any, name: string) => {
     const requester = state.requestersByName[name];
     return { ...acc, [name]: requester.address };
   }, {});
 
-  const sponsors = state.config.sponsors.reduce((acc: any, configRequester: ConfigSponsor) => {
+  const sponsors: DeployedSponsor[] = state.config.sponsors.reduce((acc: any, configRequester: ConfigSponsor) => {
     const sponsor = state.sponsorsById[configRequester.id];
     const data = {
       address: sponsor.address,
@@ -79,7 +80,7 @@ export function buildSaveableDeployment(state: State): Deployment {
   }, []);
 
   const airnodeNames = Object.keys(state.airnodesByName);
-  const airnodes = airnodeNames.reduce((acc: any, name: string) => {
+  const airnodes: { [name: string]: DeployedAirnode } = airnodeNames.reduce((acc: any, name: string) => {
     const saveableAirnode = buildSaveableAirnode(state, name);
     return { ...acc, [name]: saveableAirnode };
   }, {});

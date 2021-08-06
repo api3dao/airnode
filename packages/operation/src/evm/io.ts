@@ -1,6 +1,6 @@
 import fs from 'fs';
+import { Config, Deployment, DeployState as State } from '../types';
 import { buildSaveableDeployment } from './deploy/state';
-import { Config, DeployState as State } from '../types';
 
 const DEPLOY_DIR = './deployments';
 const DEPLOY_FILE = 'evm-dev.json';
@@ -9,7 +9,7 @@ export function loadConfig(): Config {
   return JSON.parse(fs.readFileSync('./src/config/evm-dev-config.json', 'utf8'));
 }
 
-export function loadDeployment() {
+export function loadDeployment(): Deployment {
   if (!fs.existsSync(`${DEPLOY_DIR}/${DEPLOY_FILE}`)) {
     throw new Error(`Unable to find file: ${DEPLOY_DIR}/${DEPLOY_FILE}`);
   }

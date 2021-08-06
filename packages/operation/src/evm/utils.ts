@@ -14,8 +14,12 @@ export function deriveWalletFromPath(mnemonic: string, provider: ethers.provider
   return ethers.Wallet.fromMnemonic(mnemonic, path).connect(provider);
 }
 
-export function getDesignatedWallet(mnemonic: string, provider: ethers.providers.JsonRpcProvider, sponsor: string) {
-  return deriveWalletFromPath(mnemonic, provider, deriveWalletPathFromAddress(sponsor));
+export function getDesignatedWallet(
+  mnemonic: string,
+  provider: ethers.providers.JsonRpcProvider,
+  sponsorAddress: string
+) {
+  return deriveWalletFromPath(mnemonic, provider, deriveWalletPathFromAddress(sponsorAddress));
 }
 
 /**
