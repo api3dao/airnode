@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - master
+    types: [opened, synchronize, reopened]
 
 jobs:
   documentation:
@@ -17,7 +18,9 @@ jobs:
         uses: gaurav-nelson/github-action-markdown-link-check@v1
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -38,16 +41,18 @@ jobs:
           node-version: '14.17.1'
       - name: Install Dependencies
         run: yarn run bootstrap
-      - name: Lint code
-        run: yarn run lint
       - name: Prepare config
         run: |
           cp packages/deployer/config/config.json.example packages/deployer/config/config.json
       - name: Build
         run: yarn run build
+      - name: Lint code
+        run: yarn run lint
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -78,7 +83,9 @@ jobs:
       - run: yarn run test:adapter
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -104,7 +111,9 @@ jobs:
       - run: yarn run test:airnode-abi
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -130,7 +139,9 @@ jobs:
       - run: yarn run test:node
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -156,11 +167,39 @@ jobs:
       - run: yarn run test:protocol
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
           job_name: 'Airnode - test @api3/protocol'
+          token: ${{ secrets.ACCESS_TOKEN }}
+          type: ${{ job.status }}
+          url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  test-validator:
+    name: Test @api3/validator
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/cache@v2
+        id: restore-build
+        with:
+          path: ./*
+          key: ${{ github.sha }}
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.17.1'
+      - run: yarn run test:validator
+      - name: Slack Notification
+        uses: lazy-actions/slatify@master
+        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        with:
+          channel: '#technical-notifications'
+          commit: true
+          job_name: 'Airnode - test @api3/validator'
           token: ${{ secrets.ACCESS_TOKEN }}
           type: ${{ job.status }}
           url: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -191,7 +230,9 @@ jobs:
       - run: yarn run test:e2e
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ failure() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ failure() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true
@@ -208,7 +249,10 @@ jobs:
       - run: exit 0
       - name: Slack Notification
         uses: lazy-actions/slatify@master
-        if: ${{ always() && github.repository_owner == 'api3dao' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # env.SLACK_WEBHOOK_URL != null is a workaround dependabot not having access to secrets
+        if: ${{ always() && env.SLACK_WEBHOOK_URL != null }}
         with:
           channel: '#technical-notifications'
           commit: true

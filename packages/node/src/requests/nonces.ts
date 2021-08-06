@@ -1,7 +1,7 @@
-import { removeKey } from '../utils/object-utils';
 import * as grouping from './grouping';
 import { blockedOrIgnored } from './request';
 import * as sorting from './sorting';
+import { removeKey } from '../utils/object-utils';
 import {
   ApiCall,
   ClientRequest,
@@ -16,9 +16,9 @@ import {
 type AnyRequest = ApiCall | Withdrawal;
 
 interface AssignedNonces {
-  assignmentBlocked: boolean;
-  nextNonce: number;
-  requests: ClientRequest<AnyRequest>[];
+  readonly assignmentBlocked: boolean;
+  readonly nextNonce: number;
+  readonly requests: ClientRequest<AnyRequest>[];
 }
 
 function flattenRequests(groupedRequests: GroupedRequests): ClientRequest<AnyRequest>[] {

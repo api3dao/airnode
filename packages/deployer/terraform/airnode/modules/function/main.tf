@@ -18,17 +18,17 @@ EOC
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name               = "${local.name}-role"
+  name               = "${var.name}-role"
   assume_role_policy = data.aws_iam_policy_document.role_policy.json
 }
 
 resource "aws_cloudwatch_log_group" "cloudwatch_log_group" {
-  name              = "/aws/lambda/${local.name}"
+  name              = "/aws/lambda/${var.name}"
   retention_in_days = 90
 }
 
 resource "aws_iam_role_policy" "lambda_log_role_policy" {
-  name   = "${local.name}-log-policy"
+  name   = "${var.name}-log-policy"
   role   = aws_iam_role.lambda_role.id
   policy = data.aws_iam_policy_document.cloudwatch_log_policy.json
 }
@@ -36,15 +36,15 @@ resource "aws_iam_role_policy" "lambda_log_role_policy" {
 resource "aws_iam_role_policy" "invoke_lambda_role_policy" {
   count = length(var.invoke_targets) != 0 ? 1 : 0
 
-  name   = "${local.name}-invoke-policy"
+  name   = "${var.name}-invoke-policy"
   role   = aws_iam_role.lambda_role.id
   policy = data.aws_iam_policy_document.lambda_invoke_policy.json
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename                       = "${local.tmp_output_dir}/${local.name}.zip"
+  filename                       = "${local.tmp_output_dir}/${var.name}.zip"
   source_code_hash               = data.archive_file.lambda_zip.output_base64sha256
-  function_name                  = local.name
+  function_name                  = var.name
   handler                        = var.handler
   runtime                        = "nodejs14.x"
   role                           = aws_iam_role.lambda_role.arn
@@ -62,7 +62,7 @@ resource "aws_lambda_function" "lambda" {
 resource "aws_cloudwatch_event_rule" "lambda_schedule_rule" {
   count = var.schedule_interval == 0 ? 0 : 1
 
-  name                = "${local.name}-schedule-rule"
+  name                = "${var.name}-schedule-rule"
   schedule_expression = "cron(0/${var.schedule_interval} * * * ? *)"
 }
 

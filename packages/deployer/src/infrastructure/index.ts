@@ -3,9 +3,9 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
+import ora from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
-import ora from 'ora';
 
 const exec = util.promisify(child.exec);
 // TODO:
@@ -36,12 +36,13 @@ export async function deployAirnode(
   stage: string,
   cloudProvider: string,
   region: string,
+  testingApiKey: string | undefined,
   configPath: string,
   secretsPath: string
 ) {
   spinner = logger.spinner(`Deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
   try {
-    await deploy(airnodeIdShort, stage, region, configPath, secretsPath);
+    await deploy(airnodeIdShort, stage, region, testingApiKey, configPath, secretsPath);
     spinner.succeed(`Deployed Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
   } catch (err) {
     spinner.fail(`Failed deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
@@ -49,7 +50,14 @@ export async function deployAirnode(
   }
 }
 
-async function deploy(airnodeIdShort: string, stage: string, region: string, configPath: string, secretsPath: string) {
+async function deploy(
+  airnodeIdShort: string,
+  stage: string,
+  region: string,
+  testingApiKey: string | undefined,
+  configPath: string,
+  secretsPath: string
+) {
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -78,11 +86,12 @@ async function deploy(airnodeIdShort: string, stage: string, region: string, con
   const options = { cwd: airnodeTmpDir };
   await runCommand(command, options);
 
+  const testingApiKeyVar = testingApiKey ? `-var='api_key=${testingApiKey}'` : '';
   command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
     configPath
   )}" -var="secrets_file=${path.resolve(
     secretsPath
-  )}" -var="handler_file=${handlerFile}" -auto-approve -input=false -no-color`;
+  )}" -var="handler_file=${handlerFile}" ${testingApiKeyVar} -auto-approve -input=false -no-color`;
   await runCommand(command, options);
 }
 

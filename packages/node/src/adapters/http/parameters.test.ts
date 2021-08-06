@@ -8,10 +8,10 @@ describe('RESERVED_PARAMETERS', () => {
 });
 
 describe('getResponseParameterValue', () => {
-  let baseEndpoint: Endpoint;
+  let mutableBaseEndpoint: Endpoint;
 
   beforeEach(() => {
-    baseEndpoint = {
+    mutableBaseEndpoint = {
       fixedOperationParameters: [],
       name: 'fetch-price',
       operation: { method: 'get', path: '/prices/latest' },
@@ -26,25 +26,29 @@ describe('getResponseParameterValue', () => {
   it('returns the reserved parameter from the Endpoint first', () => {
     // This should be ignored
     const requestParameters = { _type: 'bytes32' };
-    const res = parameters.getReservedParameterValue(ReservedParameterName.Type, baseEndpoint, requestParameters);
+    const res = parameters.getReservedParameterValue(
+      ReservedParameterName.Type,
+      mutableBaseEndpoint,
+      requestParameters
+    );
     expect(res).toEqual('int256');
   });
 
   it('returns undefined if no reserved parameter exists', () => {
-    const endpoint = { ...baseEndpoint, reservedParameters: [] };
+    const endpoint = { ...mutableBaseEndpoint, reservedParameters: [] };
     const requestParameters = { _type: 'bytes32' };
     const res = parameters.getReservedParameterValue(ReservedParameterName.Type, endpoint, requestParameters);
     expect(res).toEqual(undefined);
   });
 
   it('returns the default if the request parameter does not exist', () => {
-    const endpoint = { ...baseEndpoint };
+    const endpoint = { ...mutableBaseEndpoint };
     const res = parameters.getReservedParameterValue(ReservedParameterName.Path, endpoint, {});
     expect(res).toEqual('prices.0.latest');
   });
 
   it('overrides the default if the request parameter exists', () => {
-    const endpoint = { ...baseEndpoint };
+    const endpoint = { ...mutableBaseEndpoint };
     const requestParameters = { _path: 'new.path' };
     const res = parameters.getReservedParameterValue(ReservedParameterName.Path, endpoint, requestParameters);
     expect(res).toEqual('new.path');
@@ -52,10 +56,10 @@ describe('getResponseParameterValue', () => {
 });
 
 describe('getReservedParameters', () => {
-  let baseEndpoint: Endpoint;
+  let mutableBaseEndpoint: Endpoint;
 
   beforeEach(() => {
-    baseEndpoint = {
+    mutableBaseEndpoint = {
       fixedOperationParameters: [],
       name: 'fetch-price',
       operation: { method: 'get', path: '/prices/latest' },
@@ -70,7 +74,7 @@ describe('getReservedParameters', () => {
   });
 
   it('fetches the response parameters', () => {
-    const res = parameters.getReservedParameters(baseEndpoint, {
+    const res = parameters.getReservedParameters(mutableBaseEndpoint, {
       _type: 'bytes32',
       _path: 'updated.path',
       _relay_metadata: 'v2',

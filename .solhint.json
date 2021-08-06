@@ -3,6 +3,7 @@
   "rules": {
     "compiler-version": "off",
     "func-visibility": ["warn", {"ignoreConstructors":true}],
-    "not-rely-on-time": "off"
+    "not-rely-on-time": "off",
+    "no-empty-blocks": "off"
   }
 }

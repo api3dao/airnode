@@ -46,6 +46,7 @@ describe('extractValue', () => {
   it('throws an error if a value cannot be found', () => {
     expect.assertions(1);
     const obj = { a: 1 };
+    // eslint-disable-next-line functional/no-try-statement
     try {
       extraction.extractValue(obj, 'unknown');
     } catch (e) {

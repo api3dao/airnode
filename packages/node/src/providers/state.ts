@@ -1,6 +1,5 @@
 import * as evm from '../evm';
-import { getEnvValue } from '../config';
-import { removeKeys } from '../utils/object-utils';
+import { randomString, removeKeys } from '../utils';
 import { ChainConfig, ChainType, EVMProviderState, Config, ProviderSettings, ProviderState } from '../types';
 import { BLOCK_COUNT_HISTORY_LIMIT, BLOCK_COUNT_IGNORE_LIMIT, BLOCK_MIN_CONFIRMATIONS } from '../constants';
 
@@ -11,15 +10,7 @@ export function buildEVMState(
   config: Config
 ): ProviderState<EVMProviderState> {
   const masterHDNode = evm.getMasterHDNode();
-  const chainProviderEnvironmentConfig = config.environment.chainProviders.find(
-    (c) => c.chainType === chain.type && c.chainId === chain.id && c.name === chainProviderName
-  );
-  if (!chainProviderEnvironmentConfig) {
-    throw new Error(
-      `Chain provider URL environment variable name for type: ${chain.type}, ID: ${chain.id}, provider name: ${chainProviderName} must be defined in the provided config object`
-    );
-  }
-  const chainProviderUrl = getEnvValue(chainProviderEnvironmentConfig.envName) || '';
+  const chainProviderUrl = chain.providers[chainProviderName].url || '';
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
 
   const providerSettings: ProviderSettings = {
@@ -44,6 +35,7 @@ export function buildEVMState(
   };
 
   return {
+    id: randomString(16),
     config,
     contracts: chain.contracts,
     coordinatorId,

@@ -1,12 +1,20 @@
 import { formatDateTimeMs } from './utils/date-utils';
-import { LogLevel, LogOptions, PendingLog } from './types';
+import { Config, LogLevel, LogOptions, PendingLog, LogMetadata } from './types';
 
-const logLevels: { [key in LogLevel]: number } = {
+const logLevels: { readonly [key in LogLevel]: number } = {
   DEBUG: 0,
   INFO: 1,
   WARN: 2,
   ERROR: 3,
 };
+
+export function buildBaseOptions(config: Config, meta: LogMetadata) {
+  return {
+    format: config.nodeSettings.logFormat,
+    level: config.nodeSettings.logLevel,
+    meta,
+  };
+}
 
 export function debug(message: string, options: LogOptions) {
   log('DEBUG', message, options);

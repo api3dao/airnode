@@ -1,8 +1,8 @@
 import * as fs from 'fs';
+import { exit } from 'process';
 import * as yargs from 'yargs';
 import * as evm from './evm';
 import * as admin from '.';
-import { exit } from 'process';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {

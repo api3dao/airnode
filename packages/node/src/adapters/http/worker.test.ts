@@ -5,10 +5,10 @@ jest.mock('aws-sdk', () => ({
   })),
 }));
 
-import * as fixtures from 'test/fixtures';
-import * as logger from '../../logger';
 import * as worker from './worker';
-import { LogOptions } from 'src/types';
+import * as logger from '../../logger';
+import * as fixtures from '../../../test/fixtures';
+import { LogOptions } from '../../types';
 
 describe('spawnNewApiCall', () => {
   const logOptions: LogOptions = {
@@ -30,7 +30,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-19255a4-test-callApi',
-        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions, encodeResponse: true }),
       },
       expect.anything()
     );
@@ -49,7 +49,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-19255a4-test-callApi',
-        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions, encodeResponse: true }),
       },
       expect.anything()
     );
@@ -69,7 +69,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-19255a4-test-callApi',
-        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions, encodeResponse: true }),
       },
       expect.anything()
     );
@@ -88,7 +88,7 @@ describe('spawnNewApiCall', () => {
     expect(invokeMock).toHaveBeenCalledWith(
       {
         FunctionName: 'airnode-19255a4-test-callApi',
-        Payload: JSON.stringify({ aggregatedApiCall, logOptions }),
+        Payload: JSON.stringify({ aggregatedApiCall, logOptions, encodeResponse: true }),
       },
       expect.anything()
     );

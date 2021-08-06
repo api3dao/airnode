@@ -12,12 +12,12 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
 };
 
 export async function createRequester(airnodeRrp: AirnodeRrp, requesterAdmin: string) {
-  await airnodeRrp.createRequester(requesterAdmin);
-  const filter = airnodeRrp.filters.RequesterCreated(null, null);
+  const tx = await airnodeRrp.createRequester(requesterAdmin);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (requesterIndex) => {
-      resolve(requesterIndex.toString());
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
+      resolve(parsedLog.args.requesterIndex.toString());
     })
   );
 }
@@ -57,12 +57,12 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   } else {
     encodedParameters = airnodeAbi.encode(template.parameters);
   }
-  await airnodeRrp.createTemplate(template.airnodeId, template.endpointId, encodedParameters);
-  const filter = airnodeRrp.filters.TemplateCreated(null, null, null, null);
+  const tx = await airnodeRrp.createTemplate(template.airnodeId, template.endpointId, encodedParameters);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (templateId) => {
-      resolve(templateId);
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
+      resolve(parsedLog.args.templateId);
     })
   );
 }
@@ -74,12 +74,12 @@ export async function requestWithdrawal(
   destination: string
 ) {
   const designatedWalletAddress = await deriveDesignatedWallet(airnodeRrp, airnodeId, requesterIndex);
-  await airnodeRrp.requestWithdrawal(airnodeId, requesterIndex, designatedWalletAddress, destination);
-  const filter = airnodeRrp.filters.WithdrawalRequested(null, null, null, null, null);
+  const tx = await airnodeRrp.requestWithdrawal(airnodeId, requesterIndex, designatedWalletAddress, destination);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (_, __, withdrawalRequestId) => {
-      resolve(withdrawalRequestId);
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
+      resolve(parsedLog.args.withdrawalRequestId);
     })
   );
 }
@@ -117,12 +117,14 @@ export async function setAirnodeParameters(airnodeRrp: AirnodeRrp, airnodeAdmin:
     airnodeRrp.provider as ethers.providers.Provider
   );
   // Assuming masterWallet has funds to make the transaction below
-  await airnodeRrp.connect(masterWallet).setAirnodeParametersAndForwardFunds(airnodeAdmin, xpub, authorizers);
-  const filter = airnodeRrp.filters.AirnodeParametersSet(null, null, null, null);
+  const tx = await airnodeRrp
+    .connect(masterWallet)
+    .setAirnodeParametersAndForwardFunds(airnodeAdmin, xpub, authorizers);
 
   return new Promise<string>((resolve) =>
-    airnodeRrp.once(filter, (airnodeId) => {
-      resolve(airnodeId);
+    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
+      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
+      resolve(parsedLog.args.airnodeId);
     })
   );
 }

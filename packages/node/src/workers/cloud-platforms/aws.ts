@@ -17,6 +17,7 @@ export function spawn(params: WorkerParameters): Promise<WorkerResponse> {
     lambda.invoke(options, (err, data) => {
       if (err) {
         reject(err);
+        return;
       }
       resolve(JSON.parse(JSON.parse(data.Payload as string).body) as WorkerResponse);
     });

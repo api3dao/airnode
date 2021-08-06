@@ -1,10 +1,12 @@
+/* eslint-disable functional/immutable-data */
+
 import { ApiSecurityScheme, ApiSpecification } from '@api3/ois';
-import * as fixtures from '../../test/fixtures';
 import * as authentication from './authentication';
+import * as fixtures from '../../test/fixtures';
 
 describe('building empty parameters', () => {
-  it('returns no parameters if securitySchemeSecrets is empty', () => {
-    const options = fixtures.buildCacheRequestOptions({ securitySchemeSecrets: undefined });
+  it('returns no parameters if credentials is empty', () => {
+    const options = fixtures.buildCacheRequestOptions({ credentials: undefined });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
@@ -24,18 +26,6 @@ describe('building empty parameters', () => {
     };
     const invalidOIS = fixtures.buildOIS({ apiSpecifications });
     const options = fixtures.buildCacheRequestOptions({ ois: invalidOIS });
-    const res = authentication.buildParameters(options);
-    expect(res).toEqual({
-      headers: {},
-      query: {},
-      cookies: {},
-    });
-  });
-
-  it('ignores schemes that do not have a matching securitySchemeSecrets', () => {
-    const ois = fixtures.buildOIS();
-    const securitySchemeSecrets = [{ securitySchemeName: 'unknown', value: 'supersecret' }];
-    const options = fixtures.buildCacheRequestOptions({ ois, securitySchemeSecrets });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
@@ -80,28 +70,6 @@ describe('building API key authentication parameters', () => {
     });
   });
 
-  it('returns the API key in multiple places', () => {
-    const ois = fixtures.buildOIS();
-    const queryScheme: ApiSecurityScheme = { in: 'query', type: 'apiKey', name: 'query_key' };
-    const headerScheme: ApiSecurityScheme = { in: 'header', type: 'apiKey', name: 'header_key' };
-    const cookieScheme: ApiSecurityScheme = { in: 'cookie', type: 'apiKey', name: 'cookie_key' };
-    ois.apiSpecifications.components.securitySchemes.queryScheme = queryScheme;
-    ois.apiSpecifications.components.securitySchemes.headerScheme = headerScheme;
-    ois.apiSpecifications.components.securitySchemes.cookieScheme = cookieScheme;
-    const securitySchemeSecrets = [
-      { value: 'secret-query', securitySchemeName: 'queryScheme' },
-      { value: 'secret-header', securitySchemeName: 'headerScheme' },
-      { value: 'secret-cookie', securitySchemeName: 'cookieScheme' },
-    ];
-    const options = fixtures.buildCacheRequestOptions({ ois, securitySchemeSecrets });
-    const res = authentication.buildParameters(options);
-    expect(res).toEqual({
-      query: { query_key: 'secret-query' },
-      headers: { header_key: 'secret-header' },
-      cookies: { cookie_key: 'secret-cookie' },
-    });
-  });
-
   it('ignores undefined scheme names', () => {
     const ois = fixtures.buildOIS();
     ois.apiSpecifications.components.securitySchemes.myapiApiScheme.name = undefined;
@@ -133,7 +101,7 @@ describe('building HTTP authentication parameters', () => {
     const scheme: ApiSecurityScheme = { scheme: 'basic', type: 'http' };
     ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
     const options = fixtures.buildCacheRequestOptions({ ois });
-    options.securitySchemeSecrets![0].value = 'd2h5YXJleW91OnJlYWRpbmd0aGlz';
+    options.credentials!.value = 'd2h5YXJleW91OnJlYWRpbmd0aGlz';
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
@@ -147,7 +115,7 @@ describe('building HTTP authentication parameters', () => {
     const scheme: ApiSecurityScheme = { scheme: 'bearer', type: 'http' };
     ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
     const options = fixtures.buildCacheRequestOptions({ ois });
-    options.securitySchemeSecrets![0].value = 'secret-jwt';
+    options.credentials!.value = 'secret-jwt';
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},

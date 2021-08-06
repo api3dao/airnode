@@ -1,8 +1,8 @@
-import * as fixtures from 'test/fixtures';
+import * as disaggregation from './disaggregation';
+import * as fixtures from '../../../test/fixtures';
 import * as coordinatorState from '../state';
 import * as providerState from '../../providers/state';
-import * as disaggregation from './disaggregation';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from 'src/types';
+import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
 
 describe('disaggregate - ClientRequests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
@@ -11,13 +11,13 @@ describe('disaggregate - ClientRequests', () => {
       withdrawals: [],
     };
 
-    let provider0 = fixtures.buildEVMProviderState();
-    let provider1 = fixtures.buildEVMProviderState();
-    let provider2 = fixtures.buildEVMProviderState();
+    let mutableProvider0 = fixtures.buildEVMProviderState();
+    let mutableProvider1 = fixtures.buildEVMProviderState();
+    let mutableProvider2 = fixtures.buildEVMProviderState();
 
-    provider0 = providerState.update(provider0, { requests });
-    provider1 = providerState.update(provider1, { requests });
-    provider2 = providerState.update(provider2, { requests });
+    mutableProvider0 = providerState.update(mutableProvider0, { requests });
+    mutableProvider1 = providerState.update(mutableProvider1, { requests });
+    mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({
       responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
@@ -25,10 +25,12 @@ describe('disaggregate - ClientRequests', () => {
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1, provider2] });
+    let mutableState = coordinatorState.create(config);
 
-    const [logs, res] = disaggregation.disaggregate(state);
+    const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+
+    const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([]);
     expect(res[0].requests.apiCalls[0].responseValue).toEqual(
       '0x00000000000000000000000000000000000000000000000000000000000001b9'
@@ -51,11 +53,11 @@ describe('disaggregate - ClientRequests', () => {
       withdrawals: [],
     };
 
-    let provider0 = fixtures.buildEVMProviderState();
-    let provider1 = fixtures.buildEVMProviderState();
+    let mutableProvider0 = fixtures.buildEVMProviderState();
+    let mutableProvider1 = fixtures.buildEVMProviderState();
 
-    provider0 = providerState.update(provider0, { requests: requests0 });
-    provider1 = providerState.update(provider1, { requests: requests1 });
+    mutableProvider0 = providerState.update(mutableProvider0, { requests: requests0 });
+    mutableProvider1 = providerState.update(mutableProvider1, { requests: requests1 });
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({
       id: 'btcCall',
@@ -65,10 +67,12 @@ describe('disaggregate - ClientRequests', () => {
     const aggregatedApiCallsById = { btcCall: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1] });
+    let mutableState = coordinatorState.create(config);
 
-    const [logs, res] = disaggregation.disaggregate(state);
+    const providerStates = { evm: [mutableProvider0, mutableProvider1] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+
+    const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([
       { level: 'ERROR', message: 'Unable to find matching aggregated API calls for Request:ethCall' },
     ]);
@@ -87,8 +91,8 @@ describe('disaggregate - ClientRequests', () => {
     });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
-    let provider0 = fixtures.buildEVMProviderState();
-    provider0 = providerState.update(provider0, { requests });
+    let mutableProvider0 = fixtures.buildEVMProviderState();
+    mutableProvider0 = providerState.update(mutableProvider0, { requests });
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({
       responseValue: '0x00000000000000000000000000000000000000000000000000000000000001b9',
@@ -96,10 +100,12 @@ describe('disaggregate - ClientRequests', () => {
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0] });
+    let mutableState = coordinatorState.create(config);
 
-    const [logs, res] = disaggregation.disaggregate(state);
+    const providerStates = { evm: [mutableProvider0] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+
+    const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
@@ -113,22 +119,24 @@ describe('disaggregate - ClientRequests', () => {
     const apiCall = fixtures.requests.buildApiCall();
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
-    let provider0 = fixtures.buildEVMProviderState();
-    let provider1 = fixtures.buildEVMProviderState();
-    let provider2 = fixtures.buildEVMProviderState();
+    let mutableProvider0 = fixtures.buildEVMProviderState();
+    let mutableProvider1 = fixtures.buildEVMProviderState();
+    let mutableProvider2 = fixtures.buildEVMProviderState();
 
-    provider0 = providerState.update(provider0, { requests });
-    provider1 = providerState.update(provider1, { requests });
-    provider2 = providerState.update(provider2, { requests });
+    mutableProvider0 = providerState.update(mutableProvider0, { requests });
+    mutableProvider1 = providerState.update(mutableProvider1, { requests });
+    mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorCode: RequestErrorCode.ApiCallFailed });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
-    let state = coordinatorState.create(config);
-    state = coordinatorState.update(state, { aggregatedApiCallsById, EVMProviders: [provider0, provider1, provider2] });
+    let mutableState = coordinatorState.create(config);
 
-    const [logs, res] = disaggregation.disaggregate(state);
+    const providerStates = { evm: [mutableProvider0, mutableProvider1, mutableProvider2] };
+    mutableState = coordinatorState.update(mutableState, { aggregatedApiCallsById, providerStates });
+
+    const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([]);
     expect(res[0].requests.apiCalls).toEqual([
       { ...apiCall, errorCode: RequestErrorCode.ApiCallFailed, status: RequestStatus.Errored },

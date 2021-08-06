@@ -24,6 +24,8 @@ It houses the following packages:
 
 [**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement Airnode RRP (request–response protocol)
 
+[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/validator) A package that can be used to validate and convert airnode specification files
+
 ## Instructions
 
 To install dependencies, run this at the repository root:

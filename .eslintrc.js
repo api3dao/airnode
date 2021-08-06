@@ -12,13 +12,19 @@ module.exports = {
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
+    waffle: true
   },
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/eslint-recommended',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
   ],
-  plugins: ['@typescript-eslint'],
+  plugins: [
+    '@typescript-eslint',
+    'import',
+  ],
   rules: {
     // TypeScript
     '@typescript-eslint/ban-ts-comment': 0,
@@ -37,6 +43,13 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', vars: 'all' }],
     '@typescript-eslint/no-use-before-define': 0,
     '@typescript-eslint/no-var-requires': 0,
+
+    // eslint-plugin-import
+    'import/namespace': [2, { allowComputed: true }],
+    'import/order': ['error', {
+      groups: ['builtin', 'external', 'internal', 'sibling', 'parent', 'index', 'object', 'type'],
+      pathGroups: [{ pattern: 'mock-utils', group: 'builtin', patternOptions: { matchBase: true, nocomment: true } }],
+    }],
 
     // ESLint
     'comma-dangle': [2, 'only-multiline'],

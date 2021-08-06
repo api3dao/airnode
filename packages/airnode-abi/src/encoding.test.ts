@@ -1,3 +1,5 @@
+/* eslint-disable functional/no-try-statement */
+
 import * as decoding from './decoding';
 import * as encoding from './encoding';
 import { InputParameter } from './types';

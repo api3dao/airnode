@@ -1,7 +1,7 @@
 import * as adapter from '@api3/adapter';
-import { OIS, SecuritySchemeSecret } from '@api3/ois';
+import { OIS } from '@api3/ois';
+import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
-import { getEnvValue } from '../config';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
 import {
@@ -12,7 +12,6 @@ import {
   Config,
   LogsData,
   RequestErrorCode,
-  SecuritySchemeEnvironmentConfig,
 } from '../types';
 import { removeKeys } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
@@ -42,23 +41,9 @@ function addMetadataParameters(
   }
 }
 
-function buildSecuritySchemeSecrets(
-  ois: OIS,
-  securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[]
-): SecuritySchemeSecret[] {
-  const securitySchemeNames = Object.keys(ois.apiSpecifications.components.securitySchemes);
-  const securitySchemeSecrets = securitySchemeNames.map((securitySchemeName) => {
-    const securityEnvConfig = securitySchemeEnvironmentConfigs.find((s) => s.name === securitySchemeName);
-    const value = securityEnvConfig ? getEnvValue(securityEnvConfig.envName) : '';
-    return { securitySchemeName, value: value ?? '' };
-  });
-  return securitySchemeSecrets;
-}
-
 function buildOptions(
   chain: ChainConfig,
   ois: OIS,
-  securitySchemeEnvironmentConfigs: SecuritySchemeEnvironmentConfig[],
   aggregatedApiCall: AggregatedApiCall,
   reservedParameters: adapter.ReservedParameters
 ): adapter.BuildRequestOptions {
@@ -68,26 +53,23 @@ function buildOptions(
   // Don't submit the reserved parameters to the API
   const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
 
-  // Fetch secrets and build a list of security schemes
-  const securitySchemeSecrets = buildSecuritySchemeSecrets(ois, securitySchemeEnvironmentConfigs);
-
   return {
     endpointName: aggregatedApiCall.endpointName!,
     parameters: sanitizedParameters,
     ois,
-    securitySchemeSecrets,
+    credentials: ois.credentials,
   };
 }
 
 export async function callApi(
   config: Config,
-  aggregatedApiCall: AggregatedApiCall
+  aggregatedApiCall: AggregatedApiCall,
+  encodeResponse = true
 ): Promise<LogsData<ApiCallResponse>> {
   const { chainId, endpointName, oisTitle } = aggregatedApiCall;
   const chain = config.chains.find((c) => c.id === chainId)!;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
-  const securitySchemeEnvironmentConfigs = config.environment.securitySchemes.filter((s) => s.oisTitle === oisTitle);
 
   // Check before making the API call in case the parameters are missing
   const reservedParameters = getReservedParameters(endpoint, aggregatedApiCall.parameters || {});
@@ -99,7 +81,6 @@ export async function callApi(
   const options: adapter.BuildRequestOptions = buildOptions(
     chain,
     ois,
-    securitySchemeEnvironmentConfigs,
     aggregatedApiCall,
     reservedParameters as adapter.ReservedParameters
   );
@@ -118,9 +99,12 @@ export async function callApi(
     return [[log], { errorCode: RequestErrorCode.ApiCallFailed }];
   }
 
+  // eslint-disable-next-line functional/no-try-statement
   try {
     const extracted = adapter.extractAndEncodeResponse(res?.data, reservedParameters as adapter.ReservedParameters);
-    return [[], { value: extracted.encodedValue }];
+    const value = encodeResponse ? extracted.encodedValue : extracted.value;
+    const printableValue = BigNumber.isBigNumber(value) ? adapter.bigNumberToString(value) : value;
+    return [[], { value: printableValue }];
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
     const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);
