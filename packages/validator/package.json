@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "markdown-snippet-injector": "^0.2.4",
-    "ts-node": "^10.1.0"
+    "ts-node": "^10.1.0",
+    "yargs": "^17.1.0"
   }
 }

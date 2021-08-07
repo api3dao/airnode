@@ -1,13 +1,28 @@
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import * as utils from './utils';
 import * as logger from '../utils/logger';
 import { validate } from '../validator';
 import { Log, templates } from '../types';
 
-let template = process.env.npm_config_template || process.argv[2];
-const specs = process.env.npm_config_specs || process.argv[3];
-const version = process.env.npm_config_templateVersion || process.argv[4];
-
 const messages: Log[] = [];
+
+const args = yargs(hideBin(process.argv))
+  .option('template', {
+    description: 'Path to validator template file or name of airnode specification format',
+    default: '',
+    alias: 't',
+    string: true,
+  })
+  .option('specification', {
+    description: 'Path to specification file that will be validated',
+    default: '',
+    alias: ['specs', 's'],
+    string: true,
+  }).argv;
+
+// eslint-disable-next-line prefer-const
+let [template, version] = args.template.split('@');
 
 if (template) {
   if (templates[template.toLowerCase() as keyof typeof templates]) {
@@ -16,8 +31,8 @@ if (template) {
     messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
   }
 
-  if (specs) {
-    const res = validate(specs, template);
+  if (args.specification) {
+    const res = validate(args.specification, template);
     res.messages.push(...messages);
     console.log(JSON.stringify(res, null, 2));
   } else {
