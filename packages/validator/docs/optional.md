@@ -19,6 +19,7 @@ If parameters are specified inside an `__optional` key in the template -- but ar
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -27,6 +28,7 @@ If parameters are specified inside an `__optional` key in the template -- but ar
   "optionalExample": "This is optional"
 }
 ```
+
 ---
 ### Invalid specification
 
@@ -36,7 +38,9 @@ If parameters are specified inside an `__optional` key in the template -- but ar
   "outer": {}
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -46,4 +50,5 @@ If parameters are specified inside an `__optional` key in the template -- but ar
   ]
 }
 ```
+
 ---

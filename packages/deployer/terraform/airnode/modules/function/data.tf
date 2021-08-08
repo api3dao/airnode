@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "lambda_invoke_policy" {
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  output_path = "${local.tmp_output_dir}/${local.name}.zip"
+  output_path = "${local.tmp_output_dir}/${var.name}.zip"
   source_dir  = local.tmp_input_dir
 
   depends_on = [null_resource.fetch_lambda_files]

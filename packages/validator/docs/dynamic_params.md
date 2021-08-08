@@ -20,6 +20,7 @@ Any key or value can contain a number surrounded by {{}}, that is: `{{x}}` where
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -43,6 +44,7 @@ Any key or value can contain a number surrounded by {{}}, that is: `{{x}}` where
 
 ---
 ### Invalid specification
+
 ```json
 {
   "bus": {
@@ -60,7 +62,9 @@ Any key or value can contain a number surrounded by {{}}, that is: `{{x}}` where
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -71,6 +75,7 @@ Any key or value can contain a number surrounded by {{}}, that is: `{{x}}` where
   ]
 }
 ```
+
 ---
 
 ## Retrieving value of any parameter in specification
@@ -117,6 +122,7 @@ Value of any parameter in the specification can be accessed by providing relativ
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -145,8 +151,10 @@ Value of any parameter in the specification can be accessed by providing relativ
   }
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "bus": [
@@ -172,7 +180,9 @@ Value of any parameter in the specification can be accessed by providing relativ
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -182,4 +192,5 @@ Value of any parameter in the specification can be accessed by providing relativ
   ]
 }
 ```
+
 ---

@@ -18,10 +18,6 @@ export interface Server {
   url: string;
 }
 
-export interface SecurityRequirement {
-  [key: string]: string[];
-}
-
 export interface Operation {
   parameters: OperationParameter[];
 }
@@ -50,7 +46,6 @@ export interface ApiComponents {
 export interface ApiSpecification {
   components: ApiComponents;
   paths: { [key: string]: Path };
-  security: SecurityRequirement;
   servers: Server[];
 }
 
@@ -98,6 +93,15 @@ export interface Endpoint {
   parameters: EndpointParameter[];
   reservedParameters: ReservedParameter[];
   summary?: string;
+  testable?: boolean;
+}
+
+// ===========================================
+// Security
+// ===========================================
+export interface ApiCredentials {
+  securityScheme: string;
+  value: string;
 }
 
 // ===========================================
@@ -109,22 +113,5 @@ export interface OIS {
   version: string;
   apiSpecifications: ApiSpecification;
   endpoints: Endpoint[];
-}
-
-// ===========================================
-// Security
-// ===========================================
-export interface SecuritySchemeSecret {
-  securitySchemeName: string;
-  value: string;
-}
-
-export interface ApiCredentials {
-  [key: string]: SecuritySchemeSecret[];
-}
-
-export interface SecuritySpecification {
-  id: string;
-  apiCredentials: ApiCredentials;
-  masterKeyMnemonic: string;
+  credentials: ApiCredentials;
 }

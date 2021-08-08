@@ -225,10 +225,7 @@ const options = {
   ois: { ... }, // a valid OIS object
   endpointName: 'myUniqueEndpointName',
   parameters: { from: 'BTC', to: 'USD' },
-  securitySchemes: [
-    { securitySchemeName: 'My Security Scheme', value: 'supersecret' },
-    { securitySchemeName: 'anotherScheme', value: 'anothersecret' },
-  ]
+  credentials: { securityScheme: 'My Security Scheme', value: 'supersecret' },
 };
 const request = adapter.buildRequest(options);
 

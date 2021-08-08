@@ -50,6 +50,7 @@ Validator has default error messages, that are returned in case specification is
   ]
 }
 ```
+
 ---
 
 ## Basic `__catch`
@@ -71,7 +72,6 @@ Validator has default error messages, that are returned in case specification is
   }
 }
 ```
-
 
 ### Expected output
 
@@ -120,6 +120,7 @@ In case `__catch` contains only `__level`, messages will not be replaced but the
   ]
 }
 ```
+
 ---
 
 ## Ignoring messages
@@ -149,6 +150,7 @@ Messages can be also completely ignored by providing `__catch` without both `__l
   "messages": []
 }
 ```
+
 ---
 
 ## Special keywords
@@ -177,7 +179,6 @@ Some keywords in `__message` will be replaced with certain values:
   }
 }
 ```
-
 
 ### Expected output
 

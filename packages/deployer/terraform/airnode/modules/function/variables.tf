@@ -1,6 +1,4 @@
 locals {
-  name = "${var.infrastructure_name}-${var.airnode_id_short}-${var.stage}-${var.name}"
-
   tmp_dir               = "/tmp/${var.name}-${random_uuid.uuid.result}"
   tmp_input_dir         = "${local.tmp_dir}/input"
   tmp_source_dir        = "${local.tmp_input_dir}/handlers/aws"
@@ -39,18 +37,6 @@ variable "schedule_interval" {
 
 variable "name" {
   description = "Lambda name"
-}
-
-variable "infrastructure_name" {
-  description = "Infrastructure name"
-}
-
-variable "stage" {
-  description = "Infrastructure environment"
-}
-
-variable "airnode_id_short" {
-  description = "Airnode ID (short)"
 }
 
 variable "configuration_file" {

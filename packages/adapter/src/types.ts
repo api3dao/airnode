@@ -1,13 +1,13 @@
 /* eslint-disable functional/prefer-readonly-type */
 
-import { Endpoint, Method, OIS, Operation, SecuritySchemeSecret } from '@api3/ois';
+import { Endpoint, Method, OIS, Operation, ApiCredentials } from '@api3/ois';
 import { BigNumber } from 'bignumber.js';
 
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
   readonly parameters: { readonly [key: string]: string };
-  readonly securitySchemeSecrets?: SecuritySchemeSecret[];
+  readonly credentials?: ApiCredentials;
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {

@@ -1,13 +1,10 @@
-import * as fs from 'fs';
 import * as path from 'path';
-import { config, handlers, logger, promiseUtils, providerState } from '@api3/node';
-import * as node from '@api3/node';
+import { config, handlers, logger, promiseUtils, providerState, WorkerResponse } from '@api3/node';
 
 const configFile = path.resolve(`${__dirname}/../../config-data/config.json`);
-const rawConfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-const parsedConfig = config.parseConfig(rawConfig);
+const parsedConfig = config.parseConfig(configFile, process.env);
 
-function encodeBody(data: node.WorkerResponse): string {
+function encodeBody(data: WorkerResponse): string {
   return JSON.stringify(data);
 }
 
@@ -33,8 +30,8 @@ export async function initializeProvider(event: any) {
 }
 
 export async function callApi(event: any) {
-  const { aggregatedApiCall, logOptions } = event;
-  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall);
+  const { aggregatedApiCall, logOptions, encodeResponse } = event;
+  const [logs, apiCallResponse] = await handlers.callApi(parsedConfig, aggregatedApiCall, encodeResponse);
   logger.logPending(logs, logOptions);
   const response = encodeBody({ ok: true, data: apiCallResponse });
   return { statusCode: 200, body: response };
@@ -53,4 +50,16 @@ export async function processProviderRequests(event: any) {
 
   const body = encodeBody({ ok: true, data: providerState.scrub(updatedState) });
   return { statusCode: 200, body };
+}
+
+export async function testApi(event: any) {
+  const parameters = JSON.parse(event.body).parameters;
+  const endpointId = event.pathParameters.endpointId;
+
+  const [err, result] = await handlers.testApi(parsedConfig, endpointId, parameters);
+  if (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: err.toString() }) };
+  }
+
+  return { statusCode: 200, body: JSON.stringify(result) };
 }

@@ -19,6 +19,7 @@ Regular expressions in templates are stored as a string, this means when validat
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -32,6 +33,7 @@ Regular expressions in templates are stored as a string, this means when validat
   }
 }
 ```
+
 ---
 ### Invalid specification
 
@@ -45,7 +47,9 @@ Regular expressions in templates are stored as a string, this means when validat
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -58,6 +62,7 @@ Regular expressions in templates are stored as a string, this means when validat
   ]
 }
 ```
+
 ---
 
 ## Useful regular expressions

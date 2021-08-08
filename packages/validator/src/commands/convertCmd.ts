@@ -1,5 +1,6 @@
 import fs from 'fs';
-
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import * as utils from './utils';
 import * as logger from '../utils/logger';
 import { convert, convertJson } from '../convertor';
@@ -9,27 +10,47 @@ import { invalidConversionMessage } from '../utils/messages';
 const oas2ois = 'OAS2OIS.json';
 const ois2config = 'OIS2Config.json';
 
-if (process.env.npm_config_template) {
-  console.log(
-    JSON.stringify(convert(process.env.npm_config_specs || process.argv[3], process.env.npm_config_template), null, 2)
-  );
+const args = yargs(hideBin(process.argv))
+  .option('from', {
+    description: 'Name of the source airnode specification format',
+    demandOption: 'to',
+    default: '',
+    string: true,
+  })
+  .option('to', {
+    description: 'Name of the target airnode specification format',
+    demandOption: 'from',
+    default: '',
+    string: true,
+  })
+  .option('template', {
+    description: 'Path to validator template file',
+    alias: 't',
+    default: '',
+    string: true,
+  })
+  .option('specification', {
+    description: 'Path to specification file that will be validated',
+    default: '',
+    alias: ['specs', 's'],
+    string: true,
+  }).argv;
+
+if (args.template) {
+  console.log(JSON.stringify(convert(args.specification, args.template), null, 2));
 } else {
-  const from = (process.env.npm_config_from || process.argv[2] || '').toLowerCase();
-  const to = (process.env.npm_config_to || process.argv[3] || '').toLowerCase();
-  const specs = process.env.npm_config_specs || process.argv[4];
-  const version = process.env.npm_config_fromVersion || process.argv[5];
   const messages: Log[] = [];
   let res: Result = { valid: false, messages: [], output: {} };
 
-  if (!from || !to) {
+  if (!args['from'] || !args['to']) {
     res.messages.push(logger.error('Conversion source and target specification must be provided'));
-  } else if (from === 'oas' && to === 'ois') {
-    res = convert(specs, utils.getPath(oas2ois, messages, version));
+  } else if (args.from === 'oas' && args.to === 'ois') {
+    res = convert(args.specification, utils.getPath(oas2ois, messages));
     res.messages.push(...messages);
-  } else if (from === 'ois' && to === 'config') {
-    res = convert(specs, utils.getPath(ois2config, messages, version));
-  } else if (from === 'oas' && to === 'config') {
-    const tmp = convert(specs, utils.getPath(oas2ois, messages, version));
+  } else if (args.from === 'ois' && args.to === 'config') {
+    res = convert(args.specification, utils.getPath(ois2config, messages));
+  } else if (args.from === 'oas' && args.to === 'config') {
+    const tmp = convert(args.specification, utils.getPath(oas2ois, messages));
     let templatePath: string | string[] = utils.getPath(ois2config, messages);
     const template = JSON.parse(fs.readFileSync(templatePath).toString());
     templatePath = templatePath.split('/');
@@ -41,7 +62,7 @@ if (process.env.npm_config_template) {
       res = tmp;
     }
   } else {
-    messages.push(invalidConversionMessage(from, to));
+    messages.push(invalidConversionMessage(args['from'] as unknown as string, args['to'] as unknown as string));
   }
 
   res.messages.push(...messages);

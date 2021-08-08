@@ -16,6 +16,7 @@ In the whole documentation unified terminology will be used, here is the definit
 Most basic validator template can simply include keys of all required parameters with `{}` as value, which will result in validator accepting any specification that has exactly these keys with any primitive values. As validator does not take order of the parameters into consideration, parameters in the specification can be in any order, and it won't change output of the validator.
 
 ### Template
+
 ```json
 {
   "server": {
@@ -30,8 +31,10 @@ Most basic validator template can simply include keys of all required parameters
   }
 }
 ```
+
 ---
 ### Valid specification
+
 ```json
 {
   "component": {
@@ -46,15 +49,19 @@ Most basic validator template can simply include keys of all required parameters
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
-    "valid": true,
-    "messages": []
+  "valid": true,
+  "messages": []
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "server": {
@@ -63,15 +70,17 @@ Most basic validator template can simply include keys of all required parameters
   "component": {}
 }
 ```
+
 ### Expected output
+
 ```json
 {
-    "valid": false,
-    "messages": [
-      { "level": "error", "message": "Missing parameter server.url" },
-      { "level": "error", "message": "Missing parameter component.securityScheme" },
-      { "level": "warning", "message": "Extra field: server.extra" }
-    ]
+  "valid": false,
+  "messages": [
+    { "level": "error", "message": "Missing parameter server.url" },
+    { "level": "error", "message": "Missing parameter component.securityScheme" },
+    { "level": "warning", "message": "Extra field: server.extra" }
+  ]
 }
 ```
 
@@ -84,6 +93,7 @@ After closer examination of error messages it might seem that there is no error 
 In some instances specification might contain key that is not predefined, to allow any string as a key `__objectItem` in template is used. In place of `__objectItem` specification can contain any key, but structure inside it will be still checked with template.
 
 ### Template
+
 ```json
 {
   "__objectItem": {
@@ -91,6 +101,7 @@ In some instances specification might contain key that is not predefined, to all
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -104,6 +115,7 @@ In some instances specification might contain key that is not predefined, to all
   }
 }
 ```
+
 ---
 ### Invalid specification
 
@@ -117,6 +129,7 @@ In some instances specification might contain key that is not predefined, to all
 ```
 
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -155,6 +168,7 @@ Contents of `__arrayItem` define structure of items that are inside the array, w
   }
 }
 ```
+
 ---
 
 ### Valid specification
@@ -221,10 +235,10 @@ Contents of `__arrayItem` define structure of items that are inside the array, w
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Missing parameter moreArrays.array1[0].value" },
+    { "level": "error", "message": "arrayParameter must contain 2 or less items" },
     { "level": "error", "message": "Missing parameter arrayParameter[2].outer.inner" },
-    { "level": "warning", "message": "Extra field: moreArrays.array1[0].invalid" },
-    { "level": "warning", "message": "arrayParameter must contain 2 or less items" }
+    { "level": "error", "message": "Missing parameter moreArrays.array1[0].value" },
+    { "level": "warning", "message": "Extra field: moreArrays.array1[0].invalid" }
   ]
 }
 ```
