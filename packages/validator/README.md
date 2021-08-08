@@ -100,4 +100,4 @@ Convertor uses the same templates as validator. The resulting specification can 
 
 # Documentation
 
-Source documentation markdown files are located in `.docs/` directory. All template related examples are located in `docs/data/` and injected into markdown using [markdown-snippet-injector](https://github.com/NativeScript/markdown-snippet-injector) by running `npm run docs`. Generated markdown files can be found in `docs/`, alongside test files, which are using templates from documentation for testing.
+Source documentation markdown files are located in `docs/src/` directory. All template related examples are located in `test/fixtures/` and injected into markdown using [markdown-snippet-injector](https://github.com/NativeScript/markdown-snippet-injector) by running `yarn run docs`. Generated markdown files can be found in `docs/`, test files using the same examples can be found in `test/` directory.
