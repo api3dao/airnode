@@ -34,6 +34,9 @@ const args = yargs(hideBin(process.argv))
     default: '',
     alias: ['specs', 's'],
     string: true,
+  })
+  .option('specs_only', {
+    description: 'Instead of standard validator output, only the result of conversion will be returned',
   }).argv;
 
 if (args.template) {
@@ -68,5 +71,5 @@ if (args.template) {
   }
 
   res.messages.push(...messages);
-  console.log(JSON.stringify(process.env.npm_config_specs_only ? res.output : res, null, 2));
+  console.log(JSON.stringify(args.specs_only ? res.output : res, null, 2));
 }
