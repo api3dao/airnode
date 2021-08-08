@@ -103,7 +103,7 @@ describe('requestWithdrawal', function () {
     });
   });
   context('Caller not requester admin', async function () {
-    it('reverts', async function () {
+    it('reverts when caller is not a requester admin', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
@@ -186,7 +186,7 @@ describe('fulfillWithdrawal', function () {
       });
     });
     context('Withdrawal destination is not payable', async function () {
-      it('reverts', async function () {
+      it('reverts when withdrawal destination is not payable', async function () {
         // Generate random addresses as the authorizer contracts
         const authorizers = Array.from({ length: 5 }, () =>
           ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
@@ -223,7 +223,7 @@ describe('fulfillWithdrawal', function () {
     });
   });
   context('Fulfillment parameters are incorrect', async function () {
-    it('reverts', async function () {
+    it('reverts when parameters are incorrect', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
@@ -292,7 +292,7 @@ describe('fulfillWithdrawal', function () {
     });
   });
   context('Fulfilling wallet is incorrect', async function () {
-    it('reverts', async function () {
+    it('reverts when the fulfilling wallet is incorrect', async function () {
       // Generate random addresses as the authorizer contracts
       const authorizers = Array.from({ length: 5 }, () =>
         ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)))
@@ -330,46 +330,44 @@ describe('fulfillWithdrawal', function () {
 });
 
 describe('checkAuthorizationStatus', function () {
-  context('authorizers array is empty', async function () {
-    it('returns false', async function () {
-      const authorizers = [];
-      // Set the Airnode parameters
-      await airnodeRrp
-        .connect(masterWallet)
-        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
-      // Check authorization status
-      expect(
-        await airnodeRrp.checkAuthorizationStatus(
-          airnodeId,
-          requestId,
-          endpointId,
-          requesterIndex,
-          designatedWallet.address,
-          clientAddress
-        )
-      ).to.equal(false);
-    });
+  it('returns false when authorizers are empty', async function () {
+    const authorizers = [];
+    // Set the Airnode parameters
+    await airnodeRrp
+      .connect(masterWallet)
+      .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
+    // Check authorization status
+    expect(
+      await airnodeRrp.checkAuthorizationStatus(
+        airnodeId,
+        requestId,
+        endpointId,
+        requesterIndex,
+        designatedWallet.address,
+        clientAddress
+      )
+    ).to.equal(false);
   });
-  context('All authorizers return false', async function () {
-    it('returns false', async function () {
-      const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysFalse.address, authorizerAlwaysFalse.address];
-      // Set the Airnode parameters
-      await airnodeRrp
-        .connect(masterWallet)
-        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
-      // Check authorization status
-      expect(
-        await airnodeRrp.checkAuthorizationStatus(
-          airnodeId,
-          requestId,
-          endpointId,
-          requesterIndex,
-          designatedWallet.address,
-          clientAddress
-        )
-      ).to.equal(false);
-    });
+
+  it('returns false when all authorizers return false', async function () {
+    const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysFalse.address, authorizerAlwaysFalse.address];
+    // Set the Airnode parameters
+    await airnodeRrp
+      .connect(masterWallet)
+      .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
+    // Check authorization status
+    expect(
+      await airnodeRrp.checkAuthorizationStatus(
+        airnodeId,
+        requestId,
+        endpointId,
+        requesterIndex,
+        designatedWallet.address,
+        clientAddress
+      )
+    ).to.equal(false);
   });
+
   context('authorizers array contains a zero address', async function () {
     it('returns true', async function () {
       const authorizers = [authorizerAlwaysFalse.address, ethers.constants.AddressZero];
@@ -390,25 +388,24 @@ describe('checkAuthorizationStatus', function () {
       ).to.equal(true);
     });
   });
-  context('At least one of the authorizers returns true', async function () {
-    it('returns true', async function () {
-      const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysTrue.address, authorizerAlwaysFalse.address];
-      // Set the Airnode parameters
-      await airnodeRrp
-        .connect(masterWallet)
-        .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
-      // Check authorization status
-      expect(
-        await airnodeRrp.checkAuthorizationStatus(
-          airnodeId,
-          requestId,
-          endpointId,
-          requesterIndex,
-          designatedWallet.address,
-          clientAddress
-        )
-      ).to.equal(true);
-    });
+
+  it('returns true when at least one authorizer returns true', async function () {
+    const authorizers = [authorizerAlwaysFalse.address, authorizerAlwaysTrue.address, authorizerAlwaysFalse.address];
+    // Set the Airnode parameters
+    await airnodeRrp
+      .connect(masterWallet)
+      .setAirnodeParameters(roles.airnodeAdmin.address, airnodeXpub, authorizers, { gasLimit: 500000 });
+    // Check authorization status
+    expect(
+      await airnodeRrp.checkAuthorizationStatus(
+        airnodeId,
+        requestId,
+        endpointId,
+        requesterIndex,
+        designatedWallet.address,
+        clientAddress
+      )
+    ).to.equal(true);
   });
 });
 

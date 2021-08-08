@@ -12,7 +12,9 @@ const endpointsTemplate = JSON.parse(fs.readFileSync(getPath('endpoints.json', m
 const oisTemplate = JSON.parse(fs.readFileSync(getPath('ois.json', messages), 'utf8'));
 
 describe('validator templates loaded', () => {
-  expect(messages).toEqual([]);
+  it('expects no messages', () => {
+    expect(messages).toEqual([]);
+  });
 });
 
 const validAPISpecification = `{
