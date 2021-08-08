@@ -41,6 +41,8 @@ if (args.template) {
 } else {
   const messages: Log[] = [];
   let res: Result = { valid: false, messages: [], output: {} };
+  args.from = args.from.toLowerCase();
+  args.to = args.to.toLowerCase();
 
   if (!args['from'] || !args['to']) {
     res.messages.push(logger.error('Conversion source and target specification must be provided'));
