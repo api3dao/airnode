@@ -20,15 +20,15 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
  * split it in chunks of 31bits and create a path with the following pattern:
  * m/0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
- * @param address A string representing a 20bytes hex address
+ * @param sponsorAddress A string representing a 20bytes hex address
  * @returns The path derived from the address
  */
-export const deriveWalletPathFromAddress = (address: string): string => {
-  const addressBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
+export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): string => {
+  const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
   for (let i = 0; i < 6; i++) {
-    const shiftedAddressBN = addressBN.shr(31 * i);
-    paths.push(shiftedAddressBN.mask(31).toString());
+    const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
+    paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
   return `m/0/${paths.join('/')}`;
 };
@@ -39,7 +39,7 @@ export async function deriveSponsorWallet(airnodeRrp: AirnodeRrp, airnode: strin
     throw new Error('Airnode xpub is missing in AirnodeRrp contract');
   }
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
-  const derivationPath = deriveWalletPathFromAddress(sponsor);
+  const derivationPath = deriveWalletPathFromSponsorAddress(sponsor);
   const designatedWalletNode = hdNode.derivePath(derivationPath);
   return designatedWalletNode.address;
 }

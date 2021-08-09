@@ -50,7 +50,7 @@ describe('CLI', () => {
 
   const deriveSponsorWallet = async (wallet: ethers.Wallet, sponsor: string) => {
     const airnodeMnemonic = wallet.mnemonic.phrase;
-    const derivationPath = admin.deriveWalletPathFromAddress(sponsor);
+    const derivationPath = admin.deriveWalletPathFromSponsorAddress(sponsor);
     return ethers.Wallet.fromMnemonic(airnodeMnemonic, derivationPath).connect(provider);
   };
 

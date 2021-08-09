@@ -9,7 +9,7 @@ export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;
   static getAirnodeRrpWithSigner = evm.getAirnodeRrpWithSigner;
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
-  static deriveWalletPathFromAddress = (address: string) => admin.deriveWalletPathFromAddress(address);
+  static deriveWalletPathFromSponsorAddress = (address: string) => admin.deriveWalletPathFromSponsorAddress(address);
 
   constructor(public airnodeRrp: AirnodeRrp) {}
 
