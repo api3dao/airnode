@@ -6,7 +6,7 @@
 
 ## Prerequisites
 * Install [Terraform v0.15.x](https://www.terraform.io/downloads.html) and make sure that the `terraform` binary is available in your `PATH`
-* Make sure your AWS credentials are stored in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-where) or exported as [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html#envvars-set)
+* Make sure your AWS credentials are stored in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-where) or exported as [environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html#envvars-set). If you need help setting up an AWS IAM user you can follow [this video tutorial](https://www.youtube.com/watch?v=bT19B3IBWHE).
 
 ## Setup
 * Build all the Airnode packages
