@@ -2,15 +2,6 @@
 pragma solidity 0.8.6;
 
 interface IApi3TokenLockExternal {
-    enum AdminStatus {
-        Unauthorized,
-        Admin
-    }
-
-    event SetMetaAdmin(address metaAdmin);
-
-    event SetAdminStatus(address indexed admin, AdminStatus status);
-
     event SetApi3Token(address api3Token);
 
     event SetMinimumLockingTime(uint256 minimumLockingTime);
@@ -18,61 +9,59 @@ interface IApi3TokenLockExternal {
     event SetLockAmount(uint256 lockAmount);
 
     event SetBlacklistStatus(
-        address indexed clientAddress,
+        uint256 chainId,
+        address airnode,
+        address indexed requesterAddress,
         bool status,
         address indexed admin
     );
 
     event Lock(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester,
+        address airnode,
+        address requesterAddress,
+        address sponsor,
         uint256 lockedAmount
     );
 
     event Unlock(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester,
+        address airnode,
+        address requesterAddress,
+        address sponsor,
         uint256 lockedAmount
     );
 
     event Transfer(
         uint256 chainId,
-        bytes32 airnodeId,
+        address airnode,
         address fromClientAddress,
         address toClientAddress,
-        address requester,
+        address sponsor,
         uint256 amount,
         uint256 expirationTime
     );
     event Burn(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester
+        address airnode,
+        address requesterAddress,
+        address sponsor
     );
 
     event Withdraw(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester,
+        address airnode,
+        address requesterAddress,
+        address sponsor,
         uint256 amount
     );
 
     event Authorize(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress,
+        address airnode,
+        address requesterAddress,
         uint256 expiration
     );
-
-    function setMetaAdmin(address metaAdmin) external;
-
-    function setAdminStatus(address admin, AdminStatus status) external;
 
     function setApi3Token(address api3Token) external;
 
@@ -80,37 +69,42 @@ interface IApi3TokenLockExternal {
 
     function setLockAmount(uint256 lockAmount) external;
 
-    function setBlacklistStatus(address clientAddress, bool status) external;
+    function setBlacklistStatus(
+        uint256 chainId,
+        address airnode,
+        address requesterAddress,
+        bool status
+    ) external;
 
     function lock(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress
+        address airnode,
+        address requesterAddress
     ) external;
 
     function unlock(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress
+        address airnode,
+        address requesterAddress
     ) external;
 
     function withdraw(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress
+        address airnode,
+        address requesterAddress
     ) external;
 
     function transfer(
         uint256 chainId,
-        bytes32 airnodeId,
+        address airnode,
         address fromClientAddress,
         address toClientAddress
     ) external;
 
     function burn(
         uint256 chainId,
-        bytes32 airnodeId,
-        address clientAddress,
+        address airnode,
+        address requesterAddress,
         address burnTarget
     ) external;
 }

@@ -2,15 +2,6 @@
 pragma solidity 0.8.6;
 
 interface IApi3TokenLock {
-    enum AdminStatus {
-        Unauthorized,
-        Admin
-    }
-
-    event SetMetaAdmin(address metaAdmin);
-
-    event SetAdminStatus(address indexed admin, AdminStatus status);
-
     event SetApi3RequesterRrpAuthorizer(address api3RequesterRrpAuthorizer);
 
     event SetApi3Token(address api3Token);
@@ -20,45 +11,42 @@ interface IApi3TokenLock {
     event SetLockAmount(uint256 lockAmount);
 
     event SetBlacklistStatus(
-        address indexed clientAddress,
+        address airnode,
+        address indexed requesterAddress,
         bool status,
         address indexed admin
     );
 
     event Lock(
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester,
+        address airnode,
+        address requesterAddress,
+        address sponsor,
         uint256 lockedAmount
     );
 
     event Unlock(
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester,
+        address airnode,
+        address requesterAddress,
+        address sponsor,
         uint256 lockedAmount
     );
 
     event Transfer(
-        bytes32 airnodeId,
-        address fromClientAddress,
-        address toClientAddress,
-        address requester,
+        address airnode,
+        address fromRequesterAddress,
+        address toRequesterAddress,
+        address sponsor,
         uint256 amount,
         uint256 expirationTime
     );
-    event Burn(bytes32 airnodeId, address clientAddress, address requester);
+    event Burn(address airnode, address requesterAddress, address sponsor);
 
     event Withdraw(
-        bytes32 airnodeId,
-        address clientAddress,
-        address requester,
+        address airnode,
+        address requesterAddress,
+        address sponsor,
         uint256 amount
     );
-
-    function setMetaAdmin(address metaAdmin) external;
-
-    function setAdminStatus(address admin, AdminStatus status) external;
 
     function setApi3RequesterRrpAuthorizer(address api3RequesterRrpAuthorizer)
         external;
@@ -69,23 +57,27 @@ interface IApi3TokenLock {
 
     function setLockAmount(uint256 lockAmount) external;
 
-    function setBlacklistStatus(address clientAddress, bool status) external;
+    function setBlacklistStatus(
+        address airnode,
+        address requesterAddress,
+        bool status
+    ) external;
 
-    function lock(bytes32 airnodeId, address clientAddress) external;
+    function lock(address airnode, address requesterAddress) external;
 
-    function unlock(bytes32 airnodeId, address clientAddress) external;
+    function unlock(address airnode, address requesterAddress) external;
 
-    function withdraw(bytes32 airnodeId, address clientAddress) external;
+    function withdraw(address airnode, address requesterAddress) external;
 
     function transfer(
-        bytes32 airnodeId,
-        address fromClientAddress,
-        address toClientAddress
+        address airnode,
+        address fromRequesterAddress,
+        address toRequesterAddress
     ) external;
 
     function burn(
-        bytes32 airnodeId,
-        address clientAddress,
+        address airnode,
+        address requesterAddress,
         address burnTarget
     ) external;
 }
