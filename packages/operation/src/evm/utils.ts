@@ -10,7 +10,7 @@ export function deriveExtendedPublicKey(mnemonic: string): string {
   return hdNode.neuter().extendedKey;
 }
 
-export function deriveWalletFromPath(mnemonic: string, provider: ethers.providers.JsonRpcProvider, path?: string) {
+export function deriveWalletFromMnemonic(mnemonic: string, provider: ethers.providers.JsonRpcProvider, path?: string) {
   return ethers.Wallet.fromMnemonic(mnemonic, path).connect(provider);
 }
 
@@ -19,7 +19,7 @@ export function getDesignatedWallet(
   provider: ethers.providers.JsonRpcProvider,
   sponsorAddress: string
 ) {
-  return deriveWalletFromPath(mnemonic, provider, deriveWalletPathFromAddress(sponsorAddress));
+  return deriveWalletFromMnemonic(mnemonic, provider, deriveWalletPathFromSponsorAddress(sponsorAddress));
 }
 
 /**
@@ -34,15 +34,16 @@ export function getDesignatedWallet(
  * split it in chunks of 31bits and create a path with the following pattern:
  * m/0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
- * @param address A string representing a 20bytes hex address
+ * @param sponsorAddress A string representing a 20bytes hex address
  * @returns The path derived from the address
  */
-export const deriveWalletPathFromAddress = (address: string): string => {
-  const addressBN = ethers.BigNumber.from(ethers.utils.getAddress(address));
+export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): string => {
+  const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
+  // eslint-disable-next-line functional/no-let
   for (let i = 0; i < 6; i++) {
-    const shiftedAddressBN = addressBN.shr(31 * i);
-    paths.push(shiftedAddressBN.mask(31).toString());
+    const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
+    paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
   return `m/0/${paths.join('/')}`;
 };

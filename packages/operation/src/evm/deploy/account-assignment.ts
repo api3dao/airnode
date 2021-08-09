@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import { Airnode, DeployState as State, DesignatedWallet, SponsorAccount } from '../../types';
-import { deriveExtendedPublicKey, deriveWalletFromPath, getDesignatedWallet } from '../utils';
+import { deriveExtendedPublicKey, deriveWalletFromMnemonic, getDesignatedWallet } from '../utils';
 
 export async function assignAirnodeAccounts(state: State): Promise<State> {
   const airnodesByName: { [name: string]: Airnode } = {};
   for (const airnodeName of Object.keys(state.config.airnodes)) {
     const airnode = state.config.airnodes[airnodeName];
-    const airnodeWallet = deriveWalletFromPath(airnode.mnemonic, state.provider);
+    const airnodeWallet = deriveWalletFromMnemonic(airnode.mnemonic, state.provider);
     const xpub = deriveExtendedPublicKey(airnode.mnemonic);
 
     airnodesByName[airnodeName] = {
