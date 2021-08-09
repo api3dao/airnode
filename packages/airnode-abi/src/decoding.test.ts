@@ -1,5 +1,3 @@
-/* eslint-disable functional/no-try-statement */
-
 import { ethers } from 'ethers';
 import * as decoding from './decoding';
 
@@ -72,38 +70,18 @@ describe('decode', () => {
   });
 
   it('throws an error for AddressZero', () => {
-    expect.assertions(1);
-    try {
-      decoding.decode(ethers.constants.AddressZero);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-    }
+    expect(() => decoding.decode(ethers.constants.AddressZero)).toThrowError();
   });
 
   it('throws an error for HashZero', () => {
-    expect.assertions(1);
-    try {
-      decoding.decode(ethers.constants.HashZero);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-    }
+    expect(() => decoding.decode(ethers.constants.HashZero)).toThrowError();
   });
 
   it('throws an error for empty strings', () => {
-    expect.assertions(1);
-    try {
-      decoding.decode('');
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-    }
+    expect(() => decoding.decode('')).toThrowError();
   });
 
   it('throws an error when invalid data is provided', () => {
-    expect.assertions(1);
-    try {
-      decoding.decode('0x123456');
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-    }
+    expect(() => decoding.decode('0x123456')).toThrowError();
   });
 });

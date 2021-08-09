@@ -1,5 +1,3 @@
-/* eslint-disable functional/no-try-statement */
-
 import * as decoding from './decoding';
 import * as encoding from './encoding';
 import { InputParameter } from './types';
@@ -55,10 +53,6 @@ describe('encode', () => {
       { type: 'int256', name: 'balance', value: '-100' },
       { type: 'xyz', name: 'holders', value: '100' },
     ];
-    try {
-      encoding.encode(parameters);
-    } catch (e) {
-      expect(e).toBeInstanceOf(Error);
-    }
+    expect(() => encoding.encode(parameters)).toThrowError();
   });
 });

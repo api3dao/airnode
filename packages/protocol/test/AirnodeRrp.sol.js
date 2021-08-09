@@ -101,7 +101,7 @@ describe('makeRequest', function () {
     });
   });
   context('Client is not endorsed by requester', async function () {
-    it('reverts', async function () {
+    it('reverts when client is not endorsed by the requester', async function () {
       await expect(
         airnodeRrpClient
           .connect(roles.clientUser)
@@ -165,7 +165,7 @@ describe('makeFullRequest', function () {
     });
   });
   context('Client is not endorsed by requester', async function () {
-    it('reverts', async function () {
+    it('reverts when client is not endorsed by the requester', async function () {
       await expect(
         airnodeRrpClient
           .connect(roles.clientUser)
@@ -224,7 +224,7 @@ describe('fulfill', function () {
       });
     });
     context('Fulfillment parameters are incorrect', async function () {
-      it('reverts', async function () {
+      it('reverts when fulfillment parameters are incorrect', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -288,7 +288,7 @@ describe('fulfill', function () {
       });
     });
     context('Fulfilling wallet is incorrect', async function () {
-      it('reverts', async function () {
+      it('reverts when fulfilling wallet is incorrect', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -326,7 +326,7 @@ describe('fulfill', function () {
   });
   context('Full request has been made', async function () {
     context('Fulfillment parameters are correct', async function () {
-      it('fulfills', async function () {
+      it('fulfills when parameters are correct', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -365,7 +365,7 @@ describe('fulfill', function () {
       });
     });
     context('Fulfillment parameters are incorrect', async function () {
-      it('reverts', async function () {
+      it('reverts full requests when fulfillment parameters are incorrect', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -430,7 +430,7 @@ describe('fulfill', function () {
       });
     });
     context('Fulfilling wallet is incorrect', async function () {
-      it('reverts', async function () {
+      it('reverts full requests when fulfilling wallet is incorrect', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -508,7 +508,7 @@ describe('fail', function () {
       });
     });
     context('Fulfillment parameters are incorrect', async function () {
-      it('reverts', async function () {
+      it('reverts when fulfillment parameters are incorrect', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -564,7 +564,7 @@ describe('fail', function () {
       });
     });
     context('Fulfilling wallet is incorrect', async function () {
-      it('reverts', async function () {
+      it('reverts when fulfilling wallet is incorrect', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -600,7 +600,7 @@ describe('fail', function () {
   });
   context('Full request has been made', async function () {
     context('Fulfillment parameters are correct', async function () {
-      it('fails successfully', async function () {
+      it('fails full requests successfully', async function () {
         // Have the requester endorse the client
         await airnodeRrp
           .connect(roles.requesterAdmin)
@@ -636,7 +636,7 @@ describe('fail', function () {
           .withArgs(airnodeId, requestId);
       });
       context('Fulfillment parameters are incorrect', async function () {
-        it('reverts', async function () {
+        it('reverts full requests when fulfillment parameters are incorrect', async function () {
           // Have the requester endorse the client
           await airnodeRrp
             .connect(roles.requesterAdmin)
@@ -692,7 +692,7 @@ describe('fail', function () {
           ).to.be.revertedWith('No such request');
         });
         context('Fulfilling wallet is incorrect', async function () {
-          it('reverts', async function () {
+          it('reverts full requests when fulfilling wallet is incorrect', async function () {
             // Have the requester endorse the client
             await airnodeRrp
               .connect(roles.requesterAdmin)
