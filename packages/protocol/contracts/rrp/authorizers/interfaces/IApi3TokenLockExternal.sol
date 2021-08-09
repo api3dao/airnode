@@ -35,8 +35,8 @@ interface IApi3TokenLockExternal {
     event Transfer(
         uint256 chainId,
         address airnode,
-        address fromClientAddress,
-        address toClientAddress,
+        address fromRequesterAddress,
+        address toRequesterAddress,
         address sponsor,
         uint256 amount,
         uint256 expirationTime
@@ -97,8 +97,8 @@ interface IApi3TokenLockExternal {
     function transfer(
         uint256 chainId,
         address airnode,
-        address fromClientAddress,
-        address toClientAddress
+        address fromRequesterAddress,
+        address toRequesterAddress
     ) external;
 
     function burn(

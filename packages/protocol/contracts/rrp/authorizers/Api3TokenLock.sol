@@ -5,10 +5,9 @@ import "./Api3RequesterRrpAuthorizer.sol";
 import "./interfaces/IApi3Token.sol";
 import "./interfaces/IApi3TokenLock.sol";
 import "../../admin/MetaAdminnable.sol";
-import "../../admin/RankedAdminnable.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
-contract Api3TokenLock is RankedAdminnable, MetaAdminnable, IApi3TokenLock {
+contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
     enum AdminRank {
         Unauthorized,
         Admin
@@ -76,9 +75,10 @@ contract Api3TokenLock is RankedAdminnable, MetaAdminnable, IApi3TokenLock {
     function getRank(bytes32 adminnedId, address admin)
         public
         view
-        override(MetaAdminnable, RankedAdminnable)
+        override(MetaAdminnable)
         returns (uint256)
     {
+        if (adminnedId == bytes32(abi.encode(admin))) return MAX_RANK;
         return MetaAdminnable.getRank(bytes32(0), admin);
     }
 
@@ -160,7 +160,7 @@ contract Api3TokenLock is RankedAdminnable, MetaAdminnable, IApi3TokenLock {
         address _airnode,
         address _requesterAddress,
         bool _status
-    ) external override onlyWithRank(bytes32(0), MAX_RANK) {
+    ) external override onlyWithRank(bytes32(abi.encode(_airnode)), MAX_RANK) {
         airnodeToRequesterToBlacklistStatus[_airnode][
             _requesterAddress
         ] = _status;

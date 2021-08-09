@@ -4,14 +4,9 @@ pragma solidity 0.8.6;
 import "./interfaces/IApi3Token.sol";
 import "./interfaces/IApi3TokenLockExternal.sol";
 import "../../admin/MetaAdminnable.sol";
-import "../../admin/RankedAdminnable.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
-contract Api3TokenLockExternal is
-    RankedAdminnable,
-    MetaAdminnable,
-    IApi3TokenLockExternal
-{
+contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
     enum AdminRank {
         Unauthorized,
         Admin
@@ -77,7 +72,7 @@ contract Api3TokenLockExternal is
     function getRank(bytes32 adminnedId, address admin)
         public
         view
-        override(MetaAdminnable, RankedAdminnable)
+        override(MetaAdminnable)
         returns (uint256)
     {
         if (adminnedId == bytes32(abi.encode(admin))) return MAX_RANK;
