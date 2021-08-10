@@ -22,7 +22,7 @@ const providerErrorForWorker = {
 } as const;
 
 workers.forEach((workerType) => {
-  describe(workerType, () => {
+  describe(`${workerType} worker`, () => {
     it('handles remote AWS calls', async () => {
       const state = fixtures.buildEVMProviderState();
       invokeMock.mockImplementationOnce((params, callback) =>

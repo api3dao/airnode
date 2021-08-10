@@ -1,5 +1,3 @@
-/* eslint-disable functional/no-try-statement */
-
 import { mockEthers } from '../../../test/mock-utils';
 const parseLogMock = jest.fn();
 const original = jest.requireActual('ethers');
@@ -91,8 +89,6 @@ describe('EVM event logs - fetch', () => {
   });
 
   it('throws an exception if the logs cannot be fetched', async () => {
-    expect.assertions(1);
-
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs') as any;
     getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
     getLogs.mockRejectedValueOnce(new Error('Unable to fetch logs'));
@@ -105,15 +101,10 @@ describe('EVM event logs - fetch', () => {
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    try {
-      await eventLogs.fetch(fetchOptions);
-    } catch (e) {
-      expect(e).toEqual(new Error('Unable to fetch logs'));
-    }
+    await expect(eventLogs.fetch(fetchOptions)).rejects.toThrow(new Error('Unable to fetch logs'));
   });
 
   it('throws an exception if the logs cannot be parsed', async () => {
-    expect.assertions(1);
     const newApiCallEvent = {
       blockNumber: 10716082,
       topic: '0xinvalidtopic',
@@ -138,11 +129,7 @@ describe('EVM event logs - fetch', () => {
       ignoreBlockedRequestsAfterBlocks: 20,
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    try {
-      await eventLogs.fetch(fetchOptions);
-    } catch (e) {
-      expect(e).toEqual(new Error('Unable to parse topic'));
-    }
+    await expect(eventLogs.fetch(fetchOptions)).rejects.toThrow(new Error('Unable to parse topic'));
   });
 
   it('protects against negative fromBlock values', async () => {
