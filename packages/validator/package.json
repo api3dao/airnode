@@ -25,6 +25,7 @@
     "yargs": "^17.1.0"
   },
   "devDependencies": {
+    "@types/yargs": "^17.0.2",
     "markdown-snippet-injector": "^0.2.4",
     "ts-node": "^10.1.0"
   }
