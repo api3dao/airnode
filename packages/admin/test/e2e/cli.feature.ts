@@ -167,7 +167,7 @@ describe('CLI', () => {
     };
 
     expect(() => execSetRequesterAdmin(bobDerivationPath, alice)).toThrow(
-      'VM Exception while processing transaction: revert Caller not requester admin'
+      "VM Exception while processing transaction: reverted with reason string 'Caller not requester admin'"
     );
     expect(execSetRequesterAdmin(aliceDerivationPath, bob)).toBe(`Requester admin: ${requesterIndex}`);
     expect(execSetRequesterAdmin(bobDerivationPath, alice)).toBe(`Requester admin: ${requesterIndex}`);
@@ -395,7 +395,9 @@ describe('CLI', () => {
           ['--requesterIndex', requesterIndex],
           ['--destination', destinationWallet.address]
         )
-      ).toThrowError('VM Exception while processing transaction: revert Caller not requester admin');
+      ).toThrowError(
+        "VM Exception while processing transaction: reverted with reason string 'Caller not requester admin'"
+      );
     });
   });
 
