@@ -46,6 +46,7 @@ Even if evaluation of `__then` object takes place, all messages from this valida
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -67,8 +68,10 @@ Even if evaluation of `__then` object takes place, all messages from this valida
   ]
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "numbers": [
@@ -83,6 +86,7 @@ Even if evaluation of `__then` object takes place, all messages from this valida
   ]
 }
 ```
+
 ### Expected output
 
 ```json
@@ -94,6 +98,7 @@ Even if evaluation of `__then` object takes place, all messages from this valida
   ]
 }
 ```
+
 ---
 
 ## Matched pattern in `__then`
@@ -131,6 +136,7 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -152,8 +158,10 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
   ]
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "numbers": [
@@ -172,6 +180,7 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
   ]
 }
 ```
+
 ### Expected output
 
 ```json
@@ -183,6 +192,7 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
   ]
 }
 ```
+
 ---
 
 ## `__catch` in condition
@@ -235,8 +245,10 @@ As the default error message in conditions is not very specific, it can be repla
   }
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "numbers": [
@@ -251,17 +263,19 @@ As the default error message in conditions is not very specific, it can be repla
   ]
 }
 ```
+
 ### Expected output
 
 ```json
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
-    { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+    { "level": "error", "message": "numbers[0].value only allowed value is: 'This is required by one'" },
+    { "level": "error", "message": "numbers[1].value only allowed value is: 'This is required by two'" }
   ]
 }
 ```
+
 ---
 
 ## Root then
@@ -294,6 +308,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -313,6 +328,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
   }
 }
 ```
+
 ---
 ### Invalid specification
 
@@ -333,6 +349,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 ```
 
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -341,6 +358,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
   ]
 }
 ```
+
 ---
 
 ## `__this` and `__this_name`
@@ -390,6 +408,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -409,6 +428,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
   }
 }
 ```
+
 ---
 ### Invalid specification
 
@@ -423,21 +443,21 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
   "backup": {
     "version": "1.0.0",
     "item0": "abc",
-    "item1": "456",
-    "item2": "ghi"
+    "item1": "456"
   }
 }
 ```
 
 ### Expected output
+
 ```json
 {
   "valid": false,
   "messages": [
     { "level": "error", "message": "Condition in original.version is not met with version" },
-    { "level": "error", "message": "Condition in original.item0 is not met with item0" },
     { "level": "error", "message": "Condition in original.item2 is not met with item2" }
   ]
 }
 ```
+
 ---

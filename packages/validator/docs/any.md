@@ -30,6 +30,7 @@ Specification might have a requirement on certain parameters, which at least one
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -61,8 +62,10 @@ Specification might have a requirement on certain parameters, which at least one
   }
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "vehicles": [
@@ -72,10 +75,6 @@ Specification might have a requirement on certain parameters, which at least one
     },
     {
       "name": "boat",
-      "location": "Liechtenstein"
-    },
-    {
-      "name": "plane",
       "location": "Liechtenstein"
     }
   ],
@@ -91,7 +90,9 @@ Specification might have a requirement on certain parameters, which at least one
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -101,6 +102,7 @@ Specification might have a requirement on certain parameters, which at least one
   ]
 }
 ```
+
 ---
 
 ## Any in condition
@@ -141,6 +143,7 @@ Specification might have a requirement on certain parameters, which at least one
   }
 }
 ```
+
 ---
 ### Valid specification
 
@@ -168,8 +171,10 @@ Specification might have a requirement on certain parameters, which at least one
   }
 }
 ```
+
 ---
 ### Invalid specification
+
 ```json
 {
   "vehicles": [
@@ -194,7 +199,9 @@ Specification might have a requirement on certain parameters, which at least one
   }
 }
 ```
+
 ### Expected output
+
 ```json
 {
   "valid": false,
@@ -203,4 +210,5 @@ Specification might have a requirement on certain parameters, which at least one
   ]
 }
 ```
+
 ---

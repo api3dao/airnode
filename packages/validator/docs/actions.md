@@ -26,6 +26,7 @@ If any action is specified in template, object `output` will be returned when pr
   }
 }
 ```
+
 ---
 ### Input
 
@@ -44,6 +45,7 @@ If any action is specified in template, object `output` will be returned when pr
   ]
 }
 ```
+
 ### Expected output
 
 ```json
@@ -66,6 +68,7 @@ If any action is specified in template, object `output` will be returned when pr
   }
 }
 ```
+
 ---
 
 ## Insert action
@@ -97,6 +100,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
   ]
 }
 ```
+
 ---
 ### Input
 
@@ -105,6 +109,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
   "original": {}
 }
 ```
+
 ### Expected output
 
 ```json
@@ -121,6 +126,7 @@ Keyword `__insert` works similarly to `__copy`, except it doesn't copy a value o
   }
 }
 ```
+
 ---
 
 ## Arrays in `__target`
@@ -156,6 +162,7 @@ Actions are the only concept of validator templates in which ordering matters. A
   }
 }
 ```
+
 ---
 ### Input
 
@@ -176,6 +183,7 @@ Actions are the only concept of validator templates in which ordering matters. A
   }
 }
 ```
+
 ### Expected output
 
 ```json
@@ -203,6 +211,7 @@ Actions are the only concept of validator templates in which ordering matters. A
   }
 }
 ```
+
 ---
 
 ## All
@@ -242,6 +251,7 @@ Action can be also performed on every parameter somewhere in the parameter path,
   }
 }
 ```
+
 ---
 ### Input
 
@@ -261,6 +271,7 @@ Action can be also performed on every parameter somewhere in the parameter path,
   }
 }
 ```
+
 ### Expected output
 
 ```json
@@ -289,4 +300,5 @@ Action can be also performed on every parameter somewhere in the parameter path,
   }
 }
 ```
+
 ---
