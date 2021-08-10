@@ -12,14 +12,15 @@ const args = yargs(hideBin(process.argv))
     description: 'Path to validator template file or name of airnode specification format',
     default: '',
     alias: 't',
-    string: true,
+    type: 'string',
   })
   .option('specification', {
     description: 'Path to specification file that will be validated',
     default: '',
     alias: ['specs', 's'],
-    string: true,
-  }).argv;
+    type: 'string',
+  })
+  .parseSync();
 
 // eslint-disable-next-line prefer-const
 let [template, version] = args.template.split('@');
@@ -31,8 +32,8 @@ if (template) {
     messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
   }
 
-  if (args.specification) {
-    const res = validate(args.specification, template);
+  if (args['specification']) {
+    const res = validate(args['specification'], template);
     res.messages.push(...messages);
     console.log(JSON.stringify(res, null, 2));
   } else {

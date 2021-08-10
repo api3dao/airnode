@@ -13,31 +13,30 @@ const ois2config = 'OIS2Config.json';
 const args = yargs(hideBin(process.argv))
   .option('from', {
     description: 'Name of the source airnode specification format',
-    demandOption: 'to',
     default: '',
-    string: true,
+    type: 'string',
   })
   .option('to', {
     description: 'Name of the target airnode specification format',
-    demandOption: 'from',
     default: '',
-    string: true,
+    type: 'string',
   })
   .option('template', {
     description: 'Path to validator template file',
     alias: 't',
     default: '',
-    string: true,
+    type: 'string',
   })
   .option('specification', {
     description: 'Path to specification file that will be validated',
     default: '',
     alias: ['specs', 's'],
-    string: true,
+    type: 'string',
   })
   .option('specs-only', {
     description: 'Instead of standard validator output, only the result of conversion will be returned',
-  }).argv;
+  })
+  .parseSync();
 
 if (args.template) {
   console.log(JSON.stringify(convert(args.specification, args.template), null, 2));
@@ -47,7 +46,7 @@ if (args.template) {
   args.from = args.from.toLowerCase();
   args.to = args.to.toLowerCase();
 
-  if (!args['from'] || !args['to']) {
+  if (!args.from || !args.to) {
     res.messages.push(logger.error('Conversion source and target specification must be provided'));
   } else if (args.from === 'oas' && args.to === 'ois') {
     res = convert(args.specification, utils.getPath(oas2ois, messages));
@@ -67,7 +66,7 @@ if (args.template) {
       res = tmp;
     }
   } else {
-    messages.push(invalidConversionMessage(args['from'] as unknown as string, args['to'] as unknown as string));
+    messages.push(invalidConversionMessage(args.from, args.to));
   }
 
   res.messages.push(...messages);
