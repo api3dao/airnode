@@ -59,7 +59,7 @@
     "test:validator": "(cd packages/validator && yarn run test)"
   },
   "dependencies": {
-    "ethers": "^5.1.4",
+    "ethers": "^5.4.4",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
