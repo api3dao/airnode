@@ -55,8 +55,6 @@ describe('CLI', () => {
   beforeAll(() => {
     jest.setTimeout(45_000);
 
-    expect(existsSync(`${CLI_EXECUTABLE}`)).toBe(true);
-
     provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
     deployer = provider.getSigner(0);
     alice = ethers.Wallet.fromMnemonic(mnemonic, aliceDerivationPath).connect(provider);
@@ -65,7 +63,10 @@ describe('CLI', () => {
 
   beforeEach(async () => {
     airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
-    expect(airnodeRrp.address).toBeDefined();
+  });
+
+  it('exposes the CLI executable', () => {
+    expect(existsSync(`${CLI_EXECUTABLE}`)).toBe(true);
   });
 
   it('shows help', () => {
@@ -166,7 +167,7 @@ describe('CLI', () => {
     };
 
     expect(() => execSetRequesterAdmin(bobDerivationPath, alice)).toThrow(
-      'VM Exception while processing transaction: revert Caller not requester admin'
+      "VM Exception while processing transaction: reverted with reason string 'Caller not requester admin'"
     );
     expect(execSetRequesterAdmin(aliceDerivationPath, bob)).toBe(`Requester admin: ${requesterIndex}`);
     expect(execSetRequesterAdmin(bobDerivationPath, alice)).toBe(`Requester admin: ${requesterIndex}`);
@@ -338,6 +339,9 @@ describe('CLI', () => {
 
       // Create destination address
       destinationWallet = ethers.Wallet.createRandom().connect(provider);
+    });
+
+    it('returns the desintation balance', async () => {
       expect(await destinationBalance()).toBe('0');
     });
 
@@ -391,7 +395,9 @@ describe('CLI', () => {
           ['--requesterIndex', requesterIndex],
           ['--destination', destinationWallet.address]
         )
-      ).toThrowError('VM Exception while processing transaction: revert Caller not requester admin');
+      ).toThrowError(
+        "VM Exception while processing transaction: reverted with reason string 'Caller not requester admin'"
+      );
     });
   });
 

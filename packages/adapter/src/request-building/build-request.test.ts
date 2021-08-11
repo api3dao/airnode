@@ -20,14 +20,8 @@ describe('buildingRequest', () => {
   });
 
   it('throws an error if the endpoint cannot be found', () => {
-    expect.assertions(1);
     const ois = fixtures.buildOIS({ endpoints: [] });
     const options = fixtures.buildRequestOptions({ ois });
-    // eslint-disable-next-line functional/no-try-statement
-    try {
-      build.buildRequest(options);
-    } catch (e) {
-      expect(e).toEqual(new Error("Endpoint: 'convertToUSD' not found in the OIS."));
-    }
+    expect(() => build.buildRequest(options)).toThrow(new Error("Endpoint: 'convertToUSD' not found in the OIS."));
   });
 });

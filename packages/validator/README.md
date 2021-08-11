@@ -4,24 +4,24 @@ Package for JSON specifications validation. Validation process can be configured
 
 ## Usage
 
-The validator can be run as an npm script, by providing template of specification, and the path to the JSON file of specification that will be validated:
+The validator can be run as a yarn script, by providing template of specification, and the path to the JSON file of specification that will be validated:
 ```sh
-npm run validate --template="[template]" --specs="[specsFile]"
+yarn run validate --template="[template]" --specs="[specsFile]"
 ```
 
-Templates are case-insensitive, valid templates are: `config`, `OIS`, `apiSpecifications`/`apiSpecs` and `endpoints`. If arguments are in order `template`, `specs` command can be simplified: `npm run validate [template] [specsFile]`:
+Templates are case-insensitive, valid templates are: `config`, `OIS`, `apiSpecifications`/`apiSpecs` and `endpoints`:
 ```sh
-npm run validate config exampleSpecs/config.specs.json
+yarn run validate --template="config" --specs="exampleSpecs/config.specs.json"
 ```
 
-Validator will automatically validate the latest available version of provided template, in case specific version should be used in validation, it can be passed as `--templateVersion` argument or as the last argument if they are ordered:
+Validator will automatically validate the latest available version of provided template, in case a specific version should be used in validation, it can be appended to template argument:
 ```sh
-npm run validate config exampleSpecs/config.specs.json 0.1.0
+yarn run validate --template="config@0.1.0" --specs="exampleSpecs/config.specs.json"
 ```
 
 Custom templates can be used, by providing path to the validator template file in place of `template`:
 ```sh
-npm run validate templates/1.0.0/config.json exampleSpecs/config.specs.json
+yarn run validate --template="templates/0.1.0/config.json" --specs="exampleSpecs/config.specs.json"
 ```
 
 ## Output
@@ -59,12 +59,12 @@ Built-in validator extension capable of conversions between various specificatio
 
 Convertor works the same way as validator and can be invoked with the `convert` command, for example:
 ```sh
-npm run convert --template="templates/3.0.0/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
+yarn run convert --template="templates/3.0.0/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
 ```
 
 Conversions can be invoked without providing any template, specifying which format provided specification is in and to which format it should be converted into, is enough:
 ```sh
-npm run convert --from="OAS" --to="Config" --specs="exampleSpecs/OAS.specs.json"
+yarn run convert --from="OAS" --to="Config" --specs="exampleSpecs/OAS.specs.json"
 ```
 
 From/to formats are case-insensitive, these are valid conversions:
@@ -74,11 +74,6 @@ From/to formats are case-insensitive, these are valid conversions:
 | oas | ois |
 | oas | config |
 | ois | config |
-
-Another example of `convert` command:
-```sh
-npm run convert oas config "exampleSpecs/OAS.specs.json"
-```
 
 ## Output
 
@@ -92,7 +87,7 @@ On top of validator output, convertor provides an `output` object, which contain
 }
 ```
 
-Alternatively command can be ran with argument `--specs_only`, which will return only the converted specification.
+Alternatively command can be ran with argument `--specs-only`, which will return only the converted specification.
 
 ## Templates
 
@@ -100,4 +95,4 @@ Convertor uses the same templates as validator. The resulting specification can 
 
 # Documentation
 
-Source documentation markdown files are located in `.docs/` directory. All template related examples are located in `docs/data/` and injected into markdown using [markdown-snippet-injector](https://github.com/NativeScript/markdown-snippet-injector) by running `npm run docs`. Generated markdown files can be found in `docs/`, alongside test files, which are using templates from documentation for testing.
+Source documentation markdown files are located in `docs/src/` directory. All template related examples are located in `test/fixtures/` and injected into markdown using [markdown-snippet-injector](https://github.com/NativeScript/markdown-snippet-injector) by running `yarn run docs`. Generated markdown files can be found in `docs/`, test files using the same examples can be found in `test/` directory.

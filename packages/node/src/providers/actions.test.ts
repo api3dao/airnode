@@ -164,15 +164,11 @@ describe('initialize', () => {
   });
 
   it('throws an error if no providers are configured', async () => {
-    expect.assertions(1);
     const config = fixtures.buildConfig({ chains: [] });
     const workerOpts = fixtures.buildWorkerOptions();
-    // eslint-disable-next-line functional/no-try-statement
-    try {
-      await providers.initialize('abcdefg', config, workerOpts);
-    } catch (e) {
-      expect(e).toEqual(new Error('One or more chains must be defined in the provided config'));
-    }
+    await expect(providers.initialize('abcdefg', config, workerOpts)).rejects.toThrow(
+      new Error('One or more chains must be defined in the provided config')
+    );
   });
 });
 
