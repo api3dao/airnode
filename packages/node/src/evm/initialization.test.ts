@@ -21,7 +21,7 @@ const initializationFunctions = ['airnodeParametersMatch', 'airnodeParametersExi
 >;
 
 initializationFunctions.forEach((initFunction) => {
-  describe(initFunction, () => {
+  describe(`${initFunction} function`, () => {
     const mutableOptions = {
       airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
       airnodeId: '0x15e7097beac1fd23c0d1e3f5a882a6f99ecbcf2e0c1011d1bd43707c6c0ec717',

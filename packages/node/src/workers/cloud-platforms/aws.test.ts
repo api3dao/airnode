@@ -46,12 +46,7 @@ describe('spawn', () => {
       functionName: 'some-function' as WorkerFunctionName,
       payload: { from: 'ETH', to: 'USD' },
     };
-    // eslint-disable-next-line functional/no-try-statement
-    try {
-      await aws.spawn(parameters);
-    } catch (e) {
-      expect(e).toEqual(new Error('Something went wrong'));
-    }
+    await expect(aws.spawn(parameters)).rejects.toThrow(new Error('Something went wrong'));
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {

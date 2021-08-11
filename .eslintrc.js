@@ -20,10 +20,12 @@ module.exports = {
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
+    'plugin:jest/recommended',
   ],
   plugins: [
     '@typescript-eslint',
     'import',
+    'jest',
   ],
   rules: {
     // TypeScript
