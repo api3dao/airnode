@@ -211,5 +211,5 @@ The zero here is allocated for RRP, and the other branches will be used to deriv
 ## Withdrawal from the sponsor wallet
 
 Requesters may not want to use up all the ETH deposited in their sponsor wallet.
-Then, they can use `WithdrawalUtils` to request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the specified address.
+Then, they can use `WithdrawalUtils` to request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the sponsor address.
 Unlike template and full requests, there are no parameters that the Ethereum provider can tamper with, which is why withdrawal requests/fulfillments do not make similar hash checks.
