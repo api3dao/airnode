@@ -28,7 +28,7 @@
     "public": "0x0000000000000000000000000000000000000000"
   },
   "requesters": {
-    "MockRrpRequesterFactory": { "endorsers": ["bob"] }
+    "MockRrpRequesterFactory": { "sponsors": ["bob"] }
   },
   "sponsors": [
     {

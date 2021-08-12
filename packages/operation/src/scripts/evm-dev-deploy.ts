@@ -25,8 +25,8 @@ async function run() {
   console.log('--> Setting Airnode xpub...');
   const state11 = await deploy.setAirnodeXpub(state10);
 
-  console.log('--> Endorsing requester contracts...');
-  const state12 = await deploy.endorseRequesters(state11);
+  console.log('--> Sponsoring requester contracts...');
+  const state12 = await deploy.sponsorRequesters(state11);
 
   console.log('--> Creating templates...');
   const state13 = await deploy.createTemplates(state12);

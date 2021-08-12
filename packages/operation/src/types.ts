@@ -97,7 +97,7 @@ export interface Deployment {
 // Configuration
 // ===========================================
 export interface ConfigRequester {
-  readonly endorsers: string[];
+  readonly sponsors: string[];
 }
 
 export interface ConfigEndpoint {

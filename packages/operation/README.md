@@ -145,7 +145,7 @@ This is the index that will be used to select an account from the list of accoun
 
 `requesters` - a key/value object where the key represents the unique requester contract name and the value represents the requester options. All names defined correspond with actual contracts in the `contracts/folder`. See the [client documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md) for more details.
 
-`requester.[name].endorsers` - a list of sponsors who have endorsed the requester. See the [endorsement documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) for more details.
+`requester.[name].sponsors` - a list of sponsors who have sponsored the requester. See the [sponsorship documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) for more details.
 
 ### 5. sponsors
 
@@ -230,7 +230,7 @@ There are currently three types of requests that can be made. You can learn more
     "public": "0x0000000000000000000000000000000000000000"
   },
   "requesters": {
-    "MockRrpRequesterFactory": { "endorsers": ["bob"] }
+    "MockRrpRequesterFactory": { "sponsors": ["bob"] }
   },
   "sponsors": [
     {

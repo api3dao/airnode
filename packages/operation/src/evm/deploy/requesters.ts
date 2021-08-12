@@ -2,14 +2,14 @@ import { encode } from '@api3/airnode-abi';
 import { deriveEndpointId } from '../utils';
 import { DeployState as State, Template } from '../../types';
 
-export async function endorseRequesters(state: State): Promise<State> {
+export async function sponsorRequesters(state: State): Promise<State> {
   const { AirnodeRrp } = state.contracts;
 
   for (const requesterName of Object.keys(state.config.requesters)) {
     const configRequester = state.config.requesters[requesterName];
     const requester = state.requestersByName[requesterName];
 
-    for (const sponsorId of configRequester.endorsers) {
+    for (const sponsorId of configRequester.sponsors) {
       const sponsor = state.sponsorsById[sponsorId];
 
       const tx = await AirnodeRrp!.connect(sponsor.signer).setSponsorshipStatus(requester.address, true);
