@@ -44,12 +44,12 @@ export async function deriveSponsorWallet(airnodeRrp: AirnodeRrp, airnode: strin
   return designatedWalletNode.address;
 }
 
-export async function endorseRequester(airnodeRrp: AirnodeRrp, requester: string) {
+export async function sponsorRequester(airnodeRrp: AirnodeRrp, requester: string) {
   await airnodeRrp.setSponsorshipStatus(requester, true);
   return requester;
 }
 
-export async function unendorseRequester(airnodeRrp: AirnodeRrp, requester: string) {
+export async function unsponsorRequester(airnodeRrp: AirnodeRrp, requester: string) {
   await airnodeRrp.setSponsorshipStatus(requester, false);
   return requester;
 }

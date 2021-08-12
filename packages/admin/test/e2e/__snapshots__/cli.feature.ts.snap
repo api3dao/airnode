@@ -6,11 +6,12 @@ exports[`CLI shows help 1`] = `
 Commands:
   cli.js derive-sponsor-wallet     Derives the address of the wallet for an
                                    airnode-sponsor pair
-  cli.js endorse-requester         Endorses a requester to make requests and get
-                                   answers back from the airnode
-  cli.js unendorse-requester       Unendorses a requester who will no longer be
-                                   able to make requests to the airnode
-  cli.js get-endorsement-status    Returns the endorsment status for the given
+  cli.js sponsor-requester         Allows a requester to make requests that will
+                                   be fulfilled by the Airnode using the sponsor
+                                   wallet
+  cli.js unsponsor-requester       Disallow a requester to make requests to the
+                                   airnode
+  cli.js get-sponsor-status        Returns the sponsorship status for the given
                                    sponsor and requester
   cli.js create-template           Creates a template and returns its ID
   cli.js get-template              Returns the template for the given templateId

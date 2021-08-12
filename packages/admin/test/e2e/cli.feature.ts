@@ -172,63 +172,63 @@ describe('CLI', () => {
     });
   });
 
-  describe('endorsements', () => {
-    it('endorses requester', async () => {
+  describe('sponsorship', () => {
+    it('starts sponsoring requester', async () => {
       const sponsor = alice.address;
       const requester = bob.address;
 
       const out = execCommand(
-        'endorse-requester',
+        'sponsor-requester',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--mnemonic', mnemonic],
         ['--derivationPath', aliceDerivationPath],
         ['--requester', requester]
       );
-      expect(out).toBe(`Requester address: ${requester}`);
+      expect(out).toBe(`Requester address ${requester} is now sponsored by ${sponsor}`);
 
-      const endorsed = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
-      expect(endorsed).toBe(true);
+      const sponsored = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
+      expect(sponsored).toBe(true);
     });
 
-    it('unendorses requester', async () => {
+    it('stops sponsoring requester', async () => {
       const sponsor = alice.address;
       const requester = bob.address;
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.endorseRequester(airnodeRrp, requester);
+      await admin.sponsorRequester(airnodeRrp, requester);
 
-      const isEndorsed = () => admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
+      const isSponsored = () => admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
 
-      expect(await isEndorsed()).toBe(true);
+      expect(await isSponsored()).toBe(true);
       const out = execCommand(
-        'unendorse-requester',
+        'unsponsor-requester',
         ['--mnemonic', mnemonic],
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--requester', requester]
       );
-      expect(out).toBe(`Requester address: ${requester}`);
-      expect(await isEndorsed()).toBe(false);
+      expect(out).toBe(`Requester address ${requester} is no longer sponsored by ${sponsor}`);
+      expect(await isSponsored()).toBe(false);
     });
 
-    it('check endoresement status', async () => {
+    it('gets the sponsor status', async () => {
       const sponsor = alice.address;
       const requester = bob.address;
 
-      const checkEndorsement = () =>
+      const getSponsorStatus = () =>
         execCommand(
-          'get-endorsement-status',
+          'get-sponsor-status',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
           ['--sponsor', sponsor],
           ['--requester', requester]
         );
 
-      expect(checkEndorsement()).toBe('Endorsment status: false');
+      expect(getSponsorStatus()).toBe('Requester sponsored: false');
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.endorseRequester(airnodeRrp, requester);
-      expect(checkEndorsement()).toBe('Endorsment status: true');
+      await admin.sponsorRequester(airnodeRrp, requester);
+      expect(getSponsorStatus()).toBe('Requester sponsored: true');
     });
   });
 
@@ -371,7 +371,7 @@ describe('CLI', () => {
     it('is missing command parameter', () => {
       expect(() =>
         execCommand(
-          'endorse-requester',
+          'sponsor-requester',
           ['--mnemonic', mnemonic],
           ['--derivationPath', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
           ['--providerUrl', PROVIDER_URL],

@@ -16,9 +16,9 @@ export class AdminSdk {
   deriveSponsorWallet = (airnode: string, sponsor: string, xpub?: string) =>
     admin.deriveSponsorWallet(this.airnodeRrp, airnode, sponsor, xpub);
 
-  endorseRequester = (requester: string) => admin.endorseRequester(this.airnodeRrp, requester);
+  sponsorRequester = (requester: string) => admin.sponsorRequester(this.airnodeRrp, requester);
 
-  unendorseRequester = (requester: string) => admin.unendorseRequester(this.airnodeRrp, requester);
+  unsponsorRequester = (requester: string) => admin.unsponsorRequester(this.airnodeRrp, requester);
 
   createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
 
