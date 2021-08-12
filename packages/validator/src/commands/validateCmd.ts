@@ -10,15 +10,15 @@ const messages: Log[] = [];
 const args = yargs(hideBin(process.argv))
   .option('template', {
     description: 'Path to validator template file or name of airnode specification format',
-    default: '',
     alias: 't',
     type: 'string',
+    demandOption: true,
   })
   .option('specification', {
     description: 'Path to specification file that will be validated',
-    default: '',
     alias: ['specs', 's'],
     type: 'string',
+    demandOption: true,
   })
   .parseSync();
 
