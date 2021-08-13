@@ -213,10 +213,10 @@ describe('userIsWhitelisted', function () {
   context('User not whitelisted past expiration', function () {
     context('Not past expiration', function () {
       it('returns true', async function () {
-        const timestampOneHourLater = Math.floor(Date.now() / 1000) + 3600;
+        const timestampOneDayLater = Math.floor(Date.now() / 1000) + 86400;
         await api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistExpiration(adminnedId, roles.user.address, timestampOneHourLater);
+          .setWhitelistExpiration(adminnedId, roles.user.address, timestampOneDayLater);
         expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(adminnedId, roles.user.address)).to.equal(true);
       });
     });
