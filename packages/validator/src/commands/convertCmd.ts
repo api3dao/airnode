@@ -1,33 +1,18 @@
-import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import * as utils from './utils';
-import { convert, convertJson } from '../convertor';
-import { Log, Result } from '../types';
-
-const oas2ois = 'OAS2OIS.json';
-const ois2config = 'OIS2Config.json';
-
-type FromChoices = 'oas' | 'ois';
-const fromChoices: ReadonlyArray<FromChoices> = ['oas', 'ois'];
-type ToChoices = 'ois' | 'config';
-const toChoices: ReadonlyArray<ToChoices> = ['ois', 'config'];
-
-const supportedConversions = [
-  ['oas', 'ois'],
-  ['oas', 'config'],
-  ['ois', 'config'],
-];
+import { convert } from '../convertor';
+import { Log } from '../types';
 
 const args = yargs(hideBin(process.argv))
   .option('from', {
     description: 'Name of the source airnode specification format',
-    choices: fromChoices,
+    type: 'string',
     implies: 'to',
   })
   .option('to', {
     description: 'Name of the target airnode specification format',
-    choices: toChoices,
+    type: 'string',
     implies: 'from',
   })
   .option('template', {
@@ -54,19 +39,6 @@ const args = yargs(hideBin(process.argv))
 
     return true;
   })
-  .check((argv) => {
-    if (!argv.template) {
-      const supported = supportedConversions.reduce(
-        (result, conversion) => result || (conversion[0] === argv.from && conversion[1] === argv.to),
-        false
-      );
-      if (!supported) {
-        throw new Error(`Unknown conversion from ${argv.from} to ${argv.to}`);
-      }
-    }
-
-    return true;
-  })
   .parseSync();
 
 if (args.template) {
@@ -75,29 +47,14 @@ if (args.template) {
 }
 
 const messages: Log[] = [];
-let res: Result = { valid: false, messages: [], output: {} };
-const from = args.from!.toLowerCase();
-const to = args.to!.toLowerCase();
+const [from, fromVersion] = args.from!.toLowerCase().split('@');
+const [to, toVersion] = args.to!.toLowerCase().split('@');
 
-if (from === 'oas' && to === 'ois') {
-  res = convert(args.specification, utils.getPath(oas2ois, messages));
-}
-if (from === 'ois' && to === 'config') {
-  res = convert(args.specification, utils.getPath(ois2config, messages));
-}
-if (from === 'oas' && to === 'config') {
-  const tmp = convert(args.specification, utils.getPath(oas2ois, messages));
-  const templatePath = utils.getPath(ois2config, messages);
-  const template = JSON.parse(fs.readFileSync(templatePath).toString());
-  const templatePathParts = templatePath.split('/');
+const templatePath = utils.getConversionPath(from, to, messages, fromVersion, toVersion);
 
-  if (tmp.output && template) {
-    res = convertJson(tmp.output, template, templatePathParts.slice(0, templatePathParts.length - 1).join('/') + '/');
-    res.messages.push(...tmp.messages);
-  } else {
-    res = tmp;
-  }
+if (templatePath) {
+  const res = convert(args.specification, templatePath);
+  console.log(JSON.stringify(args['specs-only'] ? res.output : res, null, 2));
+} else {
+  console.log(JSON.stringify(messages, null, 2));
 }
-
-res.messages.push(...messages);
-console.log(JSON.stringify(args['specs-only'] ? res.output : res, null, 2));

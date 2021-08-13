@@ -2,7 +2,7 @@
 	"__arrayItem": {
 		"ois": {
 			"__arrayItem": {
-				"__template": "../pre-alpha/ois.json",
+				"__template": "ois.json",
 				"apiSpecifications": {
 					"components": {
 						"securitySchemes": {
