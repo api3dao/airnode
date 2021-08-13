@@ -31,6 +31,6 @@ if (templates[template.toLowerCase() as keyof typeof templates]) {
   messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
 }
 
-const res = validate(args['specification'], template);
+const res = validate(args.specification, template);
 res.messages.push(...messages);
 console.log(JSON.stringify(res, null, 2));
