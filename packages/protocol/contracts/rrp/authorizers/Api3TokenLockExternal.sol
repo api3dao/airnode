@@ -13,7 +13,6 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         SuperAdmin
     }
     uint256 private constant MAX_RANK = 2**256 - 1;
-    string private constant ERROR_UNAUTHORIZED = "Unauthorized";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
@@ -23,8 +22,6 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         "Locking period not expired";
     string private constant ERROR_LOCK_PERIOD_ZERO = "Zero lock period";
     string private constant ERROR_REQUESTER_BLOCKED = "Requester blocked";
-    string private constant ERROR_REQUESTER_NOT_BLOCKED =
-        "Requester not blocked";
 
     /// @dev Address of Api3Token
     address public api3Token;

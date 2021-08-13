@@ -14,7 +14,6 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
         SuperAdmin
     }
     uint256 private constant MAX_RANK = 2**256 - 1;
-    string private constant ERROR_UNAUTHORIZED = "Unauthorized";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
@@ -24,8 +23,6 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
         "Locking period not expired";
     string private constant ERROR_LOCK_PERIOD_ZERO = "Zero lock period";
     string private constant ERROR_REQUESTER_BLOCKED = "Requester Blocked";
-    string private constant ERROR_REQUESTER_NOT_BLOCKED =
-        "Requester not Blocked";
 
     /// @dev Address of api3RequesterRrpAuthorizer contract
     address public api3RequesterRrpAuthorizer;
