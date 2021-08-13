@@ -60,8 +60,9 @@ export async function deploy(
   await checkAirnodeParameters(config, airnodeId, masterWalletAddress);
 
   const airnodeIdShort = shortenAirnodeId(airnodeId);
+  let output = {};
   try {
-    await deployAirnode(
+    output = await deployAirnode(
       airnodeIdShort,
       config.nodeSettings.stage,
       config.nodeSettings.cloudProvider,
@@ -81,6 +82,7 @@ export async function deploy(
     config: { chains: config.chains, nodeSettings: config.nodeSettings },
     masterWalletAddress,
     xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
+    ...output,
   };
 
   logger.debug('Deleting a temporary secrets.json file');
