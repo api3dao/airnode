@@ -11,6 +11,9 @@ module "initializeProvider" {
   timeout            = 20
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
+  environment_variables = {
+    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+  }
 }
 
 module "callApi" {
@@ -22,6 +25,9 @@ module "callApi" {
   timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
+  environment_variables = {
+    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+  }
 }
 
 module "processProviderRequests" {
@@ -33,6 +39,9 @@ module "processProviderRequests" {
   timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
+  environment_variables = {
+    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+  }
 }
 
 module "startCoordinator" {
@@ -44,6 +53,9 @@ module "startCoordinator" {
   timeout            = 60
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
+  environment_variables = {
+    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+  }
 
   invoke_targets                 = [module.initializeProvider.lambda_arn, module.callApi.lambda_arn, module.processProviderRequests.lambda_arn]
   schedule_interval              = 1
@@ -63,7 +75,6 @@ module "testApi" {
   secrets_file       = var.secrets_file
 
   invoke_targets = [module.callApi.lambda_arn]
-  depends_on     = [module.callApi]
 }
 
 module "testApiGateway" {

@@ -55,7 +55,7 @@ resource "aws_lambda_function" "lambda" {
   ]
 
   environment {
-    variables = fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {}
+    variables = merge(var.environment_variables, fileexists(var.secrets_file) ? jsondecode(file(var.secrets_file)) : {})
   }
 }
 
