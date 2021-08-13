@@ -89,7 +89,7 @@ export function getConversionPath(from: string, to: string, messages: Log[], fro
         continue;
       }
 
-      fromLatest = !fromLatest || fromLatest < version ? version : fromLatest;
+      fromLatest = !fromLatest || (fromLatest < version && version.match(/^[0-9\.]+$/)) ? version : fromLatest;
     }
 
     if (!fromLatest) {
@@ -109,7 +109,7 @@ export function getConversionPath(from: string, to: string, messages: Log[], fro
     let toLatest;
 
     for (const version in conversions[from][fromVersion][to]) {
-      toLatest = !toLatest || toLatest < version ? version : toLatest;
+      toLatest = !toLatest || (toLatest < version && version.match(/^[0-9\.]+$/)) ? version : toLatest;
     }
 
     if (!toLatest) {
