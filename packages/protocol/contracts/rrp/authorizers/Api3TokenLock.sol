@@ -33,8 +33,8 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
     /// @dev Lock amount for each user
     uint256 public lockAmount;
 
-    /// @dev Represents the locked amounts, periods and whitelist counts
-    /// of an airnode-requester pair
+    /// @dev Represents the locked amounts, periods for the sponsors
+    /// and the total whitelist counts of a airnode-requester pair
     struct AirnodeRequester {
         mapping(address => uint256) sponsorLockAmount;
         mapping(address => uint256) sponsorUnlockTime;
@@ -275,10 +275,10 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
         );
     }
 
-    /// @dev Returns the locked amount for a target address to an airnode-requester pair
+    /// @dev Returns the locked amount for a target sponsor address to an airnode-requester pair
     /// @param _airnode The airnode address
     /// @param _requesterAddress The requester address
-    /// @param _target The address of the user
+    /// @param _target The address of the sponsor
     function sponsorLockAmount(
         address _airnode,
         address _requesterAddress,
@@ -289,10 +289,10 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
                 .sponsorLockAmount[_target];
     }
 
-    /// @dev Returns the unlock period for a target address to an airnode-requester pair
+    /// @dev Returns the unlock period for a target sponsor address to an airnode-requester pair
     /// @param _airnode The airnode address
     /// @param _requesterAddress The requester address
-    /// @param _target The address of the user
+    /// @param _target The address of the sponsor
     function sponsorUnlockTime(
         address _airnode,
         address _requesterAddress,
