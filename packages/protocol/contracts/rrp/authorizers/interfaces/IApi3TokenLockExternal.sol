@@ -6,14 +6,14 @@ interface IApi3TokenLockExternal {
 
     event SetLockAmount(uint256 lockAmount);
 
-    event BlockRequester(
+    event BlockedRequester(
         uint256 chainId,
         address airnode,
         address indexed requesterAddress,
         address indexed admin
     );
 
-    event Lock(
+    event Locked(
         uint256 chainId,
         address airnode,
         address requesterAddress,
@@ -21,7 +21,7 @@ interface IApi3TokenLockExternal {
         uint256 lockedAmount
     );
 
-    event Unlock(
+    event Unlocked(
         uint256 chainId,
         address airnode,
         address requesterAddress,
@@ -29,7 +29,7 @@ interface IApi3TokenLockExternal {
         uint256 lockedAmount
     );
 
-    event WithdrawExcess(
+    event WithdrawnExcess(
         uint256 chainId,
         address airnode,
         address requesterAddress,
@@ -37,7 +37,7 @@ interface IApi3TokenLockExternal {
         uint256 amount
     );
 
-    event Authorize(
+    event Authorized(
         uint256 chainId,
         bytes32 airnodeId,
         address requesterAddress,

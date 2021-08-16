@@ -120,7 +120,7 @@ describe('Api3TokenLock', async () => {
       });
     });
 
-    context('Lock Amount is zero', async () => {
+    context('Locked Amount is zero', async () => {
       it('reverts', async () => {
         await expect(
           api3TokenLockFactory.deploy(
@@ -221,7 +221,7 @@ describe('Api3TokenLock', async () => {
     describe('setLockAmount', async () => {
       const NEW_LOCK_AMOUNT = 2 * LOCK_AMOUNT;
 
-      context('Lock Amount is not zero', () => {
+      context('Locked Amount is not zero', () => {
         context('caller is metaAdmin', async () => {
           it('is set', async () => {
             await api3TokenLock.connect(roles.metaAdmin).setLockAmount(NEW_LOCK_AMOUNT);
@@ -273,7 +273,7 @@ describe('Api3TokenLock', async () => {
         });
       });
 
-      context('Lock amount is zero', () => {
+      context('Locked amount is zero', () => {
         it('reverts', async () => {
           await expect(api3TokenLock.connect(roles.metaAdmin).setLockAmount(0)).to.revertedWith(Errors.ZeroAmount);
         });
@@ -316,7 +316,7 @@ describe('Api3TokenLock', async () => {
 
           it('emits event', async () => {
             await expect(api3TokenLock.connect(roles.metaAdmin).blockRequester(airnodeAddress, roles.requester.address))
-              .to.emit(api3TokenLock, 'BlockRequester')
+              .to.emit(api3TokenLock, 'BlockedRequester')
               .withArgs(airnodeAddress, roles.requester.address, roles.metaAdmin.address);
           });
         });
@@ -344,7 +344,7 @@ describe('Api3TokenLock', async () => {
 
           it('emits event', async () => {
             await expect(api3TokenLock.connect(roles.metaAdmin).blockRequester(airnodeAddress, roles.requester.address))
-              .to.emit(api3TokenLock, 'BlockRequester')
+              .to.emit(api3TokenLock, 'BlockedRequester')
               .withArgs(airnodeAddress, roles.requester.address, roles.metaAdmin.address);
           });
         });
@@ -387,7 +387,7 @@ describe('Api3TokenLock', async () => {
             await expect(
               api3TokenLock.connect(roles.superAdmin).blockRequester(airnodeAddress, roles.requester.address)
             )
-              .to.emit(api3TokenLock, 'BlockRequester')
+              .to.emit(api3TokenLock, 'BlockedRequester')
               .withArgs(airnodeAddress, roles.requester.address, roles.superAdmin.address);
           });
         });
@@ -415,7 +415,7 @@ describe('Api3TokenLock', async () => {
 
           it('emits event', async () => {
             await expect(api3TokenLock.connect(roles.metaAdmin).blockRequester(airnodeAddress, roles.requester.address))
-              .to.emit(api3TokenLock, 'BlockRequester')
+              .to.emit(api3TokenLock, 'BlockedRequester')
               .withArgs(airnodeAddress, roles.requester.address, roles.metaAdmin.address);
           });
         });
@@ -456,7 +456,7 @@ describe('Api3TokenLock', async () => {
 
           it('emits event', async () => {
             await expect(api3TokenLock.connect(airnodeWallet).blockRequester(airnodeAddress, roles.requester.address))
-              .to.emit(api3TokenLock, 'BlockRequester')
+              .to.emit(api3TokenLock, 'BlockedRequester')
               .withArgs(airnodeAddress, roles.requester.address, airnodeWallet.address);
           });
         });
@@ -517,7 +517,7 @@ describe('Api3TokenLock', async () => {
 
         it('emits event', async () => {
           await expect(api3TokenLock.connect(roles.sponsor).lock(airnodeAddress, roles.requester.address))
-            .to.emit(api3TokenLock, 'Lock')
+            .to.emit(api3TokenLock, 'Locked')
             .withArgs(airnodeAddress, roles.requester.address, roles.sponsor.address, LOCK_AMOUNT);
         });
       });
@@ -573,11 +573,19 @@ describe('Api3TokenLock', async () => {
           ).to.revertedWith(Errors.RequesterBlocked);
         });
       });
+
+      context('requester is locking on address zero', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLock.connect(roles.sponsor).lock(hre.ethers.constants.AddressZero, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroAddress);
+        });
+      });
     });
 
     describe('unlock', async () => {
       beforeEach(async () => {
-        // Lock:
+        // Locked:
         await api3TokenLock.connect(roles.sponsor).lock(airnodeAddress, roles.requester.address);
         await api3TokenLock.connect(roles.anotherSponsor).lock(airnodeAddress, roles.requester.address);
       });
@@ -623,7 +631,7 @@ describe('Api3TokenLock', async () => {
 
         it('emits event', async () => {
           await expect(api3TokenLock.connect(roles.sponsor).unlock(airnodeAddress, roles.requester.address))
-            .to.emit(api3TokenLock, 'Unlock')
+            .to.emit(api3TokenLock, 'Unlocked')
             .withArgs(airnodeAddress, roles.requester.address, roles.sponsor.address, LOCK_AMOUNT);
         });
       });
@@ -657,6 +665,14 @@ describe('Api3TokenLock', async () => {
           ).to.revertedWith(Errors.RequesterBlocked);
         });
       });
+
+      context('requester is unlocking on address zero', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLock.connect(roles.sponsor).unlock(hre.ethers.constants.AddressZero, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroAddress);
+        });
+      });
     });
 
     describe('withdrawExcess', async () => {
@@ -664,7 +680,7 @@ describe('Api3TokenLock', async () => {
       const expectedWithdrawnAmount = LOCK_AMOUNT - NEW_LOCK_AMOUNT;
 
       beforeEach(async () => {
-        // Lock:
+        // Locked:
         await api3TokenLock.connect(roles.sponsor).lock(airnodeAddress, roles.requester.address);
         await api3TokenLock.connect(roles.anotherSponsor).lock(airnodeAddress, roles.requester.address);
       });
@@ -698,7 +714,7 @@ describe('Api3TokenLock', async () => {
 
         it('emits event', async () => {
           await expect(api3TokenLock.connect(roles.sponsor).withdrawExcess(airnodeAddress, roles.requester.address))
-            .to.emit(api3TokenLock, 'WithdrawExcess')
+            .to.emit(api3TokenLock, 'WithdrawnExcess')
             .withArgs(airnodeAddress, roles.requester.address, roles.sponsor.address, expectedWithdrawnAmount);
         });
       });
@@ -714,6 +730,16 @@ describe('Api3TokenLock', async () => {
           await expect(
             api3TokenLock.connect(roles.sponsor).withdrawExcess(airnodeAddress, roles.requester.address)
           ).to.revertedWith(Errors.RequesterBlocked);
+        });
+      });
+
+      context('requester is withdrawing on address zero', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLock
+              .connect(roles.sponsor)
+              .withdrawExcess(hre.ethers.constants.AddressZero, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroAddress);
         });
       });
 

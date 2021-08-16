@@ -6,27 +6,27 @@ interface IApi3TokenLock {
 
     event SetLockAmount(uint256 lockAmount);
 
-    event BlockRequester(
+    event BlockedRequester(
         address airnode,
         address indexed requesterAddress,
         address indexed admin
     );
 
-    event Lock(
+    event Locked(
         address airnode,
         address requesterAddress,
         address sponsor,
         uint256 lockedAmount
     );
 
-    event Unlock(
+    event Unlocked(
         address airnode,
         address requesterAddress,
         address sponsor,
         uint256 lockedAmount
     );
 
-    event WithdrawExcess(
+    event WithdrawnExcess(
         address airnode,
         address requesterAddress,
         address sponsor,

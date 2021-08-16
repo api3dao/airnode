@@ -27,6 +27,7 @@ const Errors = {
   Unauthorized: 'Unauthorized',
   ZeroAddress: 'Zero address',
   ZeroAmount: 'Zero amount',
+  ZeroChainId: 'Zero ChainId',
 };
 
 describe('Api3TokenLockExternal', async () => {
@@ -315,9 +316,9 @@ describe('Api3TokenLockExternal', async () => {
                 .connect(roles.metaAdmin)
                 .blockRequester(chainId, airnodeAddress, roles.requester.address)
             )
-              .to.emit(api3TokenLockExternal, 'BlockRequester')
+              .to.emit(api3TokenLockExternal, 'BlockedRequester')
               .withArgs(chainId, airnodeAddress, roles.requester.address, roles.metaAdmin.address)
-              .to.emit(api3TokenLockExternal, 'Authorize')
+              .to.emit(api3TokenLockExternal, 'Authorized')
               .withArgs(chainId, airnodeId, roles.requester.address, 0);
           });
         });
@@ -350,9 +351,9 @@ describe('Api3TokenLockExternal', async () => {
                 .connect(roles.metaAdmin)
                 .blockRequester(0, hre.ethers.constants.AddressZero, roles.requester.address)
             )
-              .to.emit(api3TokenLockExternal, 'BlockRequester')
+              .to.emit(api3TokenLockExternal, 'BlockedRequester')
               .withArgs(0, hre.ethers.constants.AddressZero, roles.requester.address, roles.metaAdmin.address)
-              .to.emit(api3TokenLockExternal, 'Authorize')
+              .to.emit(api3TokenLockExternal, 'Authorized')
               .withArgs(0, hre.ethers.constants.HashZero, roles.requester.address, 0);
           });
         });
@@ -407,9 +408,9 @@ describe('Api3TokenLockExternal', async () => {
                 .connect(roles.superAdmin)
                 .blockRequester(chainId, airnodeAddress, roles.requester.address)
             )
-              .to.emit(api3TokenLockExternal, 'BlockRequester')
+              .to.emit(api3TokenLockExternal, 'BlockedRequester')
               .withArgs(chainId, airnodeAddress, roles.requester.address, roles.superAdmin.address)
-              .to.emit(api3TokenLockExternal, 'Authorize')
+              .to.emit(api3TokenLockExternal, 'Authorized')
               .withArgs(chainId, airnodeId, roles.requester.address, 0);
           });
         });
@@ -442,9 +443,9 @@ describe('Api3TokenLockExternal', async () => {
                 .connect(roles.metaAdmin)
                 .blockRequester(0, hre.ethers.constants.AddressZero, roles.requester.address)
             )
-              .to.emit(api3TokenLockExternal, 'BlockRequester')
+              .to.emit(api3TokenLockExternal, 'BlockedRequester')
               .withArgs(0, hre.ethers.constants.AddressZero, roles.requester.address, roles.metaAdmin.address)
-              .to.emit(api3TokenLockExternal, 'Authorize')
+              .to.emit(api3TokenLockExternal, 'Authorized')
               .withArgs(0, hre.ethers.constants.HashZero, roles.requester.address, 0);
           });
         });
@@ -499,9 +500,9 @@ describe('Api3TokenLockExternal', async () => {
                 .connect(airnodeWallet)
                 .blockRequester(chainId, airnodeAddress, roles.requester.address)
             )
-              .to.emit(api3TokenLockExternal, 'BlockRequester')
+              .to.emit(api3TokenLockExternal, 'BlockedRequester')
               .withArgs(chainId, airnodeAddress, roles.requester.address, airnodeWallet.address)
-              .to.emit(api3TokenLockExternal, 'Authorize')
+              .to.emit(api3TokenLockExternal, 'Authorized')
               .withArgs(chainId, airnodeId, roles.requester.address, 0);
           });
         });
@@ -577,9 +578,9 @@ describe('Api3TokenLockExternal', async () => {
           await expect(
             api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
           )
-            .to.emit(api3TokenLockExternal, 'Lock')
+            .to.emit(api3TokenLockExternal, 'Locked')
             .withArgs(chainId, airnodeAddress, roles.requester.address, roles.sponsor.address, LOCK_AMOUNT)
-            .to.emit(api3TokenLockExternal, 'Authorize')
+            .to.emit(api3TokenLockExternal, 'Authorized')
             .withArgs(chainId, airnodeId, roles.requester.address, hre.ethers.BigNumber.from(2).pow(64).sub(1));
         });
       });
@@ -636,6 +637,24 @@ describe('Api3TokenLockExternal', async () => {
           await expect(
             api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
           ).to.revertedWith('Already locked');
+        });
+      });
+
+      context('requester is locking on chainId 0', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLockExternal.connect(roles.sponsor).lock(0, airnodeAddress, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroChainId);
+        });
+      });
+
+      context('requester is locking on address zero', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLockExternal
+              .connect(roles.sponsor)
+              .lock(chainId, hre.ethers.constants.AddressZero, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroAddress);
         });
       });
 
@@ -734,15 +753,15 @@ describe('Api3TokenLockExternal', async () => {
           await expect(
             api3TokenLockExternal.connect(roles.sponsor).unlock(chainId, airnodeAddress, roles.requester.address)
           )
-            .to.emit(api3TokenLockExternal, 'Unlock')
+            .to.emit(api3TokenLockExternal, 'Unlocked')
             .withArgs(chainId, airnodeAddress, roles.requester.address, roles.sponsor.address, LOCK_AMOUNT);
 
           await expect(
             api3TokenLockExternal.connect(roles.anotherSponsor).unlock(chainId, airnodeAddress, roles.requester.address)
           )
-            .to.emit(api3TokenLockExternal, 'Unlock')
+            .to.emit(api3TokenLockExternal, 'Unlocked')
             .withArgs(chainId, airnodeAddress, roles.requester.address, roles.anotherSponsor.address, LOCK_AMOUNT)
-            .to.emit(api3TokenLockExternal, 'Authorize')
+            .to.emit(api3TokenLockExternal, 'Authorized')
             .withArgs(chainId, airnodeId, roles.requester.address, 0);
         });
       });
@@ -763,6 +782,24 @@ describe('Api3TokenLockExternal', async () => {
           await expect(
             api3TokenLockExternal.connect(roles.sponsor).unlock(chainId, airnodeAddress, roles.requester.address)
           ).to.revertedWith('No amount locked');
+        });
+      });
+
+      context('requester is unlocking on chainId 0', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLockExternal.connect(roles.sponsor).unlock(0, airnodeAddress, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroChainId);
+        });
+      });
+
+      context('requester is unlocking on address zero', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLockExternal
+              .connect(roles.sponsor)
+              .unlock(chainId, hre.ethers.constants.AddressZero, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroAddress);
         });
       });
 
@@ -839,7 +876,7 @@ describe('Api3TokenLockExternal', async () => {
               .connect(roles.sponsor)
               .withdrawExcess(chainId, airnodeAddress, roles.requester.address)
           )
-            .to.emit(api3TokenLockExternal, 'WithdrawExcess')
+            .to.emit(api3TokenLockExternal, 'WithdrawnExcess')
             .withArgs(chainId, airnodeAddress, roles.requester.address, roles.sponsor.address, expectedWithdrawnAmount);
         });
       });
@@ -859,6 +896,24 @@ describe('Api3TokenLockExternal', async () => {
               .connect(roles.sponsor)
               .withdrawExcess(chainId, airnodeAddress, roles.requester.address)
           ).to.revertedWith(Errors.RequesterBlocked);
+        });
+      });
+
+      context('requester is withdrawing on chainId 0', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLockExternal.connect(roles.sponsor).withdrawExcess(0, airnodeAddress, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroChainId);
+        });
+      });
+
+      context('requester is withdrawing on address zero', async () => {
+        it('reverts', async () => {
+          await expect(
+            api3TokenLockExternal
+              .connect(roles.sponsor)
+              .withdrawExcess(chainId, hre.ethers.constants.AddressZero, roles.requester.address)
+          ).to.revertedWith(Errors.ZeroAddress);
         });
       });
 

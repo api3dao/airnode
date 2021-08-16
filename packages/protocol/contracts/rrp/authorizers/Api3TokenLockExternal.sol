@@ -14,6 +14,7 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
     }
     uint256 private constant MAX_RANK = 2**256 - 1;
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
+    string private constant ERROR_ZERO_CHAINID = "Zero ChainId";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
     string private constant ERROR_ALREADY_LOCKED = "Already locked";
@@ -24,7 +25,7 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
     string private constant ERROR_REQUESTER_BLOCKED = "Requester blocked";
 
     /// @dev Address of Api3Token
-    address public api3Token;
+    address public immutable api3Token;
     /// @dev The Minimum locking time (in seconds)
     uint256 public minimumLockingTime;
     /// @dev Lock amount for each user
@@ -42,7 +43,8 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
     mapping(uint256 => mapping(address => mapping(address => AirnodeRequester)))
         public chainIdToAirnodeToRequesterToTokenLocks;
 
-    /// @dev Stores information for blocked airndoe-requester pair
+    /// @dev Stores information for blocked chainId-airnode-requester pair
+    ///      Stores true if blocked, false otherwise
     mapping(uint256 => mapping(address => mapping(address => bool)))
         public chainIdToAirnodeToRequesterToBlockStatus;
 
@@ -65,9 +67,9 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
     }
 
     /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Overriden to use the bytes32(0) as the only adminnedId
-    ///      Overriden to give Max Rank to the airnodeAdmin
-    ///      Overriden to use metaAdminned ranks
+    /// @dev    Overriden to give Max Rank to the Airnode Master Wallet
+    ///         Overriden to use the bytes32(0) as the adminnedId otherwise
+    ///         Overriden to use metaAdminned ranks
     /// @param adminnedId ID of the entity being adminned(not used)
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank
@@ -152,13 +154,18 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         chainIdToAirnodeToRequesterToBlockStatus[_chainId][_airnode][
             _requesterAddress
         ] = true;
-        emit Authorize(
+        emit Authorized(
             _chainId,
             bytes32(abi.encode(_airnode)),
             _requesterAddress,
             0
         );
-        emit BlockRequester(_chainId, _airnode, _requesterAddress, msg.sender);
+        emit BlockedRequester(
+            _chainId,
+            _airnode,
+            _requesterAddress,
+            msg.sender
+        );
     }
 
     /// @notice Locks API3 Tokens to gain access to Airnodes on a given chain.
@@ -173,6 +180,8 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         address _airnode,
         address _requesterAddress
     ) external override isNotBlocked(_chainId, _airnode, _requesterAddress) {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        require(_chainId != 0, ERROR_ZERO_CHAINID);
         AirnodeRequester
             storage target = chainIdToAirnodeToRequesterToTokenLocks[_chainId][
                 _airnode
@@ -196,7 +205,7 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         );
 
         if (target.whitelistCount == 1) {
-            emit Authorize(
+            emit Authorized(
                 _chainId,
                 bytes32(abi.encode(_airnode)),
                 _requesterAddress,
@@ -204,7 +213,7 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
             );
         }
 
-        emit Lock(
+        emit Locked(
             _chainId,
             _airnode,
             _requesterAddress,
@@ -226,6 +235,8 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         address _airnode,
         address _requesterAddress
     ) external override isNotBlocked(_chainId, _airnode, _requesterAddress) {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        require(_chainId != 0, ERROR_ZERO_CHAINID);
         AirnodeRequester
             storage target = chainIdToAirnodeToRequesterToTokenLocks[_chainId][
                 _airnode
@@ -246,7 +257,7 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         target.whitelistCount--;
 
         if (target.whitelistCount == 0) {
-            emit Authorize(
+            emit Authorized(
                 _chainId,
                 bytes32(abi.encode(_airnode)),
                 _requesterAddress,
@@ -256,7 +267,13 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
 
         assert(IApi3Token(api3Token).transfer(msg.sender, amount));
 
-        emit Unlock(_chainId, _airnode, _requesterAddress, msg.sender, amount);
+        emit Unlocked(
+            _chainId,
+            _airnode,
+            _requesterAddress,
+            msg.sender,
+            amount
+        );
     }
 
     /// @notice User calls this when the lock amount has been decreased and wants
@@ -269,6 +286,8 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
         address _airnode,
         address _requesterAddress
     ) external override isNotBlocked(_chainId, _airnode, _requesterAddress) {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        require(_chainId != 0, ERROR_ZERO_CHAINID);
         require(
             chainIdToAirnodeToRequesterToTokenLocks[_chainId][_airnode][
                 _requesterAddress
@@ -285,7 +304,7 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
 
         assert(IApi3Token(api3Token).transfer(msg.sender, withdrawAmount));
 
-        emit WithdrawExcess(
+        emit WithdrawnExcess(
             _chainId,
             _airnode,
             _requesterAddress,

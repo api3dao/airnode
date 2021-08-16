@@ -25,9 +25,9 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
     string private constant ERROR_REQUESTER_BLOCKED = "Requester Blocked";
 
     /// @dev Address of api3RequesterRrpAuthorizer contract
-    address public api3RequesterRrpAuthorizer;
+    address public immutable api3RequesterRrpAuthorizer;
     /// @dev Address of Api3Token
-    address public api3Token;
+    address public immutable api3Token;
     /// @dev The Minimum locking time (in seconds)
     uint256 public minimumLockingTime;
     /// @dev Lock amount for each user
@@ -45,7 +45,8 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
     mapping(address => mapping(address => AirnodeRequester))
         public airnodeToRequesterToTokenLocks;
 
-    /// @dev Stores information for blocked airndoe-requester pair
+    /// @dev Stores information for blocked airnode-requester pair
+    ///      Stores true if blocked, false otherwise
     mapping(address => mapping(address => bool))
         public airnodeToRequesterToBlockStatus;
 
@@ -73,9 +74,9 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
     }
 
     /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Overriden to use the bytes32(0) as the only adminnedId
-    ///      Overriden to use metaAdminned ranks
-    ///      Overriden to give Max Rank to the airnodeAdmin
+    /// @dev    Overriden to give Max Rank to the Airnode Master Wallet
+    ///         Overriden to use the bytes32(0) as the adminnedId otherwise
+    ///         Overriden to use metaAdminned ranks
     /// @param adminnedId ID of the entity being adminned(not used)
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank
@@ -150,7 +151,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
                 _requesterAddress,
                 0
             );
-        emit BlockRequester(_airnode, _requesterAddress, msg.sender);
+        emit BlockedRequester(_airnode, _requesterAddress, msg.sender);
     }
 
     /// @notice Locks API3 Tokens to gain access to Airnodes.
@@ -164,6 +165,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
         override
         isNotBlocked(_airnode, _requesterAddress)
     {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         AirnodeRequester
             storage airnodeRequester = airnodeToRequesterToTokenLocks[_airnode][
                 _requesterAddress
@@ -195,7 +197,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
                 );
         }
 
-        emit Lock(_airnode, _requesterAddress, msg.sender, lockAmount);
+        emit Locked(_airnode, _requesterAddress, msg.sender, lockAmount);
     }
 
     /// @notice Unlocks the API3 tokens for a given airnode-requester pair.
@@ -210,6 +212,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
         override
         isNotBlocked(_airnode, _requesterAddress)
     {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         AirnodeRequester
             storage airnodeRequester = airnodeToRequesterToTokenLocks[_airnode][
                 _requesterAddress
@@ -243,7 +246,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
 
         assert(IApi3Token(api3Token).transfer(msg.sender, amount));
 
-        emit Unlock(_airnode, _requesterAddress, msg.sender, amount);
+        emit Unlocked(_airnode, _requesterAddress, msg.sender, amount);
     }
 
     /// @notice User calls this when the lock amount has been decreased and wants
@@ -255,6 +258,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
         override
         isNotBlocked(_airnode, _requesterAddress)
     {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         require(
             airnodeToRequesterToTokenLocks[_airnode][_requesterAddress]
                 .sponsorLockAmount[msg.sender] > lockAmount,
@@ -267,7 +271,7 @@ contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
             .sponsorLockAmount[msg.sender] = lockAmount;
         assert(IApi3Token(api3Token).transfer(msg.sender, withdrawAmount));
 
-        emit WithdrawExcess(
+        emit WithdrawnExcess(
             _airnode,
             _requesterAddress,
             msg.sender,
