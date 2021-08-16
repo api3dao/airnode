@@ -7,6 +7,12 @@ import ora from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
 
+type TerraformAirnodeOutput = {
+  testing_gateway_url?: {
+    value: string;
+  };
+};
+
 const exec = util.promisify(child.exec);
 // TODO:
 // Pass handler as argument
@@ -21,8 +27,9 @@ async function runCommand(command: string, options: child.ExecOptions) {
   const stringifiedOptions = JSON.stringify(options);
   const commandSpinner = logger.debugSpinner(`Running command '${command}' with options ${stringifiedOptions}`);
   try {
-    await exec(command, options);
+    const { stdout } = await exec(command, options);
     commandSpinner.succeed(`Finished command '${command}' with options ${stringifiedOptions}`);
+    return stdout;
   } catch (err) {
     spinner.info();
     commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
@@ -42,8 +49,9 @@ export async function deployAirnode(
 ) {
   spinner = logger.spinner(`Deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
   try {
-    await deploy(airnodeIdShort, stage, region, testingApiKey, configPath, secretsPath);
+    const output = await deploy(airnodeIdShort, stage, region, testingApiKey, configPath, secretsPath);
     spinner.succeed(`Deployed Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
+    return output;
   } catch (err) {
     spinner.fail(`Failed deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
     throw err;
@@ -93,6 +101,10 @@ async function deploy(
     secretsPath
   )}" -var="handler_file=${handlerFile}" ${testingApiKeyVar} -auto-approve -input=false -no-color`;
   await runCommand(command, options);
+
+  command = 'terraform output -json -no-color';
+  const output: TerraformAirnodeOutput = JSON.parse(await runCommand(command, options));
+  return output.testing_gateway_url ? { testingGatewayUrl: output.testing_gateway_url.value } : output;
 }
 
 export async function removeAirnode(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {

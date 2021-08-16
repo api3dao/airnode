@@ -46,3 +46,9 @@ variable "configuration_file" {
 variable "secrets_file" {
   description = "Airnode secrets file"
 }
+
+variable "environment_variables" {
+  description = "Additional Lambda environment variables"
+  type        = map(any)
+  default     = {}
+}
