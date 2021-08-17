@@ -27,7 +27,6 @@ beforeEach(async () => {
 
 describe('requestWithdrawal', function () {
   it('requests withdrawal', async function () {
-    const destinationAddress = hre.ethers.Wallet.createRandom().address;
     const initialSponsorToWithdrawalRequestCount = await airnodeRrp.sponsorToWithdrawalRequestCount(
       roles.sponsor.address
     );
@@ -40,17 +39,9 @@ describe('requestWithdrawal', function () {
         [firstExpectedSponsorToWithdrawalRequestCount, chainId, roles.sponsor.address]
       )
     );
-    await expect(
-      airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress)
-    )
+    await expect(airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress))
       .to.emit(airnodeRrp, 'RequestedWithdrawal')
-      .withArgs(
-        airnodeAddress,
-        roles.sponsor.address,
-        firstExpectedWithdrawalRequestId,
-        sponsorWalletAddress,
-        destinationAddress
-      );
+      .withArgs(airnodeAddress, roles.sponsor.address, firstExpectedWithdrawalRequestId, sponsorWalletAddress);
     expect(await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address)).to.equal(
       firstExpectedSponsorToWithdrawalRequestCount
     );
@@ -62,17 +53,9 @@ describe('requestWithdrawal', function () {
         [secondExpectedSponsorToWithdrawalRequestCount, chainId, roles.sponsor.address]
       )
     );
-    await expect(
-      airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress)
-    )
+    await expect(airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress))
       .to.emit(airnodeRrp, 'RequestedWithdrawal')
-      .withArgs(
-        airnodeAddress,
-        roles.sponsor.address,
-        secondExpectedWithdrawalRequestId,
-        sponsorWalletAddress,
-        destinationAddress
-      );
+      .withArgs(airnodeAddress, roles.sponsor.address, secondExpectedWithdrawalRequestId, sponsorWalletAddress);
     expect(await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address)).to.equal(
       secondExpectedSponsorToWithdrawalRequestCount
     );
@@ -81,245 +64,121 @@ describe('requestWithdrawal', function () {
 
 describe('fulfillWithdrawal', function () {
   context('Caller is sponsor wallet', function () {
-    context('Fulfillment parameters are correct', function () {
-      context('Destination is payable', function () {
-        it('fulfills withdrawal', async function () {
-          // Make the withdrawal request
-          const destinationAddress = hre.ethers.Wallet.createRandom().address;
-          await airnodeRrp
-            .connect(roles.sponsor)
-            .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
-          const withdrawalRequestId = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address'],
-              [
-                await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
-                (await hre.ethers.provider.getNetwork()).chainId,
-                roles.sponsor.address,
-              ]
-            )
-          );
-          // Calculate the amount to be withdrawn
-          const sponsorWallet = utils
-            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-            .connect(hre.ethers.provider);
-          const gasEstimate = await airnodeRrp
-            .connect(sponsorWallet)
-            .estimateGas.fulfillWithdrawal(
-              withdrawalRequestId,
-              airnodeAddress,
-              roles.sponsor.address,
-              destinationAddress,
-              {
-                value: 1,
-                gasLimit: 500000,
-              }
-            );
-          const gasPrice = await hre.ethers.provider.getGasPrice();
-          const txCost = gasEstimate.mul(gasPrice);
-          const sponsorWalletBalance = await hre.ethers.provider.getBalance(sponsorWalletAddress);
-          const fundsToSend = sponsorWalletBalance.sub(txCost);
-          // Fulfill the withdrawal request
-          await expect(
-            airnodeRrp
-              .connect(sponsorWallet)
-              .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, destinationAddress, {
-                value: fundsToSend,
-                gasLimit: gasEstimate,
-                gasPrice: gasPrice,
-              })
-          )
-            .to.emit(airnodeRrp, 'FulfilledWithdrawal')
-            .withArgs(
-              airnodeAddress,
-              roles.sponsor.address,
-              withdrawalRequestId,
-              sponsorWalletAddress,
-              destinationAddress,
-              fundsToSend
-            );
-          expect(await hre.ethers.provider.getBalance(destinationAddress)).to.equal(fundsToSend);
+    it('fulfills withdrawal when parameters are correct', async function () {
+      // Make the withdrawal request
+      await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
+      const withdrawalRequestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['uint256', 'uint256', 'address'],
+          [
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
+            (await hre.ethers.provider.getNetwork()).chainId,
+            roles.sponsor.address,
+          ]
+        )
+      );
+      // Calculate the amount to be withdrawn
+      const sponsorBalance = await hre.ethers.provider.getBalance(roles.sponsor.address);
+      const sponsorWallet = utils
+        .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+        .connect(hre.ethers.provider);
+      const gasEstimate = await airnodeRrp
+        .connect(sponsorWallet)
+        .estimateGas.fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, {
+          value: 1,
+          gasLimit: 500000,
         });
-      });
-      context('Destination is not payable', function () {
-        it('reverts', async function () {
-          // The destination address is the AirnodeRrp contract, which doesn't have a default payable function
-          const destinationAddress = airnodeRrp.address;
-          // Make the withdrawal request
-          await airnodeRrp
-            .connect(roles.sponsor)
-            .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
-          const withdrawalRequestId = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address'],
-              [
-                await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
-                (await hre.ethers.provider.getNetwork()).chainId,
-                roles.sponsor.address,
-              ]
-            )
-          );
-          // Attempt to fulfill the withdrawal request
-          const sponsorWallet = utils
-            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-            .connect(hre.ethers.provider);
-          await expect(
-            airnodeRrp
-              .connect(sponsorWallet)
-              .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, destinationAddress, {
-                value: 1,
-                gasLimit: 500000,
-              })
-          ).to.be.revertedWith('Transfer failed');
-        });
-      });
+      const gasPrice = await hre.ethers.provider.getGasPrice();
+      const txCost = gasEstimate.mul(gasPrice);
+      const sponsorWalletBalance = await hre.ethers.provider.getBalance(sponsorWalletAddress);
+      const fundsToSend = sponsorWalletBalance.sub(txCost);
+      // Fulfill the withdrawal request
+      await expect(
+        airnodeRrp
+          .connect(sponsorWallet)
+          .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, {
+            value: fundsToSend,
+            gasLimit: gasEstimate,
+            gasPrice: gasPrice,
+          })
+      )
+        .to.emit(airnodeRrp, 'FulfilledWithdrawal')
+        .withArgs(airnodeAddress, roles.sponsor.address, withdrawalRequestId, sponsorWalletAddress, fundsToSend);
+      expect(await hre.ethers.provider.getBalance(roles.sponsor.address)).to.equal(sponsorBalance.add(fundsToSend));
     });
-    context('Withdrawal request ID is incorrect', function () {
-      it('reverts', async function () {
-        // Make the withdrawal request
-        const destinationAddress = hre.ethers.Wallet.createRandom().address;
-        await airnodeRrp
-          .connect(roles.sponsor)
-          .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
-        // Attempt to fulfill the withdrawal request
-        const sponsorWallet = utils
-          .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-          .connect(hre.ethers.provider);
-        await expect(
-          airnodeRrp
-            .connect(sponsorWallet)
-            .fulfillWithdrawal(
-              hre.ethers.constants.HashZero,
-              airnodeAddress,
-              roles.sponsor.address,
-              destinationAddress,
-              {
-                value: 1,
-                gasLimit: 500000,
-              }
-            )
-        ).to.be.revertedWith('Invalid withdrawal fulfillment');
-      });
+    it('reverts when withdrawal request ID is incorrect', async function () {
+      // Make the withdrawal request
+      await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
+      // Attempt to fulfill the withdrawal request
+      const sponsorWallet = utils
+        .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+        .connect(hre.ethers.provider);
+      await expect(
+        airnodeRrp
+          .connect(sponsorWallet)
+          .fulfillWithdrawal(hre.ethers.constants.HashZero, airnodeAddress, roles.sponsor.address, {
+            value: 1,
+            gasLimit: 500000,
+          })
+      ).to.be.revertedWith('Invalid withdrawal fulfillment');
     });
-    context('Airnode address is incorrect', function () {
-      it('reverts', async function () {
-        // Make the withdrawal request
-        const destinationAddress = hre.ethers.Wallet.createRandom().address;
-        await airnodeRrp
-          .connect(roles.sponsor)
-          .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
-        const withdrawalRequestId = hre.ethers.utils.keccak256(
-          hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address'],
-            [
-              await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
-              (await hre.ethers.provider.getNetwork()).chainId,
-              roles.sponsor.address,
-            ]
-          )
-        );
-        // Attempt to fulfill the withdrawal request
-        const sponsorWallet = utils
-          .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-          .connect(hre.ethers.provider);
-        await expect(
-          airnodeRrp
-            .connect(sponsorWallet)
-            .fulfillWithdrawal(
-              withdrawalRequestId,
-              hre.ethers.constants.AddressZero,
-              roles.sponsor.address,
-              destinationAddress,
-              {
-                value: 1,
-                gasLimit: 500000,
-              }
-            )
-        ).to.be.revertedWith('Invalid withdrawal fulfillment');
-      });
+    it('reverts when airnode address is incorrect', async function () {
+      // Make the withdrawal request
+      await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
+      const withdrawalRequestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['uint256', 'uint256', 'address'],
+          [
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
+            (await hre.ethers.provider.getNetwork()).chainId,
+            roles.sponsor.address,
+          ]
+        )
+      );
+      // Attempt to fulfill the withdrawal request
+      const sponsorWallet = utils
+        .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+        .connect(hre.ethers.provider);
+      await expect(
+        airnodeRrp
+          .connect(sponsorWallet)
+          .fulfillWithdrawal(withdrawalRequestId, hre.ethers.constants.AddressZero, roles.sponsor.address, {
+            value: 1,
+            gasLimit: 500000,
+          })
+      ).to.be.revertedWith('Invalid withdrawal fulfillment');
     });
-    context('Sponsor address is incorrect', function () {
-      it('reverts', async function () {
-        // Make the withdrawal request
-        const destinationAddress = hre.ethers.Wallet.createRandom().address;
-        await airnodeRrp
-          .connect(roles.sponsor)
-          .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
-        const withdrawalRequestId = hre.ethers.utils.keccak256(
-          hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address'],
-            [
-              await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
-              (await hre.ethers.provider.getNetwork()).chainId,
-              roles.sponsor.address,
-            ]
-          )
-        );
-        // Attempt to fulfill the withdrawal request
-        const sponsorWallet = utils
-          .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-          .connect(hre.ethers.provider);
-        await expect(
-          airnodeRrp
-            .connect(sponsorWallet)
-            .fulfillWithdrawal(
-              withdrawalRequestId,
-              airnodeAddress,
-              hre.ethers.constants.AddressZero,
-              destinationAddress,
-              {
-                value: 1,
-                gasLimit: 500000,
-              }
-            )
-        ).to.be.revertedWith('Invalid withdrawal fulfillment');
-      });
-    });
-    context('Destination address is incorrect', function () {
-      it('reverts', async function () {
-        // Make the withdrawal request
-        const destinationAddress = hre.ethers.Wallet.createRandom().address;
-        await airnodeRrp
-          .connect(roles.sponsor)
-          .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
-        const withdrawalRequestId = hre.ethers.utils.keccak256(
-          hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address'],
-            [
-              await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
-              (await hre.ethers.provider.getNetwork()).chainId,
-              roles.sponsor.address,
-            ]
-          )
-        );
-        // Attempt to fulfill the withdrawal request
-        const sponsorWallet = utils
-          .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-          .connect(hre.ethers.provider);
-        await expect(
-          airnodeRrp
-            .connect(sponsorWallet)
-            .fulfillWithdrawal(
-              withdrawalRequestId,
-              airnodeAddress,
-              roles.sponsor.address,
-              hre.ethers.constants.AddressZero,
-              {
-                value: 1,
-                gasLimit: 500000,
-              }
-            )
-        ).to.be.revertedWith('Invalid withdrawal fulfillment');
-      });
+    it('reverts when sponsor address is incorrect', async function () {
+      // Make the withdrawal request
+      await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
+      const withdrawalRequestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['uint256', 'uint256', 'address'],
+          [
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
+            (await hre.ethers.provider.getNetwork()).chainId,
+            roles.sponsor.address,
+          ]
+        )
+      );
+      // Attempt to fulfill the withdrawal request
+      const sponsorWallet = utils
+        .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+        .connect(hre.ethers.provider);
+      await expect(
+        airnodeRrp
+          .connect(sponsorWallet)
+          .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, hre.ethers.constants.AddressZero, {
+            value: 1,
+            gasLimit: 500000,
+          })
+      ).to.be.revertedWith('Invalid withdrawal fulfillment');
     });
   });
   context('Caller is not sponsor wallet', function () {
     it('reverts', async function () {
       // Make the withdrawal request
-      const destinationAddress = hre.ethers.Wallet.createRandom().address;
-      await airnodeRrp
-        .connect(roles.sponsor)
-        .requestWithdrawal(airnodeAddress, sponsorWalletAddress, destinationAddress);
+      await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       const withdrawalRequestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
           ['uint256', 'uint256', 'address'],
@@ -334,7 +193,7 @@ describe('fulfillWithdrawal', function () {
       await expect(
         airnodeRrp
           .connect(roles.randomPerson)
-          .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, destinationAddress, {
+          .fulfillWithdrawal(withdrawalRequestId, airnodeAddress, roles.sponsor.address, {
             value: 1,
             gasLimit: 500000,
           })

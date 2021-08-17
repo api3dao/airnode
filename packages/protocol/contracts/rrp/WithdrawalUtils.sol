@@ -15,18 +15,16 @@ contract WithdrawalUtils is IWithdrawalUtils {
     mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;
 
     /// @notice Called by a sponsor to create a request for the Airnode to send
-    /// the funds kept in the respective sponsor wallet to the destination
+    /// the funds kept in the respective sponsor wallet to the sponsor
     /// @dev We do not need to use the withdrawal request parameters in the
     /// request ID hash to validate them at the node-side because all of the
     /// parameters are used during fulfillment and will get validated on-chain
     /// @param airnode Airnode address
     /// @param sponsorWallet Sponsor wallet
-    /// @param destination Withdrawal destination
-    function requestWithdrawal(
-        address airnode,
-        address sponsorWallet,
-        address destination
-    ) external override {
+    function requestWithdrawal(address airnode, address sponsorWallet)
+        external
+        override
+    {
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
                 ++sponsorToWithdrawalRequestCount[msg.sender],
@@ -35,35 +33,32 @@ contract WithdrawalUtils is IWithdrawalUtils {
             )
         );
         withdrawalRequestIdToParameters[withdrawalRequestId] = keccak256(
-            abi.encodePacked(airnode, msg.sender, sponsorWallet, destination)
+            abi.encodePacked(airnode, msg.sender, sponsorWallet)
         );
         emit RequestedWithdrawal(
             airnode,
             msg.sender,
             withdrawalRequestId,
-            sponsorWallet,
-            destination
+            sponsorWallet
         );
     }
 
     /// @notice Called by the Airnode using the sponsor wallet to fulfill the
     /// withdrawal request made by the sponsor
-    /// @dev The Airnode sends the funds through this method to emit an event
-    /// that indicates that the withdrawal request has been fulfilled
+    /// @dev The Airnode sends the funds to the sponsor through this method
+    /// to emit an event that indicates that the withdrawal request has been
+    /// fulfilled
+    /// @param withdrawalRequestId Withdrawal request ID
     /// @param airnode Airnode address
     /// @param sponsor Sponsor address
-    /// @param destination Withdrawal destination
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
         address airnode,
-        address sponsor,
-        address destination
+        address sponsor
     ) external payable override {
         require(
             withdrawalRequestIdToParameters[withdrawalRequestId] ==
-                keccak256(
-                    abi.encodePacked(airnode, sponsor, msg.sender, destination)
-                ),
+                keccak256(abi.encodePacked(airnode, sponsor, msg.sender)),
             "Invalid withdrawal fulfillment"
         );
         delete withdrawalRequestIdToParameters[withdrawalRequestId];
@@ -72,10 +67,9 @@ contract WithdrawalUtils is IWithdrawalUtils {
             sponsor,
             withdrawalRequestId,
             msg.sender,
-            destination,
             msg.value
         );
-        (bool success, ) = destination.call{value: msg.value}(""); // solhint-disable-line avoid-low-level-calls
+        (bool success, ) = sponsor.call{value: msg.value}(""); // solhint-disable-line avoid-low-level-calls
         require(success, "Transfer failed");
     }
 }
