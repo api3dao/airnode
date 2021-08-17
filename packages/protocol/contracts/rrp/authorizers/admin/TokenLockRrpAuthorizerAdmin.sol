@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./Api3RequesterRrpAuthorizer.sol";
-import "./interfaces/IApi3Token.sol";
-import "./interfaces/IApi3TokenLock.sol";
-import "../../admin/MetaAdminnable.sol";
+import "../Api3RequesterRrpAuthorizer.sol";
+import "../interfaces/IApi3Token.sol";
+import "../interfaces/IApi3TokenLock.sol";
+import "../../../admin/MetaAdminnable.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
-contract Api3TokenLock is MetaAdminnable, IApi3TokenLock {
+contract TokenLockRrpAuthorizerAdmin is MetaAdminnable, IApi3TokenLock {
     enum AdminRank {
         Unauthorized,
         Admin,
