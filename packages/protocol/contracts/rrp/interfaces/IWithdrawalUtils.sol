@@ -6,8 +6,7 @@ interface IWithdrawalUtils {
         address indexed airnode,
         address indexed sponsor,
         bytes32 indexed withdrawalRequestId,
-        address sponsorWallet,
-        address destination
+        address sponsorWallet
     );
 
     event FulfilledWithdrawal(
@@ -15,21 +14,15 @@ interface IWithdrawalUtils {
         address indexed sponsor,
         bytes32 indexed withdrawalRequestId,
         address sponsorWallet,
-        address destination,
         uint256 amount
     );
 
-    function requestWithdrawal(
-        address airnode,
-        address sponsorWallet,
-        address destination
-    ) external;
+    function requestWithdrawal(address airnode, address sponsorWallet) external;
 
     function fulfillWithdrawal(
         bytes32 withdrawalRequestId,
         address airnode,
-        address sponsor,
-        address destination
+        address sponsor
     ) external payable;
 
     function sponsorToWithdrawalRequestCount(address sponsor)
