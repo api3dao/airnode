@@ -57,7 +57,12 @@ export function update<T>(state: ProviderState<T>, newState: Partial<ProviderSta
 }
 
 export function scrub<T>(state: ProviderState<T>): ProviderState<T> {
-  // Certain keys we do not want to return to calling functions when returning a provider state
+  // The 'config' object can be quite large so we don't want to return it to the coordinator
+  // from each spawned worker function. Doing so would bloat the coordinator state
+  // unnecessarily. The coordinator already has access to the config object.
+  //
+  // The 'masterHDNode' and the 'provider' keys are class instances. These do not typically transfer
+  // well and are better off being re-instantiated with the 'refresh(state)' function.
   return removeKeys(state, ['config', 'masterHDNode', 'provider']) as ProviderState<T>;
 }
 
