@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IApi3TokenLock {
+interface ITokenLockRrpAuthorizerAdmin {
     event SetMinimumLockingTime(uint256 minimumLockingTime);
 
     event SetLockAmount(uint256 lockAmount);
