@@ -195,7 +195,7 @@ There are currently three types of requests that can be made. You can learn more
 
 **Withdrawals**
 
-`destination` - the ID of the sponsor to which the withdrawn funds should be sent. Can also be an address starting with `0x`.
+The withdrawn funds should be sent back to the address of the sponsor.
 
 #### Full Example
 
@@ -275,8 +275,7 @@ There are currently three types of requests that can be made. You can learn more
     {
       "sponsorId": "alice",
       "type": "withdrawal",
-      "airnode": "CurrencyConverterAirnode",
-      "destination": "alice"
+      "airnode": "CurrencyConverterAirnode"
     }
   ]
 }

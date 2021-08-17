@@ -150,15 +150,11 @@ export interface FullRequest extends Request {
   readonly parameters: InputParameter[];
 }
 
-export interface Withdrawal extends Request {
-  readonly destination: string;
-}
-
 export interface Config {
   readonly airnodes: { readonly [name: string]: ConfigAirnode };
   readonly authorizers: { readonly [name: string]: string };
   readonly requesters: { readonly [name: string]: ConfigRequester };
   readonly deployerIndex: number;
   readonly sponsors: ConfigSponsor[];
-  readonly requests: Array<TemplateRequest | FullRequest | Withdrawal>;
+  readonly requests: Array<TemplateRequest | FullRequest | Request>;
 }

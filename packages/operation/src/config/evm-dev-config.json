@@ -73,8 +73,7 @@
     {
       "sponsorId": "alice",
       "type": "withdrawal",
-      "airnode": "CurrencyConverterAirnode",
-      "destination": "alice"
+      "airnode": "CurrencyConverterAirnode"
     }
   ]
 }

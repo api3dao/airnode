@@ -1,8 +1,8 @@
 import * as requests from '../evm/requests';
 import * as io from '../evm/io';
-import { FullRequest, TemplateRequest, RequestsState as State, RequestType, Withdrawal } from '../types';
+import { FullRequest, TemplateRequest, RequestsState as State, RequestType, Request } from '../types';
 
-type AnyRequest = TemplateRequest | FullRequest | Withdrawal;
+type AnyRequest = TemplateRequest | FullRequest | Request;
 
 async function makeRequest(state: State, request: AnyRequest, index: number) {
   switch (request.type as RequestType) {
@@ -17,7 +17,7 @@ async function makeRequest(state: State, request: AnyRequest, index: number) {
       break;
 
     case 'withdrawal':
-      await requests.makeWithdrawal(state, request as Withdrawal);
+      await requests.makeWithdrawal(state, request as Request);
       console.log(`--> Request #${index} made (withdrawal)`);
       break;
   }

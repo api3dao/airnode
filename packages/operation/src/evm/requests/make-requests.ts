@@ -1,7 +1,7 @@
 import { encode } from '@api3/airnode-abi';
 import { mocks } from '@api3/protocol';
 import { ethers } from 'ethers';
-import { FullRequest, RequestsState as State, RequestType, TemplateRequest, Withdrawal } from '../../types';
+import { FullRequest, RequestsState as State, RequestType, TemplateRequest, Request } from '../../types';
 import { deriveEndpointId, getDesignatedWallet } from '../utils';
 
 export async function makeTemplateRequest(state: State, request: TemplateRequest) {
@@ -60,15 +60,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
   await tx.wait();
 }
 
-function getWithdrawalDestinationAddress(state: State, request: Withdrawal): string {
-  if (request.destination.startsWith('0x')) {
-    return request.destination;
-  }
-  const sponsor = state.deployment.sponsors.find((s) => s.id === request.sponsorId);
-  return sponsor!.address;
-}
-
-export async function makeWithdrawal(state: State, request: Withdrawal) {
+export async function makeWithdrawal(state: State, request: Request) {
   const sponsor = state.deployment.sponsors.find((s) => s.id === request.sponsorId);
   const { privateKey, address: sponsorAddress } = sponsor!;
   const signer = new ethers.Wallet(privateKey, state.provider);
@@ -78,11 +70,9 @@ export async function makeWithdrawal(state: State, request: Withdrawal) {
   const { mnemonic } = state.config.airnodes[request.airnode];
   const designatedWallet = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
 
-  const destination = getWithdrawalDestinationAddress(state, request);
-
   const { AirnodeRrp } = state.contracts;
 
-  await AirnodeRrp.connect(signer).requestWithdrawal(airnode, designatedWallet.address, destination);
+  await AirnodeRrp.connect(signer).requestWithdrawal(airnode, designatedWallet.address);
 }
 
 export async function makeRequests(state: State) {
@@ -97,7 +87,7 @@ export async function makeRequests(state: State) {
         break;
 
       case 'withdrawal':
-        await makeWithdrawal(state, request as Withdrawal);
+        await makeWithdrawal(state, request as Request);
         break;
     }
   }
