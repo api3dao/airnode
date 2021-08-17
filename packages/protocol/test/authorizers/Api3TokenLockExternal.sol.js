@@ -18,6 +18,7 @@ const LOCK_AMOUNT = 10;
 const chainId = 4;
 let airnodeAddress, airnodeMnemonic, airnodeWallet, airnodeId;
 const adminnedId = hre.ethers.constants.HashZero;
+const anotherId = utils.generateRandomBytes32();
 
 const Errors = {
   RequesterBlocked: 'Requester blocked',
@@ -28,6 +29,7 @@ const Errors = {
   ZeroAddress: 'Zero address',
   ZeroAmount: 'Zero amount',
   ZeroChainId: 'Zero ChainId',
+  NotLocked: 'No amount locked',
 };
 
 describe('Api3TokenLockExternal', async () => {
@@ -46,9 +48,7 @@ describe('Api3TokenLockExternal', async () => {
       unknown: accounts[9],
     };
 
-    const generatedWallets = utils.generateRandomAirnodeWallet();
-    airnodeAddress = generatedWallets.airnodeAddress;
-    airnodeMnemonic = generatedWallets.airnodeMnemonic;
+    ({ airnodeAddress: airnodeAddress, airnodeMnemonic: airnodeMnemonic } = utils.generateRandomAirnodeWallet());
     airnodeId = hre.ethers.utils.defaultAbiCoder.encode(['address'], [airnodeAddress]);
     await roles.deployer.sendTransaction({
       to: airnodeAddress,
@@ -148,6 +148,72 @@ describe('Api3TokenLockExternal', async () => {
   });
 
   describe('post deployment', async () => {
+    describe('getRank', async () => {
+      context('admin is metaAdmin', () => {
+        it('returns MAX_RANK', async () => {
+          expect(await api3TokenLockExternal.getRank(airnodeId, roles.metaAdmin.address)).to.equal(
+            AdminStatus.MetaAdmin
+          );
+          expect(await api3TokenLockExternal.getRank(anotherId, roles.metaAdmin.address)).to.equal(
+            AdminStatus.MetaAdmin
+          );
+          expect(await api3TokenLockExternal.getRank(adminnedId, roles.metaAdmin.address)).to.equal(
+            AdminStatus.MetaAdmin
+          );
+        });
+      });
+
+      context('admin is of rank superAdmin', () => {
+        it('returns SuperAdmin Rank', async () => {
+          expect(await api3TokenLockExternal.getRank(airnodeId, roles.superAdmin.address)).to.equal(
+            AdminStatus.SuperAdmin
+          );
+          expect(await api3TokenLockExternal.getRank(anotherId, roles.superAdmin.address)).to.equal(
+            AdminStatus.SuperAdmin
+          );
+          expect(await api3TokenLockExternal.getRank(adminnedId, roles.superAdmin.address)).to.equal(
+            AdminStatus.SuperAdmin
+          );
+        });
+      });
+
+      context('admin is of rank admin', () => {
+        it('returns Admin Rank', async () => {
+          expect(await api3TokenLockExternal.getRank(airnodeId, roles.admin.address)).to.equal(AdminStatus.Admin);
+          expect(await api3TokenLockExternal.getRank(anotherId, roles.admin.address)).to.equal(AdminStatus.Admin);
+          expect(await api3TokenLockExternal.getRank(adminnedId, roles.admin.address)).to.equal(AdminStatus.Admin);
+        });
+      });
+
+      context('admin is the airnodeMasterWallet', () => {
+        context('adminnedId is the airnodeId of the airnodeMasterWallet', () => {
+          it('returns MAX_RANK', async () => {
+            expect(await api3TokenLockExternal.getRank(airnodeId, airnodeAddress)).to.equal(AdminStatus.MetaAdmin);
+          });
+        });
+        context('use other adminnedId', () => {
+          it('returns Unauthorized Rank', async () => {
+            expect(await api3TokenLockExternal.getRank(anotherId, airnodeAddress)).to.equal(AdminStatus.Unauthorized);
+            expect(await api3TokenLockExternal.getRank(adminnedId, airnodeAddress)).to.equal(AdminStatus.Unauthorized);
+          });
+        });
+      });
+
+      context('admin is random person', () => {
+        it('returns Unauthorized Rank', async () => {
+          expect(await api3TokenLockExternal.getRank(airnodeId, roles.unknown.address)).to.equal(
+            AdminStatus.Unauthorized
+          );
+          expect(await api3TokenLockExternal.getRank(anotherId, roles.unknown.address)).to.equal(
+            AdminStatus.Unauthorized
+          );
+          expect(await api3TokenLockExternal.getRank(adminnedId, roles.unknown.address)).to.equal(
+            AdminStatus.Unauthorized
+          );
+        });
+      });
+    });
+
     describe('setMinimumLockingTime', async () => {
       const NEW_MINIMUM_LOCKING_TIME = 2 * ONE_MINUTE_IN_SECONDS;
 
@@ -270,6 +336,14 @@ describe('Api3TokenLockExternal', async () => {
       context('caller is metaAdmin', async () => {
         context('requester is blocking on an airnode', async () => {
           it('sets the block', async () => {
+            expect(
+              await api3TokenLockExternal.chainIdToAirnodeToRequesterToBlockStatus(
+                chainId,
+                airnodeAddress,
+                roles.requester.address
+              )
+            ).to.equal(false);
+
             await api3TokenLockExternal
               .connect(roles.metaAdmin)
               .blockRequester(chainId, airnodeAddress, roles.requester.address);
@@ -282,10 +356,12 @@ describe('Api3TokenLockExternal', async () => {
               )
             ).to.equal(true);
 
+            //Requester unable to lock for the airnodeAddress
             await expect(
               api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
             ).to.revertedWith(Errors.RequesterBlocked);
 
+            //Requester able to lock for other airnodes
             await api3TokenLockExternal
               .connect(roles.sponsor)
               .lock(chainId, roles.unknown.address, roles.requester.address);
@@ -324,6 +400,14 @@ describe('Api3TokenLockExternal', async () => {
         });
         context('requester is being blocked globally', async () => {
           it('sets the block', async () => {
+            expect(
+              await api3TokenLockExternal.chainIdToAirnodeToRequesterToBlockStatus(
+                0,
+                hre.ethers.constants.AddressZero,
+                roles.requester.address
+              )
+            ).to.equal(false);
+
             await api3TokenLockExternal
               .connect(roles.metaAdmin)
               .blockRequester(0, hre.ethers.constants.AddressZero, roles.requester.address);
@@ -336,6 +420,7 @@ describe('Api3TokenLockExternal', async () => {
               )
             ).to.equal(true);
 
+            //Requester unable to lock for any airnode address
             await expect(
               api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
             ).to.revertedWith(Errors.RequesterBlocked);
@@ -362,6 +447,14 @@ describe('Api3TokenLockExternal', async () => {
       context('caller is superAdmin', async () => {
         context('requester is blocking on an airnode', async () => {
           it('sets the block', async () => {
+            expect(
+              await api3TokenLockExternal.chainIdToAirnodeToRequesterToBlockStatus(
+                chainId,
+                airnodeAddress,
+                roles.requester.address
+              )
+            ).to.equal(false);
+
             await api3TokenLockExternal
               .connect(roles.superAdmin)
               .blockRequester(chainId, airnodeAddress, roles.requester.address);
@@ -374,10 +467,12 @@ describe('Api3TokenLockExternal', async () => {
               )
             ).to.equal(true);
 
+            //Requester unable to lock for the airnodeAddress
             await expect(
               api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
             ).to.revertedWith(Errors.RequesterBlocked);
 
+            //Requester able to lock for other airnodes
             await api3TokenLockExternal
               .connect(roles.sponsor)
               .lock(chainId, roles.unknown.address, roles.requester.address);
@@ -416,8 +511,16 @@ describe('Api3TokenLockExternal', async () => {
         });
         context('requester is being blocked globally', async () => {
           it('sets the block', async () => {
+            expect(
+              await api3TokenLockExternal.chainIdToAirnodeToRequesterToBlockStatus(
+                0,
+                hre.ethers.constants.AddressZero,
+                roles.requester.address
+              )
+            ).to.equal(false);
+
             await api3TokenLockExternal
-              .connect(roles.metaAdmin)
+              .connect(roles.superAdmin)
               .blockRequester(0, hre.ethers.constants.AddressZero, roles.requester.address);
 
             expect(
@@ -428,6 +531,7 @@ describe('Api3TokenLockExternal', async () => {
               )
             ).to.equal(true);
 
+            //Requester unable to lock for any airnode address
             await expect(
               api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
             ).to.revertedWith(Errors.RequesterBlocked);
@@ -440,11 +544,11 @@ describe('Api3TokenLockExternal', async () => {
           it('emits event', async () => {
             await expect(
               api3TokenLockExternal
-                .connect(roles.metaAdmin)
+                .connect(roles.superAdmin)
                 .blockRequester(0, hre.ethers.constants.AddressZero, roles.requester.address)
             )
               .to.emit(api3TokenLockExternal, 'BlockedRequester')
-              .withArgs(0, hre.ethers.constants.AddressZero, roles.requester.address, roles.metaAdmin.address)
+              .withArgs(0, hre.ethers.constants.AddressZero, roles.requester.address, roles.superAdmin.address)
               .to.emit(api3TokenLockExternal, 'Authorized')
               .withArgs(0, hre.ethers.constants.HashZero, roles.requester.address, 0);
           });
@@ -454,6 +558,14 @@ describe('Api3TokenLockExternal', async () => {
       context('caller is airnodeAdmin', async () => {
         context('requester is being blocked on airnodeAdmin`s airnode', async () => {
           it('sets the block', async () => {
+            expect(
+              await api3TokenLockExternal.chainIdToAirnodeToRequesterToBlockStatus(
+                chainId,
+                airnodeAddress,
+                roles.requester.address
+              )
+            ).to.equal(false);
+
             await api3TokenLockExternal
               .connect(airnodeWallet)
               .blockRequester(chainId, airnodeAddress, roles.requester.address);
@@ -466,10 +578,12 @@ describe('Api3TokenLockExternal', async () => {
               )
             ).to.equal(true);
 
+            //Requester unable to lock for the airnodeAddress
             await expect(
               api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address)
             ).to.revertedWith(Errors.RequesterBlocked);
 
+            //Requester able to lock for other airnodes
             await api3TokenLockExternal
               .connect(roles.sponsor)
               .lock(chainId, roles.unknown.address, roles.requester.address);
@@ -587,6 +701,7 @@ describe('Api3TokenLockExternal', async () => {
 
       context('caller has already locked', async () => {
         it('is set for different sponser', async () => {
+          await api3TokenLockExternal.connect(roles.sponsor).lock(chainId, airnodeAddress, roles.requester.address);
           await api3Token.connect(roles.sponsor).transfer(roles.anotherSponsor.address, LOCK_AMOUNT * 2);
           await api3Token
             .connect(roles.anotherSponsor)
@@ -625,7 +740,7 @@ describe('Api3TokenLockExternal', async () => {
               airnodeAddress,
               roles.requester.address
             )
-          ).to.equal(1);
+          ).to.equal(2);
         });
 
         it('reverts for the same sponser', async () => {
@@ -781,7 +896,7 @@ describe('Api3TokenLockExternal', async () => {
 
           await expect(
             api3TokenLockExternal.connect(roles.sponsor).unlock(chainId, airnodeAddress, roles.requester.address)
-          ).to.revertedWith('No amount locked');
+          ).to.revertedWith(Errors.NotLocked);
         });
       });
 

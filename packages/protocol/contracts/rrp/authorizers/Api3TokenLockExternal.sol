@@ -21,7 +21,6 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
     string private constant ERROR_NOT_LOCKED = "No amount locked";
     string private constant ERROR_LOCK_PERIOD_NOT_EXPIRED =
         "Locking period not expired";
-    string private constant ERROR_LOCK_PERIOD_ZERO = "Zero lock period";
     string private constant ERROR_REQUESTER_BLOCKED = "Requester blocked";
 
     /// @dev Address of Api3Token
@@ -242,10 +241,6 @@ contract Api3TokenLockExternal is MetaAdminnable, IApi3TokenLockExternal {
                 _airnode
             ][_requesterAddress];
         require(target.sponsorLockAmount[msg.sender] != 0, ERROR_NOT_LOCKED);
-        require(
-            target.sponsorUnlockTime[msg.sender] != 0,
-            ERROR_LOCK_PERIOD_ZERO
-        );
         require(
             target.sponsorUnlockTime[msg.sender] <= block.timestamp,
             ERROR_LOCK_PERIOD_NOT_EXPIRED
