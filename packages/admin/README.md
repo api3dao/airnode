@@ -140,7 +140,6 @@ npx @api3/airnode-admin request-withdrawal \
   --mnemonic "nature about salad..." \
   --airnode 0xe1e0dd... \
   --sponsorWallet 0x9Ec6C4... \
-  --destination 0x98aaba...
 ```
 
 ### `check-withdrawal-request`

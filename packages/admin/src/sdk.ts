@@ -22,8 +22,8 @@ export class AdminSdk {
 
   createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
 
-  requestWithdrawal = (airnode: string, sponsorWallet: string, destination: string) =>
-    admin.requestWithdrawal(this.airnodeRrp, airnode, sponsorWallet, destination);
+  requestWithdrawal = (airnode: string, sponsorWallet: string) =>
+    admin.requestWithdrawal(this.airnodeRrp, airnode, sponsorWallet);
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
@@ -45,6 +45,6 @@ export class AdminSdk {
   sponsorToWithdrawalRequestCount = (sponsor: string) =>
     admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsor);
 
-  fulfillWithdrawal = (requestId: string, airnode: string, sponsor: string, destination: string, amount: string) =>
-    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnode, sponsor, destination, amount);
+  fulfillWithdrawal = (requestId: string, airnode: string, sponsor: string, amount: string) =>
+    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnode, sponsor, amount);
 }

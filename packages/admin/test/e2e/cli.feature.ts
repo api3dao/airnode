@@ -272,25 +272,20 @@ describe('CLI', () => {
   });
 
   describe('withdrawal', () => {
-    let sponsor: string;
+    let sponsor: ethers.Wallet;
     let sponsorWallet: ethers.Wallet;
-    let destinationWallet: ethers.Wallet;
-    const destinationBalance = async () => (await destinationWallet.getBalance()).toString();
+    const sponsorBalance = async () => await sponsor.getBalance();
 
     beforeEach(async () => {
       // Prepare for derivation of designated wallet - see test for designated wallet derivation for details
-      sponsor = alice.address;
+      sponsor = alice;
 
       // Derive and fund the designated sponsor wallet
-      sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor);
+      sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor.address);
       await deployer.sendTransaction({
         to: sponsorWallet.address,
         value: ethers.utils.parseEther('1'),
       });
-
-      // Create destination address
-      destinationWallet = ethers.Wallet.createRandom().connect(provider);
-      expect(await destinationBalance()).toBe('0');
     });
 
     it('can create and fulfill withdrawal request', async () => {
@@ -301,8 +296,7 @@ describe('CLI', () => {
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--airnode', airnodeWallet.address],
-        ['--sponsorWallet', sponsorWallet.address],
-        ['--destination', destinationWallet.address]
+        ['--sponsorWallet', sponsorWallet.address]
       );
 
       expect(requestWithdrawalOutput).toMatch(new RegExp(`Withdrawal request ID: 0x\\w+`));
@@ -318,17 +312,13 @@ describe('CLI', () => {
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
 
+      const balanceBefore = await sponsorBalance();
       airnodeRrp = airnodeRrp.connect(sponsorWallet);
-      await admin.fulfillWithdrawal(
-        airnodeRrp,
-        withdrawalRequestId,
-        airnodeWallet.address,
-        sponsor,
-        destinationWallet.address,
-        '0.8'
-      );
+      await admin.fulfillWithdrawal(airnodeRrp, withdrawalRequestId, airnodeWallet.address, sponsor.address, '0.8');
       expect(checkWithdrawalStatus()).toBe('Withdrawn amount: 800000000000000000');
-      expect(await destinationBalance()).toBe('800000000000000000');
+      expect((await sponsorBalance()).toString()).toBe(
+        balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString()
+      );
     });
   });
 

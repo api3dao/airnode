@@ -51,11 +51,6 @@ const COMMON_COMMAND_ARGUMENTS = {
     demandOption: true,
     describe: 'Address of the requester contract',
   },
-  destination: {
-    type: 'string',
-    demandOption: true,
-    describe: 'Address of the receiving account (account to which the funds will be withdrawn to)',
-  },
   withdrawalRequestId: {
     type: 'string',
     demandOption: true,
@@ -63,16 +58,8 @@ const COMMON_COMMAND_ARGUMENTS = {
   },
 } as const;
 
-const {
-  airnodeRrpCommands,
-  mnemonicCommands,
-  sponsor,
-  airnode,
-  sponsorWallet,
-  requester,
-  destination,
-  withdrawalRequestId,
-} = COMMON_COMMAND_ARGUMENTS;
+const { airnodeRrpCommands, mnemonicCommands, sponsor, airnode, sponsorWallet, requester, withdrawalRequestId } =
+  COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
 
@@ -192,7 +179,6 @@ yargs
       ...mnemonicCommands,
       airnode,
       sponsorWallet,
-      destination,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
@@ -201,12 +187,7 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const withdrawalRequestId = await admin.requestWithdrawal(
-        airnodeRrp,
-        args.airnode,
-        args.sponsorWallet,
-        args.destination
-      );
+      const withdrawalRequestId = await admin.requestWithdrawal(airnodeRrp, args.airnode, args.sponsorWallet);
       console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
   )
