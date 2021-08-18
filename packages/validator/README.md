@@ -69,7 +69,7 @@ yarn run convert --from="OAS" --to="OIS" --specs="exampleSpecs/OAS.specs.json"
 
 Specification formats are case-insensitive, currently available conversions are from `OAS` to `OIS` or from `OIS` to `config`. Version of the format can be provided as in `validate` command:
 ```sh
-yarn run convert --from="OIS@pre-alpha" --to="config@0.1.0" --specs="exampleSpecs/ois.specs.json"
+yarn run convert --from="OIS@pre-alpha" --to="config@pre-alpha" --specs="exampleSpecs/ois.specs.json"
 ```
 
 ## Output
