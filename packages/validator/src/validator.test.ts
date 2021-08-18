@@ -8,8 +8,8 @@ import { Log } from './types';
 
 const messages: Log[] = [];
 
-const endpointsTemplate = JSON.parse(fs.readFileSync(getPath('endpoints.json', messages), 'utf8'));
-const oisTemplate = JSON.parse(fs.readFileSync(getPath('ois.json', messages), 'utf8'));
+const endpointsTemplate = JSON.parse(fs.readFileSync(getPath('endpoints.json', messages, 'pre-alpha'), 'utf8'));
+const oisTemplate = JSON.parse(fs.readFileSync(getPath('ois.json', messages, 'pre-alpha'), 'utf8'));
 
 describe('validator templates loaded', () => {
   it('expects no messages', () => {
@@ -319,12 +319,12 @@ describe('validator', () => {
   });
 
   it('ois specs', () => {
-    expect(validator.validateJson(JSON.parse(validOISSpecification), oisTemplate, 'templates/1.0.0/')).toEqual({
+    expect(validator.validateJson(JSON.parse(validOISSpecification), oisTemplate, 'templates/pre-alpha/')).toEqual({
       valid: true,
       messages: [],
     });
 
-    expect(validator.validateJson(JSON.parse(invalidOISSpecification), oisTemplate, 'templates/1.0.0/')).toEqual({
+    expect(validator.validateJson(JSON.parse(invalidOISSpecification), oisTemplate, 'templates/pre-alpha/')).toEqual({
       valid: false,
       messages: [
         formattingMessage(['oisFormat']),
