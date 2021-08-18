@@ -17,13 +17,13 @@ it('processes withdrawals only once', async () => {
 
   const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  // Overwrites the one injected by the jest setup script
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
-
   await e2e.makeRequests(deployConfig, deployment);
 
+  const nodeSettings = fixtures.buildNodeSettings({
+    airnodeWalletMnemonic: deployConfig.airnodes.CurrencyConverterAirnode.mnemonic,
+  });
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const config = fixtures.buildConfig({ chains: [chain] });
+  const config = fixtures.buildConfig({ chains: [chain], nodeSettings });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   // Check that the relevant withdrawal events are present
@@ -36,7 +36,7 @@ it('processes withdrawals only once', async () => {
   expect(preinvokeFulfillments.length).toEqual(0);
 
   const alice = deployment.requesters.find((r) => r.id === 'alice');
-  const hdNode = wallet.getMasterHDNode();
+  const hdNode = wallet.getMasterHDNode(config);
   const designatedAddress = wallet.deriveWalletAddressFromIndex(hdNode, alice!.requesterIndex);
 
   // It's difficult to check exact balances because the requester has made transactions at this

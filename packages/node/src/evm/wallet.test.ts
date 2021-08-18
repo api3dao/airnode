@@ -1,8 +1,11 @@
 import * as wallet from './wallet';
+import * as fixtures from '../../test/fixtures';
+
+const config = fixtures.buildConfig();
 
 describe('getExtendedPublicKey', () => {
   it('returns the extended public key for the master HDNode', () => {
-    const masterHDNode = wallet.getMasterHDNode();
+    const masterHDNode = wallet.getMasterHDNode(config);
     const xpub = wallet.getExtendedPublicKey(masterHDNode);
     expect(xpub).toEqual(
       'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx'
@@ -12,7 +15,7 @@ describe('getExtendedPublicKey', () => {
 
 describe('getWallet', () => {
   it('returns the wallet for the given private key', () => {
-    const masterHDNode = wallet.getMasterHDNode();
+    const masterHDNode = wallet.getMasterHDNode(config);
     const masterWallet = wallet.getWallet(masterHDNode.privateKey);
     expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
   });
@@ -20,7 +23,7 @@ describe('getWallet', () => {
 
 describe('getAirnodeId', () => {
   it('returns the airnodeId from the mnemonic', () => {
-    const masterHDNode = wallet.getMasterHDNode();
+    const masterHDNode = wallet.getMasterHDNode(config);
     const res = wallet.getAirnodeId(masterHDNode);
     expect(res).toEqual('0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb');
   });
@@ -28,7 +31,7 @@ describe('getAirnodeId', () => {
 
 describe('deriveWalletAddressFromIndex', () => {
   it('returns the wallet address for the given index', () => {
-    const masterHDNode = wallet.getMasterHDNode();
+    const masterHDNode = wallet.getMasterHDNode(config);
     const adminWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, '0');
     const wallet1 = wallet.deriveWalletAddressFromIndex(masterHDNode, '1');
     const wallet2 = wallet.deriveWalletAddressFromIndex(masterHDNode, '777');
@@ -40,7 +43,7 @@ describe('deriveWalletAddressFromIndex', () => {
 
 describe('deriveSigningWalletFromIndex', () => {
   it('returns the signer for the given index', () => {
-    const masterHDNode = wallet.getMasterHDNode();
+    const masterHDNode = wallet.getMasterHDNode(config);
     const signingWallet = wallet.deriveSigningWalletFromIndex(masterHDNode, '0');
     expect(signingWallet._isSigner).toEqual(true);
     expect(signingWallet.address).toEqual('0xF47dD64127f46ca44679647BC1B3c6B248bf79A0');

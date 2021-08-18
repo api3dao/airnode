@@ -13,7 +13,7 @@ export async function testApi(
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallResponse]> {
   const testCallId = randomString(8);
-  const masterHDNode = wallet.getMasterHDNode();
+  const masterHDNode = wallet.getMasterHDNode(config);
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
 

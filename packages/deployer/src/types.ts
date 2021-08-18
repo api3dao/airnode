@@ -1,4 +1,9 @@
-import { Config } from '@api3/node';
+import { Config as NodeConfig, NodeSettings as NodeNodeSettings } from '@api3/node';
+
+type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+type NodeSettings = Optional<NodeNodeSettings, 'airnodeWalletMnemonic'>;
+export type Config = Omit<NodeConfig, 'nodeSettings'> & { nodeSettings: NodeSettings };
 
 // ===========================================
 // Receipt file

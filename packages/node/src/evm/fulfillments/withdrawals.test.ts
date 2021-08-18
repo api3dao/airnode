@@ -26,9 +26,10 @@ import * as wallet from '../wallet';
 import { AirnodeRrp } from '../contracts';
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
+const config = fixtures.buildConfig();
 
 describe('submitWithdrawal', () => {
-  const masterHDNode = wallet.getMasterHDNode();
+  const masterHDNode = wallet.getMasterHDNode(config);
 
   it('subtracts transaction costs and submits the remaining balance for pending requests', async () => {
     const provider = new ethers.providers.JsonRpcProvider();

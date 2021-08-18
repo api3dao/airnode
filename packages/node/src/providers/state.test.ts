@@ -151,7 +151,7 @@ describe('refresh', () => {
       expect(newState.provider).toBeInstanceOf(ethers.providers.JsonRpcProvider);
       const scrubbed = state.scrub(newState);
       expect(scrubbed.provider).toEqual(undefined);
-      const refreshed = state.refresh(scrubbed);
+      const refreshed = state.refresh({ ...scrubbed, config: fixtures.buildConfig() });
       expect(refreshed.provider).toBeInstanceOf(ethers.providers.JsonRpcProvider);
     });
 
@@ -160,7 +160,7 @@ describe('refresh', () => {
       expect(newState.masterHDNode).toBeInstanceOf(ethers.utils.HDNode);
       const scrubbed = state.scrub(newState);
       expect(scrubbed.masterHDNode).toEqual(undefined);
-      const refreshed = state.refresh(scrubbed);
+      const refreshed = state.refresh({ ...scrubbed, config: fixtures.buildConfig() });
       expect(refreshed.masterHDNode).toBeInstanceOf(ethers.utils.HDNode);
     });
   });

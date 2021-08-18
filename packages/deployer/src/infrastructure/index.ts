@@ -7,7 +7,7 @@ import ora from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
 
-type TerraformAirnodeOutput = {
+export type TerraformAirnodeOutput = {
   testing_gateway_url?: {
     value: string;
   };

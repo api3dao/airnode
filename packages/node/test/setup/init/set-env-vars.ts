@@ -1,4 +1,3 @@
-process.env.MASTER_KEY_MNEMONIC = 'achieve climb couple wait accident symbol spy blouse reduce foil echo label';
 process.env.SS_CURRENCY_CONVERTER_API_MY_SECURITY_SCHEME = 'supersecret';
 process.env.CP_EVM_31337_EVM_LOCAL = 'http://127.0.0.1:8545/';
 process.env.CP_EVM_1337_GANACHE_TEST = 'http://localhost:4111';

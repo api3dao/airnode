@@ -34,11 +34,11 @@ export function parseConfig(configPath: string, secrets: Record<string, string |
   return { ...parsedConfig, ois };
 }
 
-export function getMasterKeyMnemonic(): string {
-  const mnemonic = process.env.MASTER_KEY_MNEMONIC;
+export function getMasterKeyMnemonic(config: Config): string {
+  const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   // The node cannot function without a master mnemonic
   if (!mnemonic) {
-    throw new Error('Unable to find MASTER_KEY_MNEMONIC from the environment. Please ensure this is set first');
+    throw new Error('Unable to find Airnode wallet mnemonic in the configuration. Please ensure this is set first');
   }
   return mnemonic;
 }
