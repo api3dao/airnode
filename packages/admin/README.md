@@ -31,12 +31,12 @@ You can also use the package programatically. The SDK exports respective functio
 well as helper functions for obtaining the contract instance on the targeted chain.
 
 ```js
-import { endorseClient, getAirnodeRrpWithSigner } from '@api3/admin';
+import { sponsorRequester, getAirnodeRrpWithSigner } from '@api3/admin';
 
 // First obtain the contract instance on target chain
 const airnodeRrp = await getAirnodeRrpWithSigner(mnemonic, derivationPath, providerUrl, airnodeRrpAddress);
 // Pass the contract instance as the first argument to the SDK function
-const client = await endorseClient(airnodeRrp, clientAddress);
+const requester = await sponsorRequester(airnodeRrp, requester);
 ```
 
 If you plan to use multiple commands it might be tedious to pass the contract instance to every function call. For this reason there is also class based `AdminSdk` which you initialize with `AirnodeRrp` contract only once.
@@ -50,7 +50,7 @@ const airnodeRrp = await AdminSdk.getAirnodeRrpWithSigner(mnemonic, derivationPa
 // Create sdk instance
 const adminSdk = new AdminSdk(airnodeRrp);
 // Call the method you need
-const client = await adminSdk.endorseClient(clientAddress);
+const requester = await adminSdk.sponsorRequester(requester);
 
 // You can switch the contract instance anytime. E.g. if you are using ethers
 adminSdk.airnodeRrp = airnodeRrp.connect(someOtherWallet);
@@ -59,57 +59,57 @@ adminSdk.airnodeRrp = airnodeRrp.connect(someOtherWallet);
 The SDK will also provide TS typings out of the box.
 Please, refer to the implementation for more details.
 
-## Requester commands
+## Developer commands
 
-### `derive-designated-wallet`
+### `derive-sponsor-wallet`
 
-Derives the address of the [wallet designated by an Airnode for a requester](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md).
-
-```sh
-npx @api3/airnode-admin derive-designated-wallet \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --airnodeId 0xe1e0dd... \
-  --requester 0x9Ec6C4...
-```
-
-### `endorse-client`
-
-[Endorses](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) a client contract so that its requests can be fulfilled by the requester's designated wallet.
-The account derived from the `mnemonic` you provide here has to belong to the requester admin (master wallet).
+Derives the address of the wallet designated by an Airnode for a requester.
 
 ```sh
-npx @api3/airnode-admin endorse-client \
+npx @api3/airnode-admin derive-sponsor-wallet \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --clientAddress 0x2c2e12...
+  --sponsor 0x9Ec6C4...
 ```
 
-### `unendorse-client`
+### `sponsor-requester`
 
-Unendorses a client contract so that its requests can no longer be fulfilled by the requester's designated wallet.
-The account derived from the `mnemonic` you provide here has to belong to the requester admin (master wallet).
+Sponsors a requester contract so that its requests can be fulfilled by the sponsor's wallet.
+The account derived from the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
-npx @api3/airnode-admin unendorse-client \
+npx @api3/airnode-admin sponsor-requester \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --clientAddress 0x2c2e12...
+  --requester 0x2c2e12...
 ```
 
-### `get-endorsement-status`
+### `unsponsor-requester`
 
-Returns the endorsement status for the given requester and client (`true` if endorsed, `false` otherwise).
+Revokes the sponsorship of a requester contract so that its requests can no longer be fulfilled by the sponsor's wallet.
+The account derived from the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
-npx @api3/airnode-admin get-endorsement-status \
+npx @api3/airnode-admin unsponsor-requester \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --requester 0x9Ec6C4... \
-  --clientAddress 0x2c2e12...
+  --mnemonic "nature about salad..." \
+  --requester 0x2c2e12...
+```
+
+### `get-sponsor-status`
+
+Returns the sponsorship status for the given sponsor and requester (`true` if sponsored, `false` otherwise).
+
+```sh
+npx @api3/airnode-admin get-sponsor-status \
+  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --sponsor 0x9Ec6C4... \
+  --requester 0x2c2e12...
 ```
 
 ### `create-template`
 
-Reads a file, uses its contents to create a [template](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/template.md) and returns the template ID.
+Reads a file, uses its contents to create a template and returns the template ID.
 See the `/example` directory for an example template file.
 
 ```sh
@@ -131,16 +131,15 @@ npx @api3/airnode-admin get-template \
 
 ### `request-withdrawal`
 
-Requests a [withdrawal](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/designated-wallet.md#withdrawals) from the wallet designated by an Airnode for a requester, and returns the request ID.
-The account derived from the `mnemonic` you provide here has to belong to the requester admin (master wallet).
+Requests a withdrawal from the wallet designated by an Airnode for a sponsor, and returns the request ID.
+The account derived from the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --airnodeId 0xe1e0dd... \
-  --requester 0x9Ec6C4... \
-  --destination 0x98aaba...
+  --airnode 0xe1e0dd... \
+  --sponsorWallet 0x9Ec6C4... \
 ```
 
 ### `check-withdrawal-request`
@@ -155,34 +154,33 @@ npx @api3/airnode-admin check-withdrawal-request \
 
 ## Airnode commands
 
-### `set-airnode-parameters`
+### `set-airnode-xpub`
 
-Sets the parameters of an [Airnode](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/provider.md) and returns the Airnode ID.
-See the `/example` directory for an example authorizers file.
+Sets the xpub of an Airnode.
 
-**You probably should not be using this.**
-Airnode will set its own parameters during [deployment](https://github.com/api3dao/api3-docs/blob/master/provider-guides/deploying-airnode.md) if necessary.
+**This extended public key does not need to be announced on-chain for the protocol to be used, it is mainly for convenience.**
 
 ```sh
-npx @api3/airnode-admin set-airnode-parameters \
+npx @api3/airnode-admin set-airnode-xpub \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
   --mnemonic "nature about salad..." \
-  --authorizersFilePath ./authorizers.json
 ```
 
-### `get-airnode-parameters`
+The account derived from the `mnemonic` you provide here has to belong to the airnode.
 
-Returns the Airnode parameters and block number for the given `airnodeId`.
+### `get-airnode-xpub`
+
+Returns the Airnode xpub for the given `airnode`.
 
 ```sh
-npx @api3/airnode-admin get-airnode-parameters \
+npx @api3/airnode-admin get-airnode-xpub \
   --providerUrl https://ropsten.infura.io/v3/<KEY> \
-  --airnodeId 0xe1e0dd...
+  --airnode 0xe1e0dd...
 ```
 
 ### `derive-endpoint-id`
 
-Derives the endpoint ID using the OIS title and the endpoint name using the convention described [here](https://github.com/api3dao/api3-docs/blob/master/provider-guides/configuring-airnode.md#triggers).
+Derives the endpoint ID using the OIS title and the endpoint name.
 
 ```sh
 npx @api3/airnode-admin derive-endpoint-id \

@@ -15,12 +15,12 @@ it('provides same API', async () => {
   const sdk = new AdminSdk(airnodeRrp);
   const sdkApi = difference(Object.keys(sdk), ['airnodeRrp']).sort();
   const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp']).sort();
-  const adminApi = difference(Object.keys(admin), ['addressToDerivationPath', 'deriveEndpointId']).sort();
+  const adminApi = difference(Object.keys(admin), ['deriveWalletPathFromSponsorAddress', 'deriveEndpointId']).sort();
 
   expect(sdkApi).toEqual(adminApi);
   expect(sdkStaticApi).toEqual([
-    'addressToDerivationPath',
     'deriveEndpointId',
+    'deriveWalletPathFromSponsorAddress',
     'getAirnodeRrp',
     'getAirnodeRrpWithSigner',
   ]);

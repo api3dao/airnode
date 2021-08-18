@@ -4,21 +4,23 @@ exports[`CLI shows help 1`] = `
 "cli.js <command>
 
 Commands:
-  cli.js derive-designated-wallet  Derives the address of the designated wallet
-                                   for a airnode-requester pair
-  cli.js endorse-client            Endorses a client as a requester admin
-  cli.js unendorse-client          Unendorses a client as a requester admin
-  cli.js get-endorsement-status    Returns the endorsment status for the given
-                                   requester and client
+  cli.js derive-sponsor-wallet     Derives the address of the wallet for an
+                                   airnode-sponsor pair
+  cli.js sponsor-requester         Allows a requester to make requests that will
+                                   be fulfilled by the Airnode using the sponsor
+                                   wallet
+  cli.js unsponsor-requester       Disallow a requester to make requests to the
+                                   airnode
+  cli.js get-sponsor-status        Returns the sponsorship status for the given
+                                   sponsor and requester
   cli.js create-template           Creates a template and returns its ID
   cli.js get-template              Returns the template for the given templateId
   cli.js request-withdrawal        Requests withdrawal from the designated
-                                   wallet of an Airnode as a requester admin
+                                   wallet of an Airnode as a sponsor
   cli.js check-withdrawal-request  Checks the state of the withdrawal request
-  cli.js set-airnode-parameters    Sets the parameters of an Airnode and returns
-                                   its ID
-  cli.js get-airnode-parameters    Returns the Airnode parameters and current
-                                   block number for the given airnodeId
+  cli.js set-airnode-xpub          Sets the xpub of an Airnode
+  cli.js get-airnode-xpub          Returns the Airnode xpub for the given
+                                   airnode
   cli.js derive-endpoint-id        Derives an endpoint ID using the OIS title
                                    and endpoint name
 
