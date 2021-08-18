@@ -1,12 +1,12 @@
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
-import { EVMRequestCreatedLog, RequestErrorCode, RequestStatus } from '../../types';
+import { EVMMadeRequestLog, RequestErrorCode, RequestStatus } from '../../types';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {
-    const event = fixtures.evm.logs.buildClientRequest();
-    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
+    const event = fixtures.evm.logs.buildMadeTemplateRequest();
+    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -41,8 +41,8 @@ describe('initialize (ApiCall)', () => {
   });
 
   it('sets the API call type', () => {
-    const event = fixtures.evm.logs.buildClientRequest();
-    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
+    const event = fixtures.evm.logs.buildMadeTemplateRequest();
+    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
     const base = {
       parsedLog,
       blockNumber: 10716082,
@@ -65,11 +65,11 @@ describe('initialize (ApiCall)', () => {
 });
 
 describe('applyParameters', () => {
-  let mutableParsedLogWithMetadata: EVMRequestCreatedLog;
+  let mutableParsedLogWithMetadata: EVMMadeRequestLog;
 
   beforeEach(() => {
-    const event = fixtures.evm.logs.buildClientRequest();
-    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
+    const event = fixtures.evm.logs.buildMadeTemplateRequest();
+    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
     mutableParsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -163,8 +163,8 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 
 describe('mapRequests (ApiCall)', () => {
   it('initializes, applies parameters and returns API call requests', () => {
-    const event = fixtures.evm.logs.buildClientRequest();
-    const parsedLog = parseAirnodeRrpLog<'ClientRequestCreated'>(event);
+    const event = fixtures.evm.logs.buildMadeTemplateRequest();
+    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -203,10 +203,10 @@ describe('mapRequests (ApiCall)', () => {
   });
 
   it('updates the status of fulfilled ApiCall requests', () => {
-    const requestEvent = fixtures.evm.logs.buildClientRequest();
-    const fulfillEvent = fixtures.evm.logs.buildClientRequestFulfilled();
-    const requestLog = parseAirnodeRrpLog<'ClientRequestCreated'>(requestEvent);
-    const fulfillLog = parseAirnodeRrpLog<'ClientRequestFulfilled'>(fulfillEvent);
+    const requestEvent = fixtures.evm.logs.buildMadeTemplateRequest();
+    const fulfillEvent = fixtures.evm.logs.buildTemplateFulfilledRequest();
+    const requestLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(requestEvent);
+    const fulfillLog = parseAirnodeRrpLog<'FulfilledRequest'>(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,
