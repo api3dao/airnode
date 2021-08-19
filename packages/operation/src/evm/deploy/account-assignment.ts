@@ -1,16 +1,16 @@
 import { ethers } from 'ethers';
-import { Airnode, DeployState as State, RequesterAccount } from '../../types';
-import { addressToDerivationPath, deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
+import { Airnode, DeployState as State, DesignatedWallet, SponsorAccount } from '../../types';
+import { deriveExtendedPublicKey, deriveWalletFromMnemonic, getDesignatedWallet } from '../utils';
 
 export async function assignAirnodeAccounts(state: State): Promise<State> {
   const airnodesByName: { [name: string]: Airnode } = {};
   for (const airnodeName of Object.keys(state.config.airnodes)) {
     const airnode = state.config.airnodes[airnodeName];
-    const airnodeWallet = deriveWalletFromPath(airnode.mnemonic, 'm', state.provider);
+    const airnodeWallet = deriveWalletFromMnemonic(airnode.mnemonic, state.provider);
     const xpub = deriveExtendedPublicKey(airnode.mnemonic);
 
     airnodesByName[airnodeName] = {
-      masterWalletAddress: airnodeWallet.address,
+      airnodeWalletAddress: airnodeWallet.address,
       mnemonic: airnode.mnemonic,
       signer: airnodeWallet,
       xpub,
@@ -20,33 +20,33 @@ export async function assignAirnodeAccounts(state: State): Promise<State> {
 }
 
 export async function assignRequesterAccounts(state: State): Promise<State> {
-  const requestersById: { [id: string]: RequesterAccount } = {};
-  for (const configRequester of state.config.requesters) {
-    const requesterWallet = ethers.Wallet.createRandom().connect(state.provider);
-    const requesterAddress = requesterWallet.address;
+  const sponsorsById: { [id: string]: SponsorAccount } = {};
+  for (const configSponsor of state.config.sponsors) {
+    const sponsorWallet = ethers.Wallet.createRandom().connect(state.provider);
+    const sponsorAddress = sponsorWallet.address;
 
-    requestersById[configRequester.id] = {
-      address: requesterAddress,
+    sponsorsById[configSponsor.id] = {
+      address: sponsorAddress,
       designatedWallets: [],
-      signer: requesterWallet,
+      signer: sponsorWallet,
     };
   }
 
-  return { ...state, requestersById };
+  return { ...state, sponsorsById };
 }
 
-export async function assignDesignatedWallets(state: State) {
-  const requestersById: { [id: string]: RequesterAccount } = {};
-  for (const configRequester of state.config.requesters) {
-    const requester = state.requestersById[configRequester.id];
-    const designatedAirnodeNames = Object.keys(configRequester.airnodes);
+export async function assignDesignatedWallets(state: State): Promise<State> {
+  const sponsorsById: { [id: string]: SponsorAccount } = {};
+  for (const configSponsor of state.config.sponsors) {
+    const sponsor = state.sponsorsById[configSponsor.id];
+    const designatedAirnodeNames = Object.keys(configSponsor.airnodes);
 
-    const designatedWallets = designatedAirnodeNames.map((airnodeName) => {
+    const designatedWallets: DesignatedWallet[] = designatedAirnodeNames.map((airnodeName) => {
       const airnode = state.airnodesByName[airnodeName];
-      const wallet = deriveWalletFromPath(
-        airnode.mnemonic,
-        `m/0/${addressToDerivationPath(requester.address)}`,
-        state.provider
+      const wallet = getDesignatedWallet(
+        airnode.mnemonic, // Here we have access to airnode wallet mnemonic but in real life a sponsor will only have access to the xpub
+        state.provider,
+        sponsor.address
       );
       return {
         address: wallet.address,
@@ -55,8 +55,8 @@ export async function assignDesignatedWallets(state: State) {
       };
     });
 
-    requestersById[configRequester.id] = { ...requester, designatedWallets };
+    sponsorsById[configSponsor.id] = { ...sponsor, designatedWallets };
   }
 
-  return { ...state, requestersById };
+  return { ...state, sponsorsById };
 }
