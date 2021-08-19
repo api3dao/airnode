@@ -1,96 +1,85 @@
-import { ethers } from 'ethers';
 import { encode } from '@api3/airnode-abi';
 import { mocks } from '@api3/protocol';
-import { deriveEndpointId, deriveAirnodeId, getDesignatedWallet } from '../utils';
-import { FullRequest, RegularRequest, RequestsState as State, RequestType, Withdrawal } from '../../types';
+import { ethers } from 'ethers';
+import { FullRequest, RequestsState as State, RequestType, TemplateRequest, Request } from '../../types';
+import { deriveEndpointId, getDesignatedWallet } from '../utils';
 
-export async function makeRegularRequest(state: State, request: RegularRequest) {
-  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  const { privateKey, address: requesterAddress } = requester!;
+export async function makeTemplateRequest(state: State, request: TemplateRequest) {
+  const sponsor = state.deployment.sponsors.find((s) => s.id === request.sponsorId);
+  const { privateKey, address: sponsorAddress } = sponsor!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
-  const clientAddress = state.deployment.clients[request.client];
-  const client = mocks.MockAirnodeRrpClientFactory.connect(clientAddress, state.provider);
+  const requesterAddress = state.deployment.requesters[request.requester];
+  const requester = mocks.MockRrpRequesterFactory.connect(requesterAddress, state.provider);
   const encodedParameters = encode(request.parameters);
 
   const templateId = state.deployment.airnodes[request.airnode].templates[request.template].hash;
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, requesterAddress, state.provider);
+  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
 
-  const tx = await client
+  const tx = await requester
     .connect(signer)
-    .makeRequest(
+    .makeTemplateRequest(
       templateId,
-      requesterAddress,
+      sponsorAddress,
       designatedWalletAddress,
-      client.address,
-      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
+      requester.address,
+      requester.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
     );
   await tx.wait();
 }
 
 export async function makeFullRequest(state: State, request: FullRequest) {
-  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  const { privateKey, address: requesterAddress } = requester!;
+  const sponsor = state.deployment.sponsors.find((s) => s.id === request.sponsorId);
+  const { privateKey, address: sponsorAddress } = sponsor!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
-  const airnodeAddress = state.deployment.airnodes[request.airnode].masterWalletAddress;
-  const airnodeId = deriveAirnodeId(airnodeAddress);
-  const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
-
-  const clientAddress = state.deployment.clients[request.client];
-  const client = mocks.MockAirnodeRrpClientFactory.connect(clientAddress, state.provider);
+  const requestAddress = state.deployment.requesters[request.requester];
+  const requester = mocks.MockRrpRequesterFactory.connect(requestAddress, state.provider);
   const encodedParameters = encode(request.parameters);
 
-  const { mnemonic } = state.config.airnodes[request.airnode];
-  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, requesterAddress, state.provider);
+  const airnode = state.deployment.airnodes[request.airnode].airnodeWalletAddress;
+  const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
 
-  const tx = await client
+  const { mnemonic } = state.config.airnodes[request.airnode];
+  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
+
+  const tx = await requester
     .connect(signer)
     .makeFullRequest(
-      airnodeId,
+      airnode,
       endpointId,
-      requesterAddress,
+      sponsorAddress,
       designatedWalletAddress,
-      client.address,
-      client.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
+      requester.address,
+      requester.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
     );
   await tx.wait();
 }
 
-function getWithdrawalDestinationAddress(state: State, request: Withdrawal): string {
-  if (request.destination.startsWith('0x')) {
-    return request.destination;
-  }
-  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  return requester!.address;
-}
-
-export async function makeWithdrawal(state: State, request: Withdrawal) {
-  const { AirnodeRrp } = state.contracts;
-
-  const requester = state.deployment.requesters.find((r) => r.id === request.requesterId);
-  const { privateKey, address: requesterAddress } = requester!;
+export async function makeWithdrawal(state: State, request: Request) {
+  const sponsor = state.deployment.sponsors.find((s) => s.id === request.sponsorId);
+  const { privateKey, address: sponsorAddress } = sponsor!;
   const signer = new ethers.Wallet(privateKey, state.provider);
 
-  const airnodeAddress = state.deployment.airnodes[request.airnode].masterWalletAddress;
-  const airnodeId = deriveAirnodeId(airnodeAddress);
+  const airnode = state.deployment.airnodes[request.airnode].airnodeWalletAddress;
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const designatedWallet = getDesignatedWallet(mnemonic, requesterAddress, state.provider);
-  const destination = getWithdrawalDestinationAddress(state, request);
+  const designatedWallet = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
 
-  await AirnodeRrp.connect(signer).requestWithdrawal(airnodeId, designatedWallet.address, destination);
+  const { AirnodeRrp } = state.contracts;
+
+  await AirnodeRrp.connect(signer).requestWithdrawal(airnode, designatedWallet.address);
 }
 
 export async function makeRequests(state: State) {
   for (const request of state.config.requests) {
     switch (request.type as RequestType) {
-      case 'regular':
-        await makeRegularRequest(state, request as RegularRequest);
+      case 'template':
+        await makeTemplateRequest(state, request as TemplateRequest);
         break;
 
       case 'full':
@@ -98,7 +87,7 @@ export async function makeRequests(state: State) {
         break;
 
       case 'withdrawal':
-        await makeWithdrawal(state, request as Withdrawal);
+        await makeWithdrawal(state, request as Request);
         break;
     }
   }

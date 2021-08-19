@@ -27,10 +27,10 @@
   "authorizers": {
     "public": "0x0000000000000000000000000000000000000000"
   },
-  "clients": {
-    "MockAirnodeRrpClientFactory": { "endorsers": ["bob"] }
+  "requesters": {
+    "MockRrpRequesterFactory": { "sponsors": ["bob"] }
   },
-  "requesters": [
+  "sponsors": [
     {
       "id": "alice",
       "airnodes": {
@@ -46,23 +46,21 @@
   ],
   "requests": [
     {
-      "requesterId": "bob",
-      "type": "regular",
+      "sponsorId": "bob",
+      "type": "template",
       "airnode": "CurrencyConverterAirnode",
       "template": "template-1",
-      "client": "MockAirnodeRrpClientFactory",
+      "requester": "MockRrpRequesterFactory",
       "fulfillFunctionName": "fulfill",
-      "parameters": [
-        { "type": "bytes32", "name": "from", "value": "ETH" }
-      ]
+      "parameters": [{ "type": "bytes32", "name": "from", "value": "ETH" }]
     },
     {
-      "requesterId": "bob",
+      "sponsorId": "bob",
       "type": "full",
       "airnode": "CurrencyConverterAirnode",
       "endpoint": "convertToUSD",
       "oisTitle": "Currency Converter API",
-      "client": "MockAirnodeRrpClientFactory",
+      "requester": "MockRrpRequesterFactory",
       "fulfillFunctionName": "fulfill",
       "parameters": [
         { "type": "bytes32", "name": "from", "value": "ETH" },
@@ -73,10 +71,9 @@
       ]
     },
     {
-      "requesterId": "alice",
+      "sponsorId": "alice",
       "type": "withdrawal",
-      "airnode": "CurrencyConverterAirnode",
-      "destination": "alice"
+      "airnode": "CurrencyConverterAirnode"
     }
   ]
 }
