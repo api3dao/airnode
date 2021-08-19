@@ -64,7 +64,7 @@ export type ApiCallType = 'regular' | 'full';
 // TODO: refactor these types such that there is user facing "ApiCall" which will get merged with
 // template and internal type that is the result of those two being merged.
 export interface ApiCall {
-  readonly airnodeId: string | null;
+  readonly airnodeAddress: string | null;
   readonly chainId: string;
   readonly clientAddress: string;
   readonly encodedParameters: string;
@@ -79,14 +79,14 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
   readonly id: string;
 }
 
 export interface Withdrawal {
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly destinationAddress: string;
   readonly requesterIndex: string;
 }
@@ -121,8 +121,8 @@ export interface AggregatedApiCallsById {
 }
 
 export interface CoordinatorSettings {
-  readonly airnodeId: string;
-  readonly airnodeIdShort: string;
+  readonly airnodeAddress: string;
+  readonly airnodeAddressShort: string;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly region: string;
@@ -173,7 +173,7 @@ export interface ApiCallResponse {
 export interface AggregatedApiCall {
   readonly id: string;
   readonly requesterIndex: string;
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly clientAddress: string;
   readonly designatedWallet: string;
   readonly chainId: string;
@@ -190,7 +190,7 @@ export interface AggregatedApiCall {
 // ===========================================
 export interface WorkerOptions {
   readonly cloudProvider: NodeCloudProvider;
-  readonly airnodeIdShort: string;
+  readonly airnodeAddressShort: string;
   readonly region: string;
   readonly stage: string;
 }
@@ -352,7 +352,7 @@ export interface ChainConfig {
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
-  readonly airnodeIdShort?: string;
+  readonly airnodeAddressShort?: string;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;

@@ -32,7 +32,7 @@ export function initialize(log: EVMMadeRequestLog): ClientRequest<ApiCall> {
   const { parsedLog } = log;
 
   const request: ClientRequest<ApiCall> = {
-    airnodeId: parsedLog.args.airnodeId,
+    airnodeAddress: parsedLog.args.airnode,
     chainId: parsedLog.args.chainId.toString(),
     clientAddress: parsedLog.args.clientAddress,
     designatedWallet: parsedLog.args.designatedWallet,

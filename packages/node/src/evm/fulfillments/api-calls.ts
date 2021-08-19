@@ -56,8 +56,8 @@ async function testFulfill(
   const operation = () =>
     airnodeRrp.callStatic.fulfill(
       request.id,
-      // TODO: make sure airnodeId is not null
-      request.airnodeId!,
+      // TODO: make sure airnodeAddress is not null
+      request.airnodeAddress!,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -91,8 +91,8 @@ async function submitFulfill(
   const tx = () =>
     airnodeRrp.fulfill(
       request.id,
-      // TODO: make sure airnodeId is not null
-      request.airnodeId!,
+      // TODO: make sure airnodeAddress is not null
+      request.airnodeAddress!,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -163,8 +163,8 @@ async function submitFail(
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = () =>
-    // TODO: make sure airnodeId is not null
-    airnodeRrp.fail(request.id, request.airnodeId!, request.fulfillAddress, request.fulfillFunctionId, {
+    // TODO: make sure airnodeAddress is not null
+    airnodeRrp.fail(request.id, request.airnodeAddress!, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
       gasPrice: options.gasPrice,
       nonce: request.nonce!,

@@ -3,8 +3,8 @@ import { parseConfig } from '../config';
 import * as handlers from '../handlers';
 import * as logger from '../logger';
 import * as state from '../providers/state';
+import { AggregatedApiCall, Config, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
 import { go } from '../utils/promise-utils';
-import { AggregatedApiCall, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
 
 export interface ProviderArgs {
   readonly state: ProviderState<EVMProviderState>;
@@ -15,7 +15,7 @@ export interface CallApiArgs {
   readonly logOptions: LogOptions;
 }
 
-function loadConfig() {
+function loadConfig(): Config {
   const rawConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))[0];
   return parseConfig(rawConfig);
 }

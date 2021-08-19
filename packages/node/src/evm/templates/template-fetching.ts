@@ -23,7 +23,7 @@ export async function fetchTemplate(
   airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const operation = () => airnodeRrp.getTemplate(templateId);
+  const operation = () => airnodeRrp.getTemplates([templateId]);
   const [err, rawTemplate] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
@@ -33,9 +33,9 @@ export async function fetchTemplate(
   const successLog = logger.pend('INFO', `Fetched API call template:${templateId}`);
 
   const template: ApiCallTemplate = {
-    airnodeId: rawTemplate.airnodeId,
-    encodedParameters: rawTemplate.parameters,
-    endpointId: rawTemplate.endpointId,
+    airnodeAddress: rawTemplate.airnodes[0],
+    encodedParameters: rawTemplate.parameters[0],
+    endpointId: rawTemplate.endpointIds[0],
     id: templateId,
   };
   return [[successLog], template];
@@ -43,7 +43,6 @@ export async function fetchTemplate(
 
 async function fetchTemplateGroup(
   airnodeRrp: AirnodeRrp,
-  // eslint-disable-next-line functional/prefer-readonly-type
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
@@ -53,6 +52,7 @@ async function fetchTemplateGroup(
   if (err || !rawTemplates) {
     const groupLog = logger.pend('ERROR', 'Failed to fetch API call templates', err);
 
+    // TODO: is this still needed now that getTemplate() was removed from protocol?
     // If the template group cannot be fetched, fallback to fetching templates individually
     const promises = templateIds.map((id) => fetchTemplate(airnodeRrp, id));
     const logsWithTemplates = await Promise.all(promises);
@@ -67,7 +67,7 @@ async function fetchTemplateGroup(
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
-      airnodeId: rawTemplates.airnodeIds[index],
+      airnodeAddress: rawTemplates.airnodes[index],
       encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
       id: templateId,

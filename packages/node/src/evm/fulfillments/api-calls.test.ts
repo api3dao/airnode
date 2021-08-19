@@ -114,7 +114,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -124,7 +124,7 @@ describe('submitApiCall', () => {
       expect(fulfillMock).toHaveBeenCalledTimes(1);
       expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -160,7 +160,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -170,7 +170,7 @@ describe('submitApiCall', () => {
       expect(fulfillMock).toHaveBeenCalledTimes(2);
       expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -199,7 +199,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -210,7 +210,7 @@ describe('submitApiCall', () => {
       expect(failMock).toHaveBeenCalledTimes(1);
       expect(failMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -238,7 +238,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -280,7 +280,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(2);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from('0'),
         '0xresponse',
         apiCall.fulfillAddress,
@@ -291,7 +291,7 @@ describe('submitApiCall', () => {
       expect(failMock).toHaveBeenCalledTimes(2);
       expect(failMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -329,7 +329,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -339,7 +339,7 @@ describe('submitApiCall', () => {
       expect(fulfillMock).toHaveBeenCalledTimes(1);
       expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -375,7 +375,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -386,7 +386,7 @@ describe('submitApiCall', () => {
       expect(failMock).toHaveBeenCalledTimes(1);
       expect(failMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -428,7 +428,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -438,7 +438,7 @@ describe('submitApiCall', () => {
       expect(fulfillMock).toHaveBeenCalledTimes(2);
       expect(fulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,
@@ -476,7 +476,7 @@ describe('submitApiCall', () => {
       expect(staticFulfillMock).toHaveBeenCalledTimes(1);
       expect(staticFulfillMock).toHaveBeenCalledWith(
         apiCall.id,
-        apiCall.airnodeId,
+        apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
         ethers.constants.HashZero,
         apiCall.fulfillAddress,

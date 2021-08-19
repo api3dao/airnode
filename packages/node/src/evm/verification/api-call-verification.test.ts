@@ -37,7 +37,7 @@ describe('verifyApiCallIds', () => {
 
   it('does nothing where full API calls have a valid request ID', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      airnodeAddress: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       chainId: '31337',
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
@@ -70,7 +70,7 @@ describe('verifyApiCallIds', () => {
 
   it('ignores full API calls with invalid IDs', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      airnodeAddress: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       chainId: '31337',
       clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',

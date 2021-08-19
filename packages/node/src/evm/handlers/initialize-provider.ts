@@ -13,7 +13,7 @@ type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readon
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
   const fetchOptions = {
-    airnodeId: currentState.settings.airnodeId,
+    airnodeAddress: currentState.settings.airnodeAddress,
     airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
   };
