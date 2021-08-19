@@ -9,7 +9,7 @@ async function run() {
 
   console.log('--> Deploying contracts...');
   const state2 = await deploy.deployAirnodeRrp(state1);
-  const state3 = await deploy.deployClients(state2);
+  const state3 = await deploy.deployRequesters(state2);
   const state4 = await deploy.deployAuthorizers(state3);
 
   console.log('--> Assigning wallets...');
@@ -19,14 +19,14 @@ async function run() {
 
   console.log('--> Funding wallets...');
   const state8 = await deploy.fundAirnodeAccounts(state7);
-  const state9 = await deploy.fundRequesterAccounts(state8);
+  const state9 = await deploy.fundSponsorAccounts(state8);
   const state10 = await deploy.fundDesignatedWallets(state9);
 
-  console.log('--> Setting Airnode parameters...');
-  const state11 = await deploy.setAirnodeParameters(state10);
+  console.log('--> Setting Airnode xpub...');
+  const state11 = await deploy.setAirnodeXpub(state10);
 
-  console.log('--> Endorsing client contracts...');
-  const state12 = await deploy.endorseClients(state11);
+  console.log('--> Sponsoring requester contracts...');
+  const state12 = await deploy.sponsorRequesters(state11);
 
   console.log('--> Creating templates...');
   const state13 = await deploy.createTemplates(state12);

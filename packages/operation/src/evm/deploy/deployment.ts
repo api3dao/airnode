@@ -9,15 +9,15 @@ export async function deployAirnodeRrp(state: State): Promise<State> {
   return { ...state, contracts: { ...state.contracts, AirnodeRrp: airnodeRrp } };
 }
 
-export async function deployClients(state: State): Promise<State> {
-  const clientsByName: { [name: string]: ethers.Contract } = {};
+export async function deployRequesters(state: State): Promise<State> {
+  const requestersByName: { [name: string]: ethers.Contract } = {};
   for (const [mockName, MockArtifact] of Object.entries(mocks)) {
-    const MockClient = new MockArtifact(state.deployer);
-    const mockClient = await MockClient.deploy(state.contracts.AirnodeRrp!.address);
-    await mockClient.deployed();
-    clientsByName[mockName] = mockClient as unknown as ethers.Contract;
+    const MockRequester = new MockArtifact(state.deployer);
+    const mockRequester = await MockRequester.deploy(state.contracts.AirnodeRrp!.address);
+    await mockRequester.deployed();
+    requestersByName[mockName] = mockRequester as unknown as ethers.Contract;
   }
-  return { ...state, clientsByName };
+  return { ...state, requestersByName };
 }
 
 export async function deployAuthorizers(state: State): Promise<State> {
