@@ -18,7 +18,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     return [log];
   }
 
-  const testingGatewayUrl = getEnvValue('TESTING_GATEWAY_URL');
+  const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
 
   // TODO: add statistics here
   const payload = {};
@@ -29,7 +29,7 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     data: {
       api_key: apiKey,
       deployment_id: heartbeatId,
-      ...(testingGatewayUrl ? {} : { testing_gateway_url: testingGatewayUrl }),
+      ...(httpGatewayUrl ? {} : { http_gateway_url: httpGatewayUrl }),
       payload,
     },
     timeout: 5_000,

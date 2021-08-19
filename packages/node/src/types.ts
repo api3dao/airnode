@@ -370,10 +370,15 @@ export interface ChainConfig {
 
 export type NodeCloudProvider = 'local' | 'aws';
 
+export interface HttpGateway {
+  readonly enabled: boolean;
+  readonly apiKey?: string;
+}
+
 export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
   readonly enableHeartbeat?: boolean;
-  readonly enableTestingGateway?: boolean;
+  readonly httpGateway: HttpGateway;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;

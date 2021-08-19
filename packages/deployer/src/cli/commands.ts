@@ -43,11 +43,12 @@ export async function deploy(
     throw new Error('Invalid mnemonic');
   }
 
-  let testingApiKey: string | undefined = undefined;
-  if (config.nodeSettings.enableTestingGateway) {
-    testingApiKey = secrets.ENDPOINT_TESTING_API_KEY;
-    if (!testingApiKey) {
-      throw new Error('Unable to deploy testing gateway as the ENDPOINT_TESTING_API_KEY secret is missing');
+  const httpGateway = config.nodeSettings.httpGateway;
+  let httpGatewayApiKey: string | undefined = undefined;
+  if (httpGateway.enabled) {
+    httpGatewayApiKey = httpGateway.apiKey;
+    if (!httpGatewayApiKey) {
+      throw new Error('Unable to deploy HTTP gateway as the API key is missing');
     }
   }
 
@@ -67,7 +68,7 @@ export async function deploy(
       config.nodeSettings.stage,
       config.nodeSettings.cloudProvider,
       config.nodeSettings.region,
-      testingApiKey,
+      httpGatewayApiKey,
       configFile,
       tmpSecretsFile
     );

@@ -21,7 +21,10 @@
     "cloudProvider": "aws",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "enableHeartbeat": true,
-    "enableTestingGateway": true,
+    "httpGateway": {
+      "enabled": true,
+      "apiKey": "${HTTP_GATEWAY_API_KEY}"
+    },
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.1.0",

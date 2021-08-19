@@ -4,6 +4,9 @@ export function buildNodeSettings(settings?: Partial<NodeSettings>): NodeSetting
   return {
     cloudProvider: 'local',
     airnodeWalletMnemonic: 'achieve climb couple wait accident symbol spy blouse reduce foil echo label',
+    httpGateway: {
+      enabled: false,
+    },
     enableHeartbeat: true,
     logFormat: 'plain',
     logLevel: 'DEBUG',
