@@ -238,46 +238,46 @@ type ExtractTypedEvent<T> = T extends TypedEventFilter<any, infer EventArgsObjec
 // NOTE: Picking only the events used by node code
 export type AirnodeRrpFilters = Pick<
   InstanceType<typeof AirnodeRrp>['filters'],
-  | 'ClientRequestCreated'
-  | 'ClientFullRequestCreated'
-  | 'ClientRequestFulfilled'
-  | 'ClientRequestFailed'
-  | 'WithdrawalRequested'
-  | 'WithdrawalFulfilled'
+  | 'MadeTemplateRequest'
+  | 'MadeFullRequest'
+  | 'FulfilledRequest'
+  | 'FailedRequest'
+  | 'RequestedWithdrawal'
+  | 'FulfilledWithdrawal'
 >;
 export type AirnodeRrpLog<T extends keyof AirnodeRrpFilters> = ExtractTypedEvent<ReturnType<AirnodeRrpFilters[T]>>;
 
 export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { readonly args: T };
 
-export interface EVMFullApiRequestCreatedLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientFullRequestCreated'>>;
+export interface EVMMadeFullRequestLog extends EVMEventLogMetadata {
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'MadeFullRequest'>>;
 }
 
-export interface EVMTemplateRequestCreatedLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'ClientRequestCreated'>>;
+export interface EVMMadeTemplateRequestLog extends EVMEventLogMetadata {
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'MadeTemplateRequest'>>;
 }
 
-export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequestCreatedLog;
+export type EVMMadeRequestLog = EVMMadeTemplateRequestLog | EVMMadeFullRequestLog;
 
-export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
+export interface EVMFulfilledRequestLog extends EVMEventLogMetadata {
   readonly parsedLog:
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+    | AirnodeLogDescription<AirnodeRrpLog<'FulfilledRequest'>>
+    | AirnodeLogDescription<AirnodeRrpLog<'FailedRequest'>>;
 }
 
-export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalRequested'>>;
+export interface EVMRequestedWithdrawalLog extends EVMEventLogMetadata {
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'RequestedWithdrawal'>>;
 }
 
-export interface EVMWithdrawalFulfilledLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'WithdrawalFulfilled'>>;
+export interface EVMFulfilledWithdrawalLog extends EVMEventLogMetadata {
+  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'FulfilledWithdrawal'>>;
 }
 
 export type EVMEventLog =
-  | EVMRequestCreatedLog
-  | EVMRequestFulfilledLog
-  | EVMWithdrawalRequestLog
-  | EVMWithdrawalFulfilledLog;
+  | EVMMadeRequestLog
+  | EVMFulfilledRequestLog
+  | EVMRequestedWithdrawalLog
+  | EVMFulfilledWithdrawalLog;
 
 // ===========================================
 // Transactions

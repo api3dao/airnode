@@ -42,15 +42,15 @@ describe('AirnodeRrp', () => {
     expect(events).toEqual([
       'AirnodeParametersSet',
       'ClientEndorsementStatusSet',
-      'ClientFullRequestCreated',
-      'ClientRequestCreated',
-      'ClientRequestFailed',
-      'ClientRequestFulfilled',
+      'MadeFullRequest',
+      'MadeTemplateRequest',
+      'FailedRequest',
+      'FulfilledRequest',
       'RequesterCreated',
       'RequesterUpdated',
       'TemplateCreated',
-      'WithdrawalFulfilled',
-      'WithdrawalRequested',
+      'FulfilledWithdrawal',
+      'RequestedWithdrawal',
     ]);
   });
 
@@ -59,34 +59,34 @@ describe('AirnodeRrp', () => {
     expect.assertions(7);
 
     expect(Object.keys(airnodeRrpTopics).sort()).toEqual([
-      'ClientFullRequestCreated',
-      'ClientRequestCreated',
-      'ClientRequestFailed',
-      'ClientRequestFulfilled',
-      'WithdrawalFulfilled',
-      'WithdrawalRequested',
+      'MadeFullRequest',
+      'MadeTemplateRequest',
+      'FailedRequest',
+      'FulfilledRequest',
+      'FulfilledWithdrawal',
+      'RequestedWithdrawal',
     ]);
 
     // API calls
-    expect(airnodeRrpTopics.ClientRequestCreated).toEqual(
+    expect(airnodeRrpTopics.MadeTemplateRequest).toEqual(
       '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf'
     );
-    expect(airnodeRrpTopics.ClientFullRequestCreated).toEqual(
+    expect(airnodeRrpTopics.MadeFullRequest).toEqual(
       '0xe8ae99161b1547fd1c6ff3cb9660293fa4cd770fd52f72ff0362d64d8bccc08e'
     );
 
-    expect(airnodeRrpTopics.ClientRequestFulfilled).toEqual(
+    expect(airnodeRrpTopics.FulfilledRequest).toEqual(
       '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61'
     );
-    expect(airnodeRrpTopics.ClientRequestFailed).toEqual(
+    expect(airnodeRrpTopics.FailedRequest).toEqual(
       '0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad'
     );
 
     // Withdrawals
-    expect(airnodeRrpTopics.WithdrawalRequested).toEqual(
+    expect(airnodeRrpTopics.RequestedWithdrawal).toEqual(
       '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3'
     );
-    expect(airnodeRrpTopics.WithdrawalFulfilled).toEqual(
+    expect(airnodeRrpTopics.FulfilledWithdrawal).toEqual(
       '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa'
     );
   });

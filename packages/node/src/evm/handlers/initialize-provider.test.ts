@@ -24,9 +24,9 @@ describe('initializeProvider', () => {
       xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
     });
 
-    const fullRequest = fixtures.evm.logs.buildFullClientRequest();
-    const regularRequest = fixtures.evm.logs.buildClientRequest();
-    const withdrawal = fixtures.evm.logs.buildWithdrawalRequest();
+    const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
+    const regularRequest = fixtures.evm.logs.buildMadeTemplateRequest();
+    const withdrawal = fixtures.evm.logs.buildRequestedWithdrawal();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockResolvedValueOnce([fullRequest, regularRequest, withdrawal]);
 

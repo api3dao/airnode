@@ -5,8 +5,8 @@ import { RequestStatus } from '../../types';
 
 describe('initialize (Withdrawal)', () => {
   it('builds a withdrawal request', () => {
-    const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const parsedLog = parseAirnodeRrpLog<'WithdrawalRequested'>(event);
+    const event = fixtures.evm.logs.buildRequestedWithdrawal();
+    const parsedLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(event);
     const parseLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -71,8 +71,8 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
 
 describe('mapRequests (Withdrawal)', () => {
   it('initializes and returns withdrawal requests', () => {
-    const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const parsedLog = parseAirnodeRrpLog<'WithdrawalRequested'>(event);
+    const event = fixtures.evm.logs.buildRequestedWithdrawal();
+    const parsedLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -101,10 +101,10 @@ describe('mapRequests (Withdrawal)', () => {
   });
 
   it('updates the status of fulfilled withdrawal requests', () => {
-    const requestEvent = fixtures.evm.logs.buildWithdrawalRequest();
-    const fulfillEvent = fixtures.evm.logs.buildWithdrawalFulfilled();
-    const requestLog = parseAirnodeRrpLog<'WithdrawalRequested'>(requestEvent);
-    const fulfillLog = parseAirnodeRrpLog<'WithdrawalFulfilled'>(fulfillEvent);
+    const requestEvent = fixtures.evm.logs.buildRequestedWithdrawal();
+    const fulfillEvent = fixtures.evm.logs.buildFulfilledWithdrawal();
+    const requestLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(requestEvent);
+    const fulfillLog = parseAirnodeRrpLog<'FulfilledWithdrawal'>(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,
