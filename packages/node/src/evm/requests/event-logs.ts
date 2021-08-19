@@ -7,10 +7,10 @@ import {
   EVMEventLog,
   AirnodeRrpFilters,
   AirnodeRrpLog,
-  EVMRequestCreatedLog,
-  EVMRequestFulfilledLog,
-  EVMWithdrawalFulfilledLog,
-  EVMWithdrawalRequestLog,
+  EVMMadeRequestLog,
+  EVMFulfilledRequestLog,
+  EVMFulfilledWithdrawalLog,
+  EVMRequestedWithdrawalLog,
   AirnodeLogDescription,
 } from '../../types';
 
@@ -24,8 +24,8 @@ interface FetchOptions {
 }
 
 interface GroupedLogs {
-  readonly apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
-  readonly withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
+  readonly apiCalls: (EVMMadeRequestLog | EVMFulfilledRequestLog)[];
+  readonly withdrawals: (EVMFulfilledWithdrawalLog | EVMRequestedWithdrawalLog)[];
 }
 
 export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(

@@ -5,7 +5,7 @@ type Log = ethers.providers.Log;
 // =================================================================
 // Regular requests
 // =================================================================
-export function buildClientRequest(overrides?: Partial<Log>): Log {
+export function buildMadeTemplateRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 12,
     blockHash: '0x458042df79d347cb555aac9cd71f6e98fd920356d56af3a5ab46ab81c1838a31',
@@ -24,7 +24,7 @@ export function buildClientRequest(overrides?: Partial<Log>): Log {
   };
 }
 
-export function buildClientRequestFulfilled(overrides?: Partial<Log>): Log {
+export function buildTemplateFulfilledRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 20,
     blockHash: '0x42264bc78c914bbdc0b7e0acb8da1a2be12ba1dc8fcb75a49116784d43d93412',
@@ -46,7 +46,7 @@ export function buildClientRequestFulfilled(overrides?: Partial<Log>): Log {
 // =================================================================
 // Full requests
 // =================================================================
-export function buildFullClientRequest(overrides?: Partial<Log>): Log {
+export function buildMadeFullRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 16,
     blockHash: '0x9023292f59fe980a807f846db807e074d22b559065afba1af4948ae42239068c',
@@ -65,7 +65,7 @@ export function buildFullClientRequest(overrides?: Partial<Log>): Log {
   };
 }
 
-export function buildFullRequestFulfilled(overrides?: Partial<Log>): Log {
+export function buildFullFulfilledRequest(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 21,
     blockHash: '0xc7b5393a877e8bd1cb3bc44e9dde29fbe2c3c2e9df022d1277ca4e97505a07f2',
@@ -87,7 +87,7 @@ export function buildFullRequestFulfilled(overrides?: Partial<Log>): Log {
 // =================================================================
 // Withdrawals
 // =================================================================
-export function buildWithdrawalRequest(overrides?: Partial<Log>): Log {
+export function buildRequestedWithdrawal(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 18,
     blockHash: '0x6a1cc2c95d739003d023b5ed3174979fed0a26c5ec3b2eec21d4950120abaa90',
@@ -107,7 +107,7 @@ export function buildWithdrawalRequest(overrides?: Partial<Log>): Log {
   };
 }
 
-export function buildWithdrawalFulfilled(overrides?: Partial<Log>): Log {
+export function buildFulfilledWithdrawal(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 22,
     blockHash: '0x10036d3cc8f54317033f529627280652129644ce01301a5856d82219bd4250be',

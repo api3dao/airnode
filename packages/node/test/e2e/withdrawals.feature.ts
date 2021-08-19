@@ -28,8 +28,8 @@ it('processes withdrawals only once', async () => {
 
   // Check that the relevant withdrawal events are present
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
-  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
+  const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
+  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
 
   expect(preinvokeLogs.length).toEqual(6);
   expect(preinvokeWithdrawals.length).toEqual(1);
@@ -61,8 +61,8 @@ it('processes withdrawals only once', async () => {
 
   // Check that the relevant withdrawal events are present
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'WithdrawalRequested');
-  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'WithdrawalFulfilled');
+  const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
+  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
 
   expect(postinvokeLogs.length).toEqual(7);
   expect(postinvokeWithdrawals.length).toEqual(1);

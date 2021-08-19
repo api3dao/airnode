@@ -8,8 +8,8 @@ import {
   ApiCallType,
   ClientRequest,
   EVMEventLog,
-  EVMRequestCreatedLog,
-  EVMRequestFulfilledLog,
+  EVMMadeRequestLog,
+  EVMFulfilledRequestLog,
   LogsData,
   PendingLog,
   RequestErrorCode,
@@ -18,9 +18,9 @@ import {
 
 function getApiCallType(topic: string): ApiCallType {
   switch (topic) {
-    case airnodeRrpTopics.ClientRequestCreated:
+    case airnodeRrpTopics.MadeTemplateRequest:
       return 'regular';
-    case airnodeRrpTopics.ClientFullRequestCreated:
+    case airnodeRrpTopics.MadeFullRequest:
       return 'full';
     // This should never be reached
     default:
@@ -28,7 +28,7 @@ function getApiCallType(topic: string): ApiCallType {
   }
 }
 
-export function initialize(log: EVMRequestCreatedLog): ClientRequest<ApiCall> {
+export function initialize(log: EVMMadeRequestLog): ClientRequest<ApiCall> {
   const { parsedLog } = log;
 
   const request: ClientRequest<ApiCall> = {
@@ -115,10 +115,10 @@ export function updateFulfilledRequests(
 
 export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
   // Separate the logs
-  const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log)) as EVMRequestCreatedLog[];
+  const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log)) as EVMMadeRequestLog[];
   const fulfillmentLogs = logsWithMetadata.filter((log) =>
     events.isApiCallFulfillment(log)
-  ) as EVMRequestFulfilledLog[];
+  ) as EVMFulfilledRequestLog[];
 
   // Cast raw logs to typed API request objects
   const apiCallRequests = requestLogs.map(initialize);

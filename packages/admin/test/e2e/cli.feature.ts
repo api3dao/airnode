@@ -65,12 +65,6 @@ describe('CLI', () => {
 
   beforeEach(async () => {
     airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
-<<<<<<< HEAD
-  });
-
-  it('exposes the CLI executable', () => {
-    expect(existsSync(`${CLI_EXECUTABLE}`)).toBe(true);
-=======
     expect(airnodeRrp.address).toBeDefined();
 
     airnodeWallet = ethers.Wallet.createRandom().connect(provider);
@@ -78,7 +72,6 @@ describe('CLI', () => {
       to: airnodeWallet.address,
       value: ethers.utils.parseEther('1'),
     });
->>>>>>> fdf2cf87... Fix admin package (#456)
   });
 
   it('shows help', () => {
@@ -291,16 +284,6 @@ describe('CLI', () => {
         to: sponsorWallet.address,
         value: ethers.utils.parseEther('1'),
       });
-<<<<<<< HEAD
-
-      // Create destination address
-      destinationWallet = ethers.Wallet.createRandom().connect(provider);
-    });
-
-    it('returns the desintation balance', async () => {
-      expect(await destinationBalance()).toBe('0');
-=======
->>>>>>> fdf2cf87... Fix admin package (#456)
     });
 
     it('can create and fulfill withdrawal request', async () => {

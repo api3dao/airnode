@@ -3,7 +3,7 @@ import * as handlers from '../../src/workers/local-handlers';
 import * as fixtures from '../fixtures';
 import * as e2e from '../setup/e2e';
 
-it('should call fail function on AirnodeRrp contract and emit ClientRequestFailed if client contract fulfillment fails', async () => {
+it('should call fail function on AirnodeRrp contract and emit FailedRequest if client contract fulfillment fails', async () => {
   jest.setTimeout(45_000);
 
   const provider = e2e.buildProvider();
@@ -22,9 +22,9 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
 
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
-  const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
-  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
+  const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
+  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
 
   expect(preinvokeLogs.length).toEqual(7);
   expect(preinvokeRegularRequests.length).toEqual(1);
@@ -42,10 +42,10 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
 
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
-  const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
-  const postinvokeFulfillmentsFailed = postinvokeLogs.filter((log) => log.name === 'ClientRequestFailed');
-  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
+  const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
+  const postinvokeFulfillmentsFailed = postinvokeLogs.filter((log) => log.name === 'FailedRequest');
+  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
 
   expect(postinvokeLogs.length).toEqual(9);
   expect(postinvokeRegularRequests.length).toEqual(1);
@@ -60,7 +60,7 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
   });
 });
 
-it('should call fail function on AirnodeRrp contract and emit ClientRequestFailed if client contract fulfillment runs out of gas', async () => {
+it('should call fail function on AirnodeRrp contract and emit FailedRequest if client contract fulfillment runs out of gas', async () => {
   jest.setTimeout(45_000);
 
   const provider = e2e.buildProvider();
@@ -79,9 +79,9 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
 
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
-  const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
-  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
+  const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
+  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
 
   expect(preinvokeLogs.length).toEqual(7);
   expect(preinvokeRegularRequests.length).toEqual(1);
@@ -99,10 +99,10 @@ it('should call fail function on AirnodeRrp contract and emit ClientRequestFaile
 
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'ClientRequestCreated');
-  const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'ClientFullRequestCreated');
-  const postinvokeFulfillmentsFailed = postinvokeLogs.filter((log) => log.name === 'ClientRequestFailed');
-  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'ClientRequestFulfilled');
+  const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
+  const postinvokeFulfillmentsFailed = postinvokeLogs.filter((log) => log.name === 'FailedRequest');
+  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
 
   expect(postinvokeLogs.length).toEqual(9);
   expect(postinvokeRegularRequests.length).toEqual(1);
