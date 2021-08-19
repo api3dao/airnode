@@ -15,7 +15,6 @@ const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -25,7 +24,6 @@ const chains: ChainConfig[] = [
     type: 'evm',
   },
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
@@ -73,7 +71,6 @@ describe('initializeProviders', () => {
           AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },
         settings: {
-          airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
           airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           airnodeIdShort: '19255a4',
           authorizers: [ethers.constants.AddressZero],
@@ -106,7 +103,6 @@ describe('initializeProviders', () => {
           AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
         },
         settings: {
-          airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
           airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           airnodeIdShort: '19255a4',
           authorizers: [ethers.constants.AddressZero],

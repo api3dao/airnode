@@ -12,7 +12,6 @@ export function buildEVMProviderState(
   const chainProviderName = 'Ganache test';
   const chainProviderEnvName = 'CP_EVM_1337_GANACHE_TEST';
   const chainConfig: ChainConfig = {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',

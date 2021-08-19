@@ -10,7 +10,6 @@ export interface Contracts {
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
   return {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
       AirnodeRrp: contracts.AirnodeRrp,
     },

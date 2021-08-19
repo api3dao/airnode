@@ -97,7 +97,6 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: string;
@@ -340,7 +339,6 @@ export interface ChainContracts {
 }
 
 export interface ChainConfig {
-  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;

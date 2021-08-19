@@ -23,7 +23,6 @@ export function buildEVMState(
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
 
   const providerSettings: ProviderSettings = {
-    airnodeAdmin: chain.airnodeAdmin,
     airnodeId: evm.getAirnodeId(masterHDNode),
     airnodeIdShort: evm.getAirnodeIdShort(masterHDNode),
     authorizers: chain.authorizers,
