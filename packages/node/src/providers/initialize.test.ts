@@ -1,7 +1,3 @@
-import { mockEthers } from '../../test/mock-utils';
-const getAirnodeParametersAndBlockNumberMock = jest.fn();
-mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
-
 const spawnAwsMock = jest.fn();
 jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
@@ -62,19 +58,9 @@ describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains, environment: environmentConfig });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from(123456),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
-    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from(987654),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumber.mockResolvedValueOnce(123456);
+    getBlockNumber.mockResolvedValueOnce(987654);
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);

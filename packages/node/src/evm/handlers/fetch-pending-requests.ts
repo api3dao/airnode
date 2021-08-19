@@ -5,6 +5,7 @@ import * as logger from '../../logger';
 import * as verification from '../verification';
 import * as withdrawals from '../requests/withdrawals';
 import { EVMProviderState, GroupedRequests, ProviderState } from '../../types';
+import { FetchOptions } from '../requests/event-logs';
 
 export async function fetchPendingRequests(state: ProviderState<EVMProviderState>): Promise<GroupedRequests> {
   const { chainId, chainType, name: providerName } = state.settings;
@@ -16,7 +17,7 @@ export async function fetchPendingRequests(state: ProviderState<EVMProviderState
     meta: { coordinatorId, providerName, chainType, chainId },
   };
 
-  const fetchOptions = {
+  const fetchOptions: FetchOptions = {
     address: state.contracts.AirnodeRrp,
     airnodeId: state.settings.airnodeId,
     blockHistoryLimit: state.settings.blockHistoryLimit,

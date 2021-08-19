@@ -48,9 +48,9 @@ export function buildEVMState(
     contracts: chain.contracts,
     coordinatorId,
     masterHDNode,
+    currentBlock: null,
     provider,
     settings: providerSettings,
-    currentBlock: null,
     gasPrice: null,
     requests: {
       apiCalls: [],

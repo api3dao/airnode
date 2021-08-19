@@ -14,7 +14,7 @@ import {
   AirnodeLogDescription,
 } from '../../types';
 
-interface FetchOptions {
+export interface FetchOptions {
   readonly address: string;
   readonly airnodeId: string;
   readonly blockHistoryLimit: number;

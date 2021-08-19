@@ -1,11 +1,9 @@
 import { mockEthers } from '../../../test/mock-utils';
 const checkAuthorizationStatusesMock = jest.fn();
-const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
 mockEthers({
   airnodeRrpMocks: {
     checkAuthorizationStatuses: checkAuthorizationStatusesMock,
-    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
     getTemplates: getTemplatesMock,
   },
 });
@@ -17,12 +15,8 @@ import * as fixtures from '../../../test/fixtures';
 
 describe('initializeProvider', () => {
   it('fetches, maps and authorizes requests', async () => {
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumberSpy.mockResolvedValueOnce(12);
 
     const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
     const regularRequest = fixtures.evm.logs.buildMadeTemplateRequest();
@@ -106,12 +100,8 @@ describe('initializeProvider', () => {
   });
 
   it('does nothing if requests cannot be fetched', async () => {
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumberSpy.mockResolvedValueOnce(12);
 
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockRejectedValue(new Error('Server did not respond'));
@@ -120,14 +110,5 @@ describe('initializeProvider', () => {
     const res = await initializeProvider(state);
     expect(res).toEqual(null);
     expect(getLogsSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it('does nothing if unable to verify or set Airnode parameters', async () => {
-    const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce(null);
-    const state = fixtures.buildEVMProviderState();
-    const res = await initializeProvider(state);
-    expect(res).toEqual(null);
-    expect(getLogsSpy).not.toHaveBeenCalled();
   });
 });

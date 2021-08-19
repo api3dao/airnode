@@ -112,7 +112,6 @@ export interface ProviderSettings extends CoordinatorSettings {
 export type ProviderState<T extends {}> = T & {
   readonly config?: Config;
   readonly coordinatorId: string;
-  readonly currentBlock: number | null;
   readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
   readonly transactionCountsByRequesterIndex: { readonly [requesterIndex: string]: number };
@@ -151,6 +150,7 @@ export interface EVMProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly masterHDNode: ethers.utils.HDNode;
+  readonly currentBlock: number | null;
 }
 
 export interface TransactionOptions {
