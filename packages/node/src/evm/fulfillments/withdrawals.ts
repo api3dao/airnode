@@ -49,7 +49,7 @@ export async function submitWithdrawal(
   const estimateTx = () =>
     airnodeRrp.estimateGas.fulfillWithdrawal(
       request.id,
-      request.airnodeId,
+      request.airnodeAddress,
       request.requesterIndex,
       request.destinationAddress,
       // We need to send some funds for the gas price calculation to be correct
@@ -96,12 +96,18 @@ export async function submitWithdrawal(
   );
 
   const withdrawalTx = () =>
-    airnodeRrp.fulfillWithdrawal(request.id, request.airnodeId, request.requesterIndex, request.destinationAddress, {
-      gasLimit: paddedGasLimit,
-      gasPrice: options.gasPrice!,
-      nonce: request.nonce!,
-      value: fundsToSend,
-    });
+    airnodeRrp.fulfillWithdrawal(
+      request.id,
+      request.airnodeAddress,
+      request.requesterIndex,
+      request.destinationAddress,
+      {
+        gasLimit: paddedGasLimit,
+        gasPrice: options.gasPrice!,
+        nonce: request.nonce!,
+        value: fundsToSend,
+      }
+    );
   // Note that we're using the requester wallet to call this
   const [withdrawalErr, withdrawalRes] = await go(withdrawalTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (withdrawalErr || !withdrawalRes) {

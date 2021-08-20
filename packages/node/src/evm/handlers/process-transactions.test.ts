@@ -69,7 +69,7 @@ describe('processTransactions', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.airnodeId,
+      withdrawal.airnodeAddress,
       withdrawal.requesterIndex,
       withdrawal.destinationAddress,
       {
@@ -85,7 +85,7 @@ describe('processTransactions', () => {
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
       apiCall.id,
-      apiCall.airnodeId,
+      apiCall.airnodeAddress,
       ethers.BigNumber.from('0'),
       '0x000000000000000000000000000000000000000000000000000000000001252b',
       apiCall.fulfillAddress,

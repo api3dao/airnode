@@ -7,7 +7,7 @@ export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRe
   // These fields have invalid values on purpose to allow for easier reading. When necessary,
   // they can be overridden with valid values
   return {
-    airnodeId: 'airnodeId',
+    airnodeAddress: 'airnodeAddress',
     chainId: '31337',
     clientAddress: 'clientAddress',
     designatedWallet: 'designatedWallet',
