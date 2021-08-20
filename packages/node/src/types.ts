@@ -260,8 +260,8 @@ export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequ
 
 export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
   readonly parsedLog:
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
-    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
 }
 
 export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
@@ -375,9 +375,16 @@ export interface HttpGateway {
   readonly apiKey?: string;
 }
 
+export interface Heartbeat {
+  readonly enabled: boolean;
+  readonly apiKey?: string;
+  readonly id?: string;
+  readonly url?: string;
+}
+
 export interface NodeSettings {
   readonly airnodeWalletMnemonic: string;
-  readonly enableHeartbeat?: boolean;
+  readonly heartbeat: Heartbeat;
   readonly httpGateway: HttpGateway;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;

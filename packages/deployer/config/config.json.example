@@ -20,7 +20,12 @@
   "nodeSettings": {
     "cloudProvider": "aws",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
-    "enableHeartbeat": true,
+    "heartbeat": {
+      "enabled": true,
+      "apiKey": "${HEARTBEAT_API_KEY}",
+      "id": "${HEARTBEAT_ID}",
+      "url": "${HEARTBEAT_URL}"
+    },
     "httpGateway": {
       "enabled": true,
       "apiKey": "${HTTP_GATEWAY_API_KEY}"
