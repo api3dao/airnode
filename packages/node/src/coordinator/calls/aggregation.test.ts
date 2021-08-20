@@ -25,7 +25,7 @@ describe('aggregate (API calls)', () => {
     expect(res).toEqual({
       apiCallId: {
         requesterIndex: '3',
-        airnodeId: 'airnodeId',
+        airnodeAddress: 'airnodeAddress',
         clientAddress: 'clientAddress',
         designatedWallet: 'designatedWallet',
         chainId: '31337',
@@ -48,7 +48,7 @@ describe('aggregate (API calls)', () => {
     expect(res).toEqual({
       apiCallId: {
         requesterIndex: '3',
-        airnodeId: 'airnodeId',
+        airnodeAddress: 'airnodeAddress',
         clientAddress: 'clientAddress',
         designatedWallet: 'designatedWallet',
         chainId: '31337',

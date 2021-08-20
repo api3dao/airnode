@@ -1,11 +1,9 @@
 import { mockEthers } from '../../../test/mock-utils';
 const checkAuthorizationStatusesMock = jest.fn();
-const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const getTemplatesMock = jest.fn();
 mockEthers({
   airnodeRrpMocks: {
     checkAuthorizationStatuses: checkAuthorizationStatusesMock,
-    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
     getTemplates: getTemplatesMock,
   },
 });
@@ -17,12 +15,8 @@ import * as fixtures from '../../../test/fixtures';
 
 describe('initializeProvider', () => {
   it('fetches, maps and authorizes requests', async () => {
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumberSpy.mockResolvedValueOnce(12);
 
     const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
     const regularRequest = fixtures.evm.logs.buildMadeTemplateRequest();
@@ -43,7 +37,7 @@ describe('initializeProvider', () => {
     const res = await initializeProvider(state);
     expect(res?.requests.apiCalls).toEqual([
       {
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         chainId: '31337',
         clientAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         designatedWallet: '0x1c5b7e13fe3977a384397b17b060Ec96Ea322dEc',
@@ -73,7 +67,7 @@ describe('initializeProvider', () => {
         type: 'full',
       },
       {
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         chainId: '31337',
         clientAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         designatedWallet: '0xD748Bc4212d8130879Ec4F24B950cAAb9EddfCB2',
@@ -106,12 +100,8 @@ describe('initializeProvider', () => {
   });
 
   it('does nothing if requests cannot be fetched', async () => {
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from('12'),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumberSpy.mockResolvedValueOnce(12);
 
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogsSpy.mockRejectedValue(new Error('Server did not respond'));
@@ -120,14 +110,5 @@ describe('initializeProvider', () => {
     const res = await initializeProvider(state);
     expect(res).toEqual(null);
     expect(getLogsSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it('does nothing if unable to verify or set Airnode parameters', async () => {
-    const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getAirnodeParametersAndBlockNumberMock.mockResolvedValueOnce(null);
-    const state = fixtures.buildEVMProviderState();
-    const res = await initializeProvider(state);
-    expect(res).toEqual(null);
-    expect(getLogsSpy).not.toHaveBeenCalled();
   });
 });

@@ -26,12 +26,8 @@ export function getWallet(privateKey: string): ethers.Wallet {
   return new ethers.Wallet(privateKey);
 }
 
-export function getAirnodeId(masterHDNode: ethers.utils.HDNode): string {
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterHDNode.address]));
-}
-
-export function getAirnodeIdShort(masterHDNode: ethers.utils.HDNode): string {
-  return getAirnodeId(masterHDNode).substring(2, 9);
+export function getAirnodeAddressShort(airnodeAddress: string): string {
+  return airnodeAddress.substring(2, 9);
 }
 
 export function deriveWalletAddressFromIndex(masterHDNode: ethers.utils.HDNode, index: number | string): string {

@@ -10,7 +10,6 @@ describe('create', () => {
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
     const chainConfig: ChainConfig = {
-      airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       contracts: {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -30,9 +29,8 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
-        airnodeAdmin: '0xairnodeAdmin',
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        airnodeIdShort: '19255a4',
+        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddressShort: '19255a4',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 300,
         chainId: '1337',
@@ -68,7 +66,6 @@ describe('create', () => {
     const chainId = '1337';
     const chainProviderName = 'Ganache test';
     const chainConfig: ChainConfig = {
-      airnodeAdmin: '0xairnodeAdmin',
       authorizers: [ethers.constants.AddressZero],
       blockHistoryLimit: 150,
       contracts: {
@@ -90,9 +87,8 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
-        airnodeAdmin: '0xairnodeAdmin',
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        airnodeIdShort: '19255a4',
+        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddressShort: '19255a4',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 150,
         chainId: '1337',

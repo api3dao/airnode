@@ -2,8 +2,8 @@ import { parseConfig } from '../config';
 import * as handlers from '../handlers';
 import * as logger from '../logger';
 import * as state from '../providers/state';
+import { AggregatedApiCall, Config, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
 import { go } from '../utils/promise-utils';
-import { AggregatedApiCall, EVMProviderState, LogOptions, ProviderState, WorkerResponse } from '../types';
 
 export interface ProviderArgs {
   readonly state: ProviderState<EVMProviderState>;

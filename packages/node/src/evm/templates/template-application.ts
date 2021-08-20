@@ -22,8 +22,8 @@ function applyTemplate(
 ): ClientRequest<ApiCall> {
   return {
     ...request,
-    // airnodeId and endpointId will either be request or a template attribute
-    airnodeId: request.airnodeId || template.airnodeId,
+    // airnodeAddress and endpointId will either be request or a template attribute
+    airnodeAddress: request.airnodeAddress || template.airnodeAddress,
     endpointId: request.endpointId || template.endpointId,
     // NOTE: the spread operator is case sensitive, meaning that you can
     // have 2 (or more) parameters with the same value, but different cases.
