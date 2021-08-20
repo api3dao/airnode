@@ -2,7 +2,7 @@
 pragma solidity 0.8.6;
 
 import "../interfaces/IApi3Token.sol";
-import "../interfaces/ITokenLockRrpAuthorizerAdminExternal.sol";
+import "./interfaces/ITokenLockRrpAuthorizerAdminExternal.sol";
 import "../../../admin/MetaAdminnable.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
