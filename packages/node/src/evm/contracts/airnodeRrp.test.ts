@@ -8,6 +8,7 @@ describe('AirnodeRrp', () => {
       .sort();
 
     expect(functions).toEqual([
+      'airnodeToXpub',
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
       'clientAddressToNoRequests',
@@ -16,8 +17,6 @@ describe('AirnodeRrp', () => {
       'fail',
       'fulfill',
       'fulfillWithdrawal',
-      'getAirnodeParameters',
-      'getAirnodeParametersAndBlockNumber',
       'getTemplate',
       'getTemplates',
       'makeFullRequest',
@@ -27,8 +26,7 @@ describe('AirnodeRrp', () => {
       'requesterIndexToAdmin',
       'requesterIndexToClientAddressToEndorsementStatus',
       'requesterIndexToNextWithdrawalRequestIndex',
-      'setAirnodeParameters',
-      'setAirnodeParametersAndForwardFunds',
+      'setAirnodeToXpub',
       'setClientEndorsementStatus',
       'setRequesterAdmin',
     ]);

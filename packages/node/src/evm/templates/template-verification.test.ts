@@ -5,7 +5,7 @@ import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('TEMPLATE_VALIDATION_FIELDS', () => {
   it('returns the list of validated template fields', () => {
-    expect(verification.TEMPLATE_VALIDATION_FIELDS).toEqual(['airnodeId', 'endpointId', 'encodedParameters']);
+    expect(verification.TEMPLATE_VALIDATION_FIELDS).toEqual(['airnodeAddress', 'endpointId', 'encodedParameters']);
   });
 });
 
@@ -52,7 +52,7 @@ describe('verify', () => {
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
     });
     const template = fixtures.requests.buildApiCallTemplate({
-      airnodeId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+      airnodeAddress: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
       encodedParameters: '0x6466726f6d63455448',
       endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
       id: TEMPLATE_ID,
@@ -71,14 +71,14 @@ describe('verify', () => {
     });
 
     const validTemplate = fixtures.requests.buildApiCallTemplate({
-      airnodeId: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
+      airnodeAddress: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
       encodedParameters: '0x6466726f6d63455448',
       endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
       id: TEMPLATE_ID,
     });
 
     const invalidFields = {
-      airnodeId: '0x3b962eb40ef492a072bf909333d21edae14d2975a9d67c190f0585a1cf655479',
+      airnodeAddress: '0x3b962eb40ef492a072bf909333d21edae14d2975a9d67c190f0585a1cf655479',
       encodedParameters: '0x1234',
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
     };

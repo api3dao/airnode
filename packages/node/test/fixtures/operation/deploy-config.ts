@@ -7,7 +7,6 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     deployerIndex: 0,
     airnodes: {
       CurrencyConverterAirnode: {
-        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
         // We need to create a new mnemonic each time otherwise E2E tests
         // will share the same Airnode wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,

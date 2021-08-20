@@ -1,7 +1,3 @@
-import { mockEthers } from '../../test/mock-utils';
-const getAirnodeParametersAndBlockNumberMock = jest.fn();
-mockEthers({ airnodeRrpMocks: { getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock } });
-
 const spawnAwsMock = jest.fn();
 jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
@@ -19,7 +15,6 @@ const chainProviderName1 = 'Infura Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -29,7 +24,6 @@ const chains: ChainConfig[] = [
     type: 'evm',
   },
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
@@ -62,19 +56,9 @@ describe('initializeProviders', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains, environment: environmentConfig });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from(123456),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
-    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from(987654),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumber.mockResolvedValueOnce(123456);
+    getBlockNumber.mockResolvedValueOnce(987654);
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
@@ -87,9 +71,8 @@ describe('initializeProviders', () => {
           AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },
         settings: {
-          airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-          airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-          airnodeIdShort: '19255a4',
+          airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+          airnodeAddressShort: '19255a4',
           authorizers: [ethers.constants.AddressZero],
           blockHistoryLimit: 300,
           chainId: '1',
@@ -120,9 +103,8 @@ describe('initializeProviders', () => {
           AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
         },
         settings: {
-          airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-          airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-          airnodeIdShort: '19255a4',
+          airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+          airnodeAddressShort: '19255a4',
           authorizers: [ethers.constants.AddressZero],
           blockHistoryLimit: 300,
           chainId: '3',

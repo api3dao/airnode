@@ -27,7 +27,7 @@ function addMetadataParameters(
     case 'v1':
       return {
         ...parameters,
-        _airnode_airnode_id: aggregatedApiCall.airnodeId,
+        _airnode_airnode_address: aggregatedApiCall.airnodeAddress,
         _airnode_client_address: aggregatedApiCall.clientAddress,
         _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
         _airnode_endpoint_id: aggregatedApiCall.endpointId,

@@ -52,7 +52,7 @@ describe('submitWithdrawal', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.airnodeId,
+      withdrawal.airnodeAddress,
       withdrawal.requesterIndex,
       withdrawal.destinationAddress,
       {
@@ -224,7 +224,7 @@ describe('submitWithdrawal', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(2);
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.airnodeId,
+      withdrawal.airnodeAddress,
       withdrawal.requesterIndex,
       withdrawal.destinationAddress,
       {

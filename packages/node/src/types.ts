@@ -64,7 +64,7 @@ export type ApiCallType = 'regular' | 'full';
 // TODO: refactor these types such that there is user facing "ApiCall" which will get merged with
 // template and internal type that is the result of those two being merged.
 export interface ApiCall {
-  readonly airnodeId: string | null;
+  readonly airnodeAddress: string | null;
   readonly chainId: string;
   readonly clientAddress: string;
   readonly encodedParameters: string;
@@ -79,14 +79,14 @@ export interface ApiCall {
 }
 
 export interface ApiCallTemplate {
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly encodedParameters: string;
   readonly endpointId: string;
   readonly id: string;
 }
 
 export interface Withdrawal {
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly destinationAddress: string;
   readonly requesterIndex: string;
 }
@@ -97,7 +97,6 @@ export interface GroupedRequests {
 }
 
 export interface ProviderSettings extends CoordinatorSettings {
-  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit: number;
   readonly chainId: string;
@@ -112,7 +111,6 @@ export interface ProviderSettings extends CoordinatorSettings {
 export type ProviderState<T extends {}> = T & {
   readonly config?: Config;
   readonly coordinatorId: string;
-  readonly currentBlock: number | null;
   readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
   readonly transactionCountsByRequesterIndex: { readonly [requesterIndex: string]: number };
@@ -123,8 +121,8 @@ export interface AggregatedApiCallsById {
 }
 
 export interface CoordinatorSettings {
-  readonly airnodeId: string;
-  readonly airnodeIdShort: string;
+  readonly airnodeAddress: string;
+  readonly airnodeAddressShort: string;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;
   readonly region: string;
@@ -151,6 +149,7 @@ export interface EVMProviderState {
   readonly gasPrice: ethers.BigNumber | null;
   readonly provider: ethers.providers.JsonRpcProvider;
   readonly masterHDNode: ethers.utils.HDNode;
+  readonly currentBlock: number | null;
 }
 
 export interface TransactionOptions {
@@ -174,7 +173,7 @@ export interface ApiCallResponse {
 export interface AggregatedApiCall {
   readonly id: string;
   readonly requesterIndex: string;
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly clientAddress: string;
   readonly designatedWallet: string;
   readonly chainId: string;
@@ -191,7 +190,7 @@ export interface AggregatedApiCall {
 // ===========================================
 export interface WorkerOptions {
   readonly cloudProvider: NodeCloudProvider;
-  readonly airnodeIdShort: string;
+  readonly airnodeAddressShort: string;
   readonly region: string;
   readonly stage: string;
 }
@@ -340,7 +339,6 @@ export interface ChainContracts {
 }
 
 export interface ChainConfig {
-  readonly airnodeAdmin: string;
   readonly authorizers: string[];
   readonly blockHistoryLimit?: number;
   readonly contracts: ChainContracts;
@@ -354,7 +352,7 @@ export interface ChainConfig {
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
-  readonly airnodeIdShort?: string;
+  readonly airnodeAddressShort?: string;
   readonly cloudProvider: NodeCloudProvider;
   readonly logFormat: LogFormat;
   readonly logLevel: LogLevel;

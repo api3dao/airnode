@@ -10,19 +10,19 @@ import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constant
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 
 interface FetchOptions {
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 export async function fetchAuthorizationStatus(
   airnodeRrp: AirnodeRrp,
-  airnodeId: string,
+  airnodeAddress: string,
   apiCall: ClientRequest<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = () =>
     airnodeRrp.checkAuthorizationStatus(
-      airnodeId,
+      airnodeAddress,
       apiCall.id,
       // TODO: make sure endpointId is not null
       apiCall.endpointId!,
@@ -42,7 +42,7 @@ export async function fetchAuthorizationStatus(
 
 async function fetchAuthorizationStatuses(
   airnodeRrp: AirnodeRrp,
-  airnodeId: string,
+  airnodeAddress: string,
   apiCalls: ClientRequest<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
   // Ordering must remain the same when mapping these two arrays
@@ -54,7 +54,7 @@ async function fetchAuthorizationStatuses(
 
   const contractCall = () =>
     airnodeRrp.checkAuthorizationStatuses(
-      airnodeId,
+      airnodeAddress,
       requestIds,
       // TODO: make sure all endpointIds are non null
       endpointIds as string[],
@@ -70,7 +70,7 @@ async function fetchAuthorizationStatuses(
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
     const promises: Promise<LogsData<{ readonly id: string; readonly authorized: boolean | null }>>[] = apiCalls.map(
       async (apiCall) => {
-        const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
+        const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, airnodeAddress, apiCall);
         const data = { id: apiCall.id, authorized };
         const result: LogsData<{ readonly id: string; readonly authorized: boolean | null }> = [logs, data];
         return result;
@@ -114,7 +114,9 @@ export async function fetch(
   const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all authorization statuses in parallel
-  const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(airnodeRrp, fetchOptions.airnodeId, pairs));
+  const promises = groupedPairs.map((pairs) =>
+    fetchAuthorizationStatuses(airnodeRrp, fetchOptions.airnodeAddress, pairs)
+  );
 
   const responses = await Promise.all(promises);
   const responseLogs = flatMap(responses, (r) => r[0]);

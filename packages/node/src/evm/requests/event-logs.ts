@@ -14,9 +14,9 @@ import {
   AirnodeLogDescription,
 } from '../../types';
 
-interface FetchOptions {
+export interface FetchOptions {
   readonly address: string;
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly blockHistoryLimit: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
@@ -46,7 +46,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     address: options.address,
     // Ethers types don't support null for a topic, even though it's valid
     // @ts-ignore
-    topics: [null, options.airnodeId],
+    topics: [null, options.airnodeAddress],
   };
 
   const operation = () => options.provider.getLogs(filter);
