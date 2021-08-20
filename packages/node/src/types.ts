@@ -94,7 +94,6 @@ export interface ApiCallTemplate {
 
 export interface Withdrawal {
   readonly airnodeAddress: string;
-  readonly destinationAddress: string;
   readonly requesterIndex: string;
 }
 

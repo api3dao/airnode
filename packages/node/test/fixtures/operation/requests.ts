@@ -40,7 +40,6 @@ export function buildWithdrawal(overrides?: Partial<Withdrawal>): Withdrawal {
     requesterId: 'alice',
     type: 'withdrawal',
     airnode: 'CurrencyConverterAirnode',
-    destination: 'alice',
     ...overrides,
   };
 }
