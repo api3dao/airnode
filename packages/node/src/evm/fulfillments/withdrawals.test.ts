@@ -54,7 +54,6 @@ describe('submitWithdrawal', () => {
       withdrawal.id,
       withdrawal.airnodeAddress,
       withdrawal.requesterIndex,
-      withdrawal.destinationAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),
@@ -226,7 +225,6 @@ describe('submitWithdrawal', () => {
       withdrawal.id,
       withdrawal.airnodeAddress,
       withdrawal.requesterIndex,
-      withdrawal.destinationAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),
