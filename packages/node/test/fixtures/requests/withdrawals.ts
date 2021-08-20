@@ -9,7 +9,6 @@ export function buildWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): Cl
   return {
     airnodeAddress: 'airnodeAddress',
     designatedWallet: 'designatedWallet',
-    destinationAddress: 'destinationAddress',
     id: 'withdrawalId',
     metadata,
     requesterIndex: '1',

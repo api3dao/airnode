@@ -51,7 +51,6 @@ export async function submitWithdrawal(
       request.id,
       request.airnodeAddress,
       request.requesterIndex,
-      request.destinationAddress,
       // We need to send some funds for the gas price calculation to be correct
       // We also can't send the current balance as that would cause the withdrawal
       // to revert. The transaction cost would need to be subtracted first
@@ -78,7 +77,7 @@ export async function submitWithdrawal(
 
   // We set aside some ETH to pay for the gas of the following transaction,
   // send all the rest along with the transaction. The contract will direct
-  // these funds to the destination given at the request.
+  // these funds back to the sponsor wallet.
   const txCost = paddedGasLimit.mul(options.gasPrice);
   const fundsToSend = currentBalance.sub(txCost);
 
@@ -96,18 +95,12 @@ export async function submitWithdrawal(
   );
 
   const withdrawalTx = () =>
-    airnodeRrp.fulfillWithdrawal(
-      request.id,
-      request.airnodeAddress,
-      request.requesterIndex,
-      request.destinationAddress,
-      {
-        gasLimit: paddedGasLimit,
-        gasPrice: options.gasPrice!,
-        nonce: request.nonce!,
-        value: fundsToSend,
-      }
-    );
+    airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.requesterIndex, {
+      gasLimit: paddedGasLimit,
+      gasPrice: options.gasPrice!,
+      nonce: request.nonce!,
+      value: fundsToSend,
+    });
   // Note that we're using the requester wallet to call this
   const [withdrawalErr, withdrawalRes] = await go(withdrawalTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (withdrawalErr || !withdrawalRes) {

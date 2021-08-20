@@ -53,7 +53,6 @@ describe('fetchPendingRequests', () => {
         {
           airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
           designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-          destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
           id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
           metadata: {
             blockNumber: 18,
