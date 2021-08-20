@@ -10,7 +10,7 @@ it('processes withdrawals only once', async () => {
 
   const provider = e2e.buildProvider();
 
-  const requests = [fixtures.operation.buildWithdrawal({ requesterId: 'alice', destination: 'alice' })];
+  const requests = [fixtures.operation.buildWithdrawal({ requesterId: 'alice' })];
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });

@@ -71,7 +71,6 @@ describe('processTransactions', () => {
       withdrawal.id,
       withdrawal.airnodeAddress,
       withdrawal.requesterIndex,
-      withdrawal.destinationAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),
