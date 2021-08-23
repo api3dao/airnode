@@ -12,7 +12,8 @@ import { EVMProviderState, PendingLog, ProviderState } from '../../types';
 type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readonly logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
-  const fetchOptions = {
+  const fetchOptions: authorizations.FetchOptions = {
+    authorizers: currentState.settings.authorizers,
     airnodeAddress: currentState.settings.airnodeAddress,
     airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
