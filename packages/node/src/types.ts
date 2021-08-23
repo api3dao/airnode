@@ -260,8 +260,8 @@ export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequ
 
 export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
   readonly parsedLog:
-  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
-  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
 }
 
 export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
@@ -371,7 +371,7 @@ export interface ChainConfig {
 export type NodeCloudProvider = 'local' | 'aws';
 
 export interface NodeSettings {
-  readonly airnodeIdShort?: string;
+  readonly airnodeWalletMnemonic: string;
   readonly enableHeartbeat?: boolean;
   readonly enableTestingGateway?: boolean;
   readonly cloudProvider: NodeCloudProvider;

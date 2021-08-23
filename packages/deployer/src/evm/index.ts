@@ -1,8 +1,9 @@
 import * as ethers from 'ethers';
 import { AirnodeRrpFactory } from '@api3/protocol';
-import { Config, ChainType } from '@api3/node';
+import { ChainType } from '@api3/node';
 import { findProviderUrls, findAirnodeRrpAddresses } from './config';
 import * as logger from '../utils/logger';
+import { Config } from '../types';
 
 const chainIdsToNames: Record<string, string> = {
   1: 'mainnet',

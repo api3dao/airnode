@@ -19,6 +19,7 @@
   ],
   "nodeSettings": {
     "cloudProvider": "aws",
+    "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "enableHeartbeat": true,
     "enableTestingGateway": true,
     "logFormat": "plain",

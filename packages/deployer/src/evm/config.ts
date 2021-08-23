@@ -2,8 +2,9 @@ import isArray from 'lodash/isArray';
 import mergeWith from 'lodash/mergeWith';
 import merge from 'lodash/merge';
 import map from 'lodash/map';
-import { Config, ChainType } from '@api3/node';
+import { ChainType } from '@api3/node';
 import * as logger from '../utils/logger';
+import { Config } from '../types';
 
 type ProviderUrls = {
   [key in ChainType]?: Record<string, string[]>;

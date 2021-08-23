@@ -1,4 +1,4 @@
-import { Config } from '@api3/node';
+import { Config } from '../types';
 import * as logger from '../utils/logger';
 
 export function validateConfig(config: Config, nodeVersion: string) {

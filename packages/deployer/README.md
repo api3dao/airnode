@@ -30,7 +30,7 @@ cp config/secrets.env.example config/secrets.env
    Fund the master wallet address with the displayed amount to set your Airnode parameters.
 2. In order to update the Airnode configuration:
     * Update the `config.json` file
-    * Ensure the `MASTER_KEY_MNEMONIC` value in `secrets.env` has your previously generated mnemonic phrase
+    * Ensure the `AIRNODE_WALLET_MNEMONIC` value in `secrets.env` has your previously generated mnemonic phrase
     * Run the `deploy` command again
 3. Use the `remove` command to remove the Airnode deployment. Use the `-r` option to provide the receipt file from the latest deployment.
 

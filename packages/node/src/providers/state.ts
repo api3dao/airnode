@@ -9,7 +9,7 @@ export function buildEVMState(
   chainProviderName: string,
   config: Config
 ): ProviderState<EVMProviderState> {
-  const masterHDNode = evm.getMasterHDNode();
+  const masterHDNode = evm.getMasterHDNode(config);
   const chainProviderUrl = chain.providers[chainProviderName].url || '';
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
 
@@ -70,7 +70,7 @@ export function refresh(state: ProviderState<any>) {
   if (state.settings.chainType === 'evm') {
     // The serverless function does not return an instance of an Ethereum
     // provider, so we create a new one before returning the state
-    const masterHDNode = evm.getMasterHDNode();
+    const masterHDNode = evm.getMasterHDNode(state.config);
     const provider = evm.buildEVMProvider(state.settings.url, state.settings.chainId);
     return update(state, { masterHDNode, provider }) as ProviderState<EVMProviderState>;
   }
