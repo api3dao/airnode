@@ -5,20 +5,20 @@ import { go } from '../utils';
 import { CoordinatorState, PendingLog } from '../types';
 
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
-  if (!state.config.nodeSettings.enableHeartbeat) {
-    const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.enableHeartbeat' is disabled`);
+  const heartbeat = state.config.nodeSettings.heartbeat;
+
+  if (!heartbeat.enabled) {
+    const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled`);
     return [log];
   }
 
-  const apiKey = getEnvValue('HEARTBEAT_API_KEY');
-  const url = getEnvValue('HEARTBEAT_URL');
-  const heartbeatId = getEnvValue('HEARTBEAT_ID');
-  if (!apiKey || !url || !heartbeatId) {
-    const log = logger.pend('WARN', 'Unable to send heartbeat as HEARTBEAT_ environment variables are missing');
+  const { apiKey, url, id } = heartbeat;
+  if (!apiKey || !url || !id) {
+    const log = logger.pend('WARN', 'Unable to send heartbeat as heartbeat configuration is missing');
     return [log];
   }
 
-  const testingGatewayUrl = getEnvValue('TESTING_GATEWAY_URL');
+  const httpGatewayUrl = getEnvValue('HTTP_GATEWAY_URL');
 
   // TODO: add statistics here
   const payload = {};
@@ -28,8 +28,8 @@ export async function reportHeartbeat(state: CoordinatorState): Promise<PendingL
     method: 'post' as const,
     data: {
       api_key: apiKey,
-      deployment_id: heartbeatId,
-      ...(testingGatewayUrl ? {} : { testing_gateway_url: testingGatewayUrl }),
+      deployment_id: id,
+      ...(httpGatewayUrl ? {} : { http_gateway_url: httpGatewayUrl }),
       payload,
     },
     timeout: 5_000,

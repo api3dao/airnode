@@ -20,7 +20,12 @@
   "nodeSettings": {
     "cloudProvider": "local",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
-    "enableHeartbeat": true,
+    "httpGateway": {
+      "enabled": false
+    },
+    "heartbeat": {
+      "enabled": false
+    },
     "logFormat": "plain",
     "logLevel": "INFO",
     "nodeVersion": "0.1.0",
