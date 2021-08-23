@@ -10,7 +10,7 @@ export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRe
     airnodeAddress: 'airnodeAddress',
     chainId: '31337',
     clientAddress: 'clientAddress',
-    designatedWallet: 'designatedWallet',
+    sponsorWallet: 'sponsorWallet',
     encodedParameters: 'encodedParameters',
     endpointId: 'endpointId',
     fulfillAddress: 'fulfillAddress',

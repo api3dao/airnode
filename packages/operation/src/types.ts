@@ -29,7 +29,7 @@ export interface RequestsState {
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
-export interface DesignatedWallet {
+export interface SponsorWallet {
   readonly address: string;
   readonly airnodeName: string;
   readonly wallet: ethers.Wallet;
@@ -37,7 +37,7 @@ export interface DesignatedWallet {
 
 export interface SponsorAccount {
   readonly address: string;
-  readonly designatedWallets: DesignatedWallet[];
+  readonly sponsorWallets: SponsorWallet[];
   readonly signer: ethers.Wallet;
 }
 
@@ -71,7 +71,7 @@ export interface DeployedAirnode {
   readonly templates: { readonly [name: string]: DeployedTemplate };
 }
 
-export interface DeployedDesignatedWallet {
+export interface DeployedSponsorWallet {
   readonly address: string;
   readonly airnodeName: string;
 }

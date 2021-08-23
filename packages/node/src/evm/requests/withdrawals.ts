@@ -16,7 +16,7 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): ClientRe
 
   const request: ClientRequest<Withdrawal> = {
     airnodeAddress: parsedLog.args.airnode,
-    designatedWallet: parsedLog.args.designatedWallet,
+    sponsorWallet: parsedLog.args.sponsorWallet,
     id: parsedLog.args.withdrawalRequestId,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,

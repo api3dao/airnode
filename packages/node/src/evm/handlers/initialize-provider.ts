@@ -96,7 +96,7 @@ export async function initializeProvider(
   // =================================================================
   // STEP 5: Verify API calls
   // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+  const [verifyLogs, verifiedApiCalls] = verification.verifySponsorWallets(
     state4.requests.apiCalls,
     state4.masterHDNode
   );

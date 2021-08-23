@@ -8,7 +8,7 @@ export function buildWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): Cl
   // they can be overridden with valid values
   return {
     airnodeAddress: 'airnodeAddress',
-    designatedWallet: 'designatedWallet',
+    sponsorWallet: 'sponsorWallet',
     id: 'withdrawalId',
     metadata,
     requesterIndex: '1',

@@ -2,7 +2,7 @@ import { encode } from '@api3/airnode-abi';
 import { mocks } from '@api3/protocol';
 import { ethers } from 'ethers';
 import { FullRequest, RequestsState as State, RequestType, TemplateRequest, Request } from '../../types';
-import { deriveEndpointId, getDesignatedWallet } from '../utils';
+import { deriveEndpointId, getSponsorWallet } from '../utils';
 
 export async function makeTemplateRequest(state: State, request: TemplateRequest) {
   const sponsor = state.deployment.sponsors.find((s) => s.id === request.sponsorId);
@@ -16,14 +16,14 @@ export async function makeTemplateRequest(state: State, request: TemplateRequest
   const templateId = state.deployment.airnodes[request.airnode].templates[request.template].hash;
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
+  const { address: sponsorWalletAddress } = getSponsorWallet(mnemonic, state.provider, sponsorAddress);
 
   const tx = await requester
     .connect(signer)
     .makeTemplateRequest(
       templateId,
       sponsorAddress,
-      designatedWalletAddress,
+      sponsorWalletAddress,
       requester.address,
       requester.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
@@ -44,7 +44,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
   const endpointId = deriveEndpointId(request.oisTitle, request.endpoint);
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const { address: designatedWalletAddress } = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
+  const { address: sponsorWalletAddress } = getSponsorWallet(mnemonic, state.provider, sponsorAddress);
 
   const tx = await requester
     .connect(signer)
@@ -52,7 +52,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
       airnode,
       endpointId,
       sponsorAddress,
-      designatedWalletAddress,
+      sponsorWalletAddress,
       requester.address,
       requester.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
       encodedParameters
@@ -68,11 +68,11 @@ export async function makeWithdrawal(state: State, request: Request) {
   const airnode = state.deployment.airnodes[request.airnode].airnodeWalletAddress;
 
   const { mnemonic } = state.config.airnodes[request.airnode];
-  const designatedWallet = getDesignatedWallet(mnemonic, state.provider, sponsorAddress);
+  const sponsorWallet = getSponsorWallet(mnemonic, state.provider, sponsorAddress);
 
   const { AirnodeRrp } = state.contracts;
 
-  await AirnodeRrp.connect(signer).requestWithdrawal(airnode, designatedWallet.address);
+  await AirnodeRrp.connect(signer).requestWithdrawal(airnode, sponsorWallet.address);
 }
 
 export async function makeRequests(state: State) {
