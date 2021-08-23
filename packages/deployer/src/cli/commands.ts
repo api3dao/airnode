@@ -8,37 +8,21 @@ import {
   deriveAirnodeId,
   deriveMasterWalletAddress,
   writeReceiptFile,
-  generateMnemonic,
   parseReceiptFile,
   parseSecretsFile,
   shortenAirnodeId,
   validateConfig,
   validateMnemonic,
-  verifyMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
-import { Config } from '../types';
 
-export async function deploy(
-  configFile: string,
-  secretsFile: string,
-  receiptFile: string,
-  interactive: boolean,
-  nodeVersion: string
-) {
+export async function deploy(configFile: string, secretsFile: string, receiptFile: string, nodeVersion: string) {
   const secrets = parseSecretsFile(secretsFile);
-  const config: Config = nodeConfig.parseConfig(configFile, secrets);
+  const config = nodeConfig.parseConfig(configFile, secrets);
   validateConfig(config, nodeVersion);
 
-  let mnemonic = config.nodeSettings.airnodeWalletMnemonic;
-  if (!mnemonic) {
-    logger.warn('If you already have a mnemonic, add it to your secrets.env file and restart the deployer');
-    mnemonic = generateMnemonic();
-    if (interactive) {
-      logger.warn('Write down the 12 word-mnemonic below on a piece of paper and keep it in a safe place\n');
-      await verifyMnemonic(mnemonic);
-    }
-  } else if (!validateMnemonic(mnemonic)) {
+  const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
+  if (!validateMnemonic(mnemonic)) {
     logger.fail('AIRNODE_WALLET_MNEMONIC in your secrets.env file is not valid');
     throw new Error('Invalid mnemonic');
   }
