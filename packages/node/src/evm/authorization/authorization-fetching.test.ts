@@ -15,12 +15,13 @@ import { RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 describe('fetch (authorizations)', () => {
-  let mutableFetchOptions: any;
+  let mutableFetchOptions: authorization.FetchOptions;
 
   beforeEach(() => {
     mutableFetchOptions = {
-      address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
+      authorizers: ['0x0000000000000000000000000000000000000000'],
       airnodeAddress: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
   });
@@ -151,6 +152,7 @@ describe('fetch (authorizations)', () => {
 });
 
 describe('fetchAuthorizationStatus', () => {
+  const authorizers = ['0x0000000000000000000000000000000000000000'];
   const airnodeAddress = '0xairnodeAddress';
   let mutableAirnodeRrp: AirnodeRrp;
 
@@ -161,7 +163,12 @@ describe('fetchAuthorizationStatus', () => {
   it('fetches group authorization status if it can be fetched', async () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeAddress, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(
+      mutableAirnodeRrp,
+      authorizers,
+      airnodeAddress,
+      apiCall
+    );
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(true);
   });
@@ -170,7 +177,12 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeAddress, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(
+      mutableAirnodeRrp,
+      authorizers,
+      airnodeAddress,
+      apiCall
+    );
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(false);
   });
@@ -179,7 +191,12 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeAddress, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(
+      mutableAirnodeRrp,
+      authorizers,
+      airnodeAddress,
+      apiCall
+    );
     expect(logs).toEqual([
       {
         level: 'ERROR',
