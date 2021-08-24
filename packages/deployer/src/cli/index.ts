@@ -67,16 +67,11 @@ yargs(hideBin(process.argv))
         default: 'output/receipt.json',
         type: 'string',
       },
-      interactive: {
-        description: 'Run in interactive mode',
-        boolean: true,
-        default: true,
-      },
     },
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, args.interactive, nodeVersion));
+      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, nodeVersion));
     }
   )
   .command(
