@@ -1,13 +1,27 @@
-import { Config } from '@api3/node';
-
 // ===========================================
 // Receipt file
 // ===========================================
 
-export interface Receipt {
+export interface AirnodeWallet {
   airnodeId: string;
-  airnodeIdShort: string;
   xpub: string;
-  masterWalletAddress: string;
-  config: Omit<Config, 'ois' | 'triggers' | 'environment'>;
+}
+
+export interface Deployment {
+  nodeVersion: string;
+  airnodeIdShort: string;
+  cloudProvider: 'aws' | 'local';
+  region: string;
+  stage: string;
+}
+
+export interface Api {
+  httpGatewayUrl?: string;
+  heartbeatId?: string;
+}
+
+export interface Receipt {
+  airnodeWallet: AirnodeWallet;
+  deployment: Deployment;
+  api: Api;
 }

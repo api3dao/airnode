@@ -7,10 +7,14 @@ import ora from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
 
-export type TerraformAirnodeOutput = {
+type TerraformAirnodeOutput = {
   http_gateway_url?: {
     value: string;
   };
+};
+
+export type DeployAirnodeOutput = {
+  httpGatewayUrl?: string;
 };
 
 const exec = util.promisify(child.exec);
@@ -65,7 +69,7 @@ async function deploy(
   httpGatewayApiKey: string | undefined,
   configPath: string,
   secretsPath: string
-) {
+): Promise<DeployAirnodeOutput> {
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -104,7 +108,7 @@ async function deploy(
 
   command = 'terraform output -json -no-color';
   const output: TerraformAirnodeOutput = JSON.parse(await runCommand(command, options));
-  return output.http_gateway_url ? { httpGatewayUrl: output.http_gateway_url.value } : output;
+  return output.http_gateway_url ? { httpGatewayUrl: output.http_gateway_url.value } : {};
 }
 
 export async function removeAirnode(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
