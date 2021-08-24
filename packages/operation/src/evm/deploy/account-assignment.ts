@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { Airnode, DeployState as State, DesignatedWallet, SponsorAccount } from '../../types';
-import { deriveExtendedPublicKey, deriveWalletFromMnemonic, getDesignatedWallet } from '../utils';
+import { Airnode, DeployState as State, SponsorWallet, SponsorAccount } from '../../types';
+import { deriveExtendedPublicKey, deriveWalletFromMnemonic, getSponsorWallet } from '../utils';
 
 export async function assignAirnodeAccounts(state: State): Promise<State> {
   const airnodesByName: { [name: string]: Airnode } = {};
@@ -27,7 +27,7 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
 
     sponsorsById[configSponsor.id] = {
       address: sponsorAddress,
-      designatedWallets: [],
+      sponsorWallets: [],
       signer: sponsorWallet,
     };
   }
@@ -35,15 +35,15 @@ export async function assignRequesterAccounts(state: State): Promise<State> {
   return { ...state, sponsorsById };
 }
 
-export async function assignDesignatedWallets(state: State): Promise<State> {
+export async function assignSponsorWallets(state: State): Promise<State> {
   const sponsorsById: { [id: string]: SponsorAccount } = {};
   for (const configSponsor of state.config.sponsors) {
     const sponsor = state.sponsorsById[configSponsor.id];
-    const designatedAirnodeNames = Object.keys(configSponsor.airnodes);
+    const airnodeNames = Object.keys(configSponsor.airnodes);
 
-    const designatedWallets: DesignatedWallet[] = designatedAirnodeNames.map((airnodeName) => {
+    const sponsorWallets: SponsorWallet[] = airnodeNames.map((airnodeName) => {
       const airnode = state.airnodesByName[airnodeName];
-      const wallet = getDesignatedWallet(
+      const wallet = getSponsorWallet(
         airnode.mnemonic, // Here we have access to airnode wallet mnemonic but in real life a sponsor will only have access to the xpub
         state.provider,
         sponsor.address
@@ -55,7 +55,7 @@ export async function assignDesignatedWallets(state: State): Promise<State> {
       };
     });
 
-    sponsorsById[configSponsor.id] = { ...sponsor, designatedWallets };
+    sponsorsById[configSponsor.id] = { ...sponsor, sponsorWallets };
   }
 
   return { ...state, sponsorsById };

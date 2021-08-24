@@ -26,13 +26,13 @@ export async function fundSponsorAccounts(state: State): Promise<State> {
   return state;
 }
 
-export async function fundDesignatedWallets(state: State): Promise<State> {
+export async function fundSponsorWallets(state: State): Promise<State> {
   for (const configSponsor of state.config.sponsors) {
     const sponsor = state.sponsorsById[configSponsor.id];
-    for (const designatedWallet of sponsor.designatedWallets) {
-      const ethAmount = configSponsor.airnodes[designatedWallet.airnodeName].ethBalance;
+    for (const sponsorWallet of sponsor.sponsorWallets) {
+      const ethAmount = configSponsor.airnodes[sponsorWallet.airnodeName].ethBalance;
       const tx = await state.deployer.sendTransaction({
-        to: designatedWallet.address,
+        to: sponsorWallet.address,
         value: ethers.utils.parseEther(ethAmount),
       });
       await tx.wait();

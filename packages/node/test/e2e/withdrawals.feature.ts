@@ -37,7 +37,7 @@ it('processes withdrawals only once', async () => {
 
   const alice = deployment.requesters.find((r) => r.id === 'alice');
   const hdNode = wallet.getMasterHDNode(config);
-  const designatedAddress = wallet.deriveWalletAddressFromIndex(hdNode, alice!.requesterIndex);
+  const sponsorWalletAddress = wallet.deriveWalletAddressFromIndex(hdNode, alice!.requesterIndex);
 
   // It's difficult to check exact balances because the requester has made transactions at this
   // point, so check current balance is > 1.99 ETH and < 2.01 ETH
@@ -45,9 +45,9 @@ it('processes withdrawals only once', async () => {
   expect(preWithdrawalBalance.gt(ethers.utils.parseEther('1.99'))).toEqual(true);
   expect(preWithdrawalBalance.lt(ethers.utils.parseEther('2.01'))).toEqual(true);
 
-  const preWithdrawalDesignatedBalance = await provider.getBalance(designatedAddress);
-  expect(preWithdrawalDesignatedBalance.gt(ethers.utils.parseEther('1.99'))).toEqual(true);
-  expect(preWithdrawalDesignatedBalance.lt(ethers.utils.parseEther('2.01'))).toEqual(true);
+  const preWithdrawalSponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
+  expect(preWithdrawalSponsorWalletBalance.gt(ethers.utils.parseEther('1.99'))).toEqual(true);
+  expect(preWithdrawalSponsorWalletBalance.lt(ethers.utils.parseEther('2.01'))).toEqual(true);
 
   await handlers.startCoordinator();
 
@@ -56,8 +56,8 @@ it('processes withdrawals only once', async () => {
   expect(postWithdrawalBalance.lt(ethers.utils.parseEther('4.01'))).toEqual(true);
 
   // There is still some dust left over after withdrawing, so check balance is < 0.0005 ETH
-  const postWithdrawalDesignatedBalance = await provider.getBalance(designatedAddress);
-  expect(postWithdrawalDesignatedBalance.lt(ethers.utils.parseEther('0.0005'))).toEqual(true);
+  const postWithdrawalSponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
+  expect(postWithdrawalSponsorWalletBalance.lt(ethers.utils.parseEther('0.0005'))).toEqual(true);
 
   // Check that the relevant withdrawal events are present
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
@@ -77,6 +77,6 @@ it('processes withdrawals only once', async () => {
   // Balances have not changed
   const run2Balance = await provider.getBalance(alice!.address);
   expect(run2Balance).toEqual(postWithdrawalBalance);
-  const run2DesignatedBalance = await provider.getBalance(designatedAddress);
-  expect(run2DesignatedBalance).toEqual(postWithdrawalDesignatedBalance);
+  const run2SponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
+  expect(run2SponsorWalletBalance).toEqual(postWithdrawalSponsorWalletBalance);
 });

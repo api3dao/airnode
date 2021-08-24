@@ -157,7 +157,7 @@ Each sponsor object has the following structure:
 
 `id` - a unique string that can be used to identify the same sponsor between script runs
 
-`airnodes.[name].ethBalance` - a string value that represents how much ETH should be deposited into the sponsor's designated wallet for the given Airnode. Sponsors have one designated wallet per Airnode.
+`airnodes.[name].ethBalance` - a string value that represents how much ETH should be deposited into the sponsor's wallet for the given Airnode. Sponsors have one wallet per Airnode.
 
 ### 6. requests
 
