@@ -55,7 +55,7 @@ export async function assignSponsorWallets(state: State): Promise<State> {
       };
     });
 
-    sponsorsById[configSponsor.id] = { ...sponsor, sponsorWallets: sponsorWallets };
+    sponsorsById[configSponsor.id] = { ...sponsor, sponsorWallets };
   }
 
   return { ...state, sponsorsById };
