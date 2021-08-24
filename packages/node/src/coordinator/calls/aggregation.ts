@@ -9,7 +9,7 @@ function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): A
     requesterIndex: request.requesterIndex,
     airnodeAddress: request.airnodeAddress!,
     clientAddress: request.clientAddress,
-    designatedWallet: request.designatedWallet,
+    sponsorWallet: request.sponsorWallet,
     chainId: request.chainId,
     endpointId: request.endpointId!,
     parameters: request.parameters,

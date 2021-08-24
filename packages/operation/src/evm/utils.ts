@@ -14,11 +14,7 @@ export function deriveWalletFromMnemonic(mnemonic: string, provider: ethers.prov
   return ethers.Wallet.fromMnemonic(mnemonic, path).connect(provider);
 }
 
-export function getDesignatedWallet(
-  mnemonic: string,
-  provider: ethers.providers.JsonRpcProvider,
-  sponsorAddress: string
-) {
+export function getSponsorWallet(mnemonic: string, provider: ethers.providers.JsonRpcProvider, sponsorAddress: string) {
   return deriveWalletFromMnemonic(mnemonic, provider, deriveWalletPathFromSponsorAddress(sponsorAddress));
 }
 
