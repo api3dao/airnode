@@ -21,7 +21,7 @@ export async function deployAirnodeRrp(config: operation.Config): Promise<operat
   // Set Airnode xpub
   const state11 = await operation.setAirnodeXpub(state10);
 
-  // Endorse client contracts
+  // Endorse requester contracts
   const state12 = await operation.sponsorRequesters(state11);
 
   // Create templates

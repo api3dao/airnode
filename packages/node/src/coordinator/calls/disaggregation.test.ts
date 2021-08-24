@@ -4,7 +4,7 @@ import * as coordinatorState from '../state';
 import * as providerState from '../../providers/state';
 import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
 
-describe('disaggregate - ClientRequests', () => {
+describe('disaggregate - Requests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
     const requests: GroupedRequests = {
       apiCalls: [fixtures.requests.buildApiCall()],

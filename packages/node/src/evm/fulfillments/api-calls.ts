@@ -4,14 +4,7 @@ import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import {
-  ApiCall,
-  ClientRequest,
-  LogsErrorData,
-  RequestErrorCode,
-  RequestStatus,
-  TransactionOptions,
-} from '../../types';
+import { ApiCall, Request, LogsErrorData, RequestErrorCode, RequestStatus, TransactionOptions } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 const GAS_LIMIT = 500_000;
@@ -43,7 +36,7 @@ type SubmitResponse = ethers.Transaction | null;
 // =================================================================
 async function testFulfill(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
   const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
@@ -78,7 +71,7 @@ async function testFulfill(
 
 async function submitFulfill(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
@@ -117,7 +110,7 @@ async function submitFulfill(
 
 async function testAndSubmitFulfill(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   // Should not throw
@@ -157,7 +150,7 @@ async function testAndSubmitFulfill(
 // =================================================================
 async function submitFail(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
@@ -182,7 +175,7 @@ async function submitFail(
 // =================================================================
 export async function submitApiCall(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {

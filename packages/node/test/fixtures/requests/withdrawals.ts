@@ -1,7 +1,7 @@
 import { buildMetadata } from './metadata';
-import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
+import { Request, RequestStatus, Withdrawal } from '../../../src/types';
 
-export function buildWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
+export function buildWithdrawal(params?: Partial<Request<Withdrawal>>): Request<Withdrawal> {
   const metadata = buildMetadata();
 
   // These fields have invalid values on purpose to allow for easier reading. When necessary,

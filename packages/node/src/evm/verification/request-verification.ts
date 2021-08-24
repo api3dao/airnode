@@ -3,13 +3,13 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus, RequestTrigger } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorCode, RequestStatus, RequestTrigger } from '../../types';
 
 export function verifySponsorWallets<T>(
-  requests: ClientRequest<T>[],
+  requests: Request<T>[],
   masterHDNode: ethers.utils.HDNode
-): LogsData<ClientRequest<T>[]> {
-  const logsWithVerifiedRequests: LogsData<ClientRequest<T>>[] = requests.map((request) => {
+): LogsData<Request<T>[]> {
+  const logsWithVerifiedRequests: LogsData<Request<T>>[] = requests.map((request) => {
     if (request.status !== RequestStatus.Pending) {
       const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
       const log = logger.pend('DEBUG', message);
@@ -39,11 +39,11 @@ export function verifySponsorWallets<T>(
 }
 
 export function verifyTriggers(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   triggers: RequestTrigger[],
   oises: OIS[]
-): LogsData<ClientRequest<ApiCall>[]> {
-  const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
+): LogsData<Request<ApiCall>[]> {
+  const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) {
       const message = `Trigger verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`;
       const log = logger.pend('DEBUG', message);
@@ -51,7 +51,7 @@ export function verifyTriggers(
     }
 
     const trigger = triggers.find((t) => t.endpointId === apiCall.endpointId);
-    // If the request is for an unknown endpointId, the problem is with the requesting client contract
+    // If the request is for an unknown endpointId, the problem is with the requesting requester contract
     if (!trigger) {
       const message = `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`;
       const log = logger.pend('WARN', message);

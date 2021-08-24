@@ -7,7 +7,7 @@ export function buildRegularRequest(overrides?: Partial<TemplateRequest>): Templ
     type: 'template',
     airnode: 'CurrencyConverterAirnode',
     template: 'template-1',
-    client: 'MockAirnodeRrpClientFactory',
+    requester: 'MockRrpRequesterFactory',
     fulfillFunctionName: 'fulfill',
     parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
     ...overrides,
@@ -21,7 +21,7 @@ export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest 
     airnode: 'CurrencyConverterAirnode',
     endpoint: 'convertToUSD',
     oisTitle: 'Currency Converter API',
-    client: 'MockAirnodeRrpClientFactory',
+    requester: 'MockRrpRequesterFactory',
     fulfillFunctionName: 'fulfill',
     parameters: [
       { type: 'bytes32', name: 'from', value: 'ETH' },

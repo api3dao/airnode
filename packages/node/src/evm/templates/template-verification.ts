@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import { ApiCall, ApiCallTemplate, ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, ApiCallTemplate, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
@@ -16,10 +16,10 @@ export function getExpectedTemplateId(template: ApiCallTemplate): string {
 }
 
 export function verify(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   templatesById: ApiCallTemplatesById
-): LogsData<ClientRequest<ApiCall>[]> {
-  const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
+): LogsData<Request<ApiCall>[]> {
+  const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (!apiCall.templateId) {
       return [[], apiCall];
     }

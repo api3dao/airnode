@@ -79,7 +79,7 @@ describe('callApi', () => {
               from: 'ETH',
               ...(expectMetadata && {
                 _airnode_airnode_address: aggregatedCall.airnodeAddress,
-                _airnode_client_address: aggregatedCall.clientAddress,
+                _airnode_requester_address: aggregatedCall.requesterAddress,
                 _airnode_sponsor_wallet: aggregatedCall.sponsorWallet,
                 _airnode_endpoint_id: aggregatedCall.endpointId,
                 _airnode_sponsor_address: aggregatedCall.sponsorAddress,

@@ -41,7 +41,7 @@ describe('fetch (authorizations)', () => {
       return fixtures.requests.buildApiCall({
         id: `${n}`,
         endpointId: `endpointId-${n}`,
-        clientAddress: `clientAddress-${n}`,
+        requesterAddress: `requesterAddress-${n}`,
       });
     });
 
@@ -59,7 +59,7 @@ describe('fetch (authorizations)', () => {
       apiCalls.slice(0, 10).map((a) => a.endpointId),
       apiCalls.slice(0, 10).map((a) => a.sponsorAddress),
       apiCalls.slice(0, 10).map((a) => a.sponsorWallet),
-      apiCalls.slice(0, 10).map((a) => a.clientAddress),
+      apiCalls.slice(0, 10).map((a) => a.requesterAddress),
     ];
     const call2Args = [
       '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
@@ -67,7 +67,7 @@ describe('fetch (authorizations)', () => {
       apiCalls.slice(10, 19).map((a) => a.endpointId),
       apiCalls.slice(10, 19).map((a) => a.sponsorAddress),
       apiCalls.slice(10, 19).map((a) => a.sponsorWallet),
-      apiCalls.slice(10, 19).map((a) => a.clientAddress),
+      apiCalls.slice(10, 19).map((a) => a.requesterAddress),
     ];
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([call1Args, call2Args]);
   });
