@@ -18,7 +18,7 @@ export async function submitWithdrawal(
     const logStatus = request.status === RequestStatus.Fulfilled ? 'DEBUG' : 'INFO';
     const log = logger.pend(
       logStatus,
-      `Withdrawal wallet index:${request.requesterIndex} for Request:${request.id} not actioned as it has status:${request.status}`
+      `Withdrawal sponsor address:${request.sponsorAddress} for Request:${request.id} not actioned as it has status:${request.status}`
     );
     return [[log], null, null];
   }
@@ -26,13 +26,13 @@ export async function submitWithdrawal(
   if (isNil(request.nonce)) {
     const log = logger.pend(
       'ERROR',
-      `Withdrawal wallet index:${request.requesterIndex} for Request:${request.id} cannot be submitted as it does not have a nonce`
+      `Withdrawal sponsor address:${request.sponsorAddress} for Request:${request.id} cannot be submitted as it does not have a nonce`
     );
     return [[log], null, null];
   }
 
-  const requesterAddress = wallet.deriveWalletAddressFromIndex(options.masterHDNode, request.requesterIndex!);
-  const getBalanceOperation = () => options.provider!.getBalance(requesterAddress);
+  const sponsorAddress = wallet.deriveSponsorWalletAddress(options.masterHDNode, request.sponsorAddress!);
+  const getBalanceOperation = () => options.provider!.getBalance(sponsorAddress);
   const [balanceErr, currentBalance] = await go(getBalanceOperation, {
     retries: 1,
     timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,
@@ -40,7 +40,7 @@ export async function submitWithdrawal(
   if (balanceErr || !currentBalance) {
     const errLog = logger.pend(
       'ERROR',
-      `Failed to fetch wallet index:${request.requesterIndex} balance for Request:${request.id}`,
+      `Failed to fetch sponsor address:${request.sponsorAddress} balance for Request:${request.id}`,
       balanceErr
     );
     return [[errLog], balanceErr, null];
@@ -50,7 +50,7 @@ export async function submitWithdrawal(
     airnodeRrp.estimateGas.fulfillWithdrawal(
       request.id,
       request.airnodeAddress,
-      request.requesterIndex,
+      request.sponsorAddress,
       // We need to send some funds for the gas price calculation to be correct
       // We also can't send the current balance as that would cause the withdrawal
       // to revert. The transaction cost would need to be subtracted first
@@ -91,22 +91,22 @@ export async function submitWithdrawal(
 
   const noticeLog = logger.pend(
     'INFO',
-    `Submitting withdrawal wallet index:${request.requesterIndex} for Request:${request.id}...`
+    `Submitting withdrawal sponsor address:${request.sponsorAddress} for Request:${request.id}...`
   );
 
   const withdrawalTx = () =>
-    airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.requesterIndex, {
+    airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.sponsorAddress, {
       gasLimit: paddedGasLimit,
       gasPrice: options.gasPrice!,
       nonce: request.nonce!,
       value: fundsToSend,
     });
-  // Note that we're using the requester wallet to call this
+  // Note that we're using the sponsor address to call this
   const [withdrawalErr, withdrawalRes] = await go(withdrawalTx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (withdrawalErr || !withdrawalRes) {
     const withdrawalErrLog = logger.pend(
       'ERROR',
-      `Error submitting wallet index:${request.requesterIndex} withdrawal for Request:${request.id}`,
+      `Error submitting sponsor address:${request.sponsorAddress} withdrawal for Request:${request.id}`,
       withdrawalErr
     );
     const logs = [estimateLog, noticeLog, withdrawalErrLog];

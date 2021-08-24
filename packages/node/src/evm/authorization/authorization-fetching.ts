@@ -29,7 +29,7 @@ export async function fetchAuthorizationStatus(
       apiCall.id,
       // TODO: make sure endpointId is not null
       apiCall.endpointId!,
-      apiCall.requesterIndex,
+      apiCall.sponsorAddress,
       apiCall.clientAddress
     );
 
@@ -51,7 +51,7 @@ async function fetchAuthorizationStatuses(
   // Ordering must remain the same when mapping these two arrays
   const requestIds = apiCalls.map((a) => a.id);
   const endpointIds = apiCalls.map((a) => a.endpointId);
-  const requesterIndices = apiCalls.map((a) => a.requesterIndex);
+  const sponsorAddresses = apiCalls.map((a) => a.sponsorAddress);
   const clientAddresses = apiCalls.map((a) => a.clientAddress);
 
   const contractCall = () =>
@@ -61,7 +61,7 @@ async function fetchAuthorizationStatuses(
       requestIds,
       // TODO: make sure all endpointIds are non null
       endpointIds as string[],
-      requesterIndices,
+      sponsorAddresses,
       clientAddresses
     );
 

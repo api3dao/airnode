@@ -23,14 +23,14 @@ async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const requesterIndices = requests.mapUniqueRequesterIndices(currentState.requests);
+  const sponsors = requests.mapUniqueSponsorAddresses(currentState.requests);
   const fetchOptions = {
     currentBlock: currentState.currentBlock!,
     masterHDNode: currentState.masterHDNode,
     provider: currentState.provider,
   };
   // This should not throw
-  const [logs, res] = await transactionCounts.fetchByRequesterIndex(requesterIndices, fetchOptions);
+  const [logs, res] = await transactionCounts.fetchBySponsor(sponsors, fetchOptions);
   return { id: 'transaction-counts', data: res, logs };
 }
 
@@ -130,10 +130,10 @@ export async function initializeProvider(
   const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
   logger.logPending(authRes.logs, baseLogOptions);
 
-  const transactionCountsByRequesterIndex = txCountRes.data!;
+  const transactionCountsBySponsorAddress = txCountRes.data!;
   const authorizationsByRequestId = authRes.data!;
 
-  const state6 = state.update(state5, { transactionCountsByRequesterIndex });
+  const state6 = state.update(state5, { transactionCountsBySponsorAddress });
 
   // =================================================================
   // STEP 7: Apply authorization statuses to requests

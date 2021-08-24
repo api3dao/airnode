@@ -89,13 +89,13 @@ function assignWalletNonces(flatRequests: ClientRequest<AnyRequest>[], transacti
 }
 
 export function assign(state: ProviderState<EVMProviderState>): GroupedRequests {
-  const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
+  const requestsBySponsorAddress = grouping.groupRequestsBySponsorAddress(state.requests);
 
-  const requesterIndices = Object.keys(requestsByRequesterIndex);
+  const sponsorAddresses = Object.keys(requestsBySponsorAddress);
 
-  return requesterIndices.reduce(
-    (acc: GroupedRequests, requesterIndex) => {
-      const requests = requestsByRequesterIndex[requesterIndex];
+  return sponsorAddresses.reduce(
+    (acc: GroupedRequests, sponsorAddress) => {
+      const requests = requestsBySponsorAddress[sponsorAddress];
 
       // Ensure requests are sorted for we assign nonces
       const sortedRequests = sorting.sortGroupedRequests(requests);
@@ -103,7 +103,7 @@ export function assign(state: ProviderState<EVMProviderState>): GroupedRequests 
       // Flatten all requests into a single array so that nonces can be assigned across types
       const flatRequests = flattenRequests(sortedRequests);
 
-      const transactionCount = state.transactionCountsByRequesterIndex[requesterIndex];
+      const transactionCount = state.transactionCountsBySponsorAddress[sponsorAddress];
 
       // Assign nonces to each request
       const flattenRequestsWithNonces = assignWalletNonces(flatRequests, transactionCount);

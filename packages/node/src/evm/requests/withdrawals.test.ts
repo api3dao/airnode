@@ -25,7 +25,7 @@ describe('initialize (Withdrawal)', () => {
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      requesterIndex: '1',
+      sponsorAddress: '1', //TODO: fix value
       status: RequestStatus.Pending,
     });
   });
@@ -53,7 +53,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: 'logTransactionHash',
         },
-        requesterIndex: '1',
+        sponsorAddress: '1', //TODO: fix value
         status: RequestStatus.Fulfilled,
       },
     ]);
@@ -91,7 +91,7 @@ describe('mapRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        requesterIndex: '1',
+        sponsorAddress: '1', //TODO: fix value
         status: RequestStatus.Pending,
       },
     ]);

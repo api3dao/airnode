@@ -14,8 +14,8 @@ import { ethers } from 'ethers';
 import * as transactions from './transaction-counts';
 import * as wallet from './wallet';
 
-describe('fetchByRequesterIndex', () => {
-  it('calls getTransactionCount once for each unique requester index', async () => {
+describe('fetchBySponsor', () => {
+  it('calls getTransactionCount once for each unique sponsor', async () => {
     getTransactionCountMock.mockResolvedValueOnce(5);
     const options = {
       currentBlock: 10716084,
@@ -23,7 +23,7 @@ describe('fetchByRequesterIndex', () => {
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '1'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const [logs, res] = await transactions.fetchBySponsor(indices, options);
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 5 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ describe('fetchByRequesterIndex', () => {
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '2'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const [logs, res] = await transactions.fetchBySponsor(indices, options);
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 45, 2: 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
@@ -58,7 +58,7 @@ describe('fetchByRequesterIndex', () => {
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '1'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const [logs, res] = await transactions.fetchBySponsor(indices, options);
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
@@ -77,7 +77,7 @@ describe('fetchByRequesterIndex', () => {
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '1'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const [logs, res] = await transactions.fetchBySponsor(indices, options);
     expect(logs).toEqual([
       {
         level: 'ERROR',

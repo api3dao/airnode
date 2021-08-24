@@ -63,7 +63,7 @@ describe('create', () => {
         apiCalls: [],
         withdrawals: [],
       },
-      transactionCountsByRequesterIndex: {},
+      transactionCountsBySponsorAddress: {},
     });
   });
 
@@ -128,7 +128,7 @@ describe('create', () => {
         apiCalls: [],
         withdrawals: [],
       },
-      transactionCountsByRequesterIndex: {},
+      transactionCountsBySponsorAddress: {},
     });
   });
 });

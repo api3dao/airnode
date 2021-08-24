@@ -1,10 +1,10 @@
 import { ReservedParameterName } from '@api3/ois';
-import { FullRequest, RegularRequest, Withdrawal } from '@api3/operation';
+import { FullRequest, TemplateRequest, Request } from '@api3/operation';
 
-export function buildRegularRequest(overrides?: Partial<RegularRequest>): RegularRequest {
+export function buildRegularRequest(overrides?: Partial<TemplateRequest>): TemplateRequest {
   return {
-    requesterId: 'bob',
-    type: 'regular',
+    sponsorId: 'bob',
+    type: 'template',
     airnode: 'CurrencyConverterAirnode',
     template: 'template-1',
     client: 'MockAirnodeRrpClientFactory',
@@ -16,7 +16,7 @@ export function buildRegularRequest(overrides?: Partial<RegularRequest>): Regula
 
 export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest {
   return {
-    requesterId: 'bob',
+    sponsorId: 'bob',
     type: 'full',
     airnode: 'CurrencyConverterAirnode',
     endpoint: 'convertToUSD',
@@ -35,9 +35,9 @@ export function buildFullRequest(overrides?: Partial<FullRequest>): FullRequest 
   };
 }
 
-export function buildWithdrawal(overrides?: Partial<Withdrawal>): Withdrawal {
+export function buildWithdrawal(overrides?: Partial<Request>): Request {
   return {
-    requesterId: 'alice',
+    sponsorId: 'alice',
     type: 'withdrawal',
     airnode: 'CurrencyConverterAirnode',
     ...overrides,

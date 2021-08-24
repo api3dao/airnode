@@ -61,7 +61,7 @@ describe('initializeProvider', () => {
           to: 'USD',
         },
         requestCount: '1',
-        requesterIndex: '10',
+        sponsorAddress: '10', //TODO: fix value
         status: 'Pending',
         templateId: null,
         type: 'full',
@@ -91,7 +91,7 @@ describe('initializeProvider', () => {
           to: 'USD',
         },
         requestCount: '1',
-        requesterIndex: '5',
+        sponsorAddress: '5', //TODO: fix value
         status: 'Pending',
         templateId: '0x41e0458b020642796b14db9bb790bcdebab805ec4b639232277f0e007b088796',
         type: 'regular',

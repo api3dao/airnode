@@ -36,7 +36,7 @@ describe('mergeApiCallsWithTemplates', () => {
     expect(res[0].fulfillAddress).toEqual('fulfillAddress');
     expect(res[0].fulfillFunctionId).toEqual('fulfillFunctionId');
     expect(res[0].sponsorWallet).toEqual('sponsorWallet');
-    expect(res[0].requesterIndex).toEqual('3');
+    expect(res[0].sponsorAddress).toEqual('3'); //TODO: fix value
   });
 
   it('merges template and API call parameters', () => {

@@ -19,12 +19,12 @@ export function blockRequestsWithWithdrawals(requests: GroupedRequests): LogsDat
   const pendingApiCalls = requests.apiCalls.filter((r) => r.status === RequestStatus.Pending);
   const pendingWithdrawals = requests.withdrawals.filter((r) => r.status === RequestStatus.Pending);
 
-  const withdrawalsByRequesterIndex = fromPairs(pendingWithdrawals.map((w) => [w.requesterIndex, w]));
+  const withdrawalsBySponsorAddress = fromPairs(pendingWithdrawals.map((w) => [w.sponsorAddress, w]));
 
   const initialState: ApiCallsWithLogs = { logs: [], apiCalls: [] };
 
   const { logs, apiCalls } = pendingApiCalls.reduce((acc, apiCall) => {
-    const pendingWithdrawal = withdrawalsByRequesterIndex[apiCall.requesterIndex!];
+    const pendingWithdrawal = withdrawalsBySponsorAddress[apiCall.sponsorAddress];
 
     if (pendingWithdrawal) {
       const warningLog = logger.pend(
