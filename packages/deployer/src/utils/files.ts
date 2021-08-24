@@ -1,12 +1,10 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import omit from 'lodash/omit';
-import pick from 'lodash/pick';
 import { Config } from '@api3/node';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
-import { deriveAirnodeId, deriveMasterWalletAddress, deriveXpub, shortenAirnodeId } from '../utils';
-import { TerraformAirnodeOutput } from '../infrastructure';
+import { deriveAirnodeId, deriveXpub, shortenAirnodeId } from '../utils';
+import { DeployAirnodeOutput } from '../infrastructure';
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
@@ -22,17 +20,26 @@ export function writeReceiptFile(
   receiptFilename: string,
   mnemonic: string,
   config: Config,
-  commandOutput: TerraformAirnodeOutput
+  commandOutput: DeployAirnodeOutput
 ) {
   const airnodeId = deriveAirnodeId(mnemonic);
-  const receipt = {
-    airnodeId,
-    airnodeIdShort: shortenAirnodeId(airnodeId),
-    // Keeping `chains` and `nodeSettings` fields from the configuration and removing mnemonic
-    config: omit(pick(config, ['chains', 'nodeSettings']), 'nodeSettings.airnodeWalletMnemonic'),
-    masterWalletAddress: deriveMasterWalletAddress(mnemonic),
-    xpub: deriveXpub(mnemonic),
-    ...commandOutput,
+  const receipt: Receipt = {
+    airnodeWallet: {
+      airnodeId,
+      xpub: deriveXpub(mnemonic),
+    },
+    deployment: {
+      airnodeIdShort: shortenAirnodeId(airnodeId),
+      cloudProvider: config.nodeSettings.cloudProvider,
+      region: config.nodeSettings.region,
+      stage: config.nodeSettings.stage,
+      nodeVersion: config.nodeSettings.nodeVersion,
+    },
+    api: {
+      ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
+      // `httpGatewayUrl` comes from Airnode deployment output
+      ...commandOutput,
+    },
   };
 
   logger.debug('Writing receipt.json file');

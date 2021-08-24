@@ -73,13 +73,9 @@ export async function remove(airnodeIdShort: string, stage: string, cloudProvide
 
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
+  const { airnodeIdShort, cloudProvider, region, stage } = receipt.deployment;
   try {
-    await remove(
-      receipt.airnodeIdShort,
-      receipt.config.nodeSettings.stage,
-      receipt.config.nodeSettings.cloudProvider,
-      receipt.config.nodeSettings.region
-    );
+    await remove(airnodeIdShort, stage, cloudProvider, region);
   } catch (err) {
     logger.warn(`Failed removing configuration, skipping`);
     logger.warn(err.toString());
