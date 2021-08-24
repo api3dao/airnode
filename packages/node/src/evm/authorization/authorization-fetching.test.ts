@@ -58,7 +58,7 @@ describe('fetch (authorizations)', () => {
       apiCalls.slice(0, 10).map((a) => a.id),
       apiCalls.slice(0, 10).map((a) => a.endpointId),
       apiCalls.slice(0, 10).map((a) => a.requesterIndex),
-      apiCalls.slice(0, 10).map((a) => a.designatedWallet),
+      apiCalls.slice(0, 10).map((a) => a.sponsorWallet),
       apiCalls.slice(0, 10).map((a) => a.clientAddress),
     ];
     const call2Args = [
@@ -66,7 +66,7 @@ describe('fetch (authorizations)', () => {
       apiCalls.slice(10, 19).map((a) => a.id),
       apiCalls.slice(10, 19).map((a) => a.endpointId),
       apiCalls.slice(10, 19).map((a) => a.requesterIndex),
-      apiCalls.slice(10, 19).map((a) => a.designatedWallet),
+      apiCalls.slice(10, 19).map((a) => a.sponsorWallet),
       apiCalls.slice(10, 19).map((a) => a.clientAddress),
     ];
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([call1Args, call2Args]);

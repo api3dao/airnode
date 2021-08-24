@@ -5,30 +5,30 @@ import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus, RequestTrigger } from '../../types';
 
-export function verifyDesignatedWallets<T>(
+export function verifySponsorWallets<T>(
   requests: ClientRequest<T>[],
   masterHDNode: ethers.utils.HDNode
 ): LogsData<ClientRequest<T>[]> {
   const logsWithVerifiedRequests: LogsData<ClientRequest<T>>[] = requests.map((request) => {
     if (request.status !== RequestStatus.Pending) {
-      const message = `Designated wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
+      const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
       const log = logger.pend('DEBUG', message);
       return [[log], request];
     }
 
-    const expectedDesignatedWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, request.requesterIndex);
-    if (request.designatedWallet !== expectedDesignatedWallet) {
-      const message = `Invalid designated wallet:${request.designatedWallet} for Request:${request.id}. Expected:${expectedDesignatedWallet}`;
+    const expectedSponsorWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, request.requesterIndex);
+    if (request.sponsorWallet !== expectedSponsorWallet) {
+      const message = `Invalid sponsor wallet:${request.sponsorWallet} for Request:${request.id}. Expected:${expectedSponsorWallet}`;
       const log = logger.pend('ERROR', message);
       const updatedRequest = {
         ...request,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.DesignatedWalletInvalid,
+        errorCode: RequestErrorCode.SponsorWalletInvalid,
       };
       return [[log], updatedRequest];
     }
 
-    const message = `Request ID:${request.id} is linked to a valid designated wallet:${request.designatedWallet}`;
+    const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWallet}`;
     const log = logger.pend('DEBUG', message);
     return [[log], request];
   });

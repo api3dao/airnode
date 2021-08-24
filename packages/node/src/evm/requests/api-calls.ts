@@ -35,7 +35,7 @@ export function initialize(log: EVMMadeRequestLog): ClientRequest<ApiCall> {
     airnodeAddress: parsedLog.args.airnode,
     chainId: parsedLog.args.chainId.toString(),
     clientAddress: parsedLog.args.clientAddress,
-    designatedWallet: parsedLog.args.designatedWallet,
+    sponsorWallet: parsedLog.args.sponsorWallet,
     encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
     endpointId: events.isFullApiRequest(log) ? log.parsedLog.args.endpointId : null,
