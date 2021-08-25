@@ -17,7 +17,7 @@ describe('initialize (ApiCall)', () => {
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
       airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
       chainId: '31337',
-      clientAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       sponsorWallet: '0xD748Bc4212d8130879Ec4F24B950cAAb9EddfCB2',
       endpointId: null,
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
@@ -131,7 +131,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
         id,
         airnodeAddress: 'airnodeAddress',
         chainId: '31337',
-        clientAddress: 'clientAddress',
+        requesterAddress: 'requesterAddress',
         sponsorWallet: 'sponsorWallet',
         endpointId: 'endpointId',
         fulfillAddress: 'fulfillAddress',
@@ -178,7 +178,7 @@ describe('mapRequests (ApiCall)', () => {
       {
         airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
         chainId: '31337',
-        clientAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+        requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         sponsorWallet: '0xD748Bc4212d8130879Ec4F24B950cAAb9EddfCB2',
         endpointId: null,
         fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',

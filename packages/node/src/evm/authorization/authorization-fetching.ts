@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import * as logger from '../../logger';
 import { go } from '../../utils/promise-utils';
-import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../types';
+import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestStatus } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 
@@ -20,7 +20,7 @@ export async function fetchAuthorizationStatus(
   airnodeRrp: AirnodeRrp,
   authorizers: string[],
   airnodeAddress: string,
-  apiCall: ClientRequest<ApiCall>
+  apiCall: Request<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = () =>
     airnodeRrp.checkAuthorizationStatus(
@@ -30,7 +30,7 @@ export async function fetchAuthorizationStatus(
       // TODO: make sure endpointId is not null
       apiCall.endpointId!,
       apiCall.sponsorAddress,
-      apiCall.clientAddress
+      apiCall.requesterAddress
     );
 
   const [err, authorized] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
@@ -46,13 +46,13 @@ async function fetchAuthorizationStatuses(
   airnodeRrp: AirnodeRrp,
   authorizers: string[],
   airnodeAddress: string,
-  apiCalls: ClientRequest<ApiCall>[]
+  apiCalls: Request<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
   // Ordering must remain the same when mapping these two arrays
   const requestIds = apiCalls.map((a) => a.id);
   const endpointIds = apiCalls.map((a) => a.endpointId);
   const sponsorAddresses = apiCalls.map((a) => a.sponsorAddress);
-  const clientAddresses = apiCalls.map((a) => a.clientAddress);
+  const requesterAddresses = apiCalls.map((a) => a.requesterAddress);
 
   const contractCall = () =>
     airnodeRrp.checkAuthorizationStatuses(
@@ -62,7 +62,7 @@ async function fetchAuthorizationStatuses(
       // TODO: make sure all endpointIds are non null
       endpointIds as string[],
       sponsorAddresses,
-      clientAddresses
+      requesterAddresses
     );
 
   const [err, data] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
@@ -97,7 +97,7 @@ async function fetchAuthorizationStatuses(
 }
 
 export async function fetch(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsData<AuthorizationByRequestId>> {
   // If an API call has a templateId but the template failed to load, then we cannot process
