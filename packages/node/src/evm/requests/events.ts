@@ -11,7 +11,7 @@ import { airnodeRrpTopics } from '../contracts';
 
 export const API_CALL_REQUEST_TOPICS = [airnodeRrpTopics.MadeTemplateRequest, airnodeRrpTopics.MadeFullRequest];
 
-export const API_CALL_FULFILLED_TOPICS = [airnodeRrpTopics.MadeTemplateRequest, airnodeRrpTopics.FailedRequest];
+export const API_CALL_FULFILLED_TOPICS = [airnodeRrpTopics.FulfilledRequest, airnodeRrpTopics.FailedRequest];
 
 export const WITHDRAWAL_REQUEST_TOPICS = [airnodeRrpTopics.RequestedWithdrawal];
 
