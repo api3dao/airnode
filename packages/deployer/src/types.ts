@@ -49,7 +49,6 @@ export interface Chain {
   contracts: {
     AirnodeRrp: string;
   };
-  airnodeAdmin: string;
   authorizers: string[];
   blockHistoryLimit?: number;
   minConfirmations?: number;

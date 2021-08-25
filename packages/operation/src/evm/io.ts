@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { Config, Deployment, DeployState as State } from '../types';
 import { buildSaveableDeployment } from './deploy/state';
+import { Config, Deployment, DeployState as State } from '../types';
 
 const DEPLOY_DIR = './deployments';
 const DEPLOY_FILE = 'evm-dev.json';
