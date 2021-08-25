@@ -7,7 +7,7 @@ import uniq from 'lodash/uniq';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
-import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
+import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 
 export interface FetchOptions {
@@ -79,7 +79,7 @@ async function fetchTemplateGroup(
 }
 
 export async function fetch(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);

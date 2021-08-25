@@ -6,7 +6,7 @@ import * as logger from '../../logger';
 import {
   ApiCall,
   ApiCallType,
-  ClientRequest,
+  Request,
   EVMEventLog,
   EVMMadeRequestLog,
   EVMFulfilledRequestLog,
@@ -28,13 +28,13 @@ function getApiCallType(topic: string): ApiCallType {
   }
 }
 
-export function initialize(log: EVMMadeRequestLog): ClientRequest<ApiCall> {
+export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
   const { parsedLog } = log;
 
-  const request: ClientRequest<ApiCall> = {
+  const request: Request<ApiCall> = {
     airnodeAddress: parsedLog.args.airnode,
     chainId: parsedLog.args.chainId.toString(),
-    clientAddress: parsedLog.args.clientAddress,
+    requesterAddress: parsedLog.args.requester,
     sponsorWallet: parsedLog.args.sponsorWallet,
     encodedParameters: parsedLog.args.parameters,
     id: parsedLog.args.requestId,
@@ -59,7 +59,7 @@ export function initialize(log: EVMMadeRequestLog): ClientRequest<ApiCall> {
   return request;
 }
 
-export function applyParameters(request: ClientRequest<ApiCall>): LogsData<ClientRequest<ApiCall>> {
+export function applyParameters(request: Request<ApiCall>): LogsData<Request<ApiCall>> {
   if (!request.encodedParameters) {
     return [[], request];
   }
@@ -84,13 +84,13 @@ export function applyParameters(request: ClientRequest<ApiCall>): LogsData<Clien
 
 export interface UpdatedFulfilledRequests {
   readonly logs: PendingLog[];
-  readonly requests: ClientRequest<ApiCall>[];
+  readonly requests: Request<ApiCall>[];
 }
 
 export function updateFulfilledRequests(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   fulfilledRequestIds: string[]
-): LogsData<ClientRequest<ApiCall>[]> {
+): LogsData<Request<ApiCall>[]> {
   const { logs, requests } = apiCalls.reduce(
     (acc, apiCall) => {
       if (fulfilledRequestIds.includes(apiCall.id)) {
@@ -113,7 +113,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<ApiCall>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<ApiCall>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isApiCallRequest(log)) as EVMMadeRequestLog[];
   const fulfillmentLogs = logsWithMetadata.filter((log) =>

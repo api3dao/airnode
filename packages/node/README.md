@@ -69,7 +69,7 @@ src/
 ├── coordinator/         # The "main" function that oversees execution and state
 │   └── calls/           # Aggregating, executing and disaggregating API calls
 ├── evm/                 # EVM specific code
-│   ├── authorization/   # Authorizing clients and requests
+│   ├── authorization/   # Authorizing requesters and requests
 │   ├── contracts/       # Contract addresses and ABIs
 │   ├── fulfillments/    # Fulfilling EVM requests
 │   ├── handlers/        # EVM specific "pipeline" implementations

@@ -15,7 +15,7 @@
     "dev:testApi": "cd __dev__ && ts-node test-api.ts",
     "prepublishOnly": "yarn run build",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
-    "test:e2e:debug": "jest \"client-fulfill.feature\" --selectProjects e2e",
+    "test:e2e:debug": "jest \"requester-fulfill.feature\" --selectProjects e2e",
     "test:e2e:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects e2e",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",

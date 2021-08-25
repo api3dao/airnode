@@ -4,14 +4,14 @@ import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { ClientRequest, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../types';
+import { Request, LogsErrorData, RequestStatus, TransactionOptions, Withdrawal } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 type SubmitResponse = ethers.Transaction | null;
 
 export async function submitWithdrawal(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<Withdrawal>,
+  request: Request<Withdrawal>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   if (request.status !== RequestStatus.Pending) {

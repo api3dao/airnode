@@ -11,7 +11,7 @@ describe('AirnodeRrp', () => {
       'airnodeToXpub',
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
-      'clientAddressToNoRequests',
+      'requesterToRequestCountPlusOne',
       'createTemplate',
       'fail',
       'fulfill',
@@ -22,10 +22,10 @@ describe('AirnodeRrp', () => {
       'makeRequest',
       'requestWithIdHasFailed',
       'requestWithdrawal',
-      'requesterIndexToClientAddressToEndorsementStatus',
       'sponsorToWithdrawalRequestCount',
+      'sponsorToRequesterToSponsorshipStatus',
       'setAirnodeToXpub',
-      'setClientEndorsementStatus',
+      'setSponsorshipStatus',
     ]);
   });
 
@@ -36,7 +36,7 @@ describe('AirnodeRrp', () => {
       .sort();
     expect(events).toEqual([
       'AirnodeParametersSet',
-      'ClientEndorsementStatusSet',
+      'SetSponsorshipStatus',
       'MadeFullRequest',
       'MadeTemplateRequest',
       'FailedRequest',

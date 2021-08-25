@@ -26,7 +26,7 @@ describe('aggregate (API calls)', () => {
       apiCallId: {
         sponsorAddress: '3', //TODO: fix value
         airnodeAddress: 'airnodeAddress',
-        clientAddress: 'clientAddress',
+        requesterAddress: 'requesterAddress',
         sponsorWallet: 'sponsorWallet',
         chainId: '31337',
         endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
@@ -49,7 +49,7 @@ describe('aggregate (API calls)', () => {
       apiCallId: {
         sponsorAddress: '3', //TODO: fix value
         airnodeAddress: 'airnodeAddress',
-        clientAddress: 'clientAddress',
+        requesterAddress: 'requesterAddress',
         sponsorWallet: 'sponsorWallet',
         chainId: '31337',
         endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
