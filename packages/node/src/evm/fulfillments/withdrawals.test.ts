@@ -44,7 +44,7 @@ describe('submitWithdrawal', () => {
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
         level: 'INFO',
-        message: `Submitting withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id}...`,
+        message: `Submitting withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id}...`,
       },
     ]);
     expect(err).toEqual(null);
@@ -53,7 +53,7 @@ describe('submitWithdrawal', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
       withdrawal.airnodeAddress,
-      withdrawal.requesterIndex,
+      withdrawal.sponsorAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),
@@ -76,7 +76,7 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       {
         level: 'DEBUG',
-        message: `Withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id} not actioned as it has status:${withdrawal.status}`,
+        message: `Withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id} not actioned as it has status:${withdrawal.status}`,
       },
     ]);
     expect(err).toEqual(null);
@@ -106,7 +106,7 @@ describe('submitWithdrawal', () => {
     expect(blockedRes[0]).toEqual([
       {
         level: 'INFO',
-        message: `Withdrawal wallet index:${blocked.requesterIndex} for Request:${blocked.id} not actioned as it has status:${blocked.status}`,
+        message: `Withdrawal sponsor address:${blocked.sponsorAddress} for Request:${blocked.id} not actioned as it has status:${blocked.status}`,
       },
     ]);
     expect(blockedRes[1]).toEqual(null);
@@ -114,7 +114,7 @@ describe('submitWithdrawal', () => {
     expect(erroredRes[0]).toEqual([
       {
         level: 'INFO',
-        message: `Withdrawal wallet index:${errored.requesterIndex} for Request:${errored.id} not actioned as it has status:${errored.status}`,
+        message: `Withdrawal sponsor address:${errored.sponsorAddress} for Request:${errored.id} not actioned as it has status:${errored.status}`,
       },
     ]);
     expect(erroredRes[1]).toEqual(null);
@@ -149,7 +149,7 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id} cannot be submitted as it does not have a nonce`,
+        message: `Withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id} cannot be submitted as it does not have a nonce`,
       },
     ]);
     expect(err).toEqual(null);
@@ -167,7 +167,7 @@ describe('submitWithdrawal', () => {
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Failed to fetch wallet index:${withdrawal.requesterIndex} balance for Request:${withdrawal.id}`,
+        message: `Failed to fetch sponsor address:${withdrawal.sponsorAddress} balance for Request:${withdrawal.id}`,
         error: new Error('Could not fetch balance'),
       },
     ]);
@@ -210,11 +210,11 @@ describe('submitWithdrawal', () => {
       { level: 'DEBUG', message: `Withdrawal gas limit estimated at 70000 for Request:${withdrawal.id}` },
       {
         level: 'INFO',
-        message: `Submitting withdrawal wallet index:${withdrawal.requesterIndex} for Request:${withdrawal.id}...`,
+        message: `Submitting withdrawal sponsor address:${withdrawal.sponsorAddress} for Request:${withdrawal.id}...`,
       },
       {
         level: 'ERROR',
-        message: `Error submitting wallet index:${withdrawal.requesterIndex} withdrawal for Request:${withdrawal.id}`,
+        message: `Error submitting sponsor address:${withdrawal.sponsorAddress} withdrawal for Request:${withdrawal.id}`,
         error: new Error('Could not submit withdrawal'),
       },
     ]);
@@ -224,7 +224,7 @@ describe('submitWithdrawal', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
       withdrawal.airnodeAddress,
-      withdrawal.requesterIndex,
+      withdrawal.sponsorAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),

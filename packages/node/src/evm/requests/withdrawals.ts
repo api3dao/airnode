@@ -24,7 +24,7 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): ClientRe
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       transactionHash: logWithMetadata.transactionHash,
     },
-    requesterIndex: parsedLog.args.requesterIndex.toString(),
+    sponsorAddress: parsedLog.args.sponsor,
     status: RequestStatus.Pending,
   };
 

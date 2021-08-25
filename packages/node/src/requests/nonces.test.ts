@@ -20,27 +20,30 @@ describe('assign', () => {
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '5',
+      sponsorAddress: '5', //TODO: fix value
     });
     const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '5',
+      sponsorAddress: '5', //TODO: fix value
     });
     const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '5',
+      sponsorAddress: '5', //TODO: fix value
     });
 
     const requests: GroupedRequests = {
       apiCalls: shuffle([third, second, first]),
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 5: 3 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { 5: 3 }; //TODO: fix value
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 3 });
     expect(res.apiCalls[1]).toEqual({ ...second, nonce: 4 });
@@ -56,44 +59,50 @@ describe('assign', () => {
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '7',
+      sponsorAddress: '7', //TODO: fix value
     });
     const second = fixtures.requests.buildWithdrawal({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '7',
+      sponsorAddress: '7', //TODO: fix value
     });
     const third = fixtures.requests.buildWithdrawal({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '7',
+      sponsorAddress: '7', //TODO: fix value
     });
 
     const requests: GroupedRequests = {
       apiCalls: [],
       withdrawals: shuffle([first, third, second]),
     };
-    const transactionCountsByRequesterIndex = { 7: 11 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { 7: 11 }; //TODO: fix value
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
     expect(res.withdrawals[1]).toEqual({ ...second, nonce: 12 });
     expect(res.withdrawals[2]).toEqual({ ...third, nonce: 13 });
   });
 
-  it('does not share nonces between requesters', () => {
+  it('does not share nonces between sponsors', () => {
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.buildApiCall({ id: '0x1', requesterIndex: '7', nonce: undefined }),
-        fixtures.requests.buildApiCall({ id: '0x2', requesterIndex: '8', nonce: undefined }),
-        fixtures.requests.buildApiCall({ id: '0x3', requesterIndex: '9', nonce: undefined }),
+        fixtures.requests.buildApiCall({ id: '0x1', sponsorAddress: '7', nonce: undefined }), //TODO: fix value
+        fixtures.requests.buildApiCall({ id: '0x2', sponsorAddress: '8', nonce: undefined }), //TODO: fix value
+        fixtures.requests.buildApiCall({ id: '0x3', sponsorAddress: '9', nonce: undefined }), //TODO: fix value
       ],
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 7: 11, 8: 11, 9: 7 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { 7: 11, 8: 11, 9: 7 }; //TODO: fix value
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.apiCalls.find((a) => a.id === '0x1')!.nonce).toEqual(11);
     expect(res.apiCalls.find((a) => a.id === '0x2')!.nonce).toEqual(11);
@@ -111,30 +120,30 @@ describe('assign', () => {
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
     });
     const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       status: RequestStatus.Blocked,
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
     });
     const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
     });
 
     const requests: GroupedRequests = {
       apiCalls: shuffle([third, second, first]),
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 3: 7 };
+    const transactionCountsBySponsorAddress = { 3: 7 }; //TODO: fix value
     const state = providerState.update(mutableInitialState, {
       requests,
-      transactionCountsByRequesterIndex,
+      transactionCountsBySponsorAddress,
     });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 7 });
@@ -153,30 +162,30 @@ describe('assign', () => {
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
     });
     const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
       status: RequestStatus.Blocked,
     });
     const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
     });
 
     const requests: GroupedRequests = {
       apiCalls: shuffle([third, second, first]),
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 3: 7 };
+    const transactionCountsBySponsorAddress = { 3: 7 }; //TODO: fix value
     const state = providerState.update(mutableInitialState, {
       requests,
-      transactionCountsByRequesterIndex,
+      transactionCountsBySponsorAddress,
     });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 7 });
@@ -193,21 +202,21 @@ describe('assign', () => {
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '7',
+      sponsorAddress: '7', //TODO: fix value
       status: RequestStatus.Pending,
     });
     const second = fixtures.requests.buildWithdrawal({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '7',
+      sponsorAddress: '7', //TODO: fix value
       status: RequestStatus.Fulfilled,
     });
     const third = fixtures.requests.buildWithdrawal({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '7',
+      sponsorAddress: '7', //TODO: fix value
       status: RequestStatus.Pending,
     });
 
@@ -215,8 +224,11 @@ describe('assign', () => {
       apiCalls: [],
       withdrawals: shuffle([first, third, second]),
     };
-    const transactionCountsByRequesterIndex = { 7: 11 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { 7: 11 }; //TODO: fix value
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
     expect(res.withdrawals[1]).toEqual({ ...second, nonce: undefined });

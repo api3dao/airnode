@@ -19,7 +19,7 @@ export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRe
     metadata,
     parameters: { from: 'ETH' },
     requestCount: '12',
-    requesterIndex: '3',
+    sponsorAddress: '3', //TODO: fix value
     status: RequestStatus.Pending,
     templateId: null,
     type: 'regular',

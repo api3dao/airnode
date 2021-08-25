@@ -49,8 +49,8 @@ export function initialize(log: EVMMadeRequestLog): ClientRequest<ApiCall> {
     },
     // Parameters are decoded separately
     parameters: {},
-    requestCount: parsedLog.args.noRequests.toString(),
-    requesterIndex: parsedLog.args.requesterIndex?.toString(),
+    requestCount: parsedLog.args.requesterRequestCount.toString(),
+    sponsorAddress: parsedLog.args.sponsor,
     status: RequestStatus.Pending,
     templateId: events.isTemplateApiRequest(log) ? log.parsedLog.args.templateId : null,
     type: getApiCallType(parsedLog.topic),

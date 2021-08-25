@@ -7,8 +7,8 @@ import * as logger from '../logger';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../constants';
 import { LogsData } from '../types';
 
-export interface TransactionCountByRequesterIndex {
-  readonly [index: string]: number;
+export interface TransactionCountBySponsorAddress {
+  readonly [sponsorAddress: string]: number;
 }
 
 interface FetchOptions {
@@ -18,33 +18,33 @@ interface FetchOptions {
 }
 
 async function getWalletTransactionCount(
-  requesterIndex: string,
+  sponsorAddress: string,
   options: FetchOptions
-): Promise<LogsData<TransactionCountByRequesterIndex | null>> {
-  const address = wallet.deriveWalletAddressFromIndex(options.masterHDNode, requesterIndex);
+): Promise<LogsData<TransactionCountBySponsorAddress | null>> {
+  const address = wallet.deriveSponsorWalletAddress(options.masterHDNode, sponsorAddress);
   const operation = () => options.provider.getTransactionCount(address, options.currentBlock);
   const [err, count] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || count === null) {
     const log = logger.pend('ERROR', `Unable to fetch transaction count for wallet:${address}`, err);
     return [[log], null];
   }
-  return [[], { [requesterIndex]: count }];
+  return [[], { [sponsorAddress]: count }];
 }
 
-export async function fetchByRequesterIndex(
-  requesterIndices: string[],
+export async function fetchBySponsor(
+  sponsorAddresses: string[],
   options: FetchOptions
-): Promise<LogsData<TransactionCountByRequesterIndex>> {
+): Promise<LogsData<TransactionCountBySponsorAddress>> {
   // Ensure that there are no duplicated addresses
-  const uniqueAddresses = uniq(requesterIndices);
+  const uniqueAddresses = uniq(sponsorAddresses);
 
   // Fetch all transaction counts in parallel
   const promises = uniqueAddresses.map((address) => getWalletTransactionCount(address, options));
   const logsWithCounts = await Promise.all(promises);
   const logs = flatMap(logsWithCounts, (c) => c[0]);
-  const countsByIndex = logsWithCounts.map((c) => c[1]);
+  const countsBySponsor = logsWithCounts.map((c) => c[1]);
 
-  const successfulResults = countsByIndex.filter((r) => !!r) as TransactionCountByRequesterIndex[];
+  const successfulResults = countsBySponsor.filter((r) => !!r) as TransactionCountBySponsorAddress[];
 
   // Merge all successful results into a single object
   const combinedResults = Object.assign({}, ...successfulResults);
