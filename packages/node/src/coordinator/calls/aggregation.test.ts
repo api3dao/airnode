@@ -24,7 +24,7 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
-        requesterIndex: '3',
+        sponsorAddress: '3', //TODO: fix value
         airnodeAddress: 'airnodeAddress',
         clientAddress: 'clientAddress',
         sponsorWallet: 'sponsorWallet',
@@ -47,7 +47,7 @@ describe('aggregate (API calls)', () => {
     const res = aggregation.aggregate(fixtures.buildConfig(), apiCalls);
     expect(res).toEqual({
       apiCallId: {
-        requesterIndex: '3',
+        sponsorAddress: '3', //TODO: fix value
         airnodeAddress: 'airnodeAddress',
         clientAddress: 'clientAddress',
         sponsorWallet: 'sponsorWallet',

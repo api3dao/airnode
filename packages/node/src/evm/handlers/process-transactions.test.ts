@@ -41,14 +41,17 @@ describe('processTransactions', () => {
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
-    const apiCall = fixtures.requests.buildSubmittableApiCall({ requesterIndex: '4' });
-    const withdrawal = fixtures.requests.buildWithdrawal({ requesterIndex: '5' });
+    const apiCall = fixtures.requests.buildSubmittableApiCall({ sponsorAddress: '4' }); //TODO: fix value
+    const withdrawal = fixtures.requests.buildWithdrawal({ sponsorAddress: '5' }); //TODO: fix value
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],
     };
-    const transactionCountsByRequesterIndex = { 4: 79, 5: 212 };
-    const state = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { 4: 79, 5: 212 }; //TODO: fix value
+    const state = fixtures.buildEVMProviderState({
+      requests,
+      transactionCountsBySponsorAddress,
+    });
 
     const res = await processTransactions(state);
     expect(res.requests.apiCalls[0]).toEqual({
@@ -70,7 +73,7 @@ describe('processTransactions', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
       withdrawal.airnodeAddress,
-      withdrawal.requesterIndex,
+      withdrawal.sponsorAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),
@@ -98,13 +101,16 @@ describe('processTransactions', () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
 
-    const apiCall = fixtures.requests.buildSubmittableApiCall({ requesterIndex: '4' });
+    const apiCall = fixtures.requests.buildSubmittableApiCall({ sponsorAddress: '4' }); //TODO: fix value
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 4: 79 };
-    const state = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { 4: 79 }; //TODO: fix value
+    const state = fixtures.buildEVMProviderState({
+      requests,
+      transactionCountsBySponsorAddress,
+    });
 
     const res = await processTransactions(state);
     expect(res.requests.apiCalls[0]).toEqual({ ...apiCall, nonce: 79 });

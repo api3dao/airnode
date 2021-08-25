@@ -43,7 +43,7 @@ describe('fetchPendingRequests', () => {
             to: 'USD',
           },
           requestCount: '1',
-          requesterIndex: '10',
+          sponsorAddress: '10', //TODO: fix value
           status: 'Pending',
           templateId: null,
           type: 'full',
@@ -60,7 +60,7 @@ describe('fetchPendingRequests', () => {
             ignoreBlockedRequestsAfterBlocks: 20,
             transactionHash: '0xac3aa3683548a631dd7561cfa32d4e003f43bfc061bb40adc9920c9c1d4d6a60',
           },
-          requesterIndex: '1',
+          sponsorAddress: '1', //TODO: fix value
           status: 'Pending',
         },
       ],

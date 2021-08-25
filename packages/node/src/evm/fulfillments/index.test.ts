@@ -38,10 +38,10 @@ describe('submit', () => {
   it('submits transactions for multiple wallets and returns the transactions', async () => {
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.buildApiCall({ id: '0x1', nonce: 10, requesterIndex: '6' }),
-        fixtures.requests.buildApiCall({ id: '0x2', nonce: 11, requesterIndex: '7' }),
+        fixtures.requests.buildApiCall({ id: '0x1', nonce: 10, sponsorAddress: '6' }), //TODO: fix value
+        fixtures.requests.buildApiCall({ id: '0x2', nonce: 11, sponsorAddress: '7' }), //TODO: fix value
       ],
-      withdrawals: [fixtures.requests.buildWithdrawal({ id: '0x5', nonce: 3, requesterIndex: '8' })],
+      withdrawals: [fixtures.requests.buildWithdrawal({ id: '0x5', nonce: 3, sponsorAddress: '8' })],
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();

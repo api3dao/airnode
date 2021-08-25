@@ -17,16 +17,16 @@ import * as fixtures from '../../test/fixtures';
 
 const config = fixtures.buildConfig();
 
-describe('fetchByRequesterIndex', () => {
-  it('calls getTransactionCount once for each unique requester index', async () => {
+describe('fetchBySponsor', () => {
+  it('calls getTransactionCount once for each unique sponsor', async () => {
     getTransactionCountMock.mockResolvedValueOnce(5);
     const options = {
       currentBlock: 10716084,
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const indices = ['1', '1'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const addresses = ['1', '1']; // TODO: fix value
+    const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 5 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
@@ -41,8 +41,8 @@ describe('fetchByRequesterIndex', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const indices = ['1', '2'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const addresses = ['1', '2']; // TODO: fix value
+    const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 45, 2: 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
@@ -60,8 +60,8 @@ describe('fetchByRequesterIndex', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const indices = ['1', '1'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const addresses = ['1', '1']; // TODO: fix value
+    const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([]);
     expect(res).toEqual({ 1: 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
@@ -79,8 +79,8 @@ describe('fetchByRequesterIndex', () => {
       masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const indices = ['1', '1'];
-    const [logs, res] = await transactions.fetchByRequesterIndex(indices, options);
+    const addresses = ['1', '1']; // TODO: fix value
+    const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([
       {
         level: 'ERROR',

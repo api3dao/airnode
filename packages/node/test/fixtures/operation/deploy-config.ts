@@ -37,7 +37,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     clients: {
       MockAirnodeRrpClientFactory: { endorsers: ['bob'] },
     },
-    requesters: [
+    sponsors: [
       {
         id: 'alice',
         airnodes: {
@@ -53,8 +53,8 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     ],
     requests: [
       {
-        requesterId: 'bob',
-        type: 'regular',
+        sponsorId: 'bob',
+        type: 'template',
         airnode: 'CurrencyConverterAirnode',
         template: 'template-1',
         client: 'MockAirnodeRrpClientFactory',
@@ -62,7 +62,7 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
       },
       {
-        requesterId: 'bob',
+        sponsorId: 'bob',
         type: 'full',
         airnode: 'CurrencyConverterAirnode',
         endpoint: 'convertToUSD',

@@ -2,45 +2,45 @@ import * as grouping from './grouping';
 import * as fixtures from '../../test/fixtures';
 import { GroupedRequests } from '../types';
 
-describe('mapUniqueRequesterIndices', () => {
-  it('returns a unique list of requester indices', () => {
+describe('mapUniqueSponsors', () => {
+  it('returns a unique list of sponsors', () => {
     const apiCalls = [
-      fixtures.requests.buildApiCall({ requesterIndex: '8' }),
-      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
-      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
-      fixtures.requests.buildApiCall({ requesterIndex: '10' }),
+      fixtures.requests.buildApiCall({ sponsorAddress: '8' }), //TODO: fix value
+      fixtures.requests.buildApiCall({ sponsorAddress: '9' }), //TODO: fix value
+      fixtures.requests.buildApiCall({ sponsorAddress: '9' }), //TODO: fix value
+      fixtures.requests.buildApiCall({ sponsorAddress: '10' }), //TODO: fix value
     ];
     const withdrawals = [
-      fixtures.requests.buildWithdrawal({ requesterIndex: '9' }),
-      fixtures.requests.buildWithdrawal({ requesterIndex: '12' }),
+      fixtures.requests.buildWithdrawal({ sponsorAddress: '9' }), //TODO: fix value
+      fixtures.requests.buildWithdrawal({ sponsorAddress: '12' }), //TODO: fix value
     ];
     const requests: GroupedRequests = {
       apiCalls: apiCalls,
       withdrawals: withdrawals,
     };
-    const res = grouping.mapUniqueRequesterIndices(requests);
-    expect(res).toEqual(['8', '9', '10', '12']);
+    const res = grouping.mapUniqueSponsorAddresses(requests);
+    expect(res).toEqual(['8', '9', '10', '12']); //TODO: fix value
   });
 });
 
-describe('groupRequestsByRequesterIndex', () => {
-  it('groups all requests by wallet index', () => {
+describe('groupRequestsBySponsor', () => {
+  it('groups all requests by sponsor', () => {
     const apiCalls = [
-      fixtures.requests.buildApiCall({ requesterIndex: '8' }),
-      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
-      fixtures.requests.buildApiCall({ requesterIndex: '9' }),
-      fixtures.requests.buildApiCall({ requesterIndex: '10' }),
+      fixtures.requests.buildApiCall({ sponsorAddress: '8' }), //TODO: fix value
+      fixtures.requests.buildApiCall({ sponsorAddress: '9' }), //TODO: fix value
+      fixtures.requests.buildApiCall({ sponsorAddress: '9' }), //TODO: fix value
+      fixtures.requests.buildApiCall({ sponsorAddress: '10' }), //TODO: fix value
     ];
     const withdrawals = [
-      fixtures.requests.buildWithdrawal({ requesterIndex: '9' }),
-      fixtures.requests.buildWithdrawal({ requesterIndex: '12' }),
+      fixtures.requests.buildWithdrawal({ sponsorAddress: '9' }), //TODO: fix value
+      fixtures.requests.buildWithdrawal({ sponsorAddress: '12' }), //TODO: fix value
     ];
     const requests: GroupedRequests = {
       apiCalls: apiCalls,
       withdrawals: withdrawals,
     };
 
-    const res = grouping.groupRequestsByRequesterIndex(requests);
+    const res = grouping.groupRequestsBySponsorAddress(requests);
     expect(res).toEqual({
       8: {
         apiCalls: [apiCalls[0]],

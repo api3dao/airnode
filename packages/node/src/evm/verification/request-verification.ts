@@ -16,7 +16,7 @@ export function verifySponsorWallets<T>(
       return [[log], request];
     }
 
-    const expectedSponsorWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, request.requesterIndex);
+    const expectedSponsorWallet = wallet.deriveSponsorWalletAddress(masterHDNode, request.sponsorAddress);
     if (request.sponsorWallet !== expectedSponsorWallet) {
       const message = `Invalid sponsor wallet:${request.sponsorWallet} for Request:${request.id}. Expected:${expectedSponsorWallet}`;
       const log = logger.pend('ERROR', message);

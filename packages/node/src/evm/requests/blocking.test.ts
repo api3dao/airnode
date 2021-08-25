@@ -3,9 +3,9 @@ import * as fixtures from '../../../test/fixtures';
 import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
 
 describe('blockRequestsWithWithdrawals', () => {
-  it('blocks API calls with pending withdrawals from the same wallet index', () => {
-    const apiCall = fixtures.requests.buildApiCall({ requesterIndex: '123' });
-    const withdrawal = fixtures.requests.buildWithdrawal({ requesterIndex: '123' });
+  it('blocks API calls with pending withdrawals from the same sponsor', () => {
+    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress: '123' }); //TODO: fix value
+    const withdrawal = fixtures.requests.buildWithdrawal({ sponsorAddress: '123' }); //TODO: fix value
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],
@@ -22,8 +22,8 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
-    const apiCall = fixtures.requests.buildApiCall({ requesterIndex: '123' });
-    const withdrawal = fixtures.requests.buildWithdrawal({ requesterIndex: '456' });
+    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress: '123' }); //TODO: fix value
+    const withdrawal = fixtures.requests.buildWithdrawal({ sponsorAddress: '456' }); //TODO: fix value
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],
@@ -39,13 +39,16 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does not block API calls linked to non-pending withdrawals', () => {
-    const requesterIndex = '123';
-    const apiCall = fixtures.requests.buildApiCall({ requesterIndex });
+    const sponsorAddress = '123'; //TODO: fix value
+    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress });
     const statuses = Object.keys(RequestStatus).filter(
       (status) => RequestStatus[status as RequestStatus] !== RequestStatus.Pending
     );
     const withdrawals = statuses.map((status) => {
-      return fixtures.requests.buildWithdrawal({ status: RequestStatus[status as RequestStatus], requesterIndex });
+      return fixtures.requests.buildWithdrawal({
+        status: RequestStatus[status as RequestStatus],
+        sponsorAddress,
+      });
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],

@@ -47,7 +47,7 @@ export function buildEVMState(
       apiCalls: [],
       withdrawals: [],
     },
-    transactionCountsByRequesterIndex: {},
+    transactionCountsBySponsorAddress: {},
   };
 }
 

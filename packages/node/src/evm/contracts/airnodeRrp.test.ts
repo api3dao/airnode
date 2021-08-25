@@ -12,7 +12,6 @@ describe('AirnodeRrp', () => {
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
       'clientAddressToNoRequests',
-      'createRequester',
       'createTemplate',
       'fail',
       'fulfill',
@@ -23,12 +22,10 @@ describe('AirnodeRrp', () => {
       'makeRequest',
       'requestWithIdHasFailed',
       'requestWithdrawal',
-      'requesterIndexToAdmin',
       'requesterIndexToClientAddressToEndorsementStatus',
-      'requesterIndexToNextWithdrawalRequestIndex',
+      'sponsorToWithdrawalRequestCount',
       'setAirnodeToXpub',
       'setClientEndorsementStatus',
-      'setRequesterAdmin',
     ]);
   });
 
@@ -44,8 +41,6 @@ describe('AirnodeRrp', () => {
       'MadeTemplateRequest',
       'FailedRequest',
       'FulfilledRequest',
-      'RequesterCreated',
-      'RequesterUpdated',
       'TemplateCreated',
       'FulfilledWithdrawal',
       'RequestedWithdrawal',
