@@ -7,7 +7,7 @@ import * as config from '../config';
  * in order for them to be able to respond to the requests their requesters make.
  *
  * By convention derivation paths start with a master index
- * followed by child indexes that can be any integer up to 2^31.
+ * followed by child indices that can be any integer up to 2^31.
  *
  * Since addresses can be represented as 160bits (20bytes) we can then
  * split it in chunks of 31bits and create a path with the following pattern:
