@@ -1,7 +1,7 @@
 import { mockEthers } from '../../../test/mock-utils';
-const getTemplateMock = jest.fn();
+const templatesMock = jest.fn();
 const getTemplatesMock = jest.fn();
-mockEthers({ airnodeRrpMocks: { getTemplate: getTemplateMock, getTemplates: getTemplatesMock } });
+mockEthers({ airnodeRrpMocks: { templates: templatesMock, getTemplates: getTemplatesMock } });
 
 import { ethers } from 'ethers';
 import * as templates from './template-fetching';
@@ -20,15 +20,15 @@ describe('fetch (templates)', () => {
 
   it('fetches templates in groups of 10', async () => {
     const firstRawTemplates = {
+      airnodes: Array.from(Array(10).keys()).map((n) => `airnode-${n}`),
       endpointIds: Array.from(Array(10).keys()).map((n) => `endpointId-${n}`),
       parameters: Array.from(Array(10).keys()).map(() => '0x6874656d706c6174656576616c7565'),
-      airnodes: Array.from(Array(10).keys()).map((n) => `airnode-${n}`),
     };
 
     const secondRawTemplates = {
+      airnodes: Array.from(Array(9).keys()).map((n) => `airnode-${n + 10}`),
       endpointIds: Array.from(Array(9).keys()).map((n) => `endpointId-${n + 10}`),
       parameters: Array.from(Array(9).keys()).map(() => '0x6874656d706c6174656576616c7565'),
-      airnodes: Array.from(Array(9).keys()).map((n) => `airnode-${n + 10}`),
     };
 
     getTemplatesMock.mockResolvedValueOnce(firstRawTemplates);
@@ -56,9 +56,9 @@ describe('fetch (templates)', () => {
 
   it('returns all template attributes', async () => {
     const rawTemplates = {
+      airnodes: ['airnode-0'],
       endpointIds: ['endpointId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
-      airnodes: ['airnode-0'],
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
@@ -67,9 +67,9 @@ describe('fetch (templates)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
-        airnode: 'airnode-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        airnodeAddress: 'airnode-0',
         endpointId: 'endpointId-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
       },
     });
@@ -77,9 +77,9 @@ describe('fetch (templates)', () => {
 
   it('filters out duplicate template IDs', async () => {
     const rawTemplates = {
+      airnodes: ['airnode-0'],
       endpointIds: ['endpointId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
-      airnodes: ['airnode-0'],
     };
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
 
@@ -89,9 +89,9 @@ describe('fetch (templates)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
-        airnode: 'airnode-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        airnodeAddress: 'airnode-0',
         endpointId: 'endpointId-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
       },
     });
@@ -110,9 +110,9 @@ describe('fetch (templates)', () => {
 
   it('retries once on failure', async () => {
     const rawTemplates = {
+      airnodes: ['airnode-0'],
       endpointIds: ['endpointId-0'],
       parameters: ['0x6874656d706c6174656576616c7565'],
-      airnodes: ['airnode-0'],
     };
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockResolvedValueOnce(rawTemplates);
@@ -122,9 +122,9 @@ describe('fetch (templates)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual({
       'templateId-0': {
-        airnode: 'airnode-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        airnodeAddress: 'airnode-0',
         endpointId: 'endpointId-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
       },
     });
@@ -140,7 +140,7 @@ describe('fetch (templates)', () => {
       endpointId: 'endpointId-0',
       parameters: '0x6874656d706c6174656576616c7565',
     };
-    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+    templatesMock.mockResolvedValueOnce(rawTemplate);
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
@@ -150,14 +150,14 @@ describe('fetch (templates)', () => {
     ]);
     expect(res).toEqual({
       'templateId-0': {
-        airnode: 'airnode-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        airnodeAddress: 'airnode-0',
         endpointId: 'endpointId-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
       },
     });
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
-    expect(getTemplateMock).toHaveBeenCalledTimes(1);
+    expect(templatesMock).toHaveBeenCalledTimes(1);
   });
 
   it('retries individual template calls once', async () => {
@@ -169,8 +169,8 @@ describe('fetch (templates)', () => {
       endpointId: 'endpointId-0',
       parameters: '0x6874656d706c6174656576616c7565',
     };
-    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
-    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+    templatesMock.mockRejectedValueOnce(new Error('Server says no'));
+    templatesMock.mockResolvedValueOnce(rawTemplate);
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
@@ -180,22 +180,22 @@ describe('fetch (templates)', () => {
     ]);
     expect(res).toEqual({
       'templateId-0': {
-        airnode: 'airnode-0',
-        encodedParameters: '0x6874656d706c6174656576616c7565',
+        airnodeAddress: 'airnode-0',
         endpointId: 'endpointId-0',
+        encodedParameters: '0x6874656d706c6174656576616c7565',
         id: 'templateId-0',
       },
     });
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
-    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+    expect(templatesMock).toHaveBeenCalledTimes(2);
   });
 
   it('returns nothing after all template calls are exhausted', async () => {
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
     getTemplatesMock.mockRejectedValueOnce(new Error('Server says no'));
 
-    getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
-    getTemplateMock.mockRejectedValueOnce(new Error('Still no'));
+    templatesMock.mockRejectedValueOnce(new Error('Still no'));
+    templatesMock.mockRejectedValueOnce(new Error('Still no'));
 
     const apiCall = fixtures.requests.buildApiCall({ templateId: 'templateId-0' });
     const [logs, res] = await templates.fetch([apiCall], mutableFetchOptions);
@@ -209,7 +209,7 @@ describe('fetch (templates)', () => {
     ]);
     expect(res).toEqual({});
     expect(getTemplatesMock).toHaveBeenCalledTimes(2);
-    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+    expect(templatesMock).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -226,18 +226,18 @@ describe('fetchTemplate', () => {
       endpointId: 'endpointId-0',
       parameters: '0x6874656d706c6174656576616c7565',
     };
-    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+    templatesMock.mockResolvedValueOnce(rawTemplate);
 
     const templateId = 'templateId';
     const [logs, res] = await templates.fetchTemplate(mutableAirnodeRrp, templateId);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
     expect(res).toEqual({
-      airnode: 'airnode-0',
-      encodedParameters: '0x6874656d706c6174656576616c7565',
+      airnodeAddress: 'airnode-0',
       endpointId: 'endpointId-0',
+      encodedParameters: '0x6874656d706c6174656576616c7565',
       id: templateId,
     });
-    expect(getTemplateMock).toHaveBeenCalledTimes(1);
+    expect(templatesMock).toHaveBeenCalledTimes(1);
   });
 
   it('retries individual template calls once', async () => {
@@ -246,24 +246,24 @@ describe('fetchTemplate', () => {
       endpointId: 'endpointId-0',
       parameters: '0x6874656d706c6174656576616c7565',
     };
-    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
-    getTemplateMock.mockResolvedValueOnce(rawTemplate);
+    templatesMock.mockRejectedValueOnce(new Error('Server says no'));
+    templatesMock.mockResolvedValueOnce(rawTemplate);
 
     const templateId = 'templateId';
     const [logs, res] = await templates.fetchTemplate(mutableAirnodeRrp, templateId);
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched API call template:${templateId}` }]);
     expect(res).toEqual({
-      airnode: 'airnode-0',
-      encodedParameters: '0x6874656d706c6174656576616c7565',
+      airnodeAddress: 'airnode-0',
       endpointId: 'endpointId-0',
+      encodedParameters: '0x6874656d706c6174656576616c7565',
       id: templateId,
     });
-    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+    expect(templatesMock).toHaveBeenCalledTimes(2);
   });
 
   it('returns nothing after all individual template calls are exhausted', async () => {
-    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
-    getTemplateMock.mockRejectedValueOnce(new Error('Server says no'));
+    templatesMock.mockRejectedValueOnce(new Error('Server says no'));
+    templatesMock.mockRejectedValueOnce(new Error('Server says no'));
 
     const templateId = 'templateId';
     const [logs, res] = await templates.fetchTemplate(mutableAirnodeRrp, templateId);
@@ -275,6 +275,6 @@ describe('fetchTemplate', () => {
       },
     ]);
     expect(res).toEqual(null);
-    expect(getTemplateMock).toHaveBeenCalledTimes(2);
+    expect(templatesMock).toHaveBeenCalledTimes(2);
   });
 });

@@ -23,7 +23,7 @@ export async function fetchTemplate(
   airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const operation = () => airnodeRrp.getTemplates([templateId]);
+  const operation = () => airnodeRrp.templates(templateId);
   const [err, rawTemplate] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
@@ -33,9 +33,9 @@ export async function fetchTemplate(
   const successLog = logger.pend('INFO', `Fetched API call template:${templateId}`);
 
   const template: ApiCallTemplate = {
-    airnodeAddress: rawTemplate.airnodes[0],
-    encodedParameters: rawTemplate.parameters[0],
-    endpointId: rawTemplate.endpointIds[0],
+    airnodeAddress: rawTemplate.airnode,
+    endpointId: rawTemplate.endpointId,
+    encodedParameters: rawTemplate.parameters,
     id: templateId,
   };
   return [[successLog], template];
@@ -52,7 +52,6 @@ async function fetchTemplateGroup(
   if (err || !rawTemplates) {
     const groupLog = logger.pend('ERROR', 'Failed to fetch API call templates', err);
 
-    // TODO: is this still needed now that getTemplate() was removed from protocol?
     // If the template group cannot be fetched, fallback to fetching templates individually
     const promises = templateIds.map((id) => fetchTemplate(airnodeRrp, id));
     const logsWithTemplates = await Promise.all(promises);
@@ -68,8 +67,8 @@ async function fetchTemplateGroup(
     // are called with
     const template: ApiCallTemplate = {
       airnodeAddress: rawTemplates.airnodes[index],
-      encodedParameters: rawTemplates.parameters[index],
       endpointId: rawTemplates.endpointIds[index],
+      encodedParameters: rawTemplates.parameters[index],
       id: templateId,
     };
     return { ...acc, [templateId]: template };
