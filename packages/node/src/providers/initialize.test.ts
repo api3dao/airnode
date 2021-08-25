@@ -96,7 +96,7 @@ describe('initializeProviders', () => {
           apiCalls: [],
           withdrawals: [],
         },
-        transactionCountsByRequesterIndex: {},
+        transactionCountsBySponsorAddress: {},
       },
       {
         contracts: {
@@ -128,7 +128,7 @@ describe('initializeProviders', () => {
           apiCalls: [],
           withdrawals: [],
         },
-        transactionCountsByRequesterIndex: {},
+        transactionCountsBySponsorAddress: {},
       },
     ]);
   });

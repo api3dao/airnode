@@ -42,7 +42,7 @@ describe('verifySponsorWallets', () => {
   });
 
   it('ignores API calls where the sponsor wallet does not match the expected address', () => {
-    const apiCall = fixtures.requests.buildApiCall({ sponsorWallet: '0xinvalid', requesterIndex: '3' });
+    const apiCall = fixtures.requests.buildApiCall({ sponsorWallet: '0xinvalid', sponsorAddress: '3' }); //TODO: fix value
     const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
@@ -61,7 +61,7 @@ describe('verifySponsorWallets', () => {
   it('does nothing if the sponsor wallet matches the expected wallet', () => {
     const apiCall = fixtures.requests.buildApiCall({
       sponsorWallet: '0x2EfDDdd9337999A00f36f28e58F036381B8b1125',
-      requesterIndex: '3',
+      sponsorAddress: '3', //TODO: fix value
     });
     const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
     expect(logs).toEqual([

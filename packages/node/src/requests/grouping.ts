@@ -2,32 +2,32 @@ import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
 import { GroupedRequests } from '../types';
 
-export interface RequestsByRequesterIndex {
-  readonly [requesterIndex: string]: GroupedRequests;
+export interface RequestsBySponsorAddress {
+  readonly [sponsorAddress: string]: GroupedRequests;
 }
 
-export function mapUniqueRequesterIndices(requests: GroupedRequests): string[] {
-  const apiCallIndices = requests.apiCalls.map((r) => r.requesterIndex!);
-  const withdrawalIndices = requests.withdrawals.map((r) => r.requesterIndex!);
-  return uniq([...apiCallIndices, ...withdrawalIndices]);
+export function mapUniqueSponsorAddresses(requests: GroupedRequests): string[] {
+  const apiCallSponsorAddresses = requests.apiCalls.map((r) => r.sponsorAddress!);
+  const withdrawalSponsorAddresses = requests.withdrawals.map((r) => r.sponsorAddress!);
+  return uniq([...apiCallSponsorAddresses, ...withdrawalSponsorAddresses]);
 }
 
-export function groupRequestsByRequesterIndex(requests: GroupedRequests): RequestsByRequesterIndex {
-  const apiCalls = requests.apiCalls.filter((a) => !!a.requesterIndex);
-  const withdrawals = requests.withdrawals.filter((w) => !!w.requesterIndex);
+export function groupRequestsBySponsorAddress(requests: GroupedRequests): RequestsBySponsorAddress {
+  const apiCalls = requests.apiCalls.filter((a) => !!a.sponsorAddress);
+  const withdrawals = requests.withdrawals.filter((w) => !!w.sponsorAddress);
 
-  const apiCallsByRequesterIndex = groupBy(apiCalls, 'requesterIndex');
-  const withdrawalsByRequesterIndex = groupBy(withdrawals, 'requesterIndex');
+  const apiCallsBySponsorAddress = groupBy(apiCalls, 'sponsorAddress');
+  const withdrawalsBySponsorAddress = groupBy(withdrawals, 'sponsorAddress');
 
-  const uniqueRequesterIndices = mapUniqueRequesterIndices(requests);
+  const uniqueSponsorAddresses = mapUniqueSponsorAddresses(requests);
 
-  const groupedRequests = uniqueRequesterIndices.reduce((acc, requesterIndex) => {
+  const groupedRequests = uniqueSponsorAddresses.reduce((acc, sponsorAddress) => {
     const requests = {
-      apiCalls: apiCallsByRequesterIndex[requesterIndex!] || [],
-      withdrawals: withdrawalsByRequesterIndex[requesterIndex!] || [],
+      apiCalls: apiCallsBySponsorAddress[sponsorAddress!] || [],
+      withdrawals: withdrawalsBySponsorAddress[sponsorAddress!] || [],
     };
 
-    return { ...acc, [requesterIndex!]: requests };
+    return { ...acc, [sponsorAddress]: requests };
   }, {});
 
   return groupedRequests;

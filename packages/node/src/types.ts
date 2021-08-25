@@ -62,7 +62,7 @@ export type ClientRequest<T extends {}> = T & {
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly requesterIndex: string;
+  readonly sponsorAddress: string;
   readonly status: RequestStatus;
 };
 
@@ -94,7 +94,7 @@ export interface ApiCallTemplate {
 
 export interface Withdrawal {
   readonly airnodeAddress: string;
-  readonly requesterIndex: string;
+  readonly sponsorAddress: string;
 }
 
 export interface GroupedRequests {
@@ -120,7 +120,7 @@ export type ProviderState<T extends {}> = T & {
   readonly id: string;
   readonly requests: GroupedRequests;
   readonly settings: ProviderSettings;
-  readonly transactionCountsByRequesterIndex: { readonly [requesterIndex: string]: number };
+  readonly transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number };
 };
 
 export interface AggregatedApiCallsById {
@@ -183,7 +183,7 @@ export interface ApiCallResponse {
 
 export interface AggregatedApiCall {
   readonly id: string;
-  readonly requesterIndex: string;
+  readonly sponsorAddress: string;
   readonly airnodeAddress: string;
   readonly clientAddress: string;
   readonly sponsorWallet: string;

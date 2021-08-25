@@ -27,14 +27,14 @@ export async function submit(state: ProviderState<EVMProviderState>): Promise<Tr
 
   const { AirnodeRrp } = state.contracts;
 
-  const requestsByRequesterIndex = grouping.groupRequestsByRequesterIndex(state.requests);
+  const requestsBySponsorAddress = grouping.groupRequestsBySponsorAddress(state.requests);
 
-  const requesterIndices = Object.keys(requestsByRequesterIndex);
+  const sponsorAddresses = Object.keys(requestsBySponsorAddress);
 
-  const promises = flatMap(requesterIndices, (index) => {
-    const requests = requestsByRequesterIndex[index];
-    const signingWallet = wallet.deriveSigningWalletFromIndex(state.masterHDNode, index);
-    const signer = signingWallet.connect(state.provider);
+  const promises = flatMap(sponsorAddresses, (sponsorAddress) => {
+    const requests = requestsBySponsorAddress[sponsorAddress];
+    const sponsorWallet = wallet.deriveSponsorWallet(state.masterHDNode, sponsorAddress);
+    const signer = sponsorWallet.connect(state.provider);
     const contract = AirnodeRrpFactory.connect(AirnodeRrp, signer);
 
     const txOptions: TransactionOptions = {

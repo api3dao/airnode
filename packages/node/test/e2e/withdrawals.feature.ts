@@ -10,7 +10,7 @@ it('processes withdrawals only once', async () => {
 
   const provider = e2e.buildProvider();
 
-  const requests = [fixtures.operation.buildWithdrawal({ requesterId: 'alice' })];
+  const requests = [fixtures.operation.buildWithdrawal({ sponsorId: 'alice' })];
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
@@ -35,11 +35,11 @@ it('processes withdrawals only once', async () => {
   expect(preinvokeWithdrawals.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
-  const alice = deployment.requesters.find((r) => r.id === 'alice');
+  const alice = deployment.sponsors.find((s) => s.id === 'alice');
   const hdNode = wallet.getMasterHDNode(config);
-  const sponsorWalletAddress = wallet.deriveWalletAddressFromIndex(hdNode, alice!.requesterIndex);
+  const sponsorWalletAddress = wallet.deriveSponsorWalletAddress(hdNode, alice!.address);
 
-  // It's difficult to check exact balances because the requester has made transactions at this
+  // It's difficult to check exact balances because the sponsor has made transactions at this
   // point, so check current balance is > 1.99 ETH and < 2.01 ETH
   const preWithdrawalBalance = await provider.getBalance(alice!.address);
   expect(preWithdrawalBalance.gt(ethers.utils.parseEther('1.99'))).toEqual(true);
