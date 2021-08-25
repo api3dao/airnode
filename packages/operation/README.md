@@ -204,7 +204,6 @@ The withdrawn funds should be sent back to the address of the sponsor.
   "deployerIndex": 0,
   "airnodes": {
     "CurrencyConverterAirnode": {
-      "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
       "authorizers": ["public"],
       "endpoints": {
