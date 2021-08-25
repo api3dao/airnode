@@ -16,7 +16,7 @@ describe('initialize (Withdrawal)', () => {
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
-      airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+      airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
       sponsorWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
       id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
       metadata: {
@@ -82,7 +82,7 @@ describe('mapRequests (Withdrawal)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
         sponsorWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
         id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
         metadata: {

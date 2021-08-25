@@ -37,7 +37,7 @@ describe('initializeProvider', () => {
     const res = await initializeProvider(state);
     expect(res?.requests.apiCalls).toEqual([
       {
-        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
         chainId: '31337',
         requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         sponsorWallet: '0x1c5b7e13fe3977a384397b17b060Ec96Ea322dEc',
@@ -67,21 +67,21 @@ describe('initializeProvider', () => {
         type: 'full',
       },
       {
-        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
         chainId: '31337',
         requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-        sponsorWallet: '0xD748Bc4212d8130879Ec4F24B950cAAb9EddfCB2',
+        sponsorWallet: '0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567',
         encodedParameters:
           '0x316262000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000746f0000000000000000000000000000000000000000000000000000000000005553440000000000000000000000000000000000000000000000000000000000',
         endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
         fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         fulfillFunctionId: '0x48a4157c',
-        id: '0x676274e2d1979dbdbd0b6915276fcb2cc3fb3be32862eab9d1d201882edc8c93',
+        id: '0x0cde2637ece0845ecbb7d59e38f2679960455459830007f11994e05595808147',
         metadata: {
           blockNumber: 12,
           currentBlock: 12,
           ignoreBlockedRequestsAfterBlocks: 20,
-          transactionHash: '0x1cfc090626709b59a7572886f763cc9756b9f2fd15a9ae9d4af9e3b1c71c736e',
+          transactionHash: '0xfb6a6fd8c3ec23f45cd1e31dda7ec88f43bd5fc2219da51e74995b0690c44a57',
         },
         parameters: {
           _path: 'result',
