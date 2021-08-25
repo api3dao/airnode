@@ -28,7 +28,7 @@ function addMetadataParameters(
       return {
         ...parameters,
         _airnode_airnode_address: aggregatedApiCall.airnodeAddress,
-        _airnode_client_address: aggregatedApiCall.clientAddress,
+        _airnode_requester_address: aggregatedApiCall.requesterAddress,
         _airnode_sponsor_wallet: aggregatedApiCall.sponsorWallet,
         _airnode_endpoint_id: aggregatedApiCall.endpointId,
         _airnode_sponsor_address: aggregatedApiCall.sponsorAddress,

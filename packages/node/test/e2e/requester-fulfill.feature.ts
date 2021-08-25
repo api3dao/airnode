@@ -3,7 +3,7 @@ import * as handlers from '../../src/workers/local-handlers';
 import * as fixtures from '../fixtures';
 import * as e2e from '../setup/e2e';
 
-it('should call fail function on AirnodeRrp contract and emit FailedRequest if client contract fulfillment fails', async () => {
+it('should call fail function on AirnodeRrp contract and emit FailedRequest if requester contract fulfillment fails', async () => {
   jest.setTimeout(45_000);
 
   const provider = e2e.buildProvider();
@@ -60,7 +60,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if c
   });
 });
 
-it('should call fail function on AirnodeRrp contract and emit FailedRequest if client contract fulfillment runs out of gas', async () => {
+it('should call fail function on AirnodeRrp contract and emit FailedRequest if requester contract fulfillment runs out of gas', async () => {
   jest.setTimeout(45_000);
 
   const provider = e2e.buildProvider();

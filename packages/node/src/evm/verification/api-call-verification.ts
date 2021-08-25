@@ -1,20 +1,20 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 interface ValidatedField {
   readonly type: string;
   readonly value: any;
 }
 
-function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
+function getValidatedFields(apiCall: Request<ApiCall>): ValidatedField[] {
   switch (apiCall.type) {
     case 'regular':
       return [
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: ethers.BigNumber.from(apiCall.chainId), type: 'uint256' },
-        { value: apiCall.clientAddress, type: 'address' },
+        { value: apiCall.requesterAddress, type: 'address' },
         { value: apiCall.templateId, type: 'bytes32' },
         { value: apiCall.encodedParameters, type: 'bytes' },
       ];
@@ -23,14 +23,14 @@ function getValidatedFields(apiCall: ClientRequest<ApiCall>): ValidatedField[] {
       return [
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: ethers.BigNumber.from(apiCall.chainId), type: 'uint256' },
-        { value: apiCall.clientAddress, type: 'address' },
+        { value: apiCall.requesterAddress, type: 'address' },
         { value: apiCall.endpointId, type: 'bytes32' },
         { value: apiCall.encodedParameters, type: 'bytes' },
       ];
   }
 }
 
-function getExpectedRequestId(apiCall: ClientRequest<ApiCall>): string {
+function getExpectedRequestId(apiCall: Request<ApiCall>): string {
   const validatedFields = getValidatedFields(apiCall);
 
   const types = validatedFields.map((v) => v.type);
@@ -39,8 +39,8 @@ function getExpectedRequestId(apiCall: ClientRequest<ApiCall>): string {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(types, values));
 }
 
-export function verifyApiCallIds(apiCalls: ClientRequest<ApiCall>[]): LogsData<ClientRequest<ApiCall>[]> {
-  const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
+export function verifyApiCallIds(apiCalls: Request<ApiCall>[]): LogsData<Request<ApiCall>[]> {
+  const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) {
       const log = logger.pend(
         'DEBUG',

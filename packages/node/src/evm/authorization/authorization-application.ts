@@ -1,19 +1,12 @@
 import flatMap from 'lodash/flatMap';
 import isNil from 'lodash/isNil';
 import * as logger from '../../logger';
-import {
-  ApiCall,
-  AuthorizationByRequestId,
-  ClientRequest,
-  LogsData,
-  RequestErrorCode,
-  RequestStatus,
-} from '../../types';
+import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 function applyAuthorization(
-  apiCall: ClientRequest<ApiCall>,
+  apiCall: Request<ApiCall>,
   authorizationByRequestId: AuthorizationByRequestId
-): LogsData<ClientRequest<ApiCall>> {
+): LogsData<Request<ApiCall>> {
   // Don't overwrite any existing error codes or statuses
   if (apiCall.errorCode || apiCall.status !== RequestStatus.Pending) {
     return [[], apiCall];
@@ -51,7 +44,7 @@ function applyAuthorization(
 
   const log = logger.pend(
     'WARN',
-    `Client:${apiCall.clientAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
+    `Requester:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
   );
   // If the request is unauthorized, update the status of the request
   const updatedApiCall = {
@@ -63,9 +56,9 @@ function applyAuthorization(
 }
 
 export function mergeAuthorizations(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   authorizationByRequestId: AuthorizationByRequestId
-): LogsData<ClientRequest<ApiCall>[]> {
+): LogsData<Request<ApiCall>[]> {
   const logsWithApiCalls = apiCalls.map((apiCall) => {
     return applyAuthorization(apiCall, authorizationByRequestId);
   });
