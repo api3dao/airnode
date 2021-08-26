@@ -3,13 +3,16 @@ import * as path from 'path';
 import { Log } from '../types';
 import { unknownConversion } from '../utils/messages';
 
+const validatorTemplatesPath = path.resolve(__dirname, '../../templates');
+const conversionsPath = path.resolve(__dirname, '../../templates/conversion');
+
 export const templateVersions = fs
-  .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })
+  .readdirSync(validatorTemplatesPath, { withFileTypes: true })
   .filter((dirent) => dirent.isDirectory() && dirent.name !== 'conversion')
   .map((dirent) => dirent.name)
   .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
 
-const conversionTemplates = fs.readdirSync(path.resolve(__dirname, '../../templates/conversion'));
+const conversionTemplates = fs.readdirSync(conversionsPath);
 
 export const conversions: {
   [fromName: string]: { [fromVersion: string]: { [toName: string]: string[] } };
@@ -32,8 +35,8 @@ conversionTemplates.forEach((file) => {
  */
 function getLatestPath(template: string): string | null {
   for (const version of templateVersions) {
-    if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
-      return path.resolve(__dirname, `../../templates/${version}/${template}`);
+    if (fs.existsSync(path.resolve(validatorTemplatesPath, version, template))) {
+      return path.resolve(validatorTemplatesPath, version, template);
     }
   }
 
@@ -48,8 +51,8 @@ function getLatestPath(template: string): string | null {
  */
 export function getPath(template: string, messages: Log[], version = ''): string {
   if (version) {
-    if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
-      return path.resolve(__dirname, `../../templates/${version}/${template}`);
+    if (fs.existsSync(path.resolve(validatorTemplatesPath, version, template))) {
+      return path.resolve(validatorTemplatesPath, version, template);
     } else {
       messages.push({
         level: 'warning',
@@ -132,14 +135,10 @@ export function getConversionPath(
     toVersion = toLatest;
   }
 
-  if (
-    !fs.existsSync(
-      path.resolve(__dirname, `../../templates/conversion/${from}@${fromVersion}->${to}@${toVersion}.json`)
-    )
-  ) {
+  if (!fs.existsSync(path.resolve(conversionsPath, `${from}@${fromVersion}->${to}@${toVersion}.json`))) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, `${to}@${toVersion}`));
     return '';
   }
 
-  return path.resolve(__dirname, `../../templates/conversion/${from}@${fromVersion}->${to}@${toVersion}.json`);
+  return path.resolve(conversionsPath, `${from}@${fromVersion}->${to}@${toVersion}.json`);
 }
