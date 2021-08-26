@@ -4,8 +4,8 @@ import { Log } from '../types';
 
 export const templateVersions = fs
   .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })
-  .filter((dirent: { isDirectory: () => any; name: any }) => dirent.isDirectory() && dirent.name !== 'conversion')
-  .map((dirent: { name: any }) => dirent.name)
+  .filter((dirent) => dirent.isDirectory() && dirent.name !== 'conversion')
+  .map((dirent) => dirent.name)
   .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
 
 const conversionTemplates = fs.readdirSync(path.resolve(__dirname, '../../templates/conversion'));
