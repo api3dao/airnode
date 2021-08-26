@@ -30,6 +30,7 @@ import * as fixtures from '../../test/fixtures';
 
 describe('startCoordinator', () => {
   it('fetches and processes requests', async () => {
+    jest.setTimeout(30000);
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 

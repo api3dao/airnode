@@ -9,17 +9,19 @@ export const increaseTestTimeout = (timeoutMs = 45_000) => jest.setTimeout(timeo
 export const deployAirnodeAndMakeRequests = async (filename: string, requests?: Request[]) => {
   const deployerIndex = getDeployerIndex(filename);
   const deployConfig = operation.buildDeployConfig(requests ? { deployerIndex, requests } : { deployerIndex });
-
   const deployment = await deployAirnodeRrp(deployConfig);
-
-  // Overwrites the one injected by the jest setup script
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
 
   await makeRequests(deployConfig, deployment);
 
   const chain = buildChainConfig(deployment.contracts);
-  const config = buildConfig({ chains: [chain] });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
+  const config = buildConfig({
+    chains: [chain],
+  });
+  // TODO: This is caused by duplicated mnemonic in Airnode state
+  // @ts-ignore
+  // eslint-disable-next-line functional/immutable-data
+  config.nodeSettings.airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
+  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   return { deployment, provider: buildProvider(), config };
 };

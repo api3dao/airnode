@@ -5,6 +5,7 @@ import * as fixtures from '../../../test/fixtures';
 import { RequestErrorCode, RequestStatus } from '../../types';
 
 describe('verifySponsorWallets', () => {
+  const config = fixtures.buildConfig();
   const masterHDNode = wallet.getMasterHDNode(config);
 
   requests.getStatusNames().forEach((status) => {

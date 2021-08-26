@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import { Config } from '@api3/node';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
-import { deriveAirnodeId, deriveXpub, shortenAirnodeId } from '../utils';
+import { deriveAirnodeAddress, deriveXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
 
 export function parseSecretsFile(secretsPath: string) {
@@ -22,14 +22,16 @@ export function writeReceiptFile(
   config: Config,
   commandOutput: DeployAirnodeOutput
 ) {
-  const airnodeId = deriveAirnodeId(mnemonic);
+  const airnodeAddress = deriveAirnodeAddress(mnemonic);
+  const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
   const receipt: Receipt = {
     airnodeWallet: {
-      airnodeId,
+      airnodeAddress,
+      airnodeAddressShort,
       xpub: deriveXpub(mnemonic),
     },
     deployment: {
-      airnodeIdShort: shortenAirnodeId(airnodeId),
+      airnodeAddressShort,
       cloudProvider: config.nodeSettings.cloudProvider,
       region: config.nodeSettings.region,
       stage: config.nodeSettings.stage,

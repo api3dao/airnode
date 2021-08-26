@@ -39,7 +39,7 @@ export async function initialize(
   const evmChains = chains.filter((c) => c.type === 'evm');
 
   // Providers are identified by their index in the array. This allows users
-  // to configure duplicate providers safely (if they want the added redundancy)
+  // to configure duplicated providers safely (if they want the added redundancy)
   const evmInitializations = flatMap(
     evmChains.map((chain) => {
       return map(chain.providers, async (_, providerName) => {

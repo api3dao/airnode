@@ -43,6 +43,7 @@ export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string 
 }
 
 export function getAirnodeAddressShort(airnodeAddress: string): string {
+  // NOTE: AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   return airnodeAddress.substring(2, 9).toLowerCase();
 }
 

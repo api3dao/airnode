@@ -12,7 +12,7 @@ export function buildEVMState(
   const masterHDNode = evm.getMasterHDNode(config);
   const chainProviderUrl = chain.providers[chainProviderName].url || '';
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
-  const airnodeAddress = evm.getAirnodeWallet().address;
+  const airnodeAddress = evm.getAirnodeWallet(config).address;
 
   const providerSettings: ProviderSettings = {
     airnodeAddress,

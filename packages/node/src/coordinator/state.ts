@@ -4,7 +4,7 @@ import { Config, CoordinatorSettings, CoordinatorState } from '../types';
 
 export function create(config: Config): CoordinatorState {
   const id = randomString(8);
-  const airnodeAddress = wallet.getAirnodeWallet().address;
+  const airnodeAddress = wallet.getAirnodeWallet(config).address;
   const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 
   const settings: CoordinatorSettings = {

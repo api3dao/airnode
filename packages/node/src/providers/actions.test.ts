@@ -1,5 +1,4 @@
 import { mockEthers } from '../../test/mock-utils';
-const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
@@ -7,7 +6,6 @@ const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
 mockEthers({
   airnodeRrpMocks: {
-    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
     callStatic: {
       fulfill: staticFulfillMock,
     },
@@ -37,7 +35,6 @@ const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -51,7 +48,6 @@ const chains: ChainConfig[] = [
     type: 'evm',
   },
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
@@ -70,19 +66,9 @@ describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-    const contract = new ethers.Contract('address', ['ABI']);
-    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from(123456),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
-    contract.getAirnodeParametersAndBlockNumber.mockResolvedValueOnce({
-      admin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-      authorizers: [ethers.constants.AddressZero],
-      blockNumber: ethers.BigNumber.from(987654),
-      xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
-    });
+    const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
+    getBlockNumber.mockResolvedValueOnce(123456);
+    getBlockNumber.mockResolvedValueOnce(987654);
     const getLogs = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
     getLogs.mockResolvedValueOnce([]);
     getLogs.mockResolvedValueOnce([]);
@@ -97,9 +83,8 @@ describe('initialize', () => {
             AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
           },
           settings: {
-            airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-            airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-            airnodeIdShort: '19255a4',
+            airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+            airnodeAddressShort: 'a30ca71',
             authorizers: [ethers.constants.AddressZero],
             blockHistoryLimit: 300,
             chainId: '1',
@@ -124,7 +109,7 @@ describe('initialize', () => {
             apiCalls: [],
             withdrawals: [],
           },
-          transactionCountsByRequesterIndex: {},
+          transactionCountsBySponsorAddress: {},
         },
         {
           config,
@@ -132,9 +117,8 @@ describe('initialize', () => {
             AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
           },
           settings: {
-            airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
-            airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-            airnodeIdShort: '19255a4',
+            airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+            airnodeAddressShort: 'a30ca71',
             authorizers: [ethers.constants.AddressZero],
             blockHistoryLimit: 300,
             chainId: '3',
@@ -159,7 +143,7 @@ describe('initialize', () => {
             apiCalls: [],
             withdrawals: [],
           },
-          transactionCountsByRequesterIndex: {},
+          transactionCountsBySponsorAddress: {},
         },
       ],
     });
@@ -186,12 +170,13 @@ describe('processRequests', () => {
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
-    const apiCall = fixtures.requests.buildApiCall({ responseValue: '0x123' });
+    const sponsorAddress = '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6';
+    const apiCall = fixtures.requests.buildApiCall({ responseValue: '0x123', sponsorAddress });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
-    const transactionCountsByRequesterIndex = { [apiCall.requesterIndex]: 5 };
-    const provider0 = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
-    const provider1 = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { [sponsorAddress]: 5 };
+    const provider0 = fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress });
+    const provider1 = fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress });
 
     const allProviders = { evm: [provider0, provider1] };
     const workerOpts = fixtures.buildWorkerOptions();

@@ -50,9 +50,10 @@ describe('testApi', () => {
     const [err, res] = await testApi(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({
-      requesterIndex: '',
-      clientAddress: '',
-      designatedWallet: '',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+      sponsorAddress: '',
+      requesterAddress: '',
+      sponsorWallet: '',
       chainId: '',
       endpointId: ENDPOINT_ID,
       id: expect.any(String),
@@ -67,7 +68,7 @@ describe('testApi', () => {
     };
     const workerOptions = {
       cloudProvider: 'local',
-      airnodeIdShort: expect.any(String),
+      airnodeAddressShort: expect.any(String),
       region: 'us-east-1',
       stage: 'test',
     };

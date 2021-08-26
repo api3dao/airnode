@@ -6,7 +6,7 @@ import * as grouping from '../../requests/grouping';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
 import {
-  ClientRequest,
+  Request,
   EVMProviderState,
   ProviderState,
   RequestStatus,
@@ -126,7 +126,7 @@ export async function submit(state: ProviderState<EVMProviderState>) {
   return flatten(nestedReceipts);
 }
 
-export function applyFulfillments<T>(requests: ClientRequest<T>[], receipts: TransactionReceipt[]) {
+export function applyFulfillments<T>(requests: Request<T>[], receipts: TransactionReceipt[]) {
   return requests.reduce((acc, request) => {
     const receipt = receipts.find((r) => r.id === request.id);
     // If the request was not submitted or the transaction doesn't have a hash, leave it as is
@@ -140,5 +140,5 @@ export function applyFulfillments<T>(requests: ClientRequest<T>[], receipts: Tra
       status: RequestStatus.Submitted,
     };
     return [...acc, updatedRequest];
-  }, [] as ClientRequest<T>[]);
+  }, [] as Request<T>[]);
 }
