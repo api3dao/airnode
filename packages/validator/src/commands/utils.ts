@@ -4,11 +4,11 @@ import { Log } from '../types';
 import { unknownConversion } from '../utils/messages';
 
 const validatorTemplatesPath = path.resolve(__dirname, '../../templates');
-const conversionsPath = path.resolve(__dirname, '../../templates/conversion');
+const conversionsPath = path.resolve(__dirname, '../../conversions');
 
 export const templateVersions = fs
   .readdirSync(validatorTemplatesPath, { withFileTypes: true })
-  .filter((dirent) => dirent.isDirectory() && dirent.name !== 'conversion')
+  .filter((dirent) => dirent.isDirectory())
   .map((dirent) => dirent.name)
   .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
 

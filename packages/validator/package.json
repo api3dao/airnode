@@ -15,7 +15,7 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/",
+    "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/ && copyfiles conversions/** dist/",
     "clean": "rimraf -rf ./dist",
     "test": "jest",
     "validate": "ts-node src/commands/validateCmd.ts",
