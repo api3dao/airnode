@@ -5,8 +5,8 @@ export function buildApiCallTemplate(params?: Partial<ApiCallTemplate>): ApiCall
   // they can be overridden with valid values
   return {
     airnodeAddress: 'airnodeAddress',
-    encodedParameters: '0x6874656d706c6174656576616c7565',
     endpointId: 'endpointId',
+    encodedParameters: '0x6874656d706c6174656576616c7565',
     id: 'templateId',
     ...params,
   };
