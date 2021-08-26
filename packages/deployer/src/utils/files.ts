@@ -1,7 +1,10 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
+import { Config } from '@api3/node';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
+import { deriveAirnodeId, deriveXpub, shortenAirnodeId } from '../utils';
+import { DeployAirnodeOutput } from '../infrastructure';
 
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
@@ -11,6 +14,37 @@ export function parseSecretsFile(secretsPath: string) {
     logger.fail('Failed to parse secrets file');
     throw e;
   }
+}
+
+export function writeReceiptFile(
+  receiptFilename: string,
+  mnemonic: string,
+  config: Config,
+  commandOutput: DeployAirnodeOutput
+) {
+  const airnodeId = deriveAirnodeId(mnemonic);
+  const receipt: Receipt = {
+    airnodeWallet: {
+      airnodeId,
+      xpub: deriveXpub(mnemonic),
+    },
+    deployment: {
+      airnodeIdShort: shortenAirnodeId(airnodeId),
+      cloudProvider: config.nodeSettings.cloudProvider,
+      region: config.nodeSettings.region,
+      stage: config.nodeSettings.stage,
+      nodeVersion: config.nodeSettings.nodeVersion,
+    },
+    api: {
+      ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
+      // `httpGatewayUrl` comes from Airnode deployment output
+      ...commandOutput,
+    },
+  };
+
+  logger.debug('Writing receipt.json file');
+  fs.writeFileSync(receiptFilename, JSON.stringify(receipt, null, 2));
+  logger.info(`Outputted ${receiptFilename}\n` + '  This file does not contain any sensitive information.');
 }
 
 export function parseReceiptFile(receiptFilename: string) {

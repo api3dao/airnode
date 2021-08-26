@@ -4,19 +4,21 @@ import * as providerState from '../providers/state';
 import * as workers from '../workers';
 import { EVMProviderState, LogsData, ProviderState, WorkerFunctionName, WorkerOptions } from '../types';
 
-export async function spawnNewProvider(
+async function spawn(
   state: ProviderState<EVMProviderState>,
-  workerOpts: WorkerOptions
+  workerOpts: WorkerOptions,
+  functionName: WorkerFunctionName,
+  errorMessage: string
 ): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
   const options = {
     ...workerOpts,
-    functionName: 'initializeProvider' as WorkerFunctionName,
+    functionName,
     payload: { state },
   };
 
   const [err, res] = await go(() => workers.spawn(options));
   if (err || !res) {
-    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`, err);
+    const log = logger.pend('ERROR', `${errorMessage}: ${state.settings.name}`, err);
     return [[log], null];
   }
 
@@ -24,38 +26,24 @@ export async function spawnNewProvider(
     if (res.errorLog) {
       return [[res.errorLog], null];
     }
-    const log = logger.pend('ERROR', `Unable to initialize provider:${state.settings.name}`);
+    const log = logger.pend('ERROR', `${errorMessage}: ${state.settings.name}`);
     return [[log], null];
   }
 
-  const refreshedState = providerState.refresh(res.data);
+  const refreshedState = providerState.refresh({ ...res.data, config: state.config });
   return [[], refreshedState];
+}
+
+export async function spawnNewProvider(
+  state: ProviderState<EVMProviderState>,
+  workerOpts: WorkerOptions
+): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
+  return spawn(state, workerOpts, 'initializeProvider', 'Unable to initialize provider');
 }
 
 export async function spawnProviderRequestProcessor(
   state: ProviderState<EVMProviderState>,
   workerOpts: WorkerOptions
 ): Promise<LogsData<ProviderState<EVMProviderState> | null>> {
-  const options = {
-    ...workerOpts,
-    functionName: 'processProviderRequests' as WorkerFunctionName,
-    payload: { state },
-  };
-
-  const [err, res] = await go(() => workers.spawn(options));
-  if (err || !res) {
-    const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`, err);
-    return [[log], null];
-  }
-
-  if (!res.ok) {
-    if (res.errorLog) {
-      return [[res.errorLog], null];
-    }
-    const log = logger.pend('ERROR', `Unable to process provider requests:${state.settings.name}`);
-    return [[log], null];
-  }
-
-  const refreshedState = providerState.refresh(res.data);
-  return [[], refreshedState];
+  return spawn(state, workerOpts, 'processProviderRequests', 'Unable to process provider requests');
 }

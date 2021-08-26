@@ -1,28 +1,32 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Log } from '../types';
+import { unknownConversion } from '../utils/messages';
+
+const validatorTemplatesPath = path.resolve(__dirname, '../../templates');
+const conversionsPath = path.resolve(__dirname, '../../templates/conversion');
 
 export const templateVersions = fs
-  .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })
-  .filter((dirent: { isDirectory: () => any; name: any }) => dirent.isDirectory() && dirent.name !== 'conversion')
-  .map((dirent: { name: any }) => dirent.name)
+  .readdirSync(validatorTemplatesPath, { withFileTypes: true })
+  .filter((dirent) => dirent.isDirectory() && dirent.name !== 'conversion')
+  .map((dirent) => dirent.name)
   .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
 
-const conversionTemplates = fs
-  .readdirSync(path.resolve(__dirname, '../../templates/conversion'), { withFileTypes: true })
-  .map((dirent: { name: string }) => dirent.name);
+const conversionTemplates = fs.readdirSync(conversionsPath);
 
-export const conversions: any = {};
+export const conversions: {
+  [fromName: string]: { [fromVersion: string]: { [toName: string]: string[] } };
+} = {};
 
 conversionTemplates.forEach((file) => {
   const [from, to] = file.replace(/\.json$/, '').split('->');
   const [fromName, fromVersion] = from.split('@');
   const [toName, toVersion] = to.split('@');
 
-  conversions[fromName] = conversions[fromName] || {};
-  conversions[fromName][fromVersion] = conversions[fromName][fromVersion] || {};
-  conversions[fromName][fromVersion][toName] = conversions[fromName][fromVersion][toName] || {};
-  conversions[fromName][fromVersion][toName][toVersion] = {};
+  conversions[fromName] ??= {};
+  conversions[fromName][fromVersion] ??= {};
+  conversions[fromName][fromVersion][toName] ??= [];
+  conversions[fromName][fromVersion][toName].push(toVersion);
 });
 
 /**
@@ -31,8 +35,8 @@ conversionTemplates.forEach((file) => {
  */
 function getLatestPath(template: string): string | null {
   for (const version of templateVersions) {
-    if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
-      return path.resolve(__dirname, `../../templates/${version}/${template}`);
+    if (fs.existsSync(path.resolve(validatorTemplatesPath, version, template))) {
+      return path.resolve(validatorTemplatesPath, version, template);
     }
   }
 
@@ -47,8 +51,8 @@ function getLatestPath(template: string): string | null {
  */
 export function getPath(template: string, messages: Log[], version = ''): string {
   if (version) {
-    if (fs.existsSync(path.resolve(__dirname, `../../templates/${version}/${template}`))) {
-      return path.resolve(__dirname, `../../templates/${version}/${template}`);
+    if (fs.existsSync(path.resolve(validatorTemplatesPath, version, template))) {
+      return path.resolve(validatorTemplatesPath, version, template);
     } else {
       messages.push({
         level: 'warning',
@@ -75,9 +79,15 @@ export function getPath(template: string, messages: Log[], version = ''): string
  * @param fromVersion (optional) - version of source specification format, if not specified, latest version of the template is returned
  * @param toVersion (optional) - version of target specification format, if not specified, latest version of the template is returned
  */
-export function getConversionPath(from: string, to: string, messages: Log[], fromVersion = '', toVersion = ''): string {
+export function getConversionPath(
+  from: string,
+  to: string,
+  messages: Log[],
+  fromVersion?: string,
+  toVersion?: string
+): string {
   if (!conversions[from]) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+    messages.push(unknownConversion(from, to));
     return '';
   }
 
@@ -93,41 +103,42 @@ export function getConversionPath(from: string, to: string, messages: Log[], fro
     }
 
     if (!fromLatest) {
-      messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+      messages.push(unknownConversion(from, to));
       return '';
     }
 
     fromVersion = fromLatest;
   }
 
+  if (!conversions[from][fromVersion]) {
+    messages.push(unknownConversion(`${from}@${fromVersion}`, to));
+    return '';
+  }
+
   if (!conversions[from][fromVersion][to]) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+    messages.push(unknownConversion(from, to));
     return '';
   }
 
   if (!toVersion) {
     let toLatest;
 
-    for (const version in conversions[from][fromVersion][to]) {
+    for (const version of conversions[from][fromVersion][to]) {
       toLatest = !toLatest || (toLatest < version && version.match(/^[0-9\.]+$/)) ? version : toLatest;
     }
 
     if (!toLatest) {
-      messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+      messages.push(unknownConversion(from, to));
       return '';
     }
 
     toVersion = toLatest;
   }
 
-  if (
-    !fs.existsSync(
-      path.resolve(__dirname, `../../templates/conversion/${from}@${fromVersion}->${to}@${toVersion}.json`)
-    )
-  ) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from}@${fromVersion} to ${to}@${toVersion}` });
+  if (!fs.existsSync(path.resolve(conversionsPath, `${from}@${fromVersion}->${to}@${toVersion}.json`))) {
+    messages.push(unknownConversion(`${from}@${fromVersion}`, `${to}@${toVersion}`));
     return '';
   }
 
-  return path.resolve(__dirname, `../../templates/conversion/${from}@${fromVersion}->${to}@${toVersion}.json`);
+  return path.resolve(conversionsPath, `${from}@${fromVersion}->${to}@${toVersion}.json`);
 }

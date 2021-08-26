@@ -13,13 +13,16 @@ mockEthers({
 import { ethers } from 'ethers';
 import * as transactions from './transaction-counts';
 import * as wallet from './wallet';
+import * as fixtures from '../../test/fixtures';
+
+const config = fixtures.buildConfig();
 
 describe('fetchByRequesterIndex', () => {
   it('calls getTransactionCount once for each unique requester index', async () => {
     getTransactionCountMock.mockResolvedValueOnce(5);
     const options = {
       currentBlock: 10716084,
-      masterHDNode: wallet.getMasterHDNode(),
+      masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '1'];
@@ -35,7 +38,7 @@ describe('fetchByRequesterIndex', () => {
     getTransactionCountMock.mockResolvedValueOnce(123);
     const options = {
       currentBlock: 10716084,
-      masterHDNode: wallet.getMasterHDNode(),
+      masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '2'];
@@ -54,7 +57,7 @@ describe('fetchByRequesterIndex', () => {
     getTransactionCountMock.mockResolvedValueOnce(123);
     const options = {
       currentBlock: 10716084,
-      masterHDNode: wallet.getMasterHDNode(),
+      masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '1'];
@@ -73,7 +76,7 @@ describe('fetchByRequesterIndex', () => {
     getTransactionCountMock.mockRejectedValueOnce(new Error('Server says no'));
     const options = {
       currentBlock: 10716084,
-      masterHDNode: wallet.getMasterHDNode(),
+      masterHDNode: wallet.getMasterHDNode(config),
       provider: new ethers.providers.JsonRpcProvider(),
     };
     const indices = ['1', '1'];

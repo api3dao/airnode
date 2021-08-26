@@ -20,9 +20,10 @@ import { RequestErrorCode, RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 const createAirnodeRrpFake = () => new ethers.Contract('address', ['ABI']) as unknown as AirnodeRrp;
+const config = fixtures.buildConfig();
 
 describe('submitApiCall', () => {
-  const masterHDNode = wallet.getMasterHDNode();
+  const masterHDNode = wallet.getMasterHDNode(config);
   const gasPrice = ethers.BigNumber.from('1000');
   const txOpts = { gasLimit: 500_000, gasPrice, nonce: 5 };
 

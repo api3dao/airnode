@@ -4,8 +4,10 @@ import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
 import { RequestErrorCode, RequestStatus } from '../../types';
 
+const config = fixtures.buildConfig();
+
 describe('verifyDesignatedWallets', () => {
-  const masterHDNode = wallet.getMasterHDNode();
+  const masterHDNode = wallet.getMasterHDNode(config);
 
   requests.getStatusNames().forEach((status) => {
     if (status !== 'Pending') {

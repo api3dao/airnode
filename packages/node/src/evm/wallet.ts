@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
-import * as config from '../config';
+import { getMasterKeyMnemonic } from '../config';
+import { Config } from '../types';
 
 // 2^31-1 different wallets can be designated as below
 // m/0/0: masterWalletAddress
@@ -12,8 +13,8 @@ function getPathFromIndex(index: number | string) {
   return `m/0/${index}`;
 }
 
-export function getMasterHDNode(): ethers.utils.HDNode {
-  const mnemonic = config.getMasterKeyMnemonic();
+export function getMasterHDNode(config: Config): ethers.utils.HDNode {
+  const mnemonic = getMasterKeyMnemonic(config);
   return ethers.utils.HDNode.fromMnemonic(mnemonic);
 }
 
