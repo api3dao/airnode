@@ -8,9 +8,7 @@ export const templateVersions = fs
   .map((dirent: { name: any }) => dirent.name)
   .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
 
-const conversionTemplates = fs
-  .readdirSync(path.resolve(__dirname, '../../templates/conversion'), { withFileTypes: true })
-  .map((dirent: { name: string }) => dirent.name);
+const conversionTemplates = fs.readdirSync(path.resolve(__dirname, '../../templates/conversion'));
 
 export const conversions: {
   [fromName: string]: { [fromVersion: string]: { [toName: string]: { [toVersion: string]: {} } } };
