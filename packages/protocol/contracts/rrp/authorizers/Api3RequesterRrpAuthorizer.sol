@@ -55,7 +55,7 @@ contract Api3RequesterRrpAuthorizer is
         uint256 newRank
     ) public override(RankedAdminnable, IRankedAdminnable) {
         require(adminnedId == bytes32(0), "adminnedId not zero");
-        RankedAdminnable.setRank(adminnedId, targetAdmin, newRank);
+        super.setRank(adminnedId, targetAdmin, newRank);
     }
 
     /// @notice Called by an admin to decrease its rank
@@ -67,6 +67,6 @@ contract Api3RequesterRrpAuthorizer is
         override(RankedAdminnable, IRankedAdminnable)
     {
         require(adminnedId == bytes32(0), "adminnedId not zero");
-        RankedAdminnable.decreaseSelfRank(adminnedId, newRank);
+        super.decreaseSelfRank(adminnedId, newRank);
     }
 }
