@@ -71,8 +71,8 @@ describe('initializeProviders', () => {
           AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },
         settings: {
-          airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
-          airnodeAddressShort: '19255a4',
+          airnodeAddress: '0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7',
+          airnodeAddressShort: '2886De6',
           authorizers: [ethers.constants.AddressZero],
           blockHistoryLimit: 300,
           chainId: '1',
@@ -103,8 +103,8 @@ describe('initializeProviders', () => {
           AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
         },
         settings: {
-          airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
-          airnodeAddressShort: '19255a4',
+          airnodeAddress: '0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7',
+          airnodeAddressShort: '2886De6',
           authorizers: [ethers.constants.AddressZero],
           blockHistoryLimit: 300,
           chainId: '3',
