@@ -106,6 +106,11 @@ export function getConversionPath(
     fromVersion = fromLatest;
   }
 
+  if (!conversions[from][fromVersion]) {
+    messages.push({ level: 'error', message: `Unknown conversion from ${from}@${fromVersion} to ${to}` });
+    return '';
+  }
+
   if (!conversions[from][fromVersion][to]) {
     messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
     return '';
