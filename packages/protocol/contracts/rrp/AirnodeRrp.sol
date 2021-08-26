@@ -134,6 +134,7 @@ contract AirnodeRrp is
             )
         );
         address airnode = templates[templateId].airnode;
+        require(airnode != address(0), "airnode is address zero");
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
                 airnode,

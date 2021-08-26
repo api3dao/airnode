@@ -14,7 +14,7 @@ contract SelfRequesterRrpAuthorizer is
     /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type
     uint256 public constant override AUTHORIZER_TYPE = 1;
 
-    uint256 private constant MAX_RANK = 2**256 - 1;
+    uint256 private constant MAX_RANK = type(uint256).max;
 
     /// @notice Called to get the rank of an admin for an adminned entity
     /// @dev Respects RankedAdminnable, except treats the Airnode operator as

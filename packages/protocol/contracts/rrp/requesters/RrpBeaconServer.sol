@@ -28,9 +28,9 @@ contract RrpBeaconServer is
     }
 
     // Constants to check typecasting sanity
-    int256 private constant MAX_INT224 = 2**223 - 1;
-    int256 private constant MIN_INT224 = -2**223;
-    uint256 private constant MAX_UINT32 = 2**32 - 1;
+    int256 private constant MAX_INT224 = type(int224).max;
+    int256 private constant MIN_INT224 = type(int224).min;
+    uint256 private constant MAX_UINT32 = type(uint32).max;
 
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
@@ -99,6 +99,7 @@ contract RrpBeaconServer is
         bytes calldata data
     ) external override onlyAirnodeRrp {
         bytes32 templateId = requestIdToTemplateId[requestId];
+        require(templateId != bytes32(0), "templateId is zero");
         delete requestIdToTemplateId[requestId];
         if (statusCode == 0) {
             int256 decodedData = abi.decode(data, (int256));

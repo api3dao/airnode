@@ -122,6 +122,30 @@ describe('makeTemplateRequest', function () {
         requesterRequestCount.add(1)
       );
     });
+    it('reverts on invalid templateId', async function () {
+      // Endorse the requester
+      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+      // Create the template
+      const endpointId = utils.generateRandomBytes32();
+      const parameters = utils.generateRandomBytes();
+      await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+      const templateId = utils.generateRandomBytes32();
+      // Compute the expected request ID
+      const requestTimeParameters = utils.generateRandomBytes();
+      // Make the request
+      await expect(
+        rrpRequester
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
+            templateId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
+            requestTimeParameters
+          )
+      ).to.be.revertedWith('airnode is address zero');
+    });
   });
   context('Requester not sponsored', function () {
     it('reverts', async function () {
