@@ -12,7 +12,9 @@ const conversionTemplates = fs
   .readdirSync(path.resolve(__dirname, '../../templates/conversion'), { withFileTypes: true })
   .map((dirent: { name: string }) => dirent.name);
 
-export const conversions: any = {};
+export const conversions: {
+  [fromName: string]: { [fromVersion: string]: { [toName: string]: { [toVersion: string]: {} } } };
+} = {};
 
 conversionTemplates.forEach((file) => {
   const [from, to] = file.replace(/\.json$/, '').split('->');
