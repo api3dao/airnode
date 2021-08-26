@@ -11,7 +11,7 @@ export const templateVersions = fs
 const conversionTemplates = fs.readdirSync(path.resolve(__dirname, '../../templates/conversion'));
 
 export const conversions: {
-  [fromName: string]: { [fromVersion: string]: { [toName: string]: { [toVersion: string]: {} } } };
+  [fromName: string]: { [fromVersion: string]: { [toName: string]: string[] } };
 } = {};
 
 conversionTemplates.forEach((file) => {
@@ -21,8 +21,8 @@ conversionTemplates.forEach((file) => {
 
   conversions[fromName] ??= {};
   conversions[fromName][fromVersion] ??= {};
-  conversions[fromName][fromVersion][toName] ??= {};
-  conversions[fromName][fromVersion][toName][toVersion] = {};
+  conversions[fromName][fromVersion][toName] ??= [];
+  conversions[fromName][fromVersion][toName].push(toVersion);
 });
 
 /**
@@ -119,7 +119,7 @@ export function getConversionPath(
   if (!toVersion) {
     let toLatest;
 
-    for (const version in conversions[from][fromVersion][to]) {
+    for (const version of conversions[from][fromVersion][to]) {
       toLatest = !toLatest || (toLatest < version && version.match(/^[0-9\.]+$/)) ? version : toLatest;
     }
 
