@@ -37,7 +37,7 @@ it('processes withdrawals only once', async () => {
 
   const alice = deployment.sponsors.find((s) => s.id === 'alice');
   const hdNode = wallet.getMasterHDNode();
-  const sponsorWalletAddress = wallet.deriveSponsorWalletAddress(hdNode, alice!.address);
+  const sponsorWalletAddress = wallet.deriveSponsorWallet(hdNode, alice!.address).address;
 
   // It's difficult to check exact balances because the sponsor has made transactions at this
   // point, so check current balance is > 1.99 ETH and < 2.01 ETH

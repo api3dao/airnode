@@ -37,8 +37,8 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
-        airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
-        airnodeAddressShort: '19255a4',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+        airnodeAddressShort: 'A30CA71',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 300,
         chainId: '1337',
@@ -102,8 +102,8 @@ describe('create', () => {
         AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
       },
       settings: {
-        airnodeAddress: '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
-        airnodeAddressShort: '19255a4',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+        airnodeAddressShort: 'A30CA71',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 150,
         chainId: '1337',

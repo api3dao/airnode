@@ -44,13 +44,13 @@ describe('verifySponsorWallets', () => {
   it('ignores API calls where the sponsor wallet does not match the expected address', () => {
     const apiCall = fixtures.requests.buildApiCall({
       sponsorWallet: '0xinvalid',
-      sponsorAddress: '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324',
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
     });
     const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Invalid sponsor wallet:${apiCall.sponsorWallet} for Request:${apiCall.id}. Expected:0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567`,
+        message: `Invalid sponsor wallet:${apiCall.sponsorWallet} for Request:${apiCall.id}. Expected:0x4F716a9a20D03be77753F3D3e856a5e180995Eda`,
       },
     ]);
     expect(res.length).toEqual(1);
@@ -63,14 +63,14 @@ describe('verifySponsorWallets', () => {
 
   it('does nothing if the sponsor wallet matches the expected wallet', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      sponsorWallet: '0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567',
-      sponsorAddress: '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324',
+      sponsorWallet: '0x4F716a9a20D03be77753F3D3e856a5e180995Eda',
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
     });
     const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
     expect(logs).toEqual([
       {
         level: 'DEBUG',
-        message: `Request ID:${apiCall.id} is linked to a valid sponsor wallet:0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567`,
+        message: `Request ID:${apiCall.id} is linked to a valid sponsor wallet:0x4F716a9a20D03be77753F3D3e856a5e180995Eda`,
       },
     ]);
     expect(res.length).toEqual(1);

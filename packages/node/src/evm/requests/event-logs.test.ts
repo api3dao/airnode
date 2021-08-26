@@ -180,7 +180,7 @@ describe('EVM event logs - group', () => {
       // Fulfillment
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066' },
+        parsedLog: { topic: '0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -201,7 +201,7 @@ describe('EVM event logs - group', () => {
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0x0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066' },
+          parsedLog: { topic: '0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066' },
           transactionHash: '0x2',
         },
       ],
@@ -213,12 +213,12 @@ describe('EVM event logs - group', () => {
     const logsWithMetadata: any = [
       {
         blockNumber: 10716082,
-        parsedLog: { topic: '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3' },
+        parsedLog: { topic: '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7' },
         transactionHash: '0x1',
       },
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa' },
+        parsedLog: { topic: '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -235,12 +235,12 @@ describe('EVM event logs - group', () => {
       withdrawals: [
         {
           blockNumber: 10716082,
-          parsedLog: { topic: '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3' },
+          parsedLog: { topic: '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7' },
           transactionHash: '0x1',
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa' },
+          parsedLog: { topic: '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e' },
           transactionHash: '0x2',
         },
       ],

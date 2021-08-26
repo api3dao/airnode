@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import * as verification from './template-verification';
 import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
@@ -17,9 +16,7 @@ describe('verify', () => {
     encodedParameters: '0x6466726f6d63455448',
   };
 
-  const TEMPLATE_ID = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(['address', 'bytes32', 'bytes'], Object.values(validTemplateFiels))
-  );
+  const TEMPLATE_ID = '0xb2f063157fcc3c986daf4c2cf1b8ac8b8843f2b1a54c5de5e1ebdf12fb85a927';
 
   it('returns API calls not linked to templates', () => {
     const apiCall = fixtures.requests.buildApiCall({ templateId: null });
@@ -83,7 +80,7 @@ describe('verify', () => {
     });
 
     const invalidFields = {
-      airnodeAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
+      airnodeAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
       encodedParameters: '0x1234',
     };

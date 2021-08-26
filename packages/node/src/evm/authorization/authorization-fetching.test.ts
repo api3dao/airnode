@@ -42,6 +42,7 @@ describe('fetch (authorizations)', () => {
         id: `${n}`,
         endpointId: `endpointId-${n}`,
         requesterAddress: `requesterAddress-${n}`,
+        sponsorAddress: 'sponsorAddress',
       });
     });
 
@@ -54,19 +55,19 @@ describe('fetch (authorizations)', () => {
     expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(2);
 
     const call1Args = [
+      ['0x0000000000000000000000000000000000000000'],
       '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       apiCalls.slice(0, 10).map((a) => a.id),
       apiCalls.slice(0, 10).map((a) => a.endpointId),
       apiCalls.slice(0, 10).map((a) => a.sponsorAddress),
-      apiCalls.slice(0, 10).map((a) => a.sponsorWallet),
       apiCalls.slice(0, 10).map((a) => a.requesterAddress),
     ];
     const call2Args = [
+      ['0x0000000000000000000000000000000000000000'],
       '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       apiCalls.slice(10, 19).map((a) => a.id),
       apiCalls.slice(10, 19).map((a) => a.endpointId),
       apiCalls.slice(10, 19).map((a) => a.sponsorAddress),
-      apiCalls.slice(10, 19).map((a) => a.sponsorWallet),
       apiCalls.slice(10, 19).map((a) => a.requesterAddress),
     ];
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([call1Args, call2Args]);

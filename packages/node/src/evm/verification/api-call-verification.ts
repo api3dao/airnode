@@ -36,7 +36,7 @@ function getExpectedRequestId(apiCall: Request<ApiCall>): string {
   const types = validatedFields.map((v) => v.type);
   const values = validatedFields.map((v) => v.value);
 
-  return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(types, values));
+  return ethers.utils.keccak256(ethers.utils.solidityPack(types, values));
 }
 
 export function verifyApiCallIds(apiCalls: Request<ApiCall>[]): LogsData<Request<ApiCall>[]> {
