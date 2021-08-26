@@ -38,3 +38,7 @@ export function typeMismatch(paramPath: string[], expectedType: string): Log {
     message: `Type mismatch: parameter ${paramPath.join('.')} is expected to be ${expectedType}`,
   };
 }
+
+export function unknownConversion(from: string, to: string): Log {
+  return { level: 'error', message: `Unknown conversion from ${from} to ${to}` };
+}

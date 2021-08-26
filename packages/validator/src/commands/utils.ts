@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Log } from '../types';
+import { unknownConversion } from '../utils/messages';
 
 export const templateVersions = fs
   .readdirSync(path.resolve(__dirname, '../../templates'), { withFileTypes: true })
@@ -83,7 +84,7 @@ export function getConversionPath(
   toVersion?: string
 ): string {
   if (!conversions[from]) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+    messages.push(unknownConversion(from, to));
     return '';
   }
 
@@ -99,7 +100,7 @@ export function getConversionPath(
     }
 
     if (!fromLatest) {
-      messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+      messages.push(unknownConversion(from, to));
       return '';
     }
 
@@ -107,12 +108,12 @@ export function getConversionPath(
   }
 
   if (!conversions[from][fromVersion]) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from}@${fromVersion} to ${to}` });
+    messages.push(unknownConversion(`${from}@${fromVersion}`, to));
     return '';
   }
 
   if (!conversions[from][fromVersion][to]) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+    messages.push(unknownConversion(from, to));
     return '';
   }
 
@@ -124,7 +125,7 @@ export function getConversionPath(
     }
 
     if (!toLatest) {
-      messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
+      messages.push(unknownConversion(from, to));
       return '';
     }
 
@@ -136,7 +137,7 @@ export function getConversionPath(
       path.resolve(__dirname, `../../templates/conversion/${from}@${fromVersion}->${to}@${toVersion}.json`)
     )
   ) {
-    messages.push({ level: 'error', message: `Unknown conversion from ${from}@${fromVersion} to ${to}@${toVersion}` });
+    messages.push(unknownConversion(`${from}@${fromVersion}`, `${to}@${toVersion}`));
     return '';
   }
 
