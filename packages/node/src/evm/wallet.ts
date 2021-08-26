@@ -20,6 +20,7 @@ import { Config } from '../types';
 export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): string => {
   const sponsorAddressBN = ethers.BigNumber.from(ethers.utils.getAddress(sponsorAddress));
   const paths = [];
+  // eslint-disable-next-line functional/no-let, functional/no-loop-statement
   for (let i = 0; i < 6; i++) {
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
