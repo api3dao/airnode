@@ -34,17 +34,17 @@ export async function testApi(
 
   const workerOpts: WorkerOptions = {
     cloudProvider: config.nodeSettings.cloudProvider,
-    airnodeIdShort: wallet.getAirnodeIdShort(masterHDNode),
+    airnodeAddressShort: wallet.getAirnodeAddressShort(masterHDNode.address),
     stage: config.nodeSettings.stage,
     region: config.nodeSettings.region,
   };
 
   const aggregatedApiCall: AggregatedApiCall = {
     id: testCallId,
-    airnodeId: wallet.getAirnodeId(masterHDNode),
-    requesterIndex: '',
-    clientAddress: '',
-    designatedWallet: '',
+    airnodeAddress: masterHDNode.address,
+    requesterAddress: '',
+    sponsorAddress: '',
+    sponsorWallet: '',
     chainId: '',
     endpointId,
     endpointName: rrpTrigger.endpointName,
