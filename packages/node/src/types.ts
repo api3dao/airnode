@@ -80,8 +80,8 @@ export interface ApiCall {
 
 export interface ApiCallTemplate {
   readonly airnodeAddress: string;
-  readonly encodedParameters: string;
   readonly endpointId: string;
+  readonly encodedParameters: string;
   readonly id: string;
 }
 
