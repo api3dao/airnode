@@ -21,9 +21,9 @@ conversionTemplates.forEach((file) => {
   const [fromName, fromVersion] = from.split('@');
   const [toName, toVersion] = to.split('@');
 
-  conversions[fromName] = conversions[fromName] || {};
-  conversions[fromName][fromVersion] = conversions[fromName][fromVersion] || {};
-  conversions[fromName][fromVersion][toName] = conversions[fromName][fromVersion][toName] || {};
+  conversions[fromName] ??= {};
+  conversions[fromName][fromVersion] ??= {};
+  conversions[fromName][fromVersion][toName] ??= {};
   conversions[fromName][fromVersion][toName][toVersion] = {};
 });
 
