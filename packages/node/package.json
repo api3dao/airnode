@@ -30,7 +30,7 @@
     "aws-sdk": "^2.753.0",
     "date-fns": "^2.16.1",
     "dotenv": "^10.0.0",
-    "ethers": "^5.4.4",
+    "ethers": "^5.4.5",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

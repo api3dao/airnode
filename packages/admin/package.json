@@ -18,7 +18,7 @@
   "dependencies": {
     "@api3/airnode-abi": "^0.1.0",
     "@api3/protocol": "^0.1.0",
-    "ethers": "^5.4.4",
+    "ethers": "^5.4.5",
     "lodash": "^4.17.21",
     "yargs": "^17.0.1"
   },
