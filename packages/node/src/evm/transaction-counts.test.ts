@@ -22,12 +22,12 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const addresses = ['1', '1']; // TODO: fix value
+    const addresses = ['0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324', '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([]);
-    expect(res).toEqual({ 1: 5 });
+    expect(res).toEqual({ '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324': 5 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(1);
-    expect(getTransactionCountMock).toHaveBeenCalledWith('0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084);
+    expect(getTransactionCountMock).toHaveBeenCalledWith('0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567', 10716084);
   });
 
   it('returns transaction counts for multiple wallets', async () => {
@@ -38,14 +38,17 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const addresses = ['1', '2']; // TODO: fix value
+    const addresses = ['0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324', '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([]);
-    expect(res).toEqual({ 1: 45, 2: 123 });
+    expect(res).toEqual({
+      '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324': 45,
+      '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E': 123,
+    });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
     expect(getTransactionCountMock.mock.calls).toEqual([
-      ['0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084],
-      ['0xa46c4b41d72Ada9D14157b28A8a2Db97560fFF12', 10716084],
+      ['0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567', 10716084],
+      ['0x459b00c8D6dD4f0172206799980C38343D173C3f', 10716084],
     ]);
   });
 
@@ -57,14 +60,14 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const addresses = ['1', '1']; // TODO: fix value
+    const addresses = ['0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324', '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([]);
-    expect(res).toEqual({ 1: 123 });
+    expect(res).toEqual({ '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324': 123 });
     expect(getTransactionCountMock).toHaveBeenCalledTimes(2);
     expect(getTransactionCountMock.mock.calls).toEqual([
-      ['0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084],
-      ['0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E', 10716084],
+      ['0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567', 10716084],
+      ['0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567', 10716084],
     ]);
   });
 
@@ -76,12 +79,12 @@ describe('fetchBySponsor', () => {
       masterHDNode: wallet.getMasterHDNode(),
       provider: new ethers.providers.JsonRpcProvider(),
     };
-    const addresses = ['1', '1']; // TODO: fix value
+    const addresses = ['0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324', '0x1c16dED9E7a05c6BA2c9F3aFEAe9f1a665729324'];
     const [logs, res] = await transactions.fetchBySponsor(addresses, options);
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: 'Unable to fetch transaction count for wallet:0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
+        message: 'Unable to fetch transaction count for wallet:0x8F3aF5ED5fC7bC86039Ad15B7fD7D99b2EAE5567',
         error: new Error('Server says no'),
       },
     ]);
