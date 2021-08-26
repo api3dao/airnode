@@ -75,7 +75,13 @@ export function getPath(template: string, messages: Log[], version = ''): string
  * @param fromVersion (optional) - version of source specification format, if not specified, latest version of the template is returned
  * @param toVersion (optional) - version of target specification format, if not specified, latest version of the template is returned
  */
-export function getConversionPath(from: string, to: string, messages: Log[], fromVersion = '', toVersion = ''): string {
+export function getConversionPath(
+  from: string,
+  to: string,
+  messages: Log[],
+  fromVersion?: string,
+  toVersion?: string
+): string {
   if (!conversions[from]) {
     messages.push({ level: 'error', message: `Unknown conversion from ${from} to ${to}` });
     return '';
