@@ -30,12 +30,6 @@ export function deriveXpub(mnemonic: string) {
   return hdNode.neuter().extendedKey;
 }
 
-export function generateMnemonic() {
-  logger.debug('Generating new mnemonic');
-  const masterWallet = ethers.Wallet.createRandom();
-  return masterWallet.mnemonic.phrase;
-}
-
 export function shortenAirnodeId(airnodeId: string) {
   logger.debug('Shortening Airnode ID');
   if (!ethers.utils.isHexString(airnodeId, 32)) {

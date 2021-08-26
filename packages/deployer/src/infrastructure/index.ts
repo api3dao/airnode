@@ -8,9 +8,13 @@ import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
 
 type TerraformAirnodeOutput = {
-  testing_gateway_url?: {
+  http_gateway_url?: {
     value: string;
   };
+};
+
+export type DeployAirnodeOutput = {
+  httpGatewayUrl?: string;
 };
 
 const exec = util.promisify(child.exec);
@@ -43,13 +47,13 @@ export async function deployAirnode(
   stage: string,
   cloudProvider: string,
   region: string,
-  testingApiKey: string | undefined,
+  httpGatewayApiKey: string | undefined,
   configPath: string,
   secretsPath: string
 ) {
   spinner = logger.spinner(`Deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
   try {
-    const output = await deploy(airnodeIdShort, stage, region, testingApiKey, configPath, secretsPath);
+    const output = await deploy(airnodeIdShort, stage, region, httpGatewayApiKey, configPath, secretsPath);
     spinner.succeed(`Deployed Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
     return output;
   } catch (err) {
@@ -62,10 +66,10 @@ async function deploy(
   airnodeIdShort: string,
   stage: string,
   region: string,
-  testingApiKey: string | undefined,
+  httpGatewayApiKey: string | undefined,
   configPath: string,
   secretsPath: string
-) {
+): Promise<DeployAirnodeOutput> {
   if (logger.inDebugMode()) {
     spinner.info();
   }
@@ -94,17 +98,17 @@ async function deploy(
   const options = { cwd: airnodeTmpDir };
   await runCommand(command, options);
 
-  const testingApiKeyVar = testingApiKey ? `-var='api_key=${testingApiKey}'` : '';
+  const httpGatewayApiKeyVar = httpGatewayApiKey ? `-var='api_key=${httpGatewayApiKey}'` : '';
   command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
     configPath
   )}" -var="secrets_file=${path.resolve(
     secretsPath
-  )}" -var="handler_file=${handlerFile}" ${testingApiKeyVar} -auto-approve -input=false -no-color`;
+  )}" -var="handler_file=${handlerFile}" ${httpGatewayApiKeyVar} -auto-approve -input=false -no-color`;
   await runCommand(command, options);
 
   command = 'terraform output -json -no-color';
   const output: TerraformAirnodeOutput = JSON.parse(await runCommand(command, options));
-  return output.testing_gateway_url ? { testingGatewayUrl: output.testing_gateway_url.value } : output;
+  return output.http_gateway_url ? { httpGatewayUrl: output.http_gateway_url.value } : {};
 }
 
 export async function removeAirnode(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {

@@ -4,7 +4,7 @@ import { Config, CoordinatorSettings, CoordinatorState } from '../types';
 
 export function create(config: Config): CoordinatorState {
   const id = randomString(8);
-  const masterHDNode = wallet.getMasterHDNode();
+  const masterHDNode = wallet.getMasterHDNode(config);
 
   const settings: CoordinatorSettings = {
     airnodeId: wallet.getAirnodeId(masterHDNode),

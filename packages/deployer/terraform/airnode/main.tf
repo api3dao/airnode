@@ -12,7 +12,7 @@ module "initializeProvider" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
-    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
   }
 }
 
@@ -26,7 +26,7 @@ module "callApi" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
-    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
   }
 }
 
@@ -40,7 +40,7 @@ module "processProviderRequests" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
-    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
   }
 }
 
@@ -54,7 +54,7 @@ module "startCoordinator" {
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
   environment_variables = {
-    TESTING_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
+    HTTP_GATEWAY_URL = var.api_key == null ? null : "${module.testApiGateway[0].api_url}/test"
   }
 
   invoke_targets                 = [module.initializeProvider.lambda_arn, module.callApi.lambda_arn, module.processProviderRequests.lambda_arn]

@@ -12,9 +12,6 @@ it('does not process requests twice', async () => {
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
   const deployment = await e2e.deployAirnodeRrp(deployConfig);
 
-  // Overwrites the one injected by the jest setup script
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
-
   await e2e.makeRequests(deployConfig, deployment);
 
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
@@ -28,8 +25,11 @@ it('does not process requests twice', async () => {
   expect(preinvokeFullRequests.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
+  const nodeSettings = fixtures.buildNodeSettings({
+    airnodeWalletMnemonic: deployConfig.airnodes.CurrencyConverterAirnode.mnemonic,
+  });
   const chain = e2e.buildChainConfig(deployment.contracts);
-  const config = fixtures.buildConfig({ chains: [chain] });
+  const config = fixtures.buildConfig({ chains: [chain], nodeSettings });
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
 
   await handlers.startCoordinator();

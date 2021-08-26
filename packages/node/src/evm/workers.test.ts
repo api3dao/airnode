@@ -17,8 +17,8 @@ const functionNameForWorker = {
 } as const;
 
 const providerErrorForWorker = {
-  spawnNewProvider: 'Unable to initialize provider:Ganache test',
-  spawnProviderRequestProcessor: 'Unable to process provider requests:Ganache test',
+  spawnNewProvider: 'Unable to initialize provider: Ganache test',
+  spawnProviderRequestProcessor: 'Unable to process provider requests: Ganache test',
 } as const;
 
 workers.forEach((workerType) => {
