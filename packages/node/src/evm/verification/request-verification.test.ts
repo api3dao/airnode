@@ -4,6 +4,8 @@ import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
 import { RequestErrorCode, RequestStatus } from '../../types';
 
+const config = fixtures.buildConfig();
+
 describe('verifySponsorWallets', () => {
   const masterHDNode = wallet.getMasterHDNode(config);
 

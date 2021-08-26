@@ -1,5 +1,4 @@
 import { mockEthers } from '../../test/mock-utils';
-const getAirnodeParametersAndBlockNumberMock = jest.fn();
 const estimateGasWithdrawalMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
@@ -7,7 +6,6 @@ const fulfillWithdrawalMock = jest.fn();
 const staticFulfillMock = jest.fn();
 mockEthers({
   airnodeRrpMocks: {
-    getAirnodeParametersAndBlockNumber: getAirnodeParametersAndBlockNumberMock,
     callStatic: {
       fulfill: staticFulfillMock,
     },
@@ -37,7 +35,6 @@ const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
@@ -51,7 +48,6 @@ const chains: ChainConfig[] = [
     type: 'evm',
   },
   {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     authorizers: [ethers.constants.AddressZero],
     contracts: {
       AirnodeRrp: '0x9AF16dE521f41B0e0E70A4f26F9E0C73D757Bd81',
@@ -124,7 +120,7 @@ describe('initialize', () => {
             apiCalls: [],
             withdrawals: [],
           },
-          transactionCountsByRequesterIndex: {},
+          transactionCountsBySponsorAddress: {},
         },
         {
           config,
@@ -159,7 +155,7 @@ describe('initialize', () => {
             apiCalls: [],
             withdrawals: [],
           },
-          transactionCountsByRequesterIndex: {},
+          transactionCountsBySponsorAddress: {},
         },
       ],
     });
@@ -189,9 +185,9 @@ describe('processRequests', () => {
     const apiCall = fixtures.requests.buildApiCall({ responseValue: '0x123' });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
-    const transactionCountsByRequesterIndex = { [apiCall.requesterIndex]: 5 };
-    const provider0 = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
-    const provider1 = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { [apiCall.requestCount]: 5 };
+    const provider0 = fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress });
+    const provider1 = fixtures.buildEVMProviderState({ requests, transactionCountsBySponsorAddress });
 
     const allProviders = { evm: [provider0, provider1] };
     const workerOpts = fixtures.buildWorkerOptions();

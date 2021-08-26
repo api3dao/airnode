@@ -30,8 +30,8 @@ export async function checkAirnodeParameters(config: Config, airnodeId: string, 
         try {
           const provider = new ethers.providers.JsonRpcProvider(providerUrl);
           const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType]![chainId], provider);
-          const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
-          if (airnodeParameters.xpub === '') {
+          const xpub = await airnodeRrp.airnodeToXpub(airnodeId);
+          if (xpub === '') {
             spinner.warn(`Airnode parameters not found on chain: ${chainName} (${chainType})`);
             await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
           } else {
