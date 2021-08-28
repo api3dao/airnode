@@ -217,9 +217,150 @@ describe('getRank', function () {
 // This can be solved by adding a `hardhat_reset` call to beforeEach, but that breaks solcover.
 describe('fulfill', function () {
   context('Caller Airnode RRP', function () {
-    context('Status code 0', function () {
-      context('Data typecast successfully', function () {
-        it('updates beacon', async function () {
+    context('requestId has been registered', function () {
+      context('Status code 0', function () {
+        context('Data typecast successfully', function () {
+          it('updates beacon', async function () {
+            // Sponsor the chain of request
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+            // Create the template
+            const endpointId = utils.generateRandomBytes32();
+            const parameters = utils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            // Compute the expected request ID
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpBeaconServer.address,
+                  templateId,
+                  '0x',
+                ]
+              )
+            );
+            // Request the beacon update
+            await rrpBeaconServer
+              .connect(roles.updateRequester)
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+            // Fulfill with 0 status code
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const lastBlockTimestamp = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber()))
+              .timestamp;
+            const nextBlockTimestamp = lastBlockTimestamp + 1;
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
+            const statusCode = 0;
+            const decodedData = 123;
+            const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  statusCode,
+                  data,
+                  rrpBeaconServer.address,
+                  rrpBeaconServer.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            )
+              .to.emit(rrpBeaconServer, 'UpdatedBeacon')
+              .withArgs(templateId, requestId, decodedData, nextBlockTimestamp);
+          });
+        });
+        context('Data does not typecast successfully', function () {
+          it('reverts', async function () {
+            // Sponsor the chain of request
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+            // Create the template
+            const endpointId = utils.generateRandomBytes32();
+            const parameters = utils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            // Compute the expected request ID
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpBeaconServer.address,
+                  templateId,
+                  '0x',
+                ]
+              )
+            );
+            // Request the beacon update
+            await rrpBeaconServer
+              .connect(roles.updateRequester)
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
+            // Fulfill with non-typecastable data
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const statusCode = 0;
+            // Data should not be too large
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  statusCode,
+                  hre.ethers.utils.defaultAbiCoder.encode(['int256'], [hre.ethers.BigNumber.from(2).pow(223)]),
+                  rrpBeaconServer.address,
+                  rrpBeaconServer.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+            // Data should not be too small
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  statusCode,
+                  hre.ethers.utils.defaultAbiCoder.encode(
+                    ['int256'],
+                    [hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1)]
+                  ),
+                  rrpBeaconServer.address,
+                  rrpBeaconServer.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+            // Year should not be 2106
+            await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  statusCode,
+                  hre.ethers.utils.defaultAbiCoder.encode(['int256'], [123]),
+                  rrpBeaconServer.address,
+                  rrpBeaconServer.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+          });
+        });
+      });
+      context('Status code not 0', function () {
+        it('emits an event', async function () {
           // Sponsor the chain of request
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
@@ -247,17 +388,11 @@ describe('fulfill', function () {
           await rrpBeaconServer
             .connect(roles.updateRequester)
             .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
-          // Fulfill with 0 status code
+          // Fulfill with non-zero status code
           const sponsorWallet = utils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
             .connect(hre.ethers.provider);
-          const lastBlockTimestamp = (await hre.ethers.provider.getBlock(await hre.ethers.provider.getBlockNumber()))
-            .timestamp;
-          const nextBlockTimestamp = lastBlockTimestamp + 1;
-          await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
-          const statusCode = 0;
-          const decodedData = 123;
-          const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+          const statusCode = 3;
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
@@ -265,104 +400,22 @@ describe('fulfill', function () {
                 requestId,
                 airnodeAddress,
                 statusCode,
-                data,
+                '0x',
                 rrpBeaconServer.address,
                 rrpBeaconServer.interface.getSighash('fulfill'),
                 { gasLimit: 500000 }
               )
           )
-            .to.emit(rrpBeaconServer, 'UpdatedBeacon')
-            .withArgs(templateId, requestId, decodedData, nextBlockTimestamp);
-        });
-      });
-      context('Data does not typecast successfully', function () {
-        it('reverts', async function () {
-          // Sponsor the chain of request
-          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
-          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
-          // Create the template
-          const endpointId = utils.generateRandomBytes32();
-          const parameters = utils.generateRandomBytes();
-          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-          const templateId = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-          );
-          // Compute the expected request ID
-          const requestId = hre.ethers.utils.keccak256(
-            hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-              [
-                await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
-                (await hre.ethers.provider.getNetwork()).chainId,
-                rrpBeaconServer.address,
-                templateId,
-                '0x',
-              ]
-            )
-          );
-          // Request the beacon update
-          await rrpBeaconServer
-            .connect(roles.updateRequester)
-            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
-          // Fulfill with non-typecastable data
-          const sponsorWallet = utils
-            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-            .connect(hre.ethers.provider);
-          const statusCode = 0;
-          // Data should not be too large
-          await expect(
-            airnodeRrp
-              .connect(sponsorWallet)
-              .fulfill(
-                requestId,
-                airnodeAddress,
-                statusCode,
-                hre.ethers.utils.defaultAbiCoder.encode(['int256'], [hre.ethers.BigNumber.from(2).pow(223)]),
-                rrpBeaconServer.address,
-                rrpBeaconServer.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
-              )
-          ).to.be.revertedWith('Fulfillment failed');
-          // Data should not be too small
-          await expect(
-            airnodeRrp
-              .connect(sponsorWallet)
-              .fulfill(
-                requestId,
-                airnodeAddress,
-                statusCode,
-                hre.ethers.utils.defaultAbiCoder.encode(
-                  ['int256'],
-                  [hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1)]
-                ),
-                rrpBeaconServer.address,
-                rrpBeaconServer.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
-              )
-          ).to.be.revertedWith('Fulfillment failed');
-          // Year should not be 2106
-          await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
-          await expect(
-            airnodeRrp
-              .connect(sponsorWallet)
-              .fulfill(
-                requestId,
-                airnodeAddress,
-                statusCode,
-                hre.ethers.utils.defaultAbiCoder.encode(['int256'], [123]),
-                rrpBeaconServer.address,
-                rrpBeaconServer.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
-              )
-          ).to.be.revertedWith('Fulfillment failed');
+            .to.emit(rrpBeaconServer, 'ErroredBeaconUpdate')
+            .withArgs(templateId, requestId, statusCode);
         });
       });
     });
-    context('Status code not 0', function () {
-      it('emits an event', async function () {
-        // Sponsor the chain of request
-        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
-        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+
+    context('requestID has not been registered', function () {
+      it('reverts', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
         // Create the template
         const endpointId = utils.generateRandomBytes32();
         const parameters = utils.generateRandomBytes();
@@ -370,43 +423,54 @@ describe('fulfill', function () {
         const templateId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
-        // Compute the expected request ID
+        // Make the request
+        const requestTimeParameters = utils.generateRandomBytes();
+        await airnodeRrp
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
+            templateId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpBeaconServer.address,
+            rrpBeaconServer.interface.getSighash('fulfill'),
+            requestTimeParameters,
+            { gasLimit: 500000 }
+          );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
             ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+              (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
-              rrpBeaconServer.address,
+              roles.randomPerson.address,
               templateId,
-              '0x',
+              requestTimeParameters,
             ]
           )
         );
-        // Request the beacon update
-        await rrpBeaconServer
-          .connect(roles.updateRequester)
-          .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress);
-        // Fulfill with non-zero status code
+
+        // Fulfill the request
         const sponsorWallet = utils
           .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
           .connect(hre.ethers.provider);
-        const statusCode = 3;
+        const fulfillStatusCode = 0;
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
+
         await expect(
           airnodeRrp
             .connect(sponsorWallet)
             .fulfill(
               requestId,
               airnodeAddress,
-              statusCode,
-              '0x',
+              fulfillStatusCode,
+              fulfillData,
               rrpBeaconServer.address,
               rrpBeaconServer.interface.getSighash('fulfill'),
               { gasLimit: 500000 }
             )
-        )
-          .to.emit(rrpBeaconServer, 'ErroredBeaconUpdate')
-          .withArgs(templateId, requestId, statusCode);
+        ).to.be.revertedWith('Fulfillment failed');
       });
     });
   });

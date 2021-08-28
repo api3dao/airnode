@@ -4,7 +4,7 @@ const { expect } = require('chai');
 const utils = require('../utils');
 
 let roles;
-let SelfRequesterRrpAuthorizer;
+let selfRequesterRrpAuthorizer;
 let airnodeAddress, airnodeMnemonic, airnodeId;
 
 beforeEach(async () => {
@@ -16,11 +16,11 @@ beforeEach(async () => {
     randomPerson: accounts[9],
   };
   // We need to use SelfRequesterRrpAuthorizer to be able to seed the admin ranks
-  const SelfRequesterRrpAuthorizerFactory = await hre.ethers.getContractFactory(
+  const selfRequesterRrpAuthorizerFactory = await hre.ethers.getContractFactory(
     'SelfRequesterRrpAuthorizer',
     roles.deployer
   );
-  SelfRequesterRrpAuthorizer = await SelfRequesterRrpAuthorizerFactory.deploy();
+  selfRequesterRrpAuthorizer = await selfRequesterRrpAuthorizerFactory.deploy();
   ({ airnodeAddress: airnodeAddress, airnodeMnemonic: airnodeMnemonic } = utils.generateRandomAirnodeWallet());
   airnodeId = hre.ethers.utils.defaultAbiCoder.encode(['address'], [airnodeAddress]);
 });
@@ -33,16 +33,14 @@ describe('isAuthorized', function () {
         value: hre.ethers.utils.parseEther('1'),
       });
       const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
-      await SelfRequesterRrpAuthorizer.connect(airnodeWallet).setWhitelistStatusPastExpiration(
-        airnodeId,
-        roles.requester.address,
-        true
-      );
+      await selfRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setWhitelistStatusPastExpiration(airnodeId, roles.requester.address, true);
       const requestId = utils.generateRandomBytes32();
       const endpointId = utils.generateRandomBytes32();
       const sponsor = utils.generateRandomAddress();
       expect(
-        await SelfRequesterRrpAuthorizer.isAuthorized(
+        await selfRequesterRrpAuthorizer.isAuthorized(
           requestId,
           airnodeAddress,
           endpointId,
@@ -58,7 +56,7 @@ describe('isAuthorized', function () {
       const endpointId = utils.generateRandomBytes32();
       const sponsor = utils.generateRandomAddress();
       expect(
-        await SelfRequesterRrpAuthorizer.isAuthorized(
+        await selfRequesterRrpAuthorizer.isAuthorized(
           requestId,
           airnodeAddress,
           endpointId,

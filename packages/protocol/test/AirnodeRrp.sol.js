@@ -144,7 +144,7 @@ describe('makeTemplateRequest', function () {
             rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      ).to.be.revertedWith('airnode is address zero');
+      ).to.be.revertedWith('airnode address zero');
     });
   });
   context('Requester not sponsored', function () {
@@ -168,27 +168,88 @@ describe('makeTemplateRequest', function () {
 });
 
 describe('makeFullRequest', function () {
-  context('Requester is sponsored', function () {
-    it('makes template request', async function () {
+  context('airnode address is valid', function () {
+    context('Requester is sponsored', function () {
+      it('makes template request', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+        // Compute the expected request ID
+        const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
+        const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+        const endpointId = utils.generateRandomBytes32();
+        const requestTimeParameters = utils.generateRandomBytes();
+        const expectedRequestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            [requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
+          )
+        );
+        // Make the request
+        await expect(
+          rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            )
+        )
+          .to.emit(airnodeRrp, 'MadeFullRequest')
+          .withArgs(
+            airnodeAddress,
+            expectedRequestId,
+            requesterRequestCount,
+            chainId,
+            rrpRequester.address,
+            endpointId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
+            requestTimeParameters
+          );
+        expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
+          requesterRequestCount.add(1)
+        );
+      });
+    });
+    context('Requester not sponsored', function () {
+      it('reverts', async function () {
+        const endpointId = utils.generateRandomBytes32();
+        const requestTimeParameters = utils.generateRandomBytes();
+        await expect(
+          rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            )
+        ).to.be.revertedWith('Requester not sponsored');
+      });
+    });
+  });
+
+  context('airnode address is invalid', function () {
+    it('reverts', async function () {
       // Endorse the requester
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      // Compute the expected request ID
-      const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
-      const chainId = (await hre.ethers.provider.getNetwork()).chainId;
       const endpointId = utils.generateRandomBytes32();
       const requestTimeParameters = utils.generateRandomBytes();
-      const expectedRequestId = hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-          [requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
-        )
-      );
       // Make the request
       await expect(
         rrpRequester
           .connect(roles.randomPerson)
           .makeFullRequest(
-            airnodeAddress,
+            hre.ethers.constants.AddressZero,
             endpointId,
             roles.sponsor.address,
             sponsorWalletAddress,
@@ -196,43 +257,7 @@ describe('makeFullRequest', function () {
             rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      )
-        .to.emit(airnodeRrp, 'MadeFullRequest')
-        .withArgs(
-          airnodeAddress,
-          expectedRequestId,
-          requesterRequestCount,
-          chainId,
-          rrpRequester.address,
-          endpointId,
-          roles.sponsor.address,
-          sponsorWalletAddress,
-          rrpRequester.address,
-          rrpRequester.interface.getSighash('fulfill'),
-          requestTimeParameters
-        );
-      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
-        requesterRequestCount.add(1)
-      );
-    });
-  });
-  context('Requester not sponsored', function () {
-    it('reverts', async function () {
-      const endpointId = utils.generateRandomBytes32();
-      const requestTimeParameters = utils.generateRandomBytes();
-      await expect(
-        rrpRequester
-          .connect(roles.randomPerson)
-          .makeFullRequest(
-            airnodeAddress,
-            endpointId,
-            roles.sponsor.address,
-            sponsorWalletAddress,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            requestTimeParameters
-          )
-      ).to.be.revertedWith('Requester not sponsored');
+      ).to.be.revertedWith('airnode address zero');
     });
   });
 });

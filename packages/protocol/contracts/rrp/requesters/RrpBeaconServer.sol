@@ -99,7 +99,7 @@ contract RrpBeaconServer is
         bytes calldata data
     ) external override onlyAirnodeRrp {
         bytes32 templateId = requestIdToTemplateId[requestId];
-        require(templateId != bytes32(0), "templateId is zero");
+        require(templateId != bytes32(0), "request ID unknown");
         delete requestIdToTemplateId[requestId];
         if (statusCode == 0) {
             int256 decodedData = abi.decode(data, (int256));

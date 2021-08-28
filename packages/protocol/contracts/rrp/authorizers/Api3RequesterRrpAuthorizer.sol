@@ -24,25 +24,6 @@ contract Api3RequesterRrpAuthorizer is
     /// @param metaAdmin_ Address that will be set as the API3 metaAdmin
     constructor(address metaAdmin_) MetaAdminnable(metaAdmin_) {}
 
-    /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Overriden to use MetaAdminnable Ranks
-    ///      Overriden to require only using bytes32(0) as the adminnedId
-    /// @param adminnedId ID of the entity being adminned (not used)
-    /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank
-    function getRank(
-        bytes32 adminnedId, // solhint-disable-line no-unused-vars
-        address admin
-    )
-        public
-        view
-        override(MetaAdminnable, RankedAdminnable, IRankedAdminnable)
-        returns (uint256)
-    {
-        require(adminnedId == bytes32(0), "adminnedId not zero");
-        return MetaAdminnable.getRank(adminnedId, admin);
-    }
-
     /// @notice Called by an admin of higher rank to set the rank of an admin of
     /// lower rank
     /// @dev Overriden to require only using bytes32(0) as the adminnedId
@@ -68,5 +49,20 @@ contract Api3RequesterRrpAuthorizer is
     {
         require(adminnedId == bytes32(0), "adminnedId not zero");
         super.decreaseSelfRank(adminnedId, newRank);
+    }
+
+    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @dev Overriding MetaAdminnable ranks to force `adminnedId`to be `bytes32(0)`
+    /// @param adminnedId ID of the entity being adminned
+    /// @param admin Admin address whose rank will be returned
+    /// @return Admin rank
+    function getRank(bytes32 adminnedId, address admin)
+        public
+        view
+        override(MetaAdminnable, RankedAdminnable, IRankedAdminnable)
+        returns (uint256)
+    {
+        require(adminnedId == bytes32(0), "adminnedId not zero");
+        return MetaAdminnable.getRank(adminnedId, admin);
     }
 }
