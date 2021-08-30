@@ -5,12 +5,12 @@ import * as fixtures from '../fixtures';
 import * as handlers from '../../src/workers/local-handlers';
 import * as wallet from '../../src/evm/wallet';
 
-it('processes withdrawals only once', async () => {
+it.only('processes withdrawals only once', async () => {
   jest.setTimeout(45_000);
 
   const provider = e2e.buildProvider();
 
-  const requests = [fixtures.operation.buildWithdrawal({ sponsorId: 'alice' })];
+  const requests = [fixtures.operation.buildWithdrawal()];
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
@@ -31,7 +31,7 @@ it('processes withdrawals only once', async () => {
   const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
 
-  expect(preinvokeLogs.length).toEqual(6);
+  expect(preinvokeLogs.length).toEqual(4);
   expect(preinvokeWithdrawals.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
@@ -64,7 +64,7 @@ it('processes withdrawals only once', async () => {
   const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
 
-  expect(postinvokeLogs.length).toEqual(7);
+  expect(postinvokeLogs.length).toEqual(5);
   expect(postinvokeWithdrawals.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(1);
 
@@ -72,7 +72,7 @@ it('processes withdrawals only once', async () => {
 
   // Withdrawals are not processed twice
   const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(run2Logs.length).toEqual(7);
+  expect(run2Logs.length).toEqual(5);
 
   // Balances have not changed
   const run2Balance = await provider.getBalance(alice!.address);
