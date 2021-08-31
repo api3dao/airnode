@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import { existsSync } from 'fs';
 import difference from 'lodash/difference';
 import { AirnodeRrp, AirnodeRrpFactory } from '@api3/protocol';
 import { ethers } from 'ethers';
@@ -65,7 +64,6 @@ describe('CLI', () => {
 
   beforeEach(async () => {
     airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
-    expect(airnodeRrp.address).toBeDefined();
 
     airnodeWallet = ethers.Wallet.createRandom().connect(provider);
     await deployer.sendTransaction({
