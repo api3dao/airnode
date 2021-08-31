@@ -54,6 +54,7 @@ const templatePath = utils.getConversionPath(from, to, messages, fromVersion, to
 
 if (templatePath) {
   const res = convert(args.specification, templatePath);
+  res.messages.push(...messages);
   console.log(JSON.stringify(args['specs-only'] ? res.output : res, null, 2));
 } else {
   console.log(JSON.stringify(messages, null, 2));

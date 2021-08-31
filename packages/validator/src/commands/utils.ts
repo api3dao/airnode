@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as logger from '../utils/logger';
 import { Log } from '../types';
 import { unknownConversion } from '../utils/messages';
 
@@ -92,19 +93,34 @@ export function getConversionPath(
   }
 
   if (!fromVersion) {
-    let fromLatest;
+    let fromLatest, latestOverall;
+    const versionRegex = /^[0-9\.]+$/;
 
     for (const version in conversions[from]) {
-      if (!conversions[from][version][to]) {
+      latestOverall =
+        !latestOverall ||
+        ((!latestOverall.match(versionRegex) || latestOverall < version) && version.match(versionRegex))
+          ? version
+          : latestOverall;
+
+      if (!conversions[from][version][to] || (fromLatest && !version.match(versionRegex))) {
         continue;
       }
 
-      fromLatest = !fromLatest || (fromLatest < version && version.match(/^[0-9\.]+$/)) ? version : fromLatest;
+      fromLatest = !fromLatest || !fromLatest.match(versionRegex) || fromLatest < version ? version : fromLatest;
     }
 
     if (!fromLatest) {
       messages.push(unknownConversion(from, to));
       return null;
+    }
+
+    if (fromLatest !== latestOverall) {
+      messages.push(
+        logger.warn(
+          `Conversion from latest version of ${from} to ${to} does not exist, conversion from ${from}@${fromLatest} will be used instead.`
+        )
+      );
     }
 
     fromVersion = fromLatest;
