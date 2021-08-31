@@ -90,10 +90,6 @@ export function buildOIS(ois?: Partial<OIS>): OIS {
         testable: true,
       },
     ],
-    credentials: {
-      securityScheme: 'My Security Scheme',
-      value: 'supersecret',
-    },
     ...ois,
   };
 }

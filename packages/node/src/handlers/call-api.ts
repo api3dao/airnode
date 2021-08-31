@@ -13,7 +13,7 @@ import {
   LogsData,
   RequestErrorCode,
 } from '../types';
-import { removeKeys } from '../utils/object-utils';
+import { removeKeys, removeKey } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
 function addMetadataParameters(
@@ -45,7 +45,8 @@ function buildOptions(
   chain: ChainConfig,
   ois: OIS,
   aggregatedApiCall: AggregatedApiCall,
-  reservedParameters: adapter.ReservedParameters
+  reservedParameters: adapter.ReservedParameters,
+  apiCredentials: adapter.ApiCredentials[]
 ): adapter.BuildRequestOptions {
   // Include airnode metadata based on _relay_metadata version number
   const parametersWithMetadata = addMetadataParameters(chain, aggregatedApiCall, reservedParameters);
@@ -57,7 +58,7 @@ function buildOptions(
     endpointName: aggregatedApiCall.endpointName!,
     parameters: sanitizedParameters,
     ois,
-    credentials: ois.credentials,
+    apiCredentials,
   };
 }
 
@@ -70,6 +71,9 @@ export async function callApi(
   const chain = config.chains.find((c) => c.id === chainId)!;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
+  const apiCredentials = config.apiCredentials
+    .filter((c) => c.oisTitle === oisTitle)
+    .map((c) => removeKey(c, 'oisTitle'));
 
   // Check before making the API call in case the parameters are missing
   const reservedParameters = getReservedParameters(endpoint, aggregatedApiCall.parameters || {});
@@ -82,7 +86,8 @@ export async function callApi(
     chain,
     ois,
     aggregatedApiCall,
-    reservedParameters as adapter.ReservedParameters
+    reservedParameters as adapter.ReservedParameters,
+    apiCredentials as adapter.ApiCredentials[]
   );
 
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the

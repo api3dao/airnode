@@ -1,4 +1,5 @@
 import { OIS } from '@api3/ois';
+import { ApiCredentials as AdapterApiCredentials } from '@api3/adapter';
 import { ethers } from 'ethers';
 import { AirnodeRrp, TypedEventFilter } from '@api3/protocol';
 
@@ -260,8 +261,8 @@ export type EVMRequestCreatedLog = EVMTemplateRequestCreatedLog | EVMFullApiRequ
 
 export interface EVMRequestFulfilledLog extends EVMEventLogMetadata {
   readonly parsedLog:
-  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
-  | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFulfilled'>>
+    | AirnodeLogDescription<AirnodeRrpLog<'ClientRequestFailed'>>;
 }
 
 export interface EVMWithdrawalRequestLog extends EVMEventLogMetadata {
@@ -394,9 +395,14 @@ export interface NodeSettings {
   readonly stage: string;
 }
 
+export interface ApiCredentials extends AdapterApiCredentials {
+  readonly oisTitle: string;
+}
+
 export interface Config {
   readonly chains: ChainConfig[];
   readonly nodeSettings: NodeSettings;
   readonly ois: OIS[];
   readonly triggers: Triggers;
+  readonly apiCredentials: ApiCredentials[];
 }

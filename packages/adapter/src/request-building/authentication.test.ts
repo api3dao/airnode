@@ -6,7 +6,7 @@ import * as fixtures from '../../test/fixtures';
 
 describe('building empty parameters', () => {
   it('returns no parameters if credentials is empty', () => {
-    const options = fixtures.buildCacheRequestOptions({ credentials: undefined });
+    const options = fixtures.buildCacheRequestOptions({ apiCredentials: undefined });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
@@ -100,8 +100,8 @@ describe('building HTTP authentication parameters', () => {
     const ois = fixtures.buildOIS();
     const scheme: ApiSecurityScheme = { scheme: 'basic', type: 'http' };
     ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
-    const options = fixtures.buildCacheRequestOptions({ ois });
-    options.credentials!.value = 'd2h5YXJleW91OnJlYWRpbmd0aGlz';
+    const apiCredentials = fixtures.buildCredentials({ securitySchemeValue: 'd2h5YXJleW91OnJlYWRpbmd0aGlz' });
+    const options = fixtures.buildCacheRequestOptions({ ois, apiCredentials });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},
@@ -114,8 +114,8 @@ describe('building HTTP authentication parameters', () => {
     const ois = fixtures.buildOIS();
     const scheme: ApiSecurityScheme = { scheme: 'bearer', type: 'http' };
     ois.apiSpecifications.components.securitySchemes.myapiApiScheme = scheme;
-    const options = fixtures.buildCacheRequestOptions({ ois });
-    options.credentials!.value = 'secret-jwt';
+    const apiCredentials = fixtures.buildCredentials({ securitySchemeValue: 'secret-jwt' });
+    const options = fixtures.buildCacheRequestOptions({ ois, apiCredentials });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       query: {},

@@ -1,11 +1,20 @@
 import * as ois from './ois';
 import * as settings from './node-settings';
-import { Config, RequestTrigger } from '../../../src/types';
+import { Config, RequestTrigger, ApiCredentials } from '../../../src/types';
 
 export function buildTrigger(overrides?: Partial<RequestTrigger>): RequestTrigger {
   return {
     endpointId: '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353',
     endpointName: 'convertToUSD',
+    oisTitle: 'Currency Converter API',
+    ...overrides,
+  };
+}
+
+export function buildApiCredentials(overrides?: Partial<ApiCredentials>): ApiCredentials {
+  return {
+    securitySchemeName: 'My Security Scheme',
+    securitySchemeValue: 'supersecret',
     oisTitle: 'Currency Converter API',
     ...overrides,
   };
@@ -34,6 +43,7 @@ export function buildConfig(overrides?: Partial<Config>): Config {
       request: [buildTrigger()],
     },
     ois: [ois.buildOIS()],
+    apiCredentials: [buildApiCredentials()],
     ...overrides,
   };
 }
