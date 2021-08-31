@@ -13,7 +13,7 @@ const AdminRank = Object.freeze({
 
 let roles;
 let api3RequesterRrpAuthorizer;
-let adminnedId, anotherId;
+let adminnedId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -32,7 +32,6 @@ beforeEach(async () => {
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
   adminnedId = utils.generateRandomBytes32();
-  anotherId = utils.generateRandomBytes32();
   await api3RequesterRrpAuthorizer
     .connect(roles.metaAdmin)
     .setRank(hre.ethers.constants.HashZero, roles.admin.address, AdminRank.Admin);
@@ -52,17 +51,25 @@ describe('constructor', function () {
 
 describe('getRank', function () {
   context("metaAdmin's rank is being queried", function () {
-    it('returns highest possible rank', async function () {
-      expect(
-        await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.metaAdmin.address)
-      ).to.be.equal(AdminRank.MetaAdmin);
-      expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.metaAdmin.address)).to.be.equal(
-        AdminRank.MetaAdmin
-      );
+    context('Admin ranks are queried for the zero ID', function () {
+      it('returns highest possible rank', async function () {
+        expect(
+          await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.metaAdmin.address)
+        ).to.be.equal(AdminRank.MetaAdmin);
+      });
+    });
+    context('Admin ranks are queried for non zero ID', function () {
+      it('reverts', async function () {
+        expect(
+          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.metaAdmin.address)).to.be.revertedWith(
+            'adminnedId not zero'
+          )
+        );
+      });
     });
   });
   context("metaAdmin's rank is not being queried", function () {
-    context('Admin ranks are set for the zero ID', function () {
+    context('Admin ranks are queried for the zero ID', function () {
       it('returns regular rank', async function () {
         expect(
           await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.superAdmin.address)
@@ -73,32 +80,139 @@ describe('getRank', function () {
         expect(
           await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.randomPerson.address)
         ).to.be.equal(AdminRank.Unauthorized);
-        expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.superAdmin.address)).to.be.equal(
-          AdminRank.SuperAdmin
-        );
-        expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.admin.address)).to.be.equal(AdminRank.Admin);
-        expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.randomPerson.address)).to.be.equal(
-          AdminRank.Unauthorized
-        );
+      });
+      context('Admin ranks are querired for the non zero ID', function () {
+        it('reverts', async function () {
+          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.superAdmin.address)).to.be.revertedWith(
+            'adminnedId not zero'
+          );
+          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.admin.address)).to.be.revertedWith(
+            'adminnedId not zero'
+          );
+          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.randomPerson.address)).to.be.revertedWith(
+            'adminnedId not zero'
+          );
+        });
       });
     });
-    context('Admin ranks are not set for the zero ID', function () {
-      it('returns Unauthorized rank', async function () {
-        // Assign randomPerson as a superAdmin for a particular entity
-        // This operation has no effect and is likely a user error
-        // The user should have assigned the adminship for the zero ID as in the test cases above
-        await api3RequesterRrpAuthorizer
-          .connect(roles.metaAdmin)
-          .setRank(adminnedId, roles.randomPerson.address, AdminRank.SuperAdmin);
-        // The returned rank will be Unauthorized for a random adminned entity...
-        expect(await api3RequesterRrpAuthorizer.getRank(anotherId, roles.randomPerson.address)).to.be.equal(
-          AdminRank.Unauthorized
-        );
-        /// ... and even the entity it was assigned a superAdmin for
-        expect(await api3RequesterRrpAuthorizer.getRank(adminnedId, roles.randomPerson.address)).to.be.equal(
-          AdminRank.Unauthorized
-        );
+  });
+});
+
+describe('setRank', function () {
+  context('Admin ranks are set for the zero ID', function () {
+    context('Caller higher ranked than target admin', function () {
+      context('Caller higher ranked than set rank', function () {
+        it('sets rank for the adminned entity', async function () {
+          await expect(
+            api3RequesterRrpAuthorizer
+              .connect(roles.superAdmin)
+              .setRank(hre.ethers.constants.HashZero, roles.randomPerson.address, AdminRank.Admin)
+          )
+            .to.emit(api3RequesterRrpAuthorizer, 'SetRank')
+            .withArgs(
+              hre.ethers.constants.HashZero,
+              roles.randomPerson.address,
+              AdminRank.Admin,
+              roles.superAdmin.address
+            );
+          expect(
+            await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.randomPerson.address)
+          ).to.be.equal(AdminRank.Admin);
+        });
       });
+      context('Caller not higher ranked than set rank', function () {
+        it('reverts', async function () {
+          await expect(
+            api3RequesterRrpAuthorizer
+              .connect(roles.admin)
+              .setRank(hre.ethers.constants.HashZero, roles.randomPerson.address, AdminRank.Admin)
+          ).to.be.revertedWith('Caller ranked low');
+        });
+      });
+    });
+    context('Caller not higher ranked than target admin', function () {
+      it('reverts', async function () {
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setRank(hre.ethers.constants.HashZero, roles.anotherSuperAdmin.address, AdminRank.Admin)
+        ).to.be.revertedWith('Caller ranked low');
+      });
+    });
+  });
+
+  context('Admin ranks are set for non-zero ID', function () {
+    it('reverts', async function () {
+      await expect(
+        api3RequesterRrpAuthorizer
+          .connect(roles.superAdmin)
+          .setRank(adminnedId, roles.randomPerson.address, AdminRank.Admin)
+      ).to.be.revertedWith('adminnedId not zero');
+    });
+  });
+});
+
+describe('decreaseSelfRank', function () {
+  context('Admin ranks are set for the zero ID', function () {
+    context('Caller higher ranked than target rank', function () {
+      it("decreases caller's rank", async function () {
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .decreaseSelfRank(hre.ethers.constants.HashZero, AdminRank.Admin)
+        )
+          .to.emit(api3RequesterRrpAuthorizer, 'DecreasedSelfRank')
+          .withArgs(hre.ethers.constants.HashZero, roles.superAdmin.address, AdminRank.Admin);
+        expect(
+          await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.superAdmin.address)
+        ).to.be.equal(AdminRank.Admin);
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .decreaseSelfRank(hre.ethers.constants.HashZero, AdminRank.Unauthorized)
+        )
+          .to.emit(api3RequesterRrpAuthorizer, 'DecreasedSelfRank')
+          .withArgs(hre.ethers.constants.HashZero, roles.superAdmin.address, AdminRank.Unauthorized);
+        expect(
+          await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.superAdmin.address)
+        ).to.be.equal(AdminRank.Unauthorized);
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.admin)
+            .decreaseSelfRank(hre.ethers.constants.HashZero, AdminRank.Unauthorized)
+        )
+          .to.emit(api3RequesterRrpAuthorizer, 'DecreasedSelfRank')
+          .withArgs(hre.ethers.constants.HashZero, roles.admin.address, AdminRank.Unauthorized);
+        expect(
+          await api3RequesterRrpAuthorizer.getRank(hre.ethers.constants.HashZero, roles.admin.address)
+        ).to.be.equal(AdminRank.Unauthorized);
+      });
+    });
+    context('Caller not higher ranked than target rank', function () {
+      it('reverts', async function () {
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .decreaseSelfRank(hre.ethers.constants.HashZero, AdminRank.SuperAdmin)
+        ).to.be.revertedWith('Caller ranked low');
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.admin)
+            .decreaseSelfRank(hre.ethers.constants.HashZero, AdminRank.SuperAdmin)
+        ).to.be.revertedWith('Caller ranked low');
+        await expect(
+          api3RequesterRrpAuthorizer
+            .connect(roles.admin)
+            .decreaseSelfRank(hre.ethers.constants.HashZero, AdminRank.Admin)
+        ).to.be.revertedWith('Caller ranked low');
+      });
+    });
+  });
+  context('Admin ranks are set for non zero ID', function () {
+    it('reverts', async function () {
+      await expect(
+        api3RequesterRrpAuthorizer.connect(roles.superAdmin).decreaseSelfRank(adminnedId, AdminRank.Admin)
+      ).to.be.revertedWith('adminnedId not zero');
     });
   });
 });

@@ -24,23 +24,45 @@ contract Api3RequesterRrpAuthorizer is
     /// @param metaAdmin_ Address that will be set as the API3 metaAdmin
     constructor(address metaAdmin_) MetaAdminnable(metaAdmin_) {}
 
+    /// @notice Called by an admin of higher rank to set the rank of an admin of
+    /// lower rank
+    /// @dev Overriden to require only using bytes32(0) as the adminnedId
+    /// @param adminnedId ID of the entity being adminned
+    /// @param targetAdmin Target admin address
+    /// @param newRank Rank to be set
+    function setRank(
+        bytes32 adminnedId,
+        address targetAdmin,
+        uint256 newRank
+    ) public override(RankedAdminnable, IRankedAdminnable) {
+        require(adminnedId == bytes32(0), "adminnedId not zero");
+        super.setRank(adminnedId, targetAdmin, newRank);
+    }
+
+    /// @notice Called by an admin to decrease its rank
+    /// @dev Overriden to require only using bytes32(0) as the adminnedId
+    /// @param adminnedId ID of the entity being adminned
+    /// @param newRank Rank to be set
+    function decreaseSelfRank(bytes32 adminnedId, uint256 newRank)
+        public
+        override(RankedAdminnable, IRankedAdminnable)
+    {
+        require(adminnedId == bytes32(0), "adminnedId not zero");
+        super.decreaseSelfRank(adminnedId, newRank);
+    }
+
     /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Overriden to use MetaAdminnable ranks and ignore the `adminnedId`
-    /// the caller provides. The caller is recommended to use `bytes32(0)` as
-    /// the `adminnedId` here, see the @dev string of the contract and the docs
-    /// for more information.
-    /// @param adminnedId ID of the entity being adminned (not used)
+    /// @dev Overriding MetaAdminnable ranks to force `adminnedId`to be `bytes32(0)`
+    /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank
-    function getRank(
-        bytes32 adminnedId, // solhint-disable-line no-unused-vars
-        address admin
-    )
+    function getRank(bytes32 adminnedId, address admin)
         public
         view
         override(MetaAdminnable, RankedAdminnable, IRankedAdminnable)
         returns (uint256)
     {
-        return MetaAdminnable.getRank(bytes32(0), admin);
+        require(adminnedId == bytes32(0), "adminnedId not zero");
+        return MetaAdminnable.getRank(adminnedId, admin);
     }
 }

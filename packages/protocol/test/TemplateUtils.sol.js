@@ -1,3 +1,5 @@
+/* globals context */
+
 const hre = require('hardhat');
 const { expect } = require('chai');
 const utils = require('./utils');
@@ -16,24 +18,43 @@ beforeEach(async () => {
 });
 
 describe('createTemplate', function () {
-  it('creates template', async function () {
-    const airnode = utils.generateRandomAddress();
-    const endpointId = utils.generateRandomBytes32();
-    const parameters = utils.generateRandomBytes();
-    const templateId = hre.ethers.utils.keccak256(
-      hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnode, endpointId, parameters])
-    );
-    const templateBeforeCreation = await airnodeRrp.templates(templateId);
-    expect(templateBeforeCreation.airnode).to.equal(hre.ethers.constants.AddressZero);
-    expect(templateBeforeCreation.endpointId).to.equal(hre.ethers.constants.HashZero);
-    expect(templateBeforeCreation.parameters).to.equal('0x');
-    await expect(airnodeRrp.connect(roles.randomPerson).createTemplate(airnode, endpointId, parameters))
-      .to.emit(airnodeRrp, 'CreatedTemplate')
-      .withArgs(templateId, airnode, endpointId, parameters);
-    const templateAfterCreation = await airnodeRrp.templates(templateId);
-    expect(templateAfterCreation.airnode).to.equal(airnode);
-    expect(templateAfterCreation.endpointId).to.equal(endpointId);
-    expect(templateAfterCreation.parameters).to.equal(parameters);
+  context('airnode address is non-zero', function () {
+    it('creates template', async function () {
+      const airnode = utils.generateRandomAddress();
+      const endpointId = utils.generateRandomBytes32();
+      const parameters = utils.generateRandomBytes();
+      const templateId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnode, endpointId, parameters])
+      );
+      const templateBeforeCreation = await airnodeRrp.templates(templateId);
+      expect(templateBeforeCreation.airnode).to.equal(hre.ethers.constants.AddressZero);
+      expect(templateBeforeCreation.endpointId).to.equal(hre.ethers.constants.HashZero);
+      expect(templateBeforeCreation.parameters).to.equal('0x');
+      await expect(airnodeRrp.connect(roles.randomPerson).createTemplate(airnode, endpointId, parameters))
+        .to.emit(airnodeRrp, 'CreatedTemplate')
+        .withArgs(templateId, airnode, endpointId, parameters);
+      const templateAfterCreation = await airnodeRrp.templates(templateId);
+      expect(templateAfterCreation.airnode).to.equal(airnode);
+      expect(templateAfterCreation.endpointId).to.equal(endpointId);
+      expect(templateAfterCreation.parameters).to.equal(parameters);
+    });
+  });
+  context('airnode address is zero', function () {
+    it('reverts', async function () {
+      const airnode = hre.ethers.constants.AddressZero;
+      const endpointId = utils.generateRandomBytes32();
+      const parameters = utils.generateRandomBytes();
+      const templateId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnode, endpointId, parameters])
+      );
+      const templateBeforeCreation = await airnodeRrp.templates(templateId);
+      expect(templateBeforeCreation.airnode).to.equal(hre.ethers.constants.AddressZero);
+      expect(templateBeforeCreation.endpointId).to.equal(hre.ethers.constants.HashZero);
+      expect(templateBeforeCreation.parameters).to.equal('0x');
+      await expect(
+        airnodeRrp.connect(roles.randomPerson).createTemplate(airnode, endpointId, parameters)
+      ).to.be.revertedWith('airnode address zero');
+    });
   });
 });
 

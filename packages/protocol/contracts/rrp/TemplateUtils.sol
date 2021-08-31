@@ -33,6 +33,7 @@ contract TemplateUtils is ITemplateUtils {
         bytes32 endpointId,
         bytes calldata parameters
     ) external override returns (bytes32 templateId) {
+        require(airnode != address(0), "airnode address zero");
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );

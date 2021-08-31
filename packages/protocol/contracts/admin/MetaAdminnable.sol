@@ -10,7 +10,7 @@ contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
     /// @notice The metaAdmin has the maximum possible rank
     address public override metaAdmin;
 
-    uint256 private constant MAX_RANK = 2**256 - 1;
+    uint256 private constant MAX_RANK = type(uint256).max;
 
     /// @param metaAdmin_ Initial metaAdmin
     constructor(address metaAdmin_) {
