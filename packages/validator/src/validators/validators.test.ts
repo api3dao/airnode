@@ -12,7 +12,12 @@ import { getPath } from '../commands/utils';
 import { Log } from '../types';
 
 const messages: Log[] = [];
-const apiTemplate = JSON.parse(fs.readFileSync(getPath('apiSpecifications.json', messages), 'utf8'));
+const apiPath = getPath('apiSpecifications.json', messages);
+let apiTemplate: object;
+
+if (apiPath) {
+  apiTemplate = JSON.parse(fs.readFileSync(apiPath, 'utf8'));
+}
 
 describe('validators integration test', () => {
   it('valid specification', () => {
