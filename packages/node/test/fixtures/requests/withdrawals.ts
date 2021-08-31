@@ -11,7 +11,7 @@ export function buildWithdrawal(params?: Partial<Request<Withdrawal>>): Request<
     sponsorWallet: 'sponsorWallet',
     id: 'withdrawalId',
     metadata,
-    sponsorAddress: '1', //TODO: fix value
+    sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
     status: RequestStatus.Pending,
     ...params,
   };

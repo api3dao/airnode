@@ -33,24 +33,20 @@ export function getMasterHDNode(config: Config): ethers.utils.HDNode {
   return ethers.utils.HDNode.fromMnemonic(mnemonic);
 }
 
-export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {
-  return masterHDNode.neuter().extendedKey;
+export function getAirnodeWallet(config: Config): ethers.Wallet {
+  const mnemonic = getMasterKeyMnemonic(config);
+  return ethers.Wallet.fromMnemonic(mnemonic);
 }
 
-export function getWallet(privateKey: string): ethers.Wallet {
-  return new ethers.Wallet(privateKey);
+export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {
+  return masterHDNode.neuter().extendedKey;
 }
 
 export function getAirnodeAddressShort(airnodeAddress: string): string {
   return airnodeAddress.substring(2, 9);
 }
 
-export function deriveSponsorWalletAddress(masterHDNode: ethers.utils.HDNode, sponsorAddress: string): string {
-  const sponsorWalletHdNode = masterHDNode.derivePath(deriveWalletPathFromSponsorAddress(sponsorAddress));
-  return sponsorWalletHdNode.address;
-}
-
 export function deriveSponsorWallet(masterHDNode: ethers.utils.HDNode, sponsorAddress: string): ethers.Wallet {
   const sponsorWalletHdNode = masterHDNode.derivePath(deriveWalletPathFromSponsorAddress(sponsorAddress));
-  return getWallet(sponsorWalletHdNode.privateKey);
+  return new ethers.Wallet(sponsorWalletHdNode.privateKey);
 }

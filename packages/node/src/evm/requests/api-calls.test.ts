@@ -15,16 +15,17 @@ describe('initialize (ApiCall)', () => {
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
-      airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       chainId: '31337',
       requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      sponsorWallet: '0xD748Bc4212d8130879Ec4F24B950cAAb9EddfCB2',
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+      sponsorWallet: '0x4F716a9a20D03be77753F3D3e856a5e180995Eda',
       endpointId: null,
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       fulfillFunctionId: '0x48a4157c',
       encodedParameters:
-        '0x316262000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000746f0000000000000000000000000000000000000000000000000000000000005553440000000000000000000000000000000000000000000000000000000000',
-      id: '0x676274e2d1979dbdbd0b6915276fcb2cc3fb3be32862eab9d1d201882edc8c93',
+        '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+      id: '0x0cde2637ece0845ecbb7d59e38f2679960455459830007f11994e05595808147',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
@@ -33,9 +34,8 @@ describe('initialize (ApiCall)', () => {
       },
       parameters: {},
       requestCount: '1',
-      requesterIndex: '5',
       status: RequestStatus.Pending,
-      templateId: '0x41e0458b020642796b14db9bb790bcdebab805ec4b639232277f0e007b088796',
+      templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
       type: 'regular',
     });
   });
@@ -52,11 +52,11 @@ describe('initialize (ApiCall)', () => {
     };
     const regular = {
       ...base,
-      parsedLog: { ...base.parsedLog, topic: '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf' },
+      parsedLog: { ...base.parsedLog, topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
     };
     const full = {
       ...base,
-      parsedLog: { ...base.parsedLog, topic: '0xe8ae99161b1547fd1c6ff3cb9660293fa4cd770fd52f72ff0362d64d8bccc08e' },
+      parsedLog: { ...base.parsedLog, topic: '0x3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae' },
     };
 
     expect(apiCalls.initialize(regular).type).toEqual('regular');
@@ -93,7 +93,7 @@ describe('applyParameters', () => {
     expect(request.parameters).toEqual({});
     const [logs, withDecodedParameters] = apiCalls.applyParameters(request);
     expect(logs).toEqual([]);
-    expect(withDecodedParameters).toEqual({ ...request, parameters: { from: 'ETH', to: 'USD' } });
+    expect(withDecodedParameters).toEqual({ ...request, parameters: { from: 'ETH' } });
   });
 
   it('sets the request to errored if the parameters cannot be decoded', () => {
@@ -132,6 +132,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
         airnodeAddress: 'airnodeAddress',
         chainId: '31337',
         requesterAddress: 'requesterAddress',
+        sponsorAddress: 'sponsorAddress',
         sponsorWallet: 'sponsorWallet',
         endpointId: 'endpointId',
         fulfillAddress: 'fulfillAddress',
@@ -145,7 +146,6 @@ describe('updateFulfilledRequests (ApiCall)', () => {
         },
         parameters: { from: 'ETH' },
         requestCount: '12',
-        requesterIndex: '3',
         status: RequestStatus.Fulfilled,
         templateId: null,
         type: 'regular',
@@ -176,27 +176,27 @@ describe('mapRequests (ApiCall)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         chainId: '31337',
         requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-        sponsorWallet: '0xD748Bc4212d8130879Ec4F24B950cAAb9EddfCB2',
+        sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+        sponsorWallet: '0x4F716a9a20D03be77753F3D3e856a5e180995Eda',
         endpointId: null,
         fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         fulfillFunctionId: '0x48a4157c',
         encodedParameters:
-          '0x316262000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000746f0000000000000000000000000000000000000000000000000000000000005553440000000000000000000000000000000000000000000000000000000000',
-        id: '0x676274e2d1979dbdbd0b6915276fcb2cc3fb3be32862eab9d1d201882edc8c93',
+          '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
+        id: '0x0cde2637ece0845ecbb7d59e38f2679960455459830007f11994e05595808147',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        parameters: { from: 'ETH', to: 'USD' },
+        parameters: { from: 'ETH' },
         requestCount: '1',
-        requesterIndex: '5',
         status: RequestStatus.Pending,
-        templateId: '0x41e0458b020642796b14db9bb790bcdebab805ec4b639232277f0e007b088796',
+        templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
         type: 'regular',
       },
     ]);

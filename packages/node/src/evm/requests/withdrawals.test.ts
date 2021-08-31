@@ -16,16 +16,16 @@ describe('initialize (Withdrawal)', () => {
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
-      airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      sponsorWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-      id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+      sponsorWallet: '0x46195a88814AF86B4Cc7E550841f9B942Fff9E30',
+      id: '0x4a6d3c568729d35c367ba5c5881e31d75da605beaa03c04c7a463419b528847d',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      sponsorAddress: '1', //TODO: fix value
+      sponsorAddress: '0x64119dAe15B0c1972A2c1DbbC1f435C78e121460',
       status: RequestStatus.Pending,
     });
   });
@@ -53,7 +53,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: 'logTransactionHash',
         },
-        sponsorAddress: '1', //TODO: fix value
+        sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
         status: RequestStatus.Fulfilled,
       },
     ]);
@@ -82,16 +82,16 @@ describe('mapRequests (Withdrawal)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        airnodeAddress: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        sponsorWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-        id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+        sponsorWallet: '0x46195a88814AF86B4Cc7E550841f9B942Fff9E30',
+        id: '0x4a6d3c568729d35c367ba5c5881e31d75da605beaa03c04c7a463419b528847d',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        sponsorAddress: '1', //TODO: fix value
+        sponsorAddress: '0x64119dAe15B0c1972A2c1DbbC1f435C78e121460',
         status: RequestStatus.Pending,
       },
     ]);

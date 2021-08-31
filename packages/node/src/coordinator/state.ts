@@ -4,11 +4,12 @@ import { Config, CoordinatorSettings, CoordinatorState } from '../types';
 
 export function create(config: Config): CoordinatorState {
   const id = randomString(8);
-  const masterHDNode = wallet.getMasterHDNode(config);
+  const airnodeAddress = wallet.getAirnodeWallet().address;
+  const airnodeAddressShort = wallet.getAirnodeAddressShort(airnodeAddress);
 
   const settings: CoordinatorSettings = {
-    airnodeAddress: masterHDNode.address,
-    airnodeAddressShort: wallet.getAirnodeAddressShort(masterHDNode.address),
+    airnodeAddress,
+    airnodeAddressShort,
     logFormat: config.nodeSettings.logFormat,
     logLevel: config.nodeSettings.logLevel,
     region: config.nodeSettings.region,

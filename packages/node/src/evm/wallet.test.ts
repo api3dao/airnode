@@ -13,39 +13,26 @@ describe('getExtendedPublicKey', () => {
   });
 });
 
-describe('getWallet', () => {
-  it('returns the wallet for the given private key', () => {
-    const masterHDNode = wallet.getMasterHDNode(config);
-    const masterWallet = wallet.getWallet(masterHDNode.privateKey);
-    expect(masterWallet.address).toEqual('0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7');
+describe('getAirnodeWallet', () => {
+  it('returns the airnode wallet', () => {
+    const airnodeWallet = wallet.getAirnodeWallet(config);
+    expect(airnodeWallet.address).toEqual('0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace');
   });
 });
 
 describe('getAirnodeAddressShort', () => {
   it('returns a shortened airnodeAddress', () => {
-    const masterHDNode = wallet.getMasterHDNode(config);
-    const res = wallet.getAirnodeAddressShort(masterHDNode.address);
-    expect(res).toEqual('19255a4e');
-  });
-});
-
-describe('deriveSponsorWalletAddress', () => {
-  it('returns the wallet address for the given sponsor', () => {
-    const masterHDNode = wallet.getMasterHDNode(config);
-    const adminWallet = wallet.deriveSponsorWalletAddress(masterHDNode, '0'); //TODO: fix value
-    const wallet1 = wallet.deriveSponsorWalletAddress(masterHDNode, '1'); //TODO: fix value
-    const wallet2 = wallet.deriveSponsorWalletAddress(masterHDNode, '777'); //TODO: fix value
-    expect(adminWallet).toEqual('0xF47dD64127f46ca44679647BC1B3c6B248bf79A0');
-    expect(wallet1).toEqual('0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E');
-    expect(wallet2).toEqual('0x5547c2B0420D120f1DE7767c9BE451705df5a4E5');
+    const airnodeWallet = wallet.getAirnodeWallet(config);
+    const res = wallet.getAirnodeAddressShort(airnodeWallet.address);
+    expect(res).toEqual('A30CA71');
   });
 });
 
 describe('deriveSponsorWallet', () => {
   it('returns the wallet for the given sponsor', () => {
     const masterHDNode = wallet.getMasterHDNode(config);
-    const signingWallet = wallet.deriveSponsorWallet(masterHDNode, '0'); //TODO: fix value
+    const signingWallet = wallet.deriveSponsorWallet(masterHDNode, '0x06f509f73eefba36352bc8228f9112c3786100da');
     expect(signingWallet._isSigner).toEqual(true);
-    expect(signingWallet.address).toEqual('0xF47dD64127f46ca44679647BC1B3c6B248bf79A0');
+    expect(signingWallet.address).toEqual('0x1492D895B7d597c645eB96D54f8F872d879BA7fE');
   });
 });

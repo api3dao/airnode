@@ -10,7 +10,13 @@ describe('TEMPLATE_VALIDATION_FIELDS', () => {
 });
 
 describe('verify', () => {
-  const TEMPLATE_ID = '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b';
+  const validTemplateFiels = {
+    airnodeAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+    endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
+    encodedParameters: '0x6466726f6d63455448',
+  };
+
+  const TEMPLATE_ID = '0xb2f063157fcc3c986daf4c2cf1b8ac8b8843f2b1a54c5de5e1ebdf12fb85a927';
 
   it('returns API calls not linked to templates', () => {
     const apiCall = fixtures.requests.buildApiCall({ templateId: null });
@@ -49,12 +55,10 @@ describe('verify', () => {
 
   it('does nothing where API calls are linked to a valid templated', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
+      templateId: TEMPLATE_ID,
     });
     const template = fixtures.requests.buildApiCallTemplate({
-      airnodeAddress: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
-      encodedParameters: '0x6466726f6d63455448',
-      endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
+      ...validTemplateFiels,
       id: TEMPLATE_ID,
     });
     const templatesById = { [TEMPLATE_ID]: template };
@@ -67,20 +71,18 @@ describe('verify', () => {
 
   describe('invalid fields', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
+      templateId: TEMPLATE_ID,
     });
 
     const validTemplate = fixtures.requests.buildApiCallTemplate({
-      airnodeAddress: '0x9e5a89de5a7e780b9eb5a61425a3a656f0c891ac4c56c07037d257724af490c9',
-      encodedParameters: '0x6466726f6d63455448',
-      endpointId: '0x2f3a3adf6daf5a3bb00ab83aa82262a6a84b59b0a89222386135330a1819ab48',
+      ...validTemplateFiels,
       id: TEMPLATE_ID,
     });
 
     const invalidFields = {
-      airnodeAddress: '0x3b962eb40ef492a072bf909333d21edae14d2975a9d67c190f0585a1cf655479',
-      encodedParameters: '0x1234',
+      airnodeAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
+      encodedParameters: '0x1234',
     };
 
     it('validates all template fields', () => {

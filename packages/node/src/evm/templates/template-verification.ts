@@ -11,7 +11,7 @@ export const TEMPLATE_VALIDATION_FIELDS = ['airnodeAddress', 'endpointId', 'enco
 
 export function getExpectedTemplateId(template: ApiCallTemplate): string {
   const templateValues = TEMPLATE_VALIDATION_FIELDS.map((f) => template[f as keyof ApiCallTemplate]);
-  const encodedValues = ethers.utils.defaultAbiCoder.encode(['address', 'bytes32', 'bytes'], templateValues);
+  const encodedValues = ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], templateValues);
   return ethers.utils.keccak256(encodedValues);
 }
 

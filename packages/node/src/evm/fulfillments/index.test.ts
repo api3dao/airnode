@@ -1,5 +1,4 @@
 import { mockEthers } from '../../../test/mock-utils';
-const connectMock = jest.fn();
 const estimateWithdrawalGasMock = jest.fn();
 const failMock = jest.fn();
 const fulfillMock = jest.fn();
@@ -14,11 +13,6 @@ mockEthers({
     fail: failMock,
     fulfill: fulfillMock,
     fulfillWithdrawal: fulfillWithdrawalMock,
-  },
-  ethersMocks: {
-    Wallet: jest.fn().mockImplementation(() => ({
-      connect: connectMock,
-    })),
   },
 });
 
@@ -38,10 +32,24 @@ describe('submit', () => {
   it('submits transactions for multiple wallets and returns the transactions', async () => {
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.buildApiCall({ id: '0x1', nonce: 10, sponsorAddress: '6' }), //TODO: fix value
-        fixtures.requests.buildApiCall({ id: '0x2', nonce: 11, sponsorAddress: '7' }), //TODO: fix value
+        fixtures.requests.buildApiCall({
+          id: '0x1',
+          nonce: 10,
+          sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+        }),
+        fixtures.requests.buildApiCall({
+          id: '0x2',
+          nonce: 11,
+          sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+        }),
       ],
-      withdrawals: [fixtures.requests.buildWithdrawal({ id: '0x5', nonce: 3, sponsorAddress: '8' })],
+      withdrawals: [
+        fixtures.requests.buildWithdrawal({
+          id: '0x5',
+          nonce: 3,
+          sponsorAddress: '0x212b5E1221057415074541852F1D4D9337BF9ca6',
+        }),
+      ],
     };
     const gasPrice = ethers.BigNumber.from(1000);
     const provider = new ethers.providers.JsonRpcProvider();
@@ -71,7 +79,12 @@ describe('submit', () => {
   });
 
   it('returns error responses for API calls', async () => {
-    const apiCall = fixtures.requests.buildApiCall({ id: '0x1', nonce: 5, responseValue: '0xresponse' });
+    const apiCall = fixtures.requests.buildApiCall({
+      id: '0x1',
+      nonce: 5,
+      responseValue: '0xresponse',
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+    });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],
@@ -89,7 +102,11 @@ describe('submit', () => {
   });
 
   it('returns error responses for withdrawals', async () => {
-    const withdrawal = fixtures.requests.buildWithdrawal({ id: '0x5', nonce: 3 });
+    const withdrawal = fixtures.requests.buildWithdrawal({
+      id: '0x5',
+      nonce: 3,
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+    });
     const requests: GroupedRequests = {
       apiCalls: [],
       withdrawals: [withdrawal],
