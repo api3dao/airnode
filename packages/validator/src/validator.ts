@@ -64,7 +64,7 @@ export function validateJsonWithTemplate(specs: object, templateName: string | u
 
   const templatePath = utils.getPath(templates[templateName.toLowerCase() as keyof typeof templates], messages);
 
-  if (messages.length) {
+  if (messages.length || !templatePath) {
     return { valid: false, messages };
   }
 

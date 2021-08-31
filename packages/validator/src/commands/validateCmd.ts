@@ -22,8 +22,9 @@ const args = yargs(hideBin(process.argv))
   })
   .parseSync();
 
+let template: string | null, version;
 // eslint-disable-next-line prefer-const
-let [template, version] = args.template.split('@');
+[template, version] = args.template.split('@');
 
 if (templates[template.toLowerCase() as keyof typeof templates]) {
   template = utils.getPath(templates[template.toLowerCase() as keyof typeof templates], messages, version);
@@ -31,6 +32,13 @@ if (templates[template.toLowerCase() as keyof typeof templates]) {
   messages.push(logger.warn('Version argument will be ignored when validating provided template file'));
 }
 
-const res = validate(args.specification, template);
-res.messages.push(...messages);
+let res;
+
+if (template) {
+  res = validate(args.specification, template);
+  res.messages.push(...messages);
+} else {
+  res = messages;
+}
+
 console.log(JSON.stringify(res, null, 2));
