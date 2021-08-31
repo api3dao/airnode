@@ -5,7 +5,7 @@ import * as fixtures from '../fixtures';
 import * as handlers from '../../src/workers/local-handlers';
 import * as wallet from '../../src/evm/wallet';
 
-it.only('processes withdrawals only once', async () => {
+it('processes withdrawals only once', async () => {
   jest.setTimeout(45_000);
 
   const provider = e2e.buildProvider();
