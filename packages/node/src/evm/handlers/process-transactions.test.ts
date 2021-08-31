@@ -41,13 +41,20 @@ describe('processTransactions', () => {
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
-    const apiCall = fixtures.requests.buildSubmittableApiCall({ sponsorAddress: '4' }); //TODO: fix value
-    const withdrawal = fixtures.requests.buildWithdrawal({ sponsorAddress: '5' }); //TODO: fix value
+    const apiCall = fixtures.requests.buildSubmittableApiCall({
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+    });
+    const withdrawal = fixtures.requests.buildWithdrawal({
+      sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
+    });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],
     };
-    const transactionCountsBySponsorAddress = { 4: 79, 5: 212 }; //TODO: fix value
+    const transactionCountsBySponsorAddress = {
+      '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6': 79,
+      '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E': 212,
+    };
     const state = fixtures.buildEVMProviderState({
       requests,
       transactionCountsBySponsorAddress,
@@ -101,12 +108,14 @@ describe('processTransactions', () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
 
-    const apiCall = fixtures.requests.buildSubmittableApiCall({ sponsorAddress: '4' }); //TODO: fix value
+    const apiCall = fixtures.requests.buildSubmittableApiCall({
+      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+    });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const transactionCountsBySponsorAddress = { 4: 79 }; //TODO: fix value
+    const transactionCountsBySponsorAddress = { '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6': 79 };
     const state = fixtures.buildEVMProviderState({
       requests,
       transactionCountsBySponsorAddress,

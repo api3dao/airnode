@@ -10,6 +10,7 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
     airnodeAddress: 'airnodeAddress',
     chainId: '31337',
     requesterAddress: 'requesterAddress',
+    sponsorAddress: 'sponsorAddress',
     sponsorWallet: 'sponsorWallet',
     encodedParameters: 'encodedParameters',
     endpointId: 'endpointId',
@@ -19,7 +20,6 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
     metadata,
     parameters: { from: 'ETH' },
     requestCount: '12',
-    sponsorAddress: '3', //TODO: fix value
     status: RequestStatus.Pending,
     templateId: null,
     type: 'regular',

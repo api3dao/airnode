@@ -18,9 +18,9 @@ it('does not process requests twice', async () => {
 
   const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
   const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
-  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
 
-  expect(preinvokeLogs.length).toEqual(7);
+  expect(preinvokeLogs.length).toEqual(5);
   expect(preinvokeRegularRequests.length).toEqual(1);
   expect(preinvokeFullRequests.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
@@ -38,9 +38,9 @@ it('does not process requests twice', async () => {
 
   const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
   const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
-  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
 
-  expect(postinvokeLogs.length).toEqual(9);
+  expect(postinvokeLogs.length).toEqual(7);
   expect(postinvokeRegularRequests.length).toEqual(1);
   expect(postinvokeFullRequests.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(2);

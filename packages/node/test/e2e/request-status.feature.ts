@@ -48,7 +48,7 @@ it('sets the correct status code for both successful and failed requests', async
   const encodedValidParams = encode(validParameters);
   const validRequest = logs.find((log) => log.args.parameters === encodedValidParams);
   const validFulfillment = logs.find(
-    (log) => log.args.requestId === validRequest!.args.requestId && log.name === 'MadeTemplateRequest'
+    (log) => log.args.requestId === validRequest!.args.requestId && log.name === 'FulfilledRequest'
   );
   // The API responds with 723.392028 which multipled by the _times parameter
   const validResponseValue = ethers.BigNumber.from(validFulfillment!.args.data).toString();
@@ -59,7 +59,7 @@ it('sets the correct status code for both successful and failed requests', async
   const encodedInvalidParams = encode(invalidParameters);
   const invalidRequest = logs.find((log) => log.args.parameters === encodedInvalidParams);
   const invalidFulfillment = logs.find(
-    (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'MadeTemplateRequest'
+    (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'FulfilledRequest'
   );
   // There is no valid response data to return so this is empty
   const invalidResponseValue = ethers.BigNumber.from(invalidFulfillment!.args.data).toString();

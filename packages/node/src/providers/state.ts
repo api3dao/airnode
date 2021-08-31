@@ -12,10 +12,11 @@ export function buildEVMState(
   const masterHDNode = evm.getMasterHDNode(config);
   const chainProviderUrl = chain.providers[chainProviderName].url || '';
   const provider = evm.buildEVMProvider(chainProviderUrl, chain.id);
+  const airnodeAddress = evm.getAirnodeWallet().address;
 
   const providerSettings: ProviderSettings = {
-    airnodeAddress: masterHDNode.address,
-    airnodeAddressShort: evm.getAirnodeAddressShort(masterHDNode.address),
+    airnodeAddress,
+    airnodeAddressShort: evm.getAirnodeAddressShort(airnodeAddress),
     authorizers: chain.authorizers,
     // The number of blocks to look back for events to process
     blockHistoryLimit: chain.blockHistoryLimit || BLOCK_COUNT_HISTORY_LIMIT,

@@ -10,7 +10,7 @@ it('processes withdrawals only once', async () => {
 
   const provider = e2e.buildProvider();
 
-  const requests = [fixtures.operation.buildWithdrawal({ sponsorId: 'alice' })];
+  const requests = [fixtures.operation.buildWithdrawal()];
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
@@ -31,13 +31,13 @@ it('processes withdrawals only once', async () => {
   const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
 
-  expect(preinvokeLogs.length).toEqual(6);
+  expect(preinvokeLogs.length).toEqual(4);
   expect(preinvokeWithdrawals.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
   const alice = deployment.sponsors.find((s) => s.id === 'alice');
   const hdNode = wallet.getMasterHDNode(config);
-  const sponsorWalletAddress = wallet.deriveSponsorWalletAddress(hdNode, alice!.address);
+  const sponsorWalletAddress = wallet.deriveSponsorWallet(hdNode, alice!.address).address;
 
   // It's difficult to check exact balances because the sponsor has made transactions at this
   // point, so check current balance is > 1.99 ETH and < 2.01 ETH
@@ -64,7 +64,7 @@ it('processes withdrawals only once', async () => {
   const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
 
-  expect(postinvokeLogs.length).toEqual(7);
+  expect(postinvokeLogs.length).toEqual(5);
   expect(postinvokeWithdrawals.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(1);
 
@@ -72,7 +72,7 @@ it('processes withdrawals only once', async () => {
 
   // Withdrawals are not processed twice
   const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(run2Logs.length).toEqual(7);
+  expect(run2Logs.length).toEqual(5);
 
   // Balances have not changed
   const run2Balance = await provider.getBalance(alice!.address);

@@ -21,7 +21,7 @@ async function getWalletTransactionCount(
   sponsorAddress: string,
   options: FetchOptions
 ): Promise<LogsData<TransactionCountBySponsorAddress | null>> {
-  const address = wallet.deriveSponsorWalletAddress(options.masterHDNode, sponsorAddress);
+  const address = wallet.deriveSponsorWallet(options.masterHDNode, sponsorAddress).address;
   const operation = () => options.provider.getTransactionCount(address, options.currentBlock);
   const [err, count] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || count === null) {
