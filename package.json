@@ -57,8 +57,7 @@
     "test:e2e-node:debug": "cd packages/node && yarn run test:e2e:debug",
     "test:protocol": "cd packages/protocol && yarn run test",
     "test:node": "(cd packages/node && yarn run test)",
-    "test:node:watch": "(cd packages/node && yarn run test:watch)",
-    "test:node:watch:debug": "(cd packages/node && yarn run test:watch:debug)"
+    "test:node:watch": "cd packages/node && yarn run test:watch"
   },
   "dependencies": {
     "ethers": "^5.1.4",

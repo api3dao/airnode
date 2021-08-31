@@ -25,7 +25,7 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
-      id: '0x59baf63a2e0158c33a79b94ad3cfdadb98fb8f7d17c8dd3508c68ecfc8af069a',
+      id: '0x12a4d7f900adf1a6e47f16fcfa67db7311294d3354224078ee43f81dd5394fb2',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
       type: 'regular',
@@ -42,7 +42,7 @@ describe('verifyApiCallIds', () => {
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
-      id: '0x085fe3d214bc539fcab8d8f6165655c8f2bcdd060410e093d8151b5707c025a7',
+      id: '0x6acbe45e5e9fbd490991b10c7393ffdb88653b02b98d6cad570adcee52e4b4b6',
       requestCount: '0',
       templateId: null,
       type: 'full',
@@ -62,7 +62,7 @@ describe('verifyApiCallIds', () => {
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
       type: 'regular',
     });
-    const expectedId = '0x59baf63a2e0158c33a79b94ad3cfdadb98fb8f7d17c8dd3508c68ecfc8af069a';
+    const expectedId = '0x12a4d7f900adf1a6e47f16fcfa67db7311294d3354224078ee43f81dd5394fb2';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
@@ -80,7 +80,7 @@ describe('verifyApiCallIds', () => {
       templateId: null,
       type: 'full',
     });
-    const expectedId = '0x085fe3d214bc539fcab8d8f6165655c8f2bcdd060410e093d8151b5707c025a7';
+    const expectedId = '0x6acbe45e5e9fbd490991b10c7393ffdb88653b02b98d6cad570adcee52e4b4b6';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
