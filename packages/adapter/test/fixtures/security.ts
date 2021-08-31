@@ -1,9 +1,11 @@
-import { ApiCredentials } from '@api3/ois';
+import { ApiCredentials } from '../../src/types';
 
-export function buildCredentials(overrides?: Partial<ApiCredentials>): ApiCredentials {
-  return {
-    securityScheme: 'myapiApiScheme',
-    value: 'super-secret-key',
-    ...overrides,
-  };
+export function buildCredentials(overrides?: Partial<ApiCredentials>): ApiCredentials[] {
+  return [
+    {
+      securitySchemeName: 'myapiApiScheme',
+      securitySchemeValue: 'super-secret-key',
+      ...overrides,
+    },
+  ];
 }

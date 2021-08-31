@@ -8,7 +8,7 @@ export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): B
     ois,
     endpointName: 'convertToUSD',
     parameters: { f: 'ETH', amount: '1' },
-    credentials: buildCredentials(),
+    apiCredentials: buildCredentials(),
     ...overrides,
   };
 }
