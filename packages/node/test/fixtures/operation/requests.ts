@@ -1,7 +1,7 @@
 import { ReservedParameterName } from '@api3/ois';
 import { FullRequest, TemplateRequest, Request } from '@api3/operation';
 
-export function buildRegularRequest(overrides?: Partial<TemplateRequest>): TemplateRequest {
+export function buildTemplateRequest(overrides?: Partial<TemplateRequest>): TemplateRequest {
   return {
     sponsorId: 'bob',
     type: 'template',

@@ -22,7 +22,7 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
     requestCount: '12',
     status: RequestStatus.Pending,
     templateId: null,
-    type: 'regular',
+    type: 'template',
     ...params,
   };
 }

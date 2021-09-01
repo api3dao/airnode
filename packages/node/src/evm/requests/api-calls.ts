@@ -19,7 +19,7 @@ import {
 function getApiCallType(topic: string): ApiCallType {
   switch (topic) {
     case airnodeRrpTopics.MadeTemplateRequest:
-      return 'regular';
+      return 'template';
     case airnodeRrpTopics.MadeFullRequest:
       return 'full';
     // This should never be reached
