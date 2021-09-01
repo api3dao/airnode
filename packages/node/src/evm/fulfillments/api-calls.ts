@@ -46,7 +46,7 @@ async function testFulfill(
     `Attempting to fulfill API call with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const operation = () =>
+  const operation = (): Promise<StaticResponse> =>
     airnodeRrp.callStatic.fulfill(
       request.id,
       // TODO: make sure airnodeAddress is not null
@@ -81,7 +81,7 @@ async function submitFulfill(
     `Submitting API call fulfillment with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const tx = () =>
+  const tx = (): Promise<ethers.Transaction> =>
     airnodeRrp.fulfill(
       request.id,
       // TODO: make sure airnodeAddress is not null
@@ -105,7 +105,7 @@ async function submitFulfill(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as ethers.Transaction];
+  return [[noticeLog], null, res];
 }
 
 async function testAndSubmitFulfill(
@@ -155,7 +155,7 @@ async function submitFail(
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
-  const tx = () =>
+  const tx = (): Promise<ethers.Transaction> =>
     // TODO: make sure airnodeAddress is not null
     airnodeRrp.fail(request.id, request.airnodeAddress!, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
@@ -167,7 +167,7 @@ async function submitFail(
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as ethers.Transaction];
+  return [[noticeLog], null, res];
 }
 
 // =================================================================

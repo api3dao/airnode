@@ -22,7 +22,7 @@ export function buildConfig(overrides?: Partial<Config>): Config {
   return {
     chains: [
       {
-        authorizers: ['0x0000000000000000000000000000000000000000'],
+        authorizers: [],
         contracts: {
           AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
         },
