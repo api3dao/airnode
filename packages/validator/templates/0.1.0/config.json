@@ -2,7 +2,7 @@
 	"__arrayItem": {
 		"ois": {
 			"__arrayItem": {
-				"__template": "../1.0.0/ois.json",
+				"__template": "ois.json",
 				"apiSpecifications": {
 					"components": {
 						"securitySchemes": {
@@ -269,9 +269,6 @@
 					]
 				}
 			}
-		},
-		"id": {
-			"__regexp": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 		}
 	}
 }

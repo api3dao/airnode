@@ -59,21 +59,18 @@ Built-in validator extension capable of conversions between various specificatio
 
 Convertor works the same way as validator and can be invoked with the `convert` command, for example:
 ```sh
-yarn run convert --template="templates/3.0.0/OAS2OIS.json" --specs="exampleSpecs/OAS.specs.json"
+yarn run convert --template="templates/conversion/oas@3.0.0->ois@0.1.0.json" --specs="exampleSpecs/OAS.specs.json"
 ```
 
 Conversions can be invoked without providing any template, specifying which format provided specification is in and to which format it should be converted into, is enough:
 ```sh
-yarn run convert --from="OAS" --to="Config" --specs="exampleSpecs/OAS.specs.json"
+yarn run convert --from="OAS" --to="OIS" --specs="exampleSpecs/OAS.specs.json"
 ```
 
-From/to formats are case-insensitive, these are valid conversions:
-
-| From | To |
-| ----- | -----|
-| oas | ois |
-| oas | config |
-| ois | config |
+Specification formats are case-insensitive, currently available conversions are from `OAS` to `OIS` or from `OIS` to `config`. Version of the format can be provided as in `validate` command:
+```sh
+yarn run convert --from="OIS@pre-alpha" --to="config@pre-alpha" --specs="exampleSpecs/ois.specs.json"
+```
 
 ## Output
 
