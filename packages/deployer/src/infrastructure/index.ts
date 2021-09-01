@@ -37,8 +37,8 @@ async function runCommand(command: string, options: child.ExecOptions) {
   } catch (err) {
     spinner.info();
     commandSpinner.fail(`Command '${command}' with options ${stringifiedOptions} failed`);
-    logger.fail(err.toString());
-    throw new Error(`Command failed: ${err.cmd}`);
+    logger.fail((err as Error).toString());
+    throw new Error(`Command failed: ${(err as any).cmd}`);
   }
 }
 

@@ -58,7 +58,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
     );
   } catch (err) {
     logger.warn(`Failed deploying configuration, skipping`);
-    logger.warn(err.toString());
+    logger.warn((err as Error).toString());
   }
 
   logger.debug('Deleting a temporary secrets.json file');
@@ -78,6 +78,6 @@ export async function removeWithReceipt(receiptFilename: string) {
     await remove(airnodeIdShort, stage, cloudProvider, region);
   } catch (err) {
     logger.warn(`Failed removing configuration, skipping`);
-    logger.warn(err.toString());
+    logger.warn((err as Error).toString());
   }
 }
