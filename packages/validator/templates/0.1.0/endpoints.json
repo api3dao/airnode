@@ -35,7 +35,7 @@
         "name": {
           "__regexp": "^(_type|_path|_times|_relay_metadata)$",
           "__catch": {
-            "__message": "__fullPath: Reserved parameter can be only \"_type\", \"_path\" or \"_times\""
+            "__message": "__fullPath: Reserved parameter can be only \"_type\", \"_path\", \"_times\" or \"_relay_metadata\""
           }
         },
         "__optional": {

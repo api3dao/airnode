@@ -1,5 +1,5 @@
 {
-	"__template": "../0.1.0/ois.json",
+	"__template": "../templates/0.1.0/ois.json",
 	"__actions": [
 		{
 			"__insert": {
