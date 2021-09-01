@@ -93,16 +93,10 @@ export function getConversionPath(
   }
 
   if (!fromVersion) {
-    let fromLatest, latestOverall;
+    let fromLatest;
     const versionRegex = /^[0-9\.]+$/;
 
     for (const version in conversions[from]) {
-      latestOverall =
-        !latestOverall ||
-        ((!latestOverall.match(versionRegex) || latestOverall < version) && version.match(versionRegex))
-          ? version
-          : latestOverall;
-
       if (!conversions[from][version][to] || (fromLatest && !version.match(versionRegex))) {
         continue;
       }
@@ -115,7 +109,12 @@ export function getConversionPath(
       return null;
     }
 
-    if (fromLatest !== latestOverall) {
+    const latestVersion = Object.keys(conversions[from])
+      .filter((key) => key.match(versionRegex))
+      .sort()
+      .reverse()[0];
+
+    if (fromLatest !== latestVersion) {
       messages.push(
         logger.warn(
           `Conversion from latest version of ${from} to ${to} does not exist, conversion from ${from}@${fromLatest} will be used instead.`
