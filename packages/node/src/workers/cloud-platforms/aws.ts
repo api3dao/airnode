@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+import JSON from 'json-bigint';
 import { WorkerParameters, WorkerResponse } from '../../types';
 
 export function spawn(params: WorkerParameters): Promise<WorkerResponse> {

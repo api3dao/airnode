@@ -28,10 +28,12 @@
     "@api3/operation": "^0.1.0",
     "@api3/protocol": "^0.1.0",
     "@lifeomic/attempt": "^3.0.0",
+    "@types/json-bigint": "^1.0.1",
     "aws-sdk": "^2.753.0",
     "date-fns": "^2.16.1",
     "dotenv": "^10.0.0",
     "ethers": "^5.4.4",
+    "json-bigint": "^1.0.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

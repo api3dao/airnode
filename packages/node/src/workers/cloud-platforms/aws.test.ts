@@ -1,3 +1,5 @@
+import { BigNumber } from 'bignumber.js';
+
 const invokeMock = jest.fn();
 jest.mock('aws-sdk', () => ({
   Lambda: jest.fn().mockImplementation(() => ({
@@ -25,6 +27,54 @@ describe('spawn', () => {
     };
     const res = await aws.spawn(parameters);
     expect(res).toEqual({ value: 7777 });
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke).toHaveBeenCalledWith(
+      {
+        FunctionName: 'airnode-19255a4-test-some-function',
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
+      },
+      expect.any(Function)
+    );
+  });
+
+  it('should not kill a large number', async () => {
+    const lambda = new AWS.Lambda();
+    const invoke = lambda.invoke as jest.Mock;
+    invoke.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: '{"body":"{\\\"value\\\":115792089237316195423570985008687907853269984665640564039457584007913129639935}"}' })
+    );
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const parameters = {
+      ...workerOpts,
+      functionName: 'some-function' as WorkerFunctionName,
+      payload: { from: 'ETH', to: 'USD' },
+    };
+    const res = await aws.spawn(parameters);
+    expect(res).toEqual({ value: new BigNumber('115792089237316195423570985008687907853269984665640564039457584007913129639935') });
+    expect(invoke).toHaveBeenCalledTimes(1);
+    expect(invoke).toHaveBeenCalledWith(
+      {
+        FunctionName: 'airnode-19255a4-test-some-function',
+        Payload: JSON.stringify({ from: 'ETH', to: 'USD' }),
+      },
+      expect.any(Function)
+    );
+  });
+
+  it('should not kill a large float number', async () => {
+    const lambda = new AWS.Lambda();
+    const invoke = lambda.invoke as jest.Mock;
+    invoke.mockImplementationOnce((params, callback) =>
+      callback(null, { Payload: '{"body":"{\\\"value\\\":1157920892373161954235709850086879078532699.84665640564039457584007913129639935}"}' })
+    );
+    const workerOpts = fixtures.buildWorkerOptions({ cloudProvider: 'aws' });
+    const parameters = {
+      ...workerOpts,
+      functionName: 'some-function' as WorkerFunctionName,
+      payload: { from: 'ETH', to: 'USD' },
+    };
+    const res = await aws.spawn(parameters);
+    expect(res).toEqual({ value: new BigNumber('1157920892373161954235709850086879078532699.84665640564039457584007913129639935') });
     expect(invoke).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledWith(
       {
