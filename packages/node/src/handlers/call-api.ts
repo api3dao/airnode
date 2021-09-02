@@ -4,20 +4,11 @@ import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/par
 import { getConfigSecret } from '../config';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
-import {
-  AggregatedApiCall,
-  ApiCallParameters,
-  ApiCallResponse,
-  ChainConfig,
-  Config,
-  LogsData,
-  RequestErrorCode,
-} from '../types';
+import { AggregatedApiCall, ApiCallParameters, ApiCallResponse, Config, LogsData, RequestErrorCode } from '../types';
 import { removeKeys } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
 function addMetadataParameters(
-  chain: ChainConfig,
   aggregatedApiCall: AggregatedApiCall,
   reservedParameters: adapter.ReservedParameters
 ): ApiCallParameters {
@@ -32,9 +23,12 @@ function addMetadataParameters(
         _airnode_endpoint_id: aggregatedApiCall.endpointId,
         _airnode_requester_index: aggregatedApiCall.requesterIndex,
         _airnode_request_id: aggregatedApiCall.id,
-        _airnode_chain_id: aggregatedApiCall.chainId,
-        _airnode_chain_type: chain.type,
-        _airnode_airnode: chain.contracts.Airnode,
+        // In pre-alpha the requests events emitted by Airnode.sol do not
+        // include the chainId, therefore we cannot map chain information of
+        // request with the chain configured for the current provider
+        _airnode_chain_id: 'N/A',
+        _airnode_chain_type: 'N/A',
+        _airnode_airnode: 'N/A',
       };
     default:
       return parameters;
@@ -51,13 +45,12 @@ function buildSecuritySchemeSecrets(ois: OIS): SecuritySchemeSecret[] {
 }
 
 function buildOptions(
-  chain: ChainConfig,
   ois: OIS,
   aggregatedApiCall: AggregatedApiCall,
   reservedParameters: adapter.ReservedParameters
 ): adapter.BuildRequestOptions {
   // Include airnode metadata based on _relay_metadata version number
-  const parametersWithMetadata = addMetadataParameters(chain, aggregatedApiCall, reservedParameters);
+  const parametersWithMetadata = addMetadataParameters(aggregatedApiCall, reservedParameters);
 
   // Don't submit the reserved parameters to the API
   const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
@@ -77,8 +70,7 @@ export async function callApi(
   config: Config,
   aggregatedApiCall: AggregatedApiCall
 ): Promise<LogsData<ApiCallResponse>> {
-  const { chainId, endpointName, oisTitle } = aggregatedApiCall;
-  const chain = config.nodeSettings.chains.find((c) => c.id === Number(chainId))!;
+  const { endpointName, oisTitle } = aggregatedApiCall;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
 
@@ -90,7 +82,6 @@ export async function callApi(
   }
 
   const options: adapter.BuildRequestOptions = buildOptions(
-    chain,
     ois,
     aggregatedApiCall,
     reservedParameters as adapter.ReservedParameters

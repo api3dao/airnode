@@ -1,7 +1,7 @@
 import { Endpoint, ReservedParameterName } from '@airnode/ois';
 import { ApiCallParameters } from '../../types';
 
-export const RESERVED_PARAMETERS = Object.values(ReservedParameterName);
+export const RESERVED_PARAMETERS: string[] = Object.values(ReservedParameterName);
 
 export function getReservedParameterValue(
   name: ReservedParameterName,
