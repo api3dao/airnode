@@ -1,7 +1,8 @@
 import * as adapter from '@airnode/adapter';
 import { ReservedParameterName } from '@airnode/ois';
-import { RequestErrorCode } from 'src/types';
+import { ChainConfig, ChainProvider, RequestErrorCode } from 'src/types';
 import * as fixtures from 'test/fixtures';
+import { buildNodeSettings } from 'test/fixtures';
 import { callApi } from './call-api';
 
 describe('callApi', () => {
@@ -68,7 +69,7 @@ describe('callApi', () => {
         });
         const config = fixtures.buildConfig({ ois: [ois] });
         const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _relay_metadata };
-        const aggregatedCall = fixtures.createAggregatedApiCall({ parameters } as any);
+        const aggregatedCall = fixtures.createAggregatedApiCall({ chainId: '1', parameters } as any);
         const [logs, res] = await callApi(config, aggregatedCall);
         expect(logs).toEqual([]);
         expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
@@ -86,9 +87,9 @@ describe('callApi', () => {
                 _airnode_endpoint_id: aggregatedCall.endpointId,
                 _airnode_requester_index: aggregatedCall.requesterIndex,
                 _airnode_request_id: aggregatedCall.id,
-                _airnode_chain_id: aggregatedCall.chainId,
-                _airnode_chain_type: config.nodeSettings.chains[0].type,
-                _airnode_airnode: config.nodeSettings.chains[0].contracts.Airnode,
+                _airnode_chain_id: 'N/A',
+                _airnode_chain_type: 'N/A',
+                _airnode_airnode: 'N/A',
               }),
             },
             securitySchemeSecrets: [
@@ -101,6 +102,61 @@ describe('callApi', () => {
           { timeout: 20000 }
         );
       }
+    );
+  });
+
+  it('Includes Airnode metadata when _relay_metadata is set to "v1" even when provider is mainnet (chainId = "1")', async () => {
+    process.env.oisTitle_myapiApiScheme = 'supersecret';
+    const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as any;
+    spy.mockResolvedValueOnce({ data: { price: 1000 } });
+    const ois = fixtures.buildOIS();
+    ois.endpoints[0].reservedParameters.push({
+      name: ReservedParameterName.RelayMetadata,
+      default: 'v1',
+    });
+    const chainProvider: ChainProvider = { name: 'mainnet', url: 'http://localhost:8545' };
+    const chainConfig: ChainConfig = {
+      providerAdminForRecordCreation: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
+      contracts: {
+        Airnode: '0x197F3826040dF832481f835652c290aC7c41f073',
+        Convenience: '0x2393737d287c555d148012270Ce4567ABb1ee95C',
+      },
+      id: 1,
+      type: 'evm',
+      providers: [chainProvider],
+    };
+    const nodeSettings = buildNodeSettings({ chains: [chainConfig] });
+    const config = fixtures.buildConfig({ ois: [ois], nodeSettings });
+    const parameters = { _type: 'int256', _path: 'price', from: 'ETH', _relay_metadata: 'v1' };
+    const aggregatedCall = fixtures.createAggregatedApiCall({ chainId: '1', parameters } as any);
+    const [logs, res] = await callApi(config, aggregatedCall);
+    expect(logs).toEqual([]);
+    expect(res).toEqual({ value: '0x0000000000000000000000000000000000000000000000000000000005f5e100' });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(
+      {
+        endpointName: 'convertToUsd',
+        ois,
+        parameters: {
+          from: 'ETH',
+          _airnode_provider_id: aggregatedCall.providerId,
+          _airnode_client_address: aggregatedCall.clientAddress,
+          _airnode_designated_wallet: aggregatedCall.designatedWallet,
+          _airnode_endpoint_id: aggregatedCall.endpointId,
+          _airnode_requester_index: aggregatedCall.requesterIndex,
+          _airnode_request_id: aggregatedCall.id,
+          _airnode_chain_id: 'N/A',
+          _airnode_chain_type: 'N/A',
+          _airnode_airnode: 'N/A',
+        },
+        securitySchemeSecrets: [
+          {
+            securitySchemeName: 'myapiApiScheme',
+            value: 'supersecret',
+          },
+        ],
+      },
+      { timeout: 20000 }
     );
   });
 
