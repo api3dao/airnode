@@ -59,7 +59,7 @@ export type Request<T extends {}> = T & {
   readonly status: RequestStatus;
 };
 
-export type ApiCallType = 'regular' | 'full';
+export type ApiCallType = 'template' | 'full';
 
 // TODO: refactor these types such that there is user facing "ApiCall" which will get merged with
 // template and internal type that is the result of those two being merged.

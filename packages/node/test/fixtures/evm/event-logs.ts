@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 type Log = ethers.providers.Log;
 
 // =================================================================
-// Regular requests
+// Template requests
 // =================================================================
 export function buildMadeTemplateRequest(overrides?: Partial<Log>): Log {
   return {

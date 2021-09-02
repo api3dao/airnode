@@ -11,7 +11,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
   const deployerIndex = e2e.getDeployerIndex(__filename);
 
   const requests = [
-    fixtures.operation.buildRegularRequest({ fulfillFunctionName: 'fulfillAlwaysReverts' }),
+    fixtures.operation.buildTemplateRequest({ fulfillFunctionName: 'fulfillAlwaysReverts' }),
     fixtures.operation.buildFullRequest(),
   ];
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
@@ -25,12 +25,12 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const preinvokeTemplateRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
   const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
 
   expect(preinvokeLogs.length).toEqual(5);
-  expect(preinvokeRegularRequests.length).toEqual(1);
+  expect(preinvokeTemplateRequests.length).toEqual(1);
   expect(preinvokeFullRequests.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
@@ -42,13 +42,13 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const postinvokeTemplateRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
   const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
   const postinvokeFulfillmentsFailed = postinvokeLogs.filter((log) => log.name === 'FailedRequest');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
 
   expect(postinvokeLogs.length).toEqual(7);
-  expect(postinvokeRegularRequests.length).toEqual(1);
+  expect(postinvokeTemplateRequests.length).toEqual(1);
   expect(postinvokeFullRequests.length).toEqual(1);
   expect(postinvokeFulfillmentsFailed.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(1);
@@ -68,7 +68,7 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
   const deployerIndex = e2e.getDeployerIndex(__filename);
 
   const requests = [
-    fixtures.operation.buildRegularRequest({ fulfillFunctionName: 'fulfillAlwaysRunsOutOfGas' }),
+    fixtures.operation.buildTemplateRequest({ fulfillFunctionName: 'fulfillAlwaysRunsOutOfGas' }),
     fixtures.operation.buildFullRequest(),
   ];
   const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
@@ -82,12 +82,12 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 
   const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const preinvokeRegularRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const preinvokeTemplateRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
   const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
   const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
 
   expect(preinvokeLogs.length).toEqual(5);
-  expect(preinvokeRegularRequests.length).toEqual(1);
+  expect(preinvokeTemplateRequests.length).toEqual(1);
   expect(preinvokeFullRequests.length).toEqual(1);
   expect(preinvokeFulfillments.length).toEqual(0);
 
@@ -99,13 +99,13 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
 
   const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
 
-  const postinvokeRegularRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
+  const postinvokeTemplateRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
   const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
   const postinvokeFulfillmentsFailed = postinvokeLogs.filter((log) => log.name === 'FailedRequest');
   const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
 
   expect(postinvokeLogs.length).toEqual(7);
-  expect(postinvokeRegularRequests.length).toEqual(1);
+  expect(postinvokeTemplateRequests.length).toEqual(1);
   expect(postinvokeFullRequests.length).toEqual(1);
   expect(postinvokeFulfillmentsFailed.length).toEqual(1);
   expect(postinvokeFulfillments.length).toEqual(1);
