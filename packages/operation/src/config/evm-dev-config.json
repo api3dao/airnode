@@ -3,7 +3,7 @@
   "airnodes": {
     "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
-      "authorizers": ["public"],
+      "authorizers": [],
       "endpoints": {
         "convertToUSD": {
           "oisTitle": "Currency Converter API"
@@ -23,9 +23,7 @@
       }
     }
   },
-  "authorizers": {
-    "public": "0x0000000000000000000000000000000000000000"
-  },
+  "authorizers": {},
   "requesters": {
     "MockRrpRequesterFactory": { "sponsors": ["bob"] }
   },

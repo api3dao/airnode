@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import { buildEVMState } from '../../../src/providers/state';
 import { buildConfig } from '../config';
 import { ChainConfig, EVMProviderState, ProviderState } from '../../../src/types';
@@ -11,7 +10,7 @@ export function buildEVMProviderState(
   const chainId = '1337';
   const chainProviderName = 'Ganache test';
   const chainConfig: ChainConfig = {
-    authorizers: [ethers.constants.AddressZero],
+    authorizers: [],
     contracts: {
       AirnodeRrp: '0x197F3826040dF832481f835652c290aC7c41f073',
     },

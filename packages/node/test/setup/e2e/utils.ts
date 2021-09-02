@@ -13,7 +13,7 @@ export function buildChainConfig(contracts: Contracts): ChainConfig {
     contracts: {
       AirnodeRrp: contracts.AirnodeRrp,
     },
-    authorizers: [ethers.constants.AddressZero],
+    authorizers: [],
     id: '31337',
     type: 'evm',
     providers: {

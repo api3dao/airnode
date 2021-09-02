@@ -203,7 +203,7 @@ The withdrawn funds should be sent back to the address of the sponsor.
   "airnodes": {
     "CurrencyConverterAirnode": {
       "mnemonic": "achieve climb couple wait accident symbol spy blouse reduce foil echo label",
-      "authorizers": ["public"],
+      "authorizers": [],
       "endpoints": {
         "convertToUSD": {
           "oisTitle": "Currency Converter API"
@@ -223,9 +223,7 @@ The withdrawn funds should be sent back to the address of the sponsor.
       }
     }
   },
-  "authorizers": {
-    "public": "0x0000000000000000000000000000000000000000"
-  },
+  "authorizers": {},
   "requesters": {
     "MockRrpRequesterFactory": { "sponsors": ["bob"] }
   },
