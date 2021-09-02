@@ -1913,6 +1913,11 @@
     "@opencensus/core" "^0.0.8"
     uuid "^3.2.1"
 
+"@openzeppelin/contracts@^4.2.0":
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.3.1.tgz#c01f791ce6c9d3989ac1a643267501dbe336b9e3"
+  integrity sha512-QjgbPPlmDK2clK1hzjw2ROfY8KA5q+PfhDUUxZFEBCZP9fi6d5FuNoh/Uq0oCTMEKPmue69vhX2jcl0N/tFKGw==
+
 "@pm2/agent@~1.0.8":
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/@pm2/agent/-/agent-1.0.8.tgz#cd15d84dbfc95427e6fccce72bc165b79f1d8579"

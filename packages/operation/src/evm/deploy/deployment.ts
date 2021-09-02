@@ -28,7 +28,5 @@ export async function deployAuthorizers(state: State): Promise<State> {
     await authorizer.deployed();
     authorizersByName[authorizerName] = authorizer.address;
   }
-  // Special authorizer addresses
-  authorizersByName.public = ethers.constants.AddressZero;
   return { ...state, authorizersByName };
 }
