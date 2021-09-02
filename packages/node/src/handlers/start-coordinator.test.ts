@@ -36,9 +36,9 @@ describe('startCoordinator', () => {
     const getBlockNumberSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumberSpy.mockResolvedValueOnce(12);
 
-    const regularRequest = fixtures.evm.logs.buildMadeTemplateRequest();
+    const templateRequest = fixtures.evm.logs.buildMadeTemplateRequest();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getLogsSpy.mockResolvedValueOnce([regularRequest]);
+    getLogsSpy.mockResolvedValueOnce([templateRequest]);
 
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValue({

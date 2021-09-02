@@ -19,10 +19,10 @@ describe('initializeProvider', () => {
     getBlockNumberSpy.mockResolvedValueOnce(12);
 
     const fullRequest = fixtures.evm.logs.buildMadeFullRequest();
-    const regularRequest = fixtures.evm.logs.buildMadeTemplateRequest();
+    const templateRequest = fixtures.evm.logs.buildMadeTemplateRequest();
     const withdrawal = fixtures.evm.logs.buildRequestedWithdrawal();
     const getLogsSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getLogs');
-    getLogsSpy.mockResolvedValueOnce([fullRequest, regularRequest, withdrawal]);
+    getLogsSpy.mockResolvedValueOnce([fullRequest, templateRequest, withdrawal]);
 
     const executeSpy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
     executeSpy.mockResolvedValue({
@@ -94,7 +94,7 @@ describe('initializeProvider', () => {
         sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
         status: 'Pending',
         templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
-        type: 'regular',
+        type: 'template',
       },
     ]);
   });

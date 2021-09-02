@@ -36,7 +36,7 @@ describe('initialize (ApiCall)', () => {
       requestCount: '1',
       status: RequestStatus.Pending,
       templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
-      type: 'regular',
+      type: 'template',
     });
   });
 
@@ -50,7 +50,7 @@ describe('initialize (ApiCall)', () => {
       ignoreBlockedRequestsAfterBlocks: 20,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
-    const regular = {
+    const template = {
       ...base,
       parsedLog: { ...base.parsedLog, topic: '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203' },
     };
@@ -59,7 +59,7 @@ describe('initialize (ApiCall)', () => {
       parsedLog: { ...base.parsedLog, topic: '0x3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae' },
     };
 
-    expect(apiCalls.initialize(regular).type).toEqual('regular');
+    expect(apiCalls.initialize(template).type).toEqual('template');
     expect(apiCalls.initialize(full).type).toEqual('full');
   });
 });
@@ -148,7 +148,7 @@ describe('updateFulfilledRequests (ApiCall)', () => {
         requestCount: '12',
         status: RequestStatus.Fulfilled,
         templateId: null,
-        type: 'regular',
+        type: 'template',
       },
     ]);
   });
@@ -197,7 +197,7 @@ describe('mapRequests (ApiCall)', () => {
         requestCount: '1',
         status: RequestStatus.Pending,
         templateId: '0xe4a1b9c33b9dda81f38b6e84c1bf59fcf5dd197039efc34edfaa61cfeb01b217',
-        type: 'regular',
+        type: 'template',
       },
     ]);
   });
