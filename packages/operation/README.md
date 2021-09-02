@@ -1,5 +1,3 @@
-<!-- TODO: update links after api3-docs had been updated and use https://docs.api3.org/ url instead -->
-
 # @api3/operation
 
 > Development and testing utilities for Airnode
@@ -125,7 +123,7 @@ This is the index that will be used to select an account from the list of accoun
 
 `endpoints` - a key/value object where the key is the unique endpoint name and the value is an object describing the endpoint details. Casing matters here as the endpoint is encoded and hashed to generate the `endpointId`.
 
-`endpoints.[name].oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
+`endpoints.[name].oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a `config.json` trigger.
 
 **Templates**
 
@@ -133,23 +131,23 @@ This is the index that will be used to select an account from the list of accoun
 
 `templates.[name].endpoint` - a unique name given to the endpoint. Casing is important here
 
-`templates.[name].oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
+`templates.[name].oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a `config.json` trigger.
 
 `templates.[name].parameters` - a list of parameters that will be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 ### 3. authorizers
 
-`authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed, while all other values will require a contract of the same name. See the [Authorizer documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/authorizer.md) for more details.
+`authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed, while all other values will require a contract of the same name.
 
 ### 4. requesters
 
-`requesters` - a key/value object where the key represents the unique requester contract name and the value represents the requester options. All names defined correspond with actual contracts in the `contracts/folder`. See the [client documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/requester.md) for more details.
+`requesters` - a key/value object where the key represents the unique requester contract name and the value represents the requester options. All names defined correspond with actual contracts in the `contracts/folder`.
 
-`requester.[name].sponsors` - a list of sponsors who have sponsored the requester. See the [sponsorship documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endorsement.md) for more details.
+`requester.[name].sponsors` - a list of sponsors who have sponsored the requester.
 
 ### 5. sponsors
 
-Sponsors represent an ordered list of entities making requests to a given Airnode. Typically these would be individuals or businesses. You can find more information in the [Sponsor documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/sponsor.md).
+Sponsors represent an ordered list of entities making requests to a given Airnode. Typically these would be individuals or businesses.
 
 It is important to note that sponsors is an array as they are assigned accounts in order. This is necessary as sponsors need to use the same wallet when running each script.
 
@@ -161,7 +159,7 @@ Each sponsor object has the following structure:
 
 ### 6. requests
 
-There are currently three types of requests that can be made. You can learn more about these request types in the [request documentation](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/request.md)
+There are currently two types of requests that can be made. Template and Full requests.
 
 **Shared Fields**
 
@@ -189,7 +187,7 @@ There are currently three types of requests that can be made. You can learn more
 
 `fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would be `fulfill` or similar.
 
-`oisTitle` - the title of an [OIS](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md). This is used to derive the [endpointId](https://github.com/api3dao/api3-docs/blob/master/request-response-protocol/endpoint.md) which should match an `endpointId` in a [config.json trigger](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md)
+`oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a `config.json` trigger.
 
 `parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
