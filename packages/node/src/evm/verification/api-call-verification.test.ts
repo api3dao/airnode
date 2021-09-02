@@ -20,7 +20,7 @@ describe('verifyApiCallIds', () => {
     }
   });
 
-  it('does nothing where regular API calls have a valid request ID', () => {
+  it('does nothing where template API calls have a valid request ID', () => {
     const apiCall = fixtures.requests.buildApiCall({
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
@@ -28,7 +28,7 @@ describe('verifyApiCallIds', () => {
       id: '0x12a4d7f900adf1a6e47f16fcfa67db7311294d3354224078ee43f81dd5394fb2',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
-      type: 'regular',
+      type: 'template',
     });
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Request ID:${apiCall.id} has a valid ID` }]);
@@ -52,7 +52,7 @@ describe('verifyApiCallIds', () => {
     expect(res[0]).toEqual(apiCall);
   });
 
-  it('ignores regular API calls with invalid IDs', () => {
+  it('ignores template API calls with invalid IDs', () => {
     const apiCall = fixtures.requests.buildApiCall({
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
@@ -60,7 +60,7 @@ describe('verifyApiCallIds', () => {
       id: '0xinvalid',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
-      type: 'regular',
+      type: 'template',
     });
     const expectedId = '0x12a4d7f900adf1a6e47f16fcfa67db7311294d3354224078ee43f81dd5394fb2';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
