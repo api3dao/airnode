@@ -109,6 +109,14 @@ export async function fetch(
     return [[], {}];
   }
 
+  // If there are no authorizer contracts then endpoint is public
+  if (isEmpty(fetchOptions.authorizers)) {
+    const authorizationByRequestIds = pendingApiCalls.map((pendingApiCall) => ({
+      [pendingApiCall.id]: true,
+    }));
+    return [[], Object.assign({}, ...authorizationByRequestIds) as AuthorizationByRequestId];
+  }
+
   // Request groups of 10 at a time
   const groupedPairs = chunk(pendingApiCalls, CONVENIENCE_BATCH_SIZE);
 
