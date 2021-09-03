@@ -23,9 +23,8 @@ function addMetadataParameters(
 ): ApiCallParameters {
   const parameters = aggregatedApiCall.parameters;
   switch (reservedParameters._relay_metadata?.toLowerCase()) {
-    case 'v1':
-      return {
-        ...parameters,
+    case 'v1': {
+      const relayMetadata: adapter.RelayMetadataV1 = {
         _airnode_airnode_id: aggregatedApiCall.airnodeId,
         _airnode_client_address: aggregatedApiCall.clientAddress,
         _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
@@ -36,6 +35,11 @@ function addMetadataParameters(
         _airnode_chain_type: chain.type,
         _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
       };
+      return {
+        ...parameters,
+        ...relayMetadata,
+      };
+    }
     default:
       return parameters;
   }

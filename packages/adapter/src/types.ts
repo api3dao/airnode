@@ -56,3 +56,15 @@ export interface ReservedParameters {
   readonly _type: ResponseType;
   readonly _relay_metadata?: string;
 }
+
+export interface RelayMetadataV1 {
+  readonly _airnode_airnode_id: string;
+  readonly _airnode_client_address: string;
+  readonly _airnode_designated_wallet: string;
+  readonly _airnode_endpoint_id: string;
+  readonly _airnode_requester_index: string;
+  readonly _airnode_request_id: string;
+  readonly _airnode_chain_id: string;
+  readonly _airnode_chain_type: string;
+  readonly _airnode_airnode_rrp: string;
+}
