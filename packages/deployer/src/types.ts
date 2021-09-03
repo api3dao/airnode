@@ -84,10 +84,9 @@ export type Configurations = Configuration[];
 // ===========================================
 
 export interface Receipt {
-  airnodeId: string;
-  airnodeIdShort: string;
+  airnodeAddress: string;
+  airnodeAddressShort: string;
   xpub: string;
-  masterWalletAddress: string;
   config: Omit<Configuration, 'ois' | 'triggers' | 'environment'>;
 }
 

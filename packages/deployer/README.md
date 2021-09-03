@@ -27,7 +27,7 @@ cp config/secrets.env.example config/secrets.env
 
    **Write down the displayed mnemonic and safely store the outputted receipt file.**
 
-   Fund the master wallet address with the displayed amount to set your Airnode parameters.
+   Fund the master wallet address with the displayed amount to set your Airnode xpub.
 2. In order to update the Airnode configuration:
     * Update the `config.json` file
     * Ensure the `MASTER_KEY_MNEMONIC` value in `secrets.env` has your previously generated mnemonic phrase
@@ -54,12 +54,12 @@ Options:
 Removes a deployed Airnode instance
 
 Options:
-      --version         Show version number                                                                    [boolean]
-      --debug           Run in debug mode                                                     [boolean] [default: false]
-      --help            Show help                                                                              [boolean]
-  -r, --receipt         Path to receipt file                                                                    [string]
-  -a, --airnodeIdShort  Airnode ID (short version)                                                              [string]
-  -s, --stage           Stage (environment)                                                                     [string]
-  -c, --cloudProvider   Cloud provider                                                                          [string]
-  -e, --region          Region                                                                                  [string]
+      --version             Show version number                                                                    [boolean]
+      --debug               Run in debug mode                                                     [boolean] [default: false]
+      --help                Show help                                                                              [boolean]
+  -r, --receipt             Path to receipt file                                                                    [string]
+  -a, --airnodeAddressShort Airnode ID (short version)                                                              [string]
+  -s, --stage               Stage (environment)                                                                     [string]
+  -c, --cloudProvider       Cloud provider                                                                          [string]
+  -e, --region              Region                                                                                  [string]
 ```

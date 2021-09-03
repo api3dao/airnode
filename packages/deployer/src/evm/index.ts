@@ -13,13 +13,12 @@ const chainIdsToNames: Record<string, string> = {
   100: 'xdai',
 };
 
-export async function checkAirnodeParameters(
+export async function checkAirnodeXpub(
   configs: Configurations,
   secrets: Record<string, string>,
-  airnodeId: string,
-  masterWalletAddress: string
+  airnodeAddress: string
 ) {
-  logger.debug('Checking Airnode parameters');
+  logger.debug('Checking Airnode xpub');
   const providerUrls = findProviderUrls(configs, secrets);
   const airnodeRrpAddresses = findAirnodeRrpAddresses(configs);
 
@@ -29,19 +28,19 @@ export async function checkAirnodeParameters(
     const chain = providerUrls[chainType];
     for (const chainId in chain) {
       const chainName = chainIdsToNames[chainId] || chainId;
-      spinner = logger.spinner(`Checking Airnode parameters on chain: ${chainName} (${chainType})`);
+      spinner = logger.spinner(`Checking Airnode xpub on chain: ${chainName} (${chainType})`);
       let checkSuccesful = false;
       for (const providerUrl of chain[chainId]) {
         try {
           const provider = new ethers.providers.JsonRpcProvider(providerUrl);
           const airnodeRrp = AirnodeRrpFactory.connect(airnodeRrpAddresses[chainType]![chainId], provider);
-          const airnodeParameters = await airnodeRrp.getAirnodeParameters(airnodeId);
-          if (airnodeParameters.xpub === '') {
-            spinner.warn(`Airnode parameters not found on chain: ${chainName} (${chainType})`);
-            await checkMasterWalletBalance(provider, masterWalletAddress, chainName);
+          const airnodeXpub = await airnodeRrp.airnodeToXpub(airnodeAddress);
+          if (airnodeXpub === '') {
+            spinner.warn(`Airnode airnodeXpub not found on chain: ${chainName} (${chainType})`);
+            await checkMasterWalletBalance(provider, airnodeAddress, chainName);
           } else {
             // Assuming xpub is valid
-            spinner.succeed(`Airnode parameters found on chain: ${chainName} (${chainType})`);
+            spinner.succeed(`Airnode xpub found on chain: ${chainName} (${chainType})`);
           }
           checkSuccesful = true;
           break;
@@ -52,7 +51,7 @@ export async function checkAirnodeParameters(
         }
       }
       if (!checkSuccesful) {
-        spinner.info(`Skipped checking Airnode parameters on chain: ${chainName} (${chainType})`);
+        spinner.info(`Skipped checking Airnode xpub on chain: ${chainName} (${chainType})`);
       }
     }
   }
@@ -60,26 +59,24 @@ export async function checkAirnodeParameters(
 
 async function checkMasterWalletBalance(
   provider: ethers.providers.Provider,
-  masterWalletAddress: string,
+  airnodeAddress: string,
   chainName: string
 ) {
-  const spinner = logger.spinner(`Checking master wallet balance on chain: ${chainName}`);
+  const spinner = logger.spinner(`Checking airnode address balance on chain: ${chainName}`);
   try {
-    const balance = await provider.getBalance(masterWalletAddress);
+    const balance = await provider.getBalance(airnodeAddress);
     // Overestimate the required ETH
     const txCost = (await provider.getGasPrice()).mul(500_000);
-    spinner.info(
-      `Balance of ${masterWalletAddress} is ${ethers.utils.formatEther(balance)} ETH on chain: ${chainName}`
-    );
+    spinner.info(`Balance of ${airnodeAddress} is ${ethers.utils.formatEther(balance)} ETH on chain: ${chainName}`);
     if (txCost.gt(balance)) {
       logger.warn(
         `Fund it with at least ${ethers.utils.formatEther(txCost)} ETH for it to be able to set your Airnode parameters`
       );
     } else {
-      logger.succeed('Master wallet balance is enough to set your Airnode parameters');
+      logger.succeed('Airnode address balance is enough to set your Airnode parameters');
     }
   } catch (err) {
-    spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);
+    spinner.info(`Skipped checking airnode address balance on chain: ${chainName}`);
     logger.debug(err.toString());
   }
 }
