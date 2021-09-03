@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-// import { checkAirnodeXpub } from '../evm';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import { Receipts } from '../types';
 import {
@@ -47,8 +46,6 @@ export async function deploy(
 
   const airnodeAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
-
-  // await checkAirnodeXpub(configs, secrets, airnodeAddress);
 
   const receipts: Receipts = [];
   for (const config of configs) {

@@ -31,7 +31,9 @@ export function generateMnemonic() {
 
 export function shortenAirnodeAddress(airnodeAddress: string) {
   logger.debug('Shortening Airnode Address');
-  if (!ethers.utils.isHexString(airnodeAddress, 32)) {
+  try {
+    ethers.utils.getAddress(airnodeAddress);
+  } catch {
     throw new Error('airnodeAddress is not a valid hex string');
   }
   return airnodeAddress.substring(2, 9);
