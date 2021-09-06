@@ -1,59 +1,35 @@
-import fs from 'fs';
-import * as handlers from '../../src/workers/local-handlers';
-import * as e2e from '../setup/e2e';
-import * as fixtures from '../fixtures';
+import { startCoordinator } from '../../src/workers/local-handlers';
+import { increaseTestTimeout, deployAirnodeAndMakeRequests, fetchAllLogNames } from '../setup/e2e';
 
 it('does not process requests twice', async () => {
-  jest.setTimeout(45_000);
+  increaseTestTimeout();
+  const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename);
 
-  const provider = e2e.buildProvider();
+  const preInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(preInvokeLogs).toEqual([
+    'SetAirnodeXpub',
+    'SetSponsorshipStatus',
+    'CreatedTemplate',
+    'MadeTemplateRequest',
+    'MadeFullRequest',
+  ]);
 
-  const deployerIndex = e2e.getDeployerIndex(__filename);
-  const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
-  const deployment = await e2e.deployAirnodeRrp(deployConfig);
+  await startCoordinator();
 
-  // Overwrites the one injected by the jest setup script
-  process.env.MASTER_KEY_MNEMONIC = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
+  const postInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(postInvokeLogs).toEqual([
+    'SetAirnodeXpub',
+    'SetSponsorshipStatus',
+    'CreatedTemplate',
+    'MadeTemplateRequest',
+    'MadeFullRequest',
+    'FulfilledRequest',
+    'FulfilledRequest',
+  ]);
 
-  await e2e.makeRequests(deployConfig, deployment);
+  await startCoordinator();
 
-  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-
-  const preinvokeTemplateRequests = preinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
-  const preinvokeFullRequests = preinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
-  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
-
-  expect(preinvokeLogs.length).toEqual(5);
-  expect(preinvokeTemplateRequests.length).toEqual(1);
-  expect(preinvokeFullRequests.length).toEqual(1);
-  expect(preinvokeFulfillments.length).toEqual(0);
-
-  const chain = e2e.buildChainConfig(deployment.contracts);
-  const config = fixtures.buildConfig({ chains: [chain] });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify([config]));
-
-  await handlers.startCoordinator();
-
-  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-
-  const postinvokeTemplateRequests = postinvokeLogs.filter((log) => log.name === 'MadeTemplateRequest');
-  const postinvokeFullRequests = postinvokeLogs.filter((log) => log.name === 'MadeFullRequest');
-  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledRequest');
-
-  expect(postinvokeLogs.length).toEqual(7);
-  expect(postinvokeTemplateRequests.length).toEqual(1);
-  expect(postinvokeFullRequests.length).toEqual(1);
-  expect(postinvokeFulfillments.length).toEqual(2);
-
-  // Check each fulfillment is linked to a request
-  postinvokeFulfillments.forEach((fulfillment) => {
-    const request = postinvokeLogs.find((log) => log.args.requestId === fulfillment.args.requestId);
-    expect(request).toBeDefined();
-  });
-
-  await handlers.startCoordinator();
-
-  // There should be no more logs created
-  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(run2Logs.length).toEqual(postinvokeLogs.length);
+  // Verify that requests are not processed multiple times
+  const afterPostInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(afterPostInvokeLogs).toEqual(postInvokeLogs);
 });
