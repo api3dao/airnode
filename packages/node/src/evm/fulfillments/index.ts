@@ -1,5 +1,5 @@
 import { Transaction } from 'ethers';
-import { flatten } from 'lodash';
+import flatten from 'lodash/flatten';
 import { submitApiCall } from './api-calls';
 import { submitWithdrawal } from './withdrawals';
 import * as grouping from '../../requests/grouping';
