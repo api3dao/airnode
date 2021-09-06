@@ -49,7 +49,7 @@ describe('setSponsorshipStatus', function () {
     expect(
       await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
     ).to.equal(false);
-    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(0);
+    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
     // Set sponsorship status as true
     await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true))
       .to.emit(airnodeRrp, 'SetSponsorshipStatus')
@@ -70,127 +70,34 @@ describe('setSponsorshipStatus', function () {
 });
 
 describe('makeTemplateRequest', function () {
-  context('Requester is sponsored', function () {
-    it('makes template request', async function () {
-      // Endorse the requester
-      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      // Create the template
-      const endpointId = utils.generateRandomBytes32();
-      const parameters = utils.generateRandomBytes();
-      await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-      const templateId = hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-      );
-      // Compute the expected request ID
-      const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
-      const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-      const requestTimeParameters = utils.generateRandomBytes();
-      const expectedRequestId = hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-          [requesterRequestCount, chainId, rrpRequester.address, templateId, requestTimeParameters]
-        )
-      );
-      // Make the request
-      await expect(
-        rrpRequester
-          .connect(roles.randomPerson)
-          .makeTemplateRequest(
-            templateId,
-            roles.sponsor.address,
-            sponsorWalletAddress,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            requestTimeParameters
-          )
-      )
-        .to.emit(airnodeRrp, 'MadeTemplateRequest')
-        .withArgs(
-          airnodeAddress,
-          expectedRequestId,
-          requesterRequestCount,
-          chainId,
-          rrpRequester.address,
-          templateId,
-          roles.sponsor.address,
-          sponsorWalletAddress,
-          rrpRequester.address,
-          rrpRequester.interface.getSighash('fulfill'),
-          requestTimeParameters
-        );
-      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
-        requesterRequestCount.add(1)
-      );
-    });
-    it('reverts on invalid templateId', async function () {
-      // Endorse the requester
-      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      // Create the template
-      const endpointId = utils.generateRandomBytes32();
-      const parameters = utils.generateRandomBytes();
-      await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-      const templateId = utils.generateRandomBytes32();
-      // Compute the expected request ID
-      const requestTimeParameters = utils.generateRandomBytes();
-      // Make the request
-      await expect(
-        rrpRequester
-          .connect(roles.randomPerson)
-          .makeTemplateRequest(
-            templateId,
-            roles.sponsor.address,
-            sponsorWalletAddress,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            requestTimeParameters
-          )
-      ).to.be.revertedWith('airnode address zero');
-    });
-  });
-  context('Requester not sponsored', function () {
-    it('reverts', async function () {
-      const templateId = utils.generateRandomBytes32();
-      const requestTimeParameters = utils.generateRandomBytes();
-      await expect(
-        rrpRequester
-          .connect(roles.randomPerson)
-          .makeTemplateRequest(
-            templateId,
-            roles.sponsor.address,
-            sponsorWalletAddress,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            requestTimeParameters
-          )
-      ).to.be.revertedWith('Requester not sponsored');
-    });
-  });
-});
-
-describe('makeFullRequest', function () {
-  context('airnode address is valid', function () {
+  context('fullfill address is valid', function () {
     context('Requester is sponsored', function () {
       it('makes template request', async function () {
         // Endorse the requester
         await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+        // Create the template
+        const endpointId = utils.generateRandomBytes32();
+        const parameters = utils.generateRandomBytes();
+        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+        const templateId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+        );
         // Compute the expected request ID
         const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
         const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-        const endpointId = utils.generateRandomBytes32();
         const requestTimeParameters = utils.generateRandomBytes();
         const expectedRequestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
             ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
+            [requesterRequestCount, chainId, rrpRequester.address, templateId, requestTimeParameters]
           )
         );
         // Make the request
         await expect(
           rrpRequester
             .connect(roles.randomPerson)
-            .makeFullRequest(
-              airnodeAddress,
-              endpointId,
+            .makeTemplateRequest(
+              templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
               rrpRequester.address,
@@ -198,14 +105,14 @@ describe('makeFullRequest', function () {
               requestTimeParameters
             )
         )
-          .to.emit(airnodeRrp, 'MadeFullRequest')
+          .to.emit(airnodeRrp, 'MadeTemplateRequest')
           .withArgs(
             airnodeAddress,
             expectedRequestId,
             requesterRequestCount,
             chainId,
             rrpRequester.address,
-            endpointId,
+            templateId,
             roles.sponsor.address,
             sponsorWalletAddress,
             rrpRequester.address,
@@ -216,8 +123,142 @@ describe('makeFullRequest', function () {
           requesterRequestCount.add(1)
         );
       });
+      it('reverts on invalid templateId', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+        // Create the template
+        const endpointId = utils.generateRandomBytes32();
+        const parameters = utils.generateRandomBytes();
+        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+        const templateId = utils.generateRandomBytes32();
+        // Compute the expected request ID
+        const requestTimeParameters = utils.generateRandomBytes();
+        // Make the request
+        await expect(
+          rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            )
+        ).to.be.revertedWith('airnode address zero');
+      });
     });
     context('Requester not sponsored', function () {
+      it('reverts', async function () {
+        const templateId = utils.generateRandomBytes32();
+        const requestTimeParameters = utils.generateRandomBytes();
+        await expect(
+          rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            )
+        ).to.be.revertedWith('Requester not sponsored');
+      });
+    });
+  });
+  context('fullfill address is invalid', function () {
+    it('reverts', async function () {
+      const templateId = utils.generateRandomBytes32();
+      const requestTimeParameters = utils.generateRandomBytes();
+      await expect(
+        rrpRequester
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
+            templateId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            airnodeRrp.address,
+            airnodeRrp.interface.getSighash('fulfill'),
+            requestTimeParameters
+          )
+      ).to.be.revertedWith('fullfill address AirnodeRrp');
+    });
+  });
+});
+
+describe('makeFullRequest', function () {
+  context('airnode address is valid', function () {
+    context('fullfill address is valid', function () {
+      context('Requester is sponsored', function () {
+        it('makes template request', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Compute the expected request ID
+          const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
+          const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          const expectedRequestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
+            )
+          );
+          // Make the request
+          await expect(
+            rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              )
+          )
+            .to.emit(airnodeRrp, 'MadeFullRequest')
+            .withArgs(
+              airnodeAddress,
+              expectedRequestId,
+              requesterRequestCount,
+              chainId,
+              rrpRequester.address,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
+            requesterRequestCount.add(1)
+          );
+        });
+      });
+      context('Requester not sponsored', function () {
+        it('reverts', async function () {
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await expect(
+            rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              )
+          ).to.be.revertedWith('Requester not sponsored');
+        });
+      });
+    });
+    context('fullfill address is invalid', function () {
       it('reverts', async function () {
         const endpointId = utils.generateRandomBytes32();
         const requestTimeParameters = utils.generateRandomBytes();
@@ -229,11 +270,11 @@ describe('makeFullRequest', function () {
               endpointId,
               roles.sponsor.address,
               sponsorWalletAddress,
-              rrpRequester.address,
-              rrpRequester.interface.getSighash('fulfill'),
+              airnodeRrp.address,
+              airnodeRrp.interface.getSighash('fulfill'),
               requestTimeParameters
             )
-        ).to.be.revertedWith('Requester not sponsored');
+        ).to.be.revertedWith('fullfill address AirnodeRrp');
       });
     });
   });

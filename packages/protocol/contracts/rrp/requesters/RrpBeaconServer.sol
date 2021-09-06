@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../admin/MetaAdminnable.sol";
-import "../../admin/Whitelister.sol";
+import "../../adminnable/MetaAdminnable.sol";
+import "../../adminnable/Whitelister.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 
