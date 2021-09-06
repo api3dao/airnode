@@ -4,27 +4,18 @@ import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
-import {
-  AggregatedApiCall,
-  ApiCallParameters,
-  ApiCallResponse,
-  ChainConfig,
-  Config,
-  LogsData,
-  RequestErrorCode,
-} from '../types';
+import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorCode } from '../types';
 import { removeKeys, removeKey } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
-function addMetadataParameters(
+function buildMetadataParameters(
   chain: ChainConfig,
   aggregatedApiCall: AggregatedApiCall,
   reservedParameters: adapter.ReservedParameters
-): ApiCallParameters {
-  const parameters = aggregatedApiCall.parameters;
+): adapter.Parameters {
   switch (reservedParameters._relay_metadata?.toLowerCase()) {
     case 'v1': {
-      const relayMetadata: adapter.RelayMetadataV1 = {
+      const metadataParametersV1: adapter.RelayMetadataV1 = {
         _airnode_airnode_id: aggregatedApiCall.airnodeId,
         _airnode_client_address: aggregatedApiCall.clientAddress,
         _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
@@ -35,13 +26,10 @@ function addMetadataParameters(
         _airnode_chain_type: chain.type,
         _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
       };
-      return {
-        ...parameters,
-        ...relayMetadata,
-      };
+      return { ...metadataParametersV1 };
     }
     default:
-      return parameters;
+      return {};
   }
 }
 
@@ -53,14 +41,15 @@ function buildOptions(
   apiCredentials: adapter.ApiCredentials[]
 ): adapter.BuildRequestOptions {
   // Include airnode metadata based on _relay_metadata version number
-  const parametersWithMetadata = addMetadataParameters(chain, aggregatedApiCall, reservedParameters);
+  const metadataParameters: adapter.Parameters = buildMetadataParameters(chain, aggregatedApiCall, reservedParameters);
 
   // Don't submit the reserved parameters to the API
-  const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
+  const sanitizedParameters: adapter.Parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
 
   return {
     endpointName: aggregatedApiCall.endpointName!,
     parameters: sanitizedParameters,
+    metadataParameters,
     ois,
     apiCredentials,
   };

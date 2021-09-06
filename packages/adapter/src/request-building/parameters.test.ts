@@ -169,9 +169,7 @@ describe('user parameters', () => {
 describe('relay metadata parameters', () => {
   it('appends parameters to query', () => {
     const options = fixtures.buildCacheRequestOptions({
-      parameters: {
-        f: 'ETH',
-        amount: '1',
+      metadataParameters: {
         _airnode_airnode_id: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         _airnode_client_address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         _airnode_designated_wallet: '0xB604c9f7de852F26DB90C04000820850112905b4',

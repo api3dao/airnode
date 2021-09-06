@@ -11,7 +11,8 @@ export interface ApiCredentials {
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
-  readonly parameters: { readonly [key: string]: string };
+  readonly parameters: Parameters;
+  readonly metadataParameters: Parameters;
   readonly apiCredentials: ApiCredentials[];
 }
 

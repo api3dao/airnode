@@ -76,13 +76,13 @@ function buildUserParameters(options: CachedBuildRequestOptions): BuilderParamet
   }, initalParameters());
 }
 
-function buildRelayMetadataParameters(options: CachedBuildRequestOptions): BuilderParameters {
-  const { parameters } = options;
+function buildMetadataParameters(options: CachedBuildRequestOptions): BuilderParameters {
+  const { metadataParameters } = options;
 
-  const parameterKeys = Object.keys(parameters).filter((key) => key.startsWith('_airnode_'));
+  const parameterKeys = Object.keys(metadataParameters);
 
   return parameterKeys.reduce((acc, key) => {
-    return appendParameter(acc, 'query', key, parameters[key]);
+    return appendParameter(acc, 'query', key, metadataParameters[key]);
   }, initalParameters());
 }
 
@@ -90,7 +90,7 @@ export function buildParameters(options: CachedBuildRequestOptions): RequestPara
   const auth = authentication.buildParameters(options);
   const fixed = buildFixedParameters(options);
   const user = buildUserParameters(options);
-  const relayMetadata = buildRelayMetadataParameters(options);
+  const metadata = buildMetadataParameters(options);
 
   const cookie = cookies.buildHeader({ ...user.cookies, ...fixed.cookies, ...auth.cookies });
 
@@ -98,7 +98,7 @@ export function buildParameters(options: CachedBuildRequestOptions): RequestPara
   // overwrite fixed and authentication parameters
   return {
     paths: { ...user.paths, ...fixed.paths },
-    query: { ...user.query, ...fixed.query, ...auth.query, ...relayMetadata.query },
+    query: { ...user.query, ...fixed.query, ...auth.query, ...metadata.query },
     headers: { ...user.headers, ...fixed.headers, ...auth.headers, ...cookie },
   };
 }
