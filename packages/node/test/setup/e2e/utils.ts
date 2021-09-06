@@ -42,6 +42,14 @@ export async function fetchAllLogs(
   return rawLogs.map((log) => parseAirnodeRrpLog(log));
 }
 
+export async function fetchAllLogNames(provider: ethers.providers.JsonRpcProvider, address: string) {
+  return (await fetchAllLogs(provider, address)).map(({ name }) => name);
+}
+
+export function filterLogsByName(logs: AirnodeLogDescription<any>[], name: string) {
+  return logs.filter((log) => log.name === name);
+}
+
 // We want to use a separate account each time we deploy RRP. These accounts
 // are assigned based on the feature file's index in the folder.
 export function getDeployerIndex(fullFilePath: string) {
