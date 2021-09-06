@@ -1,82 +1,61 @@
-import fs from 'fs';
 import { ethers } from 'ethers';
-import * as e2e from '../setup/e2e';
-import * as fixtures from '../fixtures';
-import * as handlers from '../../src/workers/local-handlers';
-import * as wallet from '../../src/evm/wallet';
+import { operation } from '../fixtures';
+import { startCoordinator } from '../../src/workers/local-handlers';
+import { getMasterHDNode, deriveSponsorWallet } from '../../src/evm/wallet';
+import { deployAirnodeAndMakeRequests, fetchAllLogNames, increaseTestTimeout } from '../setup/e2e';
+
+// It's difficult to check exact balances because of the gas costs
+const expectEthInRange = (eth: ethers.BigNumber, from: string, to: string) => {
+  expect(eth.gt(ethers.utils.parseEther(from))).toEqual(true);
+  expect(eth.lt(ethers.utils.parseEther(to))).toEqual(true);
+};
 
 it('processes withdrawals only once', async () => {
-  jest.setTimeout(45_000);
+  increaseTestTimeout();
+  const { deployment, provider, config } = await deployAirnodeAndMakeRequests(__filename, [
+    operation.buildWithdrawal(),
+  ]);
 
-  const provider = e2e.buildProvider();
-
-  const requests = [fixtures.operation.buildWithdrawal()];
-
-  const deployerIndex = e2e.getDeployerIndex(__filename);
-  const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex, requests });
-
-  const deployment = await e2e.deployAirnodeRrp(deployConfig);
-
-  await e2e.makeRequests(deployConfig, deployment);
-
-  const nodeSettings = fixtures.buildNodeSettings({
-    airnodeWalletMnemonic: deployConfig.airnodes.CurrencyConverterAirnode.mnemonic,
-  });
-  const chain = e2e.buildChainConfig(deployment.contracts);
-  const config = fixtures.buildConfig({ chains: [chain], nodeSettings });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
-
-  // Check that the relevant withdrawal events are present
-  const preinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  const preinvokeWithdrawals = preinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
-  const preinvokeFulfillments = preinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
-
-  expect(preinvokeLogs.length).toEqual(4);
-  expect(preinvokeWithdrawals.length).toEqual(1);
-  expect(preinvokeFulfillments.length).toEqual(0);
+  const preInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(preInvokeLogs).toEqual(['SetAirnodeXpub', 'SetSponsorshipStatus', 'CreatedTemplate', 'RequestedWithdrawal']);
 
   const alice = deployment.sponsors.find((s) => s.id === 'alice');
-  const hdNode = wallet.getMasterHDNode(config);
-  const sponsorWalletAddress = wallet.deriveSponsorWallet(hdNode, alice!.address).address;
+  const hdNode = getMasterHDNode(config);
+  const sponsorWalletAddress = deriveSponsorWallet(hdNode, alice!.address).address;
 
-  // It's difficult to check exact balances because the sponsor has made transactions at this
-  // point, so check current balance is > 1.99 ETH and < 2.01 ETH
   const preWithdrawalBalance = await provider.getBalance(alice!.address);
-  expect(preWithdrawalBalance.gt(ethers.utils.parseEther('1.99'))).toEqual(true);
-  expect(preWithdrawalBalance.lt(ethers.utils.parseEther('2.01'))).toEqual(true);
+  expectEthInRange(preWithdrawalBalance, '1.99', '2.01');
 
   const preWithdrawalSponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
-  expect(preWithdrawalSponsorWalletBalance.gt(ethers.utils.parseEther('1.99'))).toEqual(true);
-  expect(preWithdrawalSponsorWalletBalance.lt(ethers.utils.parseEther('2.01'))).toEqual(true);
+  expectEthInRange(preWithdrawalSponsorWalletBalance, '1.99', '2.01');
 
-  await handlers.startCoordinator();
+  await startCoordinator();
 
   const postWithdrawalBalance = await provider.getBalance(alice!.address);
-  expect(postWithdrawalBalance.gt(ethers.utils.parseEther('3.9'))).toEqual(true);
-  expect(postWithdrawalBalance.lt(ethers.utils.parseEther('4.01'))).toEqual(true);
+  expectEthInRange(postWithdrawalBalance, '3.9', '4.01');
 
-  // There is still some dust left over after withdrawing, so check balance is < 0.0005 ETH
   const postWithdrawalSponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
-  expect(postWithdrawalSponsorWalletBalance.lt(ethers.utils.parseEther('0.0005'))).toEqual(true);
+  expectEthInRange(postWithdrawalSponsorWalletBalance, '0', '0.0005');
 
   // Check that the relevant withdrawal events are present
-  const postinvokeLogs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  const postinvokeWithdrawals = postinvokeLogs.filter((log) => log.name === 'RequestedWithdrawal');
-  const postinvokeFulfillments = postinvokeLogs.filter((log) => log.name === 'FulfilledWithdrawal');
+  const postInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(postInvokeLogs).toEqual([
+    'SetAirnodeXpub',
+    'SetSponsorshipStatus',
+    'CreatedTemplate',
+    'RequestedWithdrawal',
+    'FulfilledWithdrawal',
+  ]);
 
-  expect(postinvokeLogs.length).toEqual(5);
-  expect(postinvokeWithdrawals.length).toEqual(1);
-  expect(postinvokeFulfillments.length).toEqual(1);
-
-  await handlers.startCoordinator();
+  await startCoordinator();
 
   // Withdrawals are not processed twice
-  const run2Logs = await e2e.fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(run2Logs.length).toEqual(5);
+  const afterPostInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
+  expect(afterPostInvokeLogs).toEqual(postInvokeLogs);
 
   // Balances have not changed
-  const run2Balance = await provider.getBalance(alice!.address);
-  expect(run2Balance).toEqual(postWithdrawalBalance);
-  const run2SponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
-  expect(run2SponsorWalletBalance).toEqual(postWithdrawalSponsorWalletBalance);
+  const afterPostWithdrawalBalance = await provider.getBalance(alice!.address);
+  expect(afterPostWithdrawalBalance).toEqual(postWithdrawalBalance);
+  const afterPostWithdrawalSponsorWalletBalance = await provider.getBalance(sponsorWalletAddress);
+  expect(afterPostWithdrawalSponsorWalletBalance).toEqual(postWithdrawalSponsorWalletBalance);
 });
