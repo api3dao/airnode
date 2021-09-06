@@ -43,7 +43,7 @@ export async function checkAirnodeParameters(config: Config, airnodeId: string, 
         } catch (err) {
           // Continue
           spinner.warn(`Couldn't connect via ${providerUrl} provider`);
-          logger.debug(err.toString());
+          logger.debug((err as Error).toString());
         }
       }
       if (!checkSuccesful) {
@@ -75,6 +75,6 @@ async function checkMasterWalletBalance(
     }
   } catch (err) {
     spinner.info(`Skipped checking master wallet balance on chain: ${chainName}`);
-    logger.debug(err.toString());
+    logger.debug((err as Error).toString());
   }
 }
