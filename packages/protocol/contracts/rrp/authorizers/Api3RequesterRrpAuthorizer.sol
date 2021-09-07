@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../admin/MetaAdminnable.sol";
+import "../../adminnable/MetaAdminnable.sol";
 import "./RequesterRrpAuthorizer.sol";
 import "./interfaces/IApi3RequesterRrpAuthorizer.sol";
 

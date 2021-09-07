@@ -14,9 +14,16 @@ contract RrpRequester {
         _;
     }
 
-    /// @dev Airnode RRP address is set at deployment and is immutable
+    /// @dev Airnode RRP address is set at deployment and is immutable.
+    /// RrpRequester is made its own sponsor by default. RrpRequester can also
+    /// be sponsored by others and use these sponsorships while making
+    /// requests, i.e., using this default sponsorship is optional.
     /// @param airnodeRrpAddress Airnode RRP contract address
     constructor(address airnodeRrpAddress) {
         airnodeRrp = IAirnodeRrp(airnodeRrpAddress);
+        IAirnodeRrp(airnodeRrpAddress).setSponsorshipStatus(
+            address(this),
+            true
+        );
     }
 }
