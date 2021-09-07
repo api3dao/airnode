@@ -58,14 +58,17 @@ export interface ReservedParameters {
   readonly _relay_metadata?: string;
 }
 
-export interface RelayMetadataV1 {
-  readonly _airnode_airnode_id: string;
-  readonly _airnode_client_address: string;
-  readonly _airnode_designated_wallet: string;
-  readonly _airnode_endpoint_id: string;
-  readonly _airnode_requester_index: string;
-  readonly _airnode_request_id: string;
-  readonly _airnode_chain_id: string;
-  readonly _airnode_chain_type: string;
-  readonly _airnode_airnode_rrp: string;
-}
+export type MetadataParameterKeysV1 =
+  | '_airnode_airnode_id'
+  | '_airnode_client_address'
+  | '_airnode_designated_wallet'
+  | '_airnode_endpoint_id'
+  | '_airnode_requester_index'
+  | '_airnode_request_id'
+  | '_airnode_chain_id'
+  | '_airnode_chain_type'
+  | '_airnode_airnode_rrp';
+
+export type MetadataParametersV1 = {
+  readonly [key in MetadataParameterKeysV1]: string;
+};

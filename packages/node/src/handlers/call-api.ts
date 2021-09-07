@@ -15,7 +15,7 @@ function buildMetadataParameters(
 ): adapter.Parameters {
   switch (reservedParameters._relay_metadata?.toLowerCase()) {
     case 'v1': {
-      const metadataParametersV1: adapter.RelayMetadataV1 = {
+      const metadataParametersV1: adapter.MetadataParametersV1 = {
         _airnode_airnode_id: aggregatedApiCall.airnodeId,
         _airnode_client_address: aggregatedApiCall.clientAddress,
         _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
@@ -26,7 +26,7 @@ function buildMetadataParameters(
         _airnode_chain_type: chain.type,
         _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
       };
-      return { ...metadataParametersV1 };
+      return metadataParametersV1;
     }
     default:
       return {};
