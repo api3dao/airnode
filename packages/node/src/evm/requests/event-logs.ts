@@ -44,8 +44,6 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     fromBlock,
     toBlock: options.currentBlock,
     address: options.address,
-    // Ethers types don't support null for a topic, even though it's valid
-    // @ts-ignore
     topics: [null, ethers.utils.hexZeroPad(options.airnodeAddress, 32)],
   };
 

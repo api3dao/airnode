@@ -55,9 +55,9 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
   });
   logger.info('Forking to initialize providers complete', logOptions);
 
-  const hasNoRequests = state2.providerStates.evm.every((evmProvider) =>
-    hasNoActionableRequests(evmProvider!.requests)
-  );
+  const hasNoRequests = state2.providerStates.evm.every((evmProvider) => {
+    return hasNoActionableRequests(evmProvider!.requests);
+  });
   if (hasNoRequests) {
     logger.info('No actionable requests detected. Returning...', logOptions);
     return state2;

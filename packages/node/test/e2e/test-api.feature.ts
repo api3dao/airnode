@@ -4,6 +4,7 @@ import * as e2e from '../setup/e2e';
 import * as fixtures from '../fixtures';
 
 it('makes a call to test the API', async () => {
+  // TODO: refactor me the similarly to other e2e tests
   jest.setTimeout(45_000);
 
   const deployerIndex = e2e.getDeployerIndex(__filename);
