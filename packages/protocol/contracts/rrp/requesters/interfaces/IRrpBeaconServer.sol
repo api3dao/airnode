@@ -5,6 +5,12 @@ import "../../../admin/interfaces/IMetaAdminnable.sol";
 import "../../../admin/interfaces/IWhitelister.sol";
 
 interface IRrpBeaconServer is IMetaAdminnable, IWhitelister {
+    event SetUpdatePermissionStatus(
+        address indexed sponsor,
+        address indexed updateRequester,
+        bool updatePermissionStatus
+    );
+
     event RequestedBeaconUpdate(
         bytes32 indexed templateId,
         address indexed sponsor,
@@ -26,6 +32,11 @@ interface IRrpBeaconServer is IMetaAdminnable, IWhitelister {
         uint256 statusCode
     );
 
+    function setUpdatePermissionStatus(
+        address updateRequester,
+        bool updatePermissionStatus
+    ) external;
+
     function requestBeaconUpdate(
         bytes32 templateId,
         address requester,
@@ -42,4 +53,9 @@ interface IRrpBeaconServer is IMetaAdminnable, IWhitelister {
         external
         view
         returns (int224 value, uint32 timestamp);
+
+    function sponsorToUpdateRequesterToPermissonStatus(
+        address sponsor,
+        address updateRequester
+    ) external view returns (bool permissionStatus);
 }

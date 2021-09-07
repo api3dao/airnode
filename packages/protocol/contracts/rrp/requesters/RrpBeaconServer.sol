@@ -32,6 +32,10 @@ contract RrpBeaconServer is
     int256 private constant MIN_INT224 = type(int224).min;
     uint256 private constant MAX_UINT32 = type(uint32).max;
 
+    mapping(address => mapping(address => bool))
+        public
+        override sponsorToUpdateRequesterToPermissonStatus;
+
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
@@ -42,12 +46,34 @@ contract RrpBeaconServer is
         MetaAdminnable(metaAdmin_)
     {}
 
+    /// @notice Called by the sponsor to set the update request permission
+    /// status of an account
+    /// @param updateRequester Update requester address
+    /// @param updatePermissionStatus Update permission status of the update
+    /// requester
+    function setUpdatePermissionStatus(
+        address updateRequester,
+        bool updatePermissionStatus
+    ) external override {
+        sponsorToUpdateRequesterToPermissonStatus[msg.sender][
+            updateRequester
+        ] = updatePermissionStatus;
+        emit SetUpdatePermissionStatus(
+            msg.sender,
+            updateRequester,
+            updatePermissionStatus
+        );
+    }
+
     /// @notice Called to request a beacon to be updated
     /// @dev Anyone can request a beacon to be updated. This is because it is
     /// assumed that a beacon update request is always desirable, and the
     /// requester and sponsor will pay for the gas cost.
-    /// The sponsor must sponsor both the caller of this function, and this
-    /// very RrpBeaconServer contract for the Airnode to fulfill this request.
+    /// There are two requirements for this method to be called: (1) The
+    /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
+    /// this RrpBeaconServer contract, (2) The sponsor must call
+    /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
+    /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned (because this is what `fulfill()` expects).
     /// @param templateId Template ID of the beacon to be updated
@@ -60,14 +86,9 @@ contract RrpBeaconServer is
         address sponsor,
         address sponsorWallet
     ) external override {
-        // Note that AirnodeRrp will also check if the requester has endorsed
-        // this RrpBeaconServer in the `makeRequest()` call
         require(
-            airnodeRrp.sponsorToRequesterToSponsorshipStatus(
-                sponsor,
-                msg.sender
-            ),
-            "Caller not sponsored"
+            sponsorToUpdateRequesterToPermissonStatus[sponsor][msg.sender],
+            "Caller not permitted"
         );
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
             templateId,
