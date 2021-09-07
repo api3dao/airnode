@@ -10,6 +10,53 @@ abstract contract RequesterRrpAuthorizer is
     Whitelister,
     IRequesterRrpAuthorizer
 {
+    function extendWhitelistExpiration(
+        address airnode,
+        bytes32 endpointId,
+        address user,
+        uint64 expirationTimestamp
+    ) external {
+        extendWhitelistExpiration(
+            deriveAdminnedId(airnode, endpointId),
+            user,
+            expirationTimestamp
+        );
+    }
+
+    function setWhitelistExpiration(
+        address airnode,
+        bytes32 endpointId,
+        address user,
+        uint64 expirationTimestamp
+    ) external {
+        setWhitelistExpiration(
+            deriveAdminnedId(airnode, endpointId),
+            user,
+            expirationTimestamp
+        );
+    }
+
+    function setWhitelistStatusPastExpiration(
+        address airnode,
+        bytes32 endpointId,
+        address user,
+        bool status
+    ) external {
+        setWhitelistStatusPastExpiration(
+            deriveAdminnedId(airnode, endpointId),
+            user,
+            status
+        );
+    }
+
+    function userIsWhitelisted(
+        address airnode,
+        bytes32 endpointId,
+        address user
+    ) external view returns (bool isWhitelisted) {
+        return userIsWhitelisted(deriveAdminnedId(airnode, endpointId), user);
+    }
+
     /// @notice Verifies the authorization status of a request
     /// @dev This method has redundant arguments because all authorizer
     /// contracts have to have the same interface and potential authorizer
@@ -23,10 +70,19 @@ abstract contract RequesterRrpAuthorizer is
     function isAuthorized(
         bytes32 requestId, // solhint-disable-line no-unused-vars
         address airnode,
-        bytes32 endpointId, // solhint-disable-line no-unused-vars
+        bytes32 endpointId,
         address sponsor, // solhint-disable-line no-unused-vars
         address requester
     ) external view override returns (bool) {
-        return userIsWhitelisted(bytes32(abi.encode(airnode)), requester);
+        return
+            userIsWhitelisted(deriveAdminnedId(airnode, endpointId), requester);
+    }
+
+    function deriveAdminnedId(address airnode, bytes32 endpointId)
+        internal
+        view
+        returns (bytes32 adminnedId)
+    {
+        return keccak256(abi.encodePacked(airnode, endpointId));
     }
 }
