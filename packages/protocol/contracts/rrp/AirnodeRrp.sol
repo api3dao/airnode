@@ -117,7 +117,7 @@ contract AirnodeRrp is
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
-        require(fulfillAddress != address(this), "fullfill address AirnodeRrp");
+        require(fulfillAddress != address(this), "fullfil address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"
@@ -182,7 +182,7 @@ contract AirnodeRrp is
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         require(airnode != address(0), "airnode address zero");
-        require(fulfillAddress != address(this), "fullfill address AirnodeRrp");
+        require(fulfillAddress != address(this), "fullfil address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],
             "Requester not sponsored"

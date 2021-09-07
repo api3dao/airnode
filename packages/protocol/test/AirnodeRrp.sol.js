@@ -70,7 +70,7 @@ describe('setSponsorshipStatus', function () {
 });
 
 describe('makeTemplateRequest', function () {
-  context('fullfill address is valid', function () {
+  context('fullfil address is valid', function () {
     context('Requester is sponsored', function () {
       it('makes template request', async function () {
         // Endorse the requester
@@ -167,7 +167,7 @@ describe('makeTemplateRequest', function () {
       });
     });
   });
-  context('fullfill address is invalid', function () {
+  context('fullfil address is invalid', function () {
     it('reverts', async function () {
       const templateId = utils.generateRandomBytes32();
       const requestTimeParameters = utils.generateRandomBytes();
@@ -182,14 +182,14 @@ describe('makeTemplateRequest', function () {
             airnodeRrp.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      ).to.be.revertedWith('fullfill address AirnodeRrp');
+      ).to.be.revertedWith('fullfil address AirnodeRrp');
     });
   });
 });
 
 describe('makeFullRequest', function () {
   context('airnode address is valid', function () {
-    context('fullfill address is valid', function () {
+    context('fullfil address is valid', function () {
       context('Requester is sponsored', function () {
         it('makes template request', async function () {
           // Endorse the requester
@@ -258,7 +258,7 @@ describe('makeFullRequest', function () {
         });
       });
     });
-    context('fullfill address is invalid', function () {
+    context('fullfil address is invalid', function () {
       it('reverts', async function () {
         const endpointId = utils.generateRandomBytes32();
         const requestTimeParameters = utils.generateRandomBytes();
@@ -274,7 +274,7 @@ describe('makeFullRequest', function () {
               airnodeRrp.interface.getSighash('fulfill'),
               requestTimeParameters
             )
-        ).to.be.revertedWith('fullfill address AirnodeRrp');
+        ).to.be.revertedWith('fullfil address AirnodeRrp');
       });
     });
   });
