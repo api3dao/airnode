@@ -43,7 +43,7 @@ contract Whitelister is RankedAdminnable, IWhitelister {
         bytes32 serviceId,
         address user,
         uint64 expirationTimestamp
-    ) external override onlyWithRank(serviceId, uint256(AdminRank.Admin)) {
+    ) public override onlyWithRank(serviceId, uint256(AdminRank.Admin)) {
         require(
             expirationTimestamp >
                 serviceIdToUserToWhitelistStatus[serviceId][user]
@@ -71,7 +71,7 @@ contract Whitelister is RankedAdminnable, IWhitelister {
         bytes32 serviceId,
         address user,
         uint64 expirationTimestamp
-    ) external override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
+    ) public override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[serviceId][user]
             .expirationTimestamp = expirationTimestamp;
         emit SetWhitelistExpiration(
@@ -91,7 +91,7 @@ contract Whitelister is RankedAdminnable, IWhitelister {
         bytes32 serviceId,
         address user,
         bool status
-    ) external override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
+    ) public override onlyWithRank(serviceId, uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[serviceId][user]
             .whitelistedPastExpiration = status;
         emit SetWhitelistStatusPastExpiration(
