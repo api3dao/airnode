@@ -1,18 +1,9 @@
-import fs from 'fs';
-import * as handlers from '../../src/workers/local-handlers';
-import * as e2e from '../setup/e2e';
-import * as fixtures from '../fixtures';
+import { testApi } from '../../src/workers/local-handlers';
+import { deployAirnodeAndMakeRequests, increaseTestTimeout } from '../setup/e2e';
 
 it('makes a call to test the API', async () => {
-  // TODO: refactor me the similarly to other e2e tests
-  jest.setTimeout(45_000);
-
-  const deployerIndex = e2e.getDeployerIndex(__filename);
-  const deployConfig = fixtures.operation.buildDeployConfig({ deployerIndex });
-  const deployment = await e2e.deployAirnodeRrp(deployConfig);
-  const chain = e2e.buildChainConfig(deployment.contracts);
-  const config = fixtures.buildConfig({ chains: [chain] });
-  jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+  increaseTestTimeout();
+  await deployAirnodeAndMakeRequests(__filename);
 
   const parameters = {
     from: 'ETH',
@@ -25,6 +16,6 @@ it('makes a call to test the API', async () => {
   // Value is returned by the mock server from the operation package
   const expected = { value: '72339202' };
 
-  const result = await handlers.testApi(endpointId, parameters);
+  const result = await testApi(endpointId, parameters);
   expect(result).toEqual(expected);
 });
