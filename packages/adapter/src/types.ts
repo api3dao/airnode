@@ -4,7 +4,8 @@ import BigNumber from 'bignumber.js';
 export interface BuildRequestOptions {
   ois: OIS;
   endpointName: string;
-  parameters: { [key: string]: string };
+  parameters: Parameters;
+  metadataParameters: Parameters;
   securitySchemeSecrets?: SecuritySchemeSecret[];
 }
 
@@ -49,3 +50,18 @@ export interface ReservedParameters {
   _type: ResponseType;
   _relay_metadata?: string;
 }
+
+export type MetadataParameterKeysV1 =
+  | '_airnode_provider_id'
+  | '_airnode_client_address'
+  | '_airnode_designated_wallet'
+  | '_airnode_endpoint_id'
+  | '_airnode_requester_index'
+  | '_airnode_request_id'
+  | '_airnode_chain_id'
+  | '_airnode_chain_type'
+  | '_airnode_airnode';
+
+export type MetadataParametersV1 = {
+  [key in MetadataParameterKeysV1]: string;
+};

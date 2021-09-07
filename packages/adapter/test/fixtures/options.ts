@@ -8,6 +8,7 @@ export function buildRequestOptions(overrides?: Partial<BuildRequestOptions>): B
     ois: ois,
     endpointName: 'convertToUsd',
     parameters: { f: 'ETH', amount: '1' },
+    metadataParameters: {},
     securitySchemeSecrets,
     ...overrides,
   };

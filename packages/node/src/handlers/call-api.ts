@@ -4,19 +4,17 @@ import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/par
 import { getConfigSecret } from '../config';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
-import { AggregatedApiCall, ApiCallParameters, ApiCallResponse, Config, LogsData, RequestErrorCode } from '../types';
+import { AggregatedApiCall, ApiCallResponse, Config, LogsData, RequestErrorCode } from '../types';
 import { removeKeys } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
-function addMetadataParameters(
+function buildMetadataParameters(
   aggregatedApiCall: AggregatedApiCall,
   reservedParameters: adapter.ReservedParameters
-): ApiCallParameters {
-  const parameters = aggregatedApiCall.parameters;
+): adapter.Parameters {
   switch (reservedParameters._relay_metadata?.toLowerCase()) {
-    case 'v1':
-      return {
-        ...parameters,
+    case 'v1': {
+      const metadataParametersV1: adapter.MetadataParametersV1 = {
         _airnode_provider_id: aggregatedApiCall.providerId,
         _airnode_client_address: aggregatedApiCall.clientAddress,
         _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
@@ -30,8 +28,10 @@ function addMetadataParameters(
         _airnode_chain_type: 'N/A',
         _airnode_airnode: 'N/A',
       };
+      return metadataParametersV1;
+    }
     default:
-      return parameters;
+      return {};
   }
 }
 
@@ -50,10 +50,10 @@ function buildOptions(
   reservedParameters: adapter.ReservedParameters
 ): adapter.BuildRequestOptions {
   // Include airnode metadata based on _relay_metadata version number
-  const parametersWithMetadata = addMetadataParameters(aggregatedApiCall, reservedParameters);
+  const metadataParameters: adapter.Parameters = buildMetadataParameters(aggregatedApiCall, reservedParameters);
 
   // Don't submit the reserved parameters to the API
-  const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
+  const sanitizedParameters: adapter.Parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
 
   // Fetch secrets and build a list of security schemes
   const securitySchemeSecrets = buildSecuritySchemeSecrets(ois);
@@ -61,6 +61,7 @@ function buildOptions(
   return {
     endpointName: aggregatedApiCall.endpointName!,
     parameters: sanitizedParameters,
+    metadataParameters,
     ois,
     securitySchemeSecrets,
   };
