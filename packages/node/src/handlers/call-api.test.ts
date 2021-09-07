@@ -32,6 +32,7 @@ describe('callApi', () => {
         endpointName: 'convertToUsd',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
+        metadataParameters: {},
         securitySchemeSecrets: [
           {
             securitySchemeName: 'myapiApiScheme',
@@ -80,6 +81,8 @@ describe('callApi', () => {
             ois,
             parameters: {
               from: 'ETH',
+            },
+            metadataParameters: {
               ...(expectMetadata && {
                 _airnode_provider_id: aggregatedCall.providerId,
                 _airnode_client_address: aggregatedCall.clientAddress,
@@ -139,6 +142,8 @@ describe('callApi', () => {
         ois,
         parameters: {
           from: 'ETH',
+        },
+        metadataParameters: {
           _airnode_provider_id: aggregatedCall.providerId,
           _airnode_client_address: aggregatedCall.clientAddress,
           _airnode_designated_wallet: aggregatedCall.designatedWallet,
