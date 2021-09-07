@@ -30,6 +30,7 @@ describe('callApi', () => {
         endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
+        metadataParameters: {},
         apiCredentials: [
           {
             securitySchemeName: 'My Security Scheme',
@@ -74,9 +75,7 @@ describe('callApi', () => {
         expect(spy).toHaveBeenCalledWith(
           {
             endpointName: 'convertToUSD',
-            ois,
-            parameters: {
-              from: 'ETH',
+            metadataParameters: {
               ...(expectMetadata && {
                 _airnode_airnode_id: aggregatedCall.airnodeId,
                 _airnode_client_address: aggregatedCall.clientAddress,
@@ -88,6 +87,10 @@ describe('callApi', () => {
                 _airnode_chain_type: config.chains[0].type,
                 _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
               }),
+            },
+            ois,
+            parameters: {
+              from: 'ETH',
             },
             apiCredentials: [
               {

@@ -11,7 +11,8 @@ export interface ApiCredentials {
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
-  readonly parameters: { readonly [key: string]: string };
+  readonly parameters: Parameters;
+  readonly metadataParameters: Parameters;
   readonly apiCredentials: ApiCredentials[];
 }
 
@@ -56,3 +57,18 @@ export interface ReservedParameters {
   readonly _type: ResponseType;
   readonly _relay_metadata?: string;
 }
+
+export type MetadataParameterKeysV1 =
+  | '_airnode_airnode_id'
+  | '_airnode_client_address'
+  | '_airnode_designated_wallet'
+  | '_airnode_endpoint_id'
+  | '_airnode_requester_index'
+  | '_airnode_request_id'
+  | '_airnode_chain_id'
+  | '_airnode_chain_type'
+  | '_airnode_airnode_rrp';
+
+export type MetadataParametersV1 = {
+  readonly [key in MetadataParameterKeysV1]: string;
+};
