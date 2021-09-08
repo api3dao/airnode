@@ -1,5 +1,5 @@
 locals {
-  name = "${var.infrastructure_name}-${var.airnode_id_short}-${var.stage}-${var.name}"
+  name = "${var.infrastructure_name}-${var.airnode_address_short}-${var.stage}-${var.name}"
 
   tmp_dir               = "/tmp/${var.name}-${random_uuid.uuid.result}"
   tmp_input_dir         = "${local.tmp_dir}/input"
@@ -49,8 +49,8 @@ variable "stage" {
   description = "Infrastructure environment"
 }
 
-variable "airnode_id_short" {
-  description = "Airnode ID (short)"
+variable "airnode_address_short" {
+  description = "Airnode address (short)"
 }
 
 variable "configuration_file" {

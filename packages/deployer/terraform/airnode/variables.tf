@@ -13,8 +13,8 @@ variable "infrastructure_name" {
   default     = "airnode"
 }
 
-variable "airnode_id_short" {
-  description = "Airnode ID (short)"
+variable "airnode_address_short" {
+  description = "Airnode address (short)"
 }
 
 variable "configuration_file" {

@@ -11,17 +11,10 @@ export function validateMnemonic(mnemonic: string) {
   return true;
 }
 
-export function deriveAirnodeId(mnemonic: string) {
-  logger.debug('Deriving Airnode ID from mnemonic');
-  return ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(['address'], [deriveMasterWalletAddress(mnemonic)])
-  );
-}
-
-export function deriveMasterWalletAddress(mnemonic: string) {
-  logger.debug('Deriving master wallet from mnemonic');
-  const masterWallet = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  return masterWallet.address;
+export function deriveAirnodeAddress(mnemonic: string) {
+  logger.debug('Deriving airnode wallet from mnemonic');
+  const airnodeWallet = ethers.Wallet.fromMnemonic(mnemonic);
+  return airnodeWallet.address;
 }
 
 export function deriveXpub(mnemonic: string) {
@@ -32,14 +25,16 @@ export function deriveXpub(mnemonic: string) {
 
 export function generateMnemonic() {
   logger.debug('Generating new mnemonic');
-  const masterWallet = ethers.Wallet.createRandom();
-  return masterWallet.mnemonic.phrase;
+  const wallet = ethers.Wallet.createRandom();
+  return wallet.mnemonic.phrase;
 }
 
-export function shortenAirnodeId(airnodeId: string) {
-  logger.debug('Shortening Airnode ID');
-  if (!ethers.utils.isHexString(airnodeId, 32)) {
-    throw new Error('airnodeId is not a valid hex string');
+export function shortenAirnodeAddress(airnodeAddress: string) {
+  logger.debug('Shortening Airnode Address');
+  try {
+    ethers.utils.getAddress(airnodeAddress);
+  } catch {
+    throw new Error('airnodeAddress is not a valid hex string');
   }
-  return airnodeId.substring(2, 9);
+  return airnodeAddress.substring(2, 9).toLowerCase();
 }

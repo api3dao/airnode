@@ -1,22 +1,20 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { checkAirnodeParameters } from '../evm';
 import { deployAirnode, removeAirnode } from '../infrastructure';
+import { Receipts } from '../types';
 import {
-  deriveAirnodeId,
-  deriveMasterWalletAddress,
+  deriveAirnodeAddress,
   deriveXpub,
   generateMnemonic,
   parseConfigFile,
   parseReceiptFile,
   parseSecretsFile,
-  shortenAirnodeId,
+  shortenAirnodeAddress,
   validateMnemonic,
   verifyMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
-import { Receipts } from '../types';
 
 export async function deploy(
   configFile: string,
@@ -46,16 +44,15 @@ export async function deploy(
   const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
   fs.writeFileSync(tmpSecretsFile, JSON.stringify(secrets, null, 2));
 
-  const airnodeId = deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC);
-  const masterWalletAddress = deriveMasterWalletAddress(secrets.MASTER_KEY_MNEMONIC);
-  await checkAirnodeParameters(configs, secrets, airnodeId, masterWalletAddress);
+  const airnodeAddress = deriveAirnodeAddress(secrets.MASTER_KEY_MNEMONIC);
+  // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
+  const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
 
-  const airnodeIdShort = shortenAirnodeId(airnodeId);
   const receipts: Receipts = [];
   for (const config of configs) {
     try {
       await deployAirnode(
-        airnodeIdShort,
+        airnodeAddressShort,
         config.nodeSettings.stage,
         config.nodeSettings.cloudProvider,
         config.nodeSettings.region,
@@ -63,10 +60,9 @@ export async function deploy(
         tmpSecretsFile
       );
       receipts.push({
-        airnodeId: deriveAirnodeId(secrets.MASTER_KEY_MNEMONIC),
-        airnodeIdShort,
+        airnodeAddress,
+        airnodeAddressShort,
         config: { chains: config.chains, nodeSettings: config.nodeSettings },
-        masterWalletAddress,
         xpub: deriveXpub(secrets.MASTER_KEY_MNEMONIC),
       });
     } catch (err) {
@@ -83,8 +79,8 @@ export async function deploy(
   logger.info(`Outputted ${receiptFile}\n` + '  This file does not contain any sensitive information.');
 }
 
-export async function remove(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
-  await removeAirnode(airnodeIdShort, stage, cloudProvider, region);
+export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: string, region: string) {
+  await removeAirnode(airnodeAddressShort, stage, cloudProvider, region);
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
@@ -92,7 +88,7 @@ export async function removeWithReceipt(receiptFilename: string) {
   for (const receipt of receipts) {
     try {
       await remove(
-        receipt.airnodeIdShort,
+        receipt.airnodeAddressShort,
         receipt.config.nodeSettings.stage,
         receipt.config.nodeSettings.cloudProvider,
         receipt.config.nodeSettings.region
