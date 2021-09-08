@@ -25,33 +25,58 @@ contract Api3RequesterRrpAuthorizer is
 
     /// @notice Called by an admin of higher rank to set the rank of an admin
     /// of lower rank
-    /// @dev Overriden to require only using bytes32(0) as the `serviceId`
+    /// @dev Overriden to disable
     /// @param serviceId Service ID
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
     function setRank(
-        bytes32 serviceId,
+        bytes32 serviceId, // solhint-disable-line no-unused-vars
+        address targetAdmin, // solhint-disable-line no-unused-vars
+        uint256 newRank // solhint-disable-line no-unused-vars
+    ) public override(RankedAdminnable, IRankedAdminnable) {
+        revert("Disabled interface");
+    }
+
+    /// @notice Called by an admin of higher rank to set the rank of an admin
+    /// of lower rank
+    /// @dev Overriden to force `bytes32(0)` as `serviceId`
+    /// @param targetAdmin Target admin address
+    /// @param newRank Rank to be set
+    function setRank(
         address targetAdmin,
         uint256 newRank
-    ) public override(RankedAdminnable, IRankedAdminnable) {
-        require(serviceId == bytes32(0), "serviceId not zero");
-        RankedAdminnable.setRank(serviceId, targetAdmin, newRank);
+    ) public override {
+        RankedAdminnable.setRank(bytes32(0), targetAdmin, newRank);
     }
 
     /// @notice Called by an admin to decrease its rank
-    /// @dev Overriden to require only using bytes32(0) as the `serviceId`
+    /// @dev Overriden to disable
     /// @param serviceId Service ID
     /// @param newRank Rank to be set
-    function decreaseSelfRank(bytes32 serviceId, uint256 newRank)
+    function decreaseSelfRank(
+        bytes32 serviceId, // solhint-disable-line no-unused-vars
+        uint256 newRank // solhint-disable-line no-unused-vars
+        )
         public
         override(RankedAdminnable, IRankedAdminnable)
     {
-        require(serviceId == bytes32(0), "serviceId not zero");
-        RankedAdminnable.decreaseSelfRank(serviceId, newRank);
+        revert("Disabled interface");
     }
 
-    /// @notice Called to get the rank of an admin for a service
-    /// @dev Overriden to require only using bytes32(0) as the `serviceId`
+    /// @notice Called by an admin to decrease its rank
+    /// @dev Overriden to force `bytes32(0)` as `serviceId`
+    /// @param newRank Rank to be set
+    function decreaseSelfRank(uint256 newRank)
+        public
+        override
+    {
+        RankedAdminnable.decreaseSelfRank(bytes32(0), newRank);
+    }
+
+    /// @notice Called to get the rank of an admin
+    /// @dev We cannot disable this method because it is used internally.
+    /// Instead, we require `serviceId` to be `bytes32(0)`. External callers
+    /// are recommended to use `getRank(address)` instead.
     /// @param serviceId Service ID
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank
@@ -63,5 +88,18 @@ contract Api3RequesterRrpAuthorizer is
     {
         require(serviceId == bytes32(0), "serviceId not zero");
         return MetaAdminnable.getRank(serviceId, admin);
+    }
+
+    /// @notice Called to get the rank of an admin
+    /// @dev Overriden to force `bytes32(0)` as `serviceId`
+    /// @param admin Admin address whose rank will be returned
+    /// @return Admin rank
+    function getRank(address admin)
+        public
+        view
+        override
+        returns (uint256)
+    {
+        return MetaAdminnable.getRank(bytes32(0), admin);
     }
 }
