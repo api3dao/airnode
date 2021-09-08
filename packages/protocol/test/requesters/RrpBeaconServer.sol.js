@@ -39,47 +39,122 @@ beforeEach(async () => {
   });
 });
 
-describe('requestBeaconUpdate', function () {
-  context('Caller sponsored', function () {
-    context('RRP beacon server sponsored', function () {
-      it('requests beacon update', async function () {
-        // Sponsor the chain of request
-        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
-        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
-        // Create the template
-        const endpointId = utils.generateRandomBytes32();
-        const parameters = utils.generateRandomBytes();
-        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-        const templateId = hre.ethers.utils.keccak256(
-          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-        );
-        // Compute the expected request ID
-        const requestId = hre.ethers.utils.keccak256(
-          hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
-              (await hre.ethers.provider.getNetwork()).chainId,
-              rrpBeaconServer.address,
-              templateId,
-              '0x',
-            ]
-          )
-        );
-        // Request the beacon update
-        await expect(
-          rrpBeaconServer
-            .connect(roles.updateRequester)
-            .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
+describe('setUpdatePermissionStatus', function () {
+  context('updateRequester has valid address', function () {
+    it('sets the permission status', async function () {
+      expect(
+        await rrpBeaconServer.sponsorToUpdateRequesterToPermissonStatus(
+          roles.sponsor.address,
+          roles.updateRequester.address
         )
-          .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
-          .withArgs(templateId, roles.sponsor.address, roles.updateRequester.address, requestId, sponsorWalletAddress);
+      ).to.equal(false);
+
+      await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+
+      expect(
+        await rrpBeaconServer.sponsorToUpdateRequesterToPermissonStatus(
+          roles.sponsor.address,
+          roles.updateRequester.address
+        )
+      ).to.equal(true);
+
+      await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, false);
+
+      expect(
+        await rrpBeaconServer.sponsorToUpdateRequesterToPermissonStatus(
+          roles.sponsor.address,
+          roles.updateRequester.address
+        )
+      ).to.equal(false);
+    });
+
+    it('emits event', async function () {
+      await expect(
+        rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true)
+      )
+        .to.emit(rrpBeaconServer, 'SetUpdatePermissionStatus')
+        .withArgs(roles.sponsor.address, roles.updateRequester.address, true);
+    });
+  });
+
+  context('updateRequester has invalid address', function () {
+    it('reverts', async function () {
+      await expect(
+        rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(hre.ethers.constants.AddressZero, true)
+      ).to.be.revertedWith('updateRequester address zero');
+    });
+  });
+});
+
+describe('requestBeaconUpdate', function () {
+  context('Caller is permissoned by sponsor', function () {
+    context('Caller sponsored', function () {
+      context('RRP beacon server sponsored', function () {
+        it('requests beacon update', async function () {
+          // Sponsor the chain of request
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+          await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Compute the expected request ID
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpBeaconServer.address,
+                templateId,
+                '0x',
+              ]
+            )
+          );
+          // Request the beacon update
+          await expect(
+            rrpBeaconServer
+              .connect(roles.updateRequester)
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
+          )
+            .to.emit(rrpBeaconServer, 'RequestedBeaconUpdate')
+            .withArgs(
+              templateId,
+              roles.sponsor.address,
+              roles.updateRequester.address,
+              requestId,
+              sponsorWalletAddress
+            );
+        });
+      });
+      context('RRP beacon server not sponsored', function () {
+        it('reverts', async function () {
+          // Only sponsor the caller
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+          await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Attempt to request beacon update
+          await expect(
+            rrpBeaconServer
+              .connect(roles.updateRequester)
+              .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
+          ).to.be.revertedWith('Requester not sponsored');
+        });
       });
     });
-    context('RRP beacon server not sponsored', function () {
+    context('Caller not sponsored', function () {
       it('reverts', async function () {
-        // Only sponsor the caller
-        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+        await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
         // Create the template
         const endpointId = utils.generateRandomBytes32();
         const parameters = utils.generateRandomBytes();
@@ -96,7 +171,8 @@ describe('requestBeaconUpdate', function () {
       });
     });
   });
-  context('Caller not sponsored', function () {
+
+  context('Caller is not permissioned by sponsor', function () {
     it('reverts', async function () {
       // Create the template
       const endpointId = utils.generateRandomBytes32();
@@ -105,12 +181,12 @@ describe('requestBeaconUpdate', function () {
       const templateId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
       );
-      // Attempt to request beacon update
+
       await expect(
         rrpBeaconServer
           .connect(roles.updateRequester)
           .requestBeaconUpdate(templateId, roles.sponsor.address, sponsorWalletAddress)
-      ).to.be.revertedWith('Caller not sponsored');
+      ).to.be.revertedWith('Caller not permitted');
     });
   });
 });
@@ -121,6 +197,8 @@ describe('readBeacon', function () {
       // Sponsor the chain of request
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+      await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+
       // Create the template
       const endpointId = utils.generateRandomBytes32();
       const parameters = utils.generateRandomBytes();
@@ -224,6 +302,8 @@ describe('fulfill', function () {
             // Sponsor the chain of request
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+            await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+
             // Create the template
             const endpointId = utils.generateRandomBytes32();
             const parameters = utils.generateRandomBytes();
@@ -281,6 +361,8 @@ describe('fulfill', function () {
             // Sponsor the chain of request
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
             await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+            await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+
             // Create the template
             const endpointId = utils.generateRandomBytes32();
             const parameters = utils.generateRandomBytes();
@@ -364,6 +446,8 @@ describe('fulfill', function () {
           // Sponsor the chain of request
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpBeaconServer.address, true);
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.updateRequester.address, true);
+          await rrpBeaconServer.connect(roles.sponsor).setUpdatePermissionStatus(roles.updateRequester.address, true);
+
           // Create the template
           const endpointId = utils.generateRandomBytes32();
           const parameters = utils.generateRandomBytes();

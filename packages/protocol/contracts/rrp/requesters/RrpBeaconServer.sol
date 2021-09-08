@@ -55,6 +55,7 @@ contract RrpBeaconServer is
         address updateRequester,
         bool updatePermissionStatus
     ) external override {
+        require(updateRequester != address(0), "updateRequester address zero");
         sponsorToUpdateRequesterToPermissonStatus[msg.sender][
             updateRequester
         ] = updatePermissionStatus;
