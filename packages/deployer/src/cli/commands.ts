@@ -46,7 +46,7 @@ export async function deploy(
 
   const airnodeAddress = deriveAirnodeAddress(secrets.MASTER_KEY_MNEMONIC);
   // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
-  const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress).toLowerCase();
+  const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
 
   const receipts: Receipts = [];
   for (const config of configs) {

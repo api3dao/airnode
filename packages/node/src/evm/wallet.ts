@@ -42,7 +42,7 @@ export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string 
 }
 
 export function getAirnodeAddressShort(airnodeAddress: string): string {
-  return airnodeAddress.substring(2, 9);
+  return airnodeAddress.substring(2, 9).toLowerCase();
 }
 
 export function deriveSponsorWallet(masterHDNode: ethers.utils.HDNode, sponsorAddress: string): ethers.Wallet {

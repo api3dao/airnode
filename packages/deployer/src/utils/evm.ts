@@ -36,5 +36,5 @@ export function shortenAirnodeAddress(airnodeAddress: string) {
   } catch {
     throw new Error('airnodeAddress is not a valid hex string');
   }
-  return airnodeAddress.substring(2, 9);
+  return airnodeAddress.substring(2, 9).toLowerCase();
 }
