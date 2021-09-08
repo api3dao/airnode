@@ -28,8 +28,7 @@ contract SelfRequesterRrpAuthorizer is
         bytes32 endpointId,
         address admin
     ) external view returns (uint256) {
-        bytes32 adminnedId = deriveAdminnedId(airnode, endpointId);
-        if (adminnedId == bytes32(abi.encode(admin))) return MAX_RANK;
-        return RankedAdminnable.getRank(adminnedId, admin);
+        if (airnode == admin) return MAX_RANK;
+        return RankedAdminnable.getRank(deriveServiceId(airnode, endpointId), admin);
     }
 }
