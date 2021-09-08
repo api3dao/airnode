@@ -127,7 +127,9 @@ yargs(hideBin(process.argv))
       }
 
       if (isEmpty(descriptiveArgsMissing)) {
-        await runCommand(() => remove(args.airnodeAddressShort!, args.stage!, args.cloudProvider!, args.region!));
+        await runCommand(() =>
+          remove(args.airnodeAddressShort!.toLowerCase(), args.stage!, args.cloudProvider!, args.region!)
+        );
         return;
       }
 

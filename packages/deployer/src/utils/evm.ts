@@ -11,10 +11,10 @@ export function validateMnemonic(mnemonic: string) {
   return true;
 }
 
-export function deriveMasterWalletAddress(mnemonic: string) {
-  logger.debug('Deriving master wallet from mnemonic');
-  const masterWallet = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  return masterWallet.address;
+export function deriveAirnodeAddress(mnemonic: string) {
+  logger.debug('Deriving airnode wallet from mnemonic');
+  const airnodeWallet = ethers.Wallet.fromMnemonic(mnemonic);
+  return airnodeWallet.address;
 }
 
 export function deriveXpub(mnemonic: string) {
@@ -25,8 +25,8 @@ export function deriveXpub(mnemonic: string) {
 
 export function generateMnemonic() {
   logger.debug('Generating new mnemonic');
-  const masterWallet = ethers.Wallet.createRandom();
-  return masterWallet.mnemonic.phrase;
+  const wallet = ethers.Wallet.createRandom();
+  return wallet.mnemonic.phrase;
 }
 
 export function shortenAirnodeAddress(airnodeAddress: string) {
