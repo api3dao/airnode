@@ -15,7 +15,7 @@ abstract contract RequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    ) external {
+    ) external override {
         extendWhitelistExpiration(
             deriveAdminnedId(airnode, endpointId),
             user,
@@ -28,7 +28,7 @@ abstract contract RequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    ) external {
+    ) external override {
         setWhitelistExpiration(
             deriveAdminnedId(airnode, endpointId),
             user,
@@ -41,7 +41,7 @@ abstract contract RequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         bool status
-    ) external {
+    ) external override {
         setWhitelistStatusPastExpiration(
             deriveAdminnedId(airnode, endpointId),
             user,
@@ -53,8 +53,26 @@ abstract contract RequesterRrpAuthorizer is
         address airnode,
         bytes32 endpointId,
         address user
-    ) external view returns (bool isWhitelisted) {
+    ) external view override returns (bool isWhitelisted) {
         return userIsWhitelisted(deriveAdminnedId(airnode, endpointId), user);
+    }
+
+    function airnodeToEndpointIdToUserToWhitelistStatus(
+        address airnode,
+        bytes32 endpointId,
+        address user
+    )
+        external
+        view
+        override
+        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
+    {
+        WhitelistStatus
+            storage whitelistStatus = serviceIdToUserToWhitelistStatus[
+                deriveAdminnedId(airnode, endpointId)
+            ][user];
+        expirationTimestamp = whitelistStatus.expirationTimestamp;
+        whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;
     }
 
     /// @notice Verifies the authorization status of a request
@@ -80,7 +98,7 @@ abstract contract RequesterRrpAuthorizer is
 
     function deriveAdminnedId(address airnode, bytes32 endpointId)
         internal
-        view
+        pure
         returns (bytes32 adminnedId)
     {
         return keccak256(abi.encodePacked(airnode, endpointId));
