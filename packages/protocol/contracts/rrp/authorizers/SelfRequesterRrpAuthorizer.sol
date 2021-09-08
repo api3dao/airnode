@@ -16,12 +16,12 @@ contract SelfRequesterRrpAuthorizer is
 
     uint256 private constant MAX_RANK = type(uint256).max;
 
-    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @notice Called to get the rank of an admin for the entity
     /// @dev Respects RankedAdminnable, except treats the Airnode operator as
     /// the highest authority for the respective Airnode
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
+    /// @return Admin rank for the entity
     function getRank(bytes32 adminnedId, address admin)
         public
         view

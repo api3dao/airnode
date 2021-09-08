@@ -3,8 +3,8 @@ pragma solidity 0.8.6;
 
 import "./interfaces/IRankedAdminnable.sol";
 
-/// @title Contract that implements independent and multiple levels of admins
-/// for multiple entities
+/// @title Contract that implements multiple levels of admins for multiple
+/// entities independently
 contract RankedAdminnable is IRankedAdminnable {
     mapping(bytes32 => mapping(address => uint256))
         private adminnedIdToAdminToRank;
@@ -17,8 +17,8 @@ contract RankedAdminnable is IRankedAdminnable {
         _;
     }
 
-    /// @notice Called by an admin of higher rank to set the rank of an admin of
-    /// lower rank
+    /// @notice Called by an admin of higher rank to set the rank of an admin
+    /// of lower rank
     /// @param adminnedId ID of the entity being adminned
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
@@ -52,11 +52,11 @@ contract RankedAdminnable is IRankedAdminnable {
         emit DecreasedSelfRank(adminnedId, msg.sender, newRank);
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Override this method to customize the rank calculation
+    /// @notice Called to get the rank of an admin for the entity
+    /// @dev Override this method to customize rank calculation
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
+    /// @return Admin rank for the entity
     function getRank(bytes32 adminnedId, address admin)
         public
         view

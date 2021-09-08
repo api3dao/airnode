@@ -28,12 +28,12 @@ contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
         emit TransferredMetaAdminStatus(metaAdmin_);
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Respects RankedAdminnable, except treats `metaAdmin` as the highest
-    /// authority
+    /// @notice Called to get the rank of an admin for the entity
+    /// @dev Respects RankedAdminnable, except treats `metaAdmin` as the
+    /// highest authority
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
+    /// @return Admin rank for the entity
     function getRank(bytes32 adminnedId, address admin)
         public
         view

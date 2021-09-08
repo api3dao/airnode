@@ -39,7 +39,7 @@ beforeEach(async () => {
 describe('setRank', function () {
   context('Caller higher ranked than target admin', function () {
     context('Caller higher ranked than set rank', function () {
-      it('sets rank for the adminned entity', async function () {
+      it('sets rank for the entity', async function () {
         await expect(
           metaAdminnable.connect(roles.superAdmin).setRank(adminnedId, roles.randomPerson.address, AdminRank.Admin)
         )

@@ -51,7 +51,7 @@ contract Api3RequesterRrpAuthorizer is
         super.decreaseSelfRank(adminnedId, newRank);
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @notice Called to get the rank of an admin for the entity
     /// @dev Overriding MetaAdminnable ranks to force `adminnedId`to be `bytes32(0)`
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned

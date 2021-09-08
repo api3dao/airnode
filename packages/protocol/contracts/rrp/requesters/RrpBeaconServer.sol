@@ -142,11 +142,11 @@ contract RrpBeaconServer is
         return (beacon.value, beacon.timestamp);
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @notice Called to get the rank of an admin for the entity
     /// @dev Explictly specifies the overriding `getRank()` implementation
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
+    /// @return Admin rank for the entity
     function getRank(bytes32 adminnedId, address admin)
         public
         view

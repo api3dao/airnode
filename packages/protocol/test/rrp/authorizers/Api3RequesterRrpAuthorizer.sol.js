@@ -102,7 +102,7 @@ describe('setRank', function () {
   context('Admin ranks are set for the zero ID', function () {
     context('Caller higher ranked than target admin', function () {
       context('Caller higher ranked than set rank', function () {
-        it('sets rank for the adminned entity', async function () {
+        it('sets rank for the entity', async function () {
           await expect(
             api3RequesterRrpAuthorizer
               .connect(roles.superAdmin)
