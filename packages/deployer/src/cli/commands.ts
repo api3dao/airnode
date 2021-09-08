@@ -2,15 +2,13 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { config as nodeConfig } from '@api3/node';
-import { checkAirnodeParameters } from '../evm';
 import { deployAirnode, removeAirnode } from '../infrastructure';
 import {
-  deriveAirnodeId,
-  deriveMasterWalletAddress,
+  deriveAirnodeAddress,
   writeReceiptFile,
   parseReceiptFile,
   parseSecretsFile,
-  shortenAirnodeId,
+  shortenAirnodeAddress,
   validateConfig,
   validateMnemonic,
 } from '../utils';
@@ -41,14 +39,14 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
   const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
   fs.writeFileSync(tmpSecretsFile, JSON.stringify(secrets, null, 2));
 
-  const airnodeId = deriveAirnodeId(mnemonic);
-  const masterWalletAddress = deriveMasterWalletAddress(mnemonic);
-  await checkAirnodeParameters(config, airnodeId, masterWalletAddress);
+  const airnodeAddress = deriveAirnodeAddress(secrets.MASTER_KEY_MNEMONIC);
+  // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
+  const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
 
   let output = {};
   try {
     output = await deployAirnode(
-      shortenAirnodeId(airnodeId),
+      airnodeAddressShort,
       config.nodeSettings.stage,
       config.nodeSettings.cloudProvider,
       config.nodeSettings.region,
@@ -67,15 +65,15 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
   writeReceiptFile(receiptFile, mnemonic, config, output);
 }
 
-export async function remove(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
-  await removeAirnode(airnodeIdShort, stage, cloudProvider, region);
+export async function remove(airnodeAddressShort: string, stage: string, cloudProvider: string, region: string) {
+  await removeAirnode(airnodeAddressShort, stage, cloudProvider, region);
 }
 
 export async function removeWithReceipt(receiptFilename: string) {
   const receipt = parseReceiptFile(receiptFilename);
-  const { airnodeIdShort, cloudProvider, region, stage } = receipt.deployment;
+  const { airnodeAddressShort, cloudProvider, region, stage } = receipt.deployment;
   try {
-    await remove(airnodeIdShort, stage, cloudProvider, region);
+    await remove(airnodeAddressShort, stage, cloudProvider, region);
   } catch (err) {
     logger.warn(`Failed removing configuration, skipping`);
     logger.warn((err as Error).toString());

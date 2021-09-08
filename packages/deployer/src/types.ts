@@ -3,13 +3,14 @@
 // ===========================================
 
 export interface AirnodeWallet {
-  airnodeId: string;
+  airnodeAddress: string;
+  airnodeAddressShort: string;
   xpub: string;
 }
 
 export interface Deployment {
   nodeVersion: string;
-  airnodeIdShort: string;
+  airnodeAddressShort: string;
   cloudProvider: 'aws' | 'local';
   region: string;
   stage: string;
