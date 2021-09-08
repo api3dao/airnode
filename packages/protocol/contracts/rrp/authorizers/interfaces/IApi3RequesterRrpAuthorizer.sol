@@ -7,4 +7,10 @@ import "./IRequesterRrpAuthorizer.sol";
 interface IApi3RequesterRrpAuthorizer is
     IMetaAdminnable,
     IRequesterRrpAuthorizer
-{}
+{
+    function setRank(address targetAdmin, uint256 newRank) external;
+
+    function decreaseSelfRank(uint256 newRank) external;
+
+    function getRank(address admin) external view returns (uint256);
+}

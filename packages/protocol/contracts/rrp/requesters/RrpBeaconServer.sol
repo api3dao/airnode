@@ -22,15 +22,20 @@ contract RrpBeaconServer is
     RrpRequester,
     IRrpBeaconServer
 {
+    enum AdminRank {
+        Unauthorized,
+        Admin,
+        SuperAdmin
+    }
+
     struct Beacon {
         int224 value;
         uint32 timestamp;
     }
 
-    // Constants to check typecasting sanity
-    int256 private constant MAX_INT224 = type(int224).max;
-    int256 private constant MIN_INT224 = type(int224).min;
-    uint256 private constant MAX_UINT32 = type(uint32).max;
+    mapping(address => mapping(address => bool))
+        public
+        override sponsorToUpdateRequesterToPermissonStatus;
 
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
@@ -42,12 +47,35 @@ contract RrpBeaconServer is
         MetaAdminnable(metaAdmin_)
     {}
 
+    /// @notice Called by the sponsor to set the update request permission
+    /// status of an account
+    /// @param updateRequester Update requester address
+    /// @param updatePermissionStatus Update permission status of the update
+    /// requester
+    function setUpdatePermissionStatus(
+        address updateRequester,
+        bool updatePermissionStatus
+    ) external override {
+        require(updateRequester != address(0), "updateRequester address zero");
+        sponsorToUpdateRequesterToPermissonStatus[msg.sender][
+            updateRequester
+        ] = updatePermissionStatus;
+        emit SetUpdatePermissionStatus(
+            msg.sender,
+            updateRequester,
+            updatePermissionStatus
+        );
+    }
+
     /// @notice Called to request a beacon to be updated
     /// @dev Anyone can request a beacon to be updated. This is because it is
     /// assumed that a beacon update request is always desirable, and the
     /// requester and sponsor will pay for the gas cost.
-    /// The sponsor must sponsor both the caller of this function, and this
-    /// very RrpBeaconServer contract for the Airnode to fulfill this request.
+    /// There are two requirements for this method to be called: (1) The
+    /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
+    /// this RrpBeaconServer contract, (2) The sponsor must call
+    /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
+    /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned (because this is what `fulfill()` expects).
     /// @param templateId Template ID of the beacon to be updated
@@ -60,14 +88,9 @@ contract RrpBeaconServer is
         address sponsor,
         address sponsorWallet
     ) external override {
-        // Note that AirnodeRrp will also check if the requester has endorsed
-        // this RrpBeaconServer in the `makeRequest()` call
         require(
-            airnodeRrp.sponsorToRequesterToSponsorshipStatus(
-                sponsor,
-                msg.sender
-            ),
-            "Caller not sponsored"
+            sponsorToUpdateRequesterToPermissonStatus[sponsor][msg.sender],
+            "Caller not permitted"
         );
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
             templateId,
@@ -104,11 +127,12 @@ contract RrpBeaconServer is
         if (statusCode == 0) {
             int256 decodedData = abi.decode(data, (int256));
             require(
-                decodedData >= MIN_INT224 && decodedData <= MAX_INT224,
+                decodedData >= type(int224).min &&
+                    decodedData <= type(int224).max,
                 "Value typecasting error"
             );
             require(
-                block.timestamp <= MAX_UINT32,
+                block.timestamp <= type(uint32).max,
                 "Timestamp typecasting error"
             );
             templateIdToBeacon[templateId] = Beacon({
@@ -142,16 +166,91 @@ contract RrpBeaconServer is
         return (beacon.value, beacon.timestamp);
     }
 
-    /// @notice Called to get the rank of an admin for the entity
+    /// @notice Called by an admin to extend the whitelist expiration of a user
+    /// @param templateId Template ID
+    /// @param user User address
+    /// @param expirationTimestamp Timestamp at which the user will no longer
+    /// be whitelisted
+    function extendWhitelistExpiration(
+        bytes32 templateId,
+        address user,
+        uint64 expirationTimestamp
+    )
+        external
+        override
+        onlyWithRank(bytes32(0), uint256(AdminRank.Admin))
+        onlyIfTimestampExtends(templateId, user, expirationTimestamp)
+    {
+        serviceIdToUserToWhitelistStatus[templateId][user]
+            .expirationTimestamp = expirationTimestamp;
+        emit ExtendedWhitelistExpiration(
+            templateId,
+            user,
+            expirationTimestamp,
+            msg.sender
+        );
+    }
+
+    /// @notice Called by a super admin to set the whitelisting expiration of a
+    /// user
+    /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration
+    /// @param templateId Template ID
+    /// @param user User address
+    /// @param expirationTimestamp Timestamp at which the whitelisting of the
+    /// user will expire
+    function setWhitelistExpiration(
+        bytes32 templateId,
+        address user,
+        uint64 expirationTimestamp
+    )
+        external
+        override
+        onlyWithRank(bytes32(0), uint256(AdminRank.SuperAdmin))
+    {
+        serviceIdToUserToWhitelistStatus[templateId][user]
+            .expirationTimestamp = expirationTimestamp;
+        emit SetWhitelistExpiration(
+            templateId,
+            user,
+            expirationTimestamp,
+            msg.sender
+        );
+    }
+
+    /// @notice Called by a super admin to set the whitelist status of a user
+    /// past expiration
+    /// @param templateId Template ID
+    /// @param user User address
+    /// @param status Whitelist status that the user will have past expiration
+    function setWhitelistStatusPastExpiration(
+        bytes32 templateId,
+        address user,
+        bool status
+    )
+        external
+        override
+        onlyWithRank(bytes32(0), uint256(AdminRank.SuperAdmin))
+    {
+        serviceIdToUserToWhitelistStatus[templateId][user]
+            .whitelistedPastExpiration = status;
+        emit SetWhitelistStatusPastExpiration(
+            templateId,
+            user,
+            status,
+            msg.sender
+        );
+    }
+
+    /// @notice Called to get the rank of an admin for an adminned entity
     /// @dev Explictly specifies the overriding `getRank()` implementation
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the entity
+    /// @return Admin rank for the adminned entity
     function getRank(bytes32 adminnedId, address admin)
         public
         view
         virtual
-        override(RankedAdminnable, MetaAdminnable, IRankedAdminnable)
+        override(MetaAdminnable, IRankedAdminnable)
         returns (uint256)
     {
         return MetaAdminnable.getRank(adminnedId, admin);
