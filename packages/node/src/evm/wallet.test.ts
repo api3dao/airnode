@@ -21,7 +21,7 @@ describe('getAirnodeAddressShort', () => {
   it('returns a shortened airnodeAddress', () => {
     const airnodeWallet = wallet.getAirnodeWallet();
     const res = wallet.getAirnodeAddressShort(airnodeWallet.address);
-    expect(res).toEqual('A30CA71');
+    expect(res).toEqual('a30ca71');
   });
 });
 
