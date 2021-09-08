@@ -88,8 +88,8 @@ describe('makeTemplateRequest', function () {
         const requestTimeParameters = utils.generateRandomBytes();
         const expectedRequestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [requesterRequestCount, chainId, rrpRequester.address, templateId, requestTimeParameters]
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            [airnodeAddress, requesterRequestCount, chainId, rrpRequester.address, templateId, requestTimeParameters]
           )
         );
         // Make the request
@@ -201,8 +201,8 @@ describe('makeFullRequest', function () {
           const requestTimeParameters = utils.generateRandomBytes();
           const expectedRequestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-              [requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [airnodeAddress, requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
             )
           );
           // Make the request
@@ -333,8 +333,9 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
                 [
+                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
@@ -409,8 +410,9 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
                 [
+                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
@@ -467,8 +469,9 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
                 [
+                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
@@ -572,8 +575,9 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -630,8 +634,9 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -688,8 +693,9 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -741,8 +747,9 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
             [
+              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
@@ -795,8 +802,9 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
                 [
+                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
@@ -866,8 +874,9 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
                 [
+                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
@@ -919,8 +928,9 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
                 [
+                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
@@ -1014,8 +1024,9 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1067,8 +1078,9 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1120,8 +1132,9 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1168,8 +1181,9 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
             [
+              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
@@ -1229,8 +1243,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1330,8 +1345,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1382,8 +1398,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1434,8 +1451,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1481,8 +1499,9 @@ describe('fail', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
             [
+              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
@@ -1524,8 +1543,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1615,8 +1635,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1662,8 +1683,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1709,8 +1731,9 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
               [
+                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
@@ -1751,8 +1774,9 @@ describe('fail', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
             [
+              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
