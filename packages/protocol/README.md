@@ -71,7 +71,7 @@ The contracts are under the `contracts/` directory.
 The contracts in this directory are not RRP-specific and are expected to be reused.
 - `/admin/RankedAdminnable.sol`: Implements ranked admins.
 This contract cannot be used in a standalone way, it needs to be inherited and seeded with admins, which can then elevate other addresses to admin ranks.
-- `/admin/MetaAdminnable.sol`: Inherits `RankedAdminnable` and extends it by defining a *metaAdmin*, which is the highest ranking admin across all adminned entities.
+- `/admin/MetaAdminnable.sol`: Inherits `RankedAdminnable` and extends it by defining a *metaAdmin*, which is the highest ranking admin across all services.
 - `/admin/Whitelister.sol`: Inherits `RankedAdminnable` and implements absolute or time-limited whitelisting of addresses for multiple independent services.
 
 `/rrp`: Houses the contracts that implement RRP and related contracts such as authorizers and requesters

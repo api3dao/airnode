@@ -11,18 +11,18 @@ contract SelfRequesterRrpAuthorizer is
     RequesterRrpAuthorizer,
     ISelfRequesterRrpAuthorizer
 {
+    uint256 private constant MAX_RANK = type(uint256).max;
+
     /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type
     uint256 public constant override AUTHORIZER_TYPE = 1;
 
-    uint256 private constant MAX_RANK = type(uint256).max;
-
-    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @notice Called to get the rank of an admin for a service
     /// @dev Respects RankedAdminnable, except treats the Airnode operator as
     /// the highest authority for the respective Airnode
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
+    /// @return Admin rank for the service
     function getRank(
         address airnode,
         bytes32 endpointId,

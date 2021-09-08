@@ -62,7 +62,7 @@ contract Whitelister is RankedAdminnable, IWhitelister {
 
     /// @notice Called by a super admin to set the whitelisting expiration of a
     /// user
-    /// @dev Unlike `extendWhitelistExpiration()`, this can hasten the expiration
+    /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration
     /// @param serviceId Service ID
     /// @param user User address
     /// @param expirationTimestamp Timestamp at which the whitelisting of the

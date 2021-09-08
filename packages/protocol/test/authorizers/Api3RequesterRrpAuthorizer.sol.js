@@ -13,7 +13,7 @@ const AdminRank = Object.freeze({
 
 let roles;
 let api3RequesterRrpAuthorizer;
-let adminnedId;
+let serviceId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -31,7 +31,7 @@ beforeEach(async () => {
     roles.deployer
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  serviceId = utils.generateRandomBytes32();
   await api3RequesterRrpAuthorizer
     .connect(roles.metaAdmin)
     .setRank(hre.ethers.constants.HashZero, roles.admin.address, AdminRank.Admin);
@@ -61,8 +61,8 @@ describe('getRank', function () {
     context('Admin ranks are queried for non zero ID', function () {
       it('reverts', async function () {
         expect(
-          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.metaAdmin.address)).to.be.revertedWith(
-            'adminnedId not zero'
+          await expect(api3RequesterRrpAuthorizer.getRank(serviceId, roles.metaAdmin.address)).to.be.revertedWith(
+            'serviceId not zero'
           )
         );
       });
@@ -83,14 +83,14 @@ describe('getRank', function () {
       });
       context('Admin ranks are querired for the non zero ID', function () {
         it('reverts', async function () {
-          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.superAdmin.address)).to.be.revertedWith(
-            'adminnedId not zero'
+          await expect(api3RequesterRrpAuthorizer.getRank(serviceId, roles.superAdmin.address)).to.be.revertedWith(
+            'serviceId not zero'
           );
-          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.admin.address)).to.be.revertedWith(
-            'adminnedId not zero'
+          await expect(api3RequesterRrpAuthorizer.getRank(serviceId, roles.admin.address)).to.be.revertedWith(
+            'serviceId not zero'
           );
-          await expect(api3RequesterRrpAuthorizer.getRank(adminnedId, roles.randomPerson.address)).to.be.revertedWith(
-            'adminnedId not zero'
+          await expect(api3RequesterRrpAuthorizer.getRank(serviceId, roles.randomPerson.address)).to.be.revertedWith(
+            'serviceId not zero'
           );
         });
       });
@@ -102,7 +102,7 @@ describe('setRank', function () {
   context('Admin ranks are set for the zero ID', function () {
     context('Caller higher ranked than target admin', function () {
       context('Caller higher ranked than set rank', function () {
-        it('sets rank for the adminned entity', async function () {
+        it('sets rank for the service', async function () {
           await expect(
             api3RequesterRrpAuthorizer
               .connect(roles.superAdmin)
@@ -146,8 +146,8 @@ describe('setRank', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setRank(adminnedId, roles.randomPerson.address, AdminRank.Admin)
-      ).to.be.revertedWith('adminnedId not zero');
+          .setRank(serviceId, roles.randomPerson.address, AdminRank.Admin)
+      ).to.be.revertedWith('serviceId not zero');
     });
   });
 });
@@ -211,8 +211,8 @@ describe('decreaseSelfRank', function () {
   context('Admin ranks are set for non zero ID', function () {
     it('reverts', async function () {
       await expect(
-        api3RequesterRrpAuthorizer.connect(roles.superAdmin).decreaseSelfRank(adminnedId, AdminRank.Admin)
-      ).to.be.revertedWith('adminnedId not zero');
+        api3RequesterRrpAuthorizer.connect(roles.superAdmin).decreaseSelfRank(serviceId, AdminRank.Admin)
+      ).to.be.revertedWith('serviceId not zero');
     });
   });
 });

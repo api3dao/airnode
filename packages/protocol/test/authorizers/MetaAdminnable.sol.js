@@ -12,7 +12,7 @@ const AdminRank = Object.freeze({
 
 let roles;
 let metaAdminnable;
-let adminnedId, anotherId;
+let serviceId, anotherId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -27,13 +27,13 @@ beforeEach(async () => {
   // We need to use MetaAdminnable to be able to seed the admin ranks
   const metaAdminnableFactory = await hre.ethers.getContractFactory('MetaAdminnable', roles.deployer);
   metaAdminnable = await metaAdminnableFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  serviceId = utils.generateRandomBytes32();
   anotherId = utils.generateRandomBytes32();
-  await metaAdminnable.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
-  await metaAdminnable.connect(roles.metaAdmin).setRank(adminnedId, roles.superAdmin.address, AdminRank.SuperAdmin);
+  await metaAdminnable.connect(roles.metaAdmin).setRank(serviceId, roles.admin.address, AdminRank.Admin);
+  await metaAdminnable.connect(roles.metaAdmin).setRank(serviceId, roles.superAdmin.address, AdminRank.SuperAdmin);
   await metaAdminnable
     .connect(roles.metaAdmin)
-    .setRank(adminnedId, roles.anotherSuperAdmin.address, AdminRank.SuperAdmin);
+    .setRank(serviceId, roles.anotherSuperAdmin.address, AdminRank.SuperAdmin);
 });
 
 describe('constructor', function () {
@@ -82,15 +82,15 @@ describe('transferMetaAdminStatus', function () {
 describe('getRank', function () {
   context("metaAdmin's rank is being queried", function () {
     it('returns highest possible rank', async function () {
-      expect(await metaAdminnable.getRank(adminnedId, roles.metaAdmin.address)).to.be.equal(AdminRank.MetaAdmin);
+      expect(await metaAdminnable.getRank(serviceId, roles.metaAdmin.address)).to.be.equal(AdminRank.MetaAdmin);
       expect(await metaAdminnable.getRank(anotherId, roles.metaAdmin.address)).to.be.equal(AdminRank.MetaAdmin);
     });
   });
   context("metaAdmin's rank is not being queried", function () {
     it('returns regular rank', async function () {
-      expect(await metaAdminnable.getRank(adminnedId, roles.superAdmin.address)).to.be.equal(AdminRank.SuperAdmin);
-      expect(await metaAdminnable.getRank(adminnedId, roles.admin.address)).to.be.equal(AdminRank.Admin);
-      expect(await metaAdminnable.getRank(adminnedId, roles.randomPerson.address)).to.be.equal(AdminRank.Unauthorized);
+      expect(await metaAdminnable.getRank(serviceId, roles.superAdmin.address)).to.be.equal(AdminRank.SuperAdmin);
+      expect(await metaAdminnable.getRank(serviceId, roles.admin.address)).to.be.equal(AdminRank.Admin);
+      expect(await metaAdminnable.getRank(serviceId, roles.randomPerson.address)).to.be.equal(AdminRank.Unauthorized);
       expect(await metaAdminnable.getRank(anotherId, roles.superAdmin.address)).to.be.equal(AdminRank.Unauthorized);
       expect(await metaAdminnable.getRank(anotherId, roles.admin.address)).to.be.equal(AdminRank.Unauthorized);
       expect(await metaAdminnable.getRank(anotherId, roles.randomPerson.address)).to.be.equal(AdminRank.Unauthorized);

@@ -14,7 +14,7 @@ const AdminRank = Object.freeze({
 
 let roles;
 let api3RequesterRrpAuthorizer;
-let adminnedId, anotherId;
+let serviceId, anotherId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -32,12 +32,12 @@ beforeEach(async () => {
     roles.deployer
   );
   api3RequesterRrpAuthorizer = await api3RequesterRrpAuthorizerFactory.deploy(roles.metaAdmin.address);
-  adminnedId = hre.ethers.constants.HashZero;
+  serviceId = hre.ethers.constants.HashZero;
   anotherId = utils.generateRandomBytes32();
-  await api3RequesterRrpAuthorizer.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
+  await api3RequesterRrpAuthorizer.connect(roles.metaAdmin).setRank(serviceId, roles.admin.address, AdminRank.Admin);
   await api3RequesterRrpAuthorizer
     .connect(roles.metaAdmin)
-    .setRank(adminnedId, roles.superAdmin.address, AdminRank.SuperAdmin);
+    .setRank(serviceId, roles.superAdmin.address, AdminRank.SuperAdmin);
 });
 
 describe('extendWhitelistExpiration', function () {
@@ -45,7 +45,7 @@ describe('extendWhitelistExpiration', function () {
     context('Provided timestamp extends whitelist expiration', function () {
       it('extends whitelist expiration', async function () {
         const initialWhitelistStatus = await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(
-          adminnedId,
+          serviceId,
           roles.user.address
         );
         expect(initialWhitelistStatus.expirationTimestamp).to.equal(0);
@@ -54,12 +54,12 @@ describe('extendWhitelistExpiration', function () {
         await expect(
           api3RequesterRrpAuthorizer
             .connect(roles.admin)
-            .extendWhitelistExpiration(adminnedId, roles.user.address, extendedWhitelistExpirationTimestamp)
+            .extendWhitelistExpiration(serviceId, roles.user.address, extendedWhitelistExpirationTimestamp)
         )
           .to.emit(api3RequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
-          .withArgs(adminnedId, roles.user.address, extendedWhitelistExpirationTimestamp, roles.admin.address);
+          .withArgs(serviceId, roles.user.address, extendedWhitelistExpirationTimestamp, roles.admin.address);
         const extendedWhitelistStatus = await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(
-          adminnedId,
+          serviceId,
           roles.user.address
         );
         expect(extendedWhitelistStatus.expirationTimestamp).to.equal(1000);
@@ -75,7 +75,7 @@ describe('extendWhitelistExpiration', function () {
     context('Provided timestamp does not extend whitelist expiration', function () {
       it('reverts', async function () {
         await expect(
-          api3RequesterRrpAuthorizer.connect(roles.admin).extendWhitelistExpiration(adminnedId, roles.user.address, 0)
+          api3RequesterRrpAuthorizer.connect(roles.admin).extendWhitelistExpiration(serviceId, roles.user.address, 0)
         ).to.be.revertedWith('Expiration not extended');
       });
     });
@@ -85,7 +85,7 @@ describe('extendWhitelistExpiration', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.randomPerson)
-          .extendWhitelistExpiration(adminnedId, roles.user.address, 1000)
+          .extendWhitelistExpiration(serviceId, roles.user.address, 1000)
       ).to.be.revertedWith('Caller ranked low');
     });
   });
@@ -98,12 +98,12 @@ describe('setWhitelistExpiration', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistExpiration(adminnedId, roles.user.address, extendedWhitelistExpirationTimestamp)
+          .setWhitelistExpiration(serviceId, roles.user.address, extendedWhitelistExpirationTimestamp)
       )
         .to.emit(api3RequesterRrpAuthorizer, 'SetWhitelistExpiration')
-        .withArgs(adminnedId, roles.user.address, extendedWhitelistExpirationTimestamp, roles.superAdmin.address);
+        .withArgs(serviceId, roles.user.address, extendedWhitelistExpirationTimestamp, roles.superAdmin.address);
       const extendedWhitelistStatus = await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(
-        adminnedId,
+        serviceId,
         roles.user.address
       );
       expect(extendedWhitelistStatus.expirationTimestamp).to.equal(1000);
@@ -118,12 +118,12 @@ describe('setWhitelistExpiration', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistExpiration(adminnedId, roles.user.address, reducedWhitelistExpirationTimestamp)
+          .setWhitelistExpiration(serviceId, roles.user.address, reducedWhitelistExpirationTimestamp)
       )
         .to.emit(api3RequesterRrpAuthorizer, 'SetWhitelistExpiration')
-        .withArgs(adminnedId, roles.user.address, reducedWhitelistExpirationTimestamp, roles.superAdmin.address);
+        .withArgs(serviceId, roles.user.address, reducedWhitelistExpirationTimestamp, roles.superAdmin.address);
       const reducedWhitelistStatus = await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(
-        adminnedId,
+        serviceId,
         roles.user.address
       );
       expect(reducedWhitelistStatus.expirationTimestamp).to.equal(reducedWhitelistExpirationTimestamp);
@@ -133,7 +133,7 @@ describe('setWhitelistExpiration', function () {
   context('Caller not of rank Super Admin or higher', function () {
     it('reverts', async function () {
       await expect(
-        api3RequesterRrpAuthorizer.connect(roles.admin).setWhitelistExpiration(adminnedId, roles.user.address, 1000)
+        api3RequesterRrpAuthorizer.connect(roles.admin).setWhitelistExpiration(serviceId, roles.user.address, 1000)
       ).to.be.revertedWith('Caller ranked low');
     });
   });
@@ -145,12 +145,12 @@ describe('setWhitelistStatusPastExpiration', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(adminnedId, roles.user.address, true)
+          .setWhitelistStatusPastExpiration(serviceId, roles.user.address, true)
       )
         .to.emit(api3RequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(adminnedId, roles.user.address, true, roles.superAdmin.address);
+        .withArgs(serviceId, roles.user.address, true, roles.superAdmin.address);
       const statusWhitelistedPastExpiration = await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(
-        adminnedId,
+        serviceId,
         roles.user.address
       );
       expect(statusWhitelistedPastExpiration.expirationTimestamp).to.equal(0);
@@ -164,12 +164,12 @@ describe('setWhitelistStatusPastExpiration', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(adminnedId, roles.user.address, false)
+          .setWhitelistStatusPastExpiration(serviceId, roles.user.address, false)
       )
         .to.emit(api3RequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(adminnedId, roles.user.address, false, roles.superAdmin.address);
+        .withArgs(serviceId, roles.user.address, false, roles.superAdmin.address);
       const statusNotWhitelistedPastExpiration = await api3RequesterRrpAuthorizer.serviceIdToUserToWhitelistStatus(
-        adminnedId,
+        serviceId,
         roles.user.address
       );
       expect(statusNotWhitelistedPastExpiration.expirationTimestamp).to.equal(0);
@@ -181,7 +181,7 @@ describe('setWhitelistStatusPastExpiration', function () {
       await expect(
         api3RequesterRrpAuthorizer
           .connect(roles.admin)
-          .setWhitelistStatusPastExpiration(adminnedId, roles.user.address, true)
+          .setWhitelistStatusPastExpiration(serviceId, roles.user.address, true)
       ).to.be.revertedWith('Caller ranked low');
     });
   });
@@ -193,20 +193,20 @@ describe('userIsWhitelisted', function () {
       it('returns true', async function () {
         await api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(adminnedId, roles.user.address, true);
+          .setWhitelistStatusPastExpiration(serviceId, roles.user.address, true);
         const timestampOneHourLater = Math.floor(Date.now() / 1000) + 3600;
         await api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistExpiration(adminnedId, roles.user.address, timestampOneHourLater);
-        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(adminnedId, roles.user.address)).to.equal(true);
+          .setWhitelistExpiration(serviceId, roles.user.address, timestampOneHourLater);
+        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(serviceId, roles.user.address)).to.equal(true);
       });
     });
     context('Past expiration', function () {
       it('returns true', async function () {
         await api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(adminnedId, roles.user.address, true);
-        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(adminnedId, roles.user.address)).to.equal(true);
+          .setWhitelistStatusPastExpiration(serviceId, roles.user.address, true);
+        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(serviceId, roles.user.address)).to.equal(true);
       });
     });
   });
@@ -216,13 +216,13 @@ describe('userIsWhitelisted', function () {
         const timestampOneHourLater = Math.floor(Date.now() / 1000) + 3600;
         await api3RequesterRrpAuthorizer
           .connect(roles.superAdmin)
-          .setWhitelistExpiration(adminnedId, roles.user.address, timestampOneHourLater);
-        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(adminnedId, roles.user.address)).to.equal(true);
+          .setWhitelistExpiration(serviceId, roles.user.address, timestampOneHourLater);
+        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(serviceId, roles.user.address)).to.equal(true);
       });
     });
     context('Past expiration', function () {
       it('returns false', async function () {
-        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(adminnedId, roles.user.address)).to.equal(false);
+        expect(await api3RequesterRrpAuthorizer.userIsWhitelisted(serviceId, roles.user.address)).to.equal(false);
       });
     });
   });

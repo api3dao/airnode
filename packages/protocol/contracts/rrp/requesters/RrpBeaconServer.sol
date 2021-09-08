@@ -142,18 +142,18 @@ contract RrpBeaconServer is
         return (beacon.value, beacon.timestamp);
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @notice Called to get the rank of an admin for a service
     /// @dev Explictly specifies the overriding `getRank()` implementation
-    /// @param adminnedId ID of the entity being adminned
+    /// @param serviceId Service ID
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
-    function getRank(bytes32 adminnedId, address admin)
+    /// @return Admin rank for the service
+    function getRank(bytes32 serviceId, address admin)
         public
         view
         virtual
         override(RankedAdminnable, MetaAdminnable, IRankedAdminnable)
         returns (uint256)
     {
-        return MetaAdminnable.getRank(adminnedId, admin);
+        return MetaAdminnable.getRank(serviceId, admin);
     }
 }

@@ -5,12 +5,12 @@ import "./RankedAdminnable.sol";
 import "./interfaces/IMetaAdminnable.sol";
 
 /// @title Contract that implements a metaAdmin that has full authority over
-/// all the entities being adminned by RankedAdminnable
+/// all the services being adminned by RankedAdminnable
 contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
+    uint256 private constant MAX_RANK = type(uint256).max;
+
     /// @notice The metaAdmin has the maximum possible rank
     address public override metaAdmin;
-
-    uint256 private constant MAX_RANK = type(uint256).max;
 
     /// @param metaAdmin_ Initial metaAdmin
     constructor(address metaAdmin_) {
@@ -28,13 +28,13 @@ contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
         emit TransferredMetaAdminStatus(metaAdmin_);
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev Respects RankedAdminnable, except treats `metaAdmin` as the highest
-    /// authority
-    /// @param adminnedId ID of the entity being adminned
+    /// @notice Called to get the rank of an admin for a service
+    /// @dev Respects RankedAdminnable, except treats `metaAdmin` as the
+    /// highest authority
+    /// @param serviceId Service ID
     /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
-    function getRank(bytes32 adminnedId, address admin)
+    /// @return Admin rank for the service
+    function getRank(bytes32 serviceId, address admin)
         public
         view
         virtual
@@ -42,6 +42,6 @@ contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
         returns (uint256)
     {
         if (admin == metaAdmin) return MAX_RANK;
-        return RankedAdminnable.getRank(adminnedId, admin);
+        return RankedAdminnable.getRank(serviceId, admin);
     }
 }

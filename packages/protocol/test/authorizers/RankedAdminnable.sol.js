@@ -12,7 +12,7 @@ const AdminRank = Object.freeze({
 
 let roles;
 let metaAdminnable;
-let adminnedId, anotherId;
+let serviceId, anotherId;
 
 beforeEach(async () => {
   const accounts = await hre.ethers.getSigners();
@@ -27,31 +27,31 @@ beforeEach(async () => {
   // We need to use MetaAdminnable to be able to seed the admin ranks
   const metaAdminnableFactory = await hre.ethers.getContractFactory('MetaAdminnable', roles.deployer);
   metaAdminnable = await metaAdminnableFactory.deploy(roles.metaAdmin.address);
-  adminnedId = utils.generateRandomBytes32();
+  serviceId = utils.generateRandomBytes32();
   anotherId = utils.generateRandomBytes32();
-  await metaAdminnable.connect(roles.metaAdmin).setRank(adminnedId, roles.admin.address, AdminRank.Admin);
-  await metaAdminnable.connect(roles.metaAdmin).setRank(adminnedId, roles.superAdmin.address, AdminRank.SuperAdmin);
+  await metaAdminnable.connect(roles.metaAdmin).setRank(serviceId, roles.admin.address, AdminRank.Admin);
+  await metaAdminnable.connect(roles.metaAdmin).setRank(serviceId, roles.superAdmin.address, AdminRank.SuperAdmin);
   await metaAdminnable
     .connect(roles.metaAdmin)
-    .setRank(adminnedId, roles.anotherSuperAdmin.address, AdminRank.SuperAdmin);
+    .setRank(serviceId, roles.anotherSuperAdmin.address, AdminRank.SuperAdmin);
 });
 
 describe('setRank', function () {
   context('Caller higher ranked than target admin', function () {
     context('Caller higher ranked than set rank', function () {
-      it('sets rank for the adminned entity', async function () {
+      it('sets rank for the service', async function () {
         await expect(
-          metaAdminnable.connect(roles.superAdmin).setRank(adminnedId, roles.randomPerson.address, AdminRank.Admin)
+          metaAdminnable.connect(roles.superAdmin).setRank(serviceId, roles.randomPerson.address, AdminRank.Admin)
         )
           .to.emit(metaAdminnable, 'SetRank')
-          .withArgs(adminnedId, roles.randomPerson.address, AdminRank.Admin, roles.superAdmin.address);
-        expect(await metaAdminnable.getRank(adminnedId, roles.randomPerson.address)).to.be.equal(AdminRank.Admin);
+          .withArgs(serviceId, roles.randomPerson.address, AdminRank.Admin, roles.superAdmin.address);
+        expect(await metaAdminnable.getRank(serviceId, roles.randomPerson.address)).to.be.equal(AdminRank.Admin);
       });
     });
     context('Caller not higher ranked than set rank', function () {
       it('reverts', async function () {
         await expect(
-          metaAdminnable.connect(roles.admin).setRank(adminnedId, roles.randomPerson.address, AdminRank.Admin)
+          metaAdminnable.connect(roles.admin).setRank(serviceId, roles.randomPerson.address, AdminRank.Admin)
         ).to.be.revertedWith('Caller ranked low');
         // superAdmin is not authorized to set ranks for anotherId
         await expect(
@@ -63,7 +63,7 @@ describe('setRank', function () {
   context('Caller not higher ranked than target admin', function () {
     it('reverts', async function () {
       await expect(
-        metaAdminnable.connect(roles.superAdmin).setRank(adminnedId, roles.anotherSuperAdmin.address, AdminRank.Admin)
+        metaAdminnable.connect(roles.superAdmin).setRank(serviceId, roles.anotherSuperAdmin.address, AdminRank.Admin)
       ).to.be.revertedWith('Caller ranked low');
     });
   });
@@ -72,31 +72,31 @@ describe('setRank', function () {
 describe('decreaseSelfRank', function () {
   context('Caller higher ranked than target rank', function () {
     it("decreases caller's rank", async function () {
-      await expect(metaAdminnable.connect(roles.superAdmin).decreaseSelfRank(adminnedId, AdminRank.Admin))
+      await expect(metaAdminnable.connect(roles.superAdmin).decreaseSelfRank(serviceId, AdminRank.Admin))
         .to.emit(metaAdminnable, 'DecreasedSelfRank')
-        .withArgs(adminnedId, roles.superAdmin.address, AdminRank.Admin);
-      expect(await metaAdminnable.getRank(adminnedId, roles.superAdmin.address)).to.be.equal(AdminRank.Admin);
-      await expect(metaAdminnable.connect(roles.superAdmin).decreaseSelfRank(adminnedId, AdminRank.Unauthorized))
+        .withArgs(serviceId, roles.superAdmin.address, AdminRank.Admin);
+      expect(await metaAdminnable.getRank(serviceId, roles.superAdmin.address)).to.be.equal(AdminRank.Admin);
+      await expect(metaAdminnable.connect(roles.superAdmin).decreaseSelfRank(serviceId, AdminRank.Unauthorized))
         .to.emit(metaAdminnable, 'DecreasedSelfRank')
-        .withArgs(adminnedId, roles.superAdmin.address, AdminRank.Unauthorized);
-      expect(await metaAdminnable.getRank(adminnedId, roles.superAdmin.address)).to.be.equal(AdminRank.Unauthorized);
-      await expect(metaAdminnable.connect(roles.admin).decreaseSelfRank(adminnedId, AdminRank.Unauthorized))
+        .withArgs(serviceId, roles.superAdmin.address, AdminRank.Unauthorized);
+      expect(await metaAdminnable.getRank(serviceId, roles.superAdmin.address)).to.be.equal(AdminRank.Unauthorized);
+      await expect(metaAdminnable.connect(roles.admin).decreaseSelfRank(serviceId, AdminRank.Unauthorized))
         .to.emit(metaAdminnable, 'DecreasedSelfRank')
-        .withArgs(adminnedId, roles.admin.address, AdminRank.Unauthorized);
-      expect(await metaAdminnable.getRank(adminnedId, roles.admin.address)).to.be.equal(AdminRank.Unauthorized);
+        .withArgs(serviceId, roles.admin.address, AdminRank.Unauthorized);
+      expect(await metaAdminnable.getRank(serviceId, roles.admin.address)).to.be.equal(AdminRank.Unauthorized);
     });
   });
   context('Caller not higher ranked than target rank', function () {
     it('reverts', async function () {
       await expect(
-        metaAdminnable.connect(roles.superAdmin).decreaseSelfRank(adminnedId, AdminRank.SuperAdmin)
+        metaAdminnable.connect(roles.superAdmin).decreaseSelfRank(serviceId, AdminRank.SuperAdmin)
       ).to.be.revertedWith('Caller ranked low');
       await expect(
-        metaAdminnable.connect(roles.admin).decreaseSelfRank(adminnedId, AdminRank.SuperAdmin)
+        metaAdminnable.connect(roles.admin).decreaseSelfRank(serviceId, AdminRank.SuperAdmin)
       ).to.be.revertedWith('Caller ranked low');
-      await expect(
-        metaAdminnable.connect(roles.admin).decreaseSelfRank(adminnedId, AdminRank.Admin)
-      ).to.be.revertedWith('Caller ranked low');
+      await expect(metaAdminnable.connect(roles.admin).decreaseSelfRank(serviceId, AdminRank.Admin)).to.be.revertedWith(
+        'Caller ranked low'
+      );
     });
   });
 });
