@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const utils = require('../../utils');
 
 const AdminRank = Object.freeze({
   Unauthorized: 0,
