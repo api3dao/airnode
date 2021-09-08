@@ -30,7 +30,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        airnodeAddressShort: 'A30CA71',
+        airnodeAddressShort: 'a30ca71',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 300,
         chainId: '1337',
@@ -88,7 +88,7 @@ describe('create', () => {
       },
       settings: {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        airnodeAddressShort: 'A30CA71',
+        airnodeAddressShort: 'a30ca71',
         authorizers: [ethers.constants.AddressZero],
         blockHistoryLimit: 150,
         chainId: '1337',

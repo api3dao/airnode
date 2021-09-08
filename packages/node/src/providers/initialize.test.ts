@@ -72,7 +72,7 @@ describe('initializeProviders', () => {
         },
         settings: {
           airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-          airnodeAddressShort: 'A30CA71',
+          airnodeAddressShort: 'a30ca71',
           authorizers: [ethers.constants.AddressZero],
           blockHistoryLimit: 300,
           chainId: '1',
@@ -104,7 +104,7 @@ describe('initializeProviders', () => {
         },
         settings: {
           airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-          airnodeAddressShort: 'A30CA71',
+          airnodeAddressShort: 'a30ca71',
           authorizers: [ethers.constants.AddressZero],
           blockHistoryLimit: 300,
           chainId: '3',
