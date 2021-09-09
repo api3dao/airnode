@@ -12,16 +12,6 @@ contract Whitelister {
     mapping(bytes32 => mapping(address => WhitelistStatus))
         internal serviceIdToUserToWhitelistStatus;
 
-    /// @dev Reverts if the caller is not whitelisted for the service
-    /// @param serviceId Service ID
-    modifier onlyIfCallerIsWhitelisted(bytes32 serviceId) {
-        require(
-            userIsWhitelisted(serviceId, msg.sender),
-            "Caller not whitelisted"
-        );
-        _;
-    }
-
     /// @dev Reverts if the provided timestamp does not extend whitelist
     /// expiration for the service–user pair
     /// @param serviceId Service ID
