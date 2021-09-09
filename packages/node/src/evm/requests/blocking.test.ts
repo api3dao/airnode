@@ -4,9 +4,9 @@ import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
 
 describe('blockRequestsWithWithdrawals', () => {
   it('blocks API calls with pending withdrawals from the same sponsor', () => {
-    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6' });
+    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69' });
     const withdrawal = fixtures.requests.buildWithdrawal({
-      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
@@ -24,7 +24,7 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does nothing if API call and withdrawal wallet indices do not match', () => {
-    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6' });
+    const apiCall = fixtures.requests.buildApiCall({ sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69' });
     const withdrawal = fixtures.requests.buildWithdrawal({
       sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
     });
@@ -43,7 +43,7 @@ describe('blockRequestsWithWithdrawals', () => {
   });
 
   it('does not block API calls linked to non-pending withdrawals', () => {
-    const sponsorAddress = '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6';
+    const sponsorAddress = '0x64b7d7c64A534086EfF591B73fcFa912feE74c69';
     const apiCall = fixtures.requests.buildApiCall({ sponsorAddress });
     const statuses = Object.keys(RequestStatus).filter(
       (status) => RequestStatus[status as RequestStatus] !== RequestStatus.Pending
