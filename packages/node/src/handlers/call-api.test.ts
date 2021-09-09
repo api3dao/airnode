@@ -30,10 +30,13 @@ describe('callApi', () => {
         endpointName: 'convertToUSD',
         ois: fixtures.buildOIS(),
         parameters: { from: 'ETH' },
-        credentials: {
-          securityScheme: 'My Security Scheme',
-          value: 'supersecret',
-        },
+        metadataParameters: {},
+        apiCredentials: [
+          {
+            securitySchemeName: 'My Security Scheme',
+            securitySchemeValue: 'supersecret',
+          },
+        ],
       },
       { timeout: 20000 }
     );
@@ -72,9 +75,7 @@ describe('callApi', () => {
         expect(spy).toHaveBeenCalledWith(
           {
             endpointName: 'convertToUSD',
-            ois,
-            parameters: {
-              from: 'ETH',
+            metadataParameters: {
               ...(expectMetadata && {
                 _airnode_airnode_id: aggregatedCall.airnodeId,
                 _airnode_client_address: aggregatedCall.clientAddress,
@@ -87,10 +88,16 @@ describe('callApi', () => {
                 _airnode_airnode_rrp: config.chains[0].contracts.AirnodeRrp,
               }),
             },
-            credentials: {
-              securityScheme: 'My Security Scheme',
-              value: 'supersecret',
+            ois,
+            parameters: {
+              from: 'ETH',
             },
+            apiCredentials: [
+              {
+                securitySchemeName: 'My Security Scheme',
+                securitySchemeValue: 'supersecret',
+              },
+            ],
           },
           { timeout: 20000 }
         );

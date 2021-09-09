@@ -41,7 +41,7 @@ describe('CLI', () => {
     if (DEBUG_COMMANDS) console.log(`Executing command: ${formattedCommand}`);
     try {
       return execSync(`node ${CLI_EXECUTABLE} ${formattedCommand}`).toString().trim();
-    } catch (e) {
+    } catch (e: any) {
       // rethrow the output of the CLI
       throw new Error(e.stdout.toString().trim());
     }

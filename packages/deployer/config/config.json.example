@@ -149,5 +149,12 @@
         }
       ]
     }
+  ],
+  "apiCredentials": [
+    {
+      "oisTitle": "Currency Converter API",
+      "securitySchemeName": "Currency Converter Security Scheme",
+      "securitySchemeValue": "${SS_CURRENCY_CONVERTER_API_KEY}"
+    }
   ]
 }

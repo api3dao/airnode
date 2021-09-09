@@ -8,8 +8,18 @@ import { Log } from './types';
 
 const messages: Log[] = [];
 
-const endpointsTemplate = JSON.parse(fs.readFileSync(getPath('endpoints.json', messages, 'pre-alpha'), 'utf8'));
-const oisTemplate = JSON.parse(fs.readFileSync(getPath('ois.json', messages, 'pre-alpha'), 'utf8'));
+const endpointsPath = getPath('endpoints.json', messages, 'pre-alpha');
+const oisPath = getPath('ois.json', messages, 'pre-alpha');
+
+let endpointsTemplate: object, oisTemplate: object;
+
+if (endpointsPath) {
+  endpointsTemplate = JSON.parse(fs.readFileSync(endpointsPath, 'utf8'));
+}
+
+if (oisPath) {
+  oisTemplate = JSON.parse(fs.readFileSync(oisPath, 'utf8'));
+}
 
 describe('validator templates loaded', () => {
   it('expects no messages', () => {

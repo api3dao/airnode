@@ -33,7 +33,7 @@ import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
 import { ChainConfig, GroupedRequests, RequestStatus } from '../types';
 
-const chainProviderName1 = 'Infura Mainnet';
+const chainProviderName1 = 'Pocket Ethereum Mainnet';
 const chainProviderName3 = 'Infura Ropsten';
 const chains: ChainConfig[] = [
   {
@@ -45,7 +45,7 @@ const chains: ChainConfig[] = [
     id: '1',
     providers: {
       [chainProviderName1]: {
-        url: 'https://mainnet.infura.io/v3/<key>',
+        url: 'https://eth-mainnet.gateway.pokt.network/v1/lb/<app_id>',
       },
     },
     type: 'evm',
@@ -108,10 +108,10 @@ describe('initialize', () => {
             logFormat: 'plain',
             logLevel: 'DEBUG',
             minConfirmations: 0,
-            name: 'Infura Mainnet',
+            name: 'Pocket Ethereum Mainnet',
             region: 'us-east-1',
             stage: 'test',
-            url: 'https://mainnet.infura.io/v3/<key>',
+            url: 'https://eth-mainnet.gateway.pokt.network/v1/lb/<app_id>',
             xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
           },
           coordinatorId: 'abcdefg',

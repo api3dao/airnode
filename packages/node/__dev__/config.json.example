@@ -143,11 +143,14 @@
           ],
           "testable": true
         }
-      ],
-      "credentials": {
-        "securityScheme": "Currency Converter Security Scheme",
-        "value": "${SS_CURRENCY_CONVERTER_API_KEY}"
-      }
+      ]
+    }
+  ],
+  "apiCredentials": [
+    {
+      "oisTitle": "Currency Converter API",
+      "securitySchemeName": "Currency Converter Security Scheme",
+      "securitySchemeValue": "${SS_CURRENCY_CONVERTER_API_KEY}"
     }
   ]
 }

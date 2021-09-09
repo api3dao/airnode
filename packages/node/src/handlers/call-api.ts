@@ -4,28 +4,18 @@ import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
-import {
-  AggregatedApiCall,
-  ApiCallParameters,
-  ApiCallResponse,
-  ChainConfig,
-  Config,
-  LogsData,
-  RequestErrorCode,
-} from '../types';
-import { removeKeys } from '../utils/object-utils';
+import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorCode } from '../types';
+import { removeKeys, removeKey } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
-function addMetadataParameters(
+function buildMetadataParameters(
   chain: ChainConfig,
   aggregatedApiCall: AggregatedApiCall,
   reservedParameters: adapter.ReservedParameters
-): ApiCallParameters {
-  const parameters = aggregatedApiCall.parameters;
+): adapter.Parameters {
   switch (reservedParameters._relay_metadata?.toLowerCase()) {
-    case 'v1':
-      return {
-        ...parameters,
+    case 'v1': {
+      const metadataParametersV1: adapter.MetadataParametersV1 = {
         _airnode_airnode_id: aggregatedApiCall.airnodeId,
         _airnode_client_address: aggregatedApiCall.clientAddress,
         _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
@@ -36,8 +26,10 @@ function addMetadataParameters(
         _airnode_chain_type: chain.type,
         _airnode_airnode_rrp: chain.contracts.AirnodeRrp,
       };
+      return metadataParametersV1;
+    }
     default:
-      return parameters;
+      return {};
   }
 }
 
@@ -45,19 +37,21 @@ function buildOptions(
   chain: ChainConfig,
   ois: OIS,
   aggregatedApiCall: AggregatedApiCall,
-  reservedParameters: adapter.ReservedParameters
+  reservedParameters: adapter.ReservedParameters,
+  apiCredentials: adapter.ApiCredentials[]
 ): adapter.BuildRequestOptions {
   // Include airnode metadata based on _relay_metadata version number
-  const parametersWithMetadata = addMetadataParameters(chain, aggregatedApiCall, reservedParameters);
+  const metadataParameters: adapter.Parameters = buildMetadataParameters(chain, aggregatedApiCall, reservedParameters);
 
   // Don't submit the reserved parameters to the API
-  const sanitizedParameters = removeKeys(parametersWithMetadata || {}, RESERVED_PARAMETERS);
+  const sanitizedParameters: adapter.Parameters = removeKeys(aggregatedApiCall.parameters || {}, RESERVED_PARAMETERS);
 
   return {
     endpointName: aggregatedApiCall.endpointName!,
     parameters: sanitizedParameters,
+    metadataParameters,
     ois,
-    credentials: ois.credentials,
+    apiCredentials,
   };
 }
 
@@ -70,6 +64,9 @@ export async function callApi(
   const chain = config.chains.find((c) => c.id === chainId)!;
   const ois = config.ois.find((o) => o.title === oisTitle)!;
   const endpoint = ois.endpoints.find((e) => e.name === endpointName)!;
+  const apiCredentials = config.apiCredentials
+    .filter((c) => c.oisTitle === oisTitle)
+    .map((c) => removeKey(c, 'oisTitle'));
 
   // Check before making the API call in case the parameters are missing
   const reservedParameters = getReservedParameters(endpoint, aggregatedApiCall.parameters || {});
@@ -82,7 +79,8 @@ export async function callApi(
     chain,
     ois,
     aggregatedApiCall,
-    reservedParameters as adapter.ReservedParameters
+    reservedParameters as adapter.ReservedParameters,
+    apiCredentials as adapter.ApiCredentials[]
   );
 
   // Each API call is allowed API_CALL_TIMEOUT ms to complete, before it is retried until the

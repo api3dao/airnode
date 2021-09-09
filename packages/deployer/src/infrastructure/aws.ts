@@ -63,7 +63,7 @@ async function bucketExists(s3: AWS.S3, bucket: string) {
     return true;
   } catch (err) {
     // Not found or forbidden
-    logger.debug(err.toString());
+    logger.debug((err as Error).toString());
     return false;
   }
 }
@@ -76,7 +76,7 @@ async function dynamodbTableExists(dynamoDb: AWS.DynamoDB, dynamodbTable: string
     return true;
   } catch (err) {
     // Not found or forbidden
-    logger.debug(err.toString());
+    logger.debug((err as Error).toString());
     return false;
   }
 }

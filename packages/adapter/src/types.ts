@@ -1,13 +1,19 @@
 /* eslint-disable functional/prefer-readonly-type */
 
-import { Endpoint, Method, OIS, Operation, ApiCredentials } from '@api3/ois';
+import { Endpoint, Method, OIS, Operation } from '@api3/ois';
 import { BigNumber } from 'bignumber.js';
+
+export interface ApiCredentials {
+  readonly securitySchemeName: string;
+  readonly securitySchemeValue: string;
+}
 
 export interface BuildRequestOptions {
   readonly ois: OIS;
   readonly endpointName: string;
-  readonly parameters: { readonly [key: string]: string };
-  readonly credentials?: ApiCredentials;
+  readonly parameters: Parameters;
+  readonly metadataParameters: Parameters;
+  readonly apiCredentials: ApiCredentials[];
 }
 
 export interface CachedBuildRequestOptions extends BuildRequestOptions {
@@ -51,3 +57,18 @@ export interface ReservedParameters {
   readonly _type: ResponseType;
   readonly _relay_metadata?: string;
 }
+
+export type MetadataParameterKeysV1 =
+  | '_airnode_airnode_id'
+  | '_airnode_client_address'
+  | '_airnode_designated_wallet'
+  | '_airnode_endpoint_id'
+  | '_airnode_requester_index'
+  | '_airnode_request_id'
+  | '_airnode_chain_id'
+  | '_airnode_chain_type'
+  | '_airnode_airnode_rrp';
+
+export type MetadataParametersV1 = {
+  readonly [key in MetadataParameterKeysV1]: string;
+};

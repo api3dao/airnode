@@ -3,7 +3,7 @@
 
 > A package/CLI tool to interact with the Airnode contracts across chains
 
-Almost all commands require you to provide a `providerUrl` such as `https://ropsten.infura.io/v3/<KEY>`, `https://xdai.poanetwork.dev`, etc.
+Almost all commands require you to provide a `providerUrl` such as `https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID>`, `https://xdai.poanetwork.dev`, etc.
 The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract, which address is derived from the current chain.
 You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
 
@@ -64,7 +64,7 @@ Note down your requester index because you will be using it in future interactio
 
 ```sh
 npx @api3/airnode-admin create-requester \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --requesterAdmin 0x5c17cb...
 ```
@@ -76,7 +76,7 @@ The account derived from the `mnemonic` you provide here has to belong to the pr
 
 ```sh
 npx @api3/airnode-admin set-requester-admin \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
   --requesterAdmin 0xe97301...
@@ -88,7 +88,7 @@ Derives the address of the [wallet designated by an Airnode for a requester](htt
 
 ```sh
 npx @api3/airnode-admin derive-designated-wallet \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --airnodeId 0xe1e0dd... \
   --requesterIndex 6
 ```
@@ -100,7 +100,7 @@ The account derived from the `mnemonic` you provide here has to belong to the re
 
 ```sh
 npx @api3/airnode-admin endorse-client \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
   --clientAddress 0x2c2e12...
@@ -113,7 +113,7 @@ The account derived from the `mnemonic` you provide here has to belong to the re
 
 ```sh
 npx @api3/airnode-admin unendorse-client \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --requesterIndex 6 \
   --clientAddress 0x2c2e12...
@@ -125,7 +125,7 @@ Returns the endorsement status for the given requester index and client (`true` 
 
 ```sh
 npx @api3/airnode-admin get-endorsement-status \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --requesterIndex 6 \
   --clientAddress 0x2c2e12...
 ```
@@ -137,7 +137,7 @@ See the `/example` directory for an example template file.
 
 ```sh
 npx @api3/airnode-admin create-template \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --templateFilePath ./template.json
 ```
@@ -148,7 +148,7 @@ Returns the template for the given `templateId`.
 
 ```sh
 npx @api3/airnode-admin get-template \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --templateId 0x8d3b9...
 ```
 
@@ -159,7 +159,7 @@ The account derived from the `mnemonic` you provide here has to belong to the re
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --airnodeId 0xe1e0dd... \
   --requesterIndex 6 \
@@ -172,7 +172,7 @@ Checks the status of the withdrawal request with the given ID.
 
 ```sh
 npx @api3/airnode-admin check-withdrawal-request \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --withdrawalRequestId 0x011d1b...
 ```
 
@@ -188,7 +188,7 @@ Airnode will set its own parameters during [deployment](https://github.com/api3d
 
 ```sh
 npx @api3/airnode-admin set-airnode-parameters \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
   --airnodeAdmin 0xc2193d... \
   --authorizersFilePath ./authorizers.json
@@ -200,7 +200,7 @@ Returns the Airnode parameters and block number for the given `airnodeId`.
 
 ```sh
 npx @api3/airnode-admin get-airnode-parameters \
-  --providerUrl https://ropsten.infura.io/v3/<KEY> \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --airnodeId 0xe1e0dd...
 ```
 

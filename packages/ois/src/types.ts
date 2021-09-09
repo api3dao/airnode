@@ -97,14 +97,6 @@ export interface Endpoint {
 }
 
 // ===========================================
-// Security
-// ===========================================
-export interface ApiCredentials {
-  securityScheme: string;
-  value: string;
-}
-
-// ===========================================
 // OIS
 // ===========================================
 export interface OIS {
@@ -113,5 +105,4 @@ export interface OIS {
   version: string;
   apiSpecifications: ApiSpecification;
   endpoints: Endpoint[];
-  credentials: ApiCredentials;
 }
