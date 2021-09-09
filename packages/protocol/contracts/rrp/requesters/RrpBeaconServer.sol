@@ -16,6 +16,9 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// a problem (because the reported data may not fit into 224 bits or it is of
 /// a completely different type such as `bytes32`), do not use this contract
 /// and implement a customized version instead.
+/// The contract casts the timestamps to `uint32`, which means it will not work
+/// work past-2038 in the current form. If this is an issue, consider casting
+/// the timestampts to a larger type.
 contract RrpBeaconServer is
     MetaAdminnable,
     Whitelister,
@@ -150,23 +153,8 @@ contract RrpBeaconServer is
         }
     }
 
-    /// @notice Called to read the beacon
-    /// @dev The caller must be whitelisted
-    /// @param templateId Template ID whose beacon will be returned
-    /// @return value Beacon value
-    /// @return timestamp Beacon timestamp
-    function readBeacon(bytes32 templateId)
-        external
-        view
-        override
-        onlyIfCallerIsWhitelisted(templateId)
-        returns (int224 value, uint32 timestamp)
-    {
-        Beacon storage beacon = templateIdToBeacon[templateId];
-        return (beacon.value, beacon.timestamp);
-    }
-
     /// @notice Called by an admin to extend the whitelist expiration of a user
+    /// for the beacon
     /// @param templateId Template ID
     /// @param user User address
     /// @param expirationTimestamp Timestamp at which the user will no longer
@@ -192,7 +180,7 @@ contract RrpBeaconServer is
     }
 
     /// @notice Called by a super admin to set the whitelisting expiration of a
-    /// user
+    /// user for the beacon
     /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration
     /// @param templateId Template ID
     /// @param user User address
@@ -218,7 +206,7 @@ contract RrpBeaconServer is
     }
 
     /// @notice Called by a super admin to set the whitelist status of a user
-    /// past expiration
+    /// past expiration for the beacon
     /// @param templateId Template ID
     /// @param user User address
     /// @param status Whitelist status that the user will have past expiration
@@ -241,7 +229,23 @@ contract RrpBeaconServer is
         );
     }
 
-    /// @notice Called to get the rank of an admin for an adminned entity
+    /// @notice Called to read the beacon
+    /// @dev The caller must be whitelisted
+    /// @param templateId Template ID whose beacon will be returned
+    /// @return value Beacon value
+    /// @return timestamp Beacon timestamp
+    function readBeacon(bytes32 templateId)
+        external
+        view
+        override
+        onlyIfCallerIsWhitelisted(templateId)
+        returns (int224 value, uint32 timestamp)
+    {
+        Beacon storage beacon = templateIdToBeacon[templateId];
+        return (beacon.value, beacon.timestamp);
+    }
+
+    /// @notice Called to get the rank of an admin for the adminned entity
     /// @dev Explictly specifies the overriding `getRank()` implementation
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned

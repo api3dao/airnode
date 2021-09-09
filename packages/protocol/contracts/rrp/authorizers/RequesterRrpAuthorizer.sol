@@ -5,7 +5,7 @@ import "../../adminnable/Whitelister.sol";
 import "./interfaces/IRequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract where requesters are whitelisted until an
-/// expiration time or indefinitely (until the whitelisting is revoked)
+/// expiration time or indefinitely (until whitelisting is revoked)
 abstract contract RequesterRrpAuthorizer is
     Whitelister,
     IRequesterRrpAuthorizer
@@ -31,7 +31,8 @@ abstract contract RequesterRrpAuthorizer is
             userIsWhitelisted(deriveServiceId(airnode, endpointId), requester);
     }
 
-    /// @notice Called to check if a user is whitelisted to use a service
+    /// @notice Called to check if a user is whitelisted to use the
+    /// Airnode–endpoint pair
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param user User address
@@ -44,7 +45,7 @@ abstract contract RequesterRrpAuthorizer is
         return userIsWhitelisted(deriveServiceId(airnode, endpointId), user);
     }
 
-    /// @notice Called to get the detailed whitelist status of a user for an
+    /// @notice Called to get the detailed whitelist status of a user for the
     /// Airnode–endpoint pair
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
@@ -71,8 +72,8 @@ abstract contract RequesterRrpAuthorizer is
         whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;
     }
 
-    /// @notice Used internally to derive the service ID from the Airnode
-    /// address and the endpoint ID
+    /// @notice Called internally to derive the service ID of the
+    /// Airnode–endpoint pair
     /// @dev Whitelister contract that this contract inherits keeps whitelist
     /// statuses in a single level hash map. We have two parameters here
     /// (Airnode address and endpoint ID) from which we need to derive a single

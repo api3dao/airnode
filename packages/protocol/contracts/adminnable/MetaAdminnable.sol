@@ -4,21 +4,21 @@ pragma solidity 0.8.6;
 import "./RankedAdminnable.sol";
 import "./interfaces/IMetaAdminnable.sol";
 
-/// @title Contract that implements a metaAdmin that has full authority over
+/// @title Contract that implements a meta-admin that has full authority over
 /// all the entities being adminned by RankedAdminnable
 contract MetaAdminnable is RankedAdminnable, IMetaAdminnable {
-    /// @notice The metaAdmin has the maximum possible rank
+    /// @notice The meta-admin has the maximum possible rank
     address public override metaAdmin;
 
     uint256 private constant MAX_RANK = type(uint256).max;
 
-    /// @param metaAdmin_ Initial metaAdmin
+    /// @param metaAdmin_ Initial meta-admin
     constructor(address metaAdmin_) {
         require(metaAdmin_ != address(0), "Zero address");
         metaAdmin = metaAdmin_;
     }
 
-    /// @notice Called by the metaAdmin to transfer its status to another
+    /// @notice Called by the meta-admin to transfer its status to another
     /// address
     /// @param metaAdmin_ New metaAdmin
     function transferMetaAdminStatus(address metaAdmin_) external override {

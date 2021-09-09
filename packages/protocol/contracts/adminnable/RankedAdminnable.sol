@@ -9,7 +9,8 @@ contract RankedAdminnable is IRankedAdminnable {
     mapping(bytes32 => mapping(address => uint256))
         private adminnedIdToAdminToRank;
 
-    /// @dev Reverts if the caller's rank is not greater than or equal to `rank`
+    /// @dev Reverts if the caller's rank is not greater than or equal to
+    /// `rank` for the entity
     /// @param adminnedId ID of the entity being adminned
     /// @param rank Rank caller's rank will be compared to
     modifier onlyWithRank(bytes32 adminnedId, uint256 rank) {
@@ -18,7 +19,7 @@ contract RankedAdminnable is IRankedAdminnable {
     }
 
     /// @notice Called by an admin of higher rank to set the rank of an admin
-    /// of lower rank
+    /// of lower rank for the entity
     /// @param adminnedId ID of the entity being adminned
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
@@ -39,7 +40,7 @@ contract RankedAdminnable is IRankedAdminnable {
         emit SetRank(adminnedId, targetAdmin, newRank, msg.sender);
     }
 
-    /// @notice Called by an admin to decrease its rank
+    /// @notice Called by an admin to decrease its rank for the entity
     /// @param adminnedId ID of the entity being adminned
     /// @param newRank Rank to be set
     function decreaseSelfRank(bytes32 adminnedId, uint256 newRank)

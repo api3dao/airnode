@@ -25,6 +25,7 @@ contract SelfRequesterRrpAuthorizer is
     uint256 private constant MAX_RANK = type(uint256).max;
 
     /// @notice Called by an admin to extend the whitelist expiration of a user
+    /// for the Airnode–endpoint pair
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param user User address
@@ -58,7 +59,7 @@ contract SelfRequesterRrpAuthorizer is
     }
 
     /// @notice Called by a super admin to set the whitelisting expiration of a
-    /// user
+    /// user for the Airnode–endpoint pair
     /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
@@ -88,7 +89,7 @@ contract SelfRequesterRrpAuthorizer is
     }
 
     /// @notice Called by a super admin to set the whitelist status of a user
-    /// past expiration
+    /// past expiration for the Airnode–endpoint pair
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param user User address
@@ -116,7 +117,7 @@ contract SelfRequesterRrpAuthorizer is
     }
 
     /// @notice Called to get the rank of an admin for the entity
-    /// @dev Respects RankedAdminnable, except treats the Airnode operator as
+    /// @dev Respects RankedAdminnable, except treats the Airnode address as
     /// the highest authority for the respective Airnode
     /// @param adminnedId ID of the entity being adminned
     /// @param admin Admin address whose rank will be returned
@@ -129,12 +130,23 @@ contract SelfRequesterRrpAuthorizer is
     {
         // Airnodes are identified by addresses. Since RankedAdminnable
         // identifies entities with `bytes32` types, we convert the Airnode
-        /// address to a `bytes32` type by padding with zeros.
+        // address to a `bytes32` type by padding with zeros.
         // See RequesterRrpAuthorizer.sol for more information
         if (adminnedId == deriveAdminnedId(admin)) return MAX_RANK;
         return RankedAdminnable.getRank(adminnedId, admin);
     }
 
+    /// @notice Called internally to derive the adminned ID of the Airnode
+    /// @dev Airnodes are identified by their addresses. Since RankedAdminnable
+    /// identifies entities with `bytes32` types, we convert the Airnode
+    /// address to a `bytes32` type. This is done by padding it with zeros for
+    /// readability.
+    /// This left-pads the Airnode address, i.e., if the Airnode address is
+    /// 0x1234567890123456789012345678901234567890, the corresponding
+    /// `adminnedId` will be
+    /// 0x0000000000000000000000001234567890123456789012345678901234567890
+    /// @param airnode Airnode address
+    /// @return adminnedId ID of the entity being adminned
     function deriveAdminnedId(address airnode)
         internal
         pure

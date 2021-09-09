@@ -6,13 +6,14 @@ import "./RequesterRrpAuthorizer.sol";
 import "./interfaces/IApi3RequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists requesters where the API3 DAO is
-/// the metaAdmin
+/// the meta-admin
 /// @dev Unlike the MetaAdminnable contract that it inherits, this contract
 /// does not support the independent adminning of different entities. In other
 /// words, when an address is assigned to be an Admin/SuperAdmin, it becomes
-/// the Admin/SuperAdmin of all entities being adminned. To achieve this, when
-/// interacting with this contract, always use `bytes32(0)` as the
-/// `adminnedId`.
+/// the Admin/SuperAdmin of all entities being adminned. To achieve this, the
+/// interface that allows the caller to specify an `adminnedId` is disabled,
+/// and an alternative one is implemented where `adminnedId` is forced to be
+/// `bytes32(0)`.
 contract Api3RequesterRrpAuthorizer is
     MetaAdminnable,
     RequesterRrpAuthorizer,
@@ -27,11 +28,11 @@ contract Api3RequesterRrpAuthorizer is
     /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type
     uint256 public constant override AUTHORIZER_TYPE = 2;
 
-    /// @param metaAdmin_ Address that will be set as the API3 metaAdmin
+    /// @param metaAdmin_ API3 meta-admin, i.e., the API3 DAO
     constructor(address metaAdmin_) MetaAdminnable(metaAdmin_) {}
 
     /// @notice Called by an admin of higher rank to set the rank of an admin
-    /// of lower rank
+    /// of lower rank for the entity
     /// @dev Overriden to disable
     /// @param adminnedId ID of the entity being adminned
     /// @param targetAdmin Target admin address
@@ -45,7 +46,7 @@ contract Api3RequesterRrpAuthorizer is
     }
 
     /// @notice Called by an admin of higher rank to set the rank of an admin
-    /// of lower rank
+    /// of lower rank for all entities
     /// @dev Overriden to force `bytes32(0)` as `adminnedId`
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
@@ -53,7 +54,7 @@ contract Api3RequesterRrpAuthorizer is
         RankedAdminnable.setRank(bytes32(0), targetAdmin, newRank);
     }
 
-    /// @notice Called by an admin to decrease its rank
+    /// @notice Called by an admin to decrease its rank for the entity
     /// @dev Overriden to disable
     /// @param adminnedId ID of the entity being adminned
     /// @param newRank Rank to be set
@@ -64,7 +65,7 @@ contract Api3RequesterRrpAuthorizer is
         revert("Disabled interface");
     }
 
-    /// @notice Called by an admin to decrease its rank
+    /// @notice Called by an admin to decrease its rank for all entities
     /// @dev Overriden to force `bytes32(0)` as `adminnedId`
     /// @param newRank Rank to be set
     function decreaseSelfRank(uint256 newRank) external override {
@@ -72,6 +73,7 @@ contract Api3RequesterRrpAuthorizer is
     }
 
     /// @notice Called by an admin to extend the whitelist expiration of a user
+    /// for the Airnode–endpoint pair
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param user User address
@@ -105,7 +107,7 @@ contract Api3RequesterRrpAuthorizer is
     }
 
     /// @notice Called by a super admin to set the whitelisting expiration of a
-    /// user
+    /// user for the Airnode–endpoint pair
     /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
@@ -135,7 +137,7 @@ contract Api3RequesterRrpAuthorizer is
     }
 
     /// @notice Called by a super admin to set the whitelist status of a user
-    /// past expiration
+    /// past expiration for the Airnode–endpoint pair
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param user User address
@@ -179,8 +181,7 @@ contract Api3RequesterRrpAuthorizer is
         return MetaAdminnable.getRank(adminnedId, admin);
     }
 
-    /// @notice Called to get the rank of an admin
-    /// @dev Overriden to force `bytes32(0)` as `adminnedId`
+    /// @notice Called to get the rank of an admin for all entities
     /// @param admin Admin address whose rank will be returned
     /// @return Admin rank
     function getRank(address admin) external view override returns (uint256) {

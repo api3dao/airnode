@@ -43,7 +43,7 @@ contract Whitelister {
         _;
     }
 
-    /// @notice Called internally to check if a user is whitelisted to use a
+    /// @notice Called internally to check if a user is whitelisted to use the
     /// service
     /// @param serviceId Service ID
     /// @param user User address
