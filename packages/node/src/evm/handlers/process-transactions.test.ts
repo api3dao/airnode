@@ -39,7 +39,7 @@ describe('processTransactions', () => {
     });
 
     const apiCall = fixtures.requests.buildSubmittableApiCall({
-      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
     });
     const withdrawal = fixtures.requests.buildWithdrawal({
       sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
@@ -49,7 +49,7 @@ describe('processTransactions', () => {
       withdrawals: [withdrawal],
     };
     const transactionCountsBySponsorAddress = {
-      '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6': 79,
+      '0x64b7d7c64A534086EfF591B73fcFa912feE74c69': 79,
       '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E': 212,
     };
     const state = fixtures.buildEVMProviderState({
@@ -96,13 +96,13 @@ describe('processTransactions', () => {
     gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
 
     const apiCall = fixtures.requests.buildSubmittableApiCall({
-      sponsorAddress: '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6',
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const transactionCountsBySponsorAddress = { '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6': 79 };
+    const transactionCountsBySponsorAddress = { '0x64b7d7c64A534086EfF591B73fcFa912feE74c69': 79 };
     const state = fixtures.buildEVMProviderState({
       requests,
       transactionCountsBySponsorAddress,
