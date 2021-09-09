@@ -10,21 +10,13 @@ interface IAdminnable {
         uint256 newRank
     );
 
-    event DecreasedSelfRank(
-        address indexed admin,
-        uint256 newRank
-    );
+    event DecreasedSelfRank(address indexed admin, uint256 newRank);
 
     function transferMetaAdminStatus(address metaAdmin_) external;
 
-    function setRank(
-        address targetAdmin,
-        uint256 newRank
-    )
-        external;
-    
-    function decreaseSelfRank(uint256 newRank)
-        external;
+    function setRank(address targetAdmin, uint256 newRank) external;
+
+    function decreaseSelfRank(uint256 newRank) external;
 
     function metaAdmin() external view returns (address);
 

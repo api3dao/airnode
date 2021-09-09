@@ -7,7 +7,9 @@ import "./interfaces/ISelfAdminnable.sol";
 /// "adminned" addresses independently
 contract SelfAdminnable is ISelfAdminnable {
     /// @notice Called to get the rank of an admin for the adminned address
-    mapping(address => mapping(address => uint256)) public override adminnedToAdminToRank;
+    mapping(address => mapping(address => uint256))
+        public
+        override adminnedToAdminToRank;
 
     /// @dev Reverts if the caller's rank is not greater than or equal to
     /// `rank` for the adminned address
@@ -15,7 +17,11 @@ contract SelfAdminnable is ISelfAdminnable {
     /// @param adminned Adminned address
     /// @param rank Rank caller's rank will be compared to
     modifier onlyWithRank(address adminned, uint256 rank) {
-        require(msg.sender == adminned || adminnedToAdminToRank[adminned][msg.sender] >= rank, "Caller ranked low");
+        require(
+            msg.sender == adminned ||
+                adminnedToAdminToRank[adminned][msg.sender] >= rank,
+            "Caller ranked low"
+        );
         _;
     }
 

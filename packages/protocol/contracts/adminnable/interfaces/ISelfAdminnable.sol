@@ -19,11 +19,12 @@ interface ISelfAdminnable {
         address adminned,
         address targetAdmin,
         uint256 newRank
-    )
-        external;
-    
-    function decreaseSelfRank(address adminned, uint256 newRank)
-        external;
+    ) external;
 
-    function adminnedToAdminToRank(address adminned, address admin) external view returns (uint256);
+    function decreaseSelfRank(address adminned, uint256 newRank) external;
+
+    function adminnedToAdminToRank(address adminned, address admin)
+        external
+        view
+        returns (uint256);
 }

@@ -13,10 +13,7 @@ import "./RequesterRrpAuthorizer.sol";
 /// interface that allows the caller to specify an `adminnedId` is disabled,
 /// and an alternative one is implemented where `adminnedId` is forced to be
 /// `bytes32(0)`.
-contract DaoRequesterRrpAuthorizer is
-    Adminnable,
-    RequesterRrpAuthorizer
-{
+contract DaoRequesterRrpAuthorizer is Adminnable, RequesterRrpAuthorizer {
     enum AdminRank {
         Unauthorized,
         Admin,
@@ -73,11 +70,7 @@ contract DaoRequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.SuperAdmin))
-    {
+    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
             user
         ].expirationTimestamp = expirationTimestamp;
@@ -101,11 +94,7 @@ contract DaoRequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         bool status
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.SuperAdmin))
-    {
+    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
             user
         ].whitelistedPastExpiration = status;
@@ -136,6 +125,9 @@ contract DaoRequesterRrpAuthorizer is
         address requester
     ) external view override returns (bool) {
         return
-            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester) || adminToRank[requester] >= uint256(AdminRank.Admin);
+            userIsWhitelisted(
+                deriveServiceId(airnode, endpointId),
+                requester
+            ) || adminToRank[requester] >= uint256(AdminRank.Admin);
     }
 }

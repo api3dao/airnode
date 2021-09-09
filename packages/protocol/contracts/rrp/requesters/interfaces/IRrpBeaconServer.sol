@@ -2,9 +2,8 @@
 pragma solidity 0.8.6;
 
 import "../../../adminnable/interfaces/IAdminnable.sol";
-import "../../../adminnable/interfaces/IWhitelister.sol";
 
-interface IRrpBeaconServer is IAdminnable, IWhitelister {
+interface IRrpBeaconServer is IAdminnable {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
@@ -92,6 +91,16 @@ interface IRrpBeaconServer is IAdminnable, IWhitelister {
         external
         view
         returns (int224 value, uint32 timestamp);
+
+    function userIsWhitelistedToReadBeacon(bytes32 templateId, address user)
+        external
+        view
+        returns (bool isWhitelisted);
+
+    function templateIdToUserToWhitelistStatus(bytes32 templateId, address user)
+        external
+        view
+        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);
 
     function sponsorToUpdateRequesterToPermissonStatus(
         address sponsor,

@@ -37,16 +37,14 @@ contract RrpBeaconServer is
     }
 
     mapping(address => mapping(address => bool))
-        public override
-        sponsorToUpdateRequesterToPermissonStatus;
+        public
+        override sponsorToUpdateRequesterToPermissonStatus;
 
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
     /// @param airnodeRrp_ Airnode RRP address
-    constructor(address airnodeRrp_)
-        RrpRequester(airnodeRrp_)
-    {}
+    constructor(address airnodeRrp_) RrpRequester(airnodeRrp_) {}
 
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
@@ -188,11 +186,7 @@ contract RrpBeaconServer is
         bytes32 templateId,
         address user,
         uint64 expirationTimestamp
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.SuperAdmin))
-    {
+    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .expirationTimestamp = expirationTimestamp;
         emit SetWhitelistExpiration(
@@ -212,11 +206,7 @@ contract RrpBeaconServer is
         bytes32 templateId,
         address user,
         bool status
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.SuperAdmin))
-    {
+    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .whitelistedPastExpiration = status;
         emit SetWhitelistStatusPastExpiration(
@@ -234,13 +224,52 @@ contract RrpBeaconServer is
     /// @return timestamp Beacon timestamp
     function readBeacon(bytes32 templateId)
         external
-        override
         view
+        override
         onlyIfCallerIsWhitelisted(templateId)
         returns (int224 value, uint32 timestamp)
     {
-        require(userIsWhitelisted(templateId, msg.sender) || adminToRank[msg.sender] >= uint256(AdminRank.Admin), "Caller not whitelisted"); 
+        require(
+            userIsWhitelisted(templateId, msg.sender) ||
+                adminToRank[msg.sender] >= uint256(AdminRank.Admin),
+            "Caller not whitelisted"
+        );
         Beacon storage beacon = templateIdToBeacon[templateId];
         return (beacon.value, beacon.timestamp);
+    }
+
+    /// @notice Called to check if a user is whitelisted to read the beacon
+    /// @param templateId Template ID
+    /// @param user User address
+    /// @return isWhitelisted If the user is whitelisted
+    function userIsWhitelistedToReadBeacon(bytes32 templateId, address user)
+        external
+        view
+        override
+        returns (bool isWhitelisted)
+    {
+        return userIsWhitelisted(templateId, user);
+    }
+
+    /// @notice Called to get the detailed whitelist status of a user for the
+    /// beacon
+    /// @param templateId Template ID
+    /// @param user User address
+    /// @return expirationTimestamp Timestamp at which the whitelisting of the
+    /// user will expire
+    /// @return whitelistedPastExpiration Whitelist status that the user will
+    /// have past expiration
+    function templateIdToUserToWhitelistStatus(bytes32 templateId, address user)
+        external
+        view
+        override
+        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
+    {
+        WhitelistStatus
+            storage whitelistStatus = serviceIdToUserToWhitelistStatus[
+                templateId
+            ][user];
+        expirationTimestamp = whitelistStatus.expirationTimestamp;
+        whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;
     }
 }

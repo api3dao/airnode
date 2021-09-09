@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../../adminnable/interfaces/IWhitelister.sol";
 import "./IRrpAuthorizer.sol";
 
-interface IRequesterRrpAuthorizer is IWhitelister, IRrpAuthorizer {
+interface IRequesterRrpAuthorizer is IRrpAuthorizer {
     event ExtendedWhitelistExpiration(
         address indexed airnode,
         bytes32 endpointId,
@@ -34,24 +33,21 @@ interface IRequesterRrpAuthorizer is IWhitelister, IRrpAuthorizer {
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    )
-        external;
-  
-  function setWhitelistExpiration(
+    ) external;
+
+    function setWhitelistExpiration(
         address airnode,
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    )
-        external;
+    ) external;
 
-  function setWhitelistStatusPastExpiration(
+    function setWhitelistStatusPastExpiration(
         address airnode,
         bytes32 endpointId,
         address user,
         bool status
-    )
-        external;
+    ) external;
 
     function userIsWhitelisted(
         address airnode,

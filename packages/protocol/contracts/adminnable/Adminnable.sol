@@ -16,7 +16,10 @@ contract Adminnable is IAdminnable {
     /// `rank`. `metaAdmin` always satisfies rank requirements.
     /// @param rank Rank caller's rank will be compared to
     modifier onlyWithRank(uint256 rank) {
-        require(msg.sender == metaAdmin || adminToRank[msg.sender] >= rank, "Caller ranked low");
+        require(
+            msg.sender == metaAdmin || adminToRank[msg.sender] >= rank,
+            "Caller ranked low"
+        );
         _;
     }
 
@@ -39,10 +42,7 @@ contract Adminnable is IAdminnable {
     /// of lower rank
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
-    function setRank(
-        address targetAdmin,
-        uint256 newRank
-    )
+    function setRank(address targetAdmin, uint256 newRank)
         external
         override
         onlyWithRank(max(adminToRank[targetAdmin], newRank) + 1)

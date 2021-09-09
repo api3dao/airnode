@@ -68,11 +68,7 @@ contract AirnodeRequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    )
-        external
-        override
-        onlyWithRank(airnode, uint256(AdminRank.SuperAdmin))
-    {
+    ) external override onlyWithRank(airnode, uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
             user
         ].expirationTimestamp = expirationTimestamp;
@@ -96,11 +92,7 @@ contract AirnodeRequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         bool status
-    )
-        external
-        override
-        onlyWithRank(airnode, uint256(AdminRank.SuperAdmin))
-    {
+    ) external override onlyWithRank(airnode, uint256(AdminRank.SuperAdmin)) {
         serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
             user
         ].whitelistedPastExpiration = status;
@@ -131,6 +123,11 @@ contract AirnodeRequesterRrpAuthorizer is
         address requester
     ) external view override returns (bool) {
         return
-            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester) || adminnedToAdminToRank[airnode][requester] >= uint256(AdminRank.Admin);
+            userIsWhitelisted(
+                deriveServiceId(airnode, endpointId),
+                requester
+            ) ||
+            adminnedToAdminToRank[airnode][requester] >=
+            uint256(AdminRank.Admin);
     }
 }
