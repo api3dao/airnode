@@ -12,6 +12,7 @@ function getValidatedFields(apiCall: Request<ApiCall>): ValidatedField[] {
   switch (apiCall.type) {
     case 'template':
       return [
+        { value: apiCall.airnodeAddress, type: 'address' },
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: ethers.BigNumber.from(apiCall.chainId), type: 'uint256' },
         { value: apiCall.requesterAddress, type: 'address' },
@@ -21,6 +22,7 @@ function getValidatedFields(apiCall: Request<ApiCall>): ValidatedField[] {
 
     case 'full':
       return [
+        { value: apiCall.airnodeAddress, type: 'address' },
         { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: ethers.BigNumber.from(apiCall.chainId), type: 'uint256' },
         { value: apiCall.requesterAddress, type: 'address' },
