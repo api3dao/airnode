@@ -124,8 +124,10 @@ contract AirnodeRrp is
         uint256 requesterRequestCount = requesterToRequestCountPlusOne[
             msg.sender
         ];
+        address airnode = templates[templateId].airnode;
         requestId = keccak256(
             abi.encodePacked(
+                airnode,
                 requesterRequestCount,
                 block.chainid,
                 msg.sender,
@@ -133,7 +135,6 @@ contract AirnodeRrp is
                 parameters
             )
         );
-        address airnode = templates[templateId].airnode;
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
                 airnode,
@@ -188,6 +189,7 @@ contract AirnodeRrp is
         ];
         requestId = keccak256(
             abi.encodePacked(
+                airnode,
                 requesterRequestCount,
                 block.chainid,
                 msg.sender,
