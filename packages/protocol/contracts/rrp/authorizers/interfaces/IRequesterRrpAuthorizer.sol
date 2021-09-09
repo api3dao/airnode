@@ -34,21 +34,24 @@ interface IRequesterRrpAuthorizer is IWhitelister, IRrpAuthorizer {
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    ) external;
-
-    function setWhitelistExpiration(
+    )
+        external;
+  
+  function setWhitelistExpiration(
         address airnode,
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    ) external;
+    )
+        external;
 
-    function setWhitelistStatusPastExpiration(
+  function setWhitelistStatusPastExpiration(
         address airnode,
         bytes32 endpointId,
         address user,
         bool status
-    ) external;
+    )
+        external;
 
     function userIsWhitelisted(
         address airnode,

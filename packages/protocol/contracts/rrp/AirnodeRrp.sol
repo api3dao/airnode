@@ -135,7 +135,7 @@ contract AirnodeRrp is
             )
         );
         address airnode = templates[templateId].airnode;
-        require(airnode != address(0), "airnode address zero");
+        require(airnode != address(0), "Airnode address zero");
         requestIdToFulfillmentParameters[requestId] = keccak256(
             abi.encodePacked(
                 airnode,
@@ -181,7 +181,7 @@ contract AirnodeRrp is
         bytes4 fulfillFunctionId,
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
-        require(airnode != address(0), "airnode address zero");
+        require(airnode != address(0), "Airnode address zero");
         require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
             sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],

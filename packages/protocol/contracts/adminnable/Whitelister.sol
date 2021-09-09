@@ -3,8 +3,8 @@ pragma solidity 0.8.6;
 
 import "./interfaces/IWhitelister.sol";
 
-/// @title Contract where users are whitelisted until an expiration time or
-/// indefinitely (until the whitelisting is revoked)
+/// @title Contract where users are whitelisted for specific services (could be
+/// Airnodes, dAPIs, beacons, etc.) until an expiration time or indefinitely
 contract Whitelister is IWhitelister{
     struct WhitelistStatus {
         uint64 expirationTimestamp;
@@ -12,7 +12,7 @@ contract Whitelister is IWhitelister{
     }
 
     /// @notice Keeps the whitelisting statuses of users for individual
-    /// services (could be Airnodes, dAPIs, beacons, etc.)
+    /// services
     mapping(bytes32 => mapping(address => WhitelistStatus))
         public override serviceIdToUserToWhitelistStatus;
 
@@ -26,7 +26,8 @@ contract Whitelister is IWhitelister{
         _;
     }
 
-    /// @dev Reverts if the provided timestamp does not extend expiration
+    /// @dev Reverts if the provided timestamp does not extend whitelist
+    /// expiration for the service–user pair
     /// @param serviceId Service ID
     /// @param user User address
     /// @param expirationTimestamp Timestamp at which the user will no longer

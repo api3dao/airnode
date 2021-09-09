@@ -23,7 +23,7 @@ contract TemplateUtils is ITemplateUtils {
     /// you query a template with its ID, you can verify its integrity by
     /// applying the hash and comparing the result with the ID.
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param parameters Static request parameters (i.e., parameters that will
     /// not change between requests, unlike the dynamic parameters determined
     /// at request-time)
@@ -33,7 +33,7 @@ contract TemplateUtils is ITemplateUtils {
         bytes32 endpointId,
         bytes calldata parameters
     ) external override returns (bytes32 templateId) {
-        require(airnode != address(0), "airnode address zero");
+        require(airnode != address(0), "Airnode address zero");
         templateId = keccak256(
             abi.encodePacked(airnode, endpointId, parameters)
         );

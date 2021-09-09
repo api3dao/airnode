@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../adminnable/RankedAdminnable.sol";
+import "../../adminnable/Adminnable.sol";
 import "./RequesterRrpAuthorizer.sol";
-import "./interfaces/ISelfRequesterRrpAuthorizer.sol";
-import "../interfaces/IAirnodeRrp.sol";
 
-/// @title Authorizer contract that whitelists requesters where each Airnode is
-/// adminned by themselves
-contract SelfRequesterRrpAuthorizer is
-    RankedAdminnable,
-    RequesterRrpAuthorizer,
-    ISelfRequesterRrpAuthorizer
+/// @title Authorizer contract that whitelists requesters where the API3 DAO is
+/// the meta-admin
+/// @dev Unlike the MetaAdminnable contract that it inherits, this contract
+/// does not support the independent adminning of different entities. In other
+/// words, when an address is assigned to be an Admin/SuperAdmin, it becomes
+/// the Admin/SuperAdmin of all entities being adminned. To achieve this, the
+/// interface that allows the caller to specify an `adminnedId` is disabled,
+/// and an alternative one is implemented where `adminnedId` is forced to be
+/// `bytes32(0)`.
+contract DaoRequesterRrpAuthorizer is
+    Adminnable,
+    RequesterRrpAuthorizer
 {
     enum AdminRank {
         Unauthorized,
@@ -20,9 +24,7 @@ contract SelfRequesterRrpAuthorizer is
     }
 
     /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type
-    uint256 public constant override AUTHORIZER_TYPE = 1;
-
-    uint256 private constant MAX_RANK = type(uint256).max;
+    uint256 public constant override AUTHORIZER_TYPE = 2;
 
     /// @notice Called by an admin to extend the whitelist expiration of a user
     /// for the Airnode–endpoint pair
@@ -39,7 +41,7 @@ contract SelfRequesterRrpAuthorizer is
     )
         external
         override
-        onlyWithRank(deriveAdminnedId(airnode), uint256(AdminRank.Admin))
+        onlyWithRank(uint256(AdminRank.Admin))
         onlyIfTimestampExtends(
             deriveServiceId(airnode, endpointId),
             user,
@@ -74,7 +76,7 @@ contract SelfRequesterRrpAuthorizer is
     )
         external
         override
-        onlyWithRank(deriveAdminnedId(airnode), uint256(AdminRank.SuperAdmin))
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
     {
         serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
             user
@@ -102,7 +104,7 @@ contract SelfRequesterRrpAuthorizer is
     )
         external
         override
-        onlyWithRank(deriveAdminnedId(airnode), uint256(AdminRank.SuperAdmin))
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
     {
         serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
             user
@@ -116,42 +118,24 @@ contract SelfRequesterRrpAuthorizer is
         );
     }
 
-    /// @notice Called to get the rank of an admin for the entity
-    /// @dev Respects RankedAdminnable, except treats the Airnode address as
-    /// the highest authority for the respective Airnode
-    /// @param adminnedId ID of the entity being adminned
-    /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the entity
-    function getRank(bytes32 adminnedId, address admin)
-        public
-        view
-        override(RankedAdminnable, IRankedAdminnable)
-        returns (uint256)
-    {
-        // Airnodes are identified by addresses. Since RankedAdminnable
-        // identifies entities with `bytes32` types, we convert the Airnode
-        // address to a `bytes32` type by padding with zeros.
-        // See RequesterRrpAuthorizer.sol for more information
-        if (adminnedId == deriveAdminnedId(admin)) return MAX_RANK;
-        return RankedAdminnable.getRank(adminnedId, admin);
-    }
-
-    /// @notice Called internally to derive the adminned ID of the Airnode
-    /// @dev Airnodes are identified by their addresses. Since RankedAdminnable
-    /// identifies entities with `bytes32` types, we convert the Airnode
-    /// address to a `bytes32` type. This is done by padding it with zeros for
-    /// readability.
-    /// This left-pads the Airnode address, i.e., if the Airnode address is
-    /// 0x1234567890123456789012345678901234567890, the corresponding
-    /// `adminnedId` will be
-    /// 0x0000000000000000000000001234567890123456789012345678901234567890
+    /// @notice Verifies the authorization status of a request
+    /// @dev This method has redundant arguments because all authorizer
+    /// contracts have to have the same interface and potential authorizer
+    /// contracts may require to access the arguments that are redundant here
+    /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @return adminnedId ID of the entity being adminned
-    function deriveAdminnedId(address airnode)
-        internal
-        pure
-        returns (bytes32 adminnedId)
-    {
-        return bytes32(abi.encode(airnode));
+    /// @param endpointId Endpoint ID
+    /// @param sponsor Sponsor address
+    /// @param requester Requester address
+    /// @return Authorization status of the request
+    function isAuthorized(
+        bytes32 requestId, // solhint-disable-line no-unused-vars
+        address airnode,
+        bytes32 endpointId,
+        address sponsor, // solhint-disable-line no-unused-vars
+        address requester
+    ) external view override returns (bool) {
+        return
+            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester) || adminToRank[requester] >= uint256(AdminRank.Admin);
     }
 }

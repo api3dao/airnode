@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../adminnable/MetaAdminnable.sol";
+import "../../adminnable/Adminnable.sol";
 import "../../adminnable/Whitelister.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
@@ -20,7 +20,7 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// work past-2038 in the current form. If this is an issue, consider casting
 /// the timestampts to a larger type.
 contract RrpBeaconServer is
-    MetaAdminnable,
+    Adminnable,
     Whitelister,
     RrpRequester,
     IRrpBeaconServer
@@ -37,17 +37,15 @@ contract RrpBeaconServer is
     }
 
     mapping(address => mapping(address => bool))
-        public
-        override sponsorToUpdateRequesterToPermissonStatus;
+        public override
+        sponsorToUpdateRequesterToPermissonStatus;
 
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
     /// @param airnodeRrp_ Airnode RRP address
-    /// @param metaAdmin_ Initial metaAdmin
-    constructor(address airnodeRrp_, address metaAdmin_)
+    constructor(address airnodeRrp_)
         RrpRequester(airnodeRrp_)
-        MetaAdminnable(metaAdmin_)
     {}
 
     /// @notice Called by the sponsor to set the update request permission
@@ -59,7 +57,7 @@ contract RrpBeaconServer is
         address updateRequester,
         bool updatePermissionStatus
     ) external override {
-        require(updateRequester != address(0), "updateRequester address zero");
+        require(updateRequester != address(0), "Update requester address zero");
         sponsorToUpdateRequesterToPermissonStatus[msg.sender][
             updateRequester
         ] = updatePermissionStatus;
@@ -125,7 +123,7 @@ contract RrpBeaconServer is
         bytes calldata data
     ) external override onlyAirnodeRrp {
         bytes32 templateId = requestIdToTemplateId[requestId];
-        require(templateId != bytes32(0), "request ID unknown");
+        require(templateId != bytes32(0), "Request ID unknown");
         delete requestIdToTemplateId[requestId];
         if (statusCode == 0) {
             int256 decodedData = abi.decode(data, (int256));
@@ -166,7 +164,7 @@ contract RrpBeaconServer is
     )
         external
         override
-        onlyWithRank(bytes32(0), uint256(AdminRank.Admin))
+        onlyWithRank(uint256(AdminRank.Admin))
         onlyIfTimestampExtends(templateId, user, expirationTimestamp)
     {
         serviceIdToUserToWhitelistStatus[templateId][user]
@@ -193,7 +191,7 @@ contract RrpBeaconServer is
     )
         external
         override
-        onlyWithRank(bytes32(0), uint256(AdminRank.SuperAdmin))
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
     {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .expirationTimestamp = expirationTimestamp;
@@ -217,7 +215,7 @@ contract RrpBeaconServer is
     )
         external
         override
-        onlyWithRank(bytes32(0), uint256(AdminRank.SuperAdmin))
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
     {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .whitelistedPastExpiration = status;
@@ -236,27 +234,13 @@ contract RrpBeaconServer is
     /// @return timestamp Beacon timestamp
     function readBeacon(bytes32 templateId)
         external
-        view
         override
+        view
         onlyIfCallerIsWhitelisted(templateId)
         returns (int224 value, uint32 timestamp)
     {
+        require(userIsWhitelisted(templateId, msg.sender) || adminToRank[msg.sender] >= uint256(AdminRank.Admin), "Caller not whitelisted"); 
         Beacon storage beacon = templateIdToBeacon[templateId];
         return (beacon.value, beacon.timestamp);
-    }
-
-    /// @notice Called to get the rank of an admin for the adminned entity
-    /// @dev Explictly specifies the overriding `getRank()` implementation
-    /// @param adminnedId ID of the entity being adminned
-    /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank for the adminned entity
-    function getRank(bytes32 adminnedId, address admin)
-        public
-        view
-        virtual
-        override(MetaAdminnable, IRankedAdminnable)
-        returns (uint256)
-    {
-        return MetaAdminnable.getRank(adminnedId, admin);
     }
 }
