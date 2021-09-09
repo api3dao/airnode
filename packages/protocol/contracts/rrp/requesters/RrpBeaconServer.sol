@@ -226,7 +226,6 @@ contract RrpBeaconServer is
         external
         view
         override
-        onlyIfCallerIsWhitelisted(templateId)
         returns (int224 value, uint32 timestamp)
     {
         require(
