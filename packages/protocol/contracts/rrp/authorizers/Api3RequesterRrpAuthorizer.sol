@@ -101,8 +101,8 @@ contract Api3RequesterRrpAuthorizer is
             airnode,
             endpointId,
             user,
-            expirationTimestamp,
-            msg.sender
+            msg.sender,
+            expirationTimestamp
         );
     }
 
@@ -131,8 +131,8 @@ contract Api3RequesterRrpAuthorizer is
             airnode,
             endpointId,
             user,
-            expirationTimestamp,
-            msg.sender
+            msg.sender,
+            expirationTimestamp
         );
     }
 
@@ -159,8 +159,8 @@ contract Api3RequesterRrpAuthorizer is
             airnode,
             endpointId,
             user,
-            status,
-            msg.sender
+            msg.sender,
+            status
         );
     }
 

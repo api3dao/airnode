@@ -53,8 +53,8 @@ contract SelfRequesterRrpAuthorizer is
             airnode,
             endpointId,
             user,
-            expirationTimestamp,
-            msg.sender
+            msg.sender,
+            expirationTimestamp
         );
     }
 
@@ -83,8 +83,8 @@ contract SelfRequesterRrpAuthorizer is
             airnode,
             endpointId,
             user,
-            expirationTimestamp,
-            msg.sender
+            msg.sender,
+            expirationTimestamp
         );
     }
 
@@ -111,8 +111,8 @@ contract SelfRequesterRrpAuthorizer is
             airnode,
             endpointId,
             user,
-            status,
-            msg.sender
+            msg.sender,
+            status
         );
     }
 

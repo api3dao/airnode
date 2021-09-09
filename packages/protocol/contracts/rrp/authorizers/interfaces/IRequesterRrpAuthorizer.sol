@@ -6,26 +6,26 @@ import "./IRrpAuthorizer.sol";
 interface IRequesterRrpAuthorizer is IRrpAuthorizer {
     event ExtendedWhitelistExpiration(
         address indexed airnode,
-        bytes32 indexed endpointId,
+        bytes32 endpointId,
         address indexed user,
-        uint256 expiration,
-        address admin
+        address indexed admin,
+        uint256 expiration
     );
 
     event SetWhitelistExpiration(
         address indexed airnode,
-        bytes32 indexed endpointId,
+        bytes32 endpointId,
         address indexed user,
-        uint256 expiration,
-        address admin
+        address indexed admin,
+        uint256 expiration
     );
 
     event SetWhitelistStatusPastExpiration(
         address indexed airnode,
-        bytes32 indexed endpointId,
+        bytes32 endpointId,
         address indexed user,
-        bool status,
-        address admin
+        address indexed admin,
+        bool status
     );
 
     function extendWhitelistExpiration(
