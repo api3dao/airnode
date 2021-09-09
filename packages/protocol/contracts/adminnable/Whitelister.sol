@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "./interfaces/IWhitelister.sol";
+
 /// @title Contract where users are whitelisted until an expiration time or
 /// indefinitely (until the whitelisting is revoked)
-contract Whitelister {
+contract Whitelister is IWhitelister{
     struct WhitelistStatus {
         uint64 expirationTimestamp;
         bool whitelistedPastExpiration;
@@ -12,7 +14,7 @@ contract Whitelister {
     /// @notice Keeps the whitelisting statuses of users for individual
     /// services (could be Airnodes, dAPIs, beacons, etc.)
     mapping(bytes32 => mapping(address => WhitelistStatus))
-        internal serviceIdToUserToWhitelistStatus;
+        public override serviceIdToUserToWhitelistStatus;
 
     /// @dev Reverts if the caller is not whitelisted for the service
     /// @param serviceId Service ID
@@ -49,8 +51,9 @@ contract Whitelister {
     /// @param user User address
     /// @return isWhitelisted If the user is whitelisted
     function userIsWhitelisted(bytes32 serviceId, address user)
-        internal
+        public
         view
+        override
         returns (bool isWhitelisted)
     {
         WhitelistStatus

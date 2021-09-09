@@ -2,8 +2,9 @@
 pragma solidity 0.8.6;
 
 import "../../../adminnable/interfaces/IMetaAdminnable.sol";
+import "../../../adminnable/interfaces/IWhitelister.sol";
 
-interface IRrpBeaconServer is IMetaAdminnable {
+interface IRrpBeaconServer is IMetaAdminnable, IWhitelister {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
