@@ -34,22 +34,22 @@ interface IRrpBeaconServer is IAdminnable {
     event ExtendedWhitelistExpiration(
         bytes32 indexed templateId,
         address indexed user,
-        uint256 expiration,
-        address admin
+        address indexed admin,
+        uint256 expiration
     );
 
     event SetWhitelistExpiration(
         bytes32 indexed templateId,
         address indexed user,
-        uint256 expiration,
-        address admin
+        address indexed admin,
+        uint256 expiration
     );
 
     event SetWhitelistStatusPastExpiration(
         bytes32 indexed templateId,
         address indexed user,
-        bool status,
-        address admin
+        address indexed admin,
+        bool status
     );
 
     function setUpdatePermissionStatus(
@@ -102,7 +102,7 @@ interface IRrpBeaconServer is IAdminnable {
         view
         returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);
 
-    function sponsorToUpdateRequesterToPermissonStatus(
+    function sponsorToUpdateRequesterToPermissionStatus(
         address sponsor,
         address updateRequester
     ) external view returns (bool permissionStatus);

@@ -128,6 +128,8 @@ contract DaoRequesterRrpAuthorizer is Adminnable, RequesterRrpAuthorizer {
             userIsWhitelisted(
                 deriveServiceId(airnode, endpointId),
                 requester
-            ) || adminToRank[requester] >= uint256(AdminRank.Admin);
+            ) ||
+            adminToRank[requester] >= uint256(AdminRank.Admin) ||
+            requester == metaAdmin;
     }
 }

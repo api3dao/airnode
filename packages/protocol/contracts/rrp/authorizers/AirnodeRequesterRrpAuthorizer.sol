@@ -128,6 +128,7 @@ contract AirnodeRequesterRrpAuthorizer is
                 requester
             ) ||
             adminnedToAdminToRank[airnode][requester] >=
-            uint256(AdminRank.Admin);
+            uint256(AdminRank.Admin) ||
+            requester == airnode;
     }
 }

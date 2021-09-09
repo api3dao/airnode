@@ -38,7 +38,7 @@ contract RrpBeaconServer is
 
     mapping(address => mapping(address => bool))
         public
-        override sponsorToUpdateRequesterToPermissonStatus;
+        override sponsorToUpdateRequesterToPermissionStatus;
 
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
@@ -55,8 +55,8 @@ contract RrpBeaconServer is
         address updateRequester,
         bool updatePermissionStatus
     ) external override {
-        require(updateRequester != address(0), "Update requester address zero");
-        sponsorToUpdateRequesterToPermissonStatus[msg.sender][
+        require(updateRequester != address(0), "Update requester zero");
+        sponsorToUpdateRequesterToPermissionStatus[msg.sender][
             updateRequester
         ] = updatePermissionStatus;
         emit SetUpdatePermissionStatus(
@@ -88,7 +88,7 @@ contract RrpBeaconServer is
         address sponsorWallet
     ) external override {
         require(
-            sponsorToUpdateRequesterToPermissonStatus[sponsor][msg.sender],
+            sponsorToUpdateRequesterToPermissionStatus[sponsor][msg.sender],
             "Caller not permitted"
         );
         bytes32 requestId = airnodeRrp.makeTemplateRequest(
@@ -170,8 +170,8 @@ contract RrpBeaconServer is
         emit ExtendedWhitelistExpiration(
             templateId,
             user,
-            expirationTimestamp,
-            msg.sender
+            msg.sender,
+            expirationTimestamp
         );
     }
 
@@ -192,8 +192,8 @@ contract RrpBeaconServer is
         emit SetWhitelistExpiration(
             templateId,
             user,
-            expirationTimestamp,
-            msg.sender
+            msg.sender,
+            expirationTimestamp
         );
     }
 
@@ -212,8 +212,8 @@ contract RrpBeaconServer is
         emit SetWhitelistStatusPastExpiration(
             templateId,
             user,
-            status,
-            msg.sender
+            msg.sender,
+            status
         );
     }
 
@@ -230,7 +230,8 @@ contract RrpBeaconServer is
     {
         require(
             userIsWhitelisted(templateId, msg.sender) ||
-                adminToRank[msg.sender] >= uint256(AdminRank.Admin),
+                adminToRank[msg.sender] >= uint256(AdminRank.Admin) ||
+                msg.sender == metaAdmin,
             "Caller not whitelisted"
         );
         Beacon storage beacon = templateIdToBeacon[templateId];
