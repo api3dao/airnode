@@ -1,29 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IAirnodeAdminnable {
+interface ISelfAdminnable {
     event SetRank(
-        address indexed airnode,
+        address indexed adminned,
         address indexed callerAdmin,
         address indexed targetAdmin,
         uint256 newRank
     );
 
     event DecreasedSelfRank(
-        address indexed airnode,
+        address indexed adminned,
         address indexed admin,
         uint256 newRank
     );
 
     function setRank(
-        address airnode,
+        address adminned,
         address targetAdmin,
         uint256 newRank
     )
         external;
     
-    function decreaseSelfRank(address airnode, uint256 newRank)
+    function decreaseSelfRank(address adminned, uint256 newRank)
         external;
 
-    function airnodeToAdminToRank(address airnode, address admin) external view returns (uint256);
+    function adminnedToAdminToRank(address adminned, address admin) external view returns (uint256);
 }

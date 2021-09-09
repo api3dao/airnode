@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../adminnable/AirnodeAdminnable.sol";
+import "../../adminnable/SelfAdminnable.sol";
 import "./RequesterRrpAuthorizer.sol";
 import "./interfaces/IAirnodeRequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists requesters where each Airnode is
 /// adminned by themselves
 contract AirnodeRequesterRrpAuthorizer is
-    AirnodeAdminnable,
+    SelfAdminnable,
     RequesterRrpAuthorizer,
     IAirnodeRequesterRrpAuthorizer
 {
@@ -131,6 +131,6 @@ contract AirnodeRequesterRrpAuthorizer is
         address requester
     ) external view override returns (bool) {
         return
-            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester) || airnodeToAdminToRank[airnode][requester] >= uint256(AdminRank.Admin);
+            userIsWhitelisted(deriveServiceId(airnode, endpointId), requester) || adminnedToAdminToRank[airnode][requester] >= uint256(AdminRank.Admin);
     }
 }
