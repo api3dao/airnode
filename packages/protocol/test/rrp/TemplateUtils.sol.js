@@ -53,7 +53,7 @@ describe('createTemplate', function () {
       expect(templateBeforeCreation.parameters).to.equal('0x');
       await expect(
         airnodeRrp.connect(roles.randomPerson).createTemplate(airnode, endpointId, parameters)
-      ).to.be.revertedWith('airnode address zero');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });

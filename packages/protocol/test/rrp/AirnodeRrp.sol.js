@@ -145,7 +145,7 @@ describe('makeTemplateRequest', function () {
               rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters
             )
-        ).to.be.revertedWith('airnode address zero');
+        ).to.be.revertedWith('Airnode address zero');
       });
     });
     context('Requester not sponsored', function () {
@@ -298,7 +298,7 @@ describe('makeFullRequest', function () {
             rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      ).to.be.revertedWith('airnode address zero');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
