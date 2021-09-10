@@ -11,7 +11,17 @@ export const templateVersions = fs
   .readdirSync(validatorTemplatesPath, { withFileTypes: true })
   .filter((dirent) => dirent.isDirectory())
   .map((dirent) => dirent.name)
-  .sort((a: any, b: string) => b.localeCompare(a, undefined, { numeric: true }));
+  .sort((a: string, b: string) => {
+    if (!a.match(/^[0-9\.]+$/)) {
+      if (!b.match(/^[0-9\.]+$/)) {
+        return 0;
+      }
+
+      return 1;
+    }
+
+    return b.localeCompare(a, undefined, { numeric: true });
+  });
 
 const conversionTemplates = fs.readdirSync(conversionsPath);
 
