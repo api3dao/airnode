@@ -13,7 +13,7 @@ export async function testApi(
   parameters: Record<string, string>
 ): Promise<[Error, null] | [null, ApiCallResponse]> {
   const testCallId = randomString(8);
-  const masterHDNode = wallet.getMasterHDNode(config);
+  const airnodeAddress = wallet.getAirnodeWallet(config).address;
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
 
@@ -34,14 +34,14 @@ export async function testApi(
 
   const workerOpts: WorkerOptions = {
     cloudProvider: config.nodeSettings.cloudProvider,
-    airnodeAddressShort: wallet.getAirnodeAddressShort(masterHDNode.address),
+    airnodeAddressShort: wallet.getAirnodeAddressShort(airnodeAddress),
     stage: config.nodeSettings.stage,
     region: config.nodeSettings.region,
   };
 
   const aggregatedApiCall: AggregatedApiCall = {
     id: testCallId,
-    airnodeAddress: masterHDNode.address,
+    airnodeAddress,
     requesterAddress: '',
     sponsorAddress: '',
     sponsorWallet: '',
