@@ -6,7 +6,7 @@ import "./TemplateUtils.sol";
 import "./WithdrawalUtils.sol";
 import "./interfaces/IAirnodeRrp.sol";
 
-/// @title Contract that implements the Airnode request–response protocol
+/// @title Contract that implements the Airnode request–response protocol (RRP)
 contract AirnodeRrp is
     AuthorizationUtils,
     TemplateUtils,
@@ -23,13 +23,13 @@ contract AirnodeRrp is
         override sponsorToRequesterToSponsorshipStatus;
 
     /// @notice Called to get the request count of the requester plus one
-    /// @dev Could be used to predict the ID of the next request the requester
+    /// @dev Can be used to calculate the ID of the next request the requester
     /// will make
     mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
     /// @notice Called to check if the fulfillment of a request has failed
-    /// @dev Request fulfillments are considered to have failed if the
-    /// fulfillment call will revert
+    /// @dev Requests will be marked to have failed by the respective Airnode
+    /// if the fulfillment call will revert
     mapping(bytes32 => bool) public override requestWithIdHasFailed;
 
     /// @dev Hash of expected fulfillment parameters are kept to verify that
@@ -67,8 +67,14 @@ contract AirnodeRrp is
     /// key
     /// @dev It is expected for the Airnode operator to call this function with
     /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// This extended public key does not need to be announced on-chain for the
-    /// protocol to be used, this is mainly for convenience.
+    /// Correspondingly, if the address of the default BIP 44 wallet derived
+    /// from the extended public key does not match the respective Airnode
+    /// address, the extended public key is invalid (does not belong to the
+    /// respective Airnode).
+    /// An Airnode operator can also announce their extended public key through
+    /// off-chain channels. Validation method remains the same.
+    /// The extended public key of an Airnode is used with a sponsor address to
+    /// derive the address of the respective sponsor wallet.
     /// @param xpub Extended public key of the Airnode
     function setAirnodeXpub(string calldata xpub) external override {
         airnodeToXpub[msg.sender] = xpub;
@@ -87,7 +93,8 @@ contract AirnodeRrp is
         external
         override
     {
-        // Initialize the requester request count for consistent request gas cost
+        // Initialize the requester request count for consistent request gas
+        // cost
         if (requesterToRequestCountPlusOne[requester] == 0) {
             requesterToRequestCountPlusOne[requester] = 1;
         }
@@ -163,7 +170,7 @@ contract AirnodeRrp is
     /// @notice Called by the requester to make a full request, which provides
     /// all of its parameters as arguments and does not refer to a template
     /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
+    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill
     /// the request
@@ -229,6 +236,9 @@ contract AirnodeRrp is
     /// implementation-dependent.
     /// The data is ABI-encoded as a `bytes` type, with its format depending on
     /// the request specifications.
+    /// This method will revert if the targeted function reverts or no function
+    /// with the matching signature is found. It will succeed if the targeted
+    /// function or the targeted address does not belong to a contract.
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param statusCode Status code of the fulfillment

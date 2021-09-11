@@ -2,7 +2,8 @@
 pragma solidity 0.8.6;
 
 /// @title Contract where users are whitelisted for specific services (could be
-/// Airnodes, dAPIs, beacons, etc.) until an expiration time or indefinitely
+/// Airnode endpoints, dAPIs, beacons, etc.) until an expiration time or
+/// indefinitely
 contract Whitelister {
     struct WhitelistStatus {
         uint64 expirationTimestamp;

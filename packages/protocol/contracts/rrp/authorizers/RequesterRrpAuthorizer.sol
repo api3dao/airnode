@@ -5,7 +5,7 @@ import "../../adminnable/Whitelister.sol";
 import "./interfaces/IRequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract where requesters are whitelisted until an
-/// expiration time or indefinitely (until whitelisting is revoked)
+/// expiration time or indefinitely
 abstract contract RequesterRrpAuthorizer is
     Whitelister,
     IRequesterRrpAuthorizer

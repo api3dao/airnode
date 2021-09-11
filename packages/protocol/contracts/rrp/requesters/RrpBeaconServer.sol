@@ -36,6 +36,8 @@ contract RrpBeaconServer is
         uint32 timestamp;
     }
 
+    /// @notice Called to check if a sponsor has permitted an account to
+    /// request updates at this contract
     mapping(address => mapping(address => bool))
         public
         override sponsorToUpdateRequesterToPermissionStatus;
@@ -76,7 +78,7 @@ contract RrpBeaconServer is
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
     /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
-    /// `int256` to be returned (because this is what `fulfill()` expects).
+    /// `int256` to be returned because this is what `fulfill()` expects.
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request

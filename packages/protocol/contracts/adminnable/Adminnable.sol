@@ -30,7 +30,7 @@ contract Adminnable is IAdminnable {
 
     /// @notice Called by the meta-admin to transfer its status to another
     /// address
-    /// @param metaAdmin_ New `metaAdmin`
+    /// @param metaAdmin_ New meta-admin
     function transferMetaAdminStatus(address metaAdmin_) external override {
         require(msg.sender == metaAdmin, "Caller not metaAdmin");
         require(metaAdmin_ != address(0), "Zero address");

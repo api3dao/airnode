@@ -7,6 +7,8 @@ import "./interfaces/IAirnodeRequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists requesters where each Airnode is
 /// adminned by themselves
+/// @dev The Airnode address and the admins are also authorized even if they
+/// are not whitelisted explicitly
 contract AirnodeRequesterRrpAuthorizer is
     SelfAdminnable,
     RequesterRrpAuthorizer,

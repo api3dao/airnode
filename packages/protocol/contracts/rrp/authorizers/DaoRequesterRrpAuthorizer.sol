@@ -6,13 +6,8 @@ import "./RequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists requesters where the API3 DAO is
 /// the meta-admin
-/// @dev Unlike the MetaAdminnable contract that it inherits, this contract
-/// does not support the independent adminning of different entities. In other
-/// words, when an address is assigned to be an Admin/SuperAdmin, it becomes
-/// the Admin/SuperAdmin of all entities being adminned. To achieve this, the
-/// interface that allows the caller to specify an `adminnedId` is disabled,
-/// and an alternative one is implemented where `adminnedId` is forced to be
-/// `bytes32(0)`.
+/// @dev The meta-admin and the admins are also authorized even if they
+/// are not whitelisted explicitly
 contract DaoRequesterRrpAuthorizer is Adminnable, RequesterRrpAuthorizer {
     enum AdminRank {
         Unauthorized,
