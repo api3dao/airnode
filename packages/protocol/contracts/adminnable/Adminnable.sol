@@ -47,6 +47,7 @@ contract Adminnable is IAdminnable {
         override
         onlyWithRank(max(adminToRank[targetAdmin], newRank) + 1)
     {
+        require(targetAdmin != address(0), "Target admin zero");
         adminToRank[targetAdmin] = newRank;
         emit SetRank(msg.sender, targetAdmin, newRank);
     }

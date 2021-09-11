@@ -35,27 +35,38 @@ beforeEach(async () => {
 describe('setRank', function () {
   context('Caller higher ranked than target admin', function () {
     context('Caller higher ranked than set rank', function () {
-      it('sets rank', async function () {
-        await expect(
-          selfAdminnable
-            .connect(roles.superAdmin)
-            .setRank(roles.adminned.address, roles.randomPerson.address, AdminRank.Admin)
-        )
-          .to.emit(selfAdminnable, 'SetRank')
-          .withArgs(roles.adminned.address, roles.superAdmin.address, roles.randomPerson.address, AdminRank.Admin);
-        expect(
-          await selfAdminnable.adminnedToAdminToRank(roles.adminned.address, roles.randomPerson.address)
-        ).to.be.equal(AdminRank.Admin);
-        await expect(
-          selfAdminnable
-            .connect(roles.adminned)
-            .setRank(roles.adminned.address, roles.randomPerson.address, AdminRank.SuperAdmin)
-        )
-          .to.emit(selfAdminnable, 'SetRank')
-          .withArgs(roles.adminned.address, roles.adminned.address, roles.randomPerson.address, AdminRank.SuperAdmin);
-        expect(
-          await selfAdminnable.adminnedToAdminToRank(roles.adminned.address, roles.randomPerson.address)
-        ).to.be.equal(AdminRank.SuperAdmin);
+      context('Target admin not zero', function () {
+        it('sets rank', async function () {
+          await expect(
+            selfAdminnable
+              .connect(roles.superAdmin)
+              .setRank(roles.adminned.address, roles.randomPerson.address, AdminRank.Admin)
+          )
+            .to.emit(selfAdminnable, 'SetRank')
+            .withArgs(roles.adminned.address, roles.superAdmin.address, roles.randomPerson.address, AdminRank.Admin);
+          expect(
+            await selfAdminnable.adminnedToAdminToRank(roles.adminned.address, roles.randomPerson.address)
+          ).to.be.equal(AdminRank.Admin);
+          await expect(
+            selfAdminnable
+              .connect(roles.adminned)
+              .setRank(roles.adminned.address, roles.randomPerson.address, AdminRank.SuperAdmin)
+          )
+            .to.emit(selfAdminnable, 'SetRank')
+            .withArgs(roles.adminned.address, roles.adminned.address, roles.randomPerson.address, AdminRank.SuperAdmin);
+          expect(
+            await selfAdminnable.adminnedToAdminToRank(roles.adminned.address, roles.randomPerson.address)
+          ).to.be.equal(AdminRank.SuperAdmin);
+        });
+      });
+      context('Target admin zero', function () {
+        it('reverts', async function () {
+          await expect(
+            selfAdminnable
+              .connect(roles.superAdmin)
+              .setRank(roles.adminned.address, hre.ethers.constants.AddressZero, AdminRank.Admin)
+          ).to.be.revertedWith('Target admin zero');
+        });
       });
     });
     context('Caller not higher ranked than set rank', function () {

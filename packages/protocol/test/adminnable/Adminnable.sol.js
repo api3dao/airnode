@@ -67,15 +67,24 @@ describe('transferMetaAdminStatus', function () {
 describe('setRank', function () {
   context('Caller higher ranked than target admin', function () {
     context('Caller higher ranked than set rank', function () {
-      it('sets rank', async function () {
-        await expect(adminnable.connect(roles.superAdmin).setRank(roles.randomPerson.address, AdminRank.Admin))
-          .to.emit(adminnable, 'SetRank')
-          .withArgs(roles.superAdmin.address, roles.randomPerson.address, AdminRank.Admin);
-        expect(await adminnable.adminToRank(roles.randomPerson.address)).to.be.equal(AdminRank.Admin);
-        await expect(adminnable.connect(roles.metaAdmin).setRank(roles.randomPerson.address, AdminRank.SuperAdmin))
-          .to.emit(adminnable, 'SetRank')
-          .withArgs(roles.metaAdmin.address, roles.randomPerson.address, AdminRank.SuperAdmin);
-        expect(await adminnable.adminToRank(roles.randomPerson.address)).to.be.equal(AdminRank.SuperAdmin);
+      context('Target admin is not zero', function () {
+        it('sets rank', async function () {
+          await expect(adminnable.connect(roles.superAdmin).setRank(roles.randomPerson.address, AdminRank.Admin))
+            .to.emit(adminnable, 'SetRank')
+            .withArgs(roles.superAdmin.address, roles.randomPerson.address, AdminRank.Admin);
+          expect(await adminnable.adminToRank(roles.randomPerson.address)).to.be.equal(AdminRank.Admin);
+          await expect(adminnable.connect(roles.metaAdmin).setRank(roles.randomPerson.address, AdminRank.SuperAdmin))
+            .to.emit(adminnable, 'SetRank')
+            .withArgs(roles.metaAdmin.address, roles.randomPerson.address, AdminRank.SuperAdmin);
+          expect(await adminnable.adminToRank(roles.randomPerson.address)).to.be.equal(AdminRank.SuperAdmin);
+        });
+      });
+      context('Target admin is zero', function () {
+        it('reverts', async function () {
+          await expect(
+            adminnable.connect(roles.superAdmin).setRank(hre.ethers.constants.AddressZero, AdminRank.Admin)
+          ).to.be.revertedWith('Target admin zero');
+        });
       });
     });
     context('Caller not higher ranked than set rank', function () {

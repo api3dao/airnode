@@ -42,6 +42,7 @@ contract SelfAdminnable is ISelfAdminnable {
             max(adminnedToAdminToRank[adminned][targetAdmin], newRank) + 1
         )
     {
+        require(targetAdmin != address(0), "Target admin zero");
         adminnedToAdminToRank[adminned][targetAdmin] = newRank;
         emit SetRank(adminned, msg.sender, targetAdmin, newRank);
     }
