@@ -207,6 +207,7 @@ contract AirnodeRrp is
                 fulfillFunctionId
             )
         );
+        requesterToRequestCountPlusOne[msg.sender]++;
         emit MadeFullRequest(
             airnode,
             requestId,
@@ -220,7 +221,6 @@ contract AirnodeRrp is
             fulfillFunctionId,
             parameters
         );
-        requesterToRequestCountPlusOne[msg.sender]++;
     }
 
     /// @notice Called by Airnode to fulfill the request (template or full)
