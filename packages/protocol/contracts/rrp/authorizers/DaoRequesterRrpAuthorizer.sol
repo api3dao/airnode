@@ -3,12 +3,13 @@ pragma solidity 0.8.6;
 
 import "../../adminnable/Adminnable.sol";
 import "./RequesterRrpAuthorizer.sol";
+import "./interfaces/IDaoRequesterRrpAuthorizer.sol";
 
 /// @title Authorizer contract that whitelists requesters where the API3 DAO is
 /// the meta-admin
 /// @dev The meta-admin and the admins are also authorized even if they
 /// are not whitelisted explicitly
-contract DaoRequesterRrpAuthorizer is Adminnable, RequesterRrpAuthorizer {
+contract DaoRequesterRrpAuthorizer is Adminnable, RequesterRrpAuthorizer, IDaoRequesterRrpAuthorizer {
     enum AdminRank {
         Unauthorized,
         Admin,
