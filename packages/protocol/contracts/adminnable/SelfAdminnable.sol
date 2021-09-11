@@ -18,8 +18,8 @@ contract SelfAdminnable is ISelfAdminnable {
     /// @param rank Rank caller's rank will be compared to
     modifier onlyWithRank(address adminned, uint256 rank) {
         require(
-            msg.sender == adminned ||
-                adminnedToAdminToRank[adminned][msg.sender] >= rank,
+            adminnedToAdminToRank[adminned][msg.sender] >= rank ||
+                msg.sender == adminned,
             "Caller ranked low"
         );
         _;

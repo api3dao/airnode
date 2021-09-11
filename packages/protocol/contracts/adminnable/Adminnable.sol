@@ -17,7 +17,7 @@ contract Adminnable is IAdminnable {
     /// @param rank Rank caller's rank will be compared to
     modifier onlyWithRank(uint256 rank) {
         require(
-            msg.sender == metaAdmin || adminToRank[msg.sender] >= rank,
+            adminToRank[msg.sender] >= rank || msg.sender == metaAdmin,
             "Caller ranked low"
         );
         _;
