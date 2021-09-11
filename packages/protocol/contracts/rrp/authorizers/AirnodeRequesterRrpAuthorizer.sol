@@ -35,24 +35,11 @@ contract AirnodeRequesterRrpAuthorizer is
         bytes32 endpointId,
         address user,
         uint64 expirationTimestamp
-    )
-        external
-        override
-        onlyWithRank(airnode, uint256(AdminRank.Admin))
-        onlyIfTimestampExtends(
-            deriveServiceId(airnode, endpointId),
-            user,
-            expirationTimestamp
-        )
-    {
-        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
-            user
-        ].expirationTimestamp = expirationTimestamp;
-        emit ExtendedWhitelistExpiration(
+    ) external override onlyWithRank(airnode, uint256(AdminRank.Admin)) {
+        extendWhitelistExpiration_(
             airnode,
             endpointId,
             user,
-            msg.sender,
             expirationTimestamp
         );
     }
@@ -71,16 +58,7 @@ contract AirnodeRequesterRrpAuthorizer is
         address user,
         uint64 expirationTimestamp
     ) external override onlyWithRank(airnode, uint256(AdminRank.SuperAdmin)) {
-        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
-            user
-        ].expirationTimestamp = expirationTimestamp;
-        emit SetWhitelistExpiration(
-            airnode,
-            endpointId,
-            user,
-            msg.sender,
-            expirationTimestamp
-        );
+        setWhitelistExpiration_(airnode, endpointId, user, expirationTimestamp);
     }
 
     /// @notice Called by a super admin to set the whitelist status of a user
@@ -95,16 +73,7 @@ contract AirnodeRequesterRrpAuthorizer is
         address user,
         bool status
     ) external override onlyWithRank(airnode, uint256(AdminRank.SuperAdmin)) {
-        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
-            user
-        ].whitelistedPastExpiration = status;
-        emit SetWhitelistStatusPastExpiration(
-            airnode,
-            endpointId,
-            user,
-            msg.sender,
-            status
-        );
+        setWhitelistStatusPastExpiration_(airnode, endpointId, user, status);
     }
 
     /// @notice Verifies the authorization status of a request
