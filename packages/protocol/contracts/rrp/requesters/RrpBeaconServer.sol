@@ -231,9 +231,7 @@ contract RrpBeaconServer is
         returns (int224 value, uint32 timestamp)
     {
         require(
-            userIsWhitelisted(templateId, msg.sender) ||
-                adminToRank[msg.sender] >= uint256(AdminRank.Admin) ||
-                msg.sender == metaAdmin,
+            userCanReadBeacon(templateId, msg.sender),
             "Caller not whitelisted"
         );
         Beacon storage beacon = templateIdToBeacon[templateId];
@@ -244,13 +242,16 @@ contract RrpBeaconServer is
     /// @param templateId Template ID
     /// @param user User address
     /// @return isWhitelisted If the user is whitelisted
-    function userIsWhitelistedToReadBeacon(bytes32 templateId, address user)
-        external
+    function userCanReadBeacon(bytes32 templateId, address user)
+        public
         view
         override
         returns (bool isWhitelisted)
     {
-        return userIsWhitelisted(templateId, user);
+        return
+            userIsWhitelisted(templateId, user) ||
+            adminToRank[user] >= uint256(AdminRank.Admin) ||
+            user == metaAdmin;
     }
 
     /// @notice Called to get the detailed whitelist status of a user for the

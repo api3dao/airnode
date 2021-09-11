@@ -92,7 +92,7 @@ interface IRrpBeaconServer is IAdminnable {
         view
         returns (int224 value, uint32 timestamp);
 
-    function userIsWhitelistedToReadBeacon(bytes32 templateId, address user)
+    function userCanReadBeacon(bytes32 templateId, address user)
         external
         view
         returns (bool isWhitelisted);

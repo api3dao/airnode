@@ -777,40 +777,127 @@ describe('readBeacon', function () {
   });
 });
 
-describe('userIsWhitelistedToReadBeacon', function () {
+describe('userCanReadBeacon', function () {
   context('User whitelisted', function () {
-    it('returns false', async function () {
-      expect(await rrpBeaconServer.userIsWhitelistedToReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+    context('User of rank Admin', function () {
+      it('returns true', async function () {
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistStatusPastExpiration(templateId, roles.admin.address, true);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.admin.address)).to.equal(true);
+      });
+    });
+    context('User of rank SuperAdmin', function () {
+      it('returns true', async function () {
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistStatusPastExpiration(templateId, roles.superAdmin.address, true);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.superAdmin.address)).to.equal(
+          true
+        );
+      });
+    });
+    context('User meta-admin', function () {
+      it('returns true', async function () {
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistStatusPastExpiration(templateId, roles.metaAdmin.address, true);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.metaAdmin.address)).to.equal(true);
+      });
+    });
+    context('User of rank lower than Admin', function () {
+      it('returns true', async function () {
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+          false
+        );
+        const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+          true
+        );
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+          true
+        );
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+          true
+        );
+        await rrpBeaconServer
+          .connect(roles.metaAdmin)
+          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+          false
+        );
+      });
+    });
+  });
+  context('User not whitelisted', function () {
+    context('User of rank Admin', function () {
+      it('returns true', async function () {
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.admin.address)).to.equal(true);
+      });
+    });
+    context('User of rank SuperAdmin', function () {
+      it('returns true', async function () {
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.superAdmin.address)).to.equal(
+          true
+        );
+      });
+    });
+    context('User meta-admin', function () {
+      it('returns true', async function () {
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.metaAdmin.address)).to.equal(true);
+      });
+    });
+    context('User of rank lower than Admin', function () {
+      it('returns false', async function () {
+        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(
+          false
+        );
+      });
+    });
+  });
+
+  context('User whitelisted', function () {
+    it('returns true', async function () {
+      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
         false
       );
       const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
       await rrpBeaconServer
         .connect(roles.metaAdmin)
         .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-      expect(await rrpBeaconServer.userIsWhitelistedToReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
         true
       );
       await rrpBeaconServer
         .connect(roles.metaAdmin)
         .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
-      expect(await rrpBeaconServer.userIsWhitelistedToReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
         true
       );
       await rrpBeaconServer.connect(roles.metaAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-      expect(await rrpBeaconServer.userIsWhitelistedToReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
         true
       );
       await rrpBeaconServer
         .connect(roles.metaAdmin)
         .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
-      expect(await rrpBeaconServer.userIsWhitelistedToReadBeacon(templateId, roles.beaconReader.address)).to.equal(
+      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(
         false
       );
     });
   });
   context('User not whitelisted', function () {
-    it('returns true', async function () {
-      expect(await rrpBeaconServer.userIsWhitelistedToReadBeacon(templateId, roles.randomPerson.address)).to.equal(
+    it('returns false', async function () {
+      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(
         false
       );
     });
