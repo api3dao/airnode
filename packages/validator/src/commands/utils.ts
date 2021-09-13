@@ -20,6 +20,10 @@ export const templateVersions = fs
       return 1;
     }
 
+    if (!b.match(/^[0-9\.]+$/)) {
+      return -1;
+    }
+
     return b.localeCompare(a, undefined, { numeric: true });
   });
 
