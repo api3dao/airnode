@@ -42,23 +42,73 @@ describe('verifySponsorWallets', () => {
   });
 
   it('ignores API calls where the sponsor wallet does not match the expected address', () => {
-    const apiCall = fixtures.requests.buildApiCall({
+    const invalidSponsorWallet = {
       sponsorWallet: '0xinvalid',
       sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
-    });
-    const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
-    expect(logs).toEqual([
+    };
+    const sponsorWalletDoesNotBelongToSponsor = {
+      sponsorWallet: '0x927c6353B05dD326f922BB28e8282d591278CDfa',
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+    };
+    const invalidApiCall = fixtures.requests.buildApiCall(invalidSponsorWallet);
+    const doNotMatchApiCall = fixtures.requests.buildApiCall(sponsorWalletDoesNotBelongToSponsor);
+    const [apiCalllogs, verifiesdApiCalls] = verification.verifySponsorWallets(
+      [invalidApiCall, doNotMatchApiCall],
+      masterHDNode
+    );
+    expect(apiCalllogs).toEqual([
       {
         level: 'ERROR',
-        message: `Invalid sponsor wallet:${apiCall.sponsorWallet} for Request:${apiCall.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Invalid sponsor wallet:${invalidApiCall.sponsorWallet} for Request:${invalidApiCall.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+      },
+      {
+        level: 'ERROR',
+        message: `Invalid sponsor wallet:${doNotMatchApiCall.sponsorWallet} for Request:${doNotMatchApiCall.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual({
-      ...apiCall,
-      status: RequestStatus.Ignored,
-      errorCode: RequestErrorCode.SponsorWalletInvalid,
-    });
+    expect(verifiesdApiCalls.length).toEqual(2);
+    expect(verifiesdApiCalls).toEqual([
+      {
+        ...invalidApiCall,
+        status: RequestStatus.Ignored,
+        errorCode: RequestErrorCode.SponsorWalletInvalid,
+      },
+      {
+        ...doNotMatchApiCall,
+        status: RequestStatus.Ignored,
+        errorCode: RequestErrorCode.SponsorWalletInvalid,
+      },
+    ]);
+
+    const invalidWithdrawal = fixtures.requests.buildWithdrawal(invalidSponsorWallet);
+    const doNotMatchWithdrawal = fixtures.requests.buildWithdrawal(sponsorWalletDoesNotBelongToSponsor);
+    const [withdrawalLogs, withdrawals] = verification.verifySponsorWallets(
+      [invalidWithdrawal, doNotMatchWithdrawal],
+      masterHDNode
+    );
+    expect(withdrawalLogs).toEqual([
+      {
+        level: 'ERROR',
+        message: `Invalid sponsor wallet:${invalidWithdrawal.sponsorWallet} for Request:${invalidWithdrawal.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+      },
+      {
+        level: 'ERROR',
+        message: `Invalid sponsor wallet:${doNotMatchWithdrawal.sponsorWallet} for Request:${doNotMatchWithdrawal.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+      },
+    ]);
+    expect(withdrawals.length).toEqual(2);
+    expect(withdrawals).toEqual([
+      {
+        ...invalidWithdrawal,
+        status: RequestStatus.Ignored,
+        errorCode: RequestErrorCode.SponsorWalletInvalid,
+      },
+      {
+        ...doNotMatchWithdrawal,
+        status: RequestStatus.Ignored,
+        errorCode: RequestErrorCode.SponsorWalletInvalid,
+      },
+    ]);
   });
 
   it('does nothing if the sponsor wallet matches the expected wallet', () => {
@@ -66,15 +116,29 @@ describe('verifySponsorWallets', () => {
       sponsorWallet: '0x3598aF73AAaCCf46A36e00490627029487D9730c',
       sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
     });
-    const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
-    expect(logs).toEqual([
+    const [apiCallLogs, apiCalls] = verification.verifySponsorWallets([apiCall], masterHDNode);
+    expect(apiCallLogs).toEqual([
       {
         level: 'DEBUG',
         message: `Request ID:${apiCall.id} is linked to a valid sponsor wallet:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
       },
     ]);
-    expect(res.length).toEqual(1);
-    expect(res[0]).toEqual(apiCall);
+    expect(apiCalls.length).toEqual(1);
+    expect(apiCalls[0]).toEqual(apiCall);
+
+    const withdrawal = fixtures.requests.buildWithdrawal({
+      sponsorWallet: '0x3598aF73AAaCCf46A36e00490627029487D9730c',
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+    });
+    const [withdrawalLogs, withdrawals] = verification.verifySponsorWallets([withdrawal], masterHDNode);
+    expect(withdrawalLogs).toEqual([
+      {
+        level: 'DEBUG',
+        message: `Request ID:${withdrawal.id} is linked to a valid sponsor wallet:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+      },
+    ]);
+    expect(withdrawals.length).toEqual(1);
+    expect(withdrawals[0]).toEqual(withdrawal);
   });
 });
 
