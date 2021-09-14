@@ -127,11 +127,11 @@ contract AirnodeRrp is
         address airnode = templates[templateId].airnode;
         requestId = keccak256(
             abi.encodePacked(
-                airnode,
                 requesterRequestCount,
                 block.chainid,
                 msg.sender,
                 templateId,
+                sponsor,
                 parameters
             )
         );
@@ -189,11 +189,11 @@ contract AirnodeRrp is
         ];
         requestId = keccak256(
             abi.encodePacked(
-                airnode,
                 requesterRequestCount,
                 block.chainid,
                 msg.sender,
                 endpointId,
+                sponsor,
                 parameters
             )
         );
