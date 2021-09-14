@@ -2,7 +2,7 @@ import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest, Conf
 
 function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
   // The trigger should already be verified to exist at this point
-  const trigger = config.triggers.request.find((t) => t.endpointId === request.endpointId)!;
+  const trigger = config.triggers.rrp.find((t) => t.endpointId === request.endpointId)!;
 
   return {
     id: request.id,

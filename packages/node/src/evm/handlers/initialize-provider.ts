@@ -124,15 +124,15 @@ export async function initializeProvider(
   );
   logger.logPending(verifyLogs, baseLogOptions);
 
-  const [verifyTriggersLogs, verifiedApiCallsForTriggers] = verification.verifyTriggers(
+  const [verifyRrpTriggersLogs, verifiedApiCallsForRrpTriggers] = verification.verifyRrpTriggers(
     verifiedApiCalls,
-    state4.config!.triggers.request,
+    state4.config!.triggers.rrp,
     state4.config!.ois
   );
-  logger.logPending(verifyTriggersLogs, baseLogOptions);
+  logger.logPending(verifyRrpTriggersLogs, baseLogOptions);
 
   const state5 = state.update(state4, {
-    requests: { ...state3.requests, apiCalls: verifiedApiCallsForTriggers },
+    requests: { ...state3.requests, apiCalls: verifiedApiCallsForRrpTriggers },
   });
 
   // =================================================================

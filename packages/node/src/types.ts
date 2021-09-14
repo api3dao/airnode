@@ -292,14 +292,14 @@ export interface TransactionReceipt {
 // ===========================================
 // Triggers
 // ===========================================
-export interface RequestTrigger {
+export interface RrpTrigger {
   readonly endpointId: string;
   readonly endpointName: string;
   readonly oisTitle: string;
 }
 
 export interface Triggers {
-  readonly request: RequestTrigger[];
+  readonly rrp: RrpTrigger[];
 }
 
 // ===========================================
