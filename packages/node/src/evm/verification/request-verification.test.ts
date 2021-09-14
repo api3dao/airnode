@@ -86,8 +86,8 @@ describe('verifyTriggers', () => {
           status: RequestStatus[status as RequestStatus],
         });
         const config = fixtures.buildConfig();
-        const triggers = config.triggers.request;
-        const [logs, res] = verification.verifyTriggers([apiCall], triggers, config.ois);
+        const rrpTriggers = config.triggers.rrp;
+        const [logs, res] = verification.verifyRrpTriggers([apiCall], rrpTriggers, config.ois);
         expect(logs).toEqual([
           {
             level: 'DEBUG',
@@ -102,8 +102,8 @@ describe('verifyTriggers', () => {
   it('errors API calls that have an unknown endpointId', () => {
     const apiCall = fixtures.requests.buildApiCall({ endpointId: '0xinvalid' });
     const config = fixtures.buildConfig();
-    const triggers = config.triggers.request;
-    const [logs, res] = verification.verifyTriggers([apiCall], triggers, config.ois);
+    const rrpTriggers = config.triggers.rrp;
+    const [logs, res] = verification.verifyRrpTriggers([apiCall], rrpTriggers, config.ois);
     expect(logs).toEqual([
       {
         level: 'WARN',
@@ -119,10 +119,10 @@ describe('verifyTriggers', () => {
   });
 
   it('errors API calls that are linked to a valid trigger but unknown OIS', () => {
-    const trigger = fixtures.buildTrigger({ oisTitle: 'unknown' });
-    const apiCall = fixtures.requests.buildApiCall({ endpointId: trigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { request: [trigger] } });
-    const [logs, res] = verification.verifyTriggers([apiCall], [trigger], config.ois);
+    const rrpTrigger = fixtures.buildRrpTrigger({ oisTitle: 'unknown' });
+    const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
+    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
+    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
     expect(logs).toEqual([
       {
         level: 'ERROR',
@@ -138,14 +138,14 @@ describe('verifyTriggers', () => {
   });
 
   it('errors API calls that are linked to a valid trigger but unknown endpoint', () => {
-    const trigger = fixtures.buildTrigger({ endpointName: 'unknown' });
-    const apiCall = fixtures.requests.buildApiCall({ endpointId: trigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { request: [trigger] } });
-    const [logs, res] = verification.verifyTriggers([apiCall], [trigger], config.ois);
+    const rrpTrigger = fixtures.buildRrpTrigger({ endpointName: 'unknown' });
+    const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
+    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
+    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
     expect(logs).toEqual([
       {
         level: 'ERROR',
-        message: `Unknown Endpoint:unknown for OIS:${trigger.oisTitle} received for Request:${apiCall.id}`,
+        message: `Unknown Endpoint:unknown for OIS:${rrpTrigger.oisTitle} received for Request:${apiCall.id}`,
       },
     ]);
     expect(res.length).toEqual(1);
@@ -157,10 +157,10 @@ describe('verifyTriggers', () => {
   });
 
   it('does nothing is the API call is linked to a valid trigger and OIS endpoint', () => {
-    const trigger = fixtures.buildTrigger();
-    const apiCall = fixtures.requests.buildApiCall({ endpointId: trigger.endpointId });
-    const config = fixtures.buildConfig({ triggers: { request: [trigger] } });
-    const [logs, res] = verification.verifyTriggers([apiCall], [trigger], config.ois);
+    const rrpTrigger = fixtures.buildRrpTrigger();
+    const apiCall = fixtures.requests.buildApiCall({ endpointId: rrpTrigger.endpointId });
+    const config = fixtures.buildConfig({ triggers: { rrp: [rrpTrigger] } });
+    const [logs, res] = verification.verifyRrpTriggers([apiCall], [rrpTrigger], config.ois);
     expect(logs).toEqual([
       {
         level: 'DEBUG',

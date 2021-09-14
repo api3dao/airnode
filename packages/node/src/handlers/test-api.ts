@@ -17,13 +17,13 @@ export async function testApi(
 
   const logOptions = logger.buildBaseOptions(config, { requestId: testCallId });
 
-  const triggerRequest = find(config.triggers.request, ['endpointId', endpointId]);
-  if (!triggerRequest) {
+  const rrpTrigger = find(config.triggers.rrp, ['endpointId', endpointId]);
+  if (!rrpTrigger) {
     return [new Error(`No such endpoint with ID '${endpointId}'`), null];
   }
 
-  const endpoints = find(config.ois, ['title', triggerRequest.oisTitle])?.endpoints;
-  const endpoint = find(endpoints, ['name', triggerRequest.endpointName]);
+  const endpoints = find(config.ois, ['title', rrpTrigger.oisTitle])?.endpoints;
+  const endpoint = find(endpoints, ['name', rrpTrigger.endpointName]);
 
   if (!endpoint) {
     return [new Error(`No endpoint definition for endpoint ID '${endpointId}'`), null];
@@ -47,8 +47,8 @@ export async function testApi(
     designatedWallet: '',
     chainId: '',
     endpointId,
-    endpointName: triggerRequest.endpointName,
-    oisTitle: triggerRequest.oisTitle,
+    endpointName: rrpTrigger.endpointName,
+    oisTitle: rrpTrigger.oisTitle,
     parameters,
   };
 
