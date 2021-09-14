@@ -94,13 +94,13 @@ export async function initializeProvider(
   });
 
   // =================================================================
-  // STEP 5: Verify API calls
+  // STEP 5: Verify requests
   // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifySponsorWallets(
+  const [verifyApiCallLogs, verifiedApiCalls] = verification.verifySponsorWallets(
     state4.requests.apiCalls,
     state4.masterHDNode
   );
-  logger.logPending(verifyLogs, baseLogOptions);
+  logger.logPending(verifyApiCallLogs, baseLogOptions);
 
   const [verifyTriggersLogs, verifiedApiCallsForTriggers] = verification.verifyTriggers(
     verifiedApiCalls,
@@ -109,8 +109,14 @@ export async function initializeProvider(
   );
   logger.logPending(verifyTriggersLogs, baseLogOptions);
 
+  const [verifyWithdrawalLogs, verifiedWithdrawals] = verification.verifySponsorWallets(
+    state4.requests.withdrawals,
+    state4.masterHDNode
+  );
+  logger.logPending(verifyWithdrawalLogs, baseLogOptions);
+
   const state5 = state.update(state4, {
-    requests: { ...state3.requests, apiCalls: verifiedApiCallsForTriggers },
+    requests: { ...state3.requests, apiCalls: verifiedApiCallsForTriggers, withdrawals: verifiedWithdrawals },
   });
 
   // =================================================================
