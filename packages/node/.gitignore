@@ -7,7 +7,5 @@
 coverage/
 
 # Config files
-.env
+secrets.env
 config.json
-**/.env
-**/config.json

@@ -1,8 +1,9 @@
+import * as path from 'path';
 import dotenv from 'dotenv';
 import omitBy from 'lodash/omitBy';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import * as local from '../src/workers/local-handlers';
+import * as local from '../workers/local-handlers';
 
 // yargs prepares the args object with both long and short version of arguments.
 // This removes short versions so we can list used flags without duplicates.
@@ -10,7 +11,7 @@ function longArguments(args: Record<string, any>) {
   return JSON.stringify(omitBy(args, (_, arg) => arg === '$0' || arg.length === 1));
 }
 
-dotenv.config();
+dotenv.config({ path: path.resolve(`${__dirname}/../../config/secrets.env`) });
 
 yargs(hideBin(process.argv))
   .command(
