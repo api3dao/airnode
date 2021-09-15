@@ -11,7 +11,7 @@
     "clean": "rimraf -rf ./dist *.tgz",
     "cli": "ts-node bin/deployer.ts",
     "compile": "tsc -p tsconfig.build.json",
-    "copy:terraform": "copyfiles terraform/**/**/*.tf dist/",
+    "copy:terraform": "copyfiles terraform/**/**/*.tf terraform/**/**/*.tpl  dist/",
     "copy:webpack": "copyfiles .webpack/**/**/*.js dist/",
     "pack": "yarn pack",
     "prepublishOnly": "yarn build",
