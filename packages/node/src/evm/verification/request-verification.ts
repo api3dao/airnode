@@ -3,7 +3,7 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus, RequestTrigger } from '../../types';
+import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus, RrpTrigger } from '../../types';
 
 export function verifyDesignatedWallets<T>(
   requests: ClientRequest<T>[],
@@ -38,9 +38,9 @@ export function verifyDesignatedWallets<T>(
   return [logs, verifiedRequests];
 }
 
-export function verifyTriggers(
+export function verifyRrpTriggers(
   apiCalls: ClientRequest<ApiCall>[],
-  triggers: RequestTrigger[],
+  rrpTriggers: RrpTrigger[],
   oises: OIS[]
 ): LogsData<ClientRequest<ApiCall>[]> {
   const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
@@ -50,9 +50,9 @@ export function verifyTriggers(
       return [[log], apiCall];
     }
 
-    const trigger = triggers.find((t) => t.endpointId === apiCall.endpointId);
+    const rrpTrigger = rrpTriggers.find((t) => t.endpointId === apiCall.endpointId);
     // If the request is for an unknown endpointId, the problem is with the requesting client contract
-    if (!trigger) {
+    if (!rrpTrigger) {
       const message = `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`;
       const log = logger.pend('WARN', message);
       const updatedApiCall = {
@@ -63,7 +63,7 @@ export function verifyTriggers(
       return [[log], updatedApiCall];
     }
 
-    const { oisTitle, endpointName } = trigger;
+    const { oisTitle, endpointName } = rrpTrigger;
     const ois = oises.find((o) => o.title === oisTitle);
     // Although unlikely, it is possible that the Airnode instance was configured with a trigger
     // with an 'oisTitle' that does not match an OIS in config.json. The responsibility to fix this
