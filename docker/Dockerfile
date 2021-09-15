@@ -1,4 +1,4 @@
-ARG build=git
+ARG build=local
 
 # Environment
 FROM node:14.17-alpine3.14 AS environment
