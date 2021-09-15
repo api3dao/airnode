@@ -70,7 +70,7 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
-      '0xa6a89a13798466887dd047d47b94e0b9ce7e12dcfc5f51454696cbd73ebf3961',
+      '0x3d6050c73a683a5c6fb7bd2eb6ffa930879c2de901ea9e399001843b5f7953e9',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       ethers.BigNumber.from('0'),
       '0x0000000000000000000000000000000000000000000000000000000002a5213d',

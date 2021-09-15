@@ -35,19 +35,19 @@ describe('submit', () => {
         fixtures.requests.buildApiCall({
           id: '0x1',
           nonce: 10,
-          sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+          sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
         }),
         fixtures.requests.buildApiCall({
           id: '0x2',
           nonce: 11,
-          sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+          sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
         }),
       ],
       withdrawals: [
         fixtures.requests.buildWithdrawal({
           id: '0x5',
           nonce: 3,
-          sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+          sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
         }),
       ],
     };
@@ -83,7 +83,7 @@ describe('submit', () => {
       id: '0x1',
       nonce: 5,
       responseValue: '0xresponse',
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
@@ -105,7 +105,7 @@ describe('submit', () => {
     const withdrawal = fixtures.requests.buildWithdrawal({
       id: '0x5',
       nonce: 3,
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const requests: GroupedRequests = {
       apiCalls: [],
