@@ -1,9 +1,9 @@
 **This documentation focuses on the Deployer Docker image and its usage, not the Deployer itself. If you want learn more about the Deployer, please read [its documentation](../packages/deployer/README.md).**
 
 # Build
-You can build the Docker image by running:
+You can build the Docker image by running following command from the root directory:
 ```bash
-docker build -f docker/Dockerfile -t api3/deployer:latest .
+docker build -f packages/deployer/docker/Dockerfile -t api3/deployer:latest .
 ```
 
 Before the build, all Deployer dependencies (but not the Deployer itself) must be available in the package registry.
