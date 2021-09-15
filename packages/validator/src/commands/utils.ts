@@ -14,7 +14,7 @@ export const templateVersions = fs
   .sort((a: string, b: string) => {
     if (!a.match(/^[0-9\.]+$/)) {
       if (!b.match(/^[0-9\.]+$/)) {
-        return 0;
+        return b.localeCompare(a);
       }
 
       return 1;
