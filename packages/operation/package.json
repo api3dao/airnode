@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf ./dist",
+    "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
     "compile:watch": "tsc -p tsconfig.build.json -w",
     "dev:api": "ts-node src/server.ts",
@@ -23,6 +23,7 @@
     "dev:eth-requests": "ts-node src/scripts/evm-dev-requests.ts",
     "dev:list": "pm2 list",
     "dev:stop": "pm2 stop ecosystem.config.js",
+    "pack": "yarn pack",
     "prepublishOnly": "yarn run build",
     "test": "hardhat test"
   },

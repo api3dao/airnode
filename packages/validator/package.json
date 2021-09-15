@@ -16,12 +16,13 @@
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/ && copyfiles conversions/** dist/",
-    "clean": "rimraf -rf ./dist",
-    "test": "jest",
-    "validate": "ts-node src/commands/validateCmd.ts",
+    "clean": "rimraf -rf ./dist *.tgz",
+    "docs": "ts-node docs/generate-docs.ts",
     "convert": "ts-node src/commands/convertCmd.ts",
     "compile": "tsc -p tsconfig.build.json",
-    "docs": "ts-node docs/generate-docs.ts"
+    "pack": "yarn pack",
+    "test": "jest",
+    "validate": "ts-node src/commands/validateCmd.ts"
   },
   "dependencies": {
     "yargs": "^17.1.0"
