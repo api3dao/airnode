@@ -1,26 +1,39 @@
+ARG build=git
+
 # Environment
-FROM node:14.17.1-alpine3.13 AS environment
+FROM node:14.17-alpine3.14 AS environment
 
 ENV name="airnode"
 ENV airnodeDir="/app/${name}"
 
 WORKDIR ${airnodeDir}
 
-#Build preparation
+# Build preparation
 FROM environment AS preparation
-
-COPY . ${airnodeDir}
 
 RUN apk add --update --no-cache git
 
+# Source preparation - local
+FROM preparation as sourcelocal
+
+COPY . ${airnodeDir}
+
+# Source preparation - git
+FROM preparation as sourcegit
+
+ARG branch=master
+ARG repository=https://github.com/api3dao/airnode.git
+
+RUN git clone ${repository} ${airnodeDir} -b ${branch}
+
 # Production dependencies
-FROM preparation AS deps
+FROM source${build} AS deps
 
 RUN yarn global add lerna && \
     lerna bootstrap -- --production --no-optional --ignore-scripts
 
 # Build
-FROM preparation AS build
+FROM source${build} AS build
 
 RUN yarn bootstrap && \
     yarn build && \
