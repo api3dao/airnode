@@ -9,7 +9,11 @@ import "./interfaces/IDaoRequesterRrpAuthorizer.sol";
 /// the meta-admin
 /// @dev The meta-admin and the admins are also authorized even if they
 /// are not whitelisted explicitly
-contract DaoRequesterRrpAuthorizer is Adminnable, RequesterRrpAuthorizer, IDaoRequesterRrpAuthorizer {
+contract DaoRequesterRrpAuthorizer is
+    Adminnable,
+    RequesterRrpAuthorizer,
+    IDaoRequesterRrpAuthorizer
+{
     enum AdminRank {
         Unauthorized,
         Admin,

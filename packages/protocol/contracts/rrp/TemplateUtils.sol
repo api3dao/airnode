@@ -47,6 +47,7 @@ contract TemplateUtils is ITemplateUtils {
 
     /// @notice A convenience method to retrieve multiple templates with a
     /// single call
+    /// @dev Does not revert if the templates being indexed do not exist
     /// @param templateIds Request template IDs
     /// @return airnodes Array of Airnode addresses
     /// @return endpointIds Array of endpoint IDs
