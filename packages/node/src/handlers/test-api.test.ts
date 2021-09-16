@@ -50,7 +50,7 @@ describe('testApi', () => {
     const [err, res] = await testApi(fixtures.buildConfig(), ENDPOINT_ID, parameters);
 
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({
-      airnodeAddress: '0x2886De6bbd66DB353C5Ce2e91359e7C39C962fd7',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       sponsorAddress: '',
       requesterAddress: '',
       sponsorWallet: '',
