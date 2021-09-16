@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('../utils');
+const utils = require('../../utils');
 
 let roles;
 let rrpRequester, airnodeRrp;
@@ -31,11 +31,21 @@ beforeEach(async () => {
   });
 });
 
+describe('constructor', function () {
+  it('sets AirnodeRrp', async function () {
+    expect(await rrpRequester.airnodeRrp()).to.equal(airnodeRrp.address);
+  });
+  it('sponsors itself', async function () {
+    expect(await airnodeRrp.sponsorToRequesterToSponsorshipStatus(rrpRequester.address, rrpRequester.address)).to.equal(
+      true
+    );
+  });
+});
+
 describe('onlyAirnodeRrp', function () {
   context('Caller AirnodeRrp', function () {
     it('does not revert', async function () {
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-
       const endpointId = utils.generateRandomBytes32();
       const parameters = utils.generateRandomBytes();
       await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);

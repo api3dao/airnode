@@ -2,7 +2,7 @@
 
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('./utils');
+const utils = require('../utils');
 
 let roles;
 let airnodeRrp;
@@ -18,7 +18,7 @@ beforeEach(async () => {
 });
 
 describe('createTemplate', function () {
-  context('airnode address is non-zero', function () {
+  context('Airnode address not zero', function () {
     it('creates template', async function () {
       const airnode = utils.generateRandomAddress();
       const endpointId = utils.generateRandomBytes32();
@@ -39,7 +39,7 @@ describe('createTemplate', function () {
       expect(templateAfterCreation.parameters).to.equal(parameters);
     });
   });
-  context('airnode address is zero', function () {
+  context('Airnode address zero', function () {
     it('reverts', async function () {
       const airnode = hre.ethers.constants.AddressZero;
       const endpointId = utils.generateRandomBytes32();
@@ -53,7 +53,7 @@ describe('createTemplate', function () {
       expect(templateBeforeCreation.parameters).to.equal('0x');
       await expect(
         airnodeRrp.connect(roles.randomPerson).createTemplate(airnode, endpointId, parameters)
-      ).to.be.revertedWith('airnode address zero');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
