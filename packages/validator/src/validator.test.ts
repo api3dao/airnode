@@ -312,7 +312,9 @@ describe('validator', () => {
       messages: [
         missingParamMessage(['[0]', 'operation', 'path']),
         error('[0].operation.method can be either "get" or "post"'),
-        error('[0].reservedParameters[0].name: Reserved parameter can be only "_type", "_path" or "_times"'),
+        error(
+          '[0].reservedParameters[0].name: Reserved parameter can be only "_type", "_path", "_times" or "_relay_metadata"'
+        ),
         formattingMessage(['[0]', 'parameters[0]', 'name']),
         missingParamMessage(['[0]', 'parameters[0]', 'operationParameter']),
         missingParamMessage(['[1]', 'name']),
