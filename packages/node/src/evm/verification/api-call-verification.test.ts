@@ -20,15 +20,16 @@ describe('verifyApiCallIds', () => {
     }
   });
 
-  it('does nothing where regular API calls have a valid request ID', () => {
+  it('does nothing where template API calls have a valid request ID', () => {
     const apiCall = fixtures.requests.buildApiCall({
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       chainId: '31337',
-      clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
+      requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
-      id: '0x59baf63a2e0158c33a79b94ad3cfdadb98fb8f7d17c8dd3508c68ecfc8af069a',
+      id: '0x8b61d3ef3102ae8bbe183947f918cc1b9f25c129a5a37a23d5fef0b6c9978abb',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
-      type: 'regular',
+      type: 'template',
     });
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Request ID:${apiCall.id} has a valid ID` }]);
@@ -37,12 +38,12 @@ describe('verifyApiCallIds', () => {
 
   it('does nothing where full API calls have a valid request ID', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       chainId: '31337',
-      clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
+      requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
-      id: '0x085fe3d214bc539fcab8d8f6165655c8f2bcdd060410e093d8151b5707c025a7',
+      id: '0xecfc0b483ca34babfa8fb00466549c63daf1184b0af9cdcccbce5df56279c113',
       requestCount: '0',
       templateId: null,
       type: 'full',
@@ -52,17 +53,18 @@ describe('verifyApiCallIds', () => {
     expect(res[0]).toEqual(apiCall);
   });
 
-  it('ignores regular API calls with invalid IDs', () => {
+  it('ignores template API calls with invalid IDs', () => {
     const apiCall = fixtures.requests.buildApiCall({
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       chainId: '31337',
-      clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
+      requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       id: '0xinvalid',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
-      type: 'regular',
+      type: 'template',
     });
-    const expectedId = '0x59baf63a2e0158c33a79b94ad3cfdadb98fb8f7d17c8dd3508c68ecfc8af069a';
+    const expectedId = '0x8b61d3ef3102ae8bbe183947f918cc1b9f25c129a5a37a23d5fef0b6c9978abb';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
@@ -70,9 +72,9 @@ describe('verifyApiCallIds', () => {
 
   it('ignores full API calls with invalid IDs', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       chainId: '31337',
-      clientAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
+      requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
       id: '0xinvalid',
@@ -80,7 +82,7 @@ describe('verifyApiCallIds', () => {
       templateId: null,
       type: 'full',
     });
-    const expectedId = '0x085fe3d214bc539fcab8d8f6165655c8f2bcdd060410e093d8151b5707c025a7';
+    const expectedId = '0xecfc0b483ca34babfa8fb00466549c63daf1184b0af9cdcccbce5df56279c113';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
     expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });

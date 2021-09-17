@@ -1,731 +1,1708 @@
-/* globals context ethers */
-
+/* globals context */
+const hre = require('hardhat');
 const { expect } = require('chai');
+const utils = require('./utils');
 
-let airnodeRrp, airnodeRrpClient;
 let roles;
-const requesterIndex = 1;
-let airnodeId, masterWallet, designatedWallet;
-const endpointId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-const templateParameters = ethers.utils.hexlify(ethers.utils.randomBytes(320));
-let templateId;
-const requestTimeParameters = ethers.utils.hexlify(ethers.utils.randomBytes(128));
-let fulfillAddress, fulfillFunctionId;
-const fulfillStatusCode = 0;
-const fulfillData = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+let airnodeRrp, rrpRequester;
+let airnodeAddress, airnodeMnemonic, airnodeXpub;
+let sponsorWalletAddress;
 
 beforeEach(async () => {
-  const accounts = await ethers.getSigners();
+  const accounts = await hre.ethers.getSigners();
   roles = {
     deployer: accounts[0],
-    airnodeAdmin: accounts[1],
-    requesterAdmin: accounts[2],
-    clientUser: accounts[3],
+    sponsor: accounts[1],
     randomPerson: accounts[9],
   };
-  const airnodeRrpFactory = await ethers.getContractFactory('AirnodeRrp', roles.deployer);
+  const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
   airnodeRrp = await airnodeRrpFactory.deploy();
-  const airnodeRrpClientFactory = await ethers.getContractFactory('MockAirnodeRrpClient', roles.deployer);
-  airnodeRrpClient = await airnodeRrpClientFactory.deploy(airnodeRrp.address);
-  // Create the requester
-  await airnodeRrp.connect(roles.requesterAdmin).createRequester(roles.requesterAdmin.address);
-  // Generate the Airnode private key and derive the related parameters
-  const airnodeWallet = ethers.Wallet.createRandom();
-  const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
-  const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
-  masterWallet = new ethers.Wallet(hdNode.privateKey, waffle.provider);
-  airnodeId = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [masterWallet.address]));
-  designatedWallet = ethers.Wallet.fromMnemonic(airnodeMnemonic, `m/0/${requesterIndex}`).connect(waffle.provider);
-  // Fund the Airnode master wallet for it to be able to set the Airnode parameters
-  await roles.airnodeAdmin.sendTransaction({
-    to: masterWallet.address,
-    value: ethers.utils.parseEther('1'),
+  const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
+  rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
+  ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
+  await roles.deployer.sendTransaction({
+    to: airnodeAddress,
+    value: hre.ethers.utils.parseEther('1'),
   });
-  // Fund the designated wallet so that it can be withdrawn from
-  await roles.requesterAdmin.sendTransaction({
-    to: designatedWallet.address,
-    value: ethers.utils.parseEther('1'),
+  await roles.deployer.sendTransaction({
+    to: sponsorWalletAddress,
+    value: hre.ethers.utils.parseEther('1'),
   });
-  // Create the template
-  await airnodeRrp.createTemplate(airnodeId, endpointId, templateParameters);
-  templateId = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], [airnodeId, endpointId, templateParameters])
-  );
-  fulfillAddress = airnodeRrpClient.address;
-  fulfillFunctionId = airnodeRrpClient.interface.getSighash('fulfill');
 });
 
-describe('makeRequest', function () {
-  context('Client is endorsed by requester', async function () {
-    it('makes a regular request', async function () {
-      // Have the requester endorse the client
-      await airnodeRrp
-        .connect(roles.requesterAdmin)
-        .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-      // Calculate the expected request ID
-      const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-      const chainId = (await ethers.provider.getNetwork()).chainId;
-      const requestId = ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(
-          ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-          [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
+describe('setAirnodeXpub', function () {
+  it('sets Airnode public key', async function () {
+    const initialPublicKey = await airnodeRrp.airnodeToXpub(airnodeAddress);
+    expect(initialPublicKey).to.equal('');
+    const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
+    await expect(airnodeRrp.connect(airnodeWallet).setAirnodeXpub(airnodeXpub, { gasLimit: 500000 }))
+      .to.emit(airnodeRrp, 'SetAirnodeXpub')
+      .withArgs(airnodeAddress, airnodeXpub);
+    const setPublicKey = await airnodeRrp.airnodeToXpub(airnodeAddress);
+    expect(setPublicKey).to.equal(airnodeXpub);
+  });
+});
+
+describe('setSponsorshipStatus', function () {
+  it('sets sponsorship status', async function () {
+    expect(
+      await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
+    ).to.equal(false);
+    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(0);
+    // Set sponsorship status as true
+    await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true))
+      .to.emit(airnodeRrp, 'SetSponsorshipStatus')
+      .withArgs(roles.sponsor.address, rrpRequester.address, true);
+    expect(
+      await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
+    ).to.equal(true);
+    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
+    // Reset sponsorship status back as false
+    await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, false))
+      .to.emit(airnodeRrp, 'SetSponsorshipStatus')
+      .withArgs(roles.sponsor.address, rrpRequester.address, false);
+    expect(
+      await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
+    ).to.equal(false);
+    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
+  });
+});
+
+describe('makeTemplateRequest', function () {
+  context('Requester is sponsored', function () {
+    it('makes template request', async function () {
+      // Endorse the requester
+      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+      // Create the template
+      const endpointId = utils.generateRandomBytes32();
+      const parameters = utils.generateRandomBytes();
+      await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+      const templateId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+      );
+      // Compute the expected request ID
+      const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
+      const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+      const requestTimeParameters = utils.generateRandomBytes();
+      const expectedRequestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+          [airnodeAddress, requesterRequestCount, chainId, rrpRequester.address, templateId, requestTimeParameters]
         )
       );
       // Make the request
       await expect(
-        airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
+        rrpRequester
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
             templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
       )
-        .to.emit(airnodeRrp, 'ClientRequestCreated')
+        .to.emit(airnodeRrp, 'MadeTemplateRequest')
         .withArgs(
-          airnodeId,
-          requestId,
-          clientRequestNonce,
+          airnodeAddress,
+          expectedRequestId,
+          requesterRequestCount,
           chainId,
-          airnodeRrpClient.address,
+          rrpRequester.address,
           templateId,
-          requesterIndex,
-          designatedWallet.address,
-          fulfillAddress,
-          fulfillFunctionId,
+          roles.sponsor.address,
+          sponsorWalletAddress,
+          rrpRequester.address,
+          rrpRequester.interface.getSighash('fulfill'),
           requestTimeParameters
         );
+      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
+        requesterRequestCount.add(1)
+      );
     });
   });
-  context('Client is not endorsed by requester', async function () {
-    it('reverts when client is not endorsed by the requester', async function () {
+  context('Requester not sponsored', function () {
+    it('reverts', async function () {
+      const templateId = utils.generateRandomBytes32();
+      const requestTimeParameters = utils.generateRandomBytes();
       await expect(
-        airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
+        rrpRequester
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
             templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      ).to.be.revertedWith('Client not endorsed by requester');
+      ).to.be.revertedWith('Requester not sponsored');
     });
   });
 });
 
 describe('makeFullRequest', function () {
-  context('Client is endorsed by requester', async function () {
-    it('makes a full request', async function () {
-      // Have the requester endorse the client
-      await airnodeRrp
-        .connect(roles.requesterAdmin)
-        .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-      // Calculate the expected request ID
-      const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-      const chainId = (await ethers.provider.getNetwork()).chainId;
-      const requestId = ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(
-          ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-          [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
+  context('Requester is sponsored', function () {
+    it('makes template request', async function () {
+      // Endorse the requester
+      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+      // Compute the expected request ID
+      const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
+      const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+      const endpointId = utils.generateRandomBytes32();
+      const requestTimeParameters = utils.generateRandomBytes();
+      const expectedRequestId = hre.ethers.utils.keccak256(
+        hre.ethers.utils.solidityPack(
+          ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+          [airnodeAddress, requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
         )
       );
       // Make the request
       await expect(
-        airnodeRrpClient
-          .connect(roles.clientUser)
+        rrpRequester
+          .connect(roles.randomPerson)
           .makeFullRequest(
-            airnodeId,
+            airnodeAddress,
             endpointId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
       )
-        .to.emit(airnodeRrp, 'ClientFullRequestCreated')
+        .to.emit(airnodeRrp, 'MadeFullRequest')
         .withArgs(
-          airnodeId,
-          requestId,
-          clientRequestNonce,
+          airnodeAddress,
+          expectedRequestId,
+          requesterRequestCount,
           chainId,
-          airnodeRrpClient.address,
+          rrpRequester.address,
           endpointId,
-          requesterIndex,
-          designatedWallet.address,
-          fulfillAddress,
-          fulfillFunctionId,
+          roles.sponsor.address,
+          sponsorWalletAddress,
+          rrpRequester.address,
+          rrpRequester.interface.getSighash('fulfill'),
           requestTimeParameters
         );
+      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
+        requesterRequestCount.add(1)
+      );
     });
   });
-  context('Client is not endorsed by requester', async function () {
-    it('reverts when client is not endorsed by the requester', async function () {
+  context('Requester not sponsored', function () {
+    it('reverts', async function () {
+      const endpointId = utils.generateRandomBytes32();
+      const requestTimeParameters = utils.generateRandomBytes();
       await expect(
-        airnodeRrpClient
-          .connect(roles.clientUser)
+        rrpRequester
+          .connect(roles.randomPerson)
           .makeFullRequest(
-            airnodeId,
+            airnodeAddress,
             endpointId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      ).to.be.revertedWith('Client not endorsed by requester');
+      ).to.be.revertedWith('Requester not sponsored');
     });
   });
 });
 
 describe('fulfill', function () {
-  context('Regular request has been made', async function () {
-    context('Fulfillment parameters are correct', async function () {
-      it('fulfills', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
-          )
-        );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
-            templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
+  context('Template request made', function () {
+    context('Caller is sponsor wallet', function () {
+      context('Fulfillment parameters are correct', function () {
+        context('Fulfill function does not revert', function () {
+          it('fulfills', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Create the template
+            const endpointId = utils.generateRandomBytes32();
+            const parameters = utils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            // Make the request
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeTemplateRequest(
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters,
+                { gasLimit: 500000 }
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  airnodeAddress,
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  templateId,
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillStatusCode = 0;
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            )
+              .to.emit(airnodeRrp, 'FulfilledRequest')
+              .withArgs(airnodeAddress, requestId, fulfillStatusCode, fulfillData);
+            expect(await rrpRequester.requestIdToStatusCode(requestId)).to.equal(fulfillStatusCode);
+            expect(await rrpRequester.requestIdToData(requestId)).to.equal(fulfillData);
+            // Attempt to fulfill the request a second time
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Invalid request fulfillment');
+          });
+        });
+        context('Fulfill function reverts', function () {
+          it('reverts', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Create the template
+            const endpointId = utils.generateRandomBytes32();
+            const parameters = utils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            // Make the request
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeTemplateRequest(
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  airnodeAddress,
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  templateId,
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Attempt to fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillStatusCode = 0;
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+          });
+        });
+        context('Fulfill function does not return', function () {
+          it('reverts', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Create the template
+            const endpointId = utils.generateRandomBytes32();
+            const parameters = utils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            // Make the request
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeTemplateRequest(
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  airnodeAddress,
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  templateId,
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Attempt to fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillStatusCode = 0;
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+          });
+        });
+      });
+      context('Request ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
-        // Fulfill the request
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        )
-          .to.emit(airnodeRrp, 'ClientRequestFulfilled')
-          .withArgs(airnodeId, requestId, fulfillStatusCode, fulfillData);
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(
+                hre.ethers.constants.HashZero,
+                airnodeAddress,
+                fulfillStatusCode,
+                fulfillData,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Airnode address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(
+                requestId,
+                hre.ethers.constants.AddressZero,
+                fulfillStatusCode,
+                fulfillData,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(
+                requestId,
+                airnodeAddress,
+                fulfillStatusCode,
+                fulfillData,
+                hre.ethers.constants.AddressZero,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill function ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(requestId, airnodeAddress, fulfillStatusCode, fulfillData, rrpRequester.address, '0x00000000', {
+                gasLimit: 500000,
+              })
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
       });
     });
-    context('Fulfillment parameters are incorrect', async function () {
-      it('reverts when fulfillment parameters are incorrect', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
-          )
+    context('Caller not sponsor wallet', function () {
+      it('reverts', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+        // Create the template
+        const endpointId = utils.generateRandomBytes32();
+        const parameters = utils.generateRandomBytes();
+        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+        const templateId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
         // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
+        const requestTimeParameters = utils.generateRandomBytes();
+        await rrpRequester
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
             templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           );
-        // Attempt to fulfill the request
-        const falseRequestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(falseRequestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fulfill the request
-        const falseAirnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, falseAirnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fulfill the request
-        const falseFulfillAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, falseFulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fulfill the request
-        const falseFulfillFunctionId = ethers.utils.hexlify(ethers.utils.randomBytes(4));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, falseFulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-      });
-    });
-    context('Fulfilling wallet is incorrect', async function () {
-      it('reverts when fulfilling wallet is incorrect', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            [
+              airnodeAddress,
+              (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+              (await hre.ethers.provider.getNetwork()).chainId,
+              rrpRequester.address,
+              templateId,
+              requestTimeParameters,
+            ]
           )
         );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
-            templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
-          );
         // Attempt to fulfill the request
+        const fulfillStatusCode = 0;
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
+            .fulfill(
+              requestId,
+              airnodeAddress,
+              fulfillStatusCode,
+              fulfillData,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              { gasLimit: 500000 }
+            )
+        ).to.be.revertedWith('Invalid request fulfillment');
       });
     });
   });
-  context('Full request has been made', async function () {
-    context('Fulfillment parameters are correct', async function () {
-      it('fulfills when parameters are correct', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
-          )
-        );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeFullRequest(
-            airnodeId,
-            endpointId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
+  context('Full request made', function () {
+    context('Caller is sponsor wallet', function () {
+      context('Fulfillment parameters are correct', function () {
+        context('Fulfill function does not revert', function () {
+          it('fulfills', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Make the request
+            const endpointId = utils.generateRandomBytes32();
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  airnodeAddress,
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  endpointId,
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillStatusCode = 0;
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            )
+              .to.emit(airnodeRrp, 'FulfilledRequest')
+              .withArgs(airnodeAddress, requestId, fulfillStatusCode, fulfillData);
+            expect(await rrpRequester.requestIdToStatusCode(requestId)).to.equal(fulfillStatusCode);
+            expect(await rrpRequester.requestIdToData(requestId)).to.equal(fulfillData);
+            // Attempt to fulfill the request a second time
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Invalid request fulfillment');
+          });
+        });
+        context('Fulfill function reverts', function () {
+          it('reverts', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Make the request
+            const endpointId = utils.generateRandomBytes32();
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  airnodeAddress,
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  endpointId,
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Attempt to fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillStatusCode = 0;
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+          });
+        });
+        context('Fulfill function does not return', function () {
+          it('reverts', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Make the request
+            const endpointId = utils.generateRandomBytes32();
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                [
+                  airnodeAddress,
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  endpointId,
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Attempt to fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillStatusCode = 0;
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  fulfillStatusCode,
+                  fulfillData,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Fulfillment failed');
+          });
+        });
+      });
+      context('Request ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
-        // Fulfill the request
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        )
-          .to.emit(airnodeRrp, 'ClientRequestFulfilled')
-          .withArgs(airnodeId, requestId, fulfillStatusCode, fulfillData);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(
+                hre.ethers.constants.HashZero,
+                airnodeAddress,
+                fulfillStatusCode,
+                fulfillData,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Airnode address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                endpointId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(
+                requestId,
+                hre.ethers.constants.AddressZero,
+                fulfillStatusCode,
+                fulfillData,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                endpointId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(
+                requestId,
+                airnodeAddress,
+                fulfillStatusCode,
+                fulfillData,
+                hre.ethers.constants.AddressZero,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill function ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                endpointId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fulfill the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          const fulfillStatusCode = 0;
+          const fulfillData = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+          );
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fulfill(requestId, airnodeAddress, fulfillStatusCode, fulfillData, rrpRequester.address, '0x00000000', {
+                gasLimit: 500000,
+              })
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
       });
     });
-    context('Fulfillment parameters are incorrect', async function () {
-      it('reverts full requests when fulfillment parameters are incorrect', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
-          )
-        );
+    context('Caller not sponsor wallet', function () {
+      it('reverts', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
         // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
+        const endpointId = utils.generateRandomBytes32();
+        const requestTimeParameters = utils.generateRandomBytes();
+        await rrpRequester
+          .connect(roles.randomPerson)
           .makeFullRequest(
-            airnodeId,
+            airnodeAddress,
             endpointId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           );
-        // Attempt to fulfill the request
-        const falseRequestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(falseRequestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fulfill the request
-        const falseAirnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, falseAirnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fulfill the request
-        const falseFulfillAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, falseFulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fulfill the request
-        const falseFulfillFunctionId = ethers.utils.hexlify(ethers.utils.randomBytes(4));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, falseFulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
-      });
-    });
-    context('Fulfilling wallet is incorrect', async function () {
-      it('reverts full requests when fulfilling wallet is incorrect', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            [
+              airnodeAddress,
+              (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+              (await hre.ethers.provider.getNetwork()).chainId,
+              rrpRequester.address,
+              endpointId,
+              requestTimeParameters,
+            ]
           )
         );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeFullRequest(
-            airnodeId,
-            endpointId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
-          );
         // Attempt to fulfill the request
+        const fulfillStatusCode = 0;
+        const fulfillData = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
-            .fulfill(requestId, airnodeId, fulfillStatusCode, fulfillData, fulfillAddress, fulfillFunctionId, {
-              gasLimit: 500000,
-            })
-        ).to.be.revertedWith('No such request');
+            .fulfill(
+              requestId,
+              airnodeAddress,
+              fulfillStatusCode,
+              fulfillData,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              { gasLimit: 500000 }
+            )
+        ).to.be.revertedWith('Invalid request fulfillment');
       });
     });
   });
 });
 
 describe('fail', function () {
-  context('Regular request has been made', async function () {
-    context('Fulfillment parameters are correct', async function () {
-      it('fails successfully', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
-          )
-        );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
-            templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
+  context('Template request made', function () {
+    context('Caller is sponsor wallet', function () {
+      context('Fulfillment parameters are correct', function () {
+        it('fails successfully', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
           );
-        // Fail the fulfillment
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        )
-          .to.emit(airnodeRrp, 'ClientRequestFailed')
-          .withArgs(airnodeId, requestId);
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(requestId, airnodeAddress, rrpRequester.address, rrpRequester.interface.getSighash('fulfill'), {
+                gasLimit: 500000,
+              })
+          )
+            .to.emit(airnodeRrp, 'FailedRequest')
+            .withArgs(airnodeAddress, requestId);
+          expect(await airnodeRrp.requestWithIdHasFailed(requestId)).to.equal(true);
+          expect(await rrpRequester.requestIdToStatusCode(requestId)).to.equal(0);
+          expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+          // Attempt to fail the request a second time
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(requestId, airnodeAddress, rrpRequester.address, rrpRequester.interface.getSighash('fulfill'), {
+                gasLimit: 500000,
+              })
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Request ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(
+                hre.ethers.constants.HashZero,
+                airnodeAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Airnode address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(
+                requestId,
+                hre.ethers.constants.AddressZero,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(
+                requestId,
+                airnodeAddress,
+                hre.ethers.constants.AddressZero,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill function ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Make the request
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(requestId, airnodeAddress, rrpRequester.address, '0x00000000', { gasLimit: 500000 })
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
       });
     });
-    context('Fulfillment parameters are incorrect', async function () {
-      it('reverts when fulfillment parameters are incorrect', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
-          )
+    context('Caller not sponsor wallet', function () {
+      it('reverts', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+        // Create the template
+        const endpointId = utils.generateRandomBytes32();
+        const parameters = utils.generateRandomBytes();
+        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+        const templateId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
         // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
+        const requestTimeParameters = utils.generateRandomBytes();
+        await rrpRequester
+          .connect(roles.randomPerson)
+          .makeTemplateRequest(
             templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           );
-        // Attempt to fail the fulfillment
-        const falseRequestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fail(falseRequestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fail the fulfillment
-        const falseAirnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fail(requestId, falseAirnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fail the fulfillment
-        const falseFulfillAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fail(requestId, airnodeId, falseFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('No such request');
-        // Attempt to fail the fulfillment
-        const falseFulfillFunctionId = ethers.utils.hexlify(ethers.utils.randomBytes(4));
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fail(requestId, airnodeId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('No such request');
-      });
-    });
-    context('Fulfilling wallet is incorrect', async function () {
-      it('reverts when fulfilling wallet is incorrect', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, templateId, requestTimeParameters]
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            [
+              airnodeAddress,
+              (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+              (await hre.ethers.provider.getNetwork()).chainId,
+              rrpRequester.address,
+              templateId,
+              requestTimeParameters,
+            ]
           )
         );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeRequest(
-            templateId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
-          );
-        // Attempt to fail the fulfillment
+        // Attempt to fail the request
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
-            .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        ).to.be.revertedWith('No such request');
+            .fail(requestId, airnodeAddress, rrpRequester.address, rrpRequester.interface.getSighash('fulfill'), {
+              gasLimit: 500000,
+            })
+        ).to.be.revertedWith('Invalid request fulfillment');
       });
     });
   });
-  context('Full request has been made', async function () {
-    context('Fulfillment parameters are correct', async function () {
-      it('fails full requests successfully', async function () {
-        // Have the requester endorse the client
-        await airnodeRrp
-          .connect(roles.requesterAdmin)
-          .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-        // Calculate the expected request ID
-        const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-        const chainId = (await ethers.provider.getNetwork()).chainId;
-        const requestId = ethers.utils.keccak256(
-          ethers.utils.defaultAbiCoder.encode(
-            ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-            [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
-          )
-        );
-        // Make the request
-        await airnodeRrpClient
-          .connect(roles.clientUser)
-          .makeFullRequest(
-            airnodeId,
-            endpointId,
-            requesterIndex,
-            designatedWallet.address,
-            fulfillAddress,
-            fulfillFunctionId,
-            requestTimeParameters
-          );
-        // Fail the fulfillment
-        await expect(
-          airnodeRrp
-            .connect(designatedWallet)
-            .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-        )
-          .to.emit(airnodeRrp, 'ClientRequestFailed')
-          .withArgs(airnodeId, requestId);
-      });
-      context('Fulfillment parameters are incorrect', async function () {
-        it('reverts full requests when fulfillment parameters are incorrect', async function () {
-          // Have the requester endorse the client
-          await airnodeRrp
-            .connect(roles.requesterAdmin)
-            .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-          // Calculate the expected request ID
-          const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-          const chainId = (await ethers.provider.getNetwork()).chainId;
-          const requestId = ethers.utils.keccak256(
-            ethers.utils.defaultAbiCoder.encode(
-              ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-              [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
-            )
-          );
+  context('Full request made', function () {
+    context('Caller is sponsor wallet', function () {
+      context('Fulfillment parameters are correct', function () {
+        it('fails successfully', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
-          await airnodeRrpClient
-            .connect(roles.clientUser)
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
             .makeFullRequest(
-              airnodeId,
+              airnodeAddress,
               endpointId,
-              requesterIndex,
-              designatedWallet.address,
-              fulfillAddress,
-              fulfillFunctionId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters
             );
-          // Attempt to fail the fulfillment
-          const falseRequestId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-          await expect(
-            airnodeRrp
-              .connect(designatedWallet)
-              .fail(falseRequestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-          ).to.be.revertedWith('No such request');
-          // Attempt to fail the fulfillment
-          const falseAirnodeId = ethers.utils.hexlify(ethers.utils.randomBytes(32));
-          await expect(
-            airnodeRrp
-              .connect(designatedWallet)
-              .fail(requestId, falseAirnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-          ).to.be.revertedWith('No such request');
-          // Attempt to fail the fulfillment
-          const falseFulfillAddress = ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
-          await expect(
-            airnodeRrp
-              .connect(designatedWallet)
-              .fail(requestId, airnodeId, falseFulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-          ).to.be.revertedWith('No such request');
-          // Attempt to fail the fulfillment
-          const falseFulfillFunctionId = ethers.utils.hexlify(ethers.utils.randomBytes(4));
-          await expect(
-            airnodeRrp
-              .connect(designatedWallet)
-              .fail(requestId, airnodeId, fulfillAddress, falseFulfillFunctionId, { gasLimit: 500000 })
-          ).to.be.revertedWith('No such request');
-        });
-        context('Fulfilling wallet is incorrect', async function () {
-          it('reverts full requests when fulfilling wallet is incorrect', async function () {
-            // Have the requester endorse the client
-            await airnodeRrp
-              .connect(roles.requesterAdmin)
-              .setClientEndorsementStatus(requesterIndex, airnodeRrpClient.address, true);
-            // Calculate the expected request ID
-            const clientRequestNonce = await airnodeRrp.clientAddressToNoRequests(airnodeRrpClient.address);
-            const chainId = (await ethers.provider.getNetwork()).chainId;
-            const requestId = ethers.utils.keccak256(
-              ethers.utils.defaultAbiCoder.encode(
-                ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-                [clientRequestNonce, chainId, airnodeRrpClient.address, endpointId, requestTimeParameters]
-              )
-            );
-            // Make the request
-            await airnodeRrpClient
-              .connect(roles.clientUser)
-              .makeFullRequest(
-                airnodeId,
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
                 endpointId,
-                requesterIndex,
-                designatedWallet.address,
-                fulfillAddress,
-                fulfillFunctionId,
-                requestTimeParameters
-              );
-            // Attempt to fail the fulfillment
-            await expect(
-              airnodeRrp
-                .connect(roles.randomPerson)
-                .fail(requestId, airnodeId, fulfillAddress, fulfillFunctionId, { gasLimit: 500000 })
-            ).to.be.revertedWith('No such request');
-          });
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(requestId, airnodeAddress, rrpRequester.address, rrpRequester.interface.getSighash('fulfill'), {
+                gasLimit: 500000,
+              })
+          )
+            .to.emit(airnodeRrp, 'FailedRequest')
+            .withArgs(airnodeAddress, requestId);
+          expect(await airnodeRrp.requestWithIdHasFailed(requestId)).to.equal(true);
+          expect(await rrpRequester.requestIdToStatusCode(requestId)).to.equal(0);
+          expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+          // Attempt to fulfill the request a second time
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(requestId, airnodeAddress, rrpRequester.address, rrpRequester.interface.getSighash('fulfill'), {
+                gasLimit: 500000,
+              })
+          ).to.be.revertedWith('Invalid request fulfillment');
         });
+      });
+      context('Request ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(
+                hre.ethers.constants.HashZero,
+                airnodeAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Airnode address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                endpointId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(
+                requestId,
+                hre.ethers.constants.AddressZero,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill address is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                endpointId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(
+                requestId,
+                airnodeAddress,
+                hre.ethers.constants.AddressZero,
+                rrpRequester.interface.getSighash('fulfill'),
+                { gasLimit: 500000 }
+              )
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+      context('Fulfill function ID is incorrect', function () {
+        it('reverts', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Make the request
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              [
+                airnodeAddress,
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                endpointId,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Attempt to fail the request
+          const sponsorWallet = utils
+            .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+            .connect(hre.ethers.provider);
+          await expect(
+            airnodeRrp
+              .connect(sponsorWallet)
+              .fail(requestId, airnodeAddress, rrpRequester.address, '0x00000000', { gasLimit: 500000 })
+          ).to.be.revertedWith('Invalid request fulfillment');
+        });
+      });
+    });
+    context('Caller not sponsor wallet', function () {
+      it('reverts', async function () {
+        // Endorse the requester
+        await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+        // Make the request
+        const endpointId = utils.generateRandomBytes32();
+        const requestTimeParameters = utils.generateRandomBytes();
+        await rrpRequester
+          .connect(roles.randomPerson)
+          .makeFullRequest(
+            airnodeAddress,
+            endpointId,
+            roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
+            requestTimeParameters
+          );
+        const requestId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(
+            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            [
+              airnodeAddress,
+              (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+              (await hre.ethers.provider.getNetwork()).chainId,
+              rrpRequester.address,
+              endpointId,
+              requestTimeParameters,
+            ]
+          )
+        );
+        // Attempt to fail the request
+        await expect(
+          airnodeRrp
+            .connect(roles.randomPerson)
+            .fail(requestId, airnodeAddress, rrpRequester.address, rrpRequester.interface.getSighash('fulfill'), {
+              gasLimit: 500000,
+            })
+        ).to.be.revertedWith('Invalid request fulfillment');
       });
     });
   });

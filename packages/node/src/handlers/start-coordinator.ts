@@ -37,7 +37,7 @@ async function coordinator(config: Config): Promise<CoordinatorState> {
 
   const workerOpts: WorkerOptions = {
     cloudProvider: config.nodeSettings.cloudProvider,
-    airnodeIdShort: state1.settings.airnodeIdShort,
+    airnodeAddressShort: state1.settings.airnodeAddressShort,
     stage: config.nodeSettings.stage,
     region: config.nodeSettings.region,
   };

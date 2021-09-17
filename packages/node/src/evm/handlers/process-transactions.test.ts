@@ -41,14 +41,24 @@ describe('processTransactions', () => {
       hash: '0xad33fe94de7294c6ab461325828276185dff6fed92c54b15ac039c6160d2bac3',
     });
 
-    const apiCall = fixtures.requests.buildSubmittableApiCall({ requesterIndex: '4' });
-    const withdrawal = fixtures.requests.buildWithdrawal({ requesterIndex: '5' });
+    const apiCall = fixtures.requests.buildSubmittableApiCall({
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+    });
+    const withdrawal = fixtures.requests.buildWithdrawal({
+      sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
+    });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [withdrawal],
     };
-    const transactionCountsByRequesterIndex = { 4: 79, 5: 212 };
-    const state = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = {
+      '0x64b7d7c64A534086EfF591B73fcFa912feE74c69': 79,
+      '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E': 212,
+    };
+    const state = fixtures.buildEVMProviderState({
+      requests,
+      transactionCountsBySponsorAddress,
+    });
 
     const res = await processTransactions(state);
     expect(res.requests.apiCalls[0]).toEqual({
@@ -69,9 +79,8 @@ describe('processTransactions', () => {
     expect(fulfillWithdrawalMock).toHaveBeenCalledTimes(1);
     expect(fulfillWithdrawalMock).toHaveBeenCalledWith(
       withdrawal.id,
-      withdrawal.airnodeId,
-      withdrawal.requesterIndex,
-      withdrawal.destinationAddress,
+      withdrawal.airnodeAddress,
+      withdrawal.sponsorAddress,
       {
         gasPrice,
         gasLimit: ethers.BigNumber.from(70_000),
@@ -85,7 +94,7 @@ describe('processTransactions', () => {
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
       apiCall.id,
-      apiCall.airnodeId,
+      apiCall.airnodeAddress,
       ethers.BigNumber.from('0'),
       '0x000000000000000000000000000000000000000000000000000000000001252b',
       apiCall.fulfillAddress,
@@ -99,13 +108,18 @@ describe('processTransactions', () => {
     const gasPriceSpy = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getGasPrice');
     gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
 
-    const apiCall = fixtures.requests.buildSubmittableApiCall({ requesterIndex: '4' });
+    const apiCall = fixtures.requests.buildSubmittableApiCall({
+      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+    });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 4: 79 };
-    const state = fixtures.buildEVMProviderState({ requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress = { '0x64b7d7c64A534086EfF591B73fcFa912feE74c69': 79 };
+    const state = fixtures.buildEVMProviderState({
+      requests,
+      transactionCountsBySponsorAddress,
+    });
 
     const res = await processTransactions(state);
     expect(res.requests.apiCalls[0]).toEqual({ ...apiCall, nonce: 79 });

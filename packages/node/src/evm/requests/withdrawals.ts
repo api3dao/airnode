@@ -1,23 +1,22 @@
 import * as events from './events';
 import * as logger from '../../logger';
 import {
-  ClientRequest,
+  Request,
   EVMEventLog,
-  EVMWithdrawalFulfilledLog,
-  EVMWithdrawalRequestLog,
+  EVMFulfilledWithdrawalLog,
+  EVMRequestedWithdrawalLog,
   LogsData,
   RequestStatus,
   Withdrawal,
   PendingLog,
 } from '../../types';
 
-export function initialize(logWithMetadata: EVMWithdrawalRequestLog): ClientRequest<Withdrawal> {
+export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<Withdrawal> {
   const { parsedLog } = logWithMetadata;
 
-  const request: ClientRequest<Withdrawal> = {
-    airnodeId: parsedLog.args.airnodeId,
-    designatedWallet: parsedLog.args.designatedWallet,
-    destinationAddress: parsedLog.args.destination,
+  const request: Request<Withdrawal> = {
+    airnodeAddress: parsedLog.args.airnode,
+    sponsorWallet: parsedLog.args.sponsorWallet,
     id: parsedLog.args.withdrawalRequestId,
     metadata: {
       blockNumber: logWithMetadata.blockNumber,
@@ -25,7 +24,7 @@ export function initialize(logWithMetadata: EVMWithdrawalRequestLog): ClientRequ
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,
       transactionHash: logWithMetadata.transactionHash,
     },
-    requesterIndex: parsedLog.args.requesterIndex.toString(),
+    sponsorAddress: parsedLog.args.sponsor,
     status: RequestStatus.Pending,
   };
 
@@ -34,13 +33,13 @@ export function initialize(logWithMetadata: EVMWithdrawalRequestLog): ClientRequ
 
 export interface UpdatedFulfilledRequests {
   readonly logs: PendingLog[];
-  readonly requests: ClientRequest<Withdrawal>[];
+  readonly requests: Request<Withdrawal>[];
 }
 
 export function updateFulfilledRequests(
-  withdrawals: ClientRequest<Withdrawal>[],
+  withdrawals: Request<Withdrawal>[],
   fulfilledRequestIds: string[]
-): LogsData<ClientRequest<Withdrawal>[]> {
+): LogsData<Request<Withdrawal>[]> {
   const { logs, requests } = withdrawals.reduce(
     (acc: UpdatedFulfilledRequests, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
@@ -62,12 +61,12 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<ClientRequest<Withdrawal>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<Withdrawal>[]> {
   // Separate the logs
-  const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log)) as EVMWithdrawalRequestLog[];
+  const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log)) as EVMRequestedWithdrawalLog[];
   const fulfillmentLogs = logsWithMetadata.filter((log) =>
     events.isWithdrawalFulfillment(log)
-  ) as EVMWithdrawalFulfilledLog[];
+  ) as EVMFulfilledWithdrawalLog[];
 
   // Cast raw logs to typed WithdrawalRequest objects
   const withdrawalRequests = requestLogs.map(initialize);

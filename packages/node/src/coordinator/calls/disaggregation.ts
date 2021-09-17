@@ -3,7 +3,7 @@ import * as logger from '../../logger';
 import {
   AggregatedApiCallsById,
   ApiCall,
-  ClientRequest,
+  Request,
   CoordinatorState,
   EVMProviderState,
   GroupedRequests,
@@ -20,9 +20,9 @@ export interface RequestsWithLogs {
 }
 
 function updateApiCallResponse(
-  apiCall: ClientRequest<ApiCall>,
+  apiCall: Request<ApiCall>,
   aggregatedApiCallsById: AggregatedApiCallsById
-): LogsData<ClientRequest<ApiCall>> {
+): LogsData<Request<ApiCall>> {
   if (apiCall.status !== RequestStatus.Pending) {
     const message = `Not applying response value to Request:${apiCall.id} as it has status:${apiCall.status}`;
     const log = logger.pend('DEBUG', message);

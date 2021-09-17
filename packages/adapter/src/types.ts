@@ -59,11 +59,11 @@ export interface ReservedParameters {
 }
 
 export type MetadataParameterKeysV1 =
-  | '_airnode_airnode_id'
-  | '_airnode_client_address'
-  | '_airnode_designated_wallet'
+  | '_airnode_airnode_address'
+  | '_airnode_requester_address'
+  | '_airnode_sponsor_wallet'
   | '_airnode_endpoint_id'
-  | '_airnode_requester_index'
+  | '_airnode_sponsor_address'
   | '_airnode_request_id'
   | '_airnode_chain_id'
   | '_airnode_chain_type'

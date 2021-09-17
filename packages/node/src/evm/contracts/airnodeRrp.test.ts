@@ -8,29 +8,24 @@ describe('AirnodeRrp', () => {
       .sort();
 
     expect(functions).toEqual([
+      'airnodeToXpub',
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
-      'clientAddressToNoRequests',
-      'createRequester',
       'createTemplate',
       'fail',
       'fulfill',
       'fulfillWithdrawal',
-      'getAirnodeParameters',
-      'getAirnodeParametersAndBlockNumber',
-      'getTemplate',
       'getTemplates',
       'makeFullRequest',
-      'makeRequest',
+      'makeTemplateRequest',
       'requestWithIdHasFailed',
       'requestWithdrawal',
-      'requesterIndexToAdmin',
-      'requesterIndexToClientAddressToEndorsementStatus',
-      'requesterIndexToNextWithdrawalRequestIndex',
-      'setAirnodeParameters',
-      'setAirnodeParametersAndForwardFunds',
-      'setClientEndorsementStatus',
-      'setRequesterAdmin',
+      'requesterToRequestCountPlusOne',
+      'setAirnodeXpub',
+      'setSponsorshipStatus',
+      'sponsorToRequesterToSponsorshipStatus',
+      'sponsorToWithdrawalRequestCount',
+      'templates',
     ]);
   });
 
@@ -40,17 +35,15 @@ describe('AirnodeRrp', () => {
       .map((fn: any) => fn.name)
       .sort();
     expect(events).toEqual([
-      'AirnodeParametersSet',
-      'ClientEndorsementStatusSet',
-      'ClientFullRequestCreated',
-      'ClientRequestCreated',
-      'ClientRequestFailed',
-      'ClientRequestFulfilled',
-      'RequesterCreated',
-      'RequesterUpdated',
-      'TemplateCreated',
-      'WithdrawalFulfilled',
-      'WithdrawalRequested',
+      'CreatedTemplate',
+      'FailedRequest',
+      'FulfilledRequest',
+      'FulfilledWithdrawal',
+      'MadeFullRequest',
+      'MadeTemplateRequest',
+      'RequestedWithdrawal',
+      'SetAirnodeXpub',
+      'SetSponsorshipStatus',
     ]);
   });
 
@@ -59,35 +52,35 @@ describe('AirnodeRrp', () => {
     expect.assertions(7);
 
     expect(Object.keys(airnodeRrpTopics).sort()).toEqual([
-      'ClientFullRequestCreated',
-      'ClientRequestCreated',
-      'ClientRequestFailed',
-      'ClientRequestFulfilled',
-      'WithdrawalFulfilled',
-      'WithdrawalRequested',
+      'FailedRequest',
+      'FulfilledRequest',
+      'FulfilledWithdrawal',
+      'MadeFullRequest',
+      'MadeTemplateRequest',
+      'RequestedWithdrawal',
     ]);
 
     // API calls
-    expect(airnodeRrpTopics.ClientRequestCreated).toEqual(
-      '0x8339fddbb81e588a9ed04dec82ee9ae6c7a185f44835adaaa2ace50ce3a14aaf'
+    expect(airnodeRrpTopics.MadeTemplateRequest).toEqual(
+      '0xeb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c3203'
     );
-    expect(airnodeRrpTopics.ClientFullRequestCreated).toEqual(
-      '0xe8ae99161b1547fd1c6ff3cb9660293fa4cd770fd52f72ff0362d64d8bccc08e'
+    expect(airnodeRrpTopics.MadeFullRequest).toEqual(
+      '0x3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae'
     );
 
-    expect(airnodeRrpTopics.ClientRequestFulfilled).toEqual(
-      '0xcde46e28d8d3e348e5f5b4fcc511fe3b1f9b0f549cd8332f0da31802a6f2bf61'
+    expect(airnodeRrpTopics.FulfilledRequest).toEqual(
+      '0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066'
     );
-    expect(airnodeRrpTopics.ClientRequestFailed).toEqual(
-      '0x1cfdd5ace64f15111ef8ed9df04364d0e9a9165cccf8386109347e54661ba3ad'
+    expect(airnodeRrpTopics.FailedRequest).toEqual(
+      '0x8c087e42b178608800a2ea8b3d009bdbbf75e0d23426510c2edd447d4f8b8ebd'
     );
 
     // Withdrawals
-    expect(airnodeRrpTopics.WithdrawalRequested).toEqual(
-      '0x3d0ebccb4fc9730699221da0180970852f595ed5c78781346149123cbbe9f1d3'
+    expect(airnodeRrpTopics.RequestedWithdrawal).toEqual(
+      '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7'
     );
-    expect(airnodeRrpTopics.WithdrawalFulfilled).toEqual(
-      '0x9e7b58b29aa3b972bb0f457499d0dfd00bf23905b0c3358fb864e7120402aefa'
+    expect(airnodeRrpTopics.FulfilledWithdrawal).toEqual(
+      '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e'
     );
   });
 });

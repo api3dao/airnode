@@ -55,7 +55,7 @@ describe('mergeAuthorizations', () => {
   it('invalidates the request if it is not authorized', () => {
     const apiCall = fixtures.requests.buildApiCall({
       id: '0xapiCallId',
-      clientAddress: '0xclientAddress',
+      requesterAddress: '0xrequesterAddress',
       endpointId: '0xendpointId',
     });
     const authorizationByRequestId = { '0xapiCallId': false };
@@ -64,7 +64,7 @@ describe('mergeAuthorizations', () => {
       {
         level: 'WARN',
         message:
-          'Client:0xclientAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:0xapiCallId',
+          'Requester:0xrequesterAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:0xapiCallId',
       },
     ]);
     expect(res).toEqual([{ ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.Unauthorized }]);

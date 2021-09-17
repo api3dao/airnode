@@ -7,16 +7,16 @@ import {
   EVMEventLog,
   AirnodeRrpFilters,
   AirnodeRrpLog,
-  EVMRequestCreatedLog,
-  EVMRequestFulfilledLog,
-  EVMWithdrawalFulfilledLog,
-  EVMWithdrawalRequestLog,
+  EVMMadeRequestLog,
+  EVMFulfilledRequestLog,
+  EVMFulfilledWithdrawalLog,
+  EVMRequestedWithdrawalLog,
   AirnodeLogDescription,
 } from '../../types';
 
-interface FetchOptions {
+export interface FetchOptions {
   readonly address: string;
-  readonly airnodeId: string;
+  readonly airnodeAddress: string;
   readonly blockHistoryLimit: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
@@ -24,8 +24,8 @@ interface FetchOptions {
 }
 
 interface GroupedLogs {
-  readonly apiCalls: (EVMRequestCreatedLog | EVMRequestFulfilledLog)[];
-  readonly withdrawals: (EVMWithdrawalFulfilledLog | EVMWithdrawalRequestLog)[];
+  readonly apiCalls: (EVMMadeRequestLog | EVMFulfilledRequestLog)[];
+  readonly withdrawals: (EVMFulfilledWithdrawalLog | EVMRequestedWithdrawalLog)[];
 }
 
 export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
@@ -44,9 +44,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
     fromBlock,
     toBlock: options.currentBlock,
     address: options.address,
-    // Ethers types don't support null for a topic, even though it's valid
-    // @ts-ignore
-    topics: [null, options.airnodeId],
+    topics: [null, ethers.utils.hexZeroPad(options.airnodeAddress, 32)],
   };
 
   const operation = () => options.provider.getLogs(filter);

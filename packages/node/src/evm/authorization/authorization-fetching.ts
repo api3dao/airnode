@@ -5,30 +5,32 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import * as logger from '../../logger';
 import { go } from '../../utils/promise-utils';
-import { ApiCall, AuthorizationByRequestId, ClientRequest, LogsData, RequestStatus } from '../../types';
+import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestStatus } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
 
-interface FetchOptions {
-  readonly airnodeId: string;
+export interface FetchOptions {
+  readonly authorizers: string[];
+  readonly airnodeAddress: string;
   readonly airnodeRrpAddress: string;
   readonly provider: ethers.providers.JsonRpcProvider;
 }
 
 export async function fetchAuthorizationStatus(
   airnodeRrp: AirnodeRrp,
-  airnodeId: string,
-  apiCall: ClientRequest<ApiCall>
+  authorizers: string[],
+  airnodeAddress: string,
+  apiCall: Request<ApiCall>
 ): Promise<LogsData<boolean | null>> {
   const contractCall = () =>
     airnodeRrp.checkAuthorizationStatus(
-      airnodeId,
+      authorizers,
+      airnodeAddress,
       apiCall.id,
       // TODO: make sure endpointId is not null
       apiCall.endpointId!,
-      apiCall.requesterIndex,
-      apiCall.designatedWallet,
-      apiCall.clientAddress
+      apiCall.sponsorAddress,
+      apiCall.requesterAddress
     );
 
   const [err, authorized] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
@@ -42,25 +44,25 @@ export async function fetchAuthorizationStatus(
 
 async function fetchAuthorizationStatuses(
   airnodeRrp: AirnodeRrp,
-  airnodeId: string,
-  apiCalls: ClientRequest<ApiCall>[]
+  authorizers: string[],
+  airnodeAddress: string,
+  apiCalls: Request<ApiCall>[]
 ): Promise<LogsData<AuthorizationByRequestId | null>> {
   // Ordering must remain the same when mapping these two arrays
   const requestIds = apiCalls.map((a) => a.id);
   const endpointIds = apiCalls.map((a) => a.endpointId);
-  const requesterIndices = apiCalls.map((a) => a.requesterIndex);
-  const designatedWallets = apiCalls.map((a) => a.designatedWallet);
-  const clientAddresses = apiCalls.map((a) => a.clientAddress);
+  const sponsorAddresses = apiCalls.map((a) => a.sponsorAddress);
+  const requesterAddresses = apiCalls.map((a) => a.requesterAddress);
 
   const contractCall = () =>
     airnodeRrp.checkAuthorizationStatuses(
-      airnodeId,
+      authorizers,
+      airnodeAddress,
       requestIds,
       // TODO: make sure all endpointIds are non null
       endpointIds as string[],
-      requesterIndices,
-      designatedWallets,
-      clientAddresses
+      sponsorAddresses,
+      requesterAddresses
     );
 
   const [err, data] = await go(contractCall, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
@@ -70,7 +72,7 @@ async function fetchAuthorizationStatuses(
     // If the authorization batch cannot be fetched, fallback to fetching authorizations individually
     const promises: Promise<LogsData<{ readonly id: string; readonly authorized: boolean | null }>>[] = apiCalls.map(
       async (apiCall) => {
-        const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, airnodeId, apiCall);
+        const [logs, authorized] = await fetchAuthorizationStatus(airnodeRrp, authorizers, airnodeAddress, apiCall);
         const data = { id: apiCall.id, authorized };
         const result: LogsData<{ readonly id: string; readonly authorized: boolean | null }> = [logs, data];
         return result;
@@ -95,7 +97,7 @@ async function fetchAuthorizationStatuses(
 }
 
 export async function fetch(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsData<AuthorizationByRequestId>> {
   // If an API call has a templateId but the template failed to load, then we cannot process
@@ -107,6 +109,14 @@ export async function fetch(
     return [[], {}];
   }
 
+  // If there are no authorizer contracts then endpoint is public
+  if (isEmpty(fetchOptions.authorizers)) {
+    const authorizationByRequestIds = pendingApiCalls.map((pendingApiCall) => ({
+      [pendingApiCall.id]: true,
+    }));
+    return [[], Object.assign({}, ...authorizationByRequestIds) as AuthorizationByRequestId];
+  }
+
   // Request groups of 10 at a time
   const groupedPairs = chunk(pendingApiCalls, CONVENIENCE_BATCH_SIZE);
 
@@ -114,7 +124,9 @@ export async function fetch(
   const airnodeRrp = AirnodeRrpFactory.connect(fetchOptions.airnodeRrpAddress, fetchOptions.provider);
 
   // Fetch all authorization statuses in parallel
-  const promises = groupedPairs.map((pairs) => fetchAuthorizationStatuses(airnodeRrp, fetchOptions.airnodeId, pairs));
+  const promises = groupedPairs.map((pairs) =>
+    fetchAuthorizationStatuses(airnodeRrp, fetchOptions.authorizers, fetchOptions.airnodeAddress, pairs)
+  );
 
   const responses = await Promise.all(promises);
   const responseLogs = flatMap(responses, (r) => r[0]);

@@ -77,11 +77,11 @@ describe('callApi', () => {
             endpointName: 'convertToUSD',
             metadataParameters: {
               ...(expectMetadata && {
-                _airnode_airnode_id: aggregatedCall.airnodeId,
-                _airnode_client_address: aggregatedCall.clientAddress,
-                _airnode_designated_wallet: aggregatedCall.designatedWallet,
+                _airnode_airnode_address: aggregatedCall.airnodeAddress,
+                _airnode_requester_address: aggregatedCall.requesterAddress,
+                _airnode_sponsor_wallet: aggregatedCall.sponsorWallet,
                 _airnode_endpoint_id: aggregatedCall.endpointId,
-                _airnode_requester_index: aggregatedCall.requesterIndex,
+                _airnode_sponsor_address: aggregatedCall.sponsorAddress,
                 _airnode_request_id: aggregatedCall.id,
                 _airnode_chain_id: aggregatedCall.chainId,
                 _airnode_chain_type: config.chains[0].type,

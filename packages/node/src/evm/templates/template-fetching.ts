@@ -7,7 +7,7 @@ import uniq from 'lodash/uniq';
 import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import { AirnodeRrp, AirnodeRrpFactory } from '../contracts';
-import { ApiCall, ApiCallTemplate, ClientRequest, LogsData } from '../../types';
+import { ApiCall, ApiCallTemplate, Request, LogsData } from '../../types';
 import { CONVENIENCE_BATCH_SIZE, DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 
 export interface FetchOptions {
@@ -23,7 +23,7 @@ export async function fetchTemplate(
   airnodeRrp: AirnodeRrp,
   templateId: string
 ): Promise<LogsData<ApiCallTemplate | null>> {
-  const operation = () => airnodeRrp.getTemplate(templateId);
+  const operation = () => airnodeRrp.templates(templateId);
   const [err, rawTemplate] = await go(operation, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err || !rawTemplate) {
     const log = logger.pend('ERROR', `Failed to fetch API call template:${templateId}`, err);
@@ -33,9 +33,9 @@ export async function fetchTemplate(
   const successLog = logger.pend('INFO', `Fetched API call template:${templateId}`);
 
   const template: ApiCallTemplate = {
-    airnodeId: rawTemplate.airnodeId,
-    encodedParameters: rawTemplate.parameters,
+    airnodeAddress: rawTemplate.airnode,
     endpointId: rawTemplate.endpointId,
+    encodedParameters: rawTemplate.parameters,
     id: templateId,
   };
   return [[successLog], template];
@@ -43,7 +43,6 @@ export async function fetchTemplate(
 
 async function fetchTemplateGroup(
   airnodeRrp: AirnodeRrp,
-  // eslint-disable-next-line functional/prefer-readonly-type
   templateIds: string[]
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const contractCall = () => airnodeRrp.getTemplates(templateIds);
@@ -67,9 +66,9 @@ async function fetchTemplateGroup(
     // Templates are always returned in the same order that they
     // are called with
     const template: ApiCallTemplate = {
-      airnodeId: rawTemplates.airnodeIds[index],
-      encodedParameters: rawTemplates.parameters[index],
+      airnodeAddress: rawTemplates.airnodes[index],
       endpointId: rawTemplates.endpointIds[index],
+      encodedParameters: rawTemplates.parameters[index],
       id: templateId,
     };
     return { ...acc, [templateId]: template };
@@ -79,7 +78,7 @@ async function fetchTemplateGroup(
 }
 
 export async function fetch(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   fetchOptions: FetchOptions
 ): Promise<LogsData<ApiCallTemplatesById>> {
   const templateIds = apiCalls.filter((a) => a.templateId).map((a) => a.templateId);

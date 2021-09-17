@@ -1,16 +1,16 @@
 import { ethers } from 'ethers';
-import { deriveExtendedPublicKey, deriveWalletFromPath } from '../utils';
-import { Airnode, DeployState as State, RequesterAccount } from '../../types';
+import { Airnode, DeployState as State, SponsorWallet, SponsorAccount } from '../../types';
+import { deriveExtendedPublicKey, deriveWalletFromMnemonic, getSponsorWallet } from '../utils';
 
 export async function assignAirnodeAccounts(state: State): Promise<State> {
   const airnodesByName: { [name: string]: Airnode } = {};
   for (const airnodeName of Object.keys(state.config.airnodes)) {
     const airnode = state.config.airnodes[airnodeName];
-    const airnodeWallet = deriveWalletFromPath(airnode.mnemonic, 'm', state.provider);
+    const airnodeWallet = deriveWalletFromMnemonic(airnode.mnemonic, state.provider);
     const xpub = deriveExtendedPublicKey(airnode.mnemonic);
 
     airnodesByName[airnodeName] = {
-      masterWalletAddress: airnodeWallet.address,
+      airnodeWalletAddress: airnodeWallet.address,
       mnemonic: airnode.mnemonic,
       signer: airnodeWallet,
       xpub,
@@ -20,45 +20,34 @@ export async function assignAirnodeAccounts(state: State): Promise<State> {
 }
 
 export async function assignRequesterAccounts(state: State): Promise<State> {
-  const { AirnodeRrp } = state.contracts;
+  const sponsorsById: { [id: string]: SponsorAccount } = {};
+  for (const configSponsor of state.config.sponsors) {
+    const sponsorWallet = ethers.Wallet.createRandom().connect(state.provider);
+    const sponsorAddress = sponsorWallet.address;
 
-  const requestersById: { [id: string]: RequesterAccount } = {};
-  for (const configRequester of state.config.requesters) {
-    const requesterWallet = ethers.Wallet.createRandom().connect(state.provider);
-    const requesterAddress = requesterWallet.address;
-
-    const tx = await AirnodeRrp!.connect(state.deployer).createRequester(requesterAddress);
-    await tx.wait();
-
-    const logs = await state.provider.getLogs({
-      fromBlock: 0,
-      address: AirnodeRrp!.address,
-    });
-
-    const log = logs.find((log) => log.transactionHash === tx.hash);
-    const parsedLog = AirnodeRrp!.interface.parseLog(log!);
-    const requesterIndex = parsedLog.args.requesterIndex;
-
-    requestersById[configRequester.id] = {
-      address: requesterAddress,
-      designatedWallets: [],
-      requesterIndex,
-      signer: requesterWallet,
+    sponsorsById[configSponsor.id] = {
+      address: sponsorAddress,
+      sponsorWallets: [],
+      signer: sponsorWallet,
     };
   }
 
-  return { ...state, requestersById };
+  return { ...state, sponsorsById };
 }
 
-export async function assignDesignatedWallets(state: State) {
-  const requestersById: { [id: string]: RequesterAccount } = {};
-  for (const configRequester of state.config.requesters) {
-    const requester = state.requestersById[configRequester.id];
-    const designatedAirnodeNames = Object.keys(configRequester.airnodes);
+export async function assignSponsorWallets(state: State): Promise<State> {
+  const sponsorsById: { [id: string]: SponsorAccount } = {};
+  for (const configSponsor of state.config.sponsors) {
+    const sponsor = state.sponsorsById[configSponsor.id];
+    const airnodeNames = Object.keys(configSponsor.airnodes);
 
-    const designatedWallets = designatedAirnodeNames.map((airnodeName) => {
+    const sponsorWallets: SponsorWallet[] = airnodeNames.map((airnodeName) => {
       const airnode = state.airnodesByName[airnodeName];
-      const wallet = deriveWalletFromPath(airnode.mnemonic, `m/0/${requester.requesterIndex}`, state.provider);
+      const wallet = getSponsorWallet(
+        airnode.mnemonic, // Here we have access to airnode wallet mnemonic but in real life a sponsor will only have access to the xpub
+        state.provider,
+        sponsor.address
+      );
       return {
         address: wallet.address,
         airnodeName: airnodeName,
@@ -66,8 +55,8 @@ export async function assignDesignatedWallets(state: State) {
       };
     });
 
-    requestersById[configRequester.id] = { ...requester, designatedWallets };
+    sponsorsById[configSponsor.id] = { ...sponsor, sponsorWallets };
   }
 
-  return { ...state, requestersById };
+  return { ...state, sponsorsById };
 }

@@ -16,11 +16,11 @@ function buildMetadataParameters(
   switch (reservedParameters._relay_metadata?.toLowerCase()) {
     case 'v1': {
       const metadataParametersV1: adapter.MetadataParametersV1 = {
-        _airnode_airnode_id: aggregatedApiCall.airnodeId,
-        _airnode_client_address: aggregatedApiCall.clientAddress,
-        _airnode_designated_wallet: aggregatedApiCall.designatedWallet,
+        _airnode_airnode_address: aggregatedApiCall.airnodeAddress,
+        _airnode_requester_address: aggregatedApiCall.requesterAddress,
+        _airnode_sponsor_wallet: aggregatedApiCall.sponsorWallet,
         _airnode_endpoint_id: aggregatedApiCall.endpointId,
-        _airnode_requester_index: aggregatedApiCall.requesterIndex,
+        _airnode_sponsor_address: aggregatedApiCall.sponsorAddress,
         _airnode_request_id: aggregatedApiCall.id,
         _airnode_chain_id: aggregatedApiCall.chainId,
         _airnode_chain_type: chain.type,

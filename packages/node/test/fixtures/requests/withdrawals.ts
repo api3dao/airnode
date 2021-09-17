@@ -1,18 +1,17 @@
 import { buildMetadata } from './metadata';
-import { ClientRequest, RequestStatus, Withdrawal } from '../../../src/types';
+import { Request, RequestStatus, Withdrawal } from '../../../src/types';
 
-export function buildWithdrawal(params?: Partial<ClientRequest<Withdrawal>>): ClientRequest<Withdrawal> {
+export function buildWithdrawal(params?: Partial<Request<Withdrawal>>): Request<Withdrawal> {
   const metadata = buildMetadata();
 
   // These fields have invalid values on purpose to allow for easier reading. When necessary,
   // they can be overridden with valid values
   return {
-    airnodeId: 'airnodeId',
-    designatedWallet: 'designatedWallet',
-    destinationAddress: 'destinationAddress',
+    airnodeAddress: 'airnodeAddress',
+    sponsorWallet: 'sponsorWallet',
     id: 'withdrawalId',
     metadata,
-    requesterIndex: '1',
+    sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
     status: RequestStatus.Pending,
     ...params,
   };

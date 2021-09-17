@@ -1,10 +1,7 @@
 {
   "chains": [
     {
-      "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
-      "authorizers": [
-        "0x0000000000000000000000000000000000000000"
-      ],
+      "authorizers": [],
       "contracts": {
         "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
       },

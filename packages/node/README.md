@@ -69,7 +69,7 @@ src/
 ├── coordinator/         # The "main" function that oversees execution and state
 │   └── calls/           # Aggregating, executing and disaggregating API calls
 ├── evm/                 # EVM specific code
-│   ├── authorization/   # Authorizing clients and requests
+│   ├── authorization/   # Authorizing requesters and requests
 │   ├── contracts/       # Contract addresses and ABIs
 │   ├── fulfillments/    # Fulfilling EVM requests
 │   ├── handlers/        # EVM specific "pipeline" implementations
@@ -142,9 +142,13 @@ yarn run test:node
 # Watches all changes to node files and re-runs tests when one is changed
 yarn run test:node:watch
 
+# Watches all changes to a specific node file and re-runs tests when it is changed
+yarn run test:node:watch -f src/evm/handlers/initialize-provider.test.ts
+
 # From the node package
 yarn run test
 yarn run test:watch
+yarn run test:watch -f evm/handlers/initialize-provider.test.ts
 ```
 
 ### E2E tests

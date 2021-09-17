@@ -7,11 +7,10 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     deployerIndex: 0,
     airnodes: {
       CurrencyConverterAirnode: {
-        airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
         // We need to create a new mnemonic each time otherwise E2E tests
         // will share the same Airnode wallet
         mnemonic: ethers.Wallet.createRandom().mnemonic.phrase,
-        authorizers: ['public'],
+        authorizers: [],
         endpoints: {
           convertToUSD: {
             oisTitle: 'Currency Converter API',
@@ -32,13 +31,11 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
         },
       },
     },
-    authorizers: {
-      public: '0x0000000000000000000000000000000000000000',
+    authorizers: {},
+    requesters: {
+      MockRrpRequesterFactory: { sponsors: ['bob'] },
     },
-    clients: {
-      MockAirnodeRrpClientFactory: { endorsers: ['bob'] },
-    },
-    requesters: [
+    sponsors: [
       {
         id: 'alice',
         airnodes: {
@@ -54,21 +51,21 @@ export function buildDeployConfig(config?: Partial<Config>): Config {
     ],
     requests: [
       {
-        requesterId: 'bob',
-        type: 'regular',
+        sponsorId: 'bob',
+        type: 'template',
         airnode: 'CurrencyConverterAirnode',
         template: 'template-1',
-        client: 'MockAirnodeRrpClientFactory',
+        requester: 'MockRrpRequesterFactory',
         fulfillFunctionName: 'fulfill',
         parameters: [{ type: 'bytes32', name: 'from', value: 'ETH' }],
       },
       {
-        requesterId: 'bob',
+        sponsorId: 'bob',
         type: 'full',
         airnode: 'CurrencyConverterAirnode',
         endpoint: 'convertToUSD',
         oisTitle: 'Currency Converter API',
-        client: 'MockAirnodeRrpClientFactory',
+        requester: 'MockRrpRequesterFactory',
         fulfillFunctionName: 'fulfill',
         parameters: [
           { type: 'bytes32', name: 'from', value: 'ETH' },

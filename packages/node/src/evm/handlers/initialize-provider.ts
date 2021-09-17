@@ -1,7 +1,6 @@
 import { fetchPendingRequests } from './fetch-pending-requests';
 import { go } from '../../utils/promise-utils';
 import * as authorizations from '../authorization';
-import * as initialization from '../initialization';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import * as state from '../../providers/state';
@@ -13,8 +12,9 @@ import { EVMProviderState, PendingLog, ProviderState } from '../../types';
 type ParallelPromise = Promise<{ readonly id: string; readonly data: any; readonly logs: PendingLog[] }>;
 
 async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>) {
-  const fetchOptions = {
-    airnodeId: currentState.settings.airnodeId,
+  const fetchOptions: authorizations.FetchOptions = {
+    authorizers: currentState.settings.authorizers,
+    airnodeAddress: currentState.settings.airnodeAddress,
     airnodeRrpAddress: currentState.contracts.AirnodeRrp,
     provider: currentState.provider,
   };
@@ -23,14 +23,14 @@ async function fetchAuthorizations(currentState: ProviderState<EVMProviderState>
 }
 
 async function fetchTransactionCounts(currentState: ProviderState<EVMProviderState>) {
-  const requesterIndices = requests.mapUniqueRequesterIndices(currentState.requests);
+  const sponsors = requests.mapUniqueSponsorAddresses(currentState.requests);
   const fetchOptions = {
     currentBlock: currentState.currentBlock!,
     masterHDNode: currentState.masterHDNode,
     provider: currentState.provider,
   };
   // This should not throw
-  const [logs, res] = await transactionCounts.fetchByRequesterIndex(requesterIndices, fetchOptions);
+  const [logs, res] = await transactionCounts.fetchBySponsor(sponsors, fetchOptions);
   return { id: 'transaction-counts', data: res, logs };
 }
 
@@ -51,32 +51,10 @@ export async function initializeProvider(
   const state1 = state.refresh(initialState);
 
   // =================================================================
-  // STEP 2: Get current block number, and verify or set Airnode parameters
+  // STEP 2: Get current block number
   // =================================================================
-  const airnodeParametersFetchOptions = {
-    airnodeAdmin: state1.settings.airnodeAdmin,
-    airnodeRrpAddress: state1.contracts.AirnodeRrp,
-    authorizers: state1.settings.authorizers,
-    masterHDNode: state1.masterHDNode,
-    provider: state1.provider,
-  };
-  const [airnodeParametersLogs, airnodeParametersData] = await initialization.verifyOrSetAirnodeParameters(
-    airnodeParametersFetchOptions
-  );
-  logger.logPending(airnodeParametersLogs, baseLogOptions);
-
-  // If there is no Airnode parameters data, something has gone wrong
-  if (!airnodeParametersData) {
-    return null;
-  }
-
-  // If the Airnode parameters do not yet exist onchain then we can't start processing anything.
-  // This is to be expected for new Airnode deployments and is not an error case
-  if (airnodeParametersData.xpub === '') {
-    return state1;
-  }
-
-  const state2 = state.update(state1, { currentBlock: airnodeParametersData.blockNumber });
+  const currentBlock = await state1.provider.getBlockNumber();
+  const state2 = state.update(state1, { currentBlock });
 
   // =================================================================
   // STEP 3: Get the pending actionable items from triggers
@@ -116,13 +94,13 @@ export async function initializeProvider(
   });
 
   // =================================================================
-  // STEP 5: Verify API calls
+  // STEP 5: Verify requests
   // =================================================================
-  const [verifyLogs, verifiedApiCalls] = verification.verifyDesignatedWallets(
+  const [verifyApiCallLogs, verifiedApiCalls] = verification.verifySponsorWallets(
     state4.requests.apiCalls,
     state4.masterHDNode
   );
-  logger.logPending(verifyLogs, baseLogOptions);
+  logger.logPending(verifyApiCallLogs, baseLogOptions);
 
   const [verifyRrpTriggersLogs, verifiedApiCallsForRrpTriggers] = verification.verifyRrpTriggers(
     verifiedApiCalls,
@@ -131,8 +109,14 @@ export async function initializeProvider(
   );
   logger.logPending(verifyRrpTriggersLogs, baseLogOptions);
 
+  const [verifyWithdrawalLogs, verifiedWithdrawals] = verification.verifySponsorWallets(
+    state4.requests.withdrawals,
+    state4.masterHDNode
+  );
+  logger.logPending(verifyWithdrawalLogs, baseLogOptions);
+
   const state5 = state.update(state4, {
-    requests: { ...state3.requests, apiCalls: verifiedApiCallsForRrpTriggers },
+    requests: { ...state3.requests, apiCalls: verifiedApiCallsForRrpTriggers, withdrawals: verifiedWithdrawals },
   });
 
   // =================================================================
@@ -152,10 +136,10 @@ export async function initializeProvider(
   const authRes = authAndTxResults.find((r) => r.id === 'authorizations')!;
   logger.logPending(authRes.logs, baseLogOptions);
 
-  const transactionCountsByRequesterIndex = txCountRes.data!;
+  const transactionCountsBySponsorAddress = txCountRes.data!;
   const authorizationsByRequestId = authRes.data!;
 
-  const state6 = state.update(state5, { transactionCountsByRequesterIndex });
+  const state6 = state.update(state5, { transactionCountsBySponsorAddress });
 
   // =================================================================
   // STEP 7: Apply authorization statuses to requests

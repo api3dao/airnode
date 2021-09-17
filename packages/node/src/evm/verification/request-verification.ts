@@ -3,32 +3,32 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, ClientRequest, LogsData, RequestErrorCode, RequestStatus, RrpTrigger } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorCode, RequestStatus, RrpTrigger } from '../../types';
 
-export function verifyDesignatedWallets<T>(
-  requests: ClientRequest<T>[],
+export function verifySponsorWallets<T>(
+  requests: Request<T>[],
   masterHDNode: ethers.utils.HDNode
-): LogsData<ClientRequest<T>[]> {
-  const logsWithVerifiedRequests: LogsData<ClientRequest<T>>[] = requests.map((request) => {
+): LogsData<Request<T>[]> {
+  const logsWithVerifiedRequests: LogsData<Request<T>>[] = requests.map((request) => {
     if (request.status !== RequestStatus.Pending) {
-      const message = `Designated wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
+      const message = `Sponsor wallet verification skipped for Request:${request.id} as it has status:${request.status}`;
       const log = logger.pend('DEBUG', message);
       return [[log], request];
     }
 
-    const expectedDesignatedWallet = wallet.deriveWalletAddressFromIndex(masterHDNode, request.requesterIndex);
-    if (request.designatedWallet !== expectedDesignatedWallet) {
-      const message = `Invalid designated wallet:${request.designatedWallet} for Request:${request.id}. Expected:${expectedDesignatedWallet}`;
+    const expectedSponsorWallet = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
+    if (request.sponsorWallet !== expectedSponsorWallet) {
+      const message = `Invalid sponsor wallet:${request.sponsorWallet} for Request:${request.id}. Expected:${expectedSponsorWallet}`;
       const log = logger.pend('ERROR', message);
       const updatedRequest = {
         ...request,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.DesignatedWalletInvalid,
+        errorCode: RequestErrorCode.SponsorWalletInvalid,
       };
       return [[log], updatedRequest];
     }
 
-    const message = `Request ID:${request.id} is linked to a valid designated wallet:${request.designatedWallet}`;
+    const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWallet}`;
     const log = logger.pend('DEBUG', message);
     return [[log], request];
   });
@@ -39,11 +39,11 @@ export function verifyDesignatedWallets<T>(
 }
 
 export function verifyRrpTriggers(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   rrpTriggers: RrpTrigger[],
   oises: OIS[]
-): LogsData<ClientRequest<ApiCall>[]> {
-  const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
+): LogsData<Request<ApiCall>[]> {
+  const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (apiCall.status !== RequestStatus.Pending) {
       const message = `Trigger verification skipped for Request:${apiCall.id} as it has status:${apiCall.status}`;
       const log = logger.pend('DEBUG', message);
@@ -51,7 +51,7 @@ export function verifyRrpTriggers(
     }
 
     const rrpTrigger = rrpTriggers.find((t) => t.endpointId === apiCall.endpointId);
-    // If the request is for an unknown endpointId, the problem is with the requesting client contract
+    // If the request is for an unknown endpointId, the problem is with the requesting requester contract
     if (!rrpTrigger) {
       const message = `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`;
       const log = logger.pend('WARN', message);

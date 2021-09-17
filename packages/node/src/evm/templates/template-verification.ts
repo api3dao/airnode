@@ -1,25 +1,25 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import { ApiCall, ApiCallTemplate, ClientRequest, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, ApiCallTemplate, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
 
 interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
 }
 
-export const TEMPLATE_VALIDATION_FIELDS = ['airnodeId', 'endpointId', 'encodedParameters'];
+export const TEMPLATE_VALIDATION_FIELDS = ['airnodeAddress', 'endpointId', 'encodedParameters'];
 
 export function getExpectedTemplateId(template: ApiCallTemplate): string {
   const templateValues = TEMPLATE_VALIDATION_FIELDS.map((f) => template[f as keyof ApiCallTemplate]);
-  const encodedValues = ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes'], templateValues);
+  const encodedValues = ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], templateValues);
   return ethers.utils.keccak256(encodedValues);
 }
 
 export function verify(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   templatesById: ApiCallTemplatesById
-): LogsData<ClientRequest<ApiCall>[]> {
-  const logsWithVerifiedApiCalls: LogsData<ClientRequest<ApiCall>>[] = apiCalls.map((apiCall) => {
+): LogsData<Request<ApiCall>[]> {
+  const logsWithVerifiedApiCalls: LogsData<Request<ApiCall>>[] = apiCalls.map((apiCall) => {
     if (!apiCall.templateId) {
       return [[], apiCall];
     }

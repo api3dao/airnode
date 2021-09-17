@@ -16,31 +16,37 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
+    const sponsorAddress = '0x64b7d7c64A534086EfF591B73fcFa912feE74c69';
     const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '5',
+      sponsorAddress,
     });
     const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '5',
+      sponsorAddress,
     });
     const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '5',
+      sponsorAddress,
     });
 
     const requests: GroupedRequests = {
       apiCalls: shuffle([third, second, first]),
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 5: 3 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = {
+      [sponsorAddress]: 3,
+    };
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 3 });
     expect(res.apiCalls[1]).toEqual({ ...second, nonce: 4 });
@@ -52,48 +58,74 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
+    const sponsorAddress = '0x1d822613f7cC57Be9c9b6C3cC0Bf41b4FB4D97f9';
     const first = fixtures.requests.buildWithdrawal({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '7',
+      sponsorAddress,
     });
     const second = fixtures.requests.buildWithdrawal({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '7',
+      sponsorAddress,
     });
     const third = fixtures.requests.buildWithdrawal({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '7',
+      sponsorAddress,
     });
 
     const requests: GroupedRequests = {
       apiCalls: [],
       withdrawals: shuffle([first, third, second]),
     };
-    const transactionCountsByRequesterIndex = { 7: 11 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = { [sponsorAddress]: 11 };
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
     expect(res.withdrawals[1]).toEqual({ ...second, nonce: 12 });
     expect(res.withdrawals[2]).toEqual({ ...third, nonce: 13 });
   });
 
-  it('does not share nonces between requesters', () => {
+  it('does not share nonces between sponsors', () => {
+    const sponsorAddress1 = '0x1d822613f7cC57Be9c9b6C3cC0Bf41b4FB4D97f9';
+    const sponsorAddress2 = '0x921e9021F68b89220E4b6C326592Db64D4EF9d67';
+    const sponsorAddress3 = '0x1FfAB99DB981fBef755A4C7d2Ca4EE486c08C5Da';
     const requests: GroupedRequests = {
       apiCalls: [
-        fixtures.requests.buildApiCall({ id: '0x1', requesterIndex: '7', nonce: undefined }),
-        fixtures.requests.buildApiCall({ id: '0x2', requesterIndex: '8', nonce: undefined }),
-        fixtures.requests.buildApiCall({ id: '0x3', requesterIndex: '9', nonce: undefined }),
+        fixtures.requests.buildApiCall({
+          id: '0x1',
+          sponsorAddress: sponsorAddress1,
+          nonce: undefined,
+        }),
+        fixtures.requests.buildApiCall({
+          id: '0x2',
+          sponsorAddress: sponsorAddress2,
+          nonce: undefined,
+        }),
+        fixtures.requests.buildApiCall({
+          id: '0x3',
+          sponsorAddress: sponsorAddress3,
+          nonce: undefined,
+        }),
       ],
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 7: 11, 8: 11, 9: 7 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = {
+      [sponsorAddress1]: 11,
+      [sponsorAddress2]: 11,
+      [sponsorAddress3]: 7,
+    };
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.apiCalls.find((a) => a.id === '0x1')!.nonce).toEqual(11);
     expect(res.apiCalls.find((a) => a.id === '0x2')!.nonce).toEqual(11);
@@ -106,35 +138,36 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xc' });
 
+    const sponsorAddress = '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E';
     // The second request is blocked
     const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '3',
+      sponsorAddress,
     });
     const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
       status: RequestStatus.Blocked,
-      requesterIndex: '3',
+      sponsorAddress,
     });
     const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '3',
+      sponsorAddress,
     });
 
     const requests: GroupedRequests = {
       apiCalls: shuffle([third, second, first]),
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 3: 7 };
+    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = { [sponsorAddress]: 7 };
     const state = providerState.update(mutableInitialState, {
       requests,
-      transactionCountsByRequesterIndex,
+      transactionCountsBySponsorAddress,
     });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 7 });
@@ -148,35 +181,36 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ ...meta, blockNumber: 101, transactionHash: '0xc' });
 
+    const sponsorAddress = '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E';
     // The second request is blocked
     const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '3',
+      sponsorAddress,
     });
     const second = fixtures.requests.buildApiCall({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '3',
+      sponsorAddress,
       status: RequestStatus.Blocked,
     });
     const third = fixtures.requests.buildApiCall({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '3',
+      sponsorAddress,
     });
 
     const requests: GroupedRequests = {
       apiCalls: shuffle([third, second, first]),
       withdrawals: [],
     };
-    const transactionCountsByRequesterIndex = { 3: 7 };
+    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = { [sponsorAddress]: 7 };
     const state = providerState.update(mutableInitialState, {
       requests,
-      transactionCountsByRequesterIndex,
+      transactionCountsBySponsorAddress,
     });
     const res = nonces.assign(state);
     expect(res.apiCalls[0]).toEqual({ ...first, nonce: 7 });
@@ -189,25 +223,26 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
+    const sponsorAddress = '0x1d822613f7cC57Be9c9b6C3cC0Bf41b4FB4D97f9';
     const first = fixtures.requests.buildWithdrawal({
       id: '0x1',
       nonce: undefined,
       metadata: firstMeta,
-      requesterIndex: '7',
+      sponsorAddress,
       status: RequestStatus.Pending,
     });
     const second = fixtures.requests.buildWithdrawal({
       id: '0x2',
       nonce: undefined,
       metadata: secondMeta,
-      requesterIndex: '7',
+      sponsorAddress,
       status: RequestStatus.Fulfilled,
     });
     const third = fixtures.requests.buildWithdrawal({
       id: '0x3',
       nonce: undefined,
       metadata: thirdMeta,
-      requesterIndex: '7',
+      sponsorAddress,
       status: RequestStatus.Pending,
     });
 
@@ -215,8 +250,11 @@ describe('assign', () => {
       apiCalls: [],
       withdrawals: shuffle([first, third, second]),
     };
-    const transactionCountsByRequesterIndex = { 7: 11 };
-    const state = providerState.update(mutableInitialState, { requests, transactionCountsByRequesterIndex });
+    const transactionCountsBySponsorAddress: { readonly [sponsorAddress: string]: number } = { [sponsorAddress]: 11 };
+    const state = providerState.update(mutableInitialState, {
+      requests,
+      transactionCountsBySponsorAddress,
+    });
     const res = nonces.assign(state);
     expect(res.withdrawals[0]).toEqual({ ...first, nonce: 11 });
     expect(res.withdrawals[1]).toEqual({ ...second, nonce: undefined });

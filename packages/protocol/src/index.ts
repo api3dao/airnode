@@ -11,16 +11,16 @@
  * The generated code "value exports" the factories, but "type exports" the contracts.
  */
 import {
-  MockAirnodeRrpClient__factory as MockAirnodeRrpClientFactory,
+  MockRrpRequester__factory as MockRrpRequesterFactory,
   AirnodeRrp__factory as AirnodeRrpFactory,
 } from './contracts';
-import AirnodeRrpArtifact from '../artifacts/contracts/AirnodeRrp.sol/AirnodeRrp.json';
-import MockAirnodeRrpClientArtifact from '../artifacts/contracts/mock/MockAirnodeRrpClient.sol/MockAirnodeRrpClient.json';
+import AirnodeRrpArtifact from '../artifacts/contracts/rrp/AirnodeRrp.sol/AirnodeRrp.json';
+import MockRrpRequesterArtifact from '../artifacts/contracts/rrp/requesters/mock/MockRrpRequester.sol/MockRrpRequester.json';
 import AirnodeRrpDeploymentRopsten from '../deployments/ropsten/AirnodeRrp.json';
 
 const AirnodeRrpAddresses: { [chainId: number]: string } = { 3: AirnodeRrpDeploymentRopsten.receipt.contractAddress };
 const mocks = {
-  MockAirnodeRrpClientFactory,
+  MockRrpRequesterFactory,
 };
 // TODO:
 const authorizers = {};
@@ -28,5 +28,5 @@ const authorizers = {};
 // NOTE: For now, we only want to expose AirnodeRrp contract (and it's mock)
 export { AirnodeRrpAddresses, AirnodeRrpFactory, mocks, authorizers };
 // Export the artifacts for API consumers using web3
-export { AirnodeRrpArtifact, MockAirnodeRrpClientArtifact };
-export type { AirnodeRrp, MockAirnodeRrpClient, TypedEventFilter } from './contracts';
+export { AirnodeRrpArtifact, MockRrpRequesterArtifact };
+export type { AirnodeRrp, MockRrpRequester, TypedEventFilter } from './contracts';

@@ -4,14 +4,7 @@ import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import {
-  ApiCall,
-  ClientRequest,
-  LogsErrorData,
-  RequestErrorCode,
-  RequestStatus,
-  TransactionOptions,
-} from '../../types';
+import { ApiCall, Request, LogsErrorData, RequestErrorCode, RequestStatus, TransactionOptions } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 const GAS_LIMIT = 500_000;
@@ -43,7 +36,7 @@ type SubmitResponse = ethers.Transaction | null;
 // =================================================================
 async function testFulfill(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
   const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
@@ -53,11 +46,11 @@ async function testFulfill(
     `Attempting to fulfill API call with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const operation = () =>
+  const operation = (): Promise<StaticResponse> =>
     airnodeRrp.callStatic.fulfill(
       request.id,
-      // TODO: make sure airnodeId is not null
-      request.airnodeId!,
+      // TODO: make sure airnodeAddress is not null
+      request.airnodeAddress!,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -78,7 +71,7 @@ async function testFulfill(
 
 async function submitFulfill(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
@@ -88,11 +81,11 @@ async function submitFulfill(
     `Submitting API call fulfillment with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const tx = () =>
+  const tx = (): Promise<ethers.Transaction> =>
     airnodeRrp.fulfill(
       request.id,
-      // TODO: make sure airnodeId is not null
-      request.airnodeId!,
+      // TODO: make sure airnodeAddress is not null
+      request.airnodeAddress!,
       statusCode,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
@@ -112,12 +105,12 @@ async function submitFulfill(
     );
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as ethers.Transaction];
+  return [[noticeLog], null, res];
 }
 
 async function testAndSubmitFulfill(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   // Should not throw
@@ -157,14 +150,14 @@ async function testAndSubmitFulfill(
 // =================================================================
 async function submitFail(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
-  const tx = () =>
-    // TODO: make sure airnodeId is not null
-    airnodeRrp.fail(request.id, request.airnodeId!, request.fulfillAddress, request.fulfillFunctionId, {
+  const tx = (): Promise<ethers.Transaction> =>
+    // TODO: make sure airnodeAddress is not null
+    airnodeRrp.fail(request.id, request.airnodeAddress!, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
       gasPrice: options.gasPrice,
       nonce: request.nonce!,
@@ -174,7 +167,7 @@ async function submitFail(
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
     return [[noticeLog, errorLog], err, null];
   }
-  return [[noticeLog], null, res as ethers.Transaction];
+  return [[noticeLog], null, res];
 }
 
 // =================================================================
@@ -182,7 +175,7 @@ async function submitFail(
 // =================================================================
 export async function submitApiCall(
   airnodeRrp: AirnodeRrp,
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   if (request.status !== RequestStatus.Pending && request.status !== RequestStatus.Errored) {

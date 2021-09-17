@@ -15,12 +15,13 @@ import { RequestStatus } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
 describe('fetch (authorizations)', () => {
-  let mutableFetchOptions: any;
+  let mutableFetchOptions: authorization.FetchOptions;
 
   beforeEach(() => {
     mutableFetchOptions = {
-      address: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
-      airnodeId: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      authorizers: ['0x711c93B32c0D28a5d18feD87434cce11C3e5699B', '0x9E0e23766b0ed0C492804872c5164E9187fB56f5'],
+      airnodeAddress: '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
+      airnodeRrpAddress: '0xD5659F26A72A8D718d1955C42B3AE418edB001e0',
       provider: new ethers.providers.JsonRpcProvider(),
     };
   });
@@ -32,6 +33,22 @@ describe('fetch (authorizations)', () => {
     expect(res).toEqual({});
   });
 
+  it('returns true for all pending requests if authorizers array is empty', async () => {
+    const apiCalls = Array.from(Array(19).keys()).map((n) => {
+      return fixtures.requests.buildApiCall({
+        id: `${n}`,
+        endpointId: `endpointId-${n}`,
+        requesterAddress: `requesterAddress-${n}`,
+        sponsorAddress: 'sponsorAddress',
+      });
+    });
+    const [logs, res] = await authorization.fetch(apiCalls, { ...mutableFetchOptions, authorizers: [] });
+    expect(logs).toEqual([]);
+    expect(Object.keys(res).length).toEqual(19);
+    expect(res['0']).toEqual(true);
+    expect(res['18']).toEqual(true);
+  });
+
   it('calls the contract with groups of 10', async () => {
     checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(10).fill(true));
     checkAuthorizationStatusesMock.mockResolvedValueOnce(Array(9).fill(true));
@@ -40,7 +57,8 @@ describe('fetch (authorizations)', () => {
       return fixtures.requests.buildApiCall({
         id: `${n}`,
         endpointId: `endpointId-${n}`,
-        clientAddress: `clientAddress-${n}`,
+        requesterAddress: `requesterAddress-${n}`,
+        sponsorAddress: 'sponsorAddress',
       });
     });
 
@@ -53,20 +71,20 @@ describe('fetch (authorizations)', () => {
     expect(checkAuthorizationStatusesMock).toHaveBeenCalledTimes(2);
 
     const call1Args = [
+      ['0x711c93B32c0D28a5d18feD87434cce11C3e5699B', '0x9E0e23766b0ed0C492804872c5164E9187fB56f5'],
       '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       apiCalls.slice(0, 10).map((a) => a.id),
       apiCalls.slice(0, 10).map((a) => a.endpointId),
-      apiCalls.slice(0, 10).map((a) => a.requesterIndex),
-      apiCalls.slice(0, 10).map((a) => a.designatedWallet),
-      apiCalls.slice(0, 10).map((a) => a.clientAddress),
+      apiCalls.slice(0, 10).map((a) => a.sponsorAddress),
+      apiCalls.slice(0, 10).map((a) => a.requesterAddress),
     ];
     const call2Args = [
+      ['0x711c93B32c0D28a5d18feD87434cce11C3e5699B', '0x9E0e23766b0ed0C492804872c5164E9187fB56f5'],
       '0xf5ad700af68118777f79fd1d1c8568f7377d4ae9e9ccce5970fe63bc7a1c1d6d',
       apiCalls.slice(10, 19).map((a) => a.id),
       apiCalls.slice(10, 19).map((a) => a.endpointId),
-      apiCalls.slice(10, 19).map((a) => a.requesterIndex),
-      apiCalls.slice(10, 19).map((a) => a.designatedWallet),
-      apiCalls.slice(10, 19).map((a) => a.clientAddress),
+      apiCalls.slice(10, 19).map((a) => a.sponsorAddress),
+      apiCalls.slice(10, 19).map((a) => a.requesterAddress),
     ];
     expect(checkAuthorizationStatusesMock.mock.calls).toEqual([call1Args, call2Args]);
   });
@@ -151,7 +169,8 @@ describe('fetch (authorizations)', () => {
 });
 
 describe('fetchAuthorizationStatus', () => {
-  const airnodeId = '0xairnodeId';
+  const authorizers = ['0x0000000000000000000000000000000000000000'];
+  const airnodeAddress = '0xairnodeAddress';
   let mutableAirnodeRrp: AirnodeRrp;
 
   beforeEach(() => {
@@ -161,7 +180,12 @@ describe('fetchAuthorizationStatus', () => {
   it('fetches group authorization status if it can be fetched', async () => {
     checkAuthorizationStatusMock.mockResolvedValueOnce(true);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(
+      mutableAirnodeRrp,
+      authorizers,
+      airnodeAddress,
+      apiCall
+    );
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(true);
   });
@@ -170,7 +194,12 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockResolvedValueOnce(false);
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(
+      mutableAirnodeRrp,
+      authorizers,
+      airnodeAddress,
+      apiCall
+    );
     expect(logs).toEqual([{ level: 'INFO', message: `Fetched authorization status for Request:${apiCall.id}` }]);
     expect(res).toEqual(false);
   });
@@ -179,7 +208,12 @@ describe('fetchAuthorizationStatus', () => {
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     checkAuthorizationStatusMock.mockRejectedValueOnce(new Error('Server still says no'));
     const apiCall = fixtures.requests.buildApiCall();
-    const [logs, res] = await authorization.fetchAuthorizationStatus(mutableAirnodeRrp, airnodeId, apiCall);
+    const [logs, res] = await authorization.fetchAuthorizationStatus(
+      mutableAirnodeRrp,
+      authorizers,
+      airnodeAddress,
+      apiCall
+    );
     expect(logs).toEqual([
       {
         level: 'ERROR',

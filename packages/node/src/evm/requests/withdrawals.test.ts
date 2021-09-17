@@ -5,8 +5,8 @@ import { RequestStatus } from '../../types';
 
 describe('initialize (Withdrawal)', () => {
   it('builds a withdrawal request', () => {
-    const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const parsedLog = parseAirnodeRrpLog<'WithdrawalRequested'>(event);
+    const event = fixtures.evm.logs.buildRequestedWithdrawal();
+    const parsedLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(event);
     const parseLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -16,17 +16,16 @@ describe('initialize (Withdrawal)', () => {
     };
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
-      airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-      designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-      destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
-      id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+      sponsorWallet: '0xCAcdedD1B7beDb689464E8EE4e73deF16BBB167D',
+      id: '0xa7b1bd18101c48f0107eb63dafe548baa19024c7fe45884183df47234860f1d1',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      requesterIndex: '1',
+      sponsorAddress: '0x0Ee8ade271eFadaBFeB9b1D45d924B6b623E25E7',
       status: RequestStatus.Pending,
     });
   });
@@ -45,9 +44,8 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
     ]);
     expect(requests).toEqual([
       {
-        airnodeId: 'airnodeId',
-        designatedWallet: 'designatedWallet',
-        destinationAddress: 'destinationAddress',
+        airnodeAddress: 'airnodeAddress',
+        sponsorWallet: 'sponsorWallet',
         id,
         metadata: {
           blockNumber: 10716082,
@@ -55,7 +53,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: 'logTransactionHash',
         },
-        requesterIndex: '1',
+        sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
         status: RequestStatus.Fulfilled,
       },
     ]);
@@ -71,8 +69,8 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
 
 describe('mapRequests (Withdrawal)', () => {
   it('initializes and returns withdrawal requests', () => {
-    const event = fixtures.evm.logs.buildWithdrawalRequest();
-    const parsedLog = parseAirnodeRrpLog<'WithdrawalRequested'>(event);
+    const event = fixtures.evm.logs.buildRequestedWithdrawal();
+    const parsedLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(event);
     const parsedLogWithMetadata = {
       parsedLog,
       blockNumber: 10716082,
@@ -84,27 +82,26 @@ describe('mapRequests (Withdrawal)', () => {
     expect(logs).toEqual([]);
     expect(res).toEqual([
       {
-        airnodeId: '0x19255a4ec31e89cea54d1f125db7536e874ab4a96b4d4f6438668b6bb10a6adb',
-        designatedWallet: '0x34e9A78D63c9ca2148C95e880c6B1F48AE7F121E',
-        destinationAddress: '0x6812efaf684AA899949212A2A6785305EC0F1474',
-        id: '0xd9db6b416bbd9a87f4e693d66a0323eafde6591cae537727cd1f4e7ff0b53d5a',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
+        sponsorWallet: '0xCAcdedD1B7beDb689464E8EE4e73deF16BBB167D',
+        id: '0xa7b1bd18101c48f0107eb63dafe548baa19024c7fe45884183df47234860f1d1',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        requesterIndex: '1',
+        sponsorAddress: '0x0Ee8ade271eFadaBFeB9b1D45d924B6b623E25E7',
         status: RequestStatus.Pending,
       },
     ]);
   });
 
   it('updates the status of fulfilled withdrawal requests', () => {
-    const requestEvent = fixtures.evm.logs.buildWithdrawalRequest();
-    const fulfillEvent = fixtures.evm.logs.buildWithdrawalFulfilled();
-    const requestLog = parseAirnodeRrpLog<'WithdrawalRequested'>(requestEvent);
-    const fulfillLog = parseAirnodeRrpLog<'WithdrawalFulfilled'>(fulfillEvent);
+    const requestEvent = fixtures.evm.logs.buildRequestedWithdrawal();
+    const fulfillEvent = fixtures.evm.logs.buildFulfilledWithdrawal();
+    const requestLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(requestEvent);
+    const fulfillLog = parseAirnodeRrpLog<'FulfilledWithdrawal'>(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,

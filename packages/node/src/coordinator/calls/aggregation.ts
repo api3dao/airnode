@@ -1,15 +1,15 @@
-import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, ClientRequest, Config, RequestStatus } from '../../types';
+import { AggregatedApiCall, AggregatedApiCallsById, ApiCall, Request, Config, RequestStatus } from '../../types';
 
-function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): AggregatedApiCall {
+function buildAggregatedCall(config: Config, request: Request<ApiCall>): AggregatedApiCall {
   // The trigger should already be verified to exist at this point
   const trigger = config.triggers.rrp.find((t) => t.endpointId === request.endpointId)!;
 
   return {
     id: request.id,
-    requesterIndex: request.requesterIndex,
-    airnodeId: request.airnodeId!,
-    clientAddress: request.clientAddress,
-    designatedWallet: request.designatedWallet,
+    sponsorAddress: request.sponsorAddress,
+    airnodeAddress: request.airnodeAddress!,
+    requesterAddress: request.requesterAddress,
+    sponsorWallet: request.sponsorWallet,
     chainId: request.chainId,
     endpointId: request.endpointId!,
     parameters: request.parameters,
@@ -18,7 +18,7 @@ function buildAggregatedCall(config: Config, request: ClientRequest<ApiCall>): A
   };
 }
 
-export function aggregate(config: Config, flatApiCalls: ClientRequest<ApiCall>[]): AggregatedApiCallsById {
+export function aggregate(config: Config, flatApiCalls: Request<ApiCall>[]): AggregatedApiCallsById {
   const aggregatedApiCallsById = flatApiCalls.reduce((acc: AggregatedApiCallsById, request) => {
     if (request.status !== RequestStatus.Pending) {
       return acc;

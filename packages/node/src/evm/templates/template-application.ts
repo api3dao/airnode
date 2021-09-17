@@ -5,7 +5,7 @@ import {
   ApiCall,
   ApiCallParameters,
   ApiCallTemplate,
-  ClientRequest,
+  Request,
   LogsData,
   RequestErrorCode,
   RequestStatus,
@@ -16,14 +16,14 @@ interface ApiCallTemplatesById {
 }
 
 function applyTemplate(
-  request: ClientRequest<ApiCall>,
+  request: Request<ApiCall>,
   template: ApiCallTemplate,
   templateParameters: ApiCallParameters
-): ClientRequest<ApiCall> {
+): Request<ApiCall> {
   return {
     ...request,
-    // airnodeId and endpointId will either be request or a template attribute
-    airnodeId: request.airnodeId || template.airnodeId,
+    // airnodeAddress and endpointId will either be request or a template attribute
+    airnodeAddress: request.airnodeAddress || template.airnodeAddress,
     endpointId: request.endpointId || template.endpointId,
     // NOTE: the spread operator is case sensitive, meaning that you can
     // have 2 (or more) parameters with the same value, but different cases.
@@ -37,9 +37,9 @@ function applyTemplate(
 }
 
 function updateApiCallWithTemplate(
-  apiCall: ClientRequest<ApiCall>,
+  apiCall: Request<ApiCall>,
   templatesById: ApiCallTemplatesById
-): LogsData<ClientRequest<ApiCall>> {
+): LogsData<Request<ApiCall>> {
   const { id, status, templateId } = apiCall;
 
   // If the request does not have a template to apply, skip it
@@ -89,9 +89,9 @@ function updateApiCallWithTemplate(
 }
 
 export function mergeApiCallsWithTemplates(
-  apiCalls: ClientRequest<ApiCall>[],
+  apiCalls: Request<ApiCall>[],
   templatesById: ApiCallTemplatesById
-): LogsData<ClientRequest<ApiCall>[]> {
+): LogsData<Request<ApiCall>[]> {
   const logsWithApiCalls = apiCalls.map((apiCall) => {
     return updateApiCallWithTemplate(apiCall, templatesById);
   });

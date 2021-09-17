@@ -43,7 +43,7 @@ async function runCommand(command: string, options: child.ExecOptions) {
 }
 
 export async function deployAirnode(
-  airnodeIdShort: string,
+  airnodeAddressShort: string,
   stage: string,
   cloudProvider: string,
   region: string,
@@ -51,19 +51,19 @@ export async function deployAirnode(
   configPath: string,
   secretsPath: string
 ) {
-  spinner = logger.spinner(`Deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
+  spinner = logger.spinner(`Deploying Airnode ${airnodeAddressShort} ${stage} to ${cloudProvider} ${region}`);
   try {
-    const output = await deploy(airnodeIdShort, stage, region, httpGatewayApiKey, configPath, secretsPath);
-    spinner.succeed(`Deployed Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
+    const output = await deploy(airnodeAddressShort, stage, region, httpGatewayApiKey, configPath, secretsPath);
+    spinner.succeed(`Deployed Airnode ${airnodeAddressShort} ${stage} to ${cloudProvider} ${region}`);
     return output;
   } catch (err) {
-    spinner.fail(`Failed deploying Airnode ${airnodeIdShort} ${stage} to ${cloudProvider} ${region}`);
+    spinner.fail(`Failed deploying Airnode ${airnodeAddressShort} ${stage} to ${cloudProvider} ${region}`);
     throw err;
   }
 }
 
 async function deploy(
-  airnodeIdShort: string,
+  airnodeAddressShort: string,
   stage: string,
   region: string,
   httpGatewayApiKey: string | undefined,
@@ -74,7 +74,7 @@ async function deploy(
     spinner.info();
   }
 
-  const bucket = `airnode-${airnodeIdShort}-${stage}-terraform`;
+  const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
   const dynamodbTable = `${bucket}-lock`;
 
   if (!(await stateExists(region, bucket, dynamodbTable))) {
@@ -86,7 +86,7 @@ async function deploy(
     const options = { cwd: stateTmpDir };
     await runCommand(command, options);
 
-    command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -auto-approve -input=false -no-color`;
+    command = `terraform apply -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -auto-approve -input=false -no-color`;
     await runCommand(command, options);
   }
 
@@ -99,7 +99,7 @@ async function deploy(
   await runCommand(command, options);
 
   const httpGatewayApiKeyVar = httpGatewayApiKey ? `-var='api_key=${httpGatewayApiKey}'` : '';
-  command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
+  command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
     configPath
   )}" -var="secrets_file=${path.resolve(
     secretsPath
@@ -111,23 +111,23 @@ async function deploy(
   return output.http_gateway_url ? { httpGatewayUrl: output.http_gateway_url.value } : {};
 }
 
-export async function removeAirnode(airnodeIdShort: string, stage: string, cloudProvider: string, region: string) {
-  spinner = logger.spinner(`Removing Airnode ${airnodeIdShort} ${stage} from ${cloudProvider} ${region}`);
+export async function removeAirnode(airnodeAddressShort: string, stage: string, cloudProvider: string, region: string) {
+  spinner = logger.spinner(`Removing Airnode ${airnodeAddressShort} ${stage} from ${cloudProvider} ${region}`);
   try {
-    await remove(airnodeIdShort, stage, region);
-    spinner.succeed(`Removed Airnode ${airnodeIdShort} ${stage} from ${cloudProvider} ${region}`);
+    await remove(airnodeAddressShort, stage, region);
+    spinner.succeed(`Removed Airnode ${airnodeAddressShort} ${stage} from ${cloudProvider} ${region}`);
   } catch (err) {
-    spinner.fail(`Failed removing Airnode ${airnodeIdShort} ${stage} from ${cloudProvider} ${region}`);
+    spinner.fail(`Failed removing Airnode ${airnodeAddressShort} ${stage} from ${cloudProvider} ${region}`);
     throw err;
   }
 }
 
-async function remove(airnodeIdShort: string, stage: string, region: string) {
+async function remove(airnodeAddressShort: string, stage: string, region: string) {
   if (logger.inDebugMode()) {
     spinner.info();
   }
 
-  const bucket = `airnode-${airnodeIdShort}-${stage}-terraform`;
+  const bucket = `airnode-${airnodeAddressShort}-${stage}-terraform`;
   const dynamodbTable = `${bucket}-lock`;
 
   // Remove airnode
@@ -138,7 +138,7 @@ async function remove(airnodeIdShort: string, stage: string, region: string) {
   const options = { cwd: airnodeTmpDir };
   await runCommand(command, options);
 
-  command = `terraform destroy -var="aws_region=${region}" -var="airnode_id_short=${airnodeIdShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -var="handler_file=${handlerFile}" -auto-approve -input=false -no-color`;
+  command = `terraform destroy -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -var="handler_file=${handlerFile}" -auto-approve -input=false -no-color`;
   await runCommand(command, options);
 
   // Remove state

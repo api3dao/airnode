@@ -1,16 +1,17 @@
 import { buildMetadata } from './metadata';
-import { ApiCall, ClientRequest, RequestStatus } from '../../../src/types';
+import { ApiCall, Request, RequestStatus } from '../../../src/types';
 
-export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
+export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCall> {
   const metadata = buildMetadata();
 
   // These fields have invalid values on purpose to allow for easier reading. When necessary,
   // they can be overridden with valid values
   return {
-    airnodeId: 'airnodeId',
+    airnodeAddress: 'airnodeAddress',
     chainId: '31337',
-    clientAddress: 'clientAddress',
-    designatedWallet: 'designatedWallet',
+    requesterAddress: 'requesterAddress',
+    sponsorAddress: 'sponsorAddress',
+    sponsorWallet: 'sponsorWallet',
     encodedParameters: 'encodedParameters',
     endpointId: 'endpointId',
     fulfillAddress: 'fulfillAddress',
@@ -19,15 +20,14 @@ export function buildApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRe
     metadata,
     parameters: { from: 'ETH' },
     requestCount: '12',
-    requesterIndex: '3',
     status: RequestStatus.Pending,
     templateId: null,
-    type: 'regular',
+    type: 'template',
     ...params,
   };
 }
 
-export function buildSubmittableApiCall(params?: Partial<ClientRequest<ApiCall>>): ClientRequest<ApiCall> {
+export function buildSubmittableApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCall> {
   return {
     ...buildApiCall(),
     // Decodes to: '75051'

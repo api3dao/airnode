@@ -10,11 +10,10 @@ export interface Contracts {
 
 export function buildChainConfig(contracts: Contracts): ChainConfig {
   return {
-    airnodeAdmin: '0x5e0051B74bb4006480A1b548af9F1F0e0954F410',
     contracts: {
       AirnodeRrp: contracts.AirnodeRrp,
     },
-    authorizers: [ethers.constants.AddressZero],
+    authorizers: [],
     id: '31337',
     type: 'evm',
     providers: {
@@ -41,6 +40,14 @@ export async function fetchAllLogs(
   };
   const rawLogs = await provider.getLogs(filter);
   return rawLogs.map((log) => parseAirnodeRrpLog(log));
+}
+
+export async function fetchAllLogNames(provider: ethers.providers.JsonRpcProvider, address: string) {
+  return (await fetchAllLogs(provider, address)).map(({ name }) => name);
+}
+
+export function filterLogsByName(logs: AirnodeLogDescription<any>[], name: string) {
+  return logs.filter((log) => log.name === name);
 }
 
 // We want to use a separate account each time we deploy RRP. These accounts
