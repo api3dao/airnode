@@ -5,27 +5,15 @@ it('does not process requests twice', async () => {
   increaseTestTimeout();
   const { provider, deployment } = await deployAirnodeAndMakeRequests(__filename);
 
+  const preInvokeExpectedLogs = ['MadeTemplateRequest', 'MadeFullRequest'];
   const preInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
-  expect(preInvokeLogs).toEqual([
-    'SetAirnodeXpub',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-  ]);
+  expect(preInvokeLogs).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
 
   await startCoordinator();
 
+  const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FulfilledRequest', 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
-  expect(postInvokeLogs).toEqual([
-    'SetAirnodeXpub',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-    'FulfilledRequest',
-    'FulfilledRequest',
-  ]);
+  expect(postInvokeLogs).toEqual(expect.arrayContaining(postInvokeExpectedLogs));
 
   await startCoordinator();
 
