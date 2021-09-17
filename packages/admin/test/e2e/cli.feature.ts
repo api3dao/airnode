@@ -97,7 +97,6 @@ describe('CLI', () => {
       'get-templates',
       'check-authorization-status',
       'check-authorization-statuses',
-      'default-authorizers',
       'fail',
       'fulfill',
       'fulfill-withdrawal',
