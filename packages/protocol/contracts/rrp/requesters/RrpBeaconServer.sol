@@ -45,6 +45,14 @@ contract RrpBeaconServer is
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
+    /// @dev Reverts if the template with the ID is not created
+    /// @param templateId Template ID
+    modifier onlyIfTemplateExists(bytes32 templateId) {
+        (address airnode, , ) = airnodeRrp.templates(templateId);
+        require(airnode != address(0), "Template does not exist");
+        _;
+    }
+
     /// @param airnodeRrp_ Airnode RRP address
     constructor(address airnodeRrp_) RrpRequester(airnodeRrp_) {}
 
@@ -162,6 +170,7 @@ contract RrpBeaconServer is
         override
         onlyWithRank(uint256(AdminRank.Admin))
         onlyIfTimestampExtends(templateId, user, expirationTimestamp)
+        onlyIfTemplateExists(templateId)
     {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .expirationTimestamp = expirationTimestamp;
@@ -184,7 +193,12 @@ contract RrpBeaconServer is
         bytes32 templateId,
         address user,
         uint64 expirationTimestamp
-    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
+    )
+        external
+        override
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
+        onlyIfTemplateExists(templateId)
+    {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .expirationTimestamp = expirationTimestamp;
         emit SetWhitelistExpiration(
@@ -204,7 +218,12 @@ contract RrpBeaconServer is
         bytes32 templateId,
         address user,
         bool status
-    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
+    )
+        external
+        override
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
+        onlyIfTemplateExists(templateId)
+    {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .whitelistedPastExpiration = status;
         emit SetWhitelistStatusPastExpiration(
@@ -242,6 +261,7 @@ contract RrpBeaconServer is
         public
         view
         override
+        onlyIfTemplateExists(templateId)
         returns (bool isWhitelisted)
     {
         return
@@ -262,6 +282,7 @@ contract RrpBeaconServer is
         external
         view
         override
+        onlyIfTemplateExists(templateId)
         returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
     {
         WhitelistStatus
