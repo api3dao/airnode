@@ -126,4 +126,17 @@ contract MockRrpRequester is RrpRequester {
     ) external view onlyAirnodeRrp {
         while (true) {}
     }
+
+    /// @notice A wrapper for the respective method at AirnodeRrp.sol for
+    /// testing
+    /// @dev The withdrawal requested by calling this will revert because this
+    /// contract does not implement a default payable method
+    /// @param airnode Airnode address
+    /// @param sponsorWallet Sponsor wallet that the withdrawal is requested
+    /// from
+    function requestWithdrawal(address airnode, address sponsorWallet)
+        external
+    {
+        airnodeRrp.requestWithdrawal(airnode, sponsorWallet);
+    }
 }
