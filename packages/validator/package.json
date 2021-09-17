@@ -1,28 +1,26 @@
 {
   "name": "@api3/validator",
   "license": "MIT",
-  "version": "1.0.0",
-  "main": "./dist/validator.js",
+  "version": "0.1.0",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index",
   "bin": {
-    "validator": "./dist/validator.js",
-    "convertor": "./dist/convertor.js"
-  },
-  "directories": {
-    "lib": "src",
-    "test": "__tests__"
+    "validator": "./dist/bin/validator.js",
+    "convertor": "./dist/bin/convertor.js"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/ && copyfiles conversions/** dist/",
     "clean": "rimraf -rf ./dist *.tgz",
+    "cli:convertor": "ts-node bin/convertor.ts",
+    "cli:validator": "ts-node bin/validator.ts",
     "docs": "ts-node docs/generate-docs.ts",
-    "convert": "ts-node src/commands/convertCmd.ts",
     "compile": "tsc -p tsconfig.build.json",
     "pack": "yarn pack",
-    "test": "jest",
-    "validate": "ts-node src/commands/validateCmd.ts"
+    "prepublishOnly": "yarn build",
+    "test": "jest"
   },
   "dependencies": {
     "yargs": "^17.1.0"
@@ -32,6 +30,7 @@
     "copyfiles": "^2.4.1",
     "markdown-snippet-injector": "^0.2.4",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.1.0"
+    "ts-node": "^10.1.0",
+    "typescript": "^4.2.4"
   }
 }
