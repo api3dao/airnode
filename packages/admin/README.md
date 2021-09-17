@@ -5,7 +5,7 @@
 > A package/CLI tool to interact with the Airnode contracts across chains
 
 Almost all commands require you to provide a `providerUrl` such as `https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID>`, `https://xdai.poanetwork.dev`, etc.
-The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/AirnodeRrp.sol) contract, which address is derived from the current chain.
+The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/rrp/AirnodeRrp.sol) contract, which address is derived from the current chain.
 You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
 
 Commands that require `mnemonic` will make an on-chain transaction.
