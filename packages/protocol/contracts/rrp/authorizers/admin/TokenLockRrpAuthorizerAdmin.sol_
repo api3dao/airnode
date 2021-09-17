@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../Api3RequesterRrpAuthorizer.sol";
+import "../DaoRequesterRrpAuthorizer.sol";
 import "../interfaces/IApi3Token.sol";
 import "./interfaces/ITokenLockRrpAuthorizerAdmin.sol";
-import "../../../admin/MetaAdminnable.sol";
+import "../../../adminnable/Adminnable.sol";
 
 /// @title The contract used to lock API3 Tokens in order to gain access to Airnodes
 contract TokenLockRrpAuthorizerAdmin is
-    MetaAdminnable,
+    Adminnable,
     ITokenLockRrpAuthorizerAdmin
 {
     enum AdminRank {
@@ -26,8 +26,8 @@ contract TokenLockRrpAuthorizerAdmin is
         "Locking period not expired";
     string private constant ERROR_REQUESTER_BLOCKED = "Requester Blocked";
 
-    /// @dev Address of api3RequesterRrpAuthorizer contract
-    address public immutable api3RequesterRrpAuthorizer;
+    /// @dev Address of daoRequesterRrpAuthorizer contract
+    address public immutable daoRequesterRrpAuthorizer;
     /// @dev Address of Api3Token
     address public immutable api3Token;
     /// @dev The Minimum locking time (in seconds)
@@ -53,43 +53,24 @@ contract TokenLockRrpAuthorizerAdmin is
         public airnodeToRequesterToBlockStatus;
 
     /// @dev Sets the metaAdmin and values for minimumLockingTime,lockAmount,api3Token
-    ///      and api3RequesterRrpAuthorizer
-    /// @param _metaAdmin The address that will be set as meta admin
+    ///      and daoRequesterRrpAuthorizer
     /// @param _minimumLockingTime The minimum lock time of API3 tokens for users
     /// @param _lockAmount The lock amount
-    /// @param _api3RequesterRrpAuthorizer The address of the Api3RequesterRrpAuthorizer contract
+    /// @param _daoRequesterRrpAuthorizer The address of the DaoRequesterRrpAuthorizer contract
     /// @param _api3Token The address of the Api3Token contract
     constructor(
-        address _metaAdmin,
         uint256 _minimumLockingTime,
         uint256 _lockAmount,
-        address _api3RequesterRrpAuthorizer,
+        address _daoRequesterRrpAuthorizer,
         address _api3Token
-    ) MetaAdminnable(_metaAdmin) {
+    ) {
         require(_lockAmount != 0, ERROR_ZERO_AMOUNT);
-        require(_api3RequesterRrpAuthorizer != address(0), ERROR_ZERO_ADDRESS);
+        require(_daoRequesterRrpAuthorizer != address(0), ERROR_ZERO_ADDRESS);
         require(_api3Token != address(0), ERROR_ZERO_ADDRESS);
         minimumLockingTime = _minimumLockingTime;
         lockAmount = _lockAmount;
-        api3RequesterRrpAuthorizer = _api3RequesterRrpAuthorizer;
+        daoRequesterRrpAuthorizer = _daoRequesterRrpAuthorizer;
         api3Token = _api3Token;
-    }
-
-    /// @notice Called to get the rank of an admin for an adminned entity
-    /// @dev    Overriden to give Max Rank to the Airnode Master Wallet
-    ///         Overriden to use the bytes32(0) as the adminnedId otherwise
-    ///         Overriden to use metaAdminned ranks
-    /// @param adminnedId ID of the entity being adminned(not used)
-    /// @param admin Admin address whose rank will be returned
-    /// @return Admin rank
-    function getRank(bytes32 adminnedId, address admin)
-        public
-        view
-        override(MetaAdminnable)
-        returns (uint256)
-    {
-        if (adminnedId == bytes32(abi.encode(admin))) return MAX_RANK;
-        return MetaAdminnable.getRank(bytes32(0), admin);
     }
 
     /// @dev Reverts if the requester is blocked globally(address(0)) or
@@ -113,8 +94,8 @@ contract TokenLockRrpAuthorizerAdmin is
     function setMinimumLockingTime(uint256 _minimumLockingTime)
         external
         override
-        onlyWithRank(bytes32(0), uint256(AdminRank.Admin))
     {
+        require(adminToRank[msg.sender] >= uint256(AdminRank.Admin), "Caller ranked low");
         minimumLockingTime = _minimumLockingTime;
         emit SetMinimumLockingTime(_minimumLockingTime);
     }
@@ -124,8 +105,8 @@ contract TokenLockRrpAuthorizerAdmin is
     function setLockAmount(uint256 _lockAmount)
         external
         override
-        onlyWithRank(bytes32(0), uint256(AdminRank.Admin))
     {
+        require(adminToRank[msg.sender] >= uint256(AdminRank.Admin), "Caller ranked low");
         require(_lockAmount != 0, ERROR_ZERO_AMOUNT);
         lockAmount = _lockAmount;
         emit SetLockAmount(_lockAmount);
@@ -141,13 +122,10 @@ contract TokenLockRrpAuthorizerAdmin is
     function blockRequester(address _airnode, address _requesterAddress)
         external
         override
-        onlyWithRank(
-            bytes32(abi.encode(_airnode)),
-            uint256(AdminRank.SuperAdmin)
-        )
     {
+        require(adminToRank[msg.sender] >= uint256(AdminRank.SuperAdmin) || msg.sender == _airnode, "Caller ranked low");
         airnodeToRequesterToBlockStatus[_airnode][_requesterAddress] = true;
-        IApi3RequesterRrpAuthorizer(api3RequesterRrpAuthorizer)
+        IDaoRequesterRrpAuthorizer(daoRequesterRrpAuthorizer)
             .setWhitelistExpiration(
                 bytes32(abi.encode(_airnode)),
                 _requesterAddress,
@@ -191,7 +169,7 @@ contract TokenLockRrpAuthorizerAdmin is
         );
 
         if (airnodeRequester.whitelistCount == 1) {
-            IApi3RequesterRrpAuthorizer(api3RequesterRrpAuthorizer)
+            IDaoRequesterRrpAuthorizer(daoRequesterRrpAuthorizer)
                 .setWhitelistExpiration(
                     bytes32(abi.encode(_airnode)),
                     _requesterAddress,
@@ -234,7 +212,7 @@ contract TokenLockRrpAuthorizerAdmin is
         airnodeRequester.whitelistCount--;
 
         if (airnodeRequester.whitelistCount == 0) {
-            IApi3RequesterRrpAuthorizer(api3RequesterRrpAuthorizer)
+            IDaoRequesterRrpAuthorizer(daoRequesterRrpAuthorizer)
                 .setWhitelistExpiration(
                     bytes32(abi.encode(_airnode)),
                     _requesterAddress,

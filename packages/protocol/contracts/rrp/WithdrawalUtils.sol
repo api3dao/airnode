@@ -6,7 +6,7 @@ import "./interfaces/IWithdrawalUtils.sol";
 /// @title Contract that implements logic for withdrawals from sponsor wallets
 contract WithdrawalUtils is IWithdrawalUtils {
     /// @notice Called to get the withdrawal request count of the sponsor
-    /// @dev Could be used to predict the ID of the next withdrawal request the
+    /// @dev Can be used to calculate the ID of the next withdrawal request the
     /// sponsor will make
     mapping(address => uint256) public override sponsorToWithdrawalRequestCount;
 

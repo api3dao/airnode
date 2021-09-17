@@ -1,7 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
-const utils = require('./utils');
+const utils = require('../utils');
 
 let roles;
 let airnodeRrp, rrpRequester;
@@ -49,7 +49,7 @@ describe('setSponsorshipStatus', function () {
     expect(
       await airnodeRrp.sponsorToRequesterToSponsorshipStatus(roles.sponsor.address, rrpRequester.address)
     ).to.equal(false);
-    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(0);
+    expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(1);
     // Set sponsorship status as true
     await expect(airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true))
       .to.emit(airnodeRrp, 'SetSponsorshipStatus')
@@ -70,60 +70,119 @@ describe('setSponsorshipStatus', function () {
 });
 
 describe('makeTemplateRequest', function () {
-  context('Requester is sponsored', function () {
-    it('makes template request', async function () {
-      // Endorse the requester
-      await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      // Create the template
-      const endpointId = utils.generateRandomBytes32();
-      const parameters = utils.generateRandomBytes();
-      await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-      const templateId = hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-      );
-      // Compute the expected request ID
-      const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
-      const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-      const requestTimeParameters = utils.generateRandomBytes();
-      const expectedRequestId = hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(
-          ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-          [airnodeAddress, requesterRequestCount, chainId, rrpRequester.address, templateId, requestTimeParameters]
-        )
-      );
-      // Make the request
-      await expect(
-        rrpRequester
-          .connect(roles.randomPerson)
-          .makeTemplateRequest(
-            templateId,
-            roles.sponsor.address,
-            sponsorWalletAddress,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            requestTimeParameters
+  context('Template exists', function () {
+    context('Fulfill address not AirnodeRrp', function () {
+      context('Requester sponsored', function () {
+        it('makes template request', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          // Compute the expected request ID
+          const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
+          const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+          const requestTimeParameters = utils.generateRandomBytes();
+          const expectedRequestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                requesterRequestCount,
+                chainId,
+                rrpRequester.address,
+                templateId,
+                roles.sponsor.address,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Make the request
+          await expect(
+            rrpRequester
+              .connect(roles.randomPerson)
+              .makeTemplateRequest(
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              )
           )
-      )
-        .to.emit(airnodeRrp, 'MadeTemplateRequest')
-        .withArgs(
-          airnodeAddress,
-          expectedRequestId,
-          requesterRequestCount,
-          chainId,
-          rrpRequester.address,
-          templateId,
-          roles.sponsor.address,
-          sponsorWalletAddress,
-          rrpRequester.address,
-          rrpRequester.interface.getSighash('fulfill'),
-          requestTimeParameters
+            .to.emit(airnodeRrp, 'MadeTemplateRequest')
+            .withArgs(
+              airnodeAddress,
+              expectedRequestId,
+              requesterRequestCount,
+              chainId,
+              rrpRequester.address,
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
+            requesterRequestCount.add(1)
+          );
+        });
+      });
+      context('Requester not sponsored', function () {
+        it('reverts', async function () {
+          // Create the template
+          const endpointId = utils.generateRandomBytes32();
+          const parameters = utils.generateRandomBytes();
+          await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+          const templateId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+          );
+          const requestTimeParameters = utils.generateRandomBytes();
+          await expect(
+            rrpRequester
+              .connect(roles.randomPerson)
+              .makeTemplateRequest(
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              )
+          ).to.be.revertedWith('Requester not sponsored');
+        });
+      });
+    });
+    context('Fulfill address AirnodeRrp', function () {
+      it('reverts', async function () {
+        // Create the template
+        const endpointId = utils.generateRandomBytes32();
+        const parameters = utils.generateRandomBytes();
+        await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+        const templateId = hre.ethers.utils.keccak256(
+          hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
         );
-      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
-        requesterRequestCount.add(1)
-      );
+        const requestTimeParameters = utils.generateRandomBytes();
+        await expect(
+          rrpRequester
+            .connect(roles.randomPerson)
+            .makeTemplateRequest(
+              templateId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              airnodeRrp.address,
+              airnodeRrp.interface.getSighash('fulfill'),
+              requestTimeParameters
+            )
+        ).to.be.revertedWith('Fulfill address AirnodeRrp');
+      });
     });
   });
-  context('Requester not sponsored', function () {
+  context('Template does not exist', function () {
     it('reverts', async function () {
       const templateId = utils.generateRandomBytes32();
       const requestTimeParameters = utils.generateRandomBytes();
@@ -138,33 +197,121 @@ describe('makeTemplateRequest', function () {
             rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      ).to.be.revertedWith('Requester not sponsored');
+      ).to.be.revertedWith('Template does not exist');
     });
   });
 });
 
 describe('makeFullRequest', function () {
-  context('Requester is sponsored', function () {
-    it('makes template request', async function () {
+  context('Airnode address not zero', function () {
+    context('Fulfill address not AirnodeRrp', function () {
+      context('Requester sponsored', function () {
+        it('makes template request', async function () {
+          // Endorse the requester
+          await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+          // Compute the expected request ID
+          const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
+          const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          const expectedRequestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                requesterRequestCount,
+                chainId,
+                rrpRequester.address,
+                endpointId,
+                roles.sponsor.address,
+                requestTimeParameters,
+              ]
+            )
+          );
+          // Make the request
+          await expect(
+            rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              )
+          )
+            .to.emit(airnodeRrp, 'MadeFullRequest')
+            .withArgs(
+              airnodeAddress,
+              expectedRequestId,
+              requesterRequestCount,
+              chainId,
+              rrpRequester.address,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
+              requestTimeParameters
+            );
+          expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
+            requesterRequestCount.add(1)
+          );
+        });
+      });
+      context('Requester not sponsored', function () {
+        it('reverts', async function () {
+          const endpointId = utils.generateRandomBytes32();
+          const requestTimeParameters = utils.generateRandomBytes();
+          await expect(
+            rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              )
+          ).to.be.revertedWith('Requester not sponsored');
+        });
+      });
+    });
+    context('Fulfill address AirnodeRrp', function () {
+      it('reverts', async function () {
+        const endpointId = utils.generateRandomBytes32();
+        const requestTimeParameters = utils.generateRandomBytes();
+        await expect(
+          rrpRequester
+            .connect(roles.randomPerson)
+            .makeFullRequest(
+              airnodeAddress,
+              endpointId,
+              roles.sponsor.address,
+              sponsorWalletAddress,
+              airnodeRrp.address,
+              airnodeRrp.interface.getSighash('fulfill'),
+              requestTimeParameters
+            )
+        ).to.be.revertedWith('Fulfill address AirnodeRrp');
+      });
+    });
+  });
+  context('Airnode address zero', function () {
+    it('reverts', async function () {
       // Endorse the requester
       await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-      // Compute the expected request ID
-      const requesterRequestCount = await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address);
-      const chainId = (await hre.ethers.provider.getNetwork()).chainId;
       const endpointId = utils.generateRandomBytes32();
       const requestTimeParameters = utils.generateRandomBytes();
-      const expectedRequestId = hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(
-          ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
-          [airnodeAddress, requesterRequestCount, chainId, rrpRequester.address, endpointId, requestTimeParameters]
-        )
-      );
       // Make the request
       await expect(
         rrpRequester
           .connect(roles.randomPerson)
           .makeFullRequest(
-            airnodeAddress,
+            hre.ethers.constants.AddressZero,
             endpointId,
             roles.sponsor.address,
             sponsorWalletAddress,
@@ -172,43 +319,7 @@ describe('makeFullRequest', function () {
             rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters
           )
-      )
-        .to.emit(airnodeRrp, 'MadeFullRequest')
-        .withArgs(
-          airnodeAddress,
-          expectedRequestId,
-          requesterRequestCount,
-          chainId,
-          rrpRequester.address,
-          endpointId,
-          roles.sponsor.address,
-          sponsorWalletAddress,
-          rrpRequester.address,
-          rrpRequester.interface.getSighash('fulfill'),
-          requestTimeParameters
-        );
-      expect(await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).to.equal(
-        requesterRequestCount.add(1)
-      );
-    });
-  });
-  context('Requester not sponsored', function () {
-    it('reverts', async function () {
-      const endpointId = utils.generateRandomBytes32();
-      const requestTimeParameters = utils.generateRandomBytes();
-      await expect(
-        rrpRequester
-          .connect(roles.randomPerson)
-          .makeFullRequest(
-            airnodeAddress,
-            endpointId,
-            roles.sponsor.address,
-            sponsorWalletAddress,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            requestTimeParameters
-          )
-      ).to.be.revertedWith('Requester not sponsored');
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });
@@ -243,13 +354,13 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
                 [
-                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
                   templateId,
+                  roles.sponsor.address,
                   requestTimeParameters,
                 ]
               )
@@ -320,13 +431,13 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
                 [
-                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
                   templateId,
+                  roles.sponsor.address,
                   requestTimeParameters,
                 ]
               )
@@ -379,13 +490,13 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
                 [
-                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
                   templateId,
+                  roles.sponsor.address,
                   requestTimeParameters,
                 ]
               )
@@ -485,13 +596,13 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -544,13 +655,13 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -603,13 +714,13 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -657,13 +768,13 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
             [
-              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
               templateId,
+              roles.sponsor.address,
               requestTimeParameters,
             ]
           )
@@ -712,13 +823,13 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
                 [
-                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
                   endpointId,
+                  roles.sponsor.address,
                   requestTimeParameters,
                 ]
               )
@@ -784,13 +895,13 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
                 [
-                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
                   endpointId,
+                  roles.sponsor.address,
                   requestTimeParameters,
                 ]
               )
@@ -838,13 +949,13 @@ describe('fulfill', function () {
               );
             const requestId = hre.ethers.utils.keccak256(
               hre.ethers.utils.solidityPack(
-                ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
                 [
-                  airnodeAddress,
                   (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                   (await hre.ethers.provider.getNetwork()).chainId,
                   rrpRequester.address,
                   endpointId,
+                  roles.sponsor.address,
                   requestTimeParameters,
                 ]
               )
@@ -934,13 +1045,13 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -988,13 +1099,13 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1042,13 +1153,13 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1091,13 +1202,13 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
             [
-              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
               endpointId,
+              roles.sponsor.address,
               requestTimeParameters,
             ]
           )
@@ -1129,7 +1240,7 @@ describe('fail', function () {
   context('Template request made', function () {
     context('Caller is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
-        it('fails successfully', async function () {
+        it('reverts', async function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Create the template
@@ -1153,13 +1264,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1255,13 +1366,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1308,13 +1419,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1361,13 +1472,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1409,13 +1520,13 @@ describe('fail', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
             [
-              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
               templateId,
+              roles.sponsor.address,
               requestTimeParameters,
             ]
           )
@@ -1434,7 +1545,7 @@ describe('fail', function () {
   context('Full request made', function () {
     context('Caller is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
-        it('fails successfully', async function () {
+        it('reverts', async function () {
           // Endorse the requester
           await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
           // Make the request
@@ -1453,13 +1564,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1545,13 +1656,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1593,13 +1704,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1641,13 +1752,13 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
               [
-                airnodeAddress,
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 endpointId,
+                roles.sponsor.address,
                 requestTimeParameters,
               ]
             )
@@ -1684,13 +1795,13 @@ describe('fail', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['address', 'uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
             [
-              airnodeAddress,
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
               endpointId,
+              roles.sponsor.address,
               requestTimeParameters,
             ]
           )
