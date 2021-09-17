@@ -69,28 +69,26 @@ The contracts are under the `contracts/` directory.
 
 `/admin`: Houses the contracts that implement the admin functionality mentioned above.
 The contracts in this directory are not RRP-specific and are expected to be reused.
-- `/admin/RankedAdminnable.sol`: Implements ranked admins.
-This contract cannot be used in a standalone way, it needs to be inherited and seeded with admins, which can then elevate other addresses to admin ranks.
-- `/admin/MetaAdminnable.sol`: Inherits `RankedAdminnable` and extends it by defining a *metaAdmin*, which is the highest ranking admin across all adminned entities.
-- `/admin/Whitelister.sol`: Inherits `RankedAdminnable` and implements absolute or time-limited whitelisting of addresses for multiple independent services.
+- `/adminnable/Adminnable.sol`: Implements ranked admins, where the meta-admin is the highest ranking admin.
+- `/adminnable/SelfAdminnable.sol`: Implements ranked admins independently for addresses, where the address itself is the highest ranking admin, respectively.
+- `/adminnable/Whitelister.sol`: Implements data structures, modifiers, internal utility functions for whitelister contracts.
+This needs to be inherited and extended with an external interface.
 
 `/rrp`: Houses the contracts that implement RRP and related contracts such as authorizers and requesters
 - `rrp/AirnodeRrp.sol`: Implements the request–response loop of the protocol and inherits the three other contracts below
-- `rrp/AuthorizationUtils.sol`: Implements convenience functions that allow the Airnode to make batch authorization checks
+- `rrp/AuthorizationUtils.sol`: Implements individual and batch authorization checks
 - `rrp/TemplateUtils.sol`: Implements the request template functionality, which allows the reuse of previously declared request parameters
 - `rrp/WithdrawalUtils.sol`: Implements the request–response loop for withdrawals from sponsor wallets
 
   `rrp/authorizers/`: Houses the RRP-specific authorizer contracts
-  - `rrp/authorizers/RequesterRrpAuthorizer.sol`: A general type of RRP authorizer that authorizes based on if the requester address is whitelisted at static call-time according to the inherited `Whitelister` logic
-  - `rrp/authorizers/SelfRequesterRrpAuthorizer.sol`: Inherits `RequesterRrpAuthorizer` and treats each Airnode's address as its respective highest ranking admin.
-  This contract does not inherit `MetaAdminnable`, i.e., the Airnodes are completely self-sovereign regarding authorization. 
-  - `rrp/authorizers/Api3RequesterRrpAuthorizer.sol`: Inherits `RequesterRrpAuthorizer` and `MetaAdminnable` to assign the API3 DAO as the highest ranking admin across all Airnodes.
-  Unlike all of the contracts above, this contract does not differentiate between Airnodes regarding adminship.
+  - `rrp/authorizers/RequesterRrpAuthorizer.sol`: A base contract to inherit and extend to implement requester-based RRP authorizers
+  - `rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol`: Inherits `RequesterRrpAuthorizer` and treats each Airnode's address as its respective highest ranking admin.
+  - `rrp/authorizers/DaoRequesterRrpAuthorizer.sol`: Inherits `RequesterRrpAuthorizer` and assigns the API3 DAO as the highest ranking admin across all Airnodes.
 
   `rrp/requesters/`: Houses the RRP-depending requester contracts
   - `rrp/requesters/RrpRequester.sol`: A contract that is meant to be inherited by any contract that will be making requests to `AirnodeRrp`
-  - `rrp/requesters/RrpBeaconServer.sol`: A proxy contract that makes  RRP requests for request templates.
-  The most recent response for each template is stored and can be accessed by whitelisted users.
+  - `rrp/requesters/RrpBeaconServer.sol`: A proxy contract that makes RRP requests for request templates.
+  The most recent response for each template is stored and can be accessed by the whitelisted users.
 
 ## Unique patterns
 
@@ -101,7 +99,7 @@ You can also refer to the post [*Where are the first party oracles?*](https://me
 ### No duplicated contracts
 
 The RRP protocol and its authorizer contracts are deployed once per-chain, and all Airnodes use the same set of contracts.
-The contracts are implemented in a way that they are entirely trustless and permissionless, and not even the API3 DAO has any special privileges (except for `Api3RequesterRrpAuthorizer`, which is opt-in, as all authorizers).
+The contracts are implemented in a way that they are entirely trustless and permissionless, and not even the API3 DAO has any special privileges (except for `DaoRequesterRrpAuthorizer`, which is opt-in, as all authorizers).
 
 In other words, the Airnode operators do not need to deploy any contracts in the regular user flow.
 This is preferred because deploying contracts causes a lot of UX friction and costs a lot of gas.
@@ -155,7 +153,7 @@ Even though this decoding operation overhead will recur a lot, it is still negli
 The address of the default BIP 44 wallet (`m/44'/60'/0'/0/0`) derived from this seed is used to identify the Airnode.
 The Airnode (referring to the node application) polls `AirnodeRrp` for `MadeTemplateRequest` and `MadeFullRequest` events indexed by its own identifying address (and drops the ones that have matching `FulfilledRequest` and `FailedRequest` events).
 
-Note that the Airnode operator may not announce its extended public key on-chain, in which case it would have to do it through off-chain channels.
+Note that the Airnode operator may not announce its extended public key (that belongs to the HDNode with the path `m/44'/60'/0'`) on-chain, in which case it would have to do it through off-chain channels.
 
 2. A developer decides to build a contract that makes requests to a specific Airnode (we will call this contract *requester*).
 Using the `xpub` of the Airnode and the address of an Ethereum account they control, the developer derives the address of their sponsor wallet (see below for how this is done).
@@ -163,8 +161,8 @@ The developer funds this sponsor wallet, then calls `setSponsorshipStatus()` in 
 This means the developer is now the *sponsor* of their requester contract, i.e., the requester contract can make Airnode requests that will be fulfilled by their sponsor wallet.
 
 3. Before making a request, the developer should make sure that at least one of the authorizer contracts that the Airnode is using will authorize the request.
-Assume the Airnode is using `SelfRequesterRrpAuthorizer` and `Api3RequesterRrpAuthorizer`.
-Then, the requester contract should be whitelisted either by one of the admins that the Airnode default BIP 44 wallet has appointed (i.e., by `SelfRequesterRrpAuthorizer`) or one of the admins that the API3 DAO has appointed (i.e., by `Api3RequesterRrpAuthorizer`).
+Assume the Airnode is using `AirnodeRequesterRrpAuthorizer` and `DaoRequesterRrpAuthorizer`.
+Then, the requester contract should be whitelisted either by one of the admins that the Airnode default BIP 44 wallet has appointed (i.e., by `AirnodeRequesterRrpAuthorizer`) or one of the admins that the API3 DAO has appointed (i.e., by `DaoRequesterRrpAuthorizer`).
 These admins may whitelist requester contracts based on arbitrary criteria (e.g., if an on-chain payment or an off-chain agreement has been made) and these are outside of the scope of this package.
 
 4. The requester contract can make two kinds of requests:
@@ -175,9 +173,9 @@ These admins may whitelist requester contracts based on arbitrary criteria (e.g.
 
 5. The Airnode sees a `MadeTemplateRequest` event (and no matching `FulfilledRequest` or `FailedRequest` event), which means there is a request to be responded to.
 It first uses the fields provided in the `MadeTemplateRequest` log to recreate the `requestId`.
-If the newly created `requestId` does not match the one from the log, this means that the request parameters are tampered with and the request should not be responded to.
+If the newly created `requestId` does not match the one from the log, this means that the request parameters are tampered with and the request must not be responded to.
 Then, it fetches the template referred to with `templateId`, and using the fields of the template, it recreates the `templateId`.
-If the newly created `templateId` does not match the one from the log, this means the template parameters are tampered with and the request should not be responded to.
+If the newly created `templateId` does not match the one from the log, this means the template parameters are tampered with and the request must not be responded to.
 
 Another test that the Airnode must do is to derive the sponsor wallet that is specified in the request using the requester address and check if it is correct (and not respond if it is not).
 This is done because we cannot derive the sponsor wallet from `xpub` on-chain, so we let the requester specify it in the request, and have the Airnode check it for correctness, which is equally secure (i.e., it will be obvious if one attempts to make a request to be fulfilled by a sponsor wallet that they are not authorized to use).
@@ -199,17 +197,18 @@ An Ethereum address is 20 bytes-long, which makes 160 bits.
 Each index in the HD wallet non-hardened derivation path goes up to 2^31.
 Then, we can divide these 160 bits into six 31 bit-long chunks and the derivation path for a sponsor wallet would be:
 
-```js
-m / 0 / sponsor && 0x7FFFFFFF / (sponsor >> 31) && 0x7FFFFFFF / (sponsor >> 62) && 0x7FFFFFFF / (sponsor >> 93) && 0x7FFFFFFF / (sponsor >> 124) && 0x7FFFFFFF / (sponsor >> 155) && 0x7FFFFFFF
+```
+m / 44' / 60' / 0' / 0 / sponsor && 0x7FFFFFFF / (sponsor >> 31) && 0x7FFFFFFF / (sponsor >> 62) && 0x7FFFFFFF / (sponsor >> 93) && 0x7FFFFFFF / (sponsor >> 124) && 0x7FFFFFFF / (sponsor >> 155) && 0x7FFFFFFF
 ```
 
 Anyone can use the `xpub` that the Airnode has announced (through on-chain or off-chain channels) and the sponsor's address to derive a sponsor wallet address for a specific Airnode–sponsor pair.
+Since the `xpub` belongs to the HDNode with the path `m/44'/60'/0'`, the sponsor wallet address derivation from that will be done with the path `0/sponsor && 0x7FFFFFFF/...`, i.e., the `m/44'/60'/0'` at the beginning must be omitted.
 
-Note that the derivation path starts with `m/0/...`.
+Note that the derivation path starts with `0/...`.
 The zero here is allocated for RRP, and the other branches will be used to derive the sponsor wallets for other protocols such as PSP.
 
 ## Withdrawal from the sponsor wallet
 
 Requesters may not want to use up all the ETH deposited in their sponsor wallet.
 Then, they can use `WithdrawalUtils` to request a withdrawal from the Airnode, which sends the entire balance of the sponsor wallet to the sponsor address.
-Unlike template and full requests, there are no parameters that the Ethereum provider can tamper with, which is why withdrawal requests/fulfillments do not make similar hash checks.
+Before serving this request, the Airnode must verify that the specified sponsor wallet address belongs to the maker of the request by deriving the sponsor wallet address itself.
