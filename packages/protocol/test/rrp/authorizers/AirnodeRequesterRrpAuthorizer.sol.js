@@ -345,124 +345,139 @@ describe('setWhitelistStatusPastExpiration', function () {
 });
 
 describe('isAuthorized', function () {
-  context('Requester whitelisted', function () {
-    context('Requester of rank Admin', function () {
-      it('returns true', async function () {
-        await airnodeRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.admin.address, true);
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.admin.address
-          )
-        ).to.equal(true);
+  context('Airnode address not zero', function () {
+    context('Requester whitelisted', function () {
+      context('Requester of rank Admin', function () {
+        it('returns true', async function () {
+          await airnodeRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.admin.address, true);
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.admin.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester of rank SuperAdmin', function () {
+        it('returns true', async function () {
+          await airnodeRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.superAdmin.address, true);
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.superAdmin.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester Airnode address', function () {
+        it('returns true', async function () {
+          await airnodeRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, airnodeAddress, true);
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              airnodeAddress
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester of rank lower than Admin', function () {
+        it('returns true', async function () {
+          await airnodeRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true);
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.requester.address
+            )
+          ).to.equal(true);
+        });
       });
     });
-    context('Requester of rank SuperAdmin', function () {
-      it('returns true', async function () {
-        await airnodeRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.superAdmin.address, true);
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.superAdmin.address
-          )
-        ).to.equal(true);
+    context('Requester not whitelisted', function () {
+      context('Requester of rank Admin', function () {
+        it('returns true', async function () {
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.admin.address
+            )
+          ).to.equal(true);
+        });
       });
-    });
-    context('Requester Airnode address', function () {
-      it('returns true', async function () {
-        await airnodeRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, airnodeAddress, true);
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            airnodeAddress
-          )
-        ).to.equal(true);
+      context('Requester of rank SuperAdmin', function () {
+        it('returns true', async function () {
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.superAdmin.address
+            )
+          ).to.equal(true);
+        });
       });
-    });
-    context('Requester of rank lower than Admin', function () {
-      it('returns true', async function () {
-        await airnodeRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true);
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.requester.address
-          )
-        ).to.equal(true);
+      context('Requester Airnode address', function () {
+        it('returns true', async function () {
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              airnodeAddress
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester of rank lower than Admin', function () {
+        it('returns false', async function () {
+          expect(
+            await airnodeRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.requester.address
+            )
+          ).to.equal(false);
+        });
       });
     });
   });
-  context('Requester not whitelisted', function () {
-    context('Requester of rank Admin', function () {
-      it('returns true', async function () {
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.admin.address
-          )
-        ).to.equal(true);
-      });
-    });
-    context('Requester of rank SuperAdmin', function () {
-      it('returns true', async function () {
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.superAdmin.address
-          )
-        ).to.equal(true);
-      });
-    });
-    context('Requester Airnode address', function () {
-      it('returns true', async function () {
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            airnodeAddress
-          )
-        ).to.equal(true);
-      });
-    });
-    context('Requester of rank lower than Admin', function () {
-      it('returns false', async function () {
-        expect(
-          await airnodeRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.requester.address
-          )
-        ).to.equal(false);
-      });
+  context('Airnode address zero', function () {
+    it('reverts', async function () {
+      await expect(
+        airnodeRequesterRrpAuthorizer.isAuthorized(
+          utils.generateRandomBytes32(),
+          hre.ethers.constants.AddressZero,
+          utils.generateRandomBytes32(),
+          utils.generateRandomAddress(),
+          roles.requester.address
+        )
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });

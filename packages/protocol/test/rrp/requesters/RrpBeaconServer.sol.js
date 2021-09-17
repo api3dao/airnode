@@ -159,28 +159,39 @@ describe('requestBeaconUpdate', function () {
 describe('extendWhitelistExpiration', function () {
   context('Caller of rank Admin', function () {
     context('Provided timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-        const expirationTimestamp = 1000;
-        await expect(
-          rrpBeaconServer
-            .connect(roles.admin)
-            .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
-        )
-          .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
-          .withArgs(templateId, roles.beaconReader.address, roles.admin.address, expirationTimestamp);
-        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      context('Template exists', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+            templateId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+          const expirationTimestamp = 1000;
+          await expect(
+            rrpBeaconServer
+              .connect(roles.admin)
+              .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+          )
+            .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
+            .withArgs(templateId, roles.beaconReader.address, roles.admin.address, expirationTimestamp);
+          whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+            templateId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        });
+      });
+      context('Template does not exist', function () {
+        it('reverts', async function () {
+          await expect(
+            rrpBeaconServer
+              .connect(roles.admin)
+              .extendWhitelistExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, 1000)
+          ).to.be.revertedWith('Template does not exist');
+        });
       });
     });
     context('Provided timestamp does not extend whitelist expiration', function () {
@@ -193,28 +204,39 @@ describe('extendWhitelistExpiration', function () {
   });
   context('Caller of rank SuperAdmin', function () {
     context('Provided timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-        const expirationTimestamp = 1000;
-        await expect(
-          rrpBeaconServer
-            .connect(roles.superAdmin)
-            .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
-        )
-          .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
-          .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, expirationTimestamp);
-        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      context('Template exists', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+            templateId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+          const expirationTimestamp = 1000;
+          await expect(
+            rrpBeaconServer
+              .connect(roles.superAdmin)
+              .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+          )
+            .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
+            .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, expirationTimestamp);
+          whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+            templateId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        });
+      });
+      context('Template does not exist', function () {
+        it('reverts', async function () {
+          await expect(
+            rrpBeaconServer
+              .connect(roles.superAdmin)
+              .extendWhitelistExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, 1000)
+          ).to.be.revertedWith('Template does not exist');
+        });
       });
     });
     context('Provided timestamp does not extend whitelist expiration', function () {
@@ -227,28 +249,39 @@ describe('extendWhitelistExpiration', function () {
   });
   context('Caller meta-admin', function () {
     context('Provided timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-        const expirationTimestamp = 1000;
-        await expect(
-          rrpBeaconServer
-            .connect(roles.metaAdmin)
-            .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
-        )
-          .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
-          .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, expirationTimestamp);
-        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
-          templateId,
-          roles.beaconReader.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      context('Template exists', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+            templateId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+          const expirationTimestamp = 1000;
+          await expect(
+            rrpBeaconServer
+              .connect(roles.metaAdmin)
+              .extendWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+          )
+            .to.emit(rrpBeaconServer, 'ExtendedWhitelistExpiration')
+            .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, expirationTimestamp);
+          whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+            templateId,
+            roles.beaconReader.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        });
+      });
+      context('Template does not exist', function () {
+        it('reverts', async function () {
+          await expect(
+            rrpBeaconServer
+              .connect(roles.metaAdmin)
+              .extendWhitelistExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, 1000)
+          ).to.be.revertedWith('Template does not exist');
+        });
       });
     });
     context('Provided timestamp does not extend whitelist expiration', function () {
@@ -272,51 +305,85 @@ describe('extendWhitelistExpiration', function () {
 
 describe('setWhitelistExpiration', function () {
   context('Caller of rank SuperAdmin', function () {
-    it('sets whitelist expiration', async function () {
-      let whitelistStatus;
-      const expirationTimestamp = 1000;
-      await expect(
-        rrpBeaconServer
-          .connect(roles.superAdmin)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, expirationTimestamp);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-      await expect(
-        rrpBeaconServer.connect(roles.superAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Template exists', function () {
+      it('sets whitelist expiration', async function () {
+        let whitelistStatus;
+        const expirationTimestamp = 1000;
+        await expect(
+          rrpBeaconServer
+            .connect(roles.superAdmin)
+            .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, expirationTimestamp);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        await expect(
+          rrpBeaconServer.connect(roles.superAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, 0);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Template does not exist', function () {
+      it('reverts', async function () {
+        await expect(
+          rrpBeaconServer
+            .connect(roles.superAdmin)
+            .setWhitelistExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, 1000)
+        ).to.be.revertedWith('Template does not exist');
+      });
     });
   });
   context('Caller meta-admin', function () {
-    it('sets whitelist expiration', async function () {
-      let whitelistStatus;
-      const expirationTimestamp = 1000;
-      await expect(
-        rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, expirationTimestamp);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-      await expect(
-        rrpBeaconServer.connect(roles.metaAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, 0);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Template exists', function () {
+      it('sets whitelist expiration', async function () {
+        let whitelistStatus;
+        const expirationTimestamp = 1000;
+        await expect(
+          rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, expirationTimestamp);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        await expect(
+          rrpBeaconServer.connect(roles.metaAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, 0);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Template does not exist', function () {
+      it('reverts', async function () {
+        await expect(
+          rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, 1000)
+        ).to.be.revertedWith('Template does not exist');
+      });
     });
   });
   context('Caller of rank lower than SuperAdmin', function () {
@@ -333,53 +400,87 @@ describe('setWhitelistExpiration', function () {
 
 describe('setWhitelistStatusPastExpiration', function () {
   context('Caller of rank SuperAdmin', function () {
-    it('sets whitelist status past expiration', async function () {
-      let whitelistStatus;
-      await expect(
-        rrpBeaconServer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, true);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
-      await expect(
-        rrpBeaconServer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, false);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Template exists', function () {
+      it('sets whitelist status past expiration', async function () {
+        let whitelistStatus;
+        await expect(
+          rrpBeaconServer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, true);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
+        await expect(
+          rrpBeaconServer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.superAdmin.address, false);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Template does not exist', function () {
+      it('reverts', async function () {
+        await expect(
+          rrpBeaconServer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, true)
+        ).to.be.revertedWith('Template does not exist');
+      });
     });
   });
   context('Caller meta-admin', function () {
-    it('sets whitelist status past expiration', async function () {
-      let whitelistStatus;
-      await expect(
-        rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, true);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
-      await expect(
-        rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false)
-      )
-        .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, false);
-      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Template exists', function () {
+      it('sets whitelist status past expiration', async function () {
+        let whitelistStatus;
+        await expect(
+          rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, true);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
+        await expect(
+          rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false)
+        )
+          .to.emit(rrpBeaconServer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(templateId, roles.beaconReader.address, roles.metaAdmin.address, false);
+        whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(
+          templateId,
+          roles.beaconReader.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Template does not exist', function () {
+      it('reverts', async function () {
+        await expect(
+          rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(utils.generateRandomBytes32(), roles.beaconReader.address, true)
+        ).to.be.revertedWith('Template does not exist');
+      });
     });
   });
   context('Caller of rank lower than SuperAdmin', function () {
@@ -786,133 +887,125 @@ describe('readBeacon', function () {
 });
 
 describe('userCanReadBeacon', function () {
-  context('User whitelisted', function () {
-    context('User of rank Admin', function () {
-      it('returns true', async function () {
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.admin.address, true);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.admin.address)).to.equal(true);
+  context('Template exists', function () {
+    context('User whitelisted', function () {
+      context('User of rank Admin', function () {
+        it('returns true', async function () {
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.admin.address, true);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.admin.address)).to.equal(true);
+        });
+      });
+      context('User of rank SuperAdmin', function () {
+        it('returns true', async function () {
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.superAdmin.address, true);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.superAdmin.address)).to.equal(true);
+        });
+      });
+      context('User meta-admin', function () {
+        it('returns true', async function () {
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.metaAdmin.address, true);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.metaAdmin.address)).to.equal(true);
+        });
+      });
+      context('User of rank lower than Admin', function () {
+        it('returns true', async function () {
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+          const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
+          await rrpBeaconServer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+        });
       });
     });
-    context('User of rank SuperAdmin', function () {
-      it('returns true', async function () {
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.superAdmin.address, true);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.superAdmin.address)).to.equal(true);
+    context('User not whitelisted', function () {
+      context('User of rank Admin', function () {
+        it('returns true', async function () {
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.admin.address)).to.equal(true);
+        });
       });
-    });
-    context('User meta-admin', function () {
-      it('returns true', async function () {
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.metaAdmin.address, true);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.metaAdmin.address)).to.equal(true);
+      context('User of rank SuperAdmin', function () {
+        it('returns true', async function () {
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.superAdmin.address)).to.equal(true);
+        });
       });
-    });
-    context('User of rank lower than Admin', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-        const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-        await rrpBeaconServer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
+      context('User meta-admin', function () {
+        it('returns true', async function () {
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.metaAdmin.address)).to.equal(true);
+        });
+      });
+      context('User of rank lower than Admin', function () {
+        it('returns false', async function () {
+          expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
+        });
       });
     });
   });
-  context('User not whitelisted', function () {
-    context('User of rank Admin', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.admin.address)).to.equal(true);
-      });
-    });
-    context('User of rank SuperAdmin', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.superAdmin.address)).to.equal(true);
-      });
-    });
-    context('User meta-admin', function () {
-      it('returns true', async function () {
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.metaAdmin.address)).to.equal(true);
-      });
-    });
-    context('User of rank lower than Admin', function () {
-      it('returns false', async function () {
-        expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
-      });
-    });
-  });
-
-  context('User whitelisted', function () {
-    it('returns true', async function () {
-      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-      const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
-      await rrpBeaconServer
-        .connect(roles.metaAdmin)
-        .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-      await rrpBeaconServer
-        .connect(roles.metaAdmin)
-        .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
-      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-      await rrpBeaconServer.connect(roles.metaAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(true);
-      await rrpBeaconServer
-        .connect(roles.metaAdmin)
-        .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
-      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.beaconReader.address)).to.equal(false);
-    });
-  });
-  context('User not whitelisted', function () {
-    it('returns false', async function () {
-      expect(await rrpBeaconServer.userCanReadBeacon(templateId, roles.randomPerson.address)).to.equal(false);
+  context('Template does not exist', function () {
+    it('reverts', async function () {
+      await expect(
+        rrpBeaconServer.userCanReadBeacon(utils.generateRandomBytes32(), roles.randomPerson.address)
+      ).to.be.revertedWith('Template does not exist');
     });
   });
 });
 
 describe('templateIdToUserToWhitelistStatus', function () {
-  it('returns whitelist status of the user for the template', async function () {
-    let whitelistStatus;
-    whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-    expect(whitelistStatus.expirationTimestamp).to.equal(0);
-    expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-    const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
-    await rrpBeaconServer
-      .connect(roles.metaAdmin)
-      .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
-    whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-    expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-    expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-    await rrpBeaconServer
-      .connect(roles.metaAdmin)
-      .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
-    whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-    expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-    expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
-    await rrpBeaconServer.connect(roles.metaAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
-    whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-    expect(whitelistStatus.expirationTimestamp).to.equal(0);
-    expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
-    await rrpBeaconServer
-      .connect(roles.metaAdmin)
-      .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
-    whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
-    expect(whitelistStatus.expirationTimestamp).to.equal(0);
-    expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+  context('Template exists', function () {
+    it('returns whitelist status of the user for the template', async function () {
+      let whitelistStatus;
+      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      const expirationTimestamp = (await utils.getCurrentTimestamp(hre.ethers.provider)) + 1000;
+      await rrpBeaconServer
+        .connect(roles.metaAdmin)
+        .setWhitelistExpiration(templateId, roles.beaconReader.address, expirationTimestamp);
+      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
+      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      await rrpBeaconServer
+        .connect(roles.metaAdmin)
+        .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, true);
+      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
+      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
+      await rrpBeaconServer.connect(roles.metaAdmin).setWhitelistExpiration(templateId, roles.beaconReader.address, 0);
+      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
+      await rrpBeaconServer
+        .connect(roles.metaAdmin)
+        .setWhitelistStatusPastExpiration(templateId, roles.beaconReader.address, false);
+      whitelistStatus = await rrpBeaconServer.templateIdToUserToWhitelistStatus(templateId, roles.beaconReader.address);
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    });
+  });
+  context('Template does not exist', function () {
+    it('reverts', async function () {
+      await expect(
+        rrpBeaconServer.templateIdToUserToWhitelistStatus(utils.generateRandomBytes32(), roles.beaconReader.address)
+      ).to.be.revertedWith('Template does not exist');
+    });
   });
 });
 
