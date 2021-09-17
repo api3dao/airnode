@@ -35,6 +35,11 @@ contract Whitelister {
 
     /// @notice Called internally to check if a user is whitelisted to use the
     /// service
+    /// @dev The user is whitelisted if the current timestamp is earlier than
+    /// the expiration of the temporary whitelisting for the service–user pair
+    /// or the service–user pair is whitelisted permanently. These two
+    /// conditions function independently, and the pair is considered
+    /// whitelisted even if only one of these apply.
     /// @param serviceId Service ID
     /// @param user User address
     /// @return isWhitelisted If the user is whitelisted

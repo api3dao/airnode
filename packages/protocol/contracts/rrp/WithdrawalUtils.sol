@@ -18,9 +18,12 @@ contract WithdrawalUtils is IWithdrawalUtils {
     /// the funds kept in the respective sponsor wallet to the sponsor
     /// @dev We do not need to use the withdrawal request parameters in the
     /// request ID hash to validate them at the node-side because all of the
-    /// parameters are used during fulfillment and will get validated on-chain
+    /// parameters are used during fulfillment and will get validated on-chain.
+    /// The first withdrawal request a sponsor will make will cost slightly
+    /// higher gas than the rest due to how the request counter is implemented.
     /// @param airnode Airnode address
-    /// @param sponsorWallet Sponsor wallet
+    /// @param sponsorWallet Sponsor wallet that the withdrawal is requested
+    /// from
     function requestWithdrawal(address airnode, address sponsorWallet)
         external
         override

@@ -27,6 +27,7 @@ contract SelfAdminnable is ISelfAdminnable {
 
     /// @notice Called by an admin of higher rank to set the rank of an admin
     /// of lower rank for the adminned address
+    /// @dev Reverts if `newRank` is `type(uint256).max`
     /// @param adminned Adminned address
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
@@ -51,6 +52,7 @@ contract SelfAdminnable is ISelfAdminnable {
 
     /// @notice Called by an admin to decrease its rank for the adminned
     /// address
+    /// @dev Reverts if `newRank` is `type(uint256).max`
     /// @param adminned Adminned address
     /// @param newRank Rank to be set
     function decreaseSelfRank(address adminned, uint256 newRank)
