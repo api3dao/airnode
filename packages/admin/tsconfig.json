@@ -5,7 +5,10 @@
     "noImplicitReturns": true,
     "outDir": "dist"
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./bin/**/*",
+    "./src/**/*"
+  ],
   "exclude": [
     "dist/**/*",
     "node_modules/**/*"
