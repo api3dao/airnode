@@ -51,21 +51,17 @@ contract RrpBeaconServer is
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
     /// @param updateRequester Update requester address
-    /// @param updatePermissionStatus Update permission status of the update
+    /// @param status Update permission status of the update
     /// requester
-    function setUpdatePermissionStatus(
-        address updateRequester,
-        bool updatePermissionStatus
-    ) external override {
+    function setUpdatePermissionStatus(address updateRequester, bool status)
+        external
+        override
+    {
         require(updateRequester != address(0), "Update requester zero");
         sponsorToUpdateRequesterToPermissionStatus[msg.sender][
             updateRequester
-        ] = updatePermissionStatus;
-        emit SetUpdatePermissionStatus(
-            msg.sender,
-            updateRequester,
-            updatePermissionStatus
-        );
+        ] = status;
+        emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
     }
 
     /// @notice Called to request a beacon to be updated
