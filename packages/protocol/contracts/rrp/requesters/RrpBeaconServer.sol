@@ -18,7 +18,7 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// and implement a customized version instead.
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2038 in the current form. If this is an issue, consider casting
-/// the timestampts to a larger type.
+/// the timestamps to a larger type.
 contract RrpBeaconServer is
     Adminnable,
     Whitelister,
@@ -73,16 +73,14 @@ contract RrpBeaconServer is
     }
 
     /// @notice Called to request a beacon to be updated
-    /// @dev Anyone can request a beacon to be updated. This is because it is
-    /// assumed that a beacon update request is always desirable, and the
-    /// requester and sponsor will pay for the gas cost.
-    /// There are two requirements for this method to be called: (1) The
+    /// @dev There are two requirements for this method to be called: (1) The
     /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
     /// this RrpBeaconServer contract, (2) The sponsor must call
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
     /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned because this is what `fulfill()` expects.
+    /// This point of data should be castable to `int224`.
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
