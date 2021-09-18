@@ -7,6 +7,23 @@ import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { ApiCall, Request, LogsErrorData, RequestErrorCode, RequestStatus, TransactionOptions } from '../../types';
 import { AirnodeRrp } from '../contracts';
 
+/**
+ * When the API fails to respond, we still need to provide a response data. We decided to return "0x", because decoding
+ * this value will cause error for consumers (causing transaction revert). This is good, because people often forget to
+ * check the error code on the airnode response.
+ *
+ * See: https://github.com/api3dao/airnode/issues/416
+ */
+export const API_ERROR_RESPONSE_VALUE = '0x';
+
+const getFulfillmentValue = (request: Request<ApiCall>) => {
+  const statusCode = requests.getErrorCode(request);
+  // NOTE: Allow empty string as responseValue
+  if (statusCode !== 0 || request.responseValue === undefined) return API_ERROR_RESPONSE_VALUE;
+
+  return request.responseValue;
+};
+
 const GAS_LIMIT = 500_000;
 
 type StaticResponse = { readonly callSuccess: boolean } | null;
@@ -52,7 +69,7 @@ async function testFulfill(
       // TODO: make sure airnodeAddress is not null
       request.airnodeAddress!,
       statusCode,
-      request.responseValue || ethers.constants.HashZero,
+      getFulfillmentValue(request),
       request.fulfillAddress,
       request.fulfillFunctionId,
       {
@@ -87,7 +104,7 @@ async function submitFulfill(
       // TODO: make sure airnodeAddress is not null
       request.airnodeAddress!,
       statusCode,
-      request.responseValue || ethers.constants.HashZero,
+      getFulfillmentValue(request),
       request.fulfillAddress,
       request.fulfillFunctionId,
       {

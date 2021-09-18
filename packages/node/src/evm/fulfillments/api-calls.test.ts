@@ -332,7 +332,7 @@ describe('submitApiCall', () => {
         apiCall.id,
         apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
-        ethers.constants.HashZero,
+        apiCalls.API_ERROR_RESPONSE_VALUE,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -342,7 +342,7 @@ describe('submitApiCall', () => {
         apiCall.id,
         apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
-        ethers.constants.HashZero,
+        apiCalls.API_ERROR_RESPONSE_VALUE,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -378,7 +378,7 @@ describe('submitApiCall', () => {
         apiCall.id,
         apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
-        ethers.constants.HashZero,
+        apiCalls.API_ERROR_RESPONSE_VALUE,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -431,7 +431,7 @@ describe('submitApiCall', () => {
         apiCall.id,
         apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
-        ethers.constants.HashZero,
+        apiCalls.API_ERROR_RESPONSE_VALUE,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -441,7 +441,7 @@ describe('submitApiCall', () => {
         apiCall.id,
         apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
-        ethers.constants.HashZero,
+        apiCalls.API_ERROR_RESPONSE_VALUE,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
@@ -479,7 +479,7 @@ describe('submitApiCall', () => {
         apiCall.id,
         apiCall.airnodeAddress,
         ethers.BigNumber.from(RequestErrorCode.ApiCallFailed),
-        ethers.constants.HashZero,
+        apiCalls.API_ERROR_RESPONSE_VALUE,
         apiCall.fulfillAddress,
         apiCall.fulfillFunctionId,
         txOpts
