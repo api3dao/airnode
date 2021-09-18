@@ -233,7 +233,11 @@ contract RrpBeaconServer is
     }
 
     /// @notice Called to read the beacon
-    /// @dev The caller must be whitelisted
+    /// @dev The caller must be whitelisted.
+    /// If the `timestamp` of a beacon is zero, this means that it was never
+    /// written to before, and the zero value in the `value` field is not
+    /// valid. In general, make sure to check if the timestamp of the beacon is
+    /// fresh enough, and definitely disregard beacons with zero `timestamp`.
     /// @param templateId Template ID whose beacon will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
