@@ -155,7 +155,7 @@ describe('validators integration test', () => {
     }`;
     expect(validator.validateJson(JSON.parse(invalidUrlAPISpec), apiTemplate)).toEqual({
       valid: true,
-      messages: [formattingMessage(['servers[0]', 'url'])],
+      messages: [formattingMessage(['servers', '[0]', 'url'])],
     });
 
     const invalidFormattingAPISpec = `{
@@ -194,7 +194,7 @@ describe('validators integration test', () => {
       messages: [
         keyFormattingMessage('myPath', ['paths', 'myPath']),
         error('paths.myPath.get : allowed methods are only "get" or "post" not "get "'),
-        error("Allowed values in paths.myPath.get .parameters[0].in are: 'path', 'query', 'header' or 'cookie'"),
+        error("Allowed values in paths.myPath.get .parameters.[0].in are: 'path', 'query', 'header' or 'cookie'"),
         keyFormattingMessage('mySecurityScheme ', ['components', 'securitySchemes', 'mySecurityScheme ']),
         error('components.securitySchemes.mySecurityScheme .in: Allowed values are "query", "header" or "cookie"'),
         keyFormattingMessage('mySecurityScheme ', ['security', 'mySecurityScheme ']),
@@ -420,10 +420,10 @@ describe('validators integration test', () => {
     expect(validator.validateJson(JSON.parse(missingParametersAPISpec2), apiTemplate)).toEqual({
       valid: false,
       messages: [
-        missingParamMessage(['paths', '/myPath', 'get', 'parameters[0]', 'name']),
-        missingParamMessage(['paths', '/myPath', 'get', 'parameters[0]', 'in']),
-        missingParamMessage(['paths', '/myPath2', 'post', 'parameters[0]', 'name']),
-        missingParamMessage(['paths', '/myPath2', 'post', 'parameters[2]', 'in']),
+        missingParamMessage(['paths', '/myPath', 'get', 'parameters', '[0]', 'name']),
+        missingParamMessage(['paths', '/myPath', 'get', 'parameters', '[0]', 'in']),
+        missingParamMessage(['paths', '/myPath2', 'post', 'parameters', '[0]', 'name']),
+        missingParamMessage(['paths', '/myPath2', 'post', 'parameters', '[2]', 'in']),
         missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'type']),
         missingParamMessage(['components', 'securitySchemes', 'mySecurityScheme', 'in']),
       ],
@@ -490,8 +490,8 @@ describe('validators integration test', () => {
       valid: true,
       messages: [
         extraFieldMessage(['extra']),
-        extraFieldMessage(['servers[0]', 'extra']),
-        extraFieldMessage(['paths', '/myPath', 'get', 'parameters[0]', 'extra']),
+        extraFieldMessage(['servers', '[0]', 'extra']),
+        extraFieldMessage(['paths', '/myPath', 'get', 'parameters', '[0]', 'extra']),
         extraFieldMessage(['paths', '/myPath', 'get', 'others']),
         extraFieldMessage(['components', 'securitySchemes', 'mySecurityScheme', 'extra']),
         extraFieldMessage(['components', 'extra']),

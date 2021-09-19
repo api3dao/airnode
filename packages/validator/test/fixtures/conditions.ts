@@ -82,8 +82,8 @@ export const basicInvalidOut =
     {
       "valid": false,
       "messages": [
-        { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
-        { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+        { "level": "error", "message": "Condition in numbers.[0].value is not met with value" },
+        { "level": "error", "message": "Condition in numbers.[1].value is not met with value" }
       ]
     }
   // << conditions-basic-invalid-out
@@ -168,8 +168,8 @@ export const matchInvalidOut =
     {
       "valid": false,
       "messages": [
-        { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
-        { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+        { "level": "error", "message": "Condition in numbers.[0].value is not met with value" },
+        { "level": "error", "message": "Condition in numbers.[1].value is not met with value" }
       ]
     }
   // << conditions-match-invalid-out
@@ -244,8 +244,8 @@ export const catchInvalidOut =
     {
       "valid": false,
       "messages": [
-        { "level": "error", "message": "numbers[0].value only allowed value is: 'This is required by one'" },
-        { "level": "error", "message": "numbers[1].value only allowed value is: 'This is required by two'" }
+        { "level": "error", "message": "numbers.[0].value only allowed value is: 'This is required by one'" },
+        { "level": "error", "message": "numbers.[1].value only allowed value is: 'This is required by two'" }
       ]
     }
   // << conditions-catch-invalid-out
@@ -320,7 +320,7 @@ export const rootInvalidOut =
     {
       "valid": false,
       "messages": [
-        { "level": "error", "message": "Condition in itemsList[0].name is not met with name" }
+        { "level": "error", "message": "Condition in itemsList.[0].name is not met with name" }
       ]
     }
   // << conditions-root-invalid-out

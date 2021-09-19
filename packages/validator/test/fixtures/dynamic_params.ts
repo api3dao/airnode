@@ -168,8 +168,8 @@ export const valueInvalidOut =
     {
       "valid": false,
       "messages": [
-        { "level": "error", "message": "Condition in bus[0].name is not met with name" },
-        { "level": "warning", "message": "bus[1].owner is not formatted correctly" }
+        { "level": "error", "message": "Condition in bus.[0].name is not met with name" },
+        { "level": "warning", "message": "bus.[1].owner is not formatted correctly" }
       ]
     }
   // << dynamic-value-invalid-out

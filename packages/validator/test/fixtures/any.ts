@@ -191,7 +191,7 @@ export const conditionInvalidOut =
     {
       "valid": false,
       "messages": [
-        { "level": "error", "message": "Condition in vehicles[1].location is not met with location" }
+        { "level": "error", "message": "Condition in vehicles.[1].location is not met with location" }
       ]
     }
   // << any-condition-invalid-out
