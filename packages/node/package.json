@@ -2,17 +2,22 @@
   "name": "@api3/node",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "bin": {
+    "invoke": "./dist/bin/invoke.js",
+    "test-api": "./dist/bin/test-api.js"
+  },
+  "main": "dist/src/index",
+  "types": "dist/src/index",
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf ./dist",
+    "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
-    "dev:invoke": "(cd __dev__ && ts-node invoke.ts)",
-    "dev:testApi": "cd __dev__ && ts-node test-api.ts",
+    "dev:invoke": "ts-node bin/invoke.ts",
+    "dev:testApi": "ts-node bin/test-api.ts",
+    "pack": "yarn pack",
     "prepublishOnly": "yarn run build",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
     "test:e2e:debug": "jest \"requester-fulfill.feature\" --selectProjects e2e",
@@ -24,16 +29,17 @@
     "@api3/adapter": "^0.1.0",
     "@api3/airnode-abi": "^0.1.0",
     "@api3/ois": "^0.1.0",
-    "@api3/operation": "^0.1.0",
     "@api3/protocol": "^0.1.0",
     "@lifeomic/attempt": "^3.0.0",
     "aws-sdk": "^2.753.0",
     "date-fns": "^2.16.1",
     "dotenv": "^10.0.0",
     "ethers": "^5.4.5",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "@api3/operation": "^0.1.0",
     "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.169",
     "@types/node": "^15.12.2",
@@ -41,7 +47,6 @@
     "jest": "^26.6.3",
     "rimraf": "^3.0.2",
     "ts-jest": "^26.5.6",
-    "typescript": "^4.2.4",
-    "yargs": "^17.0.1"
+    "typescript": "^4.2.4"
   }
 }

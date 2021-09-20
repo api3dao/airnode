@@ -3,10 +3,10 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
-    "rootDir": "src"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "bin/**/*"
   ],
   "exclude": [
     "src/**/*.test.ts"

@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { parseConfig } from '../config';
 import * as handlers from '../handlers';
 import * as logger from '../logger';
@@ -16,7 +17,7 @@ export interface CallApiArgs {
 }
 
 function loadConfig() {
-  return parseConfig('./config.json', process.env);
+  return parseConfig(path.resolve(`${__dirname}/../../config/config.json`), process.env);
 }
 
 export async function startCoordinator(): Promise<WorkerResponse> {
