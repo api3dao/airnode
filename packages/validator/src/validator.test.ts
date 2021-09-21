@@ -313,15 +313,15 @@ describe('validator', () => {
         missingParamMessage(['[0]', 'operation', 'path']),
         error('[0].operation.method can be either "get" or "post"'),
         error(
-          '[0].reservedParameters[0].name: Reserved parameter can be only "_type", "_path", "_times" or "_relay_metadata"'
+          '[0].reservedParameters.[0].name: Reserved parameter can be only "_type", "_path", "_times" or "_relay_metadata"'
         ),
-        formattingMessage(['[0]', 'parameters[0]', 'name']),
-        missingParamMessage(['[0]', 'parameters[0]', 'operationParameter']),
+        formattingMessage(['[0]', 'parameters', '[0]', 'name']),
+        missingParamMessage(['[0]', 'parameters', '[0]', 'operationParameter']),
         missingParamMessage(['[1]', 'name']),
         missingParamMessage(['[1]', 'operation']),
-        missingParamMessage(['[1]', 'fixedOperationParameters[0]', 'operationParameter', 'name']),
+        missingParamMessage(['[1]', 'fixedOperationParameters', '[0]', 'operationParameter', 'name']),
         error(
-          "Allowed values in [1].fixedOperationParameters[0].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
+          "Allowed values in [1].fixedOperationParameters.[0].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
         ),
         missingParamMessage(['[1]', 'reservedParameters']),
         missingParamMessage(['[1]', 'parameters']),
@@ -346,12 +346,12 @@ describe('validator', () => {
         error('Parameter "myParameter" from "apiSpecifications.paths./myPath2.get" must be included in "endpoints"'),
         missingParamMessage(['endpoints', '[0]', 'fixedOperationParameters']),
         missingParamMessage(['endpoints', '[1]', 'reservedParameters']),
-        missingParamMessage(['endpoints[0]', 'fixedOperationParameters']),
+        missingParamMessage(['endpoints', '[0]', 'fixedOperationParameters']),
         error(
-          'Expected "apiSpecifications.paths./notMyPath.post" to exist as path "/notMyPath" with method "post" is defined in endpoints[1].operation.path'
+          'Expected "apiSpecifications.paths./notMyPath.post" to exist as path "/notMyPath" with method "post" is defined in endpoints.[1].operation.path'
         ),
         error(
-          'Properties of parameter "myParameter" from endpoints[1].parameters[0], must match it\'s properties in apiSpecifications.paths'
+          'Properties of parameter "myParameter" from endpoints.[1].parameters.[0], must match it\'s properties in apiSpecifications.paths'
         ),
       ],
     });

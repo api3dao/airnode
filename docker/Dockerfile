@@ -1,62 +1,54 @@
+ARG build=local
+
+# Environment
+FROM node:14.17-alpine3.14 AS environment
+
+ENV buildDir="/build" \
+    dependenciesDir="/dependencies" \
+    packagesDir="/packages"
+
+WORKDIR ${buildDir}
+
 # Build preparation
-FROM node:14.17.1-alpine3.13 as preparation
+FROM environment AS preparation
 
-ARG yarnRegistry
+RUN apk add --update --no-cache git
 
-ENV airnodeDir="/app/airnode"
-ENV deployerDir="${airnodeDir}/packages/deployer" \
-    YARN_REGISTRY=${yarnRegistry}
+# Source preparation - local
+FROM preparation as sourcelocal
 
-RUN apk add --update python3 make g++ && \
-    mkdir -p ${deployerDir}
+COPY . ${buildDir}
 
-WORKDIR ${deployerDir}
+# Source preparation - git
+FROM preparation as sourcegit
 
-# Actual build
-FROM preparation as build
+ARG branch=master
+ARG repository=https://github.com/api3dao/airnode.git
 
-COPY tsconfig.build.json ${airnodeDir}
-COPY packages/deployer ${deployerDir}
+RUN git clone ${repository} ${buildDir} -b ${branch}
 
-RUN yarn install && \
-    yarn build
+# Production dependencies
+FROM source${build} AS deps
 
-# Necessary NPM packages
-FROM preparation as dependencies
+RUN yarn global add lerna && \
+    lerna bootstrap -- --production --no-optional --ignore-scripts && \
+    rm -rf node_modules/@api3
 
-COPY packages/deployer/package.json ${deployerDir}
-COPY packages/deployer/yarn.lock ${deployerDir}
+# Build
+FROM source${build} AS build
 
-ENV NODE_ENV production
+RUN yarn bootstrap && \
+    yarn build && \
+    yarn run pack && \
+    mkdir ${packagesDir} && \
+    cd ${packagesDir} && \
+    cp ${buildDir}/packages/*/*.tgz . && \
+    # Unpack each .tgz package into a directory with its name (simulating node_modules structure)
+    for name in *; do package=$(echo ${name} | sed "s/api3-\(.*\)-v.*\.tgz/\1/g") && mkdir "${package}" && tar -xf ${name} -C "${package}" --strip-components 1 && rm ${name}; done
 
-RUN yarn install --prod
+# Artifact storage
+FROM environment AS artifacts
 
-# Run image
-FROM node:14.17.1-alpine3.13
-
-ENV name="airnode-deployer" \
-    terraformURL="https://releases.hashicorp.com/terraform/0.15.3/terraform_0.15.3_linux_amd64.zip" \
-    buildDeployerDir="/app/airnode/packages/deployer" \
-    deployerBin="/usr/local/bin/deployer" \
-    deployerDir="/app"
-
-LABEL application=${name} \
-    description="Arinode Deployer CLI"
-
-COPY --from=build ${buildDeployerDir}/dist ${deployerDir}
-COPY --from=dependencies ${buildDeployerDir}/node_modules ${deployerDir}/node_modules
-COPY docker/entrypoint.sh /entrypoint.sh
-
-# Install external dependencies
-RUN apk add --update --no-cache su-exec git && \
-    # Download Terraform binary
-    wget ${terraformURL} && \
-    unzip *.zip -d /bin && \
-    rm -rf *.zip && \
-    # Make the binary available within PATH
-    ln -s ${deployerDir}/bin/deployer.js ${deployerBin} && \
-    chmod +x ${deployerBin}
-
-WORKDIR ${deployerDir}
-
-ENTRYPOINT ["/entrypoint.sh"]
+COPY --from=deps ${buildDir}/node_modules ${dependenciesDir}
+COPY --from=build ${packagesDir} ${packagesDir}
+COPY --from=build ${buildDir} ${buildDir}

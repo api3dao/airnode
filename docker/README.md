@@ -1,101 +1,37 @@
-**This documentation focuses on the Deployer Docker image and its usage, not the Deployer itself. If you want learn more about the Deployer, please read [its documentation](../packages/deployer/README.md).**
+# api3/artifacts
 
-# Build
-You can build the Docker image by running:
+This is a Docker container for building all the packages in the monorepo and providing their build artifacts. Other package specific containers can use this one to obtain files necessary for their run without building or installing any additional dependencies.
+
+## Build
+Builds need to be run from the root directory to build the necessary context.
+
+Usage of the new Docker Engine integrating BuildKit is highly recommended as it will both decrease the build time and allow conditional build steps. You can read more about how to enable it in its [documentation](https://docs.docker.com/develop/develop-images/build_enhancements/).
+
+### Local
+You can build the container image from your current workspace by providing a build type `local` (this is the default)
 ```bash
-docker build -f docker/Dockerfile -t api3/deployer:latest .
+docker build --build-arg build=local -f docker/Dockerfile -t api3/artifacts:latest .
+# or with no build argument
 ```
 
-Before the build, all Deployer dependencies (but not the Deployer itself) must be available in the package registry.
-
-> You can use build argument `yarnRegistry` to specify a different package registry for package installation. If you're providing your own `yarnRegistry`, all of the Deployer's dependencies must be published and available. This is useful for testing a Docker build with unreleased dependencies. You can use for example [Verdaccio](https://verdaccio.org/) for this purpose.
-
-# Configuration
-## Credentials
-In order to deploy Airnode to a cloud provider like AWS, you need to provide your cloud credentials to the container. Airnode currently only supports deploying to [AWS](https://aws.amazon.com/lambda/).
-
-### AWS
-There are two options to provide your AWS credentials to the Docker container
-
-#### Option A: Environment variables:
-Create a `aws.env` file with following content and reference it when running Docker
-```
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
-AWS_SESSION_TOKEN=...
-```
-
+### Git
+You can build the container image from the Git repository and you can also provide a branch, tag or commit from which the build should be done
 ```bash
-$ docker run --env-file aws.env ...
+docker build --build-arg build=git --build-arg branch=my-branch -f docker/Dockerfile -t api3/artifacts:latest .
+# the default branch is master
 ```
 
-Alternatively, you can provide the environment variables in separately to the Docker command
-```bash
-docker run -e AWS_ACCESS_KEY_ID=... -e AWS_SECRET_ACCESS_KEY=... ...
-```
+## Usage
+Artifacts Docker image is not suitable for a direct usage. It's a building step for other containers.
 
-#### Option B: A configuration file:
-You can use a [credential file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-where) to store toy AWS credentials. Passing this file to the container will allow the Deployer to use these credentials:
-```bash
-docker run -v ${HOME}/.aws/credentials:/root/.aws/credentials ...
-```
+Once built the image contains 3 directories with artifacts that can be used for building other images:
+* `/build` - contains copy of the monorepo with all the packages build, including all the dev dependencies
+* `/packages` - contains directories representing unpacked packages of all the packages in the monorepo
+* `/dependencies` - contains runtime dependencies for all the packages in the monorepo (content of the main `node_modules` directory) excluding the packages from the monorepo themselves
 
-## Permissions
-By default, the Deployer is run by the user `root`. This may lead to some permission issues since the Deployer provides an output in a form of a `receipt.json` file. To avoid any permission problems, you can specify the [UID (user identifier)](https://en.wikipedia.org/wiki/User_identifier) and [GID (group identifier)](https://en.wikipedia.org/wiki/Group_identifier) that the Deployer should use. You can do that by setting the environment variables `USER_ID` and `GROUP_ID`:
-```bash
-docker run -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) ...
-```
-
-## Volumes
-The Deployer needs two configuration files for deployment: `config.json` and `secrets.env`. After a successful deployment has been completed, a `receipt.json` will be created in a new `output/` directory. `receipt.json` must be provided for the removal of a deployed Airnode.
-
-All of these files need to be passed to the Docker container via volumes.
-
-By default, the Docker container looks for configuration files mounted internally in the `/app/config` directory and writes output files to the `/app/output` directory.
-```bash
-$ tree
-.
-├── aws.env
-├── config
-│   ├── config.json
-│   └── secrets.env
-└── output
-$ docker run -v $(pwd)/config:/app/config -v $(pwd)/output:/app/output ...
-$ ls output/
-receipt.json
-```
-
-# Usage
-Example directory structure and commands for running the Deployer Docker container. The below commands are run from the depicted directory.
-
-> If you are using Windows, use CMD (and not PowerShell), replace `\` with `^` and `$(pwd)` with `%cd%`.
-
-## Directory structure
-```bash
-$ tree
-.
-├── aws.env
-├── config
-│   ├── config.json
-│   └── secrets.env
-└── output
-```
-
-## Deployment and update
-```bash
-docker run -it --rm \
-  --env-file aws.env \
-  -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
-  -v $(pwd)/config:/app/config \
-  -v $(pwd)/output:/app/output \
-  api3/deployer:latest deploy
-```
-
-## Removal
-```bash
-docker run -it --rm \
-  --env-file aws.env \
-  -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) \
-  -v $(pwd)/output:/app/output \
-  api3/deployer:latest remove -r output/receipt.json
+### Dockerfile example
+```Docker
+COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
+COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
+COPY --from=api3/artifacts /build/packages/deployer/dist ${appDir}/
 ```

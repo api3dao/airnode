@@ -129,18 +129,11 @@ export function warnExtraFields(nonRedundant: any, specs: any, paramPath: string
   if (Array.isArray(specs)) {
     const messages: { level: 'warning' | 'error'; message: string }[] = [];
 
-    if (!paramPath.length) {
-      paramPath.push('');
-    }
+    paramPath.push('[0]');
 
     for (let i = 0; i < specs.length; i++) {
       if (nonRedundant[i] !== undefined) {
-        if (paramPath[paramPath.length - 1].match(regexList.arrayIndex)) {
-          paramPath[paramPath.length - 1] = paramPath[paramPath.length - 1].replace(regexList.arrayIndex, `[${i}]`);
-        } else {
-          paramPath[paramPath.length - 1] += `[${i}]`;
-        }
-
+        paramPath[paramPath.length - 1] = `[${i}]`;
         messages.push(...warnExtraFields(nonRedundant[i], specs[i], paramPath));
       }
     }

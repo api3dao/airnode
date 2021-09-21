@@ -6,8 +6,9 @@
   "main": "dist/index",
   "scripts": {
     "build": "yarn run clean && yarn run compile",
-    "clean": "rimraf -rf ./dist",
+    "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
+    "pack": "yarn pack",
     "prepublishOnly": "yarn run build",
     "test:e2e": "jest --selectProjects e2e",
     "test:e2e:watch": "jest --coverage --watch --selectProjects e2e",

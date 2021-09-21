@@ -117,7 +117,7 @@
                 "__rootThen": {
                   "apiSpecifications": {
                     "paths": {
-                      "[['/', '{{0}}', 'operation', 'path']]": {
+                      "[['/', '{{0}}', '{{1}}', 'operation', 'path']]": {
                         "__any": {
                           "parameters": {
                             "__any": {
@@ -135,7 +135,7 @@
                   }
                 },
                 "__catch": {
-                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}, must match it's properties in __prefixapiSpecifications.paths"
+                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}.{{2}}.{{3}}, must match it's properties in __prefixapiSpecifications.paths"
                 }
               }
             ]
@@ -154,7 +154,7 @@
                 "__rootThen": {
                   "apiSpecifications": {
                     "paths": {
-                      "[['/', '{{0}}', 'operation', 'path']]": {
+                      "[['/', '{{0}}', '{{1}}', 'operation', 'path']]": {
                         "__any": {
                           "parameters": {
                             "__any": {
@@ -172,7 +172,7 @@
                   }
                 },
                 "__catch": {
-                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}, must match it's properties in __prefixapiSpecifications.paths"
+                  "__message": "Properties of parameter \"__match\" from __prefix{{0}}.{{1}}.{{2}}.{{3}}, must match it's properties in __prefixapiSpecifications.paths"
                 }
               }
             ]

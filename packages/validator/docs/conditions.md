@@ -93,8 +93,8 @@ Even if evaluation of `__then` object takes place, all messages from this valida
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
-    { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+    { "level": "error", "message": "Condition in numbers.[0].value is not met with value" },
+    { "level": "error", "message": "Condition in numbers.[1].value is not met with value" }
   ]
 }
 ```
@@ -187,8 +187,8 @@ Matched pattern of regular expression in `__if` object can be accessed with `__m
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Condition in numbers[0].value is not met with value" },
-    { "level": "error", "message": "Condition in numbers[1].value is not met with value" }
+    { "level": "error", "message": "Condition in numbers.[0].value is not met with value" },
+    { "level": "error", "message": "Condition in numbers.[1].value is not met with value" }
   ]
 }
 ```
@@ -270,8 +270,8 @@ As the default error message in conditions is not very specific, it can be repla
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "numbers[0].value only allowed value is: 'This is required by one'" },
-    { "level": "error", "message": "numbers[1].value only allowed value is: 'This is required by two'" }
+    { "level": "error", "message": "numbers.[0].value only allowed value is: 'This is required by one'" },
+    { "level": "error", "message": "numbers.[1].value only allowed value is: 'This is required by two'" }
   ]
 }
 ```
@@ -354,7 +354,7 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 {
   "valid": false,
   "messages": [
-    { "level": "error", "message": "Condition in itemsList[0].name is not met with name" }
+    { "level": "error", "message": "Condition in itemsList.[0].name is not met with name" }
   ]
 }
 ```
