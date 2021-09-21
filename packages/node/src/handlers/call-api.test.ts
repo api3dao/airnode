@@ -79,7 +79,7 @@ describe('callApi', () => {
               ...(expectMetadata && {
                 _airnode_airnode_address: aggregatedCall.airnodeAddress,
                 _airnode_requester_address: aggregatedCall.requesterAddress,
-                _airnode_sponsor_wallet: aggregatedCall.sponsorWallet,
+                _airnode_sponsor_wallet_address: aggregatedCall.sponsorWalletAddress,
                 _airnode_endpoint_id: aggregatedCall.endpointId,
                 _airnode_sponsor_address: aggregatedCall.sponsorAddress,
                 _airnode_request_id: aggregatedCall.id,

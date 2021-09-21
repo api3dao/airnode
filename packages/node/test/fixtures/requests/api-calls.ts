@@ -11,7 +11,7 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
     chainId: '31337',
     requesterAddress: 'requesterAddress',
     sponsorAddress: 'sponsorAddress',
-    sponsorWallet: 'sponsorWallet',
+    sponsorWalletAddress: 'sponsorWalletAddress',
     encodedParameters: 'encodedParameters',
     endpointId: 'endpointId',
     fulfillAddress: 'fulfillAddress',

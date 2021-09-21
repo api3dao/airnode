@@ -35,7 +35,7 @@ describe('mergeApiCallsWithTemplates', () => {
     // These fields are not overwritten
     expect(res[0].fulfillAddress).toEqual('fulfillAddress');
     expect(res[0].fulfillFunctionId).toEqual('fulfillFunctionId');
-    expect(res[0].sponsorWallet).toEqual('sponsorWallet');
+    expect(res[0].sponsorWalletAddress).toEqual('sponsorWalletAddress');
     expect(res[0].sponsorAddress).toEqual('sponsorAddress');
   });
 

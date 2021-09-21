@@ -53,7 +53,7 @@ describe('testApi', () => {
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       sponsorAddress: '',
       requesterAddress: '',
-      sponsorWallet: '',
+      sponsorWalletAddress: '',
       chainId: '',
       endpointId: ENDPOINT_ID,
       id: expect.any(String),

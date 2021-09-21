@@ -18,7 +18,7 @@ function buildMetadataParameters(
       const metadataParametersV1: adapter.MetadataParametersV1 = {
         _airnode_airnode_address: aggregatedApiCall.airnodeAddress,
         _airnode_requester_address: aggregatedApiCall.requesterAddress,
-        _airnode_sponsor_wallet: aggregatedApiCall.sponsorWallet,
+        _airnode_sponsor_wallet_address: aggregatedApiCall.sponsorWalletAddress,
         _airnode_endpoint_id: aggregatedApiCall.endpointId,
         _airnode_sponsor_address: aggregatedApiCall.sponsorAddress,
         _airnode_request_id: aggregatedApiCall.id,
