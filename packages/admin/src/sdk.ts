@@ -7,7 +7,7 @@ import * as admin from './implementation';
  */
 export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;
-  static getAirnodeRrpWithSigner = evm.getAirnodeRrpWithSigner;
+  static getAirnodeRequesterRrpAuthorizer = evm.getAirnodeRequesterRrpAuthorizer;
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
   static deriveWalletPathFromSponsorAddress = (sponsorAddress: string) =>
     admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
@@ -94,6 +94,6 @@ export class AdminSdk {
   getWhitelistStatus = (airnodeAddress: string, endpointId: string, userAddress: string) =>
     admin.getWhitelistStatus(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
 
-  userIsWhitelisted = (airnodeAddress: string, endpointId: string, userAddress: string) =>
-    admin.userIsWhitelisted(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
+  isUserWhitelisted = (airnodeAddress: string, endpointId: string, userAddress: string) =>
+    admin.isUserWhitelisted(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
 }
