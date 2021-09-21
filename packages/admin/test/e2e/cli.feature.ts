@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 import difference from 'lodash/difference';
-import { AirnodeRrp, AirnodeRrpFactory } from '@api3/protocol';
+import { AirnodeRrp, AirnodeRrpFactory, authorizers, AirnodeRequesterRrpAuthorizer } from '@api3/protocol';
 import { ethers } from 'ethers';
 import * as admin from '../../src';
 
@@ -26,7 +26,7 @@ describe('CLI', () => {
   // https://hardhat.org/hardhat-network/#hardhat-network-initial-state
   const mnemonic = 'test test test test test test test test test test test junk';
 
-  type CommandArg = [string, string | string[]];
+  type CommandArg = [string, string | string[] | number | boolean];
   const execCommand = (command: string, ...args: CommandArg[]) => {
     const quote = (val: string) => `"${val}"`;
     const formattedArgs = args
@@ -34,7 +34,7 @@ describe('CLI', () => {
         // if args is array then quote each elem and separate them with space
         if (Array.isArray(a)) return `${c} ${a.map(quote).join(' ')}`;
         // otherwise just quote each elem and separate them with space
-        else return `${c} ${quote(a)}`;
+        else return `${c} ${quote(String(a))}`;
       })
       .join(' ');
     const formattedCommand = `${command} ${formattedArgs}`;
@@ -372,6 +372,204 @@ describe('CLI', () => {
       expect(() =>
         execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--providerUrl', PROVIDER_URL])
       ).toThrow('Unknown arguments: mnemonic, providerUrl, not-existent-command');
+    });
+  });
+
+  describe('AirnodeRequesterRrpAuthorizer', () => {
+    const AdminRank = Object.freeze({
+      Unauthorized: 0,
+      Admin: 1,
+      SuperAdmin: 2,
+    });
+    const oisTitle = 'title';
+    const endpointName = 'endpoint';
+    const endpointId = ethers.utils.keccak256(
+      ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
+    );
+    const expirationTimestamp = 1947451793;
+    let airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer;
+
+    beforeEach(async () => {
+      airnodeRequesterRrpAuthorizer = await new authorizers.AirnodeRequesterRrpAuthorizerFactory(deployer).deploy();
+
+      await airnodeRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setRank(airnodeWallet.address, bob.address, AdminRank.Admin, { gasLimit: 500000 });
+    });
+
+    it('sets whitelist expiration timestamp', async () => {
+      let whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+        airnodeWallet.address,
+        endpointId,
+        alice.address
+      );
+      expect(whitelistStatus.expirationTimestamp.toNumber()).toEqual(0);
+      expect(whitelistStatus.whitelistedPastExpiration).toEqual(false);
+
+      const setWhitelistExpirationOut = execCommand(
+        'set-whitelist-expiration',
+        ['--mnemonic', airnodeWallet.mnemonic.phrase],
+        ['--derivationPath', airnodeWallet.mnemonic.path],
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--expirationTimestamp', expirationTimestamp],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(setWhitelistExpirationOut).toEqual(`Whitelist expiration: ${expirationTimestamp}`);
+
+      whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+        airnodeWallet.address,
+        endpointId,
+        alice.address
+      );
+      expect(whitelistStatus.expirationTimestamp.toNumber()).toEqual(expirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).toEqual(false);
+    });
+
+    it('extends whitelist expiration timestamp', async () => {
+      const extendedExpirationTimestamp = 1947451793 + 10_000;
+
+      await airnodeRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp);
+      let whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+        airnodeWallet.address,
+        endpointId,
+        alice.address
+      );
+      expect(whitelistStatus.expirationTimestamp.toNumber()).toEqual(expirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).toEqual(false);
+
+      const extendWhitelistExpirationOut = execCommand(
+        'extend-whitelist-expiration',
+        ['--mnemonic', bob.mnemonic.phrase], // An admin should be able to extend whitelist expiration
+        ['--derivationPath', bobDerivationPath],
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--expirationTimestamp', extendedExpirationTimestamp],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(extendWhitelistExpirationOut).toEqual(`Whitelist expiration: ${extendedExpirationTimestamp}`);
+
+      whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+        airnodeWallet.address,
+        endpointId,
+        alice.address
+      );
+      expect(whitelistStatus.expirationTimestamp.toNumber()).toEqual(extendedExpirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).toEqual(false);
+    });
+
+    it('sets the whitelist status of a user past expiration', async () => {
+      await airnodeRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp);
+      let whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+        airnodeWallet.address,
+        endpointId,
+        alice.address
+      );
+      expect(whitelistStatus.expirationTimestamp.toNumber()).toEqual(expirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).toEqual(false);
+
+      const setWhitelistStatusPastExpirationOut = execCommand(
+        'set-whitelist-status-past-expiration',
+        ['--mnemonic', airnodeWallet.mnemonic.phrase],
+        ['--derivationPath', airnodeWallet.mnemonic.path],
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--whitelistStatusPastExpiration', true],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(setWhitelistStatusPastExpirationOut).toEqual(`Whitelist status: ${true}`);
+
+      whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+        airnodeWallet.address,
+        endpointId,
+        alice.address
+      );
+      expect(whitelistStatus.expirationTimestamp.toNumber()).toEqual(expirationTimestamp);
+      expect(whitelistStatus.whitelistedPastExpiration).toEqual(true);
+    });
+
+    it('can get whitelist status', async () => {
+      let out = execCommand(
+        'get-whitelist-status',
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(JSON.parse(out)).toEqual({
+        expirationTimestamp: 0,
+        whitelistedPastExpiration: false,
+      });
+
+      await airnodeRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp);
+      out = execCommand(
+        'get-whitelist-status',
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(JSON.parse(out)).toEqual(
+        expect.objectContaining({
+          expirationTimestamp,
+        })
+      );
+
+      await airnodeRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setWhitelistStatusPastExpiration(airnodeWallet.address, endpointId, alice.address, true);
+      out = execCommand(
+        'get-whitelist-status',
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(JSON.parse(out)).toEqual(
+        expect.objectContaining({
+          whitelistedPastExpiration: true,
+        })
+      );
+    });
+
+    it('can get if user is whitelist', async () => {
+      let out = execCommand(
+        'user-is-whitelisted',
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(out).toEqual('User is whitelisted: false');
+
+      await airnodeRequesterRrpAuthorizer
+        .connect(airnodeWallet)
+        .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp);
+      out = execCommand(
+        'user-is-whitelisted',
+        ['--providerUrl', PROVIDER_URL],
+        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpointId', endpointId],
+        ['--userAddress', alice.address],
+        ['--airnodeAddress', airnodeWallet.address]
+      );
+      expect(out).toEqual('User is whitelisted: true');
     });
   });
 });

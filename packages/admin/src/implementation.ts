@@ -1,5 +1,5 @@
 import * as airnodeAbi from '@api3/airnode-abi';
-import { AirnodeRrp } from '@api3/protocol';
+import { AirnodeRrp, AirnodeRequesterRrpAuthorizer } from '@api3/protocol';
 import { ethers } from 'ethers';
 
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
@@ -219,4 +219,77 @@ export async function fulfillWithdrawal(
       resolve({ airnode, sponsor, withdrawalRequestId, sponsorWallet, amount: amount.toString() });
     })
   );
+}
+
+export async function setWhitelistExpiration(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string,
+  expirationTimestamp: number
+) {
+  const tx = await airnodeRequesterRrpAuthorizer.setWhitelistExpiration(
+    airnodeAddress,
+    endpointId,
+    userAddress,
+    expirationTimestamp
+  );
+  await tx.wait();
+}
+
+export async function extendWhitelistExpiration(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string,
+  expirationTimestamp: number
+) {
+  const tx = await airnodeRequesterRrpAuthorizer.extendWhitelistExpiration(
+    airnodeAddress,
+    endpointId,
+    userAddress,
+    expirationTimestamp
+  );
+  await tx.wait();
+}
+
+export async function setWhitelistStatusPastExpiration(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string,
+  status: boolean
+) {
+  const tx = await airnodeRequesterRrpAuthorizer.setWhitelistStatusPastExpiration(
+    airnodeAddress,
+    endpointId,
+    userAddress,
+    status
+  );
+  await tx.wait();
+}
+
+export async function getWhitelistStatus(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string
+) {
+  const { expirationTimestamp, whitelistedPastExpiration } =
+    await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+      airnodeAddress,
+      endpointId,
+      userAddress
+    );
+
+  return { expirationTimestamp: expirationTimestamp.toNumber(), whitelistedPastExpiration };
+}
+
+export async function userIsWhitelisted(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string
+) {
+  return airnodeRequesterRrpAuthorizer.userIsWhitelisted(airnodeAddress, endpointId, userAddress);
 }

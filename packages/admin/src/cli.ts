@@ -20,6 +20,27 @@ const COMMON_COMMAND_ARGUMENTS = {
       describe: 'Extended public key for the Airnode wallet',
     },
   },
+  airnodeRequesterRrpAuthorizerCommands: {
+    providerUrl: {
+      type: 'string',
+      demandOption: true,
+      describe: 'URL of the blockchain provider',
+    },
+    airnodeRequesterRrpAuthorizer: {
+      type: 'string',
+      describe: 'Address of the deployed AirnodeRequesterRrpAuthorizer contract',
+    },
+    endpointId: {
+      type: 'string',
+      demandOption: true,
+      describe: 'Id of the endpoint',
+    },
+    userAddress: {
+      type: 'string',
+      demandOption: true,
+      describe: 'Address of the user',
+    },
+  },
   mnemonicCommands: {
     mnemonic: {
       type: 'string',
@@ -56,16 +77,29 @@ const COMMON_COMMAND_ARGUMENTS = {
     demandOption: true,
     describe: 'Withdrawal request ID',
   },
+  expirationTimestamp: {
+    type: 'number',
+    demandOption: true,
+    describe: 'Timestamp at which the whitelisting of the user will expire',
+  },
+  whitelistStatusPastExpiration: {
+    type: 'boolean',
+    demandOption: true,
+    describe: 'Whitelist status that the user will have past expiration',
+  },
 } as const;
 
 const {
   airnodeRrpCommands,
+  airnodeRequesterRrpAuthorizerCommands,
   mnemonicCommands,
   sponsorAddress,
   airnodeAddress,
   sponsorWalletAddress,
   requesterAddress,
   withdrawalRequestId,
+  expirationTimestamp,
+  whitelistStatusPastExpiration,
 } = COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
@@ -279,6 +313,126 @@ yargs
     async (args) => {
       const endpointId = await admin.deriveEndpointId(args.oisTitle, args.endpointName);
       console.log(`Endpoint ID: ${endpointId}`);
+    }
+  )
+  .command(
+    'set-whitelist-expiration',
+    'Sets whitelist expiration of a user for the Airnode–endpoint pair',
+    {
+      ...airnodeRequesterRrpAuthorizerCommands,
+      ...mnemonicCommands,
+      airnodeAddress,
+      expirationTimestamp,
+    },
+    async (args) => {
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizerWithSigner(
+        args.mnemonic,
+        args.derivationPath,
+        args.providerUrl,
+        args.airnodeRequesterRrpAuthorizer
+      );
+      await admin.setWhitelistExpiration(
+        airnodeRequesterRrpAuthorizer,
+        args.airnodeAddress,
+        args.endpointId,
+        args.userAddress,
+        args.expirationTimestamp
+      );
+      console.log(`Whitelist expiration: ${args.expirationTimestamp}`);
+    }
+  )
+  .command(
+    'extend-whitelist-expiration',
+    'Extends whitelist expiration of a user for the Airnode–endpoint pair',
+    {
+      ...airnodeRequesterRrpAuthorizerCommands,
+      ...mnemonicCommands,
+      airnodeAddress,
+      expirationTimestamp,
+    },
+    async (args) => {
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizerWithSigner(
+        args.mnemonic,
+        args.derivationPath,
+        args.providerUrl,
+        args.airnodeRequesterRrpAuthorizer
+      );
+      await admin.extendWhitelistExpiration(
+        airnodeRequesterRrpAuthorizer,
+        args.airnodeAddress,
+        args.endpointId,
+        args.userAddress,
+        args.expirationTimestamp
+      );
+      console.log(`Whitelist expiration: ${args.expirationTimestamp}`);
+    }
+  )
+  .command(
+    'set-whitelist-status-past-expiration',
+    'Sets the whitelist status of a user past expiration for the Airnode–endpoint pair',
+    {
+      ...airnodeRequesterRrpAuthorizerCommands,
+      ...mnemonicCommands,
+      airnodeAddress,
+      whitelistStatusPastExpiration,
+    },
+    async (args) => {
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizerWithSigner(
+        args.mnemonic,
+        args.derivationPath,
+        args.providerUrl,
+        args.airnodeRequesterRrpAuthorizer
+      );
+      await admin.setWhitelistStatusPastExpiration(
+        airnodeRequesterRrpAuthorizer,
+        args.airnodeAddress,
+        args.endpointId,
+        args.userAddress,
+        args.whitelistStatusPastExpiration
+      );
+      console.log(`Whitelist status: ${args.whitelistStatusPastExpiration}`);
+    }
+  )
+  .command(
+    'get-whitelist-status',
+    'Returns the detailed whitelist status of a user for the Airnode–endpoint pair',
+    {
+      ...airnodeRequesterRrpAuthorizerCommands,
+      airnodeAddress,
+    },
+    async (args) => {
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(
+        args.providerUrl,
+        args.airnodeRequesterRrpAuthorizer
+      );
+      const whitelistStatus = await admin.getWhitelistStatus(
+        airnodeRequesterRrpAuthorizer,
+        args.airnodeAddress,
+        args.endpointId,
+        args.userAddress
+      );
+      console.log(toJSON(whitelistStatus));
+    }
+  )
+  .command(
+    'user-is-whitelisted',
+    'Returns if a user is whitelisted to use the Airnode–endpoint pair',
+    {
+      ...airnodeRequesterRrpAuthorizerCommands,
+      airnodeAddress,
+    },
+    async (args) => {
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(
+        args.providerUrl,
+        args.airnodeRequesterRrpAuthorizer
+      );
+      const userIsWhitelisted = await admin.userIsWhitelisted(
+        airnodeRequesterRrpAuthorizer,
+        args.airnodeAddress,
+        args.endpointId,
+        args.userAddress
+      );
+      console.log(`User is whitelisted: ${userIsWhitelisted}`);
     }
   )
   .demandCommand(1)
