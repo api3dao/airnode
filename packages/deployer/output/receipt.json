@@ -1,0 +1,33 @@
+{
+  "airnodeId": "0xfa8a6ccba9e0722e46c27e5bd18dce05a1a774a41659b11a509d645f100ae94f",
+  "airnodeIdShort": "fa8a6cc",
+  "config": {
+    "chains": [
+      {
+        "airnodeAdmin": "0x5e0051B74bb4006480A1b548af9F1F0e0954F410",
+        "authorizers": [
+          "0x0000000000000000000000000000000000000000"
+        ],
+        "contracts": {
+          "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+        },
+        "id": "31337",
+        "providerNames": [
+          "EVM local"
+        ],
+        "type": "evm"
+      }
+    ],
+    "nodeSettings": {
+      "cloudProvider": "aws",
+      "enableHeartbeat": true,
+      "logFormat": "plain",
+      "logLevel": "INFO",
+      "nodeVersion": "0.1.0",
+      "region": "eu-west-3",
+      "stage": "dev"
+    }
+  },
+  "masterWalletAddress": "0x9F941D6294f01E4f4CbFbE90e79235484E48c713",
+  "xpub": "xpub661MyMwAqRbcGdhjBEAXrdfy8QbSWq2BA47H6gQeC5nBZLuNpugmFcWntT2xHB2fcKZ77518Z8gRKVysxtJkyrEUJRWB3DvM8uYVTuiY1WK"
+}
