@@ -24,7 +24,7 @@ export async function deployAuthorizers(state: State): Promise<State> {
   const authorizersByName: { [name: string]: string } = {};
   for (const [authorizerName, AuthorizerArtifact] of Object.entries(authorizers)) {
     const Authorizer = new (AuthorizerArtifact as any)(state.deployer);
-    const authorizer = await Authorizer.deploy(state.contracts.AirnodeRrp!.address);
+    const authorizer = await Authorizer.deploy();
     await authorizer.deployed();
     authorizersByName[authorizerName] = authorizer.address;
   }
