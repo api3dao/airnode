@@ -1,4 +1,4 @@
-import { AirnodeRrp } from '@api3/protocol';
+import { AirnodeRequesterRrpAuthorizer, AirnodeRrp } from '@api3/protocol';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -12,7 +12,7 @@ export class AdminSdk {
   static deriveWalletPathFromSponsorAddress = (sponsorAddress: string) =>
     admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
 
-  constructor(public airnodeRrp: AirnodeRrp) {}
+  constructor(public airnodeRrp: AirnodeRrp, public airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer) {}
 
   deriveSponsorWalletAddress = (airnodeAddress: string, sponsorAddress: string, xpub?: string) =>
     admin.deriveSponsorWalletAddress(this.airnodeRrp, airnodeAddress, sponsorAddress, xpub);
@@ -48,4 +48,52 @@ export class AdminSdk {
 
   fulfillWithdrawal = (requestId: string, airnodeAddress: string, sponsorAddress: string, amount: string) =>
     admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount);
+
+  setWhitelistExpiration = (
+    airnodeAddress: string,
+    endpointId: string,
+    userAddress: string,
+    expirationTimestamp: number
+  ) =>
+    admin.setWhitelistExpiration(
+      this.airnodeRequesterRrpAuthorizer,
+      airnodeAddress,
+      endpointId,
+      userAddress,
+      expirationTimestamp
+    );
+
+  extendWhitelistExpiration = (
+    airnodeAddress: string,
+    endpointId: string,
+    userAddress: string,
+    expirationTimestamp: number
+  ) =>
+    admin.extendWhitelistExpiration(
+      this.airnodeRequesterRrpAuthorizer,
+      airnodeAddress,
+      endpointId,
+      userAddress,
+      expirationTimestamp
+    );
+
+  setWhitelistStatusPastExpiration = (
+    airnodeAddress: string,
+    endpointId: string,
+    userAddress: string,
+    status: boolean
+  ) =>
+    admin.setWhitelistStatusPastExpiration(
+      this.airnodeRequesterRrpAuthorizer,
+      airnodeAddress,
+      endpointId,
+      userAddress,
+      status
+    );
+
+  getWhitelistStatus = (airnodeAddress: string, endpointId: string, userAddress: string) =>
+    admin.getWhitelistStatus(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
+
+  userIsWhitelisted = (airnodeAddress: string, endpointId: string, userAddress: string) =>
+    admin.userIsWhitelisted(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
 }

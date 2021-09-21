@@ -189,6 +189,80 @@ npx @api3/airnode-admin derive-endpoint-id \
   --endpointName "My endpoint name..."
 ```
 
+### `set-whitelist-expiration`
+
+Called by a super admin to set the whitelisting expiration of a user for the Airnode–endpoint pair
+
+```sh
+npx @api3/airnode-admin set-whitelist-expiration \
+  --mnemonic "nature about salad..." \
+  --derivationPath "m/44'/60'/0'/0/..." \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
+  --endpointId 0xda088e2d94... \
+  --userAddress 0x2c2e12... \
+  --expirationTimestamp 1947451793 \
+  --airnodeAddress 0xe1e0dd... \
+```
+
+### `extend-whitelist-expiration`
+
+Called by an admin to extend the whitelist expiration of a user for the Airnode–endpoint pair
+
+```sh
+npx @api3/airnode-admin extend-whitelist-expiration \
+  --mnemonic "nature about salad..." \
+  --derivationPath "m/44'/60'/0'/0/..." \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
+  --endpointId 0xda088e2d94... \
+  --userAddress 0x2c2e12... \
+  --expirationTimestamp 1947451793 \
+  --airnodeAddress 0xe1e0dd... \
+```
+
+### `set-whitelist-status-past-expiration`
+
+Called by a super admin to set the whitelist status of a user past expiration for the Airnode–endpoint pair
+
+```sh
+npx @api3/airnode-admin set-whitelist-status-past-expiration \
+  --mnemonic "nature about salad..." \
+  --derivationPath "m/44'/60'/0'/0/..." \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
+  --endpointId 0xda088e2d94... \
+  --userAddress 0x2c2e12... \
+  --whitelistStatusPastExpiration true \
+  --airnodeAddress 0xe1e0dd... \
+```
+
+### `get-whitelist-status`
+
+Called to get the detailed whitelist status of a user for the Airnode–endpoint pair
+
+```sh
+npx @api3/airnode-admin get-whitelist-status \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
+  --endpointId 0xda088e2d94... \
+  --userAddress 0x2c2e12... \
+  --airnodeAddress 0xe1e0dd... \
+```
+
+### `user-is-whitelisted`
+
+Called to check if a user is whitelisted to use the Airnode–endpoint pair
+
+```sh
+npx @api3/airnode-admin user-is-whitelisted \
+  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
+  --endpointId 0xda088e2d94... \
+  --userAddress 0x2c2e12... \
+  --airnodeAddress 0xe1e0dd... \
+```
+
 ## More examples
 
 You can find more examples in the test files.
