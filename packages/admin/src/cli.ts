@@ -31,22 +31,22 @@ const COMMON_COMMAND_ARGUMENTS = {
       describe: 'Derivation path to be used for deriving the wallet account',
     },
   },
-  sponsor: {
+  sponsorAddress: {
     type: 'string',
     demandOption: true,
     describe: 'Address of the sponsor',
   },
-  airnode: {
+  airnodeAddress: {
     type: 'string',
     demandOption: true,
     describe: "Address of the Airnode operator default BIP 44 wallet (m/44'/60'/0'/0/0)",
   },
-  sponsorWallet: {
+  sponsorWalletAddress: {
     type: 'string',
     demandOption: true,
     describe: 'Address of the sponsor wallet that is used by the Airnode to fulfill the request',
   },
-  requester: {
+  requesterAddress: {
     type: 'string',
     demandOption: true,
     describe: 'Address of the requester contract',
@@ -58,24 +58,36 @@ const COMMON_COMMAND_ARGUMENTS = {
   },
 } as const;
 
-const { airnodeRrpCommands, mnemonicCommands, sponsor, airnode, sponsorWallet, requester, withdrawalRequestId } =
-  COMMON_COMMAND_ARGUMENTS;
+const {
+  airnodeRrpCommands,
+  mnemonicCommands,
+  sponsorAddress,
+  airnodeAddress,
+  sponsorWalletAddress,
+  requesterAddress,
+  withdrawalRequestId,
+} = COMMON_COMMAND_ARGUMENTS;
 
 const toJSON = JSON.stringify;
 
 yargs
   .command(
-    'derive-sponsor-wallet',
+    'derive-sponsor-wallet-address',
     'Derives the address of the wallet for an airnode-sponsor pair',
     {
       ...airnodeRrpCommands,
-      airnode,
-      sponsor,
+      airnodeAddress,
+      sponsorAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const sponsorWallet = await admin.deriveSponsorWallet(airnodeRrp, args.airnode, args.sponsor, args.xpub);
-      console.log(`Sponsor wallet address: ${sponsorWallet}`);
+      const sponsorWalletAddress = await admin.deriveSponsorWalletAddress(
+        airnodeRrp,
+        args.airnodeAddress,
+        args.sponsorAddress,
+        args.xpub
+      );
+      console.log(`Sponsor wallet address: ${sponsorWalletAddress}`);
     }
   )
   .command(
@@ -84,7 +96,7 @@ yargs
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
-      requester,
+      requesterAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
@@ -93,17 +105,17 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const requester = await admin.sponsorRequester(airnodeRrp, args.requester);
-      console.log(`Requester address ${requester} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
+      const requesterAddress = await admin.sponsorRequester(airnodeRrp, args.requesterAddress);
+      console.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
   )
   .command(
     'unsponsor-requester',
-    'Disallow a requester to make requests to the airnode',
+    'Disallow a requester to make requests to the Airnode',
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
-      requester,
+      requesterAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
@@ -112,8 +124,10 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const requester = await admin.unsponsorRequester(airnodeRrp, args.requester);
-      console.log(`Requester address ${requester} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`);
+      const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args.requesterAddress);
+      console.log(
+        `Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`
+      );
     }
   )
   .command(
@@ -121,13 +135,17 @@ yargs
     'Returns the sponsorship status for the given sponsor and requester',
     {
       ...airnodeRrpCommands,
-      sponsor,
-      requester,
+      sponsorAddress,
+      requesterAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const status = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, args.sponsor, args.requester);
-      console.log(`Requester sponsored: ${status}`);
+      const status = await admin.sponsorToRequesterToSponsorshipStatus(
+        airnodeRrp,
+        args.sponsorAddress,
+        args.requesterAddress
+      );
+      console.log(`Requester address sponsored: ${status}`);
     }
   )
   .command(
@@ -177,8 +195,8 @@ yargs
     {
       ...airnodeRrpCommands,
       ...mnemonicCommands,
-      airnode,
-      sponsorWallet,
+      airnodeAddress,
+      sponsorWalletAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrpWithSigner(
@@ -187,7 +205,11 @@ yargs
         args.providerUrl,
         args.airnodeRrp
       );
-      const withdrawalRequestId = await admin.requestWithdrawal(airnodeRrp, args.airnode, args.sponsorWallet);
+      const withdrawalRequestId = await admin.requestWithdrawal(
+        airnodeRrp,
+        args.airnodeAddress,
+        args.sponsorWalletAddress
+      );
       console.log(`Withdrawal request ID: ${withdrawalRequestId}`);
     }
   )
@@ -228,14 +250,14 @@ yargs
   )
   .command(
     'get-airnode-xpub',
-    'Returns the Airnode xpub for the given airnode',
+    'Returns the Airnode xpub for the given Airnode',
     {
       ...airnodeRrpCommands,
-      airnode,
+      airnodeAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
-      const xpub = await admin.getAirnodeXpub(airnodeRrp, args.airnode);
+      const xpub = await admin.getAirnodeXpub(airnodeRrp, args.airnodeAddress);
       console.log(`Airnode xpub: ${xpub}`);
     }
   )

@@ -33,25 +33,30 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
   return `m/0/${paths.join('/')}`;
 };
 
-export async function deriveSponsorWallet(airnodeRrp: AirnodeRrp, airnode: string, sponsor: string, xpub?: string) {
-  const airnodeXpub = xpub ?? (await airnodeRrp.airnodeToXpub(airnode));
+export async function deriveSponsorWalletAddress(
+  airnodeRrp: AirnodeRrp,
+  airnodeAddress: string,
+  sponsorAddress: string,
+  xpub?: string
+) {
+  const airnodeXpub = xpub ?? (await airnodeRrp.airnodeToXpub(airnodeAddress));
   if (!airnodeXpub) {
     throw new Error('Airnode xpub is missing in AirnodeRrp contract');
   }
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
-  const derivationPath = deriveWalletPathFromSponsorAddress(sponsor);
+  const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
   const designatedWalletNode = hdNode.derivePath(derivationPath);
   return designatedWalletNode.address;
 }
 
-export async function sponsorRequester(airnodeRrp: AirnodeRrp, requester: string) {
-  await airnodeRrp.setSponsorshipStatus(requester, true);
-  return requester;
+export async function sponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
+  await airnodeRrp.setSponsorshipStatus(requesterAddress, true);
+  return requesterAddress;
 }
 
-export async function unsponsorRequester(airnodeRrp: AirnodeRrp, requester: string) {
-  await airnodeRrp.setSponsorshipStatus(requester, false);
-  return requester;
+export async function unsponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
+  await airnodeRrp.setSponsorshipStatus(requesterAddress, false);
+  return requesterAddress;
 }
 
 export interface Template {
@@ -77,8 +82,8 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   );
 }
 
-export async function requestWithdrawal(airnodeRrp: AirnodeRrp, airnode: string, sponsorWallet: string) {
-  const tx = await airnodeRrp.requestWithdrawal(airnode, sponsorWallet);
+export async function requestWithdrawal(airnodeRrp: AirnodeRrp, airnodeAddress: string, sponsorWalletAddress: string) {
+  const tx = await airnodeRrp.requestWithdrawal(airnodeAddress, sponsorWalletAddress);
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
@@ -128,16 +133,16 @@ export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
   );
 }
 
-export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnode: string) {
-  return airnodeRrp.airnodeToXpub(airnode);
+export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnodeAddress: string) {
+  return airnodeRrp.airnodeToXpub(airnodeAddress);
 }
 
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
 }
 
-export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requester: string) {
-  return (await airnodeRrp.requesterToRequestCountPlusOne(requester)).toString();
+export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requesterAddress: string) {
+  return (await airnodeRrp.requesterToRequestCountPlusOne(requesterAddress)).toString();
 }
 
 export async function getTemplate(airnodeRrp: AirnodeRrp, templateId: string) {
@@ -171,12 +176,16 @@ export async function getTemplates(airnodeRrp: AirnodeRrp, templateIds: string[]
   return formattedTemplates;
 }
 
-export function sponsorToRequesterToSponsorshipStatus(airnodeRrp: AirnodeRrp, sponsor: string, requester: string) {
-  return airnodeRrp.sponsorToRequesterToSponsorshipStatus(sponsor, requester);
+export function sponsorToRequesterToSponsorshipStatus(
+  airnodeRrp: AirnodeRrp,
+  sponsorAddress: string,
+  requesterAddress: string
+) {
+  return airnodeRrp.sponsorToRequesterToSponsorshipStatus(sponsorAddress, requesterAddress);
 }
 
-export async function sponsorToWithdrawalRequestCount(airnodeRrp: AirnodeRrp, sponsor: string) {
-  const requestsCount = await airnodeRrp.sponsorToWithdrawalRequestCount(sponsor);
+export async function sponsorToWithdrawalRequestCount(airnodeRrp: AirnodeRrp, sponsorAddress: string) {
+  const requestsCount = await airnodeRrp.sponsorToWithdrawalRequestCount(sponsorAddress);
   return requestsCount.toString();
 }
 
@@ -191,14 +200,14 @@ export interface FulfillWithdrawalReturnValue {
 export async function fulfillWithdrawal(
   airnodeRrp: AirnodeRrp,
   requestId: string,
-  airnode: string,
-  sponsor: string,
+  airnodeAddress: string,
+  sponsorAddress: string,
   amount: string
 ) {
-  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnode, sponsor, {
+  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnodeAddress, sponsorAddress, {
     value: ethers.utils.parseEther(amount),
   });
-  const filter = airnodeRrp.filters.FulfilledWithdrawal(airnode, sponsor, requestId, null, null);
+  const filter = airnodeRrp.filters.FulfilledWithdrawal(airnodeAddress, sponsorAddress, requestId, null, null);
 
   return new Promise<FulfillWithdrawalReturnValue | null>((resolve) =>
     airnodeRrp.once(filter, (airnode, sponsor, withdrawalRequestId, sponsorWallet, amount, event) => {

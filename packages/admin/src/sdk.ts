@@ -9,42 +9,43 @@ export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;
   static getAirnodeRrpWithSigner = evm.getAirnodeRrpWithSigner;
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
-  static deriveWalletPathFromSponsorAddress = (address: string) => admin.deriveWalletPathFromSponsorAddress(address);
+  static deriveWalletPathFromSponsorAddress = (sponsorAddress: string) =>
+    admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
 
   constructor(public airnodeRrp: AirnodeRrp) {}
 
-  deriveSponsorWallet = (airnode: string, sponsor: string, xpub?: string) =>
-    admin.deriveSponsorWallet(this.airnodeRrp, airnode, sponsor, xpub);
+  deriveSponsorWalletAddress = (airnodeAddress: string, sponsorAddress: string, xpub?: string) =>
+    admin.deriveSponsorWalletAddress(this.airnodeRrp, airnodeAddress, sponsorAddress, xpub);
 
-  sponsorRequester = (requester: string) => admin.sponsorRequester(this.airnodeRrp, requester);
+  sponsorRequester = (requesterAddress: string) => admin.sponsorRequester(this.airnodeRrp, requesterAddress);
 
-  unsponsorRequester = (requester: string) => admin.unsponsorRequester(this.airnodeRrp, requester);
+  unsponsorRequester = (requesterAddress: string) => admin.unsponsorRequester(this.airnodeRrp, requesterAddress);
 
   createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
 
-  requestWithdrawal = (airnode: string, sponsorWallet: string) =>
-    admin.requestWithdrawal(this.airnodeRrp, airnode, sponsorWallet);
+  requestWithdrawal = (airnodeAddress: string, sponsorWallet: string) =>
+    admin.requestWithdrawal(this.airnodeRrp, airnodeAddress, sponsorWallet);
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
 
   setAirnodeXpub = () => admin.setAirnodeXpub(this.airnodeRrp);
 
-  getAirnodeXpub = (airnode: string) => admin.getAirnodeXpub(this.airnodeRrp, airnode);
+  getAirnodeXpub = (airnodeAddress: string) => admin.getAirnodeXpub(this.airnodeRrp, airnodeAddress);
 
-  requesterToRequestCountPlusOne = (requester: string) =>
-    admin.requesterToRequestCountPlusOne(this.airnodeRrp, requester);
+  requesterToRequestCountPlusOne = (requesterAddress: string) =>
+    admin.requesterToRequestCountPlusOne(this.airnodeRrp, requesterAddress);
 
   getTemplate = (templateId: string) => admin.getTemplate(this.airnodeRrp, templateId);
 
   getTemplates = (templateIds: string[]) => admin.getTemplates(this.airnodeRrp, templateIds);
 
-  sponsorToRequesterToSponsorshipStatus = (sponsor: string, requester: string) =>
-    admin.sponsorToRequesterToSponsorshipStatus(this.airnodeRrp, sponsor, requester);
+  sponsorToRequesterToSponsorshipStatus = (sponsorAddress: string, requesterAddress: string) =>
+    admin.sponsorToRequesterToSponsorshipStatus(this.airnodeRrp, sponsorAddress, requesterAddress);
 
-  sponsorToWithdrawalRequestCount = (sponsor: string) =>
-    admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsor);
+  sponsorToWithdrawalRequestCount = (sponsorAddress: string) =>
+    admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsorAddress);
 
-  fulfillWithdrawal = (requestId: string, airnode: string, sponsor: string, amount: string) =>
-    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnode, sponsor, amount);
+  fulfillWithdrawal = (requestId: string, airnodeAddress: string, sponsorAddress: string, amount: string) =>
+    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount);
 }
