@@ -80,7 +80,7 @@ describe('verify', () => {
     });
 
     const invalidFields = {
-      airnodeAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      airnodeAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
       encodedParameters: '0x1234',
     };

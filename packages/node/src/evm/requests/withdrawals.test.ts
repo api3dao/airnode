@@ -17,15 +17,15 @@ describe('initialize (Withdrawal)', () => {
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      sponsorWallet: '0xCAcdedD1B7beDb689464E8EE4e73deF16BBB167D',
-      id: '0xa7b1bd18101c48f0107eb63dafe548baa19024c7fe45884183df47234860f1d1',
+      sponsorWallet: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
+      id: '0xed9362918d8f2df5d4fbae9a684d0045914b90ff61f4d9ce1bad8fcce2f5e720',
       metadata: {
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      sponsorAddress: '0x0Ee8ade271eFadaBFeB9b1D45d924B6b623E25E7',
+      sponsorAddress: '0x3409cf0Ef3E984018819fD370A338F0BDc182239',
       status: RequestStatus.Pending,
     });
   });
@@ -53,7 +53,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: 'logTransactionHash',
         },
-        sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+        sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
         status: RequestStatus.Fulfilled,
       },
     ]);
@@ -83,15 +83,15 @@ describe('mapRequests (Withdrawal)', () => {
     expect(res).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        sponsorWallet: '0xCAcdedD1B7beDb689464E8EE4e73deF16BBB167D',
-        id: '0xa7b1bd18101c48f0107eb63dafe548baa19024c7fe45884183df47234860f1d1',
+        sponsorWallet: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
+        id: '0xed9362918d8f2df5d4fbae9a684d0045914b90ff61f4d9ce1bad8fcce2f5e720',
         metadata: {
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        sponsorAddress: '0x0Ee8ade271eFadaBFeB9b1D45d924B6b623E25E7',
+        sponsorAddress: '0x3409cf0Ef3E984018819fD370A338F0BDc182239',
         status: RequestStatus.Pending,
       },
     ]);

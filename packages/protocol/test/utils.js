@@ -40,4 +40,12 @@ module.exports = {
     const sponsorWalletHdNode = hdNodeFromMnemonic.derivePath(deriveWalletPathFromSponsorAddress(sponsorAddress));
     return new ethers.Wallet(sponsorWalletHdNode.privateKey);
   },
+  deriveServiceId: (airnodeAddress, endpointId) => {
+    return ethers.utils.keccak256(ethers.utils.solidityPack(['address', 'bytes32'], [airnodeAddress, endpointId]));
+  },
+  getCurrentTimestamp: async (provider) => {
+    const currentBlockNumber = await provider.getBlockNumber();
+    const currentBlock = await provider.getBlock(currentBlockNumber);
+    return currentBlock.timestamp;
+  },
 };

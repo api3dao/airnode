@@ -11,10 +11,10 @@ contract AuthorizationUtils is IAuthorizationUtils {
     /// this method to determine if it should respond. Similarly, third parties
     /// can use this method to determine if a particular request would be
     /// authorized.
-    /// @dev This method is meant to be called off-chain by the Airnode to
-    /// decide if it should respond to a request. The requester can also call
-    /// it, yet this function returning true should not be taken as a guarantee
-    /// of the subsequent request being fulfilled.
+    /// @dev This method is meant to be called off-chain, statically by the
+    /// Airnode to decide if it should respond to a request. The requester can
+    /// also call it, yet this function returning true should not be taken as a
+    /// guarantee of the subsequent request being fulfilled.
     /// It is enough for only one of the authorizer contracts to return true
     /// for the request to be authorized.
     /// @param authorizers Authorizer contract addresses

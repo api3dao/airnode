@@ -197,10 +197,10 @@ Then, the Airnode calls the `fail()` function of `AirnodeRrp`, essentially repor
 
 An Ethereum address is 20 bytes-long, which makes 160 bits.
 Each index in the HD wallet non-hardened derivation path goes up to 2^31.
-Then, we can divide these 160 bits into six 31 bit-long chunks and the derivation path for a sponsor wallet of a requester would be:
+Then, we can divide these 160 bits into six 31 bit-long chunks and the derivation path for a sponsor wallet would be:
 
 ```js
-m / 0 / requester && 0x7FFFFFFF / (requester >> 31) && 0x7FFFFFFF / (requester >> 62) && 0x7FFFFFFF / (requester >> 93) && 0x7FFFFFFF / (requester >> 124) && 0x7FFFFFFF / (requester >> 155) && 0x7FFFFFFF
+m / 0 / sponsor && 0x7FFFFFFF / (sponsor >> 31) && 0x7FFFFFFF / (sponsor >> 62) && 0x7FFFFFFF / (sponsor >> 93) && 0x7FFFFFFF / (sponsor >> 124) && 0x7FFFFFFF / (sponsor >> 155) && 0x7FFFFFFF
 ```
 
 Anyone can use the `xpub` that the Airnode has announced (through on-chain or off-chain channels) and the sponsor's address to derive a sponsor wallet address for a specific Airnode–sponsor pair.
