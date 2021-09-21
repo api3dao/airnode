@@ -61,16 +61,16 @@ Please, refer to the implementation for more details.
 
 ## Developer commands
 
-### `derive-sponsor-wallet`
+### `derive-sponsor-wallet-address`
 
 Derives the address of the wallet designated by an Airnode for a requester. You need to specify the xpub but if it is not provided then this command will try to fetch it from the AirnodeRrp contract.
 
 ```sh
-npx @api3/airnode-admin derive-sponsor-wallet \
+npx @api3/airnode-admin derive-sponsor-wallet-address \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --xpub xpub6CUGRUo... \
-  --airnode 0xe1e0dd... \
-  --sponsor 0x9Ec6C4...
+  --airnodeAddress 0xe1e0dd... \
+  --sponsorAddress 0x9Ec6C4...
 ```
 
 ### `sponsor-requester`
@@ -82,7 +82,7 @@ The account derived from the `mnemonic` you provide here has to belong to the sp
 npx @api3/airnode-admin sponsor-requester \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --requester 0x2c2e12...
+  --requesterAddress 0x2c2e12...
 ```
 
 ### `unsponsor-requester`
@@ -94,7 +94,7 @@ The account derived from the `mnemonic` you provide here has to belong to the sp
 npx @api3/airnode-admin unsponsor-requester \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --requester 0x2c2e12...
+  --requesterAddress 0x2c2e12...
 ```
 
 ### `get-sponsor-status`
@@ -104,8 +104,8 @@ Returns the sponsorship status for the given sponsor and requester (`true` if sp
 ```sh
 npx @api3/airnode-admin get-sponsor-status \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --sponsor 0x9Ec6C4... \
-  --requester 0x2c2e12...
+  --sponsorAddress 0x9Ec6C4... \
+  --requesterAddress 0x2c2e12...
 ```
 
 ### `create-template`
@@ -139,8 +139,8 @@ The account derived from the `mnemonic` you provide here has to belong to the sp
 npx @api3/airnode-admin request-withdrawal \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --airnode 0xe1e0dd... \
-  --sponsorWallet 0x9Ec6C4... \
+  --airnodeAddress 0xe1e0dd... \
+  --sponsorWalletAddress 0x9Ec6C4... \
 ```
 
 ### `check-withdrawal-request`
@@ -167,7 +167,7 @@ npx @api3/airnode-admin set-airnode-xpub \
   --mnemonic "nature about salad..." \
 ```
 
-The account derived from the `mnemonic` you provide here has to belong to the airnode.
+The account derived from the `mnemonic` you provide here has to belong to the Airnode.
 
 ### `get-airnode-xpub`
 
@@ -176,7 +176,7 @@ Returns the Airnode xpub for the given `airnode`.
 ```sh
 npx @api3/airnode-admin get-airnode-xpub \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnode 0xe1e0dd...
+  --airnodeAddress 0xe1e0dd...
 ```
 
 ### `derive-endpoint-id`

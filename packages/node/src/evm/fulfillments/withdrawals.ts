@@ -31,8 +31,8 @@ export async function submitWithdrawal(
     return [[log], null, null];
   }
 
-  const sponsorAddress = wallet.deriveSponsorWallet(options.masterHDNode, request.sponsorAddress).address;
-  const getBalanceOperation = () => options.provider!.getBalance(sponsorAddress);
+  const sponsorWalletAddress = wallet.deriveSponsorWallet(options.masterHDNode, request.sponsorAddress).address;
+  const getBalanceOperation = () => options.provider!.getBalance(sponsorWalletAddress);
   const [balanceErr, currentBalance] = await go(getBalanceOperation, {
     retries: 1,
     timeoutMs: DEFAULT_RETRY_TIMEOUT_MS,

@@ -110,59 +110,59 @@ describe('CLI', () => {
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
-  describe('derive-sponsor-wallet', () => {
+  describe('derive-sponsor-wallet-address', () => {
     it('derives using provided xpub arg', async () => {
-      const sponsor = alice.address;
+      const sponsorAddress = alice.address;
 
       const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
       const airnodeXpub = airnodeHdNode.neuter().extendedKey;
 
       // Derive the wallet using CLI and admin SDK
       const out = execCommand(
-        'derive-sponsor-wallet',
+        'derive-sponsor-wallet-address',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--airnode', airnodeWallet.address],
-        ['--sponsor', sponsor],
+        ['--airnodeAddress', airnodeWallet.address],
+        ['--sponsorAddress', sponsorAddress],
         ['--xpub', airnodeXpub]
       );
 
       // Derive the wallet programatically
-      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor);
+      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsorAddress);
 
       // Check that they generate the same wallet address
       expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
     });
     it('derives using on chain xpub', async () => {
-      const sponsor = alice.address;
+      const sponsorAddress = alice.address;
 
       airnodeRrp = airnodeRrp.connect(airnodeWallet);
       await admin.setAirnodeXpub(airnodeRrp);
 
       // Derive the wallet using CLI and admin SDK
       const out = execCommand(
-        'derive-sponsor-wallet',
+        'derive-sponsor-wallet-address',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--airnode', airnodeWallet.address],
-        ['--sponsor', sponsor]
+        ['--airnodeAddress', airnodeWallet.address],
+        ['--sponsorAddress', sponsorAddress]
       );
 
       // Derive the wallet programatically
-      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor);
+      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsorAddress);
 
       // Check that they generate the same wallet address
       expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
     });
     it('errors out with missing xpub message', async () => {
-      const sponsor = alice.address;
+      const sponsorAddress = alice.address;
       expect(() =>
         execCommand(
-          'derive-sponsor-wallet',
+          'derive-sponsor-wallet-address',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
-          ['--airnode', airnodeWallet.address],
-          ['--sponsor', sponsor]
+          ['--airnodeAddress', airnodeWallet.address],
+          ['--sponsorAddress', sponsorAddress]
         )
       ).toThrow('Airnode xpub is missing in AirnodeRrp contract');
     });
@@ -170,8 +170,8 @@ describe('CLI', () => {
 
   describe('sponsorship', () => {
     it('starts sponsoring requester', async () => {
-      const sponsor = alice.address;
-      const requester = bob.address;
+      const sponsorAddress = alice.address;
+      const requesterAddress = bob.address;
 
       const out = execCommand(
         'sponsor-requester',
@@ -179,21 +179,22 @@ describe('CLI', () => {
         ['--airnodeRrp', airnodeRrp.address],
         ['--mnemonic', mnemonic],
         ['--derivationPath', aliceDerivationPath],
-        ['--requester', requester]
+        ['--requesterAddress', requesterAddress]
       );
-      expect(out).toBe(`Requester address ${requester} is now sponsored by ${sponsor}`);
+      expect(out).toBe(`Requester address ${requesterAddress} is now sponsored by ${sponsorAddress}`);
 
-      const sponsored = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
+      const sponsored = await admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsorAddress, requesterAddress);
       expect(sponsored).toBe(true);
     });
 
     it('stops sponsoring requester', async () => {
-      const sponsor = alice.address;
-      const requester = bob.address;
+      const sponsorAddress = alice.address;
+      const requesterAddress = bob.address;
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.sponsorRequester(airnodeRrp, requester);
+      await admin.sponsorRequester(airnodeRrp, requesterAddress);
 
-      const isSponsored = () => admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsor, requester);
+      const isSponsored = () =>
+        admin.sponsorToRequesterToSponsorshipStatus(airnodeRrp, sponsorAddress, requesterAddress);
 
       expect(await isSponsored()).toBe(true);
       const out = execCommand(
@@ -202,29 +203,29 @@ describe('CLI', () => {
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--requester', requester]
+        ['--requesterAddress', requesterAddress]
       );
-      expect(out).toBe(`Requester address ${requester} is no longer sponsored by ${sponsor}`);
+      expect(out).toBe(`Requester address ${requesterAddress} is no longer sponsored by ${sponsorAddress}`);
       expect(await isSponsored()).toBe(false);
     });
 
     it('gets the sponsor status', async () => {
-      const sponsor = alice.address;
-      const requester = bob.address;
+      const sponsorAddress = alice.address;
+      const requesterAddress = bob.address;
 
       const getSponsorStatus = () =>
         execCommand(
           'get-sponsor-status',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
-          ['--sponsor', sponsor],
-          ['--requester', requester]
+          ['--sponsorAddress', sponsorAddress],
+          ['--requesterAddress', requesterAddress]
         );
 
-      expect(getSponsorStatus()).toBe('Requester sponsored: false');
+      expect(getSponsorStatus()).toBe('Requester address sponsored: false');
       airnodeRrp = airnodeRrp.connect(alice);
-      await admin.sponsorRequester(airnodeRrp, requester);
-      expect(getSponsorStatus()).toBe('Requester sponsored: true');
+      await admin.sponsorRequester(airnodeRrp, requesterAddress);
+      expect(getSponsorStatus()).toBe('Requester address sponsored: true');
     });
   });
 
@@ -291,8 +292,8 @@ describe('CLI', () => {
         ['--derivationPath', aliceDerivationPath],
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
-        ['--airnode', airnodeWallet.address],
-        ['--sponsorWallet', sponsorWallet.address]
+        ['--airnodeAddress', airnodeWallet.address],
+        ['--sponsorWalletAddress', sponsorWallet.address]
       );
 
       expect(requestWithdrawalOutput).toMatch(new RegExp(`Withdrawal request ID: 0x\\w+`));
@@ -335,7 +336,7 @@ describe('CLI', () => {
       'get-airnode-xpub',
       ['--providerUrl', PROVIDER_URL],
       ['--airnodeRrp', airnodeRrp.address],
-      ['--airnode', airnodeWallet.address]
+      ['--airnodeAddress', airnodeWallet.address]
     );
 
     expect(getAirnodeXpubOut).toEqual(`Airnode xpub: ${airnodeXpub}`);
@@ -362,7 +363,7 @@ describe('CLI', () => {
           ['--derivationPath', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address]
-          // missing ['--requester', requester]
+          // missing ['--requesterAddress', requester]
         )
       ).toThrow('Missing required argument: requester');
     });

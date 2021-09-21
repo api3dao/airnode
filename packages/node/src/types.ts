@@ -56,7 +56,7 @@ export interface RequestFulfillment {
 }
 
 export type Request<T extends {}> = T & {
-  readonly sponsorWallet: string;
+  readonly sponsorWalletAddress: string;
   readonly id: string;
   readonly errorCode?: RequestErrorCode;
   readonly fulfillment?: RequestFulfillment;
@@ -186,7 +186,7 @@ export interface AggregatedApiCall {
   readonly sponsorAddress: string;
   readonly airnodeAddress: string;
   readonly requesterAddress: string;
-  readonly sponsorWallet: string;
+  readonly sponsorWalletAddress: string;
   readonly chainId: string;
   readonly endpointId: string;
   readonly endpointName?: string;

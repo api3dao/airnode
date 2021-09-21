@@ -16,9 +16,9 @@ export function verifySponsorWallets<T>(
       return [[log], request];
     }
 
-    const expectedSponsorWallet = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
-    if (request.sponsorWallet !== expectedSponsorWallet) {
-      const message = `Invalid sponsor wallet:${request.sponsorWallet} for Request:${request.id}. Expected:${expectedSponsorWallet}`;
+    const expectedSponsorWalletAddress = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
+    if (request.sponsorWalletAddress !== expectedSponsorWalletAddress) {
+      const message = `Invalid sponsor wallet:${request.sponsorWalletAddress} for Request:${request.id}. Expected:${expectedSponsorWalletAddress}`;
       const log = logger.pend('ERROR', message);
       const updatedRequest = {
         ...request,
@@ -28,7 +28,7 @@ export function verifySponsorWallets<T>(
       return [[log], updatedRequest];
     }
 
-    const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWallet}`;
+    const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWalletAddress}`;
     const log = logger.pend('DEBUG', message);
     return [[log], request];
   });

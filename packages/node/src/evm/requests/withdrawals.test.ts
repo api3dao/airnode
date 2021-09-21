@@ -17,7 +17,7 @@ describe('initialize (Withdrawal)', () => {
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      sponsorWallet: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
+      sponsorWalletAddress: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
       id: '0xed9362918d8f2df5d4fbae9a684d0045914b90ff61f4d9ce1bad8fcce2f5e720',
       metadata: {
         blockNumber: 10716082,
@@ -45,7 +45,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
     expect(requests).toEqual([
       {
         airnodeAddress: 'airnodeAddress',
-        sponsorWallet: 'sponsorWallet',
+        sponsorWalletAddress: 'sponsorWalletAddress',
         id,
         metadata: {
           blockNumber: 10716082,
@@ -83,7 +83,7 @@ describe('mapRequests (Withdrawal)', () => {
     expect(res).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        sponsorWallet: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
+        sponsorWalletAddress: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
         id: '0xed9362918d8f2df5d4fbae9a684d0045914b90ff61f4d9ce1bad8fcce2f5e720',
         metadata: {
           blockNumber: 10716082,
