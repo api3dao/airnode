@@ -417,7 +417,9 @@ describe('CLI', () => {
         ['--expirationTimestamp', expirationTimestamp],
         ['--airnodeAddress', airnodeWallet.address]
       );
-      expect(setWhitelistExpirationOut).toEqual(`Whitelist expiration: ${expirationTimestamp}`);
+      expect(setWhitelistExpirationOut).toEqual(
+        `Whitelist expiration: ${new Date(expirationTimestamp).toUTCString()} (${expirationTimestamp})`
+      );
 
       whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
         airnodeWallet.address,
@@ -453,7 +455,9 @@ describe('CLI', () => {
         ['--expirationTimestamp', extendedExpirationTimestamp],
         ['--airnodeAddress', airnodeWallet.address]
       );
-      expect(extendWhitelistExpirationOut).toEqual(`Whitelist expiration: ${extendedExpirationTimestamp}`);
+      expect(extendWhitelistExpirationOut).toEqual(
+        `Whitelist expiration: ${new Date(extendedExpirationTimestamp).toUTCString()} (${extendedExpirationTimestamp})`
+      );
 
       whitelistStatus = await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
         airnodeWallet.address,
@@ -549,27 +553,27 @@ describe('CLI', () => {
 
     it('can get if user is whitelist', async () => {
       let out = execCommand(
-        'user-is-whitelisted',
+        'is-user-whitelisted',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
         ['--endpointId', endpointId],
         ['--userAddress', alice.address],
         ['--airnodeAddress', airnodeWallet.address]
       );
-      expect(out).toEqual('User is whitelisted: false');
+      expect(out).toEqual('Is user whitelisted: false');
 
       await airnodeRequesterRrpAuthorizer
         .connect(airnodeWallet)
         .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp);
       out = execCommand(
-        'user-is-whitelisted',
+        'is-user-whitelisted',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
         ['--endpointId', endpointId],
         ['--userAddress', alice.address],
         ['--airnodeAddress', airnodeWallet.address]
       );
-      expect(out).toEqual('User is whitelisted: true');
+      expect(out).toEqual('Is user whitelisted: true');
     });
   });
 });

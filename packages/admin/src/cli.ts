@@ -33,7 +33,7 @@ const COMMON_COMMAND_ARGUMENTS = {
     endpointId: {
       type: 'string',
       demandOption: true,
-      describe: 'Id of the endpoint',
+      describe: 'The ID of the endpoint as a bytes32 string',
     },
     userAddress: {
       type: 'string',
@@ -80,7 +80,7 @@ const COMMON_COMMAND_ARGUMENTS = {
   expirationTimestamp: {
     type: 'number',
     demandOption: true,
-    describe: 'Timestamp at which the whitelisting of the user will expire',
+    describe: 'The Unix timestamp at which the whitelisting of the user will expire',
   },
   whitelistStatusPastExpiration: {
     type: 'boolean',
@@ -114,7 +114,7 @@ yargs
       sponsorAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, { airnodeRrpAddress: args.airnodeRrp });
       const sponsorWalletAddress = await admin.deriveSponsorWalletAddress(
         airnodeRrp,
         args.airnodeAddress,
@@ -133,12 +133,10 @@ yargs
       requesterAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, {
+        airnodeRrpAddress: args.airnodeRrp,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
       const requesterAddress = await admin.sponsorRequester(airnodeRrp, args.requesterAddress);
       console.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
     }
@@ -152,12 +150,10 @@ yargs
       requesterAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, {
+        airnodeRrpAddress: args.airnodeRrp,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
       const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args.requesterAddress);
       console.log(
         `Requester address ${requesterAddress} is no longer sponsored by ${await airnodeRrp.signer.getAddress()}`
@@ -173,7 +169,7 @@ yargs
       requesterAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, { airnodeRrpAddress: args.airnodeRrp });
       const status = await admin.sponsorToRequesterToSponsorshipStatus(
         airnodeRrp,
         args.sponsorAddress,
@@ -196,12 +192,10 @@ yargs
     },
     async (args) => {
       const template = JSON.parse(fs.readFileSync(args.templateFilePath).toString());
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, {
+        airnodeRrpAddress: args.airnodeRrp,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
       const templateId = await admin.createTemplate(airnodeRrp, template);
       console.log(`Template ID: ${templateId}`);
     }
@@ -218,7 +212,7 @@ yargs
       },
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, { airnodeRrpAddress: args.airnodeRrp });
       const parameters = await admin.getTemplate(airnodeRrp, args.templateId);
       console.log(toJSON(parameters));
     }
@@ -233,12 +227,11 @@ yargs
       sponsorWalletAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, {
+        airnodeRrpAddress: args.airnodeRrp,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
+
       const withdrawalRequestId = await admin.requestWithdrawal(
         airnodeRrp,
         args.airnodeAddress,
@@ -255,7 +248,7 @@ yargs
       withdrawalRequestId,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, { airnodeRrpAddress: args.airnodeRrp });
       const response = await admin.checkWithdrawalRequest(airnodeRrp, args.withdrawalRequestId);
       if (response) {
         console.log(`Withdrawn amount: ${response.amount}`);
@@ -272,12 +265,10 @@ yargs
       ...mnemonicCommands,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrpWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRrp
-      );
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, {
+        airnodeRrpAddress: args.airnodeRrp,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
       const xpub = await admin.setAirnodeXpub(airnodeRrp);
       console.log(`Airnode xpub: ${xpub}`);
     }
@@ -290,7 +281,7 @@ yargs
       airnodeAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, args.airnodeRrp);
+      const airnodeRrp = await evm.getAirnodeRrp(args.providerUrl, { airnodeRrpAddress: args.airnodeRrp });
       const xpub = await admin.getAirnodeXpub(airnodeRrp, args.airnodeAddress);
       console.log(`Airnode xpub: ${xpub}`);
     }
@@ -325,12 +316,11 @@ yargs
       expirationTimestamp,
     },
     async (args) => {
-      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizerWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRequesterRrpAuthorizer
-      );
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(args.providerUrl, {
+        airnodeRequesterRrpAuthorizerAddress: args.airnodeRequesterRrpAuthorizer,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
+
       await admin.setWhitelistExpiration(
         airnodeRequesterRrpAuthorizer,
         args.airnodeAddress,
@@ -338,7 +328,9 @@ yargs
         args.userAddress,
         args.expirationTimestamp
       );
-      console.log(`Whitelist expiration: ${args.expirationTimestamp}`);
+      console.log(
+        `Whitelist expiration: ${new Date(args.expirationTimestamp).toUTCString()} (${args.expirationTimestamp})`
+      );
     }
   )
   .command(
@@ -351,12 +343,10 @@ yargs
       expirationTimestamp,
     },
     async (args) => {
-      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizerWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRequesterRrpAuthorizer
-      );
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(args.providerUrl, {
+        airnodeRequesterRrpAuthorizerAddress: args.airnodeRequesterRrpAuthorizer,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
       await admin.extendWhitelistExpiration(
         airnodeRequesterRrpAuthorizer,
         args.airnodeAddress,
@@ -364,7 +354,9 @@ yargs
         args.userAddress,
         args.expirationTimestamp
       );
-      console.log(`Whitelist expiration: ${args.expirationTimestamp}`);
+      console.log(
+        `Whitelist expiration: ${new Date(args.expirationTimestamp).toUTCString()} (${args.expirationTimestamp})`
+      );
     }
   )
   .command(
@@ -377,12 +369,10 @@ yargs
       whitelistStatusPastExpiration,
     },
     async (args) => {
-      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizerWithSigner(
-        args.mnemonic,
-        args.derivationPath,
-        args.providerUrl,
-        args.airnodeRequesterRrpAuthorizer
-      );
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(args.providerUrl, {
+        airnodeRequesterRrpAuthorizerAddress: args.airnodeRequesterRrpAuthorizer,
+        signer: { mnemonic: args.mnemonic, derivationPath: args.derivationPath },
+      });
       await admin.setWhitelistStatusPastExpiration(
         airnodeRequesterRrpAuthorizer,
         args.airnodeAddress,
@@ -401,10 +391,9 @@ yargs
       airnodeAddress,
     },
     async (args) => {
-      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(
-        args.providerUrl,
-        args.airnodeRequesterRrpAuthorizer
-      );
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(args.providerUrl, {
+        airnodeRequesterRrpAuthorizerAddress: args.airnodeRequesterRrpAuthorizer,
+      });
       const whitelistStatus = await admin.getWhitelistStatus(
         airnodeRequesterRrpAuthorizer,
         args.airnodeAddress,
@@ -415,24 +404,23 @@ yargs
     }
   )
   .command(
-    'user-is-whitelisted',
-    'Returns if a user is whitelisted to use the Airnode–endpoint pair',
+    'is-user-whitelisted',
+    'Returns a boolean to indicate whether or not the user is whitelisted to use the Airnode–endpoint pair',
     {
       ...airnodeRequesterRrpAuthorizerCommands,
       airnodeAddress,
     },
     async (args) => {
-      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(
-        args.providerUrl,
-        args.airnodeRequesterRrpAuthorizer
-      );
-      const userIsWhitelisted = await admin.userIsWhitelisted(
+      const airnodeRequesterRrpAuthorizer = await evm.getAirnodeRequesterRrpAuthorizer(args.providerUrl, {
+        airnodeRequesterRrpAuthorizerAddress: args.airnodeRequesterRrpAuthorizer,
+      });
+      const isUserWhitelisted = await admin.isUserWhitelisted(
         airnodeRequesterRrpAuthorizer,
         args.airnodeAddress,
         args.endpointId,
         args.userAddress
       );
-      console.log(`User is whitelisted: ${userIsWhitelisted}`);
+      console.log(`Is user whitelisted: ${isUserWhitelisted}`);
     }
   )
   .demandCommand(1)

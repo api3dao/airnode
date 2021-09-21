@@ -285,7 +285,7 @@ export async function getWhitelistStatus(
   return { expirationTimestamp: expirationTimestamp.toNumber(), whitelistedPastExpiration };
 }
 
-export async function userIsWhitelisted(
+export async function isUserWhitelisted(
   airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
   airnodeAddress: string,
   endpointId: string,

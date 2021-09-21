@@ -16,46 +16,38 @@ async function getAirnodeRequesterRrpAuthorizerAddress(provider: ethers.provider
   return AirnodeRequesterRrpAuthorizerAddresses[network.chainId];
 }
 
-export async function getAirnodeRrp(providerUrl: string, airnodeRrpAddress = '') {
-  const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-  const address = airnodeRrpAddress || (await getAirnodeRrpAddress(provider));
-
-  if (!address) throw new Error(`AirnodeRrp address is not provided`);
-  return AirnodeRrpFactory.connect(address, provider);
-}
-
-export async function getAirnodeRequesterRrpAuthorizer(providerUrl: string, airnodeRequesterRrpAuthorizerAddress = '') {
-  const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-  const address = airnodeRequesterRrpAuthorizerAddress || (await getAirnodeRequesterRrpAuthorizerAddress(provider));
-
-  if (!address) throw new Error(`AirnodeRrp address is not provided`);
-  return authorizers.AirnodeRequesterRrpAuthorizerFactory.connect(address, provider);
-}
-
-export async function getAirnodeRrpWithSigner(
-  mnemonic: string,
-  derivationPath: string | undefined,
+export async function getAirnodeRrp(
   providerUrl: string,
-  airnodeRrpAddress = ''
+  props?: { airnodeRrpAddress?: string; signer?: { mnemonic: string; derivationPath?: string } }
 ) {
-  const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-  const address = airnodeRrpAddress || (await getAirnodeRrpAddress(provider));
-  const wallet = ethers.Wallet.fromMnemonic(mnemonic, derivationPath).connect(provider);
+  let signerOrProvider: ethers.providers.Provider | ethers.Signer = new ethers.providers.JsonRpcProvider(providerUrl);
 
+  const address = props?.airnodeRrpAddress || (await getAirnodeRrpAddress(signerOrProvider));
   if (!address) throw new Error(`AirnodeRrp address is not provided`);
-  return AirnodeRrpFactory.connect(address, wallet);
+
+  if (props?.signer) {
+    signerOrProvider = ethers.Wallet.fromMnemonic(props.signer.mnemonic, props.signer.derivationPath).connect(
+      signerOrProvider
+    );
+  }
+  return AirnodeRrpFactory.connect(address, signerOrProvider);
 }
 
-export async function getAirnodeRequesterRrpAuthorizerWithSigner(
-  mnemonic: string,
-  derivationPath: string | undefined,
+export async function getAirnodeRequesterRrpAuthorizer(
   providerUrl: string,
-  airnodeRequesterRrpAuthorizerAddress = ''
+  props?: { airnodeRequesterRrpAuthorizerAddress?: string; signer?: { mnemonic: string; derivationPath?: string } }
 ) {
-  const provider = new ethers.providers.JsonRpcProvider(providerUrl);
-  const address = airnodeRequesterRrpAuthorizerAddress || (await getAirnodeRequesterRrpAuthorizerAddress(provider));
-  const wallet = ethers.Wallet.fromMnemonic(mnemonic, derivationPath).connect(provider);
+  let signerOrProvider: ethers.providers.Provider | ethers.Signer = new ethers.providers.JsonRpcProvider(providerUrl);
 
+  const address =
+    props?.airnodeRequesterRrpAuthorizerAddress || (await getAirnodeRequesterRrpAuthorizerAddress(signerOrProvider));
   if (!address) throw new Error(`AirnodeRequesterRrpAuthorizer address is not provided`);
-  return authorizers.AirnodeRequesterRrpAuthorizerFactory.connect(address, wallet);
+
+  if (props?.signer) {
+    signerOrProvider = ethers.Wallet.fromMnemonic(props?.signer.mnemonic, props.signer.derivationPath).connect(
+      signerOrProvider
+    );
+  }
+
+  return authorizers.AirnodeRequesterRrpAuthorizerFactory.connect(address, signerOrProvider);
 }
