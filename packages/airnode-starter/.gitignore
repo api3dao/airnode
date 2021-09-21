@@ -1,0 +1,16 @@
+node_modules
+log.json
+
+# Hardhat files
+/cache
+/artifacts
+/hardhat-credentials.json
+# We want deployments to rinkeby chain commited in the repository, but others ignored
+/deployments/*
+!/deployments/rinkeby/*
+/deployments/rinkeby/solcInputs
+
+# Integration secrets
+aws.env
+secrets.env
+receipt.json

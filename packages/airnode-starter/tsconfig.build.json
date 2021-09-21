@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist",
+    "rootDir": "src"
+  },
+  // TODO: Do we need src directory?
+  "include": ["./src/**/*", "./deploy/**/*", "./scripts/**/*"],
+  "exclude": [
+    "src/**/*.test.ts"
+  ]
+}
