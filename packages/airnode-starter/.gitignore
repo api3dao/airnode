@@ -10,6 +10,9 @@ log.json
 !/deployments/rinkeby/*
 /deployments/rinkeby/solcInputs
 
+# Holds information about the current integration
+/.integration-info.json
+
 # Integration secrets
 aws.env
 secrets.env

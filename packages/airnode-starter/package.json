@@ -12,6 +12,7 @@
     "deploy:goerli": "hardhat deploy --network goerli",
     "deploy:xdai": "hardhat deploy --network xdai",
     "deploy:fantom": "hardhat deploy --network fantom",
+    "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-airnode-secrets": "hardhat run scripts/create-airnode-secrets.ts",
     "deploy-requester": "hardhat run scripts/deploy-requester.ts",
     "mak-request": "hardhat run scripts/mak-request.ts",
