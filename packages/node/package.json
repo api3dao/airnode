@@ -2,10 +2,6 @@
   "name": "@api3/node",
   "version": "0.1.0",
   "license": "MIT",
-  "bin": {
-    "invoke": "./dist/bin/invoke.js",
-    "test-api": "./dist/bin/test-api.js"
-  },
   "main": "dist/src/index",
   "types": "dist/src/index",
   "files": [
@@ -15,8 +11,8 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
-    "dev:invoke": "ts-node bin/invoke.ts",
-    "dev:testApi": "ts-node bin/test-api.ts",
+    "dev:invoke": "ts-node src/cli/invoke.ts",
+    "dev:testApi": "ts-node src/cli/test-api.ts",
     "pack": "yarn pack",
     "prepublishOnly": "yarn run build",
     "test:e2e": "SILENCE_LOGGER=true jest --selectProjects e2e",
