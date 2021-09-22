@@ -3,7 +3,7 @@ pragma solidity 0.8.6;
 
 import "@api3/protocol/contracts/rrp/requesters/RrpRequester.sol";
 
-contract ExampleRequester is RrpRequester {
+contract CoingeckoTestableRequester is RrpRequester {
     mapping(bytes32 => bool) public incomingFulfillments;
     mapping(bytes32 => int256) public fulfilledData;
 
