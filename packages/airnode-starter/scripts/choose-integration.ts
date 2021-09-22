@@ -1,6 +1,7 @@
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import prompts, { PromptObject } from 'prompts';
+import { IntegrationInfo } from '../src';
 
 const createOption = (name: string) => ({
   title: name,
@@ -63,9 +64,9 @@ const questions: PromptObject[] = [
   },
 ];
 
-const chooseIntegration = async () => {
+const chooseIntegration = async (): Promise<IntegrationInfo> => {
   const response = await prompts(questions);
-  return response;
+  return response as IntegrationInfo;
 };
 
 async function main() {

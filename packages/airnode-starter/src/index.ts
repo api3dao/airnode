@@ -3,7 +3,7 @@ import { join } from 'path';
 
 const INTEGRATION_INFO_PATH = join(__dirname, '../integration-info.json');
 
-interface IntegrationInfo {
+export interface IntegrationInfo {
   integration: string;
   airnodeType: 'aws' | 'containerized';
   accessKeyId: string;
@@ -14,7 +14,7 @@ interface IntegrationInfo {
 }
 
 export const readIntegrationInfo = (): IntegrationInfo => {
-  // TODO:
+  // TODO: remove ! and ? from .access
   // if (!existsSync(INTEGRATION_INFO_PATH)) return null;
 
   return JSON.parse(readFileSync(INTEGRATION_INFO_PATH).toString());
@@ -42,7 +42,7 @@ export const readConfig = () => {
   const integrationInfo = readIntegrationInfo();
 
   const config = JSON.parse(
-    readFileSync(join(__dirname, `../deployments/${integrationInfo?.integration}/config.json`)).toString()
+    readFileSync(join(__dirname, `../integrations/${integrationInfo?.integration}/config.json`)).toString()
   );
   return config;
 };
