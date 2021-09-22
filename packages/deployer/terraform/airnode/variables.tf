@@ -1,5 +1,5 @@
 locals {
-  name_prefix = "${var.infrastructure_name}-${var.airnode_id_short}-${var.stage}"
+  name_prefix = "${var.infrastructure_name}-${var.airnode_address_short}-${var.stage}"
 }
 
 variable "aws_region" {

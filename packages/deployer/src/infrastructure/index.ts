@@ -99,7 +99,7 @@ async function deploy(
   await runCommand(command, options);
 
   const httpGatewayApiKeyVar = httpGatewayApiKey ? `-var='api_key=${httpGatewayApiKey}'` : '';
-  command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
+  command = `terraform apply -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
     configPath
   )}" -var="secrets_file=${path.resolve(
     secretsPath
