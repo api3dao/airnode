@@ -85,6 +85,9 @@ export interface ApiCall {
   readonly type: ApiCallType;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface Withdrawal {}
+
 export interface ApiCallTemplate {
   readonly airnodeAddress: string;
   readonly endpointId: string;
@@ -94,7 +97,7 @@ export interface ApiCallTemplate {
 
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
-  readonly withdrawals: Request<{}>[];
+  readonly withdrawals: Request<Withdrawal>[];
 }
 
 export interface ProviderSettings extends CoordinatorSettings {

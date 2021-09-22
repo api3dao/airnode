@@ -4,15 +4,16 @@ import * as sorting from './sorting';
 import { removeKey } from '../utils/object-utils';
 import {
   ApiCall,
-  Request,
   EVMProviderState,
   GroupedRequests,
   ProviderState,
+  Request,
   RequestStatus,
   RequestType,
+  Withdrawal,
 } from '../types';
 
-type AnyRequest = ApiCall | {};
+type AnyRequest = ApiCall | Withdrawal;
 
 interface AssignedNonces {
   readonly assignmentBlocked: boolean;
@@ -42,7 +43,7 @@ function groupRequests(flatRequests: Request<any>[]): GroupedRequests {
 
   const withdrawals = flatRequests
     .filter((request) => request.__type === RequestType.Withdrawal)
-    .map((request) => removeKey(request, '__type')) as Request<{}>[];
+    .map((request) => removeKey(request, '__type')) as Request<Withdrawal>[];
 
   return { apiCalls, withdrawals };
 }
