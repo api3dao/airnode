@@ -2,7 +2,9 @@
   "name": "@api3/admin",
   "license": "MIT",
   "version": "0.1.0",
-  "bin": "./dist/bin/admin.js",
+  "bin": {
+    "api3-admin": "./dist/bin/admin.js"
+  },
   "main": "./dist/src/index",
   "files": [
     "dist"
