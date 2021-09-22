@@ -10,10 +10,9 @@ import {
   ProviderState,
   RequestStatus,
   RequestType,
-  Withdrawal,
 } from '../types';
 
-type AnyRequest = ApiCall | Withdrawal;
+type AnyRequest = ApiCall | {};
 
 interface AssignedNonces {
   readonly assignmentBlocked: boolean;
@@ -43,7 +42,7 @@ function groupRequests(flatRequests: Request<any>[]): GroupedRequests {
 
   const withdrawals = flatRequests
     .filter((request) => request.__type === RequestType.Withdrawal)
-    .map((request) => removeKey(request, '__type')) as Request<Withdrawal>[];
+    .map((request) => removeKey(request, '__type')) as Request<{}>[];
 
   return { apiCalls, withdrawals };
 }

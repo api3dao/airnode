@@ -56,13 +56,14 @@ export interface RequestFulfillment {
 }
 
 export type Request<T extends {}> = T & {
-  readonly sponsorWalletAddress: string;
   readonly id: string;
+  readonly airnodeAddress: string;
+  readonly sponsorAddress: string;
+  readonly sponsorWalletAddress: string;
   readonly errorCode?: RequestErrorCode;
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
-  readonly sponsorAddress: string;
   readonly status: RequestStatus;
 };
 
@@ -71,17 +72,16 @@ export type ApiCallType = 'template' | 'full';
 // TODO: refactor these types such that there is user facing "ApiCall" which will get merged with
 // template and internal type that is the result of those two being merged.
 export interface ApiCall {
-  readonly airnodeAddress: string | null;
+  readonly requestCount: string;
   readonly chainId: string;
   readonly requesterAddress: string;
-  readonly encodedParameters: string;
-  readonly endpointId: string | null;
+  readonly templateId: string | null;
   readonly fulfillAddress: string;
   readonly fulfillFunctionId: string;
+  readonly endpointId: string | null;
+  readonly encodedParameters: string;
   readonly parameters: ApiCallParameters;
-  readonly requestCount: string;
   readonly responseValue?: string;
-  readonly templateId: string | null;
   readonly type: ApiCallType;
 }
 
@@ -92,14 +92,9 @@ export interface ApiCallTemplate {
   readonly id: string;
 }
 
-export interface Withdrawal {
-  readonly airnodeAddress: string;
-  readonly sponsorAddress: string;
-}
-
 export interface GroupedRequests {
   readonly apiCalls: Request<ApiCall>[];
-  readonly withdrawals: Request<Withdrawal>[];
+  readonly withdrawals: Request<{}>[];
 }
 
 export interface ProviderSettings extends CoordinatorSettings {

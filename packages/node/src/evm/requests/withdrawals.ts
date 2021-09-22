@@ -7,14 +7,13 @@ import {
   EVMRequestedWithdrawalLog,
   LogsData,
   RequestStatus,
-  Withdrawal,
   PendingLog,
 } from '../../types';
 
-export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<Withdrawal> {
+export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<{}> {
   const { parsedLog } = logWithMetadata;
 
-  const request: Request<Withdrawal> = {
+  const request: Request<{}> = {
     airnodeAddress: parsedLog.args.airnode,
     sponsorWalletAddress: parsedLog.args.sponsorWallet,
     id: parsedLog.args.withdrawalRequestId,
@@ -33,13 +32,13 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
 
 export interface UpdatedFulfilledRequests {
   readonly logs: PendingLog[];
-  readonly requests: Request<Withdrawal>[];
+  readonly requests: Request<{}>[];
 }
 
 export function updateFulfilledRequests(
-  withdrawals: Request<Withdrawal>[],
+  withdrawals: Request<{}>[],
   fulfilledRequestIds: string[]
-): LogsData<Request<Withdrawal>[]> {
+): LogsData<Request<{}>[]> {
   const { logs, requests } = withdrawals.reduce(
     (acc: UpdatedFulfilledRequests, withdrawal) => {
       if (fulfilledRequestIds.includes(withdrawal.id)) {
@@ -61,7 +60,7 @@ export function updateFulfilledRequests(
   return [logs, requests];
 }
 
-export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<Withdrawal>[]> {
+export function mapRequests(logsWithMetadata: EVMEventLog[]): LogsData<Request<{}>[]> {
   // Separate the logs
   const requestLogs = logsWithMetadata.filter((log) => events.isWithdrawalRequest(log)) as EVMRequestedWithdrawalLog[];
   const fulfillmentLogs = logsWithMetadata.filter((log) =>

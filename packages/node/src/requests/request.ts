@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import { ApiCall, Request, GroupedRequests, RequestStatus, Withdrawal } from '../types';
+import { ApiCall, Request, GroupedRequests, RequestStatus } from '../types';
 
 export function blockedOrIgnored<T>(request: Request<T>): RequestStatus.Blocked | RequestStatus.Ignored {
   const { blockNumber, currentBlock, ignoreBlockedRequestsAfterBlocks } = request.metadata;
@@ -10,7 +10,7 @@ export function filterActionableApiCalls(apiCalls: Request<ApiCall>[]): Request<
   return apiCalls.filter((a) => a.status === RequestStatus.Pending || a.status === RequestStatus.Errored);
 }
 
-export function filterActionableWithdrawals(withdrawals: Request<Withdrawal>[]): Request<Withdrawal>[] {
+export function filterActionableWithdrawals(withdrawals: Request<{}>[]): Request<{}>[] {
   return withdrawals.filter((w) => w.status === RequestStatus.Pending);
 }
 
@@ -19,7 +19,7 @@ export function hasActionableApiCalls(apiCalls: Request<ApiCall>[]): boolean {
   return !isEmpty(actionableApiCalls);
 }
 
-export function hasActionableWithdrawals(withdrawals: Request<Withdrawal>[]): boolean {
+export function hasActionableWithdrawals(withdrawals: Request<{}>[]): boolean {
   const actionableWithdrawals = filterActionableWithdrawals(withdrawals);
   return !isEmpty(actionableWithdrawals);
 }

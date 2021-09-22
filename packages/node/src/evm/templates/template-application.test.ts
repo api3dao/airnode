@@ -12,7 +12,7 @@ describe('mergeApiCallsWithTemplates', () => {
 
   it('merges the template into the API call', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      airnodeAddress: null,
+      airnodeAddress: 'templateAirnode-0',
       endpointId: null,
       parameters: {},
       templateId: 'templateId-0',
