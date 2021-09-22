@@ -5,17 +5,21 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-deploy';
 
-const CREDENTIALS_FILE = 'hardhat-credentials.json';
-
-const credentialsPath = join(__dirname, CREDENTIALS_FILE);
+const credentialsPath = join(__dirname, 'hardhat-credentials.json');
 if (!existsSync(credentialsPath)) {
   throw new Error(`Expected ${credentialsPath} to exist! Please create it and try again.`);
 }
 const { mainnet, ropsten, rinkeby, goerli, xdai, fantom } = JSON.parse(readFileSync(credentialsPath).toString());
 
+const integrationInfoPath = join(__dirname, 'integration-info.json');
+let defaultNetwork = 'hardhat';
+if (existsSync(integrationInfoPath)) {
+  const integrationInfo = JSON.parse(readFileSync(integrationInfoPath).toString());
+  defaultNetwork = integrationInfo.network;
+}
+
 const config: HardhatUserConfig = {
-  // NOTE: Must be 'hardhat' otherwise hardhat-deploy plugin throws error
-  defaultNetwork: 'hardhat',
+  defaultNetwork,
   networks: {
     // TODO: Support only rinkeby - setup for other networks should be simple if there is ever need for it
     mainnet: {

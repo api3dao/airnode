@@ -4,14 +4,13 @@ log.json
 # Hardhat files
 /cache
 /artifacts
-/hardhat-credentials.json
 # We want deployments to rinkeby chain commited in the repository, but others ignored
 /deployments/*
 !/deployments/rinkeby/*
 /deployments/rinkeby/solcInputs
 
 # Holds information about the current integration
-/.integration-info.json
+/integration-info.json
 
 # Integration secrets
 aws.env
