@@ -1,6 +1,6 @@
 import { writeFileSync } from 'fs';
 import { ethers } from 'ethers';
-import { readIntegrationInfo } from '../../src';
+import { readAirnodeRrp, readIntegrationInfo } from '../../src';
 
 const integrationInfo = readIntegrationInfo();
 
@@ -10,6 +10,7 @@ async function main() {
   const airnodeSecrets = [
     `AIRNODE_WALLET_MNEMONIC=${wallet.mnemonic.phrase}`,
     `PROVIDER_URL=${integrationInfo.providerUrl}`,
+    `AIRNODE_RRP_ADDRESS=${readAirnodeRrp().address}`,
   ];
   // TODO: write this to a separate file as helper function
   writeFileSync('secrets.env', airnodeSecrets.join('\n') + '\n');

@@ -3,7 +3,7 @@
     {
       "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "0x552e534B357f658D8Bc3417406a76C98C2959C98"
+        "AirnodeRrp": "${AIRNODE_RRP_ADDRESS}"
       },
       "id": "4",
       "providers": {
