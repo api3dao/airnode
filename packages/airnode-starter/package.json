@@ -15,7 +15,7 @@
     "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-airnode-secrets": "hardhat run scripts/create-airnode-secrets.ts",
     "deploy-requester": "hardhat run scripts/deploy-requester.ts",
-    "mak-request": "hardhat run scripts/mak-request.ts",
+    "make-request": "hardhat run scripts/make-request.ts",
     "deployer": "deployer",
     "admin": "admin"
   },
