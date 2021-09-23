@@ -259,8 +259,6 @@ contract AirnodeRrp is
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
     /// @return callSuccess If the fulfillment call succeeded
-    /// @return callData Data returned by the fulfillment call (if there is
-    /// any)
     function fulfill(
         bytes32 requestId,
         address airnode,
@@ -277,11 +275,11 @@ contract AirnodeRrp is
             fulfillAddress,
             fulfillFunctionId
         )
-        returns (bool callSuccess, bytes memory callData)
+        returns (bool callSuccess)
     {
         delete requestIdToFulfillmentParameters[requestId];
         emit FulfilledRequest(airnode, requestId, statusCode, data);
-        (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
+        (callSuccess, ) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(
                 fulfillFunctionId,
                 requestId,

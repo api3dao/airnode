@@ -82,7 +82,7 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         bytes calldata data,
         address fulfillAddress,
         bytes4 fulfillFunctionId
-    ) external returns (bool callSuccess, bytes memory callData);
+    ) external returns (bool callSuccess);
 
     function fail(
         bytes32 requestId,
