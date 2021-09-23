@@ -1,0 +1,671 @@
+{
+  "address": "0x18D5832BDF642cbBE7917eF4fa64EB7082486806",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "adminned",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newRank",
+          "type": "uint256"
+        }
+      ],
+      "name": "DecreasedSelfRank",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "expiration",
+          "type": "uint256"
+        }
+      ],
+      "name": "ExtendedWhitelistExpiration",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "adminned",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "callerAdmin",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "targetAdmin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newRank",
+          "type": "uint256"
+        }
+      ],
+      "name": "SetRank",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "expiration",
+          "type": "uint256"
+        }
+      ],
+      "name": "SetWhitelistExpiration",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "name": "SetWhitelistStatusPastExpiration",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "AUTHORIZER_TYPE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "adminnedToAdminToRank",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "airnodeToEndpointIdToUserToWhitelistStatus",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "expirationTimestamp",
+          "type": "uint64"
+        },
+        {
+          "internalType": "bool",
+          "name": "whitelistedPastExpiration",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "adminned",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newRank",
+          "type": "uint256"
+        }
+      ],
+      "name": "decreaseSelfRank",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expirationTimestamp",
+          "type": "uint64"
+        }
+      ],
+      "name": "extendWhitelistExpiration",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        }
+      ],
+      "name": "isAuthorized",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "adminned",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "targetAdmin",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newRank",
+          "type": "uint256"
+        }
+      ],
+      "name": "setRank",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expirationTimestamp",
+          "type": "uint64"
+        }
+      ],
+      "name": "setWhitelistExpiration",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "name": "setWhitelistStatusPastExpiration",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "userIsWhitelisted",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isWhitelisted",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x38460379f5508d30ecb6fedcd2a30317781dc5fea43d6f4d42e4db387519ca3d",
+  "receipt": {
+    "to": null,
+    "from": "0x19391A94a4d99a7083e3D561E4ff96528BA8E2b7",
+    "contractAddress": "0x18D5832BDF642cbBE7917eF4fa64EB7082486806",
+    "transactionIndex": 17,
+    "gasUsed": "1398994",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xae1273e27d203112c3cf82609dc30a7b6240adc06cedafe6fab36a05ca9269d0",
+    "transactionHash": "0x38460379f5508d30ecb6fedcd2a30317781dc5fea43d6f4d42e4db387519ca3d",
+    "logs": [],
+    "blockNumber": 9343952,
+    "cumulativeGasUsed": "4482724",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "6eb963f7c80ca167f1fab1a227229515",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.6+commit.11564f7e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"adminned\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newRank\",\"type\":\"uint256\"}],\"name\":\"DecreasedSelfRank\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"ExtendedWhitelistExpiration\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"adminned\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"callerAdmin\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"targetAdmin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newRank\",\"type\":\"uint256\"}],\"name\":\"SetRank\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expiration\",\"type\":\"uint256\"}],\"name\":\"SetWhitelistExpiration\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"admin\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"status\",\"type\":\"bool\"}],\"name\":\"SetWhitelistStatusPastExpiration\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"AUTHORIZER_TYPE\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"adminnedToAdminToRank\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"airnodeToEndpointIdToUserToWhitelistStatus\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"expirationTimestamp\",\"type\":\"uint64\"},{\"internalType\":\"bool\",\"name\":\"whitelistedPastExpiration\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"adminned\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"newRank\",\"type\":\"uint256\"}],\"name\":\"decreaseSelfRank\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTimestamp\",\"type\":\"uint64\"}],\"name\":\"extendWhitelistExpiration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"}],\"name\":\"isAuthorized\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"adminned\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"targetAdmin\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"newRank\",\"type\":\"uint256\"}],\"name\":\"setRank\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint64\",\"name\":\"expirationTimestamp\",\"type\":\"uint64\"}],\"name\":\"setWhitelistExpiration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"status\",\"type\":\"bool\"}],\"name\":\"setWhitelistStatusPastExpiration\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"userIsWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isWhitelisted\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"The Airnode address and the admins are also authorized even if they are not whitelisted explicitly\",\"kind\":\"dev\",\"methods\":{\"airnodeToEndpointIdToUserToWhitelistStatus(address,bytes32,address)\":{\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID\",\"user\":\"User address\"},\"returns\":{\"expirationTimestamp\":\"Timestamp at which the whitelisting of the user will expire\",\"whitelistedPastExpiration\":\"Whitelist status that the user will have past expiration\"}},\"decreaseSelfRank(address,uint256)\":{\"params\":{\"adminned\":\"Adminned address\",\"newRank\":\"Rank to be set\"}},\"extendWhitelistExpiration(address,bytes32,address,uint64)\":{\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID\",\"expirationTimestamp\":\"Timestamp at which the user will no longer be whitelisted\",\"user\":\"User address\"}},\"isAuthorized(bytes32,address,bytes32,address,address)\":{\"details\":\"This method has redundant arguments because all authorizer contracts have to have the same interface and potential authorizer contracts may require to access the arguments that are redundant here\",\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID\",\"requestId\":\"Request ID\",\"requester\":\"Requester address\",\"sponsor\":\"Sponsor address\"},\"returns\":{\"_0\":\"Authorization status of the request\"}},\"setRank(address,address,uint256)\":{\"params\":{\"adminned\":\"Adminned address\",\"newRank\":\"Rank to be set\",\"targetAdmin\":\"Target admin address\"}},\"setWhitelistExpiration(address,bytes32,address,uint64)\":{\"details\":\"Unlike `extendWhitelistExpiration()`, this can hasten expiration\",\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID\",\"expirationTimestamp\":\"Timestamp at which the whitelisting of the user will expire\",\"user\":\"User address\"}},\"setWhitelistStatusPastExpiration(address,bytes32,address,bool)\":{\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID\",\"status\":\"Whitelist status that the user will have past expiration\",\"user\":\"User address\"}},\"userIsWhitelisted(address,bytes32,address)\":{\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID\",\"user\":\"User address\"},\"returns\":{\"isWhitelisted\":\"If the user is whitelisted\"}}},\"title\":\"Authorizer contract that whitelists requesters where each Airnode is adminned by themselves\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"AUTHORIZER_TYPE()\":{\"notice\":\"Authorizer contracts use `AUTHORIZER_TYPE` to signal their type\"},\"adminnedToAdminToRank(address,address)\":{\"notice\":\"Called to get the rank of an admin for the adminned address\"},\"airnodeToEndpointIdToUserToWhitelistStatus(address,bytes32,address)\":{\"notice\":\"Called to get the detailed whitelist status of a user for the Airnode\\u2013endpoint pair\"},\"decreaseSelfRank(address,uint256)\":{\"notice\":\"Called by an admin to decrease its rank for the adminned address\"},\"extendWhitelistExpiration(address,bytes32,address,uint64)\":{\"notice\":\"Called by an admin to extend the whitelist expiration of a user for the Airnode\\u2013endpoint pair\"},\"isAuthorized(bytes32,address,bytes32,address,address)\":{\"notice\":\"Verifies the authorization status of a request\"},\"setRank(address,address,uint256)\":{\"notice\":\"Called by an admin of higher rank to set the rank of an admin of lower rank for the adminned address\"},\"setWhitelistExpiration(address,bytes32,address,uint64)\":{\"notice\":\"Called by a super admin to set the whitelisting expiration of a user for the Airnode\\u2013endpoint pair\"},\"setWhitelistStatusPastExpiration(address,bytes32,address,bool)\":{\"notice\":\"Called by a super admin to set the whitelist status of a user past expiration for the Airnode\\u2013endpoint pair\"},\"userIsWhitelisted(address,bytes32,address)\":{\"notice\":\"Called to check if a user is whitelisted to use the Airnode\\u2013endpoint pair\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol\":\"AirnodeRequesterRrpAuthorizer\"},\"evmVersion\":\"berlin\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/adminnable/SelfAdminnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./interfaces/ISelfAdminnable.sol\\\";\\n\\n/// @title Contract that implements multiple levels of admins for multiple\\n/// \\\"adminned\\\" addresses independently\\ncontract SelfAdminnable is ISelfAdminnable {\\n    /// @notice Called to get the rank of an admin for the adminned address\\n    mapping(address => mapping(address => uint256))\\n        public\\n        override adminnedToAdminToRank;\\n\\n    /// @dev Reverts if the caller's rank is not greater than or equal to\\n    /// `rank` for the adminned address\\n    /// @dev Adminned address always satisfies rank requirements\\n    /// @param adminned Adminned address\\n    /// @param rank Rank caller's rank will be compared to\\n    modifier onlyWithRank(address adminned, uint256 rank) {\\n        require(\\n            adminnedToAdminToRank[adminned][msg.sender] >= rank ||\\n                msg.sender == adminned,\\n            \\\"Caller ranked low\\\"\\n        );\\n        _;\\n    }\\n\\n    /// @notice Called by an admin of higher rank to set the rank of an admin\\n    /// of lower rank for the adminned address\\n    /// @param adminned Adminned address\\n    /// @param targetAdmin Target admin address\\n    /// @param newRank Rank to be set\\n    function setRank(\\n        address adminned,\\n        address targetAdmin,\\n        uint256 newRank\\n    )\\n        external\\n        override\\n        onlyWithRank(\\n            adminned,\\n            max(adminnedToAdminToRank[adminned][targetAdmin], newRank) + 1\\n        )\\n    {\\n        require(targetAdmin != address(0), \\\"Target admin zero\\\");\\n        adminnedToAdminToRank[adminned][targetAdmin] = newRank;\\n        emit SetRank(adminned, msg.sender, targetAdmin, newRank);\\n    }\\n\\n    /// @notice Called by an admin to decrease its rank for the adminned\\n    /// address\\n    /// @param adminned Adminned address\\n    /// @param newRank Rank to be set\\n    function decreaseSelfRank(address adminned, uint256 newRank)\\n        external\\n        override\\n        onlyWithRank(adminned, newRank + 1)\\n    {\\n        adminnedToAdminToRank[adminned][msg.sender] = newRank;\\n        emit DecreasedSelfRank(adminned, msg.sender, newRank);\\n    }\\n\\n    /// @notice Called internally to compute the maximum between two unsigned\\n    /// integers\\n    /// @param a First unsigned integer\\n    /// @param b Second unsigned integer\\n    /// @return Larger of the two unsigned integers\\n    function max(uint256 a, uint256 b) private pure returns (uint256) {\\n        return a > b ? a : b;\\n    }\\n}\\n\",\"keccak256\":\"0x49fd8e3e50528e5af877814ee976acc6b0d911b7178e9dc7978b5e16cfecbf47\",\"license\":\"MIT\"},\"contracts/adminnable/Whitelister.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\n/// @title Contract where users are whitelisted for specific services (could be\\n/// Airnode endpoints, dAPIs, beacons, etc.) until an expiration time or\\n/// indefinitely\\ncontract Whitelister {\\n    struct WhitelistStatus {\\n        uint64 expirationTimestamp;\\n        bool whitelistedPastExpiration;\\n    }\\n\\n    mapping(bytes32 => mapping(address => WhitelistStatus))\\n        internal serviceIdToUserToWhitelistStatus;\\n\\n    /// @dev Reverts if the provided timestamp does not extend whitelist\\n    /// expiration for the service\\u2013user pair\\n    /// @param serviceId Service ID\\n    /// @param user User address\\n    /// @param expirationTimestamp Timestamp at which the user will no longer\\n    /// be whitelisted\\n    modifier onlyIfTimestampExtends(\\n        bytes32 serviceId,\\n        address user,\\n        uint64 expirationTimestamp\\n    ) {\\n        require(\\n            expirationTimestamp >\\n                serviceIdToUserToWhitelistStatus[serviceId][user]\\n                    .expirationTimestamp,\\n            \\\"Expiration not extended\\\"\\n        );\\n        _;\\n    }\\n\\n    /// @notice Called internally to check if a user is whitelisted to use the\\n    /// service\\n    /// @param serviceId Service ID\\n    /// @param user User address\\n    /// @return isWhitelisted If the user is whitelisted\\n    function userIsWhitelisted(bytes32 serviceId, address user)\\n        internal\\n        view\\n        returns (bool isWhitelisted)\\n    {\\n        WhitelistStatus\\n            storage whitelistStatus = serviceIdToUserToWhitelistStatus[\\n                serviceId\\n            ][user];\\n        return\\n            whitelistStatus.whitelistedPastExpiration ||\\n            whitelistStatus.expirationTimestamp > block.timestamp;\\n    }\\n}\\n\",\"keccak256\":\"0xc9a03129f05910974f3cc3266b3c2559c81715ff1d6ed70cfb7bf20184986125\",\"license\":\"MIT\"},\"contracts/adminnable/interfaces/ISelfAdminnable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\ninterface ISelfAdminnable {\\n    event SetRank(\\n        address indexed adminned,\\n        address indexed callerAdmin,\\n        address indexed targetAdmin,\\n        uint256 newRank\\n    );\\n\\n    event DecreasedSelfRank(\\n        address indexed adminned,\\n        address indexed admin,\\n        uint256 newRank\\n    );\\n\\n    function setRank(\\n        address adminned,\\n        address targetAdmin,\\n        uint256 newRank\\n    ) external;\\n\\n    function decreaseSelfRank(address adminned, uint256 newRank) external;\\n\\n    function adminnedToAdminToRank(address adminned, address admin)\\n        external\\n        view\\n        returns (uint256);\\n}\\n\",\"keccak256\":\"0x12c86e09d05d34910441d8f4bfbf39146f22010e1b0d86474ac04cdb89b4ef84\",\"license\":\"MIT\"},\"contracts/rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"../../adminnable/SelfAdminnable.sol\\\";\\nimport \\\"./RequesterRrpAuthorizer.sol\\\";\\nimport \\\"./interfaces/IAirnodeRequesterRrpAuthorizer.sol\\\";\\n\\n/// @title Authorizer contract that whitelists requesters where each Airnode is\\n/// adminned by themselves\\n/// @dev The Airnode address and the admins are also authorized even if they\\n/// are not whitelisted explicitly\\ncontract AirnodeRequesterRrpAuthorizer is\\n    SelfAdminnable,\\n    RequesterRrpAuthorizer,\\n    IAirnodeRequesterRrpAuthorizer\\n{\\n    enum AdminRank {\\n        Unauthorized,\\n        Admin,\\n        SuperAdmin\\n    }\\n\\n    /// @notice Authorizer contracts use `AUTHORIZER_TYPE` to signal their type\\n    uint256 public constant override AUTHORIZER_TYPE = 1;\\n\\n    /// @notice Called by an admin to extend the whitelist expiration of a user\\n    /// for the Airnode\\u2013endpoint pair\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @param expirationTimestamp Timestamp at which the user will no longer\\n    /// be whitelisted\\n    function extendWhitelistExpiration(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        uint64 expirationTimestamp\\n    ) external override onlyWithRank(airnode, uint256(AdminRank.Admin)) {\\n        extendWhitelistExpiration_(\\n            airnode,\\n            endpointId,\\n            user,\\n            expirationTimestamp\\n        );\\n    }\\n\\n    /// @notice Called by a super admin to set the whitelisting expiration of a\\n    /// user for the Airnode\\u2013endpoint pair\\n    /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @param expirationTimestamp Timestamp at which the whitelisting of the\\n    /// user will expire\\n    function setWhitelistExpiration(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        uint64 expirationTimestamp\\n    ) external override onlyWithRank(airnode, uint256(AdminRank.SuperAdmin)) {\\n        setWhitelistExpiration_(airnode, endpointId, user, expirationTimestamp);\\n    }\\n\\n    /// @notice Called by a super admin to set the whitelist status of a user\\n    /// past expiration for the Airnode\\u2013endpoint pair\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @param status Whitelist status that the user will have past expiration\\n    function setWhitelistStatusPastExpiration(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        bool status\\n    ) external override onlyWithRank(airnode, uint256(AdminRank.SuperAdmin)) {\\n        setWhitelistStatusPastExpiration_(airnode, endpointId, user, status);\\n    }\\n\\n    /// @notice Verifies the authorization status of a request\\n    /// @dev This method has redundant arguments because all authorizer\\n    /// contracts have to have the same interface and potential authorizer\\n    /// contracts may require to access the arguments that are redundant here\\n    /// @param requestId Request ID\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param sponsor Sponsor address\\n    /// @param requester Requester address\\n    /// @return Authorization status of the request\\n    function isAuthorized(\\n        bytes32 requestId, // solhint-disable-line no-unused-vars\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor, // solhint-disable-line no-unused-vars\\n        address requester\\n    ) external view override returns (bool) {\\n        return\\n            userIsWhitelisted(\\n                deriveServiceId(airnode, endpointId),\\n                requester\\n            ) ||\\n            adminnedToAdminToRank[airnode][requester] >=\\n            uint256(AdminRank.Admin) ||\\n            requester == airnode;\\n    }\\n}\\n\",\"keccak256\":\"0xecdf5dd2c78ee6913af1bd064f58d4a18eb3e2346dcf81e774022c07f2268729\",\"license\":\"MIT\"},\"contracts/rrp/authorizers/RequesterRrpAuthorizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"../../adminnable/Whitelister.sol\\\";\\nimport \\\"./interfaces/IRequesterRrpAuthorizer.sol\\\";\\n\\n/// @title Authorizer contract where requesters are whitelisted until an\\n/// expiration time or indefinitely\\nabstract contract RequesterRrpAuthorizer is\\n    Whitelister,\\n    IRequesterRrpAuthorizer\\n{\\n    /// @notice Called to check if a user is whitelisted to use the\\n    /// Airnode\\u2013endpoint pair\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @return isWhitelisted If the user is whitelisted\\n    function userIsWhitelisted(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user\\n    ) external view override returns (bool isWhitelisted) {\\n        return userIsWhitelisted(deriveServiceId(airnode, endpointId), user);\\n    }\\n\\n    /// @notice Called to get the detailed whitelist status of a user for the\\n    /// Airnode\\u2013endpoint pair\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @return expirationTimestamp Timestamp at which the whitelisting of the\\n    /// user will expire\\n    /// @return whitelistedPastExpiration Whitelist status that the user will\\n    /// have past expiration\\n    function airnodeToEndpointIdToUserToWhitelistStatus(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user\\n    )\\n        external\\n        view\\n        override\\n        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)\\n    {\\n        WhitelistStatus\\n            storage whitelistStatus = serviceIdToUserToWhitelistStatus[\\n                deriveServiceId(airnode, endpointId)\\n            ][user];\\n        expirationTimestamp = whitelistStatus.expirationTimestamp;\\n        whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;\\n    }\\n\\n    /// @notice Called internally to derive the service ID of the\\n    /// Airnode\\u2013endpoint pair\\n    /// @dev Whitelister contract that this contract inherits keeps whitelist\\n    /// statuses in a single level hash map. We have two parameters here\\n    /// (Airnode address and endpoint ID) from which we need to derive a single\\n    /// service ID, and we do this by calculating their hash.\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @return serviceId Service ID\\n    function deriveServiceId(address airnode, bytes32 endpointId)\\n        internal\\n        pure\\n        returns (bytes32 serviceId)\\n    {\\n        return keccak256(abi.encodePacked(airnode, endpointId));\\n    }\\n\\n    /// @notice Called internally to extend the whitelist expiration of a user\\n    /// for the Airnode\\u2013endpoint pair\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @param expirationTimestamp Timestamp at which the user will no longer\\n    /// be whitelisted\\n    function extendWhitelistExpiration_(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        uint64 expirationTimestamp\\n    )\\n        internal\\n        onlyIfTimestampExtends(\\n            deriveServiceId(airnode, endpointId),\\n            user,\\n            expirationTimestamp\\n        )\\n    {\\n        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][\\n            user\\n        ].expirationTimestamp = expirationTimestamp;\\n        emit ExtendedWhitelistExpiration(\\n            airnode,\\n            endpointId,\\n            user,\\n            msg.sender,\\n            expirationTimestamp\\n        );\\n    }\\n\\n    /// @notice Called internally to set the whitelisting expiration of a\\n    /// user for the Airnode\\u2013endpoint pair\\n    /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @param expirationTimestamp Timestamp at which the whitelisting of the\\n    /// user will expire\\n    function setWhitelistExpiration_(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        uint64 expirationTimestamp\\n    ) internal {\\n        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][\\n            user\\n        ].expirationTimestamp = expirationTimestamp;\\n        emit SetWhitelistExpiration(\\n            airnode,\\n            endpointId,\\n            user,\\n            msg.sender,\\n            expirationTimestamp\\n        );\\n    }\\n\\n    /// @notice Called internally to set the whitelist status of a user\\n    /// past expiration for the Airnode\\u2013endpoint pair\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID\\n    /// @param user User address\\n    /// @param status Whitelist status that the user will have past expiration\\n    function setWhitelistStatusPastExpiration_(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        bool status\\n    ) internal {\\n        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][\\n            user\\n        ].whitelistedPastExpiration = status;\\n        emit SetWhitelistStatusPastExpiration(\\n            airnode,\\n            endpointId,\\n            user,\\n            msg.sender,\\n            status\\n        );\\n    }\\n}\\n\",\"keccak256\":\"0xb4148397ec843b1865c3b2ada25d83c806e68f9b053aef76aa8425c6c8573b39\",\"license\":\"MIT\"},\"contracts/rrp/authorizers/interfaces/IAirnodeRequesterRrpAuthorizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"../../../adminnable/interfaces/ISelfAdminnable.sol\\\";\\nimport \\\"./IRequesterRrpAuthorizer.sol\\\";\\n\\ninterface IAirnodeRequesterRrpAuthorizer is\\n    ISelfAdminnable,\\n    IRequesterRrpAuthorizer\\n{}\\n\",\"keccak256\":\"0xc7908c6f31b2dd2cc05f0b8220c673c19f87bc0368819945e06fd6b0465c5e3c\",\"license\":\"MIT\"},\"contracts/rrp/authorizers/interfaces/IRequesterRrpAuthorizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./IRrpAuthorizer.sol\\\";\\n\\ninterface IRequesterRrpAuthorizer is IRrpAuthorizer {\\n    event ExtendedWhitelistExpiration(\\n        address indexed airnode,\\n        bytes32 endpointId,\\n        address indexed user,\\n        address indexed admin,\\n        uint256 expiration\\n    );\\n\\n    event SetWhitelistExpiration(\\n        address indexed airnode,\\n        bytes32 endpointId,\\n        address indexed user,\\n        address indexed admin,\\n        uint256 expiration\\n    );\\n\\n    event SetWhitelistStatusPastExpiration(\\n        address indexed airnode,\\n        bytes32 endpointId,\\n        address indexed user,\\n        address indexed admin,\\n        bool status\\n    );\\n\\n    function extendWhitelistExpiration(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        uint64 expirationTimestamp\\n    ) external;\\n\\n    function setWhitelistExpiration(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        uint64 expirationTimestamp\\n    ) external;\\n\\n    function setWhitelistStatusPastExpiration(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user,\\n        bool status\\n    ) external;\\n\\n    function userIsWhitelisted(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user\\n    ) external view returns (bool isWhitelisted);\\n\\n    function airnodeToEndpointIdToUserToWhitelistStatus(\\n        address airnode,\\n        bytes32 endpointId,\\n        address user\\n    )\\n        external\\n        view\\n        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);\\n}\\n\",\"keccak256\":\"0x40c99c2ed79dceffdec233c44275d266e3b912a124b0bfd1ceb85f6525622cdf\",\"license\":\"MIT\"},\"contracts/rrp/authorizers/interfaces/IRrpAuthorizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\ninterface IRrpAuthorizer {\\n    // solhint-disable-next-line func-name-mixedcase\\n    function AUTHORIZER_TYPE() external view returns (uint256);\\n\\n    function isAuthorized(\\n        bytes32 requestId,\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool);\\n}\\n\",\"keccak256\":\"0xbb2881ceb1ee88bf14f257a0dc31714ce20c375cb25a170e29a48c0aed787674\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061186a806100206000396000f3fe608060405234801561001057600080fd5b506004361061009e5760003560e01c806368805a7d1161006657806368805a7d1461016c57806373c0627e1461018a578063b08516fb146101a6578063c4053141146101c2578063e349638d146101f25761009e565b80631e2992b0146100a35780632261e5fc146100d45780633157f3cb146101045780634751c2e2146101205780635d51dbdc1461013c575b600080fd5b6100bd60048036038101906100b891906111ce565b61020e565b6040516100cb9291906115a0565b60405180910390f35b6100ee60048036038101906100e991906111ce565b6102a6565b6040516100fb91906114b8565b60405180910390f35b61011e6004803603810190610119919061117b565b6102c4565b005b61013a60048036038101906101359190611288565b6105bd565b005b6101566004803603810190610151919061132f565b6106d9565b60405161016391906114b8565b60405180910390f35b6101746107c8565b6040516101819190611585565b60405180910390f35b6101a4600480360381019061019f9190611288565b6107cd565b005b6101c060048036038101906101bb91906112ef565b6108ea565b005b6101dc60048036038101906101d7919061113b565b610ad7565b6040516101e99190611585565b60405180910390f35b61020c60048036038101906102079190611221565b610afc565b005b6000806000600160006102218888610c18565b815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060000160009054906101000a900467ffffffffffffffff1692508060000160089054906101000a900460ff16915050935093915050565b60006102bb6102b58585610c18565b83610c4b565b90509392505050565b82600161034c6000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205484610ce7565b61035691906115da565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158061040b57508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b61044a576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161044190611545565b60405180910390fd5b600073ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff1614156104ba576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104b190611525565b60405180910390fd5b826000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508373ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff168673ffffffffffffffffffffffffffffffffffffffff167f584a7e3e68feb90397faadcb0af28a855e0268ddedf9fce510b4cf57770b9410866040516105ae9190611585565b60405180910390a45050505050565b836002808111156105d1576105d0611705565b5b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158061068657508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b6106c5576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016106bc90611545565b60405180910390fd5b6106d186868686610d00565b505050505050565b60006106ee6106e88686610c18565b83610c4b565b8061078757506001600281111561070857610707611705565b5b6000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410155b806107bd57508473ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff16145b905095945050505050565b600181565b83600160028111156107e2576107e1611705565b5b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158061089757508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b6108d6576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016108cd90611545565b60405180910390fd5b6108e286868686610e07565b505050505050565b816001826108f891906115da565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015806109ad57508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b6109ec576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016109e390611545565b60405180910390fd5b826000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055503373ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167f907b7436750d9bb04b635c837b151be449230b1975dac4ba31b01343b41eb75c85604051610ac99190611585565b60405180910390a350505050565b6000602052816000526040600020602052806000526040600020600091509150505481565b83600280811115610b1057610b0f611705565b5b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054101580610bc557508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b610c04576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610bfb90611545565b60405180910390fd5b610c1086868686610fda565b505050505050565b60008282604051602001610c2d92919061148c565b60405160208183030381529060405280519060200120905092915050565b6000806001600085815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060000160089054906101000a900460ff1680610cde5750428160000160009054906101000a900467ffffffffffffffff1667ffffffffffffffff16115b91505092915050565b6000818311610cf65781610cf8565b825b905092915050565b8060016000610d0f8787610c18565b815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160006101000a81548167ffffffffffffffff021916908367ffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff167f375ee45428e158031095010484fd6451af89c501c79d75e390da4e91eb480ce18685604051610df99291906114fc565b60405180910390a450505050565b610e118484610c18565b82826001600084815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900467ffffffffffffffff1667ffffffffffffffff168167ffffffffffffffff1611610ed0576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610ec790611565565b60405180910390fd5b8360016000610edf8a8a610c18565b815260200190815260200160002060008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160006101000a81548167ffffffffffffffff021916908367ffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff168873ffffffffffffffffffffffffffffffffffffffff167ff9b174be67f83278d4516865d1b9ba4576b73e523ea0c2f124ea29152bb1b6768988604051610fc99291906114fc565b60405180910390a450505050505050565b8060016000610fe98787610c18565b815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160086101000a81548160ff0219169083151502179055503373ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff167f0e8af304f7f920661493a5051df03a3947d58b4f655581e51ab0c014d768d8eb86856040516110c49291906114d3565b60405180910390a450505050565b6000813590506110e1816117c1565b92915050565b6000813590506110f6816117d8565b92915050565b60008135905061110b816117ef565b92915050565b60008135905061112081611806565b92915050565b6000813590506111358161181d565b92915050565b6000806040838503121561115257611151611734565b5b6000611160858286016110d2565b9250506020611171858286016110d2565b9150509250929050565b60008060006060848603121561119457611193611734565b5b60006111a2868287016110d2565b93505060206111b3868287016110d2565b92505060406111c486828701611111565b9150509250925092565b6000806000606084860312156111e7576111e6611734565b5b60006111f5868287016110d2565b9350506020611206868287016110fc565b9250506040611217868287016110d2565b9150509250925092565b6000806000806080858703121561123b5761123a611734565b5b6000611249878288016110d2565b945050602061125a878288016110fc565b935050604061126b878288016110d2565b925050606061127c878288016110e7565b91505092959194509250565b600080600080608085870312156112a2576112a1611734565b5b60006112b0878288016110d2565b94505060206112c1878288016110fc565b93505060406112d2878288016110d2565b92505060606112e387828801611126565b91505092959194509250565b6000806040838503121561130657611305611734565b5b6000611314858286016110d2565b925050602061132585828601611111565b9150509250929050565b600080600080600060a0868803121561134b5761134a611734565b5b6000611359888289016110fc565b955050602061136a888289016110d2565b945050604061137b888289016110fc565b935050606061138c888289016110d2565b925050608061139d888289016110d2565b9150509295509295909350565b6113bb6113b682611630565b6116a8565b82525050565b6113ca81611642565b82525050565b6113d98161164e565b82525050565b6113f06113eb8261164e565b6116ba565b82525050565b60006114036011836115c9565b915061140e82611746565b602082019050919050565b60006114266011836115c9565b91506114318261176f565b602082019050919050565b60006114496017836115c9565b915061145482611798565b602082019050919050565b61146881611678565b82525050565b61147781611696565b82525050565b61148681611682565b82525050565b600061149882856113aa565b6014820191506114a882846113df565b6020820191508190509392505050565b60006020820190506114cd60008301846113c1565b92915050565b60006040820190506114e860008301856113d0565b6114f560208301846113c1565b9392505050565b600060408201905061151160008301856113d0565b61151e602083018461146e565b9392505050565b6000602082019050818103600083015261153e816113f6565b9050919050565b6000602082019050818103600083015261155e81611419565b9050919050565b6000602082019050818103600083015261157e8161143c565b9050919050565b600060208201905061159a600083018461145f565b92915050565b60006040820190506115b5600083018561147d565b6115c260208301846113c1565b9392505050565b600082825260208201905092915050565b60006115e582611678565b91506115f083611678565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115611625576116246116d6565b5b828201905092915050565b600061163b82611658565b9050919050565b60008115159050919050565b6000819050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600067ffffffffffffffff82169050919050565b60006116a182611682565b9050919050565b60006116b3826116c4565b9050919050565b6000819050919050565b60006116cf82611739565b9050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b600080fd5b60008160601b9050919050565b7f5461726765742061646d696e207a65726f000000000000000000000000000000600082015250565b7f43616c6c65722072616e6b6564206c6f77000000000000000000000000000000600082015250565b7f45787069726174696f6e206e6f7420657874656e646564000000000000000000600082015250565b6117ca81611630565b81146117d557600080fd5b50565b6117e181611642565b81146117ec57600080fd5b50565b6117f88161164e565b811461180357600080fd5b50565b61180f81611678565b811461181a57600080fd5b50565b61182681611682565b811461183157600080fd5b5056fea26469706673582212204cf1254689ea280a8249135e5534572bca5b2e6d65533098a34c0e94f0ecd26d64736f6c63430008060033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061009e5760003560e01c806368805a7d1161006657806368805a7d1461016c57806373c0627e1461018a578063b08516fb146101a6578063c4053141146101c2578063e349638d146101f25761009e565b80631e2992b0146100a35780632261e5fc146100d45780633157f3cb146101045780634751c2e2146101205780635d51dbdc1461013c575b600080fd5b6100bd60048036038101906100b891906111ce565b61020e565b6040516100cb9291906115a0565b60405180910390f35b6100ee60048036038101906100e991906111ce565b6102a6565b6040516100fb91906114b8565b60405180910390f35b61011e6004803603810190610119919061117b565b6102c4565b005b61013a60048036038101906101359190611288565b6105bd565b005b6101566004803603810190610151919061132f565b6106d9565b60405161016391906114b8565b60405180910390f35b6101746107c8565b6040516101819190611585565b60405180910390f35b6101a4600480360381019061019f9190611288565b6107cd565b005b6101c060048036038101906101bb91906112ef565b6108ea565b005b6101dc60048036038101906101d7919061113b565b610ad7565b6040516101e99190611585565b60405180910390f35b61020c60048036038101906102079190611221565b610afc565b005b6000806000600160006102218888610c18565b815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060000160009054906101000a900467ffffffffffffffff1692508060000160089054906101000a900460ff16915050935093915050565b60006102bb6102b58585610c18565b83610c4b565b90509392505050565b82600161034c6000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205484610ce7565b61035691906115da565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158061040b57508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b61044a576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161044190611545565b60405180910390fd5b600073ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff1614156104ba576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016104b190611525565b60405180910390fd5b826000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508373ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff168673ffffffffffffffffffffffffffffffffffffffff167f584a7e3e68feb90397faadcb0af28a855e0268ddedf9fce510b4cf57770b9410866040516105ae9190611585565b60405180910390a45050505050565b836002808111156105d1576105d0611705565b5b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158061068657508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b6106c5576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016106bc90611545565b60405180910390fd5b6106d186868686610d00565b505050505050565b60006106ee6106e88686610c18565b83610c4b565b8061078757506001600281111561070857610707611705565b5b6000808773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410155b806107bd57508473ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff16145b905095945050505050565b600181565b83600160028111156107e2576107e1611705565b5b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410158061089757508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b6108d6576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016108cd90611545565b60405180910390fd5b6108e286868686610e07565b505050505050565b816001826108f891906115da565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020541015806109ad57508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b6109ec576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016109e390611545565b60405180910390fd5b826000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055503373ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167f907b7436750d9bb04b635c837b151be449230b1975dac4ba31b01343b41eb75c85604051610ac99190611585565b60405180910390a350505050565b6000602052816000526040600020602052806000526040600020600091509150505481565b83600280811115610b1057610b0f611705565b5b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054101580610bc557508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16145b610c04576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610bfb90611545565b60405180910390fd5b610c1086868686610fda565b505050505050565b60008282604051602001610c2d92919061148c565b60405160208183030381529060405280519060200120905092915050565b6000806001600085815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002090508060000160089054906101000a900460ff1680610cde5750428160000160009054906101000a900467ffffffffffffffff1667ffffffffffffffff16115b91505092915050565b6000818311610cf65781610cf8565b825b905092915050565b8060016000610d0f8787610c18565b815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160006101000a81548167ffffffffffffffff021916908367ffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff167f375ee45428e158031095010484fd6451af89c501c79d75e390da4e91eb480ce18685604051610df99291906114fc565b60405180910390a450505050565b610e118484610c18565b82826001600084815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160009054906101000a900467ffffffffffffffff1667ffffffffffffffff168167ffffffffffffffff1611610ed0576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610ec790611565565b60405180910390fd5b8360016000610edf8a8a610c18565b815260200190815260200160002060008773ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160006101000a81548167ffffffffffffffff021916908367ffffffffffffffff1602179055503373ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff168873ffffffffffffffffffffffffffffffffffffffff167ff9b174be67f83278d4516865d1b9ba4576b73e523ea0c2f124ea29152bb1b6768988604051610fc99291906114fc565b60405180910390a450505050505050565b8060016000610fe98787610c18565b815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000160086101000a81548160ff0219169083151502179055503373ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff167f0e8af304f7f920661493a5051df03a3947d58b4f655581e51ab0c014d768d8eb86856040516110c49291906114d3565b60405180910390a450505050565b6000813590506110e1816117c1565b92915050565b6000813590506110f6816117d8565b92915050565b60008135905061110b816117ef565b92915050565b60008135905061112081611806565b92915050565b6000813590506111358161181d565b92915050565b6000806040838503121561115257611151611734565b5b6000611160858286016110d2565b9250506020611171858286016110d2565b9150509250929050565b60008060006060848603121561119457611193611734565b5b60006111a2868287016110d2565b93505060206111b3868287016110d2565b92505060406111c486828701611111565b9150509250925092565b6000806000606084860312156111e7576111e6611734565b5b60006111f5868287016110d2565b9350506020611206868287016110fc565b9250506040611217868287016110d2565b9150509250925092565b6000806000806080858703121561123b5761123a611734565b5b6000611249878288016110d2565b945050602061125a878288016110fc565b935050604061126b878288016110d2565b925050606061127c878288016110e7565b91505092959194509250565b600080600080608085870312156112a2576112a1611734565b5b60006112b0878288016110d2565b94505060206112c1878288016110fc565b93505060406112d2878288016110d2565b92505060606112e387828801611126565b91505092959194509250565b6000806040838503121561130657611305611734565b5b6000611314858286016110d2565b925050602061132585828601611111565b9150509250929050565b600080600080600060a0868803121561134b5761134a611734565b5b6000611359888289016110fc565b955050602061136a888289016110d2565b945050604061137b888289016110fc565b935050606061138c888289016110d2565b925050608061139d888289016110d2565b9150509295509295909350565b6113bb6113b682611630565b6116a8565b82525050565b6113ca81611642565b82525050565b6113d98161164e565b82525050565b6113f06113eb8261164e565b6116ba565b82525050565b60006114036011836115c9565b915061140e82611746565b602082019050919050565b60006114266011836115c9565b91506114318261176f565b602082019050919050565b60006114496017836115c9565b915061145482611798565b602082019050919050565b61146881611678565b82525050565b61147781611696565b82525050565b61148681611682565b82525050565b600061149882856113aa565b6014820191506114a882846113df565b6020820191508190509392505050565b60006020820190506114cd60008301846113c1565b92915050565b60006040820190506114e860008301856113d0565b6114f560208301846113c1565b9392505050565b600060408201905061151160008301856113d0565b61151e602083018461146e565b9392505050565b6000602082019050818103600083015261153e816113f6565b9050919050565b6000602082019050818103600083015261155e81611419565b9050919050565b6000602082019050818103600083015261157e8161143c565b9050919050565b600060208201905061159a600083018461145f565b92915050565b60006040820190506115b5600083018561147d565b6115c260208301846113c1565b9392505050565b600082825260208201905092915050565b60006115e582611678565b91506115f083611678565b9250827fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff03821115611625576116246116d6565b5b828201905092915050565b600061163b82611658565b9050919050565b60008115159050919050565b6000819050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b600067ffffffffffffffff82169050919050565b60006116a182611682565b9050919050565b60006116b3826116c4565b9050919050565b6000819050919050565b60006116cf82611739565b9050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602160045260246000fd5b600080fd5b60008160601b9050919050565b7f5461726765742061646d696e207a65726f000000000000000000000000000000600082015250565b7f43616c6c65722072616e6b6564206c6f77000000000000000000000000000000600082015250565b7f45787069726174696f6e206e6f7420657874656e646564000000000000000000600082015250565b6117ca81611630565b81146117d557600080fd5b50565b6117e181611642565b81146117ec57600080fd5b50565b6117f88161164e565b811461180357600080fd5b50565b61180f81611678565b811461181a57600080fd5b50565b61182681611682565b811461183157600080fd5b5056fea26469706673582212204cf1254689ea280a8249135e5534572bca5b2e6d65533098a34c0e94f0ecd26d64736f6c63430008060033",
+  "devdoc": {
+    "details": "The Airnode address and the admins are also authorized even if they are not whitelisted explicitly",
+    "kind": "dev",
+    "methods": {
+      "airnodeToEndpointIdToUserToWhitelistStatus(address,bytes32,address)": {
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID",
+          "user": "User address"
+        },
+        "returns": {
+          "expirationTimestamp": "Timestamp at which the whitelisting of the user will expire",
+          "whitelistedPastExpiration": "Whitelist status that the user will have past expiration"
+        }
+      },
+      "decreaseSelfRank(address,uint256)": {
+        "params": {
+          "adminned": "Adminned address",
+          "newRank": "Rank to be set"
+        }
+      },
+      "extendWhitelistExpiration(address,bytes32,address,uint64)": {
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID",
+          "expirationTimestamp": "Timestamp at which the user will no longer be whitelisted",
+          "user": "User address"
+        }
+      },
+      "isAuthorized(bytes32,address,bytes32,address,address)": {
+        "details": "This method has redundant arguments because all authorizer contracts have to have the same interface and potential authorizer contracts may require to access the arguments that are redundant here",
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID",
+          "requestId": "Request ID",
+          "requester": "Requester address",
+          "sponsor": "Sponsor address"
+        },
+        "returns": {
+          "_0": "Authorization status of the request"
+        }
+      },
+      "setRank(address,address,uint256)": {
+        "params": {
+          "adminned": "Adminned address",
+          "newRank": "Rank to be set",
+          "targetAdmin": "Target admin address"
+        }
+      },
+      "setWhitelistExpiration(address,bytes32,address,uint64)": {
+        "details": "Unlike `extendWhitelistExpiration()`, this can hasten expiration",
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID",
+          "expirationTimestamp": "Timestamp at which the whitelisting of the user will expire",
+          "user": "User address"
+        }
+      },
+      "setWhitelistStatusPastExpiration(address,bytes32,address,bool)": {
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID",
+          "status": "Whitelist status that the user will have past expiration",
+          "user": "User address"
+        }
+      },
+      "userIsWhitelisted(address,bytes32,address)": {
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID",
+          "user": "User address"
+        },
+        "returns": {
+          "isWhitelisted": "If the user is whitelisted"
+        }
+      }
+    },
+    "title": "Authorizer contract that whitelists requesters where each Airnode is adminned by themselves",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "AUTHORIZER_TYPE()": {
+        "notice": "Authorizer contracts use `AUTHORIZER_TYPE` to signal their type"
+      },
+      "adminnedToAdminToRank(address,address)": {
+        "notice": "Called to get the rank of an admin for the adminned address"
+      },
+      "airnodeToEndpointIdToUserToWhitelistStatus(address,bytes32,address)": {
+        "notice": "Called to get the detailed whitelist status of a user for the Airnode–endpoint pair"
+      },
+      "decreaseSelfRank(address,uint256)": {
+        "notice": "Called by an admin to decrease its rank for the adminned address"
+      },
+      "extendWhitelistExpiration(address,bytes32,address,uint64)": {
+        "notice": "Called by an admin to extend the whitelist expiration of a user for the Airnode–endpoint pair"
+      },
+      "isAuthorized(bytes32,address,bytes32,address,address)": {
+        "notice": "Verifies the authorization status of a request"
+      },
+      "setRank(address,address,uint256)": {
+        "notice": "Called by an admin of higher rank to set the rank of an admin of lower rank for the adminned address"
+      },
+      "setWhitelistExpiration(address,bytes32,address,uint64)": {
+        "notice": "Called by a super admin to set the whitelisting expiration of a user for the Airnode–endpoint pair"
+      },
+      "setWhitelistStatusPastExpiration(address,bytes32,address,bool)": {
+        "notice": "Called by a super admin to set the whitelist status of a user past expiration for the Airnode–endpoint pair"
+      },
+      "userIsWhitelisted(address,bytes32,address)": {
+        "notice": "Called to check if a user is whitelisted to use the Airnode–endpoint pair"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 958,
+        "contract": "contracts/rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol:AirnodeRequesterRrpAuthorizer",
+        "label": "adminnedToAdminToRank",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+      },
+      {
+        "astId": 1101,
+        "contract": "contracts/rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol:AirnodeRequesterRrpAuthorizer",
+        "label": "serviceIdToUserToWhitelistStatus",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_bytes32,t_mapping(t_address,t_struct(WhitelistStatus)1094_storage))"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_uint256)"
+      },
+      "t_mapping(t_address,t_struct(WhitelistStatus)1094_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct Whitelister.WhitelistStatus)",
+        "numberOfBytes": "32",
+        "value": "t_struct(WhitelistStatus)1094_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_address,t_struct(WhitelistStatus)1094_storage))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(address => struct Whitelister.WhitelistStatus))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_struct(WhitelistStatus)1094_storage)"
+      },
+      "t_struct(WhitelistStatus)1094_storage": {
+        "encoding": "inplace",
+        "label": "struct Whitelister.WhitelistStatus",
+        "members": [
+          {
+            "astId": 1091,
+            "contract": "contracts/rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol:AirnodeRequesterRrpAuthorizer",
+            "label": "expirationTimestamp",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint64"
+          },
+          {
+            "astId": 1093,
+            "contract": "contracts/rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol:AirnodeRequesterRrpAuthorizer",
+            "label": "whitelistedPastExpiration",
+            "offset": 8,
+            "slot": "0",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "32"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint64": {
+        "encoding": "inplace",
+        "label": "uint64",
+        "numberOfBytes": "8"
+      }
+    }
+  }
+}

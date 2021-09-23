@@ -17,12 +17,12 @@ import {
 } from './contracts';
 import AirnodeRrpArtifact from '../artifacts/contracts/rrp/AirnodeRrp.sol/AirnodeRrp.json';
 import MockRrpRequesterArtifact from '../artifacts/contracts/rrp/requesters/mock/MockRrpRequester.sol/MockRrpRequester.json';
-import AirnodeRrpDeploymentRopsten from '../deployments/ropsten/AirnodeRrp.json';
-// import AirnodeRequesterRrpAuthorizerRopsten from '../deployments/ropsten/AirnodeRequesterRrpAuthorizerDeployment';
+import AirnodeRrpDeploymentRinkeby from '../deployments/rinkeby/AirnodeRrp.json';
+import AirnodeRequesterRrpAuthorizerRinkeby from '../deployments/rinkeby/AirnodeRequesterRrpAuthorizer.json';
 
-const AirnodeRrpAddresses: { [chainId: number]: string } = { 3: AirnodeRrpDeploymentRopsten.receipt.contractAddress };
+const AirnodeRrpAddresses: { [chainId: number]: string } = { 4: AirnodeRrpDeploymentRinkeby.receipt.contractAddress };
 const AirnodeRequesterRrpAuthorizerAddresses: { [chainId: number]: string } = {
-  3: '', //AirnodeRequesterRrpAuthorizerDeploymentRopsten.receipt.contractAddress, TODO: uncomment after AirnodeRequesterRrpAuthorizer is deployed to ropsten
+  4: AirnodeRequesterRrpAuthorizerRinkeby.receipt.contractAddress,
 };
 const mocks = {
   MockRrpRequesterFactory,
