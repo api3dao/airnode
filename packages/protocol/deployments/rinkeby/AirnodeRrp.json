@@ -1,0 +1,1267 @@
+{
+  "address": "0xe469aD70a2CD3A01F4eCb6502161A4F381c1F659",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "CreatedTemplate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "FailedRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "statusCode",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "FulfilledRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "withdrawalRequestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "FulfilledWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requesterRequestCount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "MadeFullRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "requesterRequestCount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "MadeTemplateRequest",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "withdrawalRequestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        }
+      ],
+      "name": "RequestedWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "xpub",
+          "type": "string"
+        }
+      ],
+      "name": "SetAirnodeXpub",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "sponsorshipStatus",
+          "type": "bool"
+        }
+      ],
+      "name": "SetSponsorshipStatus",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "airnodeToXpub",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "authorizers",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        }
+      ],
+      "name": "checkAuthorizationStatus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "authorizers",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "requestIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "endpointIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "sponsors",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "requesters",
+          "type": "address[]"
+        }
+      ],
+      "name": "checkAuthorizationStatuses",
+      "outputs": [
+        {
+          "internalType": "bool[]",
+          "name": "statuses",
+          "type": "bool[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "createTemplate",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "fail",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "statusCode",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "fulfill",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "callSuccess",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "callData",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "withdrawalRequestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        }
+      ],
+      "name": "fulfillWithdrawal",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "templateIds",
+          "type": "bytes32[]"
+        }
+      ],
+      "name": "getTemplates",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "airnodes",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bytes32[]",
+          "name": "endpointIds",
+          "type": "bytes32[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "parameters",
+          "type": "bytes[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "makeFullRequest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "templateId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "fulfillAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "fulfillFunctionId",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "name": "makeTemplateRequest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "requestWithIdHasFailed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "sponsorWallet",
+          "type": "address"
+        }
+      ],
+      "name": "requestWithdrawal",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "requesterToRequestCountPlusOne",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "xpub",
+          "type": "string"
+        }
+      ],
+      "name": "setAirnodeXpub",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "requester",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "sponsorshipStatus",
+          "type": "bool"
+        }
+      ],
+      "name": "setSponsorshipStatus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "sponsorToRequesterToSponsorshipStatus",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "sponsorToWithdrawalRequestCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "templates",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "airnode",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "endpointId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "parameters",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x4da62d721bbc79d5b1e2ca09ad523b3fc0f5a8dd484014adc18f98e31514300d",
+  "receipt": {
+    "to": null,
+    "from": "0x19391A94a4d99a7083e3D561E4ff96528BA8E2b7",
+    "contractAddress": "0xe469aD70a2CD3A01F4eCb6502161A4F381c1F659",
+    "transactionIndex": 15,
+    "gasUsed": "3133339",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x6082c99855a8a1d44c7f7889e6f4fb57d69bb891461bf0e6ce9be5c6fe71d90d",
+    "transactionHash": "0x4da62d721bbc79d5b1e2ca09ad523b3fc0f5a8dd484014adc18f98e31514300d",
+    "logs": [],
+    "blockNumber": 9343953,
+    "cumulativeGasUsed": "12538119",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "6eb963f7c80ca167f1fab1a227229515",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.6+commit.11564f7e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"CreatedTemplate\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"name\":\"FailedRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"statusCode\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"FulfilledRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"withdrawalRequestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"FulfilledWithdrawal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requesterRequestCount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"MadeFullRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"requesterRequestCount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"MadeTemplateRequest\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"withdrawalRequestId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"}],\"name\":\"RequestedWithdrawal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"xpub\",\"type\":\"string\"}],\"name\":\"SetAirnodeXpub\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"sponsorshipStatus\",\"type\":\"bool\"}],\"name\":\"SetSponsorshipStatus\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"airnodeToXpub\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"authorizers\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"}],\"name\":\"checkAuthorizationStatus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"status\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"authorizers\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32[]\",\"name\":\"requestIds\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"endpointIds\",\"type\":\"bytes32[]\"},{\"internalType\":\"address[]\",\"name\":\"sponsors\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"requesters\",\"type\":\"address[]\"}],\"name\":\"checkAuthorizationStatuses\",\"outputs\":[{\"internalType\":\"bool[]\",\"name\":\"statuses\",\"type\":\"bool[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"createTemplate\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"}],\"name\":\"fail\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"statusCode\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"}],\"name\":\"fulfill\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"callSuccess\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"callData\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"withdrawalRequestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"}],\"name\":\"fulfillWithdrawal\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"templateIds\",\"type\":\"bytes32[]\"}],\"name\":\"getTemplates\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"airnodes\",\"type\":\"address[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"endpointIds\",\"type\":\"bytes32[]\"},{\"internalType\":\"bytes[]\",\"name\":\"parameters\",\"type\":\"bytes[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"makeFullRequest\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"templateId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"sponsor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"fulfillAddress\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"fulfillFunctionId\",\"type\":\"bytes4\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"name\":\"makeTemplateRequest\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"requestWithIdHasFailed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"sponsorWallet\",\"type\":\"address\"}],\"name\":\"requestWithdrawal\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"requesterToRequestCountPlusOne\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"xpub\",\"type\":\"string\"}],\"name\":\"setAirnodeXpub\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"requester\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"sponsorshipStatus\",\"type\":\"bool\"}],\"name\":\"setSponsorshipStatus\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"sponsorToRequesterToSponsorshipStatus\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"sponsorToWithdrawalRequestCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"templates\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"airnode\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"endpointId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"parameters\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)\":{\"details\":\"This method is meant to be called off-chain, statically by the Airnode to decide if it should respond to a request. The requester can also call it, yet this function returning true should not be taken as a guarantee of the subsequent request being fulfilled. It is enough for only one of the authorizer contracts to return true for the request to be authorized.\",\"params\":{\"airnode\":\"Airnode address\",\"authorizers\":\"Authorizer contract addresses\",\"endpointId\":\"Endpoint ID\",\"requestId\":\"Request ID\",\"requester\":\"Requester address\",\"sponsor\":\"Sponsor address\"},\"returns\":{\"status\":\"Authorization status of the request\"}},\"checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])\":{\"params\":{\"airnode\":\"Airnode address\",\"endpointIds\":\"Endpoint IDs\",\"requestIds\":\"Request IDs\",\"requesters\":\"Requester addresses\",\"sponsors\":\"Sponsor addresses\"},\"returns\":{\"statuses\":\"Authorization statuses of the request\"}},\"createTemplate(address,bytes32,bytes)\":{\"details\":\"A specific set of request parameters will always have the same ID. This means a few things: (1) You can compute the expected ID of a template before creating it, (2) Creating a new template with the same parameters will overwrite the old one and return the same ID, (3) After you query a template with its ID, you can verify its integrity by applying the hash and comparing the result with the ID.\",\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID (allowed to be `bytes32(0)`)\",\"parameters\":\"Static request parameters (i.e., parameters that will not change between requests, unlike the dynamic parameters determined at request-time)\"},\"returns\":{\"templateId\":\"Request template ID\"}},\"fail(bytes32,address,address,bytes4)\":{\"details\":\"Airnode should fall back to this if a request cannot be fulfilled because fulfill() reverts\",\"params\":{\"airnode\":\"Airnode address\",\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"requestId\":\"Request ID\"}},\"fulfill(bytes32,address,uint256,bytes,address,bytes4)\":{\"details\":\"`statusCode` being zero indicates a successful fulfillment, while non-zero values indicate error. The meaning of these values are implementation-dependent. The data is ABI-encoded as a `bytes` type, with its format depending on the request specifications. This method will revert if the targeted function reverts or no function with the matching signature is found. It will succeed if the targeted function or the targeted address does not belong to a contract.\",\"params\":{\"airnode\":\"Airnode address\",\"data\":\"Fulfillment data\",\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"requestId\":\"Request ID\",\"statusCode\":\"Status code of the fulfillment\"},\"returns\":{\"callData\":\"Data returned by the fulfillment call (if there is any)\",\"callSuccess\":\"If the fulfillment call succeeded\"}},\"fulfillWithdrawal(bytes32,address,address)\":{\"details\":\"The Airnode sends the funds to the sponsor through this method to emit an event that indicates that the withdrawal request has been fulfilled\",\"params\":{\"airnode\":\"Airnode address\",\"sponsor\":\"Sponsor address\",\"withdrawalRequestId\":\"Withdrawal request ID\"}},\"getTemplates(bytes32[])\":{\"details\":\"Does not revert if the templates being indexed do not exist\",\"params\":{\"templateIds\":\"Request template IDs\"},\"returns\":{\"airnodes\":\"Array of Airnode addresses\",\"endpointIds\":\"Array of endpoint IDs\",\"parameters\":\"Array of request parameters\"}},\"makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)\":{\"params\":{\"airnode\":\"Airnode address\",\"endpointId\":\"Endpoint ID (allowed to be `bytes32(0)`)\",\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"parameters\":\"All request parameters\",\"sponsor\":\"Sponsor address\",\"sponsorWallet\":\"Sponsor wallet that is requested to fulfill the request\"},\"returns\":{\"requestId\":\"Request ID\"}},\"makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)\":{\"params\":{\"fulfillAddress\":\"Address that will be called to fulfill\",\"fulfillFunctionId\":\"Signature of the function that will be called to fulfill\",\"parameters\":\"Parameters provided by the requester in addition to the parameters in the template\",\"sponsor\":\"Sponsor address\",\"sponsorWallet\":\"Sponsor wallet that is requested to fulfill the request\",\"templateId\":\"Template ID\"},\"returns\":{\"requestId\":\"Request ID\"}},\"requestWithdrawal(address,address)\":{\"details\":\"We do not need to use the withdrawal request parameters in the request ID hash to validate them at the node-side because all of the parameters are used during fulfillment and will get validated on-chain\",\"params\":{\"airnode\":\"Airnode address\",\"sponsorWallet\":\"Sponsor wallet\"}},\"setAirnodeXpub(string)\":{\"details\":\"It is expected for the Airnode operator to call this function with the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0). Correspondingly, if the address of the default BIP 44 wallet derived from the extended public key does not match the respective Airnode address, the extended public key is invalid (does not belong to the respective Airnode). An Airnode operator can also announce their extended public key through off-chain channels. Validation method remains the same. The extended public key of an Airnode is used with a sponsor address to derive the address of the respective sponsor wallet.\",\"params\":{\"xpub\":\"Extended public key of the Airnode\"}},\"setSponsorshipStatus(address,bool)\":{\"details\":\"This is not Airnode-specific, i.e., the sponsor allows the requester's requests to be fulfilled through its sponsor wallets across all Airnodes\",\"params\":{\"requester\":\"Requester address\",\"sponsorshipStatus\":\"Sponsorship status\"}}},\"stateVariables\":{\"requestIdToFulfillmentParameters\":{\"details\":\"Hash of expected fulfillment parameters are kept to verify that the fulfillment will be done with the correct parameters\"},\"requestWithIdHasFailed\":{\"details\":\"Requests will be marked to have failed by the respective Airnode if the fulfillment call will revert\"},\"requesterToRequestCountPlusOne\":{\"details\":\"Can be used to calculate the ID of the next request the requester will make\"}},\"title\":\"Contract that implements the Airnode request\\u2013response protocol (RRP)\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"airnodeToXpub(address)\":{\"notice\":\"Called to get the extended public key of the Airnode\"},\"checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)\":{\"notice\":\"Uses the authorizer contracts of an Airnode to decide if a request is authorized. Once an Airnode receives a request, it calls this method to determine if it should respond. Similarly, third parties can use this method to determine if a particular request would be authorized.\"},\"checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])\":{\"notice\":\"A convenience function to make multiple authorization status checks with a single call\"},\"createTemplate(address,bytes32,bytes)\":{\"notice\":\"Creates a request template with the given parameters, addressable by the ID it returns\"},\"fail(bytes32,address,address,bytes4)\":{\"notice\":\"Called by Airnode if the request cannot be fulfilled\"},\"fulfill(bytes32,address,uint256,bytes,address,bytes4)\":{\"notice\":\"Called by Airnode to fulfill the request (template or full)\"},\"fulfillWithdrawal(bytes32,address,address)\":{\"notice\":\"Called by the Airnode using the sponsor wallet to fulfill the withdrawal request made by the sponsor\"},\"getTemplates(bytes32[])\":{\"notice\":\"A convenience method to retrieve multiple templates with a single call\"},\"makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)\":{\"notice\":\"Called by the requester to make a full request, which provides all of its parameters as arguments and does not refer to a template\"},\"makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)\":{\"notice\":\"Called by the requester to make a request that refers to a template for the Airnode address, endpoint ID and parameters\"},\"requestWithIdHasFailed(bytes32)\":{\"notice\":\"Called to check if the fulfillment of a request has failed\"},\"requestWithdrawal(address,address)\":{\"notice\":\"Called by a sponsor to create a request for the Airnode to send the funds kept in the respective sponsor wallet to the sponsor\"},\"requesterToRequestCountPlusOne(address)\":{\"notice\":\"Called to get the request count of the requester plus one\"},\"setAirnodeXpub(string)\":{\"notice\":\"Called by the Airnode operator to announce its extended public key\"},\"setSponsorshipStatus(address,bool)\":{\"notice\":\"Called by the sponsor to set the sponsorship status of a requester, i.e., allow or disallow a requester to make requests that will be fulfilled by the sponsor wallet\"},\"sponsorToRequesterToSponsorshipStatus(address,address)\":{\"notice\":\"Called to get the sponsorship status for a sponsor\\u2013requester pair\"},\"sponsorToWithdrawalRequestCount(address)\":{\"notice\":\"Called to get the withdrawal request count of the sponsor\"},\"templates(bytes32)\":{\"notice\":\"Called to get a template\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/rrp/AirnodeRrp.sol\":\"AirnodeRrp\"},\"evmVersion\":\"berlin\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/rrp/AirnodeRrp.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./AuthorizationUtils.sol\\\";\\nimport \\\"./TemplateUtils.sol\\\";\\nimport \\\"./WithdrawalUtils.sol\\\";\\nimport \\\"./interfaces/IAirnodeRrp.sol\\\";\\n\\n/// @title Contract that implements the Airnode request\\u2013response protocol (RRP)\\ncontract AirnodeRrp is\\n    AuthorizationUtils,\\n    TemplateUtils,\\n    WithdrawalUtils,\\n    IAirnodeRrp\\n{\\n    /// @notice Called to get the extended public key of the Airnode\\n    mapping(address => string) public override airnodeToXpub;\\n\\n    /// @notice Called to get the sponsorship status for a sponsor\\u2013requester\\n    /// pair\\n    mapping(address => mapping(address => bool))\\n        public\\n        override sponsorToRequesterToSponsorshipStatus;\\n\\n    /// @notice Called to get the request count of the requester plus one\\n    /// @dev Can be used to calculate the ID of the next request the requester\\n    /// will make\\n    mapping(address => uint256) public override requesterToRequestCountPlusOne;\\n\\n    /// @notice Called to check if the fulfillment of a request has failed\\n    /// @dev Requests will be marked to have failed by the respective Airnode\\n    /// if the fulfillment call will revert\\n    mapping(bytes32 => bool) public override requestWithIdHasFailed;\\n\\n    /// @dev Hash of expected fulfillment parameters are kept to verify that\\n    /// the fulfillment will be done with the correct parameters\\n    mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;\\n\\n    /// @dev Reverts if the incoming fulfillment parameters do not match the\\n    /// ones provided in the request\\n    /// @param requestId Request ID\\n    /// @param airnode Airnode address\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    modifier onlyCorrectFulfillmentParameters(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId\\n    ) {\\n        require(\\n            keccak256(\\n                abi.encodePacked(\\n                    airnode,\\n                    msg.sender,\\n                    fulfillAddress,\\n                    fulfillFunctionId\\n                )\\n            ) == requestIdToFulfillmentParameters[requestId],\\n            \\\"Invalid request fulfillment\\\"\\n        );\\n        _;\\n    }\\n\\n    /// @notice Called by the Airnode operator to announce its extended public\\n    /// key\\n    /// @dev It is expected for the Airnode operator to call this function with\\n    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).\\n    /// Correspondingly, if the address of the default BIP 44 wallet derived\\n    /// from the extended public key does not match the respective Airnode\\n    /// address, the extended public key is invalid (does not belong to the\\n    /// respective Airnode).\\n    /// An Airnode operator can also announce their extended public key through\\n    /// off-chain channels. Validation method remains the same.\\n    /// The extended public key of an Airnode is used with a sponsor address to\\n    /// derive the address of the respective sponsor wallet.\\n    /// @param xpub Extended public key of the Airnode\\n    function setAirnodeXpub(string calldata xpub) external override {\\n        airnodeToXpub[msg.sender] = xpub;\\n        emit SetAirnodeXpub(msg.sender, xpub);\\n    }\\n\\n    /// @notice Called by the sponsor to set the sponsorship status of a\\n    /// requester, i.e., allow or disallow a requester to make requests that\\n    /// will be fulfilled by the sponsor wallet\\n    /// @dev This is not Airnode-specific, i.e., the sponsor allows the\\n    /// requester's requests to be fulfilled through its sponsor wallets across\\n    /// all Airnodes\\n    /// @param requester Requester address\\n    /// @param sponsorshipStatus Sponsorship status\\n    function setSponsorshipStatus(address requester, bool sponsorshipStatus)\\n        external\\n        override\\n    {\\n        // Initialize the requester request count for consistent request gas\\n        // cost\\n        if (requesterToRequestCountPlusOne[requester] == 0) {\\n            requesterToRequestCountPlusOne[requester] = 1;\\n        }\\n        sponsorToRequesterToSponsorshipStatus[msg.sender][\\n            requester\\n        ] = sponsorshipStatus;\\n        emit SetSponsorshipStatus(msg.sender, requester, sponsorshipStatus);\\n    }\\n\\n    /// @notice Called by the requester to make a request that refers to a\\n    /// template for the Airnode address, endpoint ID and parameters\\n    /// @param templateId Template ID\\n    /// @param sponsor Sponsor address\\n    /// @param sponsorWallet Sponsor wallet that is requested to fulfill the\\n    /// request\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @param parameters Parameters provided by the requester in addition to\\n    /// the parameters in the template\\n    /// @return requestId Request ID\\n    function makeTemplateRequest(\\n        bytes32 templateId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external override returns (bytes32 requestId) {\\n        address airnode = templates[templateId].airnode;\\n        require(airnode != address(0), \\\"Template does not exist\\\");\\n        require(fulfillAddress != address(this), \\\"Fulfill address AirnodeRrp\\\");\\n        require(\\n            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],\\n            \\\"Requester not sponsored\\\"\\n        );\\n        uint256 requesterRequestCount = requesterToRequestCountPlusOne[\\n            msg.sender\\n        ];\\n        requestId = keccak256(\\n            abi.encodePacked(\\n                requesterRequestCount,\\n                block.chainid,\\n                msg.sender,\\n                templateId,\\n                sponsor,\\n                parameters\\n            )\\n        );\\n        requestIdToFulfillmentParameters[requestId] = keccak256(\\n            abi.encodePacked(\\n                airnode,\\n                sponsorWallet,\\n                fulfillAddress,\\n                fulfillFunctionId\\n            )\\n        );\\n        emit MadeTemplateRequest(\\n            airnode,\\n            requestId,\\n            requesterRequestCount,\\n            block.chainid,\\n            msg.sender,\\n            templateId,\\n            sponsor,\\n            sponsorWallet,\\n            fulfillAddress,\\n            fulfillFunctionId,\\n            parameters\\n        );\\n        requesterToRequestCountPlusOne[msg.sender]++;\\n    }\\n\\n    /// @notice Called by the requester to make a full request, which provides\\n    /// all of its parameters as arguments and does not refer to a template\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)\\n    /// @param sponsor Sponsor address\\n    /// @param sponsorWallet Sponsor wallet that is requested to fulfill\\n    /// the request\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @param parameters All request parameters\\n    /// @return requestId Request ID\\n    function makeFullRequest(\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external override returns (bytes32 requestId) {\\n        require(airnode != address(0), \\\"Airnode address zero\\\");\\n        require(fulfillAddress != address(this), \\\"Fulfill address AirnodeRrp\\\");\\n        require(\\n            sponsorToRequesterToSponsorshipStatus[sponsor][msg.sender],\\n            \\\"Requester not sponsored\\\"\\n        );\\n        uint256 requesterRequestCount = requesterToRequestCountPlusOne[\\n            msg.sender\\n        ];\\n        requestId = keccak256(\\n            abi.encodePacked(\\n                requesterRequestCount,\\n                block.chainid,\\n                msg.sender,\\n                endpointId,\\n                sponsor,\\n                parameters\\n            )\\n        );\\n        requestIdToFulfillmentParameters[requestId] = keccak256(\\n            abi.encodePacked(\\n                airnode,\\n                sponsorWallet,\\n                fulfillAddress,\\n                fulfillFunctionId\\n            )\\n        );\\n        requesterToRequestCountPlusOne[msg.sender]++;\\n        emit MadeFullRequest(\\n            airnode,\\n            requestId,\\n            requesterRequestCount,\\n            block.chainid,\\n            msg.sender,\\n            endpointId,\\n            sponsor,\\n            sponsorWallet,\\n            fulfillAddress,\\n            fulfillFunctionId,\\n            parameters\\n        );\\n    }\\n\\n    /// @notice Called by Airnode to fulfill the request (template or full)\\n    /// @dev `statusCode` being zero indicates a successful fulfillment, while\\n    /// non-zero values indicate error. The meaning of these values are\\n    /// implementation-dependent.\\n    /// The data is ABI-encoded as a `bytes` type, with its format depending on\\n    /// the request specifications.\\n    /// This method will revert if the targeted function reverts or no function\\n    /// with the matching signature is found. It will succeed if the targeted\\n    /// function or the targeted address does not belong to a contract.\\n    /// @param requestId Request ID\\n    /// @param airnode Airnode address\\n    /// @param statusCode Status code of the fulfillment\\n    /// @param data Fulfillment data\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    /// @return callSuccess If the fulfillment call succeeded\\n    /// @return callData Data returned by the fulfillment call (if there is\\n    /// any)\\n    function fulfill(\\n        bytes32 requestId,\\n        address airnode,\\n        uint256 statusCode,\\n        bytes calldata data,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId\\n    )\\n        external\\n        override\\n        onlyCorrectFulfillmentParameters(\\n            requestId,\\n            airnode,\\n            fulfillAddress,\\n            fulfillFunctionId\\n        )\\n        returns (bool callSuccess, bytes memory callData)\\n    {\\n        delete requestIdToFulfillmentParameters[requestId];\\n        emit FulfilledRequest(airnode, requestId, statusCode, data);\\n        (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls\\n            abi.encodeWithSelector(\\n                fulfillFunctionId,\\n                requestId,\\n                statusCode,\\n                data\\n            )\\n        );\\n        require(callSuccess, \\\"Fulfillment failed\\\");\\n    }\\n\\n    /// @notice Called by Airnode if the request cannot be fulfilled\\n    /// @dev Airnode should fall back to this if a request cannot be fulfilled\\n    /// because fulfill() reverts\\n    /// @param requestId Request ID\\n    /// @param airnode Airnode address\\n    /// @param fulfillAddress Address that will be called to fulfill\\n    /// @param fulfillFunctionId Signature of the function that will be called\\n    /// to fulfill\\n    function fail(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId\\n    )\\n        external\\n        override\\n        onlyCorrectFulfillmentParameters(\\n            requestId,\\n            airnode,\\n            fulfillAddress,\\n            fulfillFunctionId\\n        )\\n    {\\n        delete requestIdToFulfillmentParameters[requestId];\\n        // Failure is recorded so that it can be checked externally\\n        requestWithIdHasFailed[requestId] = true;\\n        emit FailedRequest(airnode, requestId);\\n    }\\n}\\n\",\"keccak256\":\"0x5a223f433c54cb2e2475cd9992c2260ae81857453482a858c318c9b0c63b0573\",\"license\":\"MIT\"},\"contracts/rrp/AuthorizationUtils.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./interfaces/IAuthorizationUtils.sol\\\";\\nimport \\\"./authorizers/interfaces/IRrpAuthorizer.sol\\\";\\n\\n/// @title Contract that implements convenience functions\\ncontract AuthorizationUtils is IAuthorizationUtils {\\n    /// @notice Uses the authorizer contracts of an Airnode to decide if a\\n    /// request is authorized. Once an Airnode receives a request, it calls\\n    /// this method to determine if it should respond. Similarly, third parties\\n    /// can use this method to determine if a particular request would be\\n    /// authorized.\\n    /// @dev This method is meant to be called off-chain, statically by the\\n    /// Airnode to decide if it should respond to a request. The requester can\\n    /// also call it, yet this function returning true should not be taken as a\\n    /// guarantee of the subsequent request being fulfilled.\\n    /// It is enough for only one of the authorizer contracts to return true\\n    /// for the request to be authorized.\\n    /// @param authorizers Authorizer contract addresses\\n    /// @param airnode Airnode address\\n    /// @param requestId Request ID\\n    /// @param endpointId Endpoint ID\\n    /// @param sponsor Sponsor address\\n    /// @param requester Requester address\\n    /// @return status Authorization status of the request\\n    function checkAuthorizationStatus(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32 requestId,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) public view override returns (bool status) {\\n        for (uint256 ind = 0; ind < authorizers.length; ind++) {\\n            IRrpAuthorizer authorizer = IRrpAuthorizer(authorizers[ind]);\\n            if (\\n                authorizer.isAuthorized(\\n                    requestId,\\n                    airnode,\\n                    endpointId,\\n                    sponsor,\\n                    requester\\n                )\\n            ) {\\n                return true;\\n            }\\n        }\\n        return false;\\n    }\\n\\n    /// @notice A convenience function to make multiple authorization status\\n    /// checks with a single call\\n    /// @param airnode Airnode address\\n    /// @param requestIds Request IDs\\n    /// @param endpointIds Endpoint IDs\\n    /// @param sponsors Sponsor addresses\\n    /// @param requesters Requester addresses\\n    /// @return statuses Authorization statuses of the request\\n    function checkAuthorizationStatuses(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32[] calldata requestIds,\\n        bytes32[] calldata endpointIds,\\n        address[] calldata sponsors,\\n        address[] calldata requesters\\n    ) external view override returns (bool[] memory statuses) {\\n        require(\\n            requestIds.length == endpointIds.length &&\\n                requestIds.length == sponsors.length &&\\n                requestIds.length == requesters.length,\\n            \\\"Unequal parameter lengths\\\"\\n        );\\n        statuses = new bool[](requestIds.length);\\n        for (uint256 ind = 0; ind < requestIds.length; ind++) {\\n            statuses[ind] = checkAuthorizationStatus(\\n                authorizers,\\n                airnode,\\n                requestIds[ind],\\n                endpointIds[ind],\\n                sponsors[ind],\\n                requesters[ind]\\n            );\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x4c66363a0f7e0645b85e4666abc50123d09dcd27c0c1911e935a66d927a0a359\",\"license\":\"MIT\"},\"contracts/rrp/TemplateUtils.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./interfaces/ITemplateUtils.sol\\\";\\n\\n/// @title Contract that implements request template logic\\ncontract TemplateUtils is ITemplateUtils {\\n    struct Template {\\n        address airnode;\\n        bytes32 endpointId;\\n        bytes parameters;\\n    }\\n\\n    /// @notice Called to get a template\\n    mapping(bytes32 => Template) public override templates;\\n\\n    /// @notice Creates a request template with the given parameters,\\n    /// addressable by the ID it returns\\n    /// @dev A specific set of request parameters will always have the same ID.\\n    /// This means a few things: (1) You can compute the expected ID of a\\n    /// template before creating it, (2) Creating a new template with the same\\n    /// parameters will overwrite the old one and return the same ID, (3) After\\n    /// you query a template with its ID, you can verify its integrity by\\n    /// applying the hash and comparing the result with the ID.\\n    /// @param airnode Airnode address\\n    /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)\\n    /// @param parameters Static request parameters (i.e., parameters that will\\n    /// not change between requests, unlike the dynamic parameters determined\\n    /// at request-time)\\n    /// @return templateId Request template ID\\n    function createTemplate(\\n        address airnode,\\n        bytes32 endpointId,\\n        bytes calldata parameters\\n    ) external override returns (bytes32 templateId) {\\n        require(airnode != address(0), \\\"Airnode address zero\\\");\\n        templateId = keccak256(\\n            abi.encodePacked(airnode, endpointId, parameters)\\n        );\\n        templates[templateId] = Template({\\n            airnode: airnode,\\n            endpointId: endpointId,\\n            parameters: parameters\\n        });\\n        emit CreatedTemplate(templateId, airnode, endpointId, parameters);\\n    }\\n\\n    /// @notice A convenience method to retrieve multiple templates with a\\n    /// single call\\n    /// @dev Does not revert if the templates being indexed do not exist\\n    /// @param templateIds Request template IDs\\n    /// @return airnodes Array of Airnode addresses\\n    /// @return endpointIds Array of endpoint IDs\\n    /// @return parameters Array of request parameters\\n    function getTemplates(bytes32[] calldata templateIds)\\n        external\\n        view\\n        override\\n        returns (\\n            address[] memory airnodes,\\n            bytes32[] memory endpointIds,\\n            bytes[] memory parameters\\n        )\\n    {\\n        airnodes = new address[](templateIds.length);\\n        endpointIds = new bytes32[](templateIds.length);\\n        parameters = new bytes[](templateIds.length);\\n        for (uint256 ind = 0; ind < templateIds.length; ind++) {\\n            Template storage template = templates[templateIds[ind]];\\n            airnodes[ind] = template.airnode;\\n            endpointIds[ind] = template.endpointId;\\n            parameters[ind] = template.parameters;\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x46bf03e6133f63d87b3979fa01593b028cc123926e59dbf358ed6c7cfd1989c7\",\"license\":\"MIT\"},\"contracts/rrp/WithdrawalUtils.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./interfaces/IWithdrawalUtils.sol\\\";\\n\\n/// @title Contract that implements logic for withdrawals from sponsor wallets\\ncontract WithdrawalUtils is IWithdrawalUtils {\\n    /// @notice Called to get the withdrawal request count of the sponsor\\n    /// @dev Can be used to calculate the ID of the next withdrawal request the\\n    /// sponsor will make\\n    mapping(address => uint256) public override sponsorToWithdrawalRequestCount;\\n\\n    /// @dev Hash of expected fulfillment parameters are kept to verify that\\n    /// the fulfillment will be done with the correct parameters\\n    mapping(bytes32 => bytes32) private withdrawalRequestIdToParameters;\\n\\n    /// @notice Called by a sponsor to create a request for the Airnode to send\\n    /// the funds kept in the respective sponsor wallet to the sponsor\\n    /// @dev We do not need to use the withdrawal request parameters in the\\n    /// request ID hash to validate them at the node-side because all of the\\n    /// parameters are used during fulfillment and will get validated on-chain\\n    /// @param airnode Airnode address\\n    /// @param sponsorWallet Sponsor wallet\\n    function requestWithdrawal(address airnode, address sponsorWallet)\\n        external\\n        override\\n    {\\n        bytes32 withdrawalRequestId = keccak256(\\n            abi.encodePacked(\\n                ++sponsorToWithdrawalRequestCount[msg.sender],\\n                block.chainid,\\n                msg.sender\\n            )\\n        );\\n        withdrawalRequestIdToParameters[withdrawalRequestId] = keccak256(\\n            abi.encodePacked(airnode, msg.sender, sponsorWallet)\\n        );\\n        emit RequestedWithdrawal(\\n            airnode,\\n            msg.sender,\\n            withdrawalRequestId,\\n            sponsorWallet\\n        );\\n    }\\n\\n    /// @notice Called by the Airnode using the sponsor wallet to fulfill the\\n    /// withdrawal request made by the sponsor\\n    /// @dev The Airnode sends the funds to the sponsor through this method\\n    /// to emit an event that indicates that the withdrawal request has been\\n    /// fulfilled\\n    /// @param withdrawalRequestId Withdrawal request ID\\n    /// @param airnode Airnode address\\n    /// @param sponsor Sponsor address\\n    function fulfillWithdrawal(\\n        bytes32 withdrawalRequestId,\\n        address airnode,\\n        address sponsor\\n    ) external payable override {\\n        require(\\n            withdrawalRequestIdToParameters[withdrawalRequestId] ==\\n                keccak256(abi.encodePacked(airnode, sponsor, msg.sender)),\\n            \\\"Invalid withdrawal fulfillment\\\"\\n        );\\n        delete withdrawalRequestIdToParameters[withdrawalRequestId];\\n        emit FulfilledWithdrawal(\\n            airnode,\\n            sponsor,\\n            withdrawalRequestId,\\n            msg.sender,\\n            msg.value\\n        );\\n        (bool success, ) = sponsor.call{value: msg.value}(\\\"\\\"); // solhint-disable-line avoid-low-level-calls\\n        require(success, \\\"Transfer failed\\\");\\n    }\\n}\\n\",\"keccak256\":\"0xdbd23585d356bb098fdd810a54f4fc7c9667b5d3d77aabc19deb47eb9b8a1d63\",\"license\":\"MIT\"},\"contracts/rrp/authorizers/interfaces/IRrpAuthorizer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\ninterface IRrpAuthorizer {\\n    // solhint-disable-next-line func-name-mixedcase\\n    function AUTHORIZER_TYPE() external view returns (uint256);\\n\\n    function isAuthorized(\\n        bytes32 requestId,\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool);\\n}\\n\",\"keccak256\":\"0xbb2881ceb1ee88bf14f257a0dc31714ce20c375cb25a170e29a48c0aed787674\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/IAirnodeRrp.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\nimport \\\"./IAuthorizationUtils.sol\\\";\\nimport \\\"./ITemplateUtils.sol\\\";\\nimport \\\"./IWithdrawalUtils.sol\\\";\\n\\ninterface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {\\n    event SetAirnodeXpub(address indexed airnode, string xpub);\\n\\n    event SetSponsorshipStatus(\\n        address indexed sponsor,\\n        address indexed requester,\\n        bool sponsorshipStatus\\n    );\\n\\n    event MadeTemplateRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        uint256 requesterRequestCount,\\n        uint256 chainId,\\n        address requester,\\n        bytes32 templateId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes parameters\\n    );\\n\\n    event MadeFullRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        uint256 requesterRequestCount,\\n        uint256 chainId,\\n        address requester,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes parameters\\n    );\\n\\n    event FulfilledRequest(\\n        address indexed airnode,\\n        bytes32 indexed requestId,\\n        uint256 statusCode,\\n        bytes data\\n    );\\n\\n    event FailedRequest(address indexed airnode, bytes32 indexed requestId);\\n\\n    function setAirnodeXpub(string calldata xpub) external;\\n\\n    function setSponsorshipStatus(address requester, bool sponsorshipStatus)\\n        external;\\n\\n    function makeTemplateRequest(\\n        bytes32 templateId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external returns (bytes32 requestId);\\n\\n    function makeFullRequest(\\n        address airnode,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address sponsorWallet,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId,\\n        bytes calldata parameters\\n    ) external returns (bytes32 requestId);\\n\\n    function fulfill(\\n        bytes32 requestId,\\n        address airnode,\\n        uint256 statusCode,\\n        bytes calldata data,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId\\n    ) external returns (bool callSuccess, bytes memory callData);\\n\\n    function fail(\\n        bytes32 requestId,\\n        address airnode,\\n        address fulfillAddress,\\n        bytes4 fulfillFunctionId\\n    ) external;\\n\\n    function airnodeToXpub(address airnode)\\n        external\\n        view\\n        returns (string memory xpub);\\n\\n    function sponsorToRequesterToSponsorshipStatus(\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool sponsorshipStatus);\\n\\n    function requesterToRequestCountPlusOne(address requester)\\n        external\\n        view\\n        returns (uint256 requestCountPlusOne);\\n\\n    function requestWithIdHasFailed(bytes32 requestId)\\n        external\\n        view\\n        returns (bool hasFailed);\\n}\\n\",\"keccak256\":\"0x31d66de1165b8c7ebc81950037717d7e31d1f054b53780e9dcd2d279a1ccbabe\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/IAuthorizationUtils.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\ninterface IAuthorizationUtils {\\n    function checkAuthorizationStatus(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32 requestId,\\n        bytes32 endpointId,\\n        address sponsor,\\n        address requester\\n    ) external view returns (bool status);\\n\\n    function checkAuthorizationStatuses(\\n        address[] calldata authorizers,\\n        address airnode,\\n        bytes32[] calldata requestIds,\\n        bytes32[] calldata endpointIds,\\n        address[] calldata sponsors,\\n        address[] calldata requesters\\n    ) external view returns (bool[] memory statuses);\\n}\\n\",\"keccak256\":\"0x6d6479001e38a9c1dce6be9826c743532de6bded0932e7b17602e119785308bd\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/ITemplateUtils.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\ninterface ITemplateUtils {\\n    event CreatedTemplate(\\n        bytes32 indexed templateId,\\n        address airnode,\\n        bytes32 endpointId,\\n        bytes parameters\\n    );\\n\\n    function createTemplate(\\n        address airnode,\\n        bytes32 endpointId,\\n        bytes calldata parameters\\n    ) external returns (bytes32 templateId);\\n\\n    function getTemplates(bytes32[] calldata templateIds)\\n        external\\n        view\\n        returns (\\n            address[] memory airnodes,\\n            bytes32[] memory endpointIds,\\n            bytes[] memory parameters\\n        );\\n\\n    function templates(bytes32 templateId)\\n        external\\n        view\\n        returns (\\n            address airnode,\\n            bytes32 endpointId,\\n            bytes memory parameters\\n        );\\n}\\n\",\"keccak256\":\"0xac09d4fa4c1026683f82fc088ed8f786248b94b631a7b81df70a8d2f4e38c383\",\"license\":\"MIT\"},\"contracts/rrp/interfaces/IWithdrawalUtils.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.6;\\n\\ninterface IWithdrawalUtils {\\n    event RequestedWithdrawal(\\n        address indexed airnode,\\n        address indexed sponsor,\\n        bytes32 indexed withdrawalRequestId,\\n        address sponsorWallet\\n    );\\n\\n    event FulfilledWithdrawal(\\n        address indexed airnode,\\n        address indexed sponsor,\\n        bytes32 indexed withdrawalRequestId,\\n        address sponsorWallet,\\n        uint256 amount\\n    );\\n\\n    function requestWithdrawal(address airnode, address sponsorWallet) external;\\n\\n    function fulfillWithdrawal(\\n        bytes32 withdrawalRequestId,\\n        address airnode,\\n        address sponsor\\n    ) external payable;\\n\\n    function sponsorToWithdrawalRequestCount(address sponsor)\\n        external\\n        view\\n        returns (uint256 withdrawalRequestCount);\\n}\\n\",\"keccak256\":\"0x5fe8568ec14f5a7f18a1bc7977ef2fa991a5ed913acd16af47affb17b7d2db6c\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506137db806100206000396000f3fe6080604052600436106101095760003560e01c80637e7166f311610095578063acbe180011610064578063acbe1800146103ce578063addf027c1461040b578063ca31d58614610434578063f8fa73a114610471578063fd3c9735146104ae57610109565b80637e7166f3146102da5780638a33be01146103175780639949f14b14610354578063a81e9f791461039157610109565b80633c7fe5e3116100dc5780633c7fe5e3146101dc57806348c085d7146101f85780636e6be03f146102355780636f8390e41461027257806376428c9b1461029b57610109565b80630a6315761461010e5780631d414cbd1461014d57806332393f2b1461017657806339a08194146101b3575b600080fd5b34801561011a57600080fd5b50610135600480360381019061013091906123fd565b6104ec565b60405161014493929190612dff565b60405180910390f35b34801561015957600080fd5b50610174600480360381019061016f9190611fed565b6105be565b005b34801561018257600080fd5b5061019d6004803603810190610198919061212f565b6106eb565b6040516101aa9190612f1f565b60405180910390f35b3480156101bf57600080fd5b506101da60048036038101906101d59190612642565b6108c9565b005b6101f660048036038101906101f1919061242a565b61096c565b005b34801561020457600080fd5b5061021f600480360381019061021a9190611fc0565b610b1c565b60405161022c9190612ff1565b60405180910390f35b34801561024157600080fd5b5061025c6004803603810190610257919061206d565b610bbc565b6040516102699190612f1f565b60405180910390f35b34801561027e57600080fd5b506102996004803603810190610294919061252c565b610ee5565b005b3480156102a757600080fd5b506102c260048036038101906102bd9190612383565b610ffb565b6040516102d193929190612e66565b60405180910390f35b3480156102e657600080fd5b5061030160048036038101906102fc9190611fc0565b611289565b60405161030e9190613133565b60405180910390f35b34801561032357600080fd5b5061033e600480360381019061033991906122d4565b6112a1565b60405161034b9190612ed4565b60405180910390f35b34801561036057600080fd5b5061037b600480360381019061037691906123fd565b6113a6565b6040516103889190612ed4565b60405180910390f35b34801561039d57600080fd5b506103b860048036038101906103b39190611fed565b6113c6565b6040516103c59190612ed4565b60405180910390f35b3480156103da57600080fd5b506103f560048036038101906103f0919061247d565b6113f5565b6040516104029190612f1f565b60405180910390f35b34801561041757600080fd5b50610432600480360381019061042d919061202d565b611758565b005b34801561044057600080fd5b5061045b600480360381019061045691906121a3565b6118e3565b6040516104689190612eb2565b60405180910390f35b34801561047d57600080fd5b5061049860048036038101906104939190611fc0565b611a82565b6040516104a59190613133565b60405180910390f35b3480156104ba57600080fd5b506104d560048036038101906104d09190612593565b611a9a565b6040516104e3929190612eef565b60405180910390f35b60006020528060005260406000206000915090508060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169080600101549080600201805461053b9061340e565b80601f01602080910402602001604051908101604052809291908181526020018280546105679061340e565b80156105b45780601f10610589576101008083540402835291602001916105b4565b820191906000526020600020905b81548152906001019060200180831161059757829003601f168201915b5050505050905083565b6000600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000815461060c90613440565b919050819055463360405160200161062693929190612cf9565b60405160208183030381529060405280519060200120905082338360405160200161065393929190612c07565b604051602081830303815290604052805190602001206002600083815260200190815260200160002081905550803373ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7856040516106de9190612da4565b60405180910390a4505050565b60008073ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff16141561075c576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610753906130f3565b60405180910390fd5b848484846040516020016107739493929190612c92565b60405160208183030381529060405280519060200120905060405180606001604052808673ffffffffffffffffffffffffffffffffffffffff16815260200185815260200184848080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505081525060008083815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060208201518160010155604082015181600201908051906020019061087f929190611cc1565b50905050807fba204bad31c4ec4b9b54164af94ae10c4e7312f22c0f9c065d6319c928ec9e7a868686866040516108b99493929190612dbf565b60405180910390a2949350505050565b8181600360003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209190610917929190611d47565b503373ffffffffffffffffffffffffffffffffffffffff167febace4380f1ba3ccf701db78879a937b0ad2a9370e98baaba922228f632383e08383604051610960929190612fcd565b60405180910390a25050565b81813360405160200161098193929190612c07565b604051602081830303815290604052805190602001206002600085815260200190815260200160002054146109eb576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016109e290613053565b60405180910390fd5b6002600084815260200190815260200160002060009055828173ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff167fadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e3334604051610a62929190612e3d565b60405180910390a460008173ffffffffffffffffffffffffffffffffffffffff1634604051610a9090612ce4565b60006040518083038185875af1925050503d8060008114610acd576040519150601f19603f3d011682016040523d82523d6000602084013e610ad2565b606091505b5050905080610b16576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610b0d90613013565b60405180910390fd5b50505050565b60036020528060005260406000206000915090508054610b3b9061340e565b80601f0160208091040260200160405190810160405280929190818152602001828054610b679061340e565b8015610bb45780601f10610b8957610100808354040283529160200191610bb4565b820191906000526020600020905b815481529060010190602001808311610b9757829003601f168201915b505050505081565b60008073ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff161415610c2d576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c24906130f3565b60405180910390fd5b3073ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff161415610c9c576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c93906130b3565b60405180910390fd5b600460008873ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff16610d65576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610d5c90613113565b60405180910390fd5b6000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490508046338b8b8888604051602001610dc69796959493929190612d36565b60405160208183030381529060405280519060200120915089878787604051602001610df59493929190612c44565b604051602081830303815290604052805190602001206007600084815260200190815260200160002081905550600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000815480929190610e7290613440565b9190505550818a73ffffffffffffffffffffffffffffffffffffffff167f3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae8346338e8e8e8e8e8e8e604051610ed09a99989796959493929190613180565b60405180910390a35098975050505050505050565b83838383600760008581526020019081526020016000205483338484604051602001610f149493929190612c44565b6040516020818303038152906040528051906020012014610f6a576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610f61906130d3565b60405180910390fd5b60076000898152602001908152602001600020600090556001600660008a815260200190815260200160002060006101000a81548160ff021916908315150217905550878773ffffffffffffffffffffffffffffffffffffffff167f8c087e42b178608800a2ea8b3d009bdbbf75e0d23426510c2edd447d4f8b8ebd60405160405180910390a35050505050505050565b60608060608484905067ffffffffffffffff81111561101d5761101c613558565b5b60405190808252806020026020018201604052801561104b5781602001602082028036833780820191505090505b5092508484905067ffffffffffffffff81111561106b5761106a613558565b5b6040519080825280602002602001820160405280156110995781602001602082028036833780820191505090505b5091508484905067ffffffffffffffff8111156110b9576110b8613558565b5b6040519080825280602002602001820160405280156110ec57816020015b60608152602001906001900390816110d75790505b50905060005b8585905081101561128157600080600088888581811061111557611114613529565b5b90506020020135815260200190815260200160002090508060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1685838151811061116457611163613529565b5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff168152505080600101548483815181106111b6576111b5613529565b5b6020026020010181815250508060020180546111d19061340e565b80601f01602080910402602001604051908101604052809291908181526020018280546111fd9061340e565b801561124a5780601f1061121f5761010080835404028352916020019161124a565b820191906000526020600020905b81548152906001019060200180831161122d57829003601f168201915b505050505083838151811061126257611261613529565b5b602002602001018190525050808061127990613440565b9150506110f2565b509250925092565b60056020528060005260406000206000915090505481565b600080600090505b888890508110156113955760008989838181106112c9576112c8613529565b5b90506020020160208101906112de9190611fc0565b90508073ffffffffffffffffffffffffffffffffffffffff16635d51dbdc888a8989896040518663ffffffff1660e01b8152600401611321959493929190612f3a565b60206040518083038186803b15801561133957600080fd5b505afa15801561134d573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061137191906123d0565b156113815760019250505061139b565b50808061138d90613440565b9150506112a9565b50600090505b979650505050505050565b60066020528060005260406000206000915054906101000a900460ff1681565b60046020528160005260406000206020528060005260406000206000915091509054906101000a900460ff1681565b6000806000808a815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614156114a0576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161149790613073565b60405180910390fd5b3073ffffffffffffffffffffffffffffffffffffffff168673ffffffffffffffffffffffffffffffffffffffff16141561150f576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611506906130b3565b60405180910390fd5b600460008973ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff166115d8576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016115cf90613113565b60405180910390fd5b6000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490508046338c8c89896040516020016116399796959493929190612d36565b604051602081830303815290604052805190602001209250818888886040516020016116689493929190612c44565b604051602081830303815290604052805190602001206007600085815260200190815260200160002081905550828273ffffffffffffffffffffffffffffffffffffffff167feb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c32038346338f8f8f8f8f8f8f6040516116ee9a99989796959493929190613180565b60405180910390a3600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600081548092919061174690613440565b91905055505050979650505050505050565b6000600560008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205414156117e6576001600560008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055505b80600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff0219169083151502179055508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fc2e532a12bbcce2bfa2ef9e4bee80180e4e1b1f78618f0d20bc49a648b577c56836040516118d79190612ed4565b60405180910390a35050565b606086869050898990501480156118ff57508484905089899050145b801561191057508282905089899050145b61194f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161194690613093565b60405180910390fd5b8888905067ffffffffffffffff81111561196c5761196b613558565b5b60405190808252806020026020018201604052801561199a5781602001602082028036833780820191505090505b50905060005b89899050811015611a7257611a3a8d8d8d8d8d868181106119c4576119c3613529565b5b905060200201358c8c878181106119de576119dd613529565b5b905060200201358b8b888181106119f8576119f7613529565b5b9050602002016020810190611a0d9190611fc0565b8a8a89818110611a2057611a1f613529565b5b9050602002016020810190611a359190611fc0565b6112a1565b828281518110611a4d57611a4c613529565b5b6020026020010190151590811515815250508080611a6a90613440565b9150506119a0565b509b9a5050505050505050505050565b60016020528060005260406000206000915090505481565b6000606088888585600760008581526020019081526020016000205483338484604051602001611acd9493929190612c44565b6040516020818303038152906040528051906020012014611b23576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611b1a906130d3565b60405180910390fd5b600760008e8152602001908152602001600020600090558c8c73ffffffffffffffffffffffffffffffffffffffff167fd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee0668d8d8d604051611b859392919061314e565b60405180910390a38773ffffffffffffffffffffffffffffffffffffffff16878e8d8d8d604051602401611bbc9493929190612f8d565b604051602081830303815290604052907bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19166020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff8381831617835250505050604051611c269190612ccd565b6000604051808303816000865af19150503d8060008114611c63576040519150601f19603f3d011682016040523d82523d6000602084013e611c68565b606091505b50809650819750505085611cb1576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611ca890613033565b60405180910390fd5b5050505097509795505050505050565b828054611ccd9061340e565b90600052602060002090601f016020900481019282611cef5760008555611d36565b82601f10611d0857805160ff1916838001178555611d36565b82800160010185558215611d36579182015b82811115611d35578251825591602001919060010190611d1a565b5b509050611d439190611dcd565b5090565b828054611d539061340e565b90600052602060002090601f016020900481019282611d755760008555611dbc565b82601f10611d8e57803560ff1916838001178555611dbc565b82800160010185558215611dbc579182015b82811115611dbb578235825591602001919060010190611da0565b5b509050611dc99190611dcd565b5090565b5b80821115611de6576000816000905550600101611dce565b5090565b600081359050611df981613732565b92915050565b60008083601f840112611e1557611e1461358c565b5b8235905067ffffffffffffffff811115611e3257611e31613587565b5b602083019150836020820283011115611e4e57611e4d613591565b5b9250929050565b60008083601f840112611e6b57611e6a61358c565b5b8235905067ffffffffffffffff811115611e8857611e87613587565b5b602083019150836020820283011115611ea457611ea3613591565b5b9250929050565b600081359050611eba81613749565b92915050565b600081519050611ecf81613749565b92915050565b600081359050611ee481613760565b92915050565b600081359050611ef981613777565b92915050565b60008083601f840112611f1557611f1461358c565b5b8235905067ffffffffffffffff811115611f3257611f31613587565b5b602083019150836001820283011115611f4e57611f4d613591565b5b9250929050565b60008083601f840112611f6b57611f6a61358c565b5b8235905067ffffffffffffffff811115611f8857611f87613587565b5b602083019150836001820283011115611fa457611fa3613591565b5b9250929050565b600081359050611fba8161378e565b92915050565b600060208284031215611fd657611fd561359b565b5b6000611fe484828501611dea565b91505092915050565b600080604083850312156120045761200361359b565b5b600061201285828601611dea565b925050602061202385828601611dea565b9150509250929050565b600080604083850312156120445761204361359b565b5b600061205285828601611dea565b925050602061206385828601611eab565b9150509250929050565b60008060008060008060008060e0898b03121561208d5761208c61359b565b5b600061209b8b828c01611dea565b98505060206120ac8b828c01611ed5565b97505060406120bd8b828c01611dea565b96505060606120ce8b828c01611dea565b95505060806120df8b828c01611dea565b94505060a06120f08b828c01611eea565b93505060c089013567ffffffffffffffff81111561211157612110613596565b5b61211d8b828c01611eff565b92509250509295985092959890939650565b600080600080606085870312156121495761214861359b565b5b600061215787828801611dea565b945050602061216887828801611ed5565b935050604085013567ffffffffffffffff81111561218957612188613596565b5b61219587828801611eff565b925092505092959194509250565b600080600080600080600080600080600060c08c8e0312156121c8576121c761359b565b5b60008c013567ffffffffffffffff8111156121e6576121e5613596565b5b6121f28e828f01611dff565b9b509b505060206122058e828f01611dea565b99505060408c013567ffffffffffffffff81111561222657612225613596565b5b6122328e828f01611e55565b985098505060608c013567ffffffffffffffff81111561225557612254613596565b5b6122618e828f01611e55565b965096505060808c013567ffffffffffffffff81111561228457612283613596565b5b6122908e828f01611dff565b945094505060a08c013567ffffffffffffffff8111156122b3576122b2613596565b5b6122bf8e828f01611dff565b92509250509295989b509295989b9093969950565b600080600080600080600060c0888a0312156122f3576122f261359b565b5b600088013567ffffffffffffffff81111561231157612310613596565b5b61231d8a828b01611dff565b975097505060206123308a828b01611dea565b95505060406123418a828b01611ed5565b94505060606123528a828b01611ed5565b93505060806123638a828b01611dea565b92505060a06123748a828b01611dea565b91505092959891949750929550565b6000806020838503121561239a5761239961359b565b5b600083013567ffffffffffffffff8111156123b8576123b7613596565b5b6123c485828601611e55565b92509250509250929050565b6000602082840312156123e6576123e561359b565b5b60006123f484828501611ec0565b91505092915050565b6000602082840312156124135761241261359b565b5b600061242184828501611ed5565b91505092915050565b6000806000606084860312156124435761244261359b565b5b600061245186828701611ed5565b935050602061246286828701611dea565b925050604061247386828701611dea565b9150509250925092565b600080600080600080600060c0888a03121561249c5761249b61359b565b5b60006124aa8a828b01611ed5565b97505060206124bb8a828b01611dea565b96505060406124cc8a828b01611dea565b95505060606124dd8a828b01611dea565b94505060806124ee8a828b01611eea565b93505060a088013567ffffffffffffffff81111561250f5761250e613596565b5b61251b8a828b01611eff565b925092505092959891949750929550565b600080600080608085870312156125465761254561359b565b5b600061255487828801611ed5565b945050602061256587828801611dea565b935050604061257687828801611dea565b925050606061258787828801611eea565b91505092959194509250565b600080600080600080600060c0888a0312156125b2576125b161359b565b5b60006125c08a828b01611ed5565b97505060206125d18a828b01611dea565b96505060406125e28a828b01611fab565b955050606088013567ffffffffffffffff81111561260357612602613596565b5b61260f8a828b01611eff565b945094505060806126228a828b01611dea565b92505060a06126338a828b01611eea565b91505092959891949750929550565b600080602083850312156126595761265861359b565b5b600083013567ffffffffffffffff81111561267757612676613596565b5b61268385828601611f55565b92509250509250929050565b600061269b83836126eb565b60208301905092915050565b60006126b383836128af565b60208301905092915050565b60006126cb83836128cd565b60208301905092915050565b60006126e3838361297a565b905092915050565b6126f48161334e565b82525050565b6127038161334e565b82525050565b61271a6127158261334e565b613489565b82525050565b600061272b82613256565b61273581856132cc565b935061274083613216565b8060005b83811015612771578151612758888261268f565b975061276383613298565b925050600181019050612744565b5085935050505092915050565b600061278982613261565b61279381856132dd565b935061279e83613226565b8060005b838110156127cf5781516127b688826126a7565b97506127c1836132a5565b9250506001810190506127a2565b5085935050505092915050565b60006127e78261326c565b6127f181856132ee565b93506127fc83613236565b8060005b8381101561282d57815161281488826126bf565b975061281f836132b2565b925050600181019050612800565b5085935050505092915050565b600061284582613277565b61284f81856132ff565b93508360208202850161286185613246565b8060005b8581101561289d578484038952815161287e85826126d7565b9450612889836132bf565b925060208a01995050600181019050612865565b50829750879550505050505092915050565b6128b881613360565b82525050565b6128c781613360565b82525050565b6128d68161336c565b82525050565b6128e58161336c565b82525050565b6128fc6128f78261336c565b61349b565b82525050565b61290b81613376565b82525050565b61292261291d82613376565b6134a5565b82525050565b60006129348385613321565b93506129418385846133cc565b61294a836135a0565b840190509392505050565b60006129618385613332565b935061296e8385846133cc565b82840190509392505050565b600061298582613282565b61298f8185613310565b935061299f8185602086016133db565b6129a8816135a0565b840191505092915050565b60006129be82613282565b6129c88185613321565b93506129d88185602086016133db565b6129e1816135a0565b840191505092915050565b60006129f782613282565b612a018185613332565b9350612a118185602086016133db565b80840191505092915050565b6000612a29838561333d565b9350612a368385846133cc565b612a3f836135a0565b840190509392505050565b6000612a558261328d565b612a5f818561333d565b9350612a6f8185602086016133db565b612a78816135a0565b840191505092915050565b6000612a90600f8361333d565b9150612a9b826135be565b602082019050919050565b6000612ab360128361333d565b9150612abe826135e7565b602082019050919050565b6000612ad6601e8361333d565b9150612ae182613610565b602082019050919050565b6000612af960178361333d565b9150612b0482613639565b602082019050919050565b6000612b1c60198361333d565b9150612b2782613662565b602082019050919050565b6000612b3f601a8361333d565b9150612b4a8261368b565b602082019050919050565b6000612b62600083613332565b9150612b6d826136b4565b600082019050919050565b6000612b85601b8361333d565b9150612b90826136b7565b602082019050919050565b6000612ba860148361333d565b9150612bb3826136e0565b602082019050919050565b6000612bcb60178361333d565b9150612bd682613709565b602082019050919050565b612bea816133c2565b82525050565b612c01612bfc826133c2565b6134c1565b82525050565b6000612c138286612709565b601482019150612c238285612709565b601482019150612c338284612709565b601482019150819050949350505050565b6000612c508287612709565b601482019150612c608286612709565b601482019150612c708285612709565b601482019150612c808284612911565b60048201915081905095945050505050565b6000612c9e8287612709565b601482019150612cae82866128eb565b602082019150612cbf828486612955565b915081905095945050505050565b6000612cd982846129ec565b915081905092915050565b6000612cef82612b55565b9150819050919050565b6000612d058286612bf0565b602082019150612d158285612bf0565b602082019150612d258284612709565b601482019150819050949350505050565b6000612d42828a612bf0565b602082019150612d528289612bf0565b602082019150612d628288612709565b601482019150612d7282876128eb565b602082019150612d828286612709565b601482019150612d93828486612955565b915081905098975050505050505050565b6000602082019050612db960008301846126fa565b92915050565b6000606082019050612dd460008301876126fa565b612de160208301866128dc565b8181036040830152612df4818486612928565b905095945050505050565b6000606082019050612e1460008301866126fa565b612e2160208301856128dc565b8181036040830152612e3381846129b3565b9050949350505050565b6000604082019050612e5260008301856126fa565b612e5f6020830184612be1565b9392505050565b60006060820190508181036000830152612e808186612720565b90508181036020830152612e9481856127dc565b90508181036040830152612ea8818461283a565b9050949350505050565b60006020820190508181036000830152612ecc818461277e565b905092915050565b6000602082019050612ee960008301846128be565b92915050565b6000604082019050612f0460008301856128be565b8181036020830152612f1681846129b3565b90509392505050565b6000602082019050612f3460008301846128dc565b92915050565b600060a082019050612f4f60008301886128dc565b612f5c60208301876126fa565b612f6960408301866128dc565b612f7660608301856126fa565b612f8360808301846126fa565b9695505050505050565b6000606082019050612fa260008301876128dc565b612faf6020830186612be1565b8181036040830152612fc2818486612928565b905095945050505050565b60006020820190508181036000830152612fe8818486612a1d565b90509392505050565b6000602082019050818103600083015261300b8184612a4a565b905092915050565b6000602082019050818103600083015261302c81612a83565b9050919050565b6000602082019050818103600083015261304c81612aa6565b9050919050565b6000602082019050818103600083015261306c81612ac9565b9050919050565b6000602082019050818103600083015261308c81612aec565b9050919050565b600060208201905081810360008301526130ac81612b0f565b9050919050565b600060208201905081810360008301526130cc81612b32565b9050919050565b600060208201905081810360008301526130ec81612b78565b9050919050565b6000602082019050818103600083015261310c81612b9b565b9050919050565b6000602082019050818103600083015261312c81612bbe565b9050919050565b60006020820190506131486000830184612be1565b92915050565b60006040820190506131636000830186612be1565b8181036020830152613176818486612928565b9050949350505050565b600061012082019050613196600083018d612be1565b6131a3602083018c612be1565b6131b0604083018b6126fa565b6131bd606083018a6128dc565b6131ca60808301896126fa565b6131d760a08301886126fa565b6131e460c08301876126fa565b6131f160e0830186612902565b818103610100830152613205818486612928565b90509b9a5050505050505050505050565b6000819050602082019050919050565b6000819050602082019050919050565b6000819050602082019050919050565b6000819050602082019050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b6000602082019050919050565b6000602082019050919050565b6000602082019050919050565b6000602082019050919050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600081905092915050565b600082825260208201905092915050565b6000613359826133a2565b9050919050565b60008115159050919050565b6000819050919050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082169050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b82818337600083830152505050565b60005b838110156133f95780820151818401526020810190506133de565b83811115613408576000848401525b50505050565b6000600282049050600182168061342657607f821691505b6020821081141561343a576134396134fa565b5b50919050565b600061344b826133c2565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82141561347e5761347d6134cb565b5b600182019050919050565b6000613494826134af565b9050919050565b6000819050919050565b6000819050919050565b60006134ba826135b1565b9050919050565b6000819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b60008160601b9050919050565b7f5472616e73666572206661696c65640000000000000000000000000000000000600082015250565b7f46756c66696c6c6d656e74206661696c65640000000000000000000000000000600082015250565b7f496e76616c6964207769746864726177616c2066756c66696c6c6d656e740000600082015250565b7f54656d706c61746520646f6573206e6f74206578697374000000000000000000600082015250565b7f556e657175616c20706172616d65746572206c656e6774687300000000000000600082015250565b7f46756c66696c6c2061646472657373204169726e6f6465527270000000000000600082015250565b50565b7f496e76616c696420726571756573742066756c66696c6c6d656e740000000000600082015250565b7f4169726e6f64652061646472657373207a65726f000000000000000000000000600082015250565b7f526571756573746572206e6f742073706f6e736f726564000000000000000000600082015250565b61373b8161334e565b811461374657600080fd5b50565b61375281613360565b811461375d57600080fd5b50565b6137698161336c565b811461377457600080fd5b50565b61378081613376565b811461378b57600080fd5b50565b613797816133c2565b81146137a257600080fd5b5056fea2646970667358221220c0bd6378478c2e7db7454e6fa2177b4a68eb8ab3571aa66631e80688809a3c7464736f6c63430008060033",
+  "deployedBytecode": "0x6080604052600436106101095760003560e01c80637e7166f311610095578063acbe180011610064578063acbe1800146103ce578063addf027c1461040b578063ca31d58614610434578063f8fa73a114610471578063fd3c9735146104ae57610109565b80637e7166f3146102da5780638a33be01146103175780639949f14b14610354578063a81e9f791461039157610109565b80633c7fe5e3116100dc5780633c7fe5e3146101dc57806348c085d7146101f85780636e6be03f146102355780636f8390e41461027257806376428c9b1461029b57610109565b80630a6315761461010e5780631d414cbd1461014d57806332393f2b1461017657806339a08194146101b3575b600080fd5b34801561011a57600080fd5b50610135600480360381019061013091906123fd565b6104ec565b60405161014493929190612dff565b60405180910390f35b34801561015957600080fd5b50610174600480360381019061016f9190611fed565b6105be565b005b34801561018257600080fd5b5061019d6004803603810190610198919061212f565b6106eb565b6040516101aa9190612f1f565b60405180910390f35b3480156101bf57600080fd5b506101da60048036038101906101d59190612642565b6108c9565b005b6101f660048036038101906101f1919061242a565b61096c565b005b34801561020457600080fd5b5061021f600480360381019061021a9190611fc0565b610b1c565b60405161022c9190612ff1565b60405180910390f35b34801561024157600080fd5b5061025c6004803603810190610257919061206d565b610bbc565b6040516102699190612f1f565b60405180910390f35b34801561027e57600080fd5b506102996004803603810190610294919061252c565b610ee5565b005b3480156102a757600080fd5b506102c260048036038101906102bd9190612383565b610ffb565b6040516102d193929190612e66565b60405180910390f35b3480156102e657600080fd5b5061030160048036038101906102fc9190611fc0565b611289565b60405161030e9190613133565b60405180910390f35b34801561032357600080fd5b5061033e600480360381019061033991906122d4565b6112a1565b60405161034b9190612ed4565b60405180910390f35b34801561036057600080fd5b5061037b600480360381019061037691906123fd565b6113a6565b6040516103889190612ed4565b60405180910390f35b34801561039d57600080fd5b506103b860048036038101906103b39190611fed565b6113c6565b6040516103c59190612ed4565b60405180910390f35b3480156103da57600080fd5b506103f560048036038101906103f0919061247d565b6113f5565b6040516104029190612f1f565b60405180910390f35b34801561041757600080fd5b50610432600480360381019061042d919061202d565b611758565b005b34801561044057600080fd5b5061045b600480360381019061045691906121a3565b6118e3565b6040516104689190612eb2565b60405180910390f35b34801561047d57600080fd5b5061049860048036038101906104939190611fc0565b611a82565b6040516104a59190613133565b60405180910390f35b3480156104ba57600080fd5b506104d560048036038101906104d09190612593565b611a9a565b6040516104e3929190612eef565b60405180910390f35b60006020528060005260406000206000915090508060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169080600101549080600201805461053b9061340e565b80601f01602080910402602001604051908101604052809291908181526020018280546105679061340e565b80156105b45780601f10610589576101008083540402835291602001916105b4565b820191906000526020600020905b81548152906001019060200180831161059757829003601f168201915b5050505050905083565b6000600160003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000815461060c90613440565b919050819055463360405160200161062693929190612cf9565b60405160208183030381529060405280519060200120905082338360405160200161065393929190612c07565b604051602081830303815290604052805190602001206002600083815260200190815260200160002081905550803373ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7856040516106de9190612da4565b60405180910390a4505050565b60008073ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff16141561075c576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610753906130f3565b60405180910390fd5b848484846040516020016107739493929190612c92565b60405160208183030381529060405280519060200120905060405180606001604052808673ffffffffffffffffffffffffffffffffffffffff16815260200185815260200184848080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f8201169050808301925050505050505081525060008083815260200190815260200160002060008201518160000160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060208201518160010155604082015181600201908051906020019061087f929190611cc1565b50905050807fba204bad31c4ec4b9b54164af94ae10c4e7312f22c0f9c065d6319c928ec9e7a868686866040516108b99493929190612dbf565b60405180910390a2949350505050565b8181600360003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000209190610917929190611d47565b503373ffffffffffffffffffffffffffffffffffffffff167febace4380f1ba3ccf701db78879a937b0ad2a9370e98baaba922228f632383e08383604051610960929190612fcd565b60405180910390a25050565b81813360405160200161098193929190612c07565b604051602081830303815290604052805190602001206002600085815260200190815260200160002054146109eb576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016109e290613053565b60405180910390fd5b6002600084815260200190815260200160002060009055828173ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff167fadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e3334604051610a62929190612e3d565b60405180910390a460008173ffffffffffffffffffffffffffffffffffffffff1634604051610a9090612ce4565b60006040518083038185875af1925050503d8060008114610acd576040519150601f19603f3d011682016040523d82523d6000602084013e610ad2565b606091505b5050905080610b16576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610b0d90613013565b60405180910390fd5b50505050565b60036020528060005260406000206000915090508054610b3b9061340e565b80601f0160208091040260200160405190810160405280929190818152602001828054610b679061340e565b8015610bb45780601f10610b8957610100808354040283529160200191610bb4565b820191906000526020600020905b815481529060010190602001808311610b9757829003601f168201915b505050505081565b60008073ffffffffffffffffffffffffffffffffffffffff168973ffffffffffffffffffffffffffffffffffffffff161415610c2d576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c24906130f3565b60405180910390fd5b3073ffffffffffffffffffffffffffffffffffffffff168573ffffffffffffffffffffffffffffffffffffffff161415610c9c576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610c93906130b3565b60405180910390fd5b600460008873ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff16610d65576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610d5c90613113565b60405180910390fd5b6000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490508046338b8b8888604051602001610dc69796959493929190612d36565b60405160208183030381529060405280519060200120915089878787604051602001610df59493929190612c44565b604051602081830303815290604052805190602001206007600084815260200190815260200160002081905550600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206000815480929190610e7290613440565b9190505550818a73ffffffffffffffffffffffffffffffffffffffff167f3a52c462346de2e9436a3868970892956828a11b9c43da1ed43740b12e1125ae8346338e8e8e8e8e8e8e604051610ed09a99989796959493929190613180565b60405180910390a35098975050505050505050565b83838383600760008581526020019081526020016000205483338484604051602001610f149493929190612c44565b6040516020818303038152906040528051906020012014610f6a576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610f61906130d3565b60405180910390fd5b60076000898152602001908152602001600020600090556001600660008a815260200190815260200160002060006101000a81548160ff021916908315150217905550878773ffffffffffffffffffffffffffffffffffffffff167f8c087e42b178608800a2ea8b3d009bdbbf75e0d23426510c2edd447d4f8b8ebd60405160405180910390a35050505050505050565b60608060608484905067ffffffffffffffff81111561101d5761101c613558565b5b60405190808252806020026020018201604052801561104b5781602001602082028036833780820191505090505b5092508484905067ffffffffffffffff81111561106b5761106a613558565b5b6040519080825280602002602001820160405280156110995781602001602082028036833780820191505090505b5091508484905067ffffffffffffffff8111156110b9576110b8613558565b5b6040519080825280602002602001820160405280156110ec57816020015b60608152602001906001900390816110d75790505b50905060005b8585905081101561128157600080600088888581811061111557611114613529565b5b90506020020135815260200190815260200160002090508060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1685838151811061116457611163613529565b5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff168152505080600101548483815181106111b6576111b5613529565b5b6020026020010181815250508060020180546111d19061340e565b80601f01602080910402602001604051908101604052809291908181526020018280546111fd9061340e565b801561124a5780601f1061121f5761010080835404028352916020019161124a565b820191906000526020600020905b81548152906001019060200180831161122d57829003601f168201915b505050505083838151811061126257611261613529565b5b602002602001018190525050808061127990613440565b9150506110f2565b509250925092565b60056020528060005260406000206000915090505481565b600080600090505b888890508110156113955760008989838181106112c9576112c8613529565b5b90506020020160208101906112de9190611fc0565b90508073ffffffffffffffffffffffffffffffffffffffff16635d51dbdc888a8989896040518663ffffffff1660e01b8152600401611321959493929190612f3a565b60206040518083038186803b15801561133957600080fd5b505afa15801561134d573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061137191906123d0565b156113815760019250505061139b565b50808061138d90613440565b9150506112a9565b50600090505b979650505050505050565b60066020528060005260406000206000915054906101000a900460ff1681565b60046020528160005260406000206020528060005260406000206000915091509054906101000a900460ff1681565b6000806000808a815260200190815260200160002060000160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050600073ffffffffffffffffffffffffffffffffffffffff168173ffffffffffffffffffffffffffffffffffffffff1614156114a0576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161149790613073565b60405180910390fd5b3073ffffffffffffffffffffffffffffffffffffffff168673ffffffffffffffffffffffffffffffffffffffff16141561150f576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611506906130b3565b60405180910390fd5b600460008973ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060009054906101000a900460ff166115d8576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016115cf90613113565b60405180910390fd5b6000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490508046338c8c89896040516020016116399796959493929190612d36565b604051602081830303815290604052805190602001209250818888886040516020016116689493929190612c44565b604051602081830303815290604052805190602001206007600085815260200190815260200160002081905550828273ffffffffffffffffffffffffffffffffffffffff167feb39930cdcbb560e6422558a2468b93a215af60063622e63cbb165eba14c32038346338f8f8f8f8f8f8f6040516116ee9a99989796959493929190613180565b60405180910390a3600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600081548092919061174690613440565b91905055505050979650505050505050565b6000600560008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205414156117e6576001600560008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055505b80600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006101000a81548160ff0219169083151502179055508173ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fc2e532a12bbcce2bfa2ef9e4bee80180e4e1b1f78618f0d20bc49a648b577c56836040516118d79190612ed4565b60405180910390a35050565b606086869050898990501480156118ff57508484905089899050145b801561191057508282905089899050145b61194f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040161194690613093565b60405180910390fd5b8888905067ffffffffffffffff81111561196c5761196b613558565b5b60405190808252806020026020018201604052801561199a5781602001602082028036833780820191505090505b50905060005b89899050811015611a7257611a3a8d8d8d8d8d868181106119c4576119c3613529565b5b905060200201358c8c878181106119de576119dd613529565b5b905060200201358b8b888181106119f8576119f7613529565b5b9050602002016020810190611a0d9190611fc0565b8a8a89818110611a2057611a1f613529565b5b9050602002016020810190611a359190611fc0565b6112a1565b828281518110611a4d57611a4c613529565b5b6020026020010190151590811515815250508080611a6a90613440565b9150506119a0565b509b9a5050505050505050505050565b60016020528060005260406000206000915090505481565b6000606088888585600760008581526020019081526020016000205483338484604051602001611acd9493929190612c44565b6040516020818303038152906040528051906020012014611b23576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611b1a906130d3565b60405180910390fd5b600760008e8152602001908152602001600020600090558c8c73ffffffffffffffffffffffffffffffffffffffff167fd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee0668d8d8d604051611b859392919061314e565b60405180910390a38773ffffffffffffffffffffffffffffffffffffffff16878e8d8d8d604051602401611bbc9493929190612f8d565b604051602081830303815290604052907bffffffffffffffffffffffffffffffffffffffffffffffffffffffff19166020820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff8381831617835250505050604051611c269190612ccd565b6000604051808303816000865af19150503d8060008114611c63576040519150601f19603f3d011682016040523d82523d6000602084013e611c68565b606091505b50809650819750505085611cb1576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401611ca890613033565b60405180910390fd5b5050505097509795505050505050565b828054611ccd9061340e565b90600052602060002090601f016020900481019282611cef5760008555611d36565b82601f10611d0857805160ff1916838001178555611d36565b82800160010185558215611d36579182015b82811115611d35578251825591602001919060010190611d1a565b5b509050611d439190611dcd565b5090565b828054611d539061340e565b90600052602060002090601f016020900481019282611d755760008555611dbc565b82601f10611d8e57803560ff1916838001178555611dbc565b82800160010185558215611dbc579182015b82811115611dbb578235825591602001919060010190611da0565b5b509050611dc99190611dcd565b5090565b5b80821115611de6576000816000905550600101611dce565b5090565b600081359050611df981613732565b92915050565b60008083601f840112611e1557611e1461358c565b5b8235905067ffffffffffffffff811115611e3257611e31613587565b5b602083019150836020820283011115611e4e57611e4d613591565b5b9250929050565b60008083601f840112611e6b57611e6a61358c565b5b8235905067ffffffffffffffff811115611e8857611e87613587565b5b602083019150836020820283011115611ea457611ea3613591565b5b9250929050565b600081359050611eba81613749565b92915050565b600081519050611ecf81613749565b92915050565b600081359050611ee481613760565b92915050565b600081359050611ef981613777565b92915050565b60008083601f840112611f1557611f1461358c565b5b8235905067ffffffffffffffff811115611f3257611f31613587565b5b602083019150836001820283011115611f4e57611f4d613591565b5b9250929050565b60008083601f840112611f6b57611f6a61358c565b5b8235905067ffffffffffffffff811115611f8857611f87613587565b5b602083019150836001820283011115611fa457611fa3613591565b5b9250929050565b600081359050611fba8161378e565b92915050565b600060208284031215611fd657611fd561359b565b5b6000611fe484828501611dea565b91505092915050565b600080604083850312156120045761200361359b565b5b600061201285828601611dea565b925050602061202385828601611dea565b9150509250929050565b600080604083850312156120445761204361359b565b5b600061205285828601611dea565b925050602061206385828601611eab565b9150509250929050565b60008060008060008060008060e0898b03121561208d5761208c61359b565b5b600061209b8b828c01611dea565b98505060206120ac8b828c01611ed5565b97505060406120bd8b828c01611dea565b96505060606120ce8b828c01611dea565b95505060806120df8b828c01611dea565b94505060a06120f08b828c01611eea565b93505060c089013567ffffffffffffffff81111561211157612110613596565b5b61211d8b828c01611eff565b92509250509295985092959890939650565b600080600080606085870312156121495761214861359b565b5b600061215787828801611dea565b945050602061216887828801611ed5565b935050604085013567ffffffffffffffff81111561218957612188613596565b5b61219587828801611eff565b925092505092959194509250565b600080600080600080600080600080600060c08c8e0312156121c8576121c761359b565b5b60008c013567ffffffffffffffff8111156121e6576121e5613596565b5b6121f28e828f01611dff565b9b509b505060206122058e828f01611dea565b99505060408c013567ffffffffffffffff81111561222657612225613596565b5b6122328e828f01611e55565b985098505060608c013567ffffffffffffffff81111561225557612254613596565b5b6122618e828f01611e55565b965096505060808c013567ffffffffffffffff81111561228457612283613596565b5b6122908e828f01611dff565b945094505060a08c013567ffffffffffffffff8111156122b3576122b2613596565b5b6122bf8e828f01611dff565b92509250509295989b509295989b9093969950565b600080600080600080600060c0888a0312156122f3576122f261359b565b5b600088013567ffffffffffffffff81111561231157612310613596565b5b61231d8a828b01611dff565b975097505060206123308a828b01611dea565b95505060406123418a828b01611ed5565b94505060606123528a828b01611ed5565b93505060806123638a828b01611dea565b92505060a06123748a828b01611dea565b91505092959891949750929550565b6000806020838503121561239a5761239961359b565b5b600083013567ffffffffffffffff8111156123b8576123b7613596565b5b6123c485828601611e55565b92509250509250929050565b6000602082840312156123e6576123e561359b565b5b60006123f484828501611ec0565b91505092915050565b6000602082840312156124135761241261359b565b5b600061242184828501611ed5565b91505092915050565b6000806000606084860312156124435761244261359b565b5b600061245186828701611ed5565b935050602061246286828701611dea565b925050604061247386828701611dea565b9150509250925092565b600080600080600080600060c0888a03121561249c5761249b61359b565b5b60006124aa8a828b01611ed5565b97505060206124bb8a828b01611dea565b96505060406124cc8a828b01611dea565b95505060606124dd8a828b01611dea565b94505060806124ee8a828b01611eea565b93505060a088013567ffffffffffffffff81111561250f5761250e613596565b5b61251b8a828b01611eff565b925092505092959891949750929550565b600080600080608085870312156125465761254561359b565b5b600061255487828801611ed5565b945050602061256587828801611dea565b935050604061257687828801611dea565b925050606061258787828801611eea565b91505092959194509250565b600080600080600080600060c0888a0312156125b2576125b161359b565b5b60006125c08a828b01611ed5565b97505060206125d18a828b01611dea565b96505060406125e28a828b01611fab565b955050606088013567ffffffffffffffff81111561260357612602613596565b5b61260f8a828b01611eff565b945094505060806126228a828b01611dea565b92505060a06126338a828b01611eea565b91505092959891949750929550565b600080602083850312156126595761265861359b565b5b600083013567ffffffffffffffff81111561267757612676613596565b5b61268385828601611f55565b92509250509250929050565b600061269b83836126eb565b60208301905092915050565b60006126b383836128af565b60208301905092915050565b60006126cb83836128cd565b60208301905092915050565b60006126e3838361297a565b905092915050565b6126f48161334e565b82525050565b6127038161334e565b82525050565b61271a6127158261334e565b613489565b82525050565b600061272b82613256565b61273581856132cc565b935061274083613216565b8060005b83811015612771578151612758888261268f565b975061276383613298565b925050600181019050612744565b5085935050505092915050565b600061278982613261565b61279381856132dd565b935061279e83613226565b8060005b838110156127cf5781516127b688826126a7565b97506127c1836132a5565b9250506001810190506127a2565b5085935050505092915050565b60006127e78261326c565b6127f181856132ee565b93506127fc83613236565b8060005b8381101561282d57815161281488826126bf565b975061281f836132b2565b925050600181019050612800565b5085935050505092915050565b600061284582613277565b61284f81856132ff565b93508360208202850161286185613246565b8060005b8581101561289d578484038952815161287e85826126d7565b9450612889836132bf565b925060208a01995050600181019050612865565b50829750879550505050505092915050565b6128b881613360565b82525050565b6128c781613360565b82525050565b6128d68161336c565b82525050565b6128e58161336c565b82525050565b6128fc6128f78261336c565b61349b565b82525050565b61290b81613376565b82525050565b61292261291d82613376565b6134a5565b82525050565b60006129348385613321565b93506129418385846133cc565b61294a836135a0565b840190509392505050565b60006129618385613332565b935061296e8385846133cc565b82840190509392505050565b600061298582613282565b61298f8185613310565b935061299f8185602086016133db565b6129a8816135a0565b840191505092915050565b60006129be82613282565b6129c88185613321565b93506129d88185602086016133db565b6129e1816135a0565b840191505092915050565b60006129f782613282565b612a018185613332565b9350612a118185602086016133db565b80840191505092915050565b6000612a29838561333d565b9350612a368385846133cc565b612a3f836135a0565b840190509392505050565b6000612a558261328d565b612a5f818561333d565b9350612a6f8185602086016133db565b612a78816135a0565b840191505092915050565b6000612a90600f8361333d565b9150612a9b826135be565b602082019050919050565b6000612ab360128361333d565b9150612abe826135e7565b602082019050919050565b6000612ad6601e8361333d565b9150612ae182613610565b602082019050919050565b6000612af960178361333d565b9150612b0482613639565b602082019050919050565b6000612b1c60198361333d565b9150612b2782613662565b602082019050919050565b6000612b3f601a8361333d565b9150612b4a8261368b565b602082019050919050565b6000612b62600083613332565b9150612b6d826136b4565b600082019050919050565b6000612b85601b8361333d565b9150612b90826136b7565b602082019050919050565b6000612ba860148361333d565b9150612bb3826136e0565b602082019050919050565b6000612bcb60178361333d565b9150612bd682613709565b602082019050919050565b612bea816133c2565b82525050565b612c01612bfc826133c2565b6134c1565b82525050565b6000612c138286612709565b601482019150612c238285612709565b601482019150612c338284612709565b601482019150819050949350505050565b6000612c508287612709565b601482019150612c608286612709565b601482019150612c708285612709565b601482019150612c808284612911565b60048201915081905095945050505050565b6000612c9e8287612709565b601482019150612cae82866128eb565b602082019150612cbf828486612955565b915081905095945050505050565b6000612cd982846129ec565b915081905092915050565b6000612cef82612b55565b9150819050919050565b6000612d058286612bf0565b602082019150612d158285612bf0565b602082019150612d258284612709565b601482019150819050949350505050565b6000612d42828a612bf0565b602082019150612d528289612bf0565b602082019150612d628288612709565b601482019150612d7282876128eb565b602082019150612d828286612709565b601482019150612d93828486612955565b915081905098975050505050505050565b6000602082019050612db960008301846126fa565b92915050565b6000606082019050612dd460008301876126fa565b612de160208301866128dc565b8181036040830152612df4818486612928565b905095945050505050565b6000606082019050612e1460008301866126fa565b612e2160208301856128dc565b8181036040830152612e3381846129b3565b9050949350505050565b6000604082019050612e5260008301856126fa565b612e5f6020830184612be1565b9392505050565b60006060820190508181036000830152612e808186612720565b90508181036020830152612e9481856127dc565b90508181036040830152612ea8818461283a565b9050949350505050565b60006020820190508181036000830152612ecc818461277e565b905092915050565b6000602082019050612ee960008301846128be565b92915050565b6000604082019050612f0460008301856128be565b8181036020830152612f1681846129b3565b90509392505050565b6000602082019050612f3460008301846128dc565b92915050565b600060a082019050612f4f60008301886128dc565b612f5c60208301876126fa565b612f6960408301866128dc565b612f7660608301856126fa565b612f8360808301846126fa565b9695505050505050565b6000606082019050612fa260008301876128dc565b612faf6020830186612be1565b8181036040830152612fc2818486612928565b905095945050505050565b60006020820190508181036000830152612fe8818486612a1d565b90509392505050565b6000602082019050818103600083015261300b8184612a4a565b905092915050565b6000602082019050818103600083015261302c81612a83565b9050919050565b6000602082019050818103600083015261304c81612aa6565b9050919050565b6000602082019050818103600083015261306c81612ac9565b9050919050565b6000602082019050818103600083015261308c81612aec565b9050919050565b600060208201905081810360008301526130ac81612b0f565b9050919050565b600060208201905081810360008301526130cc81612b32565b9050919050565b600060208201905081810360008301526130ec81612b78565b9050919050565b6000602082019050818103600083015261310c81612b9b565b9050919050565b6000602082019050818103600083015261312c81612bbe565b9050919050565b60006020820190506131486000830184612be1565b92915050565b60006040820190506131636000830186612be1565b8181036020830152613176818486612928565b9050949350505050565b600061012082019050613196600083018d612be1565b6131a3602083018c612be1565b6131b0604083018b6126fa565b6131bd606083018a6128dc565b6131ca60808301896126fa565b6131d760a08301886126fa565b6131e460c08301876126fa565b6131f160e0830186612902565b818103610100830152613205818486612928565b90509b9a5050505050505050505050565b6000819050602082019050919050565b6000819050602082019050919050565b6000819050602082019050919050565b6000819050602082019050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b600081519050919050565b6000602082019050919050565b6000602082019050919050565b6000602082019050919050565b6000602082019050919050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600082825260208201905092915050565b600081905092915050565b600082825260208201905092915050565b6000613359826133a2565b9050919050565b60008115159050919050565b6000819050919050565b60007fffffffff0000000000000000000000000000000000000000000000000000000082169050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b6000819050919050565b82818337600083830152505050565b60005b838110156133f95780820151818401526020810190506133de565b83811115613408576000848401525b50505050565b6000600282049050600182168061342657607f821691505b6020821081141561343a576134396134fa565b5b50919050565b600061344b826133c2565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff82141561347e5761347d6134cb565b5b600182019050919050565b6000613494826134af565b9050919050565b6000819050919050565b6000819050919050565b60006134ba826135b1565b9050919050565b6000819050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052602260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b60008160601b9050919050565b7f5472616e73666572206661696c65640000000000000000000000000000000000600082015250565b7f46756c66696c6c6d656e74206661696c65640000000000000000000000000000600082015250565b7f496e76616c6964207769746864726177616c2066756c66696c6c6d656e740000600082015250565b7f54656d706c61746520646f6573206e6f74206578697374000000000000000000600082015250565b7f556e657175616c20706172616d65746572206c656e6774687300000000000000600082015250565b7f46756c66696c6c2061646472657373204169726e6f6465527270000000000000600082015250565b50565b7f496e76616c696420726571756573742066756c66696c6c6d656e740000000000600082015250565b7f4169726e6f64652061646472657373207a65726f000000000000000000000000600082015250565b7f526571756573746572206e6f742073706f6e736f726564000000000000000000600082015250565b61373b8161334e565b811461374657600080fd5b50565b61375281613360565b811461375d57600080fd5b50565b6137698161336c565b811461377457600080fd5b50565b61378081613376565b811461378b57600080fd5b50565b613797816133c2565b81146137a257600080fd5b5056fea2646970667358221220c0bd6378478c2e7db7454e6fa2177b4a68eb8ab3571aa66631e80688809a3c7464736f6c63430008060033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)": {
+        "details": "This method is meant to be called off-chain, statically by the Airnode to decide if it should respond to a request. The requester can also call it, yet this function returning true should not be taken as a guarantee of the subsequent request being fulfilled. It is enough for only one of the authorizer contracts to return true for the request to be authorized.",
+        "params": {
+          "airnode": "Airnode address",
+          "authorizers": "Authorizer contract addresses",
+          "endpointId": "Endpoint ID",
+          "requestId": "Request ID",
+          "requester": "Requester address",
+          "sponsor": "Sponsor address"
+        },
+        "returns": {
+          "status": "Authorization status of the request"
+        }
+      },
+      "checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])": {
+        "params": {
+          "airnode": "Airnode address",
+          "endpointIds": "Endpoint IDs",
+          "requestIds": "Request IDs",
+          "requesters": "Requester addresses",
+          "sponsors": "Sponsor addresses"
+        },
+        "returns": {
+          "statuses": "Authorization statuses of the request"
+        }
+      },
+      "createTemplate(address,bytes32,bytes)": {
+        "details": "A specific set of request parameters will always have the same ID. This means a few things: (1) You can compute the expected ID of a template before creating it, (2) Creating a new template with the same parameters will overwrite the old one and return the same ID, (3) After you query a template with its ID, you can verify its integrity by applying the hash and comparing the result with the ID.",
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID (allowed to be `bytes32(0)`)",
+          "parameters": "Static request parameters (i.e., parameters that will not change between requests, unlike the dynamic parameters determined at request-time)"
+        },
+        "returns": {
+          "templateId": "Request template ID"
+        }
+      },
+      "fail(bytes32,address,address,bytes4)": {
+        "details": "Airnode should fall back to this if a request cannot be fulfilled because fulfill() reverts",
+        "params": {
+          "airnode": "Airnode address",
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "requestId": "Request ID"
+        }
+      },
+      "fulfill(bytes32,address,uint256,bytes,address,bytes4)": {
+        "details": "`statusCode` being zero indicates a successful fulfillment, while non-zero values indicate error. The meaning of these values are implementation-dependent. The data is ABI-encoded as a `bytes` type, with its format depending on the request specifications. This method will revert if the targeted function reverts or no function with the matching signature is found. It will succeed if the targeted function or the targeted address does not belong to a contract.",
+        "params": {
+          "airnode": "Airnode address",
+          "data": "Fulfillment data",
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "requestId": "Request ID",
+          "statusCode": "Status code of the fulfillment"
+        },
+        "returns": {
+          "callData": "Data returned by the fulfillment call (if there is any)",
+          "callSuccess": "If the fulfillment call succeeded"
+        }
+      },
+      "fulfillWithdrawal(bytes32,address,address)": {
+        "details": "The Airnode sends the funds to the sponsor through this method to emit an event that indicates that the withdrawal request has been fulfilled",
+        "params": {
+          "airnode": "Airnode address",
+          "sponsor": "Sponsor address",
+          "withdrawalRequestId": "Withdrawal request ID"
+        }
+      },
+      "getTemplates(bytes32[])": {
+        "details": "Does not revert if the templates being indexed do not exist",
+        "params": {
+          "templateIds": "Request template IDs"
+        },
+        "returns": {
+          "airnodes": "Array of Airnode addresses",
+          "endpointIds": "Array of endpoint IDs",
+          "parameters": "Array of request parameters"
+        }
+      },
+      "makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)": {
+        "params": {
+          "airnode": "Airnode address",
+          "endpointId": "Endpoint ID (allowed to be `bytes32(0)`)",
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "parameters": "All request parameters",
+          "sponsor": "Sponsor address",
+          "sponsorWallet": "Sponsor wallet that is requested to fulfill the request"
+        },
+        "returns": {
+          "requestId": "Request ID"
+        }
+      },
+      "makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)": {
+        "params": {
+          "fulfillAddress": "Address that will be called to fulfill",
+          "fulfillFunctionId": "Signature of the function that will be called to fulfill",
+          "parameters": "Parameters provided by the requester in addition to the parameters in the template",
+          "sponsor": "Sponsor address",
+          "sponsorWallet": "Sponsor wallet that is requested to fulfill the request",
+          "templateId": "Template ID"
+        },
+        "returns": {
+          "requestId": "Request ID"
+        }
+      },
+      "requestWithdrawal(address,address)": {
+        "details": "We do not need to use the withdrawal request parameters in the request ID hash to validate them at the node-side because all of the parameters are used during fulfillment and will get validated on-chain",
+        "params": {
+          "airnode": "Airnode address",
+          "sponsorWallet": "Sponsor wallet"
+        }
+      },
+      "setAirnodeXpub(string)": {
+        "details": "It is expected for the Airnode operator to call this function with the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0). Correspondingly, if the address of the default BIP 44 wallet derived from the extended public key does not match the respective Airnode address, the extended public key is invalid (does not belong to the respective Airnode). An Airnode operator can also announce their extended public key through off-chain channels. Validation method remains the same. The extended public key of an Airnode is used with a sponsor address to derive the address of the respective sponsor wallet.",
+        "params": {
+          "xpub": "Extended public key of the Airnode"
+        }
+      },
+      "setSponsorshipStatus(address,bool)": {
+        "details": "This is not Airnode-specific, i.e., the sponsor allows the requester's requests to be fulfilled through its sponsor wallets across all Airnodes",
+        "params": {
+          "requester": "Requester address",
+          "sponsorshipStatus": "Sponsorship status"
+        }
+      }
+    },
+    "stateVariables": {
+      "requestIdToFulfillmentParameters": {
+        "details": "Hash of expected fulfillment parameters are kept to verify that the fulfillment will be done with the correct parameters"
+      },
+      "requestWithIdHasFailed": {
+        "details": "Requests will be marked to have failed by the respective Airnode if the fulfillment call will revert"
+      },
+      "requesterToRequestCountPlusOne": {
+        "details": "Can be used to calculate the ID of the next request the requester will make"
+      }
+    },
+    "title": "Contract that implements the Airnode request–response protocol (RRP)",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "airnodeToXpub(address)": {
+        "notice": "Called to get the extended public key of the Airnode"
+      },
+      "checkAuthorizationStatus(address[],address,bytes32,bytes32,address,address)": {
+        "notice": "Uses the authorizer contracts of an Airnode to decide if a request is authorized. Once an Airnode receives a request, it calls this method to determine if it should respond. Similarly, third parties can use this method to determine if a particular request would be authorized."
+      },
+      "checkAuthorizationStatuses(address[],address,bytes32[],bytes32[],address[],address[])": {
+        "notice": "A convenience function to make multiple authorization status checks with a single call"
+      },
+      "createTemplate(address,bytes32,bytes)": {
+        "notice": "Creates a request template with the given parameters, addressable by the ID it returns"
+      },
+      "fail(bytes32,address,address,bytes4)": {
+        "notice": "Called by Airnode if the request cannot be fulfilled"
+      },
+      "fulfill(bytes32,address,uint256,bytes,address,bytes4)": {
+        "notice": "Called by Airnode to fulfill the request (template or full)"
+      },
+      "fulfillWithdrawal(bytes32,address,address)": {
+        "notice": "Called by the Airnode using the sponsor wallet to fulfill the withdrawal request made by the sponsor"
+      },
+      "getTemplates(bytes32[])": {
+        "notice": "A convenience method to retrieve multiple templates with a single call"
+      },
+      "makeFullRequest(address,bytes32,address,address,address,bytes4,bytes)": {
+        "notice": "Called by the requester to make a full request, which provides all of its parameters as arguments and does not refer to a template"
+      },
+      "makeTemplateRequest(bytes32,address,address,address,bytes4,bytes)": {
+        "notice": "Called by the requester to make a request that refers to a template for the Airnode address, endpoint ID and parameters"
+      },
+      "requestWithIdHasFailed(bytes32)": {
+        "notice": "Called to check if the fulfillment of a request has failed"
+      },
+      "requestWithdrawal(address,address)": {
+        "notice": "Called by a sponsor to create a request for the Airnode to send the funds kept in the respective sponsor wallet to the sponsor"
+      },
+      "requesterToRequestCountPlusOne(address)": {
+        "notice": "Called to get the request count of the requester plus one"
+      },
+      "setAirnodeXpub(string)": {
+        "notice": "Called by the Airnode operator to announce its extended public key"
+      },
+      "setSponsorshipStatus(address,bool)": {
+        "notice": "Called by the sponsor to set the sponsorship status of a requester, i.e., allow or disallow a requester to make requests that will be fulfilled by the sponsor wallet"
+      },
+      "sponsorToRequesterToSponsorshipStatus(address,address)": {
+        "notice": "Called to get the sponsorship status for a sponsor–requester pair"
+      },
+      "sponsorToWithdrawalRequestCount(address)": {
+        "notice": "Called to get the withdrawal request count of the sponsor"
+      },
+      "templates(bytes32)": {
+        "notice": "Called to get a template"
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1886,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "templates",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_struct(Template)1879_storage)"
+      },
+      {
+        "astId": 2039,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "sponsorToWithdrawalRequestCount",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 2044,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "withdrawalRequestIdToParameters",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_bytes32,t_bytes32)"
+      },
+      {
+        "astId": 1271,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "airnodeToXpub",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_string_storage)"
+      },
+      {
+        "astId": 1279,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "sponsorToRequesterToSponsorshipStatus",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 1285,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "requesterToRequestCountPlusOne",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 1291,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "requestWithIdHasFailed",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_bytes32,t_bool)"
+      },
+      {
+        "astId": 1296,
+        "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+        "label": "requestIdToFulfillmentParameters",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_mapping(t_bytes32,t_bytes32)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes_storage": {
+        "encoding": "bytes",
+        "label": "bytes",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_mapping(t_address,t_string_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => string)",
+        "numberOfBytes": "32",
+        "value": "t_string_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_bytes32,t_struct(Template)1879_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct TemplateUtils.Template)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Template)1879_storage"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Template)1879_storage": {
+        "encoding": "inplace",
+        "label": "struct TemplateUtils.Template",
+        "members": [
+          {
+            "astId": 1874,
+            "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+            "label": "airnode",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 1876,
+            "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+            "label": "endpointId",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1878,
+            "contract": "contracts/rrp/AirnodeRrp.sol:AirnodeRrp",
+            "label": "parameters",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bytes_storage"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
