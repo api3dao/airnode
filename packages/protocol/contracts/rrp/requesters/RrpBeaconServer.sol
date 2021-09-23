@@ -117,17 +117,14 @@ contract RrpBeaconServer is
     /// @dev It is assumed that the fulfillment will be made with a single
     /// point of data of type `int256`
     /// @param requestId ID of the request being fulfilled
-    /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
     function fulfill(
         bytes32 requestId,
-        uint256 statusCode,
         bytes calldata data
     ) external override onlyAirnodeRrp {
         bytes32 templateId = requestIdToTemplateId[requestId];
         require(templateId != bytes32(0), "Request ID unknown");
         delete requestIdToTemplateId[requestId];
-        if (statusCode == 0) {
             int256 decodedData = abi.decode(data, (int256));
             require(
                 decodedData >= type(int224).min &&
@@ -148,9 +145,6 @@ contract RrpBeaconServer is
                 int224(decodedData),
                 uint32(block.timestamp)
             );
-        } else {
-            emit ErroredBeaconUpdate(templateId, requestId, statusCode);
-        }
     }
 
     /// @notice Called by an admin to extend the whitelist expiration of a user

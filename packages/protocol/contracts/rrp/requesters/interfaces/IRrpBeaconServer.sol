@@ -25,12 +25,6 @@ interface IRrpBeaconServer is IAdminnable {
         uint32 timestamp
     );
 
-    event ErroredBeaconUpdate(
-        bytes32 indexed templateId,
-        bytes32 requestId,
-        uint256 statusCode
-    );
-
     event ExtendedWhitelistExpiration(
         bytes32 indexed templateId,
         address indexed user,
@@ -63,7 +57,6 @@ interface IRrpBeaconServer is IAdminnable {
 
     function fulfill(
         bytes32 requestId,
-        uint256 statusCode,
         bytes calldata data
     ) external;
 

@@ -45,11 +45,10 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
     event FulfilledRequest(
         address indexed airnode,
         bytes32 indexed requestId,
-        uint256 statusCode,
         bytes data
     );
 
-    event FailedRequest(address indexed airnode, bytes32 indexed requestId);
+    event FailedRequest(address indexed airnode, bytes32 indexed requestId, string errorMessage);
 
     function setAirnodeXpub(string calldata xpub) external;
 
@@ -78,7 +77,6 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
     function fulfill(
         bytes32 requestId,
         address airnode,
-        uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
         bytes4 fulfillFunctionId
@@ -88,7 +86,8 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         bytes32 requestId,
         address airnode,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        string calldata errorMessage
     ) external;
 
     function airnodeToXpub(address airnode)

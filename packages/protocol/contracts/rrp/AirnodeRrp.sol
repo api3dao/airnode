@@ -243,17 +243,13 @@ contract AirnodeRrp is
     }
 
     /// @notice Called by Airnode to fulfill the request (template or full)
-    /// @dev `statusCode` being zero indicates a successful fulfillment, while
-    /// non-zero values indicate error. Further meaning of these values are
-    /// implementation-dependent.
-    /// The data is ABI-encoded as a `bytes` type, with its format depending on
-    /// the request specifications.
+    /// @dev The data is ABI-encoded as a `bytes` type, with its format
+    /// depending on the request specifications.
     /// This will revert if the targeted function reverts or no function with
     /// the matching signature is found at the targeted contract. It will still
     /// succeed if there is no contract at the targeted address.
     /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
@@ -262,7 +258,6 @@ contract AirnodeRrp is
     function fulfill(
         bytes32 requestId,
         address airnode,
-        uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
         bytes4 fulfillFunctionId
@@ -282,16 +277,15 @@ contract AirnodeRrp is
             abi.encodeWithSelector(
                 fulfillFunctionId,
                 requestId,
-                statusCode,
                 data
             )
         );
         if (callSuccess) {
-          emit FulfilledRequest(airnode, requestId, statusCode, data);
+          emit FulfilledRequest(airnode, requestId, data);
         }
         else {
           requestWithIdHasFailed[requestId] = true;
-          emit FailedRequest(airnode, requestId);
+          emit FailedRequest(airnode, requestId, "Fulfillment failed unexpectedly");
         }
     }
 
@@ -307,7 +301,8 @@ contract AirnodeRrp is
         bytes32 requestId,
         address airnode,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        string calldata errorMessage
     )
         external
         override
@@ -321,6 +316,6 @@ contract AirnodeRrp is
         delete requestIdToFulfillmentParameters[requestId];
         // Failure is recorded so that it can be checked externally
         requestWithIdHasFailed[requestId] = true;
-        emit FailedRequest(airnode, requestId);
+        emit FailedRequest(airnode, requestId, errorMessage);
     }
 }
