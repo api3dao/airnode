@@ -278,7 +278,6 @@ contract AirnodeRrp is
         returns (bool callSuccess)
     {
         delete requestIdToFulfillmentParameters[requestId];
-        emit FulfilledRequest(airnode, requestId, statusCode, data);
         (callSuccess, ) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(
                 fulfillFunctionId,
@@ -287,7 +286,13 @@ contract AirnodeRrp is
                 data
             )
         );
-        require(callSuccess, "Fulfillment failed");
+        if (callSuccess) {
+          emit FulfilledRequest(airnode, requestId, statusCode, data);
+        }
+        else {
+          requestWithIdHasFailed[requestId] = true;
+          emit FailedRequest(airnode, requestId);
+        }
     }
 
     /// @notice Called by Airnode if the request cannot be fulfilled
