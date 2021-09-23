@@ -4,10 +4,10 @@ import * as sorting from './sorting';
 import { removeKey } from '../utils/object-utils';
 import {
   ApiCall,
-  Request,
   EVMProviderState,
   GroupedRequests,
   ProviderState,
+  Request,
   RequestStatus,
   RequestType,
   Withdrawal,

@@ -7,8 +7,8 @@ import {
   EVMRequestedWithdrawalLog,
   LogsData,
   RequestStatus,
-  Withdrawal,
   PendingLog,
+  Withdrawal,
 } from '../../types';
 
 export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<Withdrawal> {

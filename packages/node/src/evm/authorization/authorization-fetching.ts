@@ -22,7 +22,7 @@ export async function fetchAuthorizationStatus(
   airnodeAddress: string,
   apiCall: Request<ApiCall>
 ): Promise<LogsData<boolean | null>> {
-  const contractCall = () =>
+  const contractCall = (): Promise<boolean> =>
     airnodeRrp.checkAuthorizationStatus(
       authorizers,
       airnodeAddress,
@@ -54,7 +54,7 @@ async function fetchAuthorizationStatuses(
   const sponsorAddresses = apiCalls.map((a) => a.sponsorAddress);
   const requesterAddresses = apiCalls.map((a) => a.requesterAddress);
 
-  const contractCall = () =>
+  const contractCall = (): Promise<boolean[]> =>
     airnodeRrp.checkAuthorizationStatuses(
       authorizers,
       airnodeAddress,

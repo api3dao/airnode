@@ -46,7 +46,7 @@ export async function submitWithdrawal(
     return [[errLog], balanceErr, null];
   }
 
-  const estimateTx = () =>
+  const estimateTx = (): Promise<ethers.BigNumber> =>
     airnodeRrp.estimateGas.fulfillWithdrawal(
       request.id,
       request.airnodeAddress,
@@ -94,7 +94,7 @@ export async function submitWithdrawal(
     `Submitting withdrawal sponsor address:${request.sponsorAddress} for Request:${request.id}...`
   );
 
-  const withdrawalTx = () =>
+  const withdrawalTx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfillWithdrawal(request.id, request.airnodeAddress, request.sponsorAddress, {
       gasLimit: paddedGasLimit,
       gasPrice: options.gasPrice!,
@@ -113,5 +113,5 @@ export async function submitWithdrawal(
     return [logs, withdrawalErr, null];
   }
 
-  return [[estimateLog, noticeLog], null, withdrawalRes as ethers.Transaction];
+  return [[estimateLog, noticeLog], null, withdrawalRes];
 }

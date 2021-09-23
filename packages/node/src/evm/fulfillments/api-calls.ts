@@ -81,7 +81,7 @@ async function submitFulfill(
     `Submitting API call fulfillment with status code:${statusCode.toString()} for Request:${request.id}...`
   );
 
-  const tx = (): Promise<ethers.Transaction> =>
+  const tx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfill(
       request.id,
       // TODO: make sure airnodeAddress is not null
@@ -155,7 +155,7 @@ async function submitFail(
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
-  const tx = (): Promise<ethers.Transaction> =>
+  const tx = (): Promise<ethers.ContractTransaction> =>
     // TODO: make sure airnodeAddress is not null
     airnodeRrp.fail(request.id, request.airnodeAddress!, request.fulfillAddress, request.fulfillFunctionId, {
       gasLimit: GAS_LIMIT,
