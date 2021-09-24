@@ -18,7 +18,7 @@ describe('AirnodeRrp', () => {
       'getTemplates',
       'makeFullRequest',
       'makeTemplateRequest',
-      'requestWithIdHasFailed',
+      'requestIsAwaitingFulfillment',
       'requestWithdrawal',
       'requesterToRequestCountPlusOne',
       'setAirnodeXpub',
