@@ -65,6 +65,7 @@ abstract contract RequesterRrpAuthorizer is
         pure
         returns (bytes32 serviceId)
     {
+        require(airnode != address(0), "Airnode address zero");
         return keccak256(abi.encodePacked(airnode, endpointId));
     }
 

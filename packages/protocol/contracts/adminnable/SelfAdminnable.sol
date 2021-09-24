@@ -27,6 +27,7 @@ contract SelfAdminnable is ISelfAdminnable {
 
     /// @notice Called by an admin of higher rank to set the rank of an admin
     /// of lower rank for the adminned address
+    /// @dev Reverts if `newRank` is `type(uint256).max`
     /// @param adminned Adminned address
     /// @param targetAdmin Target admin address
     /// @param newRank Rank to be set
@@ -42,6 +43,8 @@ contract SelfAdminnable is ISelfAdminnable {
             max(adminnedToAdminToRank[adminned][targetAdmin], newRank) + 1
         )
     {
+        // It should have already reverted if `adminned` was `address(0)`
+        assert(adminned != address(0));
         require(targetAdmin != address(0), "Target admin zero");
         adminnedToAdminToRank[adminned][targetAdmin] = newRank;
         emit SetRank(adminned, msg.sender, targetAdmin, newRank);
@@ -49,6 +52,7 @@ contract SelfAdminnable is ISelfAdminnable {
 
     /// @notice Called by an admin to decrease its rank for the adminned
     /// address
+    /// @dev Reverts if `newRank` is `type(uint256).max`
     /// @param adminned Adminned address
     /// @param newRank Rank to be set
     function decreaseSelfRank(address adminned, uint256 newRank)
@@ -56,6 +60,8 @@ contract SelfAdminnable is ISelfAdminnable {
         override
         onlyWithRank(adminned, newRank + 1)
     {
+        // It should have already reverted if `adminned` was `address(0)`
+        assert(adminned != address(0));
         adminnedToAdminToRank[adminned][msg.sender] = newRank;
         emit DecreasedSelfRank(adminned, msg.sender, newRank);
     }

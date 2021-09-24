@@ -52,30 +52,41 @@ describe('constructor', function () {
 describe('extendWhitelistExpiration', function () {
   context('Caller of rank Admin', function () {
     context('Provided timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-        const expirationTimestamp = 1000;
-        await expect(
-          daoRequesterRrpAuthorizer
-            .connect(roles.admin)
-            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-        )
-          .to.emit(daoRequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
-          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.admin.address, expirationTimestamp);
-        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      context('Airnode address not zero', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+          const expirationTimestamp = 1000;
+          await expect(
+            daoRequesterRrpAuthorizer
+              .connect(roles.admin)
+              .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+          )
+            .to.emit(daoRequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
+            .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.admin.address, expirationTimestamp);
+          whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        });
+      });
+      context('Airnode address zero', function () {
+        it('reverts', async function () {
+          await expect(
+            daoRequesterRrpAuthorizer
+              .connect(roles.admin)
+              .extendWhitelistExpiration(hre.ethers.constants.AddressZero, endpointId, roles.requester.address, 1000)
+          ).to.be.revertedWith('Airnode address zero');
+        });
       });
     });
     context('Provided timestamp does not extend whitelist expiration', function () {
@@ -90,30 +101,47 @@ describe('extendWhitelistExpiration', function () {
   });
   context('Caller of rank SuperAdmin', function () {
     context('Provided timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-        const expirationTimestamp = 1000;
-        await expect(
-          daoRequesterRrpAuthorizer
-            .connect(roles.superAdmin)
-            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-        )
-          .to.emit(daoRequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
-          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, expirationTimestamp);
-        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      context('Airnode address not zero', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+          const expirationTimestamp = 1000;
+          await expect(
+            daoRequesterRrpAuthorizer
+              .connect(roles.superAdmin)
+              .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+          )
+            .to.emit(daoRequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
+            .withArgs(
+              airnodeAddress,
+              endpointId,
+              roles.requester.address,
+              roles.superAdmin.address,
+              expirationTimestamp
+            );
+          whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        });
+      });
+      context('Airnode address zero', function () {
+        it('reverts', async function () {
+          await expect(
+            daoRequesterRrpAuthorizer
+              .connect(roles.superAdmin)
+              .extendWhitelistExpiration(hre.ethers.constants.AddressZero, endpointId, roles.requester.address, 1000)
+          ).to.be.revertedWith('Airnode address zero');
+        });
       });
     });
     context('Provided timestamp does not extend whitelist expiration', function () {
@@ -128,30 +156,47 @@ describe('extendWhitelistExpiration', function () {
   });
   context('Caller meta-admin', function () {
     context('Provided timestamp extends whitelist expiration', function () {
-      it('extends whitelist expiration', async function () {
-        let whitelistStatus;
-        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(0);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-        const expirationTimestamp = 1000;
-        await expect(
-          daoRequesterRrpAuthorizer
-            .connect(roles.metaAdmin)
-            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-        )
-          .to.emit(daoRequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
-          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, expirationTimestamp);
-        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-          airnodeAddress,
-          endpointId,
-          roles.requester.address
-        );
-        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
-        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      context('Airnode address not zero', function () {
+        it('extends whitelist expiration', async function () {
+          let whitelistStatus;
+          whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(0);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+          const expirationTimestamp = 1000;
+          await expect(
+            daoRequesterRrpAuthorizer
+              .connect(roles.metaAdmin)
+              .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+          )
+            .to.emit(daoRequesterRrpAuthorizer, 'ExtendedWhitelistExpiration')
+            .withArgs(
+              airnodeAddress,
+              endpointId,
+              roles.requester.address,
+              roles.metaAdmin.address,
+              expirationTimestamp
+            );
+          whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+            airnodeAddress,
+            endpointId,
+            roles.requester.address
+          );
+          expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+          expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        });
+      });
+      context('Airnode address zero', function () {
+        it('reverts', async function () {
+          await expect(
+            daoRequesterRrpAuthorizer
+              .connect(roles.metaAdmin)
+              .extendWhitelistExpiration(hre.ethers.constants.AddressZero, endpointId, roles.requester.address, 1000)
+          ).to.be.revertedWith('Airnode address zero');
+        });
       });
     });
     context('Provided timestamp does not extend whitelist expiration', function () {
@@ -177,71 +222,93 @@ describe('extendWhitelistExpiration', function () {
 
 describe('setWhitelistExpiration', function () {
   context('Caller of rank SuperAdmin', function () {
-    it('sets whitelist expiration', async function () {
-      let whitelistStatus;
-      const expirationTimestamp = 1000;
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, expirationTimestamp);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, 0);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Airnode address not zero', function () {
+      it('sets whitelist expiration', async function () {
+        let whitelistStatus;
+        const expirationTimestamp = 1000;
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, expirationTimestamp);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, 0);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Airnode address zero', function () {
+      it('reverts', async function () {
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistExpiration(hre.ethers.constants.AddressZero, endpointId, roles.requester.address, 1000)
+        ).to.be.revertedWith('Airnode address zero');
+      });
     });
   });
   context('Caller meta-admin', function () {
-    it('sets whitelist expiration', async function () {
-      let whitelistStatus;
-      const expirationTimestamp = 1000;
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.metaAdmin)
-          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, expirationTimestamp);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.metaAdmin)
-          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, 0);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Airnode address not zero', function () {
+      it('sets whitelist expiration', async function () {
+        let whitelistStatus;
+        const expirationTimestamp = 1000;
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, expirationTimestamp);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, 0);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Airnode address zero', function () {
+      it('reverts', async function () {
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.metaAdmin)
+            .setWhitelistExpiration(hre.ethers.constants.AddressZero, endpointId, roles.requester.address, 1000)
+        ).to.be.revertedWith('Airnode address zero');
+      });
     });
   });
   context('Caller of rank lower than SuperAdmin', function () {
@@ -262,69 +329,101 @@ describe('setWhitelistExpiration', function () {
 
 describe('setWhitelistStatusPastExpiration', function () {
   context('Caller of rank SuperAdmin', function () {
-    it('sets whitelist status past expiration', async function () {
-      let whitelistStatus;
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, true);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, false)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, false);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Airnode address not zero', function () {
+      it('sets whitelist status past expiration', async function () {
+        let whitelistStatus;
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, true);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, false)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.superAdmin.address, false);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Airnode address zero', function () {
+      it('reverts', async function () {
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(
+              hre.ethers.constants.AddressZero,
+              endpointId,
+              roles.requester.address,
+              true
+            )
+        ).to.be.revertedWith('Airnode address zero');
+      });
     });
   });
   context('Caller meta-admin', function () {
-    it('sets whitelist status past expiration', async function () {
-      let whitelistStatus;
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, true);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
-      await expect(
-        daoRequesterRrpAuthorizer
-          .connect(roles.metaAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, false)
-      )
-        .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
-        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, false);
-      whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+    context('Airnode address not zero', function () {
+      it('sets whitelist status past expiration', async function () {
+        let whitelistStatus;
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, true);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(true);
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, false)
+        )
+          .to.emit(daoRequesterRrpAuthorizer, 'SetWhitelistStatusPastExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.metaAdmin.address, false);
+        whitelistStatus = await daoRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.whitelistedPastExpiration).to.equal(false);
+      });
+    });
+    context('Airnode address zero', function () {
+      it('reverts', async function () {
+        await expect(
+          daoRequesterRrpAuthorizer
+            .connect(roles.metaAdmin)
+            .setWhitelistStatusPastExpiration(
+              hre.ethers.constants.AddressZero,
+              endpointId,
+              roles.requester.address,
+              true
+            )
+        ).to.be.revertedWith('Airnode address zero');
+      });
     });
   });
   context('Caller of rank lower than SuperAdmin', function () {
@@ -344,124 +443,139 @@ describe('setWhitelistStatusPastExpiration', function () {
 });
 
 describe('isAuthorized', function () {
-  context('Requester whitelisted', function () {
-    context('Requester of rank Admin', function () {
-      it('returns true', async function () {
-        await daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.admin.address, true);
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.admin.address
-          )
-        ).to.equal(true);
+  context('Airnode address not zero', function () {
+    context('Requester whitelisted', function () {
+      context('Requester of rank Admin', function () {
+        it('returns true', async function () {
+          await daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.admin.address, true);
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.admin.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester of rank SuperAdmin', function () {
+        it('returns true', async function () {
+          await daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.superAdmin.address, true);
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.superAdmin.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester meta-admin', function () {
+        it('returns true', async function () {
+          await daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.metaAdmin.address, true);
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.metaAdmin.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester of rank lower than Admin', function () {
+        it('returns true', async function () {
+          await daoRequesterRrpAuthorizer
+            .connect(roles.superAdmin)
+            .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true);
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.requester.address
+            )
+          ).to.equal(true);
+        });
       });
     });
-    context('Requester of rank SuperAdmin', function () {
-      it('returns true', async function () {
-        await daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.superAdmin.address, true);
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.superAdmin.address
-          )
-        ).to.equal(true);
+    context('Requester not whitelisted', function () {
+      context('Requester of rank Admin', function () {
+        it('returns true', async function () {
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.admin.address
+            )
+          ).to.equal(true);
+        });
       });
-    });
-    context('Requester meta-admin', function () {
-      it('returns true', async function () {
-        await daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.metaAdmin.address, true);
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.metaAdmin.address
-          )
-        ).to.equal(true);
+      context('Requester of rank SuperAdmin', function () {
+        it('returns true', async function () {
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.superAdmin.address
+            )
+          ).to.equal(true);
+        });
       });
-    });
-    context('Requester of rank lower than Admin', function () {
-      it('returns true', async function () {
-        await daoRequesterRrpAuthorizer
-          .connect(roles.superAdmin)
-          .setWhitelistStatusPastExpiration(airnodeAddress, endpointId, roles.requester.address, true);
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.requester.address
-          )
-        ).to.equal(true);
+      context('Requester Airnode address', function () {
+        it('returns true', async function () {
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.metaAdmin.address
+            )
+          ).to.equal(true);
+        });
+      });
+      context('Requester of rank lower than Admin', function () {
+        it('returns false', async function () {
+          expect(
+            await daoRequesterRrpAuthorizer.isAuthorized(
+              utils.generateRandomBytes32(),
+              airnodeAddress,
+              endpointId,
+              utils.generateRandomAddress(),
+              roles.requester.address
+            )
+          ).to.equal(false);
+        });
       });
     });
   });
-  context('Requester not whitelisted', function () {
-    context('Requester of rank Admin', function () {
-      it('returns true', async function () {
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.admin.address
-          )
-        ).to.equal(true);
-      });
-    });
-    context('Requester of rank SuperAdmin', function () {
-      it('returns true', async function () {
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.superAdmin.address
-          )
-        ).to.equal(true);
-      });
-    });
-    context('Requester Airnode address', function () {
-      it('returns true', async function () {
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.metaAdmin.address
-          )
-        ).to.equal(true);
-      });
-    });
-    context('Requester of rank lower than Admin', function () {
-      it('returns false', async function () {
-        expect(
-          await daoRequesterRrpAuthorizer.isAuthorized(
-            utils.generateRandomBytes32(),
-            airnodeAddress,
-            endpointId,
-            utils.generateRandomAddress(),
-            roles.requester.address
-          )
-        ).to.equal(false);
-      });
+  context('Airnode address zero', function () {
+    it('reverts', async function () {
+      await expect(
+        daoRequesterRrpAuthorizer.isAuthorized(
+          utils.generateRandomBytes32(),
+          hre.ethers.constants.AddressZero,
+          utils.generateRandomBytes32(),
+          utils.generateRandomAddress(),
+          roles.requester.address
+        )
+      ).to.be.revertedWith('Airnode address zero');
     });
   });
 });

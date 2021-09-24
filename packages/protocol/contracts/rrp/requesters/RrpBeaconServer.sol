@@ -18,7 +18,7 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// and implement a customized version instead.
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2038 in the current form. If this is an issue, consider casting
-/// the timestampts to a larger type.
+/// the timestamps to a larger type.
 contract RrpBeaconServer is
     Adminnable,
     Whitelister,
@@ -45,40 +45,42 @@ contract RrpBeaconServer is
     mapping(bytes32 => Beacon) private templateIdToBeacon;
     mapping(bytes32 => bytes32) private requestIdToTemplateId;
 
+    /// @dev Reverts if the template with the ID is not created
+    /// @param templateId Template ID
+    modifier onlyIfTemplateExists(bytes32 templateId) {
+        (address airnode, , ) = airnodeRrp.templates(templateId);
+        require(airnode != address(0), "Template does not exist");
+        _;
+    }
+
     /// @param airnodeRrp_ Airnode RRP address
     constructor(address airnodeRrp_) RrpRequester(airnodeRrp_) {}
 
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
     /// @param updateRequester Update requester address
-    /// @param updatePermissionStatus Update permission status of the update
+    /// @param status Update permission status of the update
     /// requester
-    function setUpdatePermissionStatus(
-        address updateRequester,
-        bool updatePermissionStatus
-    ) external override {
+    function setUpdatePermissionStatus(address updateRequester, bool status)
+        external
+        override
+    {
         require(updateRequester != address(0), "Update requester zero");
         sponsorToUpdateRequesterToPermissionStatus[msg.sender][
             updateRequester
-        ] = updatePermissionStatus;
-        emit SetUpdatePermissionStatus(
-            msg.sender,
-            updateRequester,
-            updatePermissionStatus
-        );
+        ] = status;
+        emit SetUpdatePermissionStatus(msg.sender, updateRequester, status);
     }
 
     /// @notice Called to request a beacon to be updated
-    /// @dev Anyone can request a beacon to be updated. This is because it is
-    /// assumed that a beacon update request is always desirable, and the
-    /// requester and sponsor will pay for the gas cost.
-    /// There are two requirements for this method to be called: (1) The
+    /// @dev There are two requirements for this method to be called: (1) The
     /// sponsor must call `setSponsorshipStatus()` of AirnodeRrp to sponsor
     /// this RrpBeaconServer contract, (2) The sponsor must call
     /// `setUpdatePermissionStatus()` of this RrpBeaconServer contract to give
     /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned because this is what `fulfill()` expects.
+    /// This point of data should be castable to `int224`.
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request
@@ -166,6 +168,7 @@ contract RrpBeaconServer is
         override
         onlyWithRank(uint256(AdminRank.Admin))
         onlyIfTimestampExtends(templateId, user, expirationTimestamp)
+        onlyIfTemplateExists(templateId)
     {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .expirationTimestamp = expirationTimestamp;
@@ -188,7 +191,12 @@ contract RrpBeaconServer is
         bytes32 templateId,
         address user,
         uint64 expirationTimestamp
-    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
+    )
+        external
+        override
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
+        onlyIfTemplateExists(templateId)
+    {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .expirationTimestamp = expirationTimestamp;
         emit SetWhitelistExpiration(
@@ -208,7 +216,12 @@ contract RrpBeaconServer is
         bytes32 templateId,
         address user,
         bool status
-    ) external override onlyWithRank(uint256(AdminRank.SuperAdmin)) {
+    )
+        external
+        override
+        onlyWithRank(uint256(AdminRank.SuperAdmin))
+        onlyIfTemplateExists(templateId)
+    {
         serviceIdToUserToWhitelistStatus[templateId][user]
             .whitelistedPastExpiration = status;
         emit SetWhitelistStatusPastExpiration(
@@ -220,7 +233,11 @@ contract RrpBeaconServer is
     }
 
     /// @notice Called to read the beacon
-    /// @dev The caller must be whitelisted
+    /// @dev The caller must be whitelisted.
+    /// If the `timestamp` of a beacon is zero, this means that it was never
+    /// written to before, and the zero value in the `value` field is not
+    /// valid. In general, make sure to check if the timestamp of the beacon is
+    /// fresh enough, and definitely disregard beacons with zero `timestamp`.
     /// @param templateId Template ID whose beacon will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
@@ -246,6 +263,7 @@ contract RrpBeaconServer is
         public
         view
         override
+        onlyIfTemplateExists(templateId)
         returns (bool isWhitelisted)
     {
         return
@@ -266,6 +284,7 @@ contract RrpBeaconServer is
         external
         view
         override
+        onlyIfTemplateExists(templateId)
         returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
     {
         WhitelistStatus

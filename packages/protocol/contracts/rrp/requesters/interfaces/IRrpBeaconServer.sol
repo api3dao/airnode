@@ -7,7 +7,7 @@ interface IRrpBeaconServer is IAdminnable {
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
-        bool updatePermissionStatus
+        bool status
     );
 
     event RequestedBeaconUpdate(
@@ -52,10 +52,8 @@ interface IRrpBeaconServer is IAdminnable {
         bool status
     );
 
-    function setUpdatePermissionStatus(
-        address updateRequester,
-        bool updatePermissionStatus
-    ) external;
+    function setUpdatePermissionStatus(address updateRequester, bool status)
+        external;
 
     function requestBeaconUpdate(
         bytes32 templateId,

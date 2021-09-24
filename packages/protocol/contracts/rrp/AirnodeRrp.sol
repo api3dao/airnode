@@ -14,6 +14,7 @@ contract AirnodeRrp is
     IAirnodeRrp
 {
     /// @notice Called to get the extended public key of the Airnode
+    /// @dev The xpub belongs to the HDNode with the path m/44'/60'/0'
     mapping(address => string) public override airnodeToXpub;
 
     /// @notice Called to get the sponsorship status for a sponsor–requester
@@ -66,11 +67,12 @@ contract AirnodeRrp is
     /// @notice Called by the Airnode operator to announce its extended public
     /// key
     /// @dev It is expected for the Airnode operator to call this function with
-    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0).
-    /// Correspondingly, if the address of the default BIP 44 wallet derived
-    /// from the extended public key does not match the respective Airnode
-    /// address, the extended public key is invalid (does not belong to the
-    /// respective Airnode).
+    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0), to
+    /// report the xpub belongs to the HDNode with the path m/44'/60'/0'. Then,
+    /// if the address of the default BIP 44 wallet derived from the extended
+    /// public key (with the remaining non-hardened path, 0/0) does not match
+    /// the respective Airnode address, the extended public key is invalid
+    /// (does not belong to the respective Airnode).
     /// An Airnode operator can also announce their extended public key through
     /// off-chain channels. Validation method remains the same.
     /// The extended public key of an Airnode is used with a sponsor address to
@@ -106,6 +108,9 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a request that refers to a
     /// template for the Airnode address, endpoint ID and parameters
+    /// @dev `fulfillAddress` is not allowed to be the address of this
+    /// contract. This is not actually needed to protect users that use the
+    /// protocol as intended, but it is done for good measure.
     /// @param templateId Template ID
     /// @param sponsor Sponsor address
     /// @param sponsorWallet Sponsor wallet that is requested to fulfill the
@@ -125,6 +130,8 @@ contract AirnodeRrp is
         bytes calldata parameters
     ) external override returns (bytes32 requestId) {
         address airnode = templates[templateId].airnode;
+        // If the Airnode address of the template is zero the template does not
+        // exist because template creation does not allow zero Airnode address
         require(airnode != address(0), "Template does not exist");
         require(fulfillAddress != address(this), "Fulfill address AirnodeRrp");
         require(
@@ -170,6 +177,9 @@ contract AirnodeRrp is
 
     /// @notice Called by the requester to make a full request, which provides
     /// all of its parameters as arguments and does not refer to a template
+    /// @dev `fulfillAddress` is not allowed to be the address of this
+    /// contract. This is not actually needed to protect users that use the
+    /// protocol as intended, but it is done for good measure.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID (allowed to be `bytes32(0)`)
     /// @param sponsor Sponsor address
@@ -234,13 +244,13 @@ contract AirnodeRrp is
 
     /// @notice Called by Airnode to fulfill the request (template or full)
     /// @dev `statusCode` being zero indicates a successful fulfillment, while
-    /// non-zero values indicate error. The meaning of these values are
+    /// non-zero values indicate error. Further meaning of these values are
     /// implementation-dependent.
     /// The data is ABI-encoded as a `bytes` type, with its format depending on
     /// the request specifications.
-    /// This method will revert if the targeted function reverts or no function
-    /// with the matching signature is found. It will succeed if the targeted
-    /// function or the targeted address does not belong to a contract.
+    /// This will revert if the targeted function reverts or no function with
+    /// the matching signature is found at the targeted contract. It will still
+    /// succeed if there is no contract at the targeted address.
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param statusCode Status code of the fulfillment
