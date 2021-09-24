@@ -1,9 +1,8 @@
-import { existsSync } from 'fs';
 import { join } from 'path';
+import { existsSync } from 'fs';
 import { HardhatUserConfig } from 'hardhat/types';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-ethers';
-import 'hardhat-deploy';
 import { IntegrationInfo, readIntegrationInfo } from './src';
 
 const integrationInfoPath = join(__dirname, 'integration-info.json');
@@ -13,20 +12,15 @@ if (existsSync(integrationInfoPath)) {
 }
 
 const networks: any = {};
-if (integrationInfo && integrationInfo.network === 'rinkeby') {
-  networks.rinkeby = {
+if (integrationInfo) {
+  networks[integrationInfo.network] = {
     url: integrationInfo.providerUrl,
     accounts: { mnemonic: integrationInfo.mnemonic },
   };
 }
 
-const getDefaultNetwork = () => {
-  if (!integrationInfo) return 'hardhat';
-  return integrationInfo.network;
-};
-
 const config: HardhatUserConfig = {
-  defaultNetwork: getDefaultNetwork(),
+  defaultNetwork: integrationInfo?.network,
   networks,
   solidity: '0.8.6',
 };

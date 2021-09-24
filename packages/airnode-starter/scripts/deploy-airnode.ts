@@ -11,7 +11,7 @@ async function main() {
 
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
   spawnSync(
-    `yarn deployer deploy --config ${integrationPath}/config.json --secrets ${integrationPath}/secrets.env --receipt ${integrationPath}/receipt.json`,
+    `yarn api3-deployer deploy --config ${integrationPath}/config.json --secrets ${integrationPath}/secrets.env --receipt ${integrationPath}/receipt.json`,
     {
       shell: true,
       stdio: 'inherit',

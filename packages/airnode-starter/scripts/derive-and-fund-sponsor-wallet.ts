@@ -1,44 +1,23 @@
-import '@nomiclabs/hardhat-ethers';
-import 'hardhat-deploy';
 import { execSync } from 'child_process';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import hre from 'hardhat';
 import { ethers } from 'ethers';
-import { readIntegrationInfo } from '../src';
-
-const getContract = async (name: string) => {
-  const deployment = await hre.deployments.get(name);
-  const contract = await hre.ethers.getContractAt(deployment.abi, deployment.address);
-
-  return contract;
-};
-
-export const readReceipt = () => {
-  const integrationInfo = readIntegrationInfo();
-
-  const receipt = JSON.parse(
-    readFileSync(join(__dirname, `../integrations/${integrationInfo.integration}/receipt.json`)).toString()
-  );
-  return receipt;
-};
+import { getAirnodeWallet, getAirnodeXpub, getDeployedContract, getProvider, readIntegrationInfo } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
-  const airnodeRrp = await getContract('AirnodeRrp');
-  const airnodeWallet = readReceipt().airnodeWallet;
-  const provider = new ethers.providers.JsonRpcProvider(integrationInfo.providerUrl);
+  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeWallet = getAirnodeWallet();
+  const provider = getProvider();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic).connect(provider);
 
   // Derive the sponsor wallet address
   const args = [
     `--providerUrl ${integrationInfo.providerUrl}`,
     `--airnodeRrp ${airnodeRrp.address}`,
-    `--airnodeAddress ${airnodeWallet.airnodeAddress}`,
+    `--airnodeAddress ${airnodeWallet.address}`,
     `--sponsorAddress ${sponsor.address}`,
-    `--xpub ${airnodeWallet.xpub}`,
+    `--xpub ${getAirnodeXpub(airnodeWallet)}`,
   ];
-  const output = execSync(`yarn admin derive-sponsor-wallet-address ${args.join(' ')}`).toString();
+  const output = execSync(`yarn api3-admin derive-sponsor-wallet-address ${args.join(' ')}`).toString();
   const sponsorWalletAddress = output.split('Sponsor wallet address:')[1].trim();
 
   // Fund the derived sponsor wallet using sponsor account
