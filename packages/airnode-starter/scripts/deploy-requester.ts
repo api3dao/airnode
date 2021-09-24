@@ -1,19 +1,12 @@
-import { readdirSync } from 'fs';
-import hre from 'hardhat';
-import 'hardhat-deploy';
-import { readIntegrationInfo } from '../src';
+import { readIntegrationInfo, deployContract, getDeployedContract } from '../src';
 
 async function main() {
-  const accounts = await hre.getUnnamedAccounts();
-  const airnodeRrp = await hre.deployments.get('AirnodeRrp');
   const integrationInfo = readIntegrationInfo();
+  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
 
-  const requesterContractName = readdirSync(`${__dirname}/../contracts/${integrationInfo.integration}`)[0];
-  const artifactName = requesterContractName.split('.')[0]; // Remove .sol extension
-  const requester = await hre.deployments.deploy(artifactName, {
-    from: accounts[0],
-    args: [airnodeRrp.address],
-  });
+  const requester = await deployContract(`contracts/${integrationInfo.integration}/Requester.sol`, [
+    airnodeRrp.address,
+  ]);
   console.log(`Requester deployed at address: ${requester.address}`);
 }
 

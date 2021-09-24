@@ -5,19 +5,17 @@
   "description": "A starter project for deploying an Airnode and making requests to it",
   "scripts": {
     "compile": "hardhat compile",
-    "eth-node": "hardhat node --no-deploy",
-    "deploy-rrp:localhost": "hardhat deploy --tags rrp --network localhost",
-    "deploy-rrp:rinkeby": "hardhat deploy --tags rrp --network rinkeby",
+    "eth-node": "hardhat node",
+    "deploy-rrp": "ts-node scripts/deploy-rrp.ts",
     "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-aws-secrets": "ts-node scripts/create-aws-secrets.ts",
     "deploy-airnode": "ts-node scripts/deploy-airnode.ts",
-    "derive-and-fund-sponsor-wallet": "hardhat run scripts/derive-and-fund-sponsor-wallet.ts",
+    "derive-and-fund-sponsor-wallet": "ts-node scripts/derive-and-fund-sponsor-wallet.ts",
     "create-airnode-secrets": "ts-node scripts/create-airnode-secrets.ts",
-    "deploy-requester": "hardhat run scripts/deploy-requester.ts",
-    "sponsor-requester": "hardhat run scripts/sponsor-requester.ts",
-    "make-request": "hardhat run scripts/make-request.ts",
-    "deployer": "deployer",
-    "admin": "admin"
+    "deploy-requester": "ts-node scripts/deploy-requester.ts",
+    "sponsor-requester": "ts-node scripts/sponsor-requester.ts",
+    "make-request": "ts-node scripts/make-request.ts",
+    "api3-admin": "ts-node ../../node_modules/@api3/admin/bin/admin.ts"
   },
   "dependencies": {
     "@api3/admin": "^0.1.0",
@@ -31,9 +29,9 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@types/node": "^16.9.2",
     "@types/prompts": "^2.0.14",
+    "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.6.0",
-    "hardhat-deploy": "^0.9.0",
     "prompts": "^2.4.1",
     "ts-node": "^10.2.1",
     "typescript": "^4.3.5"

@@ -1,20 +1,9 @@
-import hre from 'hardhat';
-import '@nomiclabs/hardhat-ethers';
-import 'hardhat-deploy';
-import { readIntegrationInfo } from '../src';
-
-const getContract = async (name: string) => {
-  const deployment = await hre.deployments.get(name);
-  const contract = await hre.ethers.getContractAt(deployment.abi, deployment.address);
-
-  return contract;
-};
+import { getDeployedContract, getProvider, readIntegrationInfo } from '../src';
 
 async function fulfilled(requestId: string) {
-  const airnodeRrp = await getContract('AirnodeRrp');
-  return new Promise((resolve) =>
-    hre.ethers.provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve)
-  );
+  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
+  const provider = getProvider();
+  return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
 }
 
 // TODO: maybe just call the make-request and handle all logic there...

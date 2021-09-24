@@ -4,10 +4,7 @@ log.json
 # Hardhat files
 /cache
 /artifacts
-# We want deployments to rinkeby chain commited in the repository, but others ignored
-/deployments/*
-!/deployments/rinkeby/AirnodeRrp.json
-!/deployments/rinkeby/.chainId
+/deployments
 
 # Holds information about the current integration
 /integration-info.json
