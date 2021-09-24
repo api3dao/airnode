@@ -1,26 +1,24 @@
 import { writeFileSync } from 'fs';
+import { join } from 'path';
+import { randomUUID } from 'crypto';
 import { ethers } from 'ethers';
-import { readAirnodeRrp, readIntegrationInfo } from '../../src';
+import { formatSecrets, readAirnodeRrp, readChainId, readIntegrationInfo } from '../../src';
 
-const integrationInfo = readIntegrationInfo();
-
-// TODO: update
-async function main() {
+async function createSecrets() {
+  const integrationInfo = readIntegrationInfo();
   const wallet = ethers.Wallet.createRandom();
-  const airnodeSecrets = [
-    `AIRNODE_WALLET_MNEMONIC=${wallet.mnemonic.phrase}`,
-    `PROVIDER_URL=${integrationInfo.providerUrl}`,
-    `AIRNODE_RRP_ADDRESS=${readAirnodeRrp().address}`,
-  ];
-  // TODO: write this to a separate file as helper function
-  writeFileSync('secrets.env', airnodeSecrets.join('\n') + '\n');
 
+  const secrets = [
+    `PROVIDER_URL=${integrationInfo.providerUrl}`,
+    `AIRNODE_WALLET_MNEMONIC=${wallet.mnemonic.phrase}`,
+    `HTTP_GATEWAY_API_KEY=${randomUUID()}`,
+    `AIRNODE_RRP_ADDRESS=${readAirnodeRrp().address}`,
+    `CHAIN_ID=${await readChainId()}`,
+    `CLOUD_PROVIDER_TYPE=${integrationInfo.airnodeType}`,
+  ];
+
+  writeFileSync(join(__dirname, 'secrets.env'), formatSecrets(secrets));
   console.log(`We have created 'secrets.env' file with the necessary credentials for you.`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+export default createSecrets;

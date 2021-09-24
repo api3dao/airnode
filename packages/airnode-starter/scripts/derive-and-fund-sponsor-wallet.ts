@@ -18,7 +18,7 @@ export const readReceipt = () => {
   const integrationInfo = readIntegrationInfo();
 
   const receipt = JSON.parse(
-    readFileSync(join(__dirname, `../integrations/${integrationInfo?.integration}/receipt.json`)).toString()
+    readFileSync(join(__dirname, `../integrations/${integrationInfo.integration}/receipt.json`)).toString()
   );
   return receipt;
 };
@@ -27,12 +27,12 @@ async function main() {
   const integrationInfo = readIntegrationInfo();
   const airnodeRrp = await getContract('AirnodeRrp');
   const airnodeWallet = readReceipt().airnodeWallet;
-  const provider = new ethers.providers.JsonRpcProvider(integrationInfo!.providerUrl);
-  const sponsor = ethers.Wallet.fromMnemonic(integrationInfo!.mnemonic).connect(provider);
+  const provider = new ethers.providers.JsonRpcProvider(integrationInfo.providerUrl);
+  const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic).connect(provider);
 
   // Derive the sponsor wallet address
   const args = [
-    `--providerUrl ${integrationInfo?.providerUrl}`,
+    `--providerUrl ${integrationInfo.providerUrl}`,
     `--airnodeRrp ${airnodeRrp.address}`,
     `--airnodeAddress ${airnodeWallet.airnodeAddress}`,
     `--sponsorAddress ${sponsor.address}`,

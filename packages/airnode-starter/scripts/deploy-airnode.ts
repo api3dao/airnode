@@ -4,7 +4,7 @@ import { readIntegrationInfo } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
-  if (integrationInfo?.airnodeType !== 'aws') {
+  if (integrationInfo.airnodeType !== 'aws') {
     console.log('You only need to deploy run this script if you deploy on AWS');
     return;
   }

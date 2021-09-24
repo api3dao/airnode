@@ -21,8 +21,9 @@ const questions: PromptObject[] = [
     type: 'select',
     name: 'airnodeType',
     message: 'Choose Airnode type',
-    choices: [createOption('containerized'), createOption('aws')],
+    choices: [createOption('local'), createOption('aws')],
   },
+  // TODO: move AWS secrets to separate script
   {
     type: (_prev, values) => (values.airnodeType === 'aws' ? 'text' : null),
     name: 'accessKeyId',
@@ -43,10 +44,10 @@ const questions: PromptObject[] = [
     type: 'select',
     name: 'network',
     message: 'Choose target network',
-    choices: [createOption('rinkeby'), createOption('hardhat')],
+    choices: [createOption('rinkeby'), createOption('localhost')],
   },
   {
-    type: (_prev, values) => (values.network !== 'hardhat' ? 'text' : null),
+    type: (_prev, values) => (values.network !== 'localhost' ? 'text' : null),
     name: 'mnemonic',
     message: [
       'Since you chose testnet network, we need an account with testnet funds to connect to the blockchain.',
@@ -58,9 +59,14 @@ const questions: PromptObject[] = [
     ].join('\n'),
   },
   {
-    type: (_prev, values) => (values.network !== 'hardhat' ? 'text' : null),
+    type: 'text',
     name: 'providerUrl',
     message: 'Specify provider URL',
+    initial: (_prev, values) => {
+      if (values.network === 'localhost') return 'http://127.0.0.1:8545/';
+      if (values.network === 'rinkeby') return 'https://rinkeby.infura.io/v3/<YOUR-KEY>';
+      return '';
+    },
   },
 ];
 

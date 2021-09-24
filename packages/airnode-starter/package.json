@@ -11,7 +11,7 @@
     "choose-integration": "ts-node scripts/choose-integration.ts",
     "create-aws-secrets": "ts-node scripts/create-aws-secrets.ts",
     "deploy-airnode": "ts-node scripts/deploy-airnode.ts",
-    "derive-and-fund-sponsor-wallet": "ts-node scripts/derive-and-fund-sponsor-wallet.ts",
+    "derive-and-fund-sponsor-wallet": "hardhat run scripts/derive-and-fund-sponsor-wallet.ts",
     "create-airnode-secrets": "ts-node scripts/create-airnode-secrets.ts",
     "deploy-requester": "hardhat run scripts/deploy-requester.ts",
     "sponsor-requester": "hardhat run scripts/sponsor-requester.ts",

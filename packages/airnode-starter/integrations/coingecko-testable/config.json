@@ -3,11 +3,11 @@
     {
       "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "0x552e534B357f658D8Bc3417406a76C98C2959C98"
+        "AirnodeRrp": "${AIRNODE_RRP_ADDRESS}"
       },
-      "id": "4",
+      "id": "${CHAIN_ID}",
       "providers": {
-        "rinkeby": {
+        "exampleProvider": {
           "url": "${PROVIDER_URL}"
         }
       },
@@ -15,7 +15,7 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "aws",
+    "cloudProvider": "${CLOUD_PROVIDER_TYPE}",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": false

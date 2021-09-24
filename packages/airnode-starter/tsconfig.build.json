@@ -5,8 +5,7 @@
     "outDir": "./dist",
     "rootDir": "src"
   },
-  // TODO: Do we need src directory?
-  "include": ["./src/**/*", "./deploy/**/*", "./scripts/**/*"],
+  "include": ["./src/**/*", "./deploy/**/*", "./scripts/**/*", "./hardhat.config.ts"],
   "exclude": [
     "src/**/*.test.ts"
   ]
