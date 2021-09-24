@@ -106,8 +106,8 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         view
         returns (uint256 requestCountPlusOne);
 
-    function requestWithIdHasFailed(bytes32 requestId)
+    function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
-        returns (bool hasFailed);
+        returns (bool isAwaitingFulfillment);
 }
