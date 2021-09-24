@@ -28,11 +28,6 @@ contract AirnodeRrp is
     /// will make
     mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
-    /// @notice Called to check if the fulfillment of a request has failed
-    /// @dev Requests will be marked to have failed by the respective Airnode
-    /// if the fulfillment call will revert
-    mapping(bytes32 => bool) public override requestWithIdHasFailed;
-
     /// @dev Hash of expected fulfillment parameters are kept to verify that
     /// the fulfillment will be done with the correct parameters
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
@@ -316,8 +311,25 @@ contract AirnodeRrp is
         )
     {
         delete requestIdToFulfillmentParameters[requestId];
-        // Failure is recorded so that it can be checked externally
-        requestWithIdHasFailed[requestId] = true;
         emit FailedRequest(airnode, requestId);
+    }
+
+    /// @notice Called to check if the request with the ID is made but not
+    /// fulfilled/failed yet
+    /// @dev If a requester contract has made a request, received a request ID
+    /// but did not hear back, it can call this method to check if the Airnode
+    /// has called back `fail()` instead.
+    /// @param requestId Request ID
+    /// @return isAwaitingFulfillment If the request is awaiting fulfillment
+    /// (i.e., `true` if `fulfill()` or `fail()` is not called back yet,
+    /// `false` otherwise)
+    function requestIsAwaitingFulfillment(bytes32 requestId)
+        external
+        view
+        override
+        returns (bool isAwaitingFulfillment)
+    {
+        isAwaitingFulfillment =
+            requestIdToFulfillmentParameters[requestId] != bytes32(0);
     }
 }
