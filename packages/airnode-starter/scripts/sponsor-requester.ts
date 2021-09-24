@@ -17,7 +17,7 @@ export const readReceipt = () => {
   const integrationInfo = readIntegrationInfo();
 
   const receipt = JSON.parse(
-    readFileSync(join(__dirname, `../integrations/${integrationInfo?.integration}/receipt.json`)).toString()
+    readFileSync(join(__dirname, `../integrations/${integrationInfo.integration}/receipt.json`)).toString()
   );
   return receipt;
 };
@@ -32,11 +32,11 @@ async function main() {
   const airnodeWallet = readReceipt().airnodeWallet;
 
   const args = [
-    `--providerUrl ${integrationInfo?.providerUrl}`,
+    `--providerUrl ${integrationInfo.providerUrl}`,
     `--airnodeRrp ${airnodeRrp.address}`,
     `--xpub ${airnodeWallet.xpub}`,
     `--requesterAddress ${requester.address}`,
-    `--mnemonic "${integrationInfo?.mnemonic}"`,
+    `--mnemonic "${integrationInfo.mnemonic}"`,
   ];
   spawnSync(`yarn admin sponsor-requester ${args.join(' ')}`, { shell: true, stdio: 'inherit' }).toString();
 }

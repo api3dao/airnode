@@ -5,9 +5,9 @@
       "contracts": {
         "AirnodeRrp": "${AIRNODE_RRP_ADDRESS}"
       },
-      "id": "4",
+      "id": "${CHAIN_ID}",
       "providers": {
-        "rinkeby": {
+        "exampleProvider": {
           "url": "${PROVIDER_URL}"
         }
       },
@@ -15,7 +15,7 @@
     }
   ],
   "nodeSettings": {
-    "cloudProvider": "aws",
+    "cloudProvider": "${CLOUD_PROVIDER_TYPE}",
     "airnodeWalletMnemonic": "${AIRNODE_WALLET_MNEMONIC}",
     "heartbeat": {
       "enabled": false

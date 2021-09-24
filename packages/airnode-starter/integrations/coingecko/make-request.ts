@@ -27,11 +27,11 @@ export async function makeRequest(): Promise<string> {
 
   const airnodeRrp = await getContract('AirnodeRrp');
   const airnodeWallet = readReceipt().airnodeWallet;
-  const sponsor = ethers.Wallet.fromMnemonic(integrationInfo!.mnemonic);
+  const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   const endpointId = readConfig().triggers.rrp[0].endpointId;
 
   const args = [
-    `--providerUrl ${integrationInfo?.providerUrl}`,
+    `--providerUrl ${integrationInfo.providerUrl}`,
     `--airnodeRrp ${airnodeRrp.address}`,
     `--airnodeAddress ${airnodeWallet.airnodeAddress}`,
     `--sponsorAddress ${sponsor.address}`,
