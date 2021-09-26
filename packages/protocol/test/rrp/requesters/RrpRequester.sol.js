@@ -67,12 +67,13 @@ describe('onlyAirnodeRrp', function () {
         );
       const requestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'bytes32', 'bytes'],
+          ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
           [
             (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
             (await hre.ethers.provider.getNetwork()).chainId,
             rrpRequester.address,
             templateId,
+            roles.sponsor.address,
             requestTimeParameters,
           ]
         )
@@ -81,29 +82,29 @@ describe('onlyAirnodeRrp', function () {
       const sponsorWallet = utils
         .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
         .connect(hre.ethers.provider);
-      const fulfillStatusCode = 0;
       const fulfillData = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
       );
-      await expect(
-        airnodeRrp
-          .connect(sponsorWallet)
-          .fulfill(
-            requestId,
-            airnodeAddress,
-            fulfillStatusCode,
-            fulfillData,
-            rrpRequester.address,
-            rrpRequester.interface.getSighash('fulfill'),
-            { gasLimit: 500000 }
-          )
-      ).to.not.be.revertedWith('Fulfillment failed');
+      // Since `onlyAirnodeRrp` is a part of the external call, the transaction that
+      // the Airnode made to AirnodeRrp will not revert. This means that we should
+      // not check if the transaction reverts here, but rather the returned success value.
+      const staticCallResult = await airnodeRrp
+        .connect(sponsorWallet)
+        .callStatic.fulfill(
+          requestId,
+          airnodeAddress,
+          fulfillData,
+          rrpRequester.address,
+          rrpRequester.interface.getSighash('fulfill'),
+          { gasLimit: 500000 }
+        );
+      expect(staticCallResult.callSuccess).to.equal(true);
     });
   });
   context('Caller not AirnodeRrp', function () {
     it('reverts', async function () {
       await expect(
-        rrpRequester.connect(roles.randomPerson).fulfill(hre.ethers.constants.HashZero, 0, '0x')
+        rrpRequester.connect(roles.randomPerson).fulfill(hre.ethers.constants.HashZero, '0x')
       ).to.be.revertedWith('Caller not Airnode RRP');
     });
   });

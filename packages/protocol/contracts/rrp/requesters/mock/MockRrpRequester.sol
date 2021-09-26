@@ -5,13 +5,8 @@ import "../RrpRequester.sol";
 
 /// @title A mock Airnode RRP requester contract
 contract MockRrpRequester is RrpRequester {
-    event FulfilledRequest(
-        bytes32 indexed requestId,
-        uint256 statusCode,
-        bytes data
-    );
+    event FulfilledRequest(bytes32 indexed requestId, bytes data);
 
-    mapping(bytes32 => uint256) public requestIdToStatusCode;
     mapping(bytes32 => bytes) public requestIdToData;
 
     mapping(bytes32 => bool) private expectingRequestWithIdToBeFulfilled;
@@ -84,44 +79,48 @@ contract MockRrpRequester is RrpRequester {
     /// @notice A method to be called back by the respective method at
     /// AirnodeRrp.sol for testing
     /// @param requestId Request ID
-    /// @param statusCode Status code returned by the Airnode
     /// @param data Data returned by the Airnode
-    function fulfill(
-        bytes32 requestId,
-        uint256 statusCode,
-        bytes calldata data
-    ) external onlyAirnodeRrp {
+    function fulfill(bytes32 requestId, bytes calldata data)
+        external
+        onlyAirnodeRrp
+    {
         require(
             expectingRequestWithIdToBeFulfilled[requestId],
             "No such request made"
         );
         delete expectingRequestWithIdToBeFulfilled[requestId];
-        requestIdToStatusCode[requestId] = statusCode;
         requestIdToData[requestId] = data;
-        emit FulfilledRequest(requestId, statusCode, data);
+        emit FulfilledRequest(requestId, data);
     }
 
     /// @notice A method to be called back by the respective method at
     /// AirnodeRrp.sol for testing fulfillment failure
     /// @param requestId Request ID
-    /// @param statusCode Status code returned by the Airnode
     /// @param data Data returned by the Airnode
     function fulfillAlwaysReverts(
         bytes32 requestId, // solhint-disable-line no-unused-vars
-        uint256 statusCode, // solhint-disable-line no-unused-vars
         bytes calldata data // solhint-disable-line no-unused-vars
     ) external view onlyAirnodeRrp {
         revert("Always reverts");
     }
 
     /// @notice A method to be called back by the respective method at
+    /// AirnodeRrp.sol for testing fulfillment failure
+    /// @param requestId Request ID
+    /// @param data Data returned by the Airnode
+    function fulfillAlwaysRevertsWithNoString(
+        bytes32 requestId, // solhint-disable-line no-unused-vars
+        bytes calldata data // solhint-disable-line no-unused-vars
+    ) external view onlyAirnodeRrp {
+        revert(); // solhint-disable-line reason-string
+    }
+
+    /// @notice A method to be called back by the respective method at
     /// AirnodeRrp.sol for testing fulfillment running out of gas
     /// @param requestId Request ID
-    /// @param statusCode Status code returned by the Airnode
     /// @param data Data returned by the Airnode
     function fulfillAlwaysRunsOutOfGas(
         bytes32 requestId, // solhint-disable-line no-unused-vars
-        uint256 statusCode, // solhint-disable-line no-unused-vars
         bytes calldata data // solhint-disable-line no-unused-vars
     ) external view onlyAirnodeRrp {
         while (true) {}
