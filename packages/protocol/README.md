@@ -3,11 +3,6 @@
 
 > The contracts that implement the Airnode protocols
 
-***This documents the Beta version of the protocol.
-We have also published and documented the pre-alpha version widely.
-The pre-alpha and the Beta versions are very different in implementation and the terminology they use is contradictory.
-If you are referring to any outside source, make sure that it is not referring to the pre-alpha version, or at least interpret it accordingly.***
-
 ## Instructions
 
 Install the dependencies **at the repo root** (i.e., `airnode/`)
@@ -30,10 +25,6 @@ yarn run test:coverage
 # Outputs to `.gas_report`
 yarn run test:gas
 ```
-
-Note that the scripts at the repo root and the CI/CD runs may fail.
-This is because the rest of the repo is currently outdated.
-At this stage, consider this as a standalone package.
 
 ## Introduction
 
@@ -187,9 +178,8 @@ Assuming that the requester contract developer has done Step 3, one of the autho
 Then, the Airnode calls `fulfill()` of `AirnodeRrp`, which forwards this call to the callback function in the destination address.
 The callback function can be as flexible as needed, but note that the gas cost of execution will be undertaken by the sponsor wallet.
 
-If anything goes wrong during this flow, the Airnode still calls back with a non-zero `statusCode` and an empty `data` field.
-However, there are some cases where this is not possible, e.g., the specified sponsor wallet does not match the requester address or the function to be called back reverts.
-Then, the Airnode calls the `fail()` function of `AirnodeRrp`, essentially reporting that it could not even attempt to fulfill the request, which the requester can then check for.
+If anything goes wrong during this flow, the Airnode calls the `fail()` function of `AirnodeRrp` with an error message that explains what went wrong.
+However, there are some cases where this is not possible, e.g., the specified sponsor wallet does not match the sponsor address, in which case the request will not be responded to at all.
 
 ## Sponsor wallet derivation
 

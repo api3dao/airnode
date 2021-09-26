@@ -29,7 +29,9 @@ contract AirnodeRrp is
     mapping(address => uint256) public override requesterToRequestCountPlusOne;
 
     /// @dev Hash of expected fulfillment parameters are kept to verify that
-    /// the fulfillment will be done with the correct parameters
+    /// the fulfillment will be done with the correct parameters. This value is
+    /// also used to check if the fulfillment for the particular request is
+    /// expected (i.e., if there are recorded fulfillment parameters)
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
     /// @dev Reverts if the incoming fulfillment parameters do not match the
@@ -238,17 +240,17 @@ contract AirnodeRrp is
     }
 
     /// @notice Called by Airnode to fulfill the request (template or full)
-    /// @dev `statusCode` being zero indicates a successful fulfillment, while
-    /// non-zero values indicate error. Further meaning of these values are
-    /// implementation-dependent.
-    /// The data is ABI-encoded as a `bytes` type, with its format depending on
-    /// the request specifications.
-    /// This will revert if the targeted function reverts or no function with
-    /// the matching signature is found at the targeted contract. It will still
-    /// succeed if there is no contract at the targeted address.
+    /// @dev The data is ABI-encoded as a `bytes` type, with its format
+    /// depending on the request specifications.
+    /// This will not revert depending on the external call. However, it will
+    /// return `false` if the external call reverts or if there is no function
+    /// with a matching signature at `fulfillAddress`. On the other hand, it
+    /// will return `true` if the external call returns successfully or if
+    /// there is no contract deployed at `fulfillAddress`.
+    /// If `callSuccess` is `false`, `callData` can be decoded to retrieve the
+    /// revert string.
     /// @param requestId Request ID
     /// @param airnode Airnode address
-    /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
@@ -259,7 +261,6 @@ contract AirnodeRrp is
     function fulfill(
         bytes32 requestId,
         address airnode,
-        uint256 statusCode,
         bytes calldata data,
         address fulfillAddress,
         bytes4 fulfillFunctionId
@@ -275,31 +276,36 @@ contract AirnodeRrp is
         returns (bool callSuccess, bytes memory callData)
     {
         delete requestIdToFulfillmentParameters[requestId];
-        emit FulfilledRequest(airnode, requestId, statusCode, data);
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
-            abi.encodeWithSelector(
-                fulfillFunctionId,
-                requestId,
-                statusCode,
-                data
-            )
+            abi.encodeWithSelector(fulfillFunctionId, requestId, data)
         );
-        require(callSuccess, "Fulfillment failed");
+        if (callSuccess) {
+            emit FulfilledRequest(airnode, requestId, data);
+        } else {
+            // We do not bubble up the revert string from `callData`
+            emit FailedRequest(
+                airnode,
+                requestId,
+                "Fulfillment failed unexpectedly"
+            );
+        }
     }
 
     /// @notice Called by Airnode if the request cannot be fulfilled
     /// @dev Airnode should fall back to this if a request cannot be fulfilled
-    /// because fulfill() reverts
+    /// because static call to `fulfill()` returns `false` for `callSuccess`
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param fulfillAddress Address that will be called to fulfill
     /// @param fulfillFunctionId Signature of the function that will be called
     /// to fulfill
+    /// @param errorMessage A message that explains why the request has failed
     function fail(
         bytes32 requestId,
         address airnode,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        string calldata errorMessage
     )
         external
         override
@@ -311,14 +317,14 @@ contract AirnodeRrp is
         )
     {
         delete requestIdToFulfillmentParameters[requestId];
-        emit FailedRequest(airnode, requestId);
+        emit FailedRequest(airnode, requestId, errorMessage);
     }
 
     /// @notice Called to check if the request with the ID is made but not
     /// fulfilled/failed yet
-    /// @dev If a requester contract has made a request, received a request ID
-    /// but did not hear back, it can call this method to check if the Airnode
-    /// has called back `fail()` instead.
+    /// @dev If a requester has made a request, received a request ID but did
+    /// not hear back, it can call this method to check if the Airnode has
+    /// called back `fail()` instead.
     /// @param requestId Request ID
     /// @return isAwaitingFulfillment If the request is awaiting fulfillment
     /// (i.e., `true` if `fulfill()` or `fail()` is not called back yet,
