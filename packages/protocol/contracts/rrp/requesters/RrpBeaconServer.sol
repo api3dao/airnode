@@ -59,8 +59,7 @@ contract RrpBeaconServer is
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
     /// @param updateRequester Update requester address
-    /// @param status Update permission status of the update
-    /// requester
+    /// @param status Update permission status of the update requester
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external
         override
@@ -117,40 +116,34 @@ contract RrpBeaconServer is
     /// @dev It is assumed that the fulfillment will be made with a single
     /// point of data of type `int256`
     /// @param requestId ID of the request being fulfilled
-    /// @param statusCode Status code of the fulfillment
     /// @param data Fulfillment data (a single `int256` encoded as `bytes`)
-    function fulfill(
-        bytes32 requestId,
-        uint256 statusCode,
-        bytes calldata data
-    ) external override onlyAirnodeRrp {
+    function fulfill(bytes32 requestId, bytes calldata data)
+        external
+        override
+        onlyAirnodeRrp
+    {
         bytes32 templateId = requestIdToTemplateId[requestId];
-        require(templateId != bytes32(0), "Request ID unknown");
+        require(templateId != bytes32(0), "No such request made");
         delete requestIdToTemplateId[requestId];
-        if (statusCode == 0) {
-            int256 decodedData = abi.decode(data, (int256));
-            require(
-                decodedData >= type(int224).min &&
-                    decodedData <= type(int224).max,
-                "Value typecasting error"
-            );
-            require(
-                block.timestamp <= type(uint32).max,
-                "Timestamp typecasting error"
-            );
-            templateIdToBeacon[templateId] = Beacon({
-                value: int224(decodedData),
-                timestamp: uint32(block.timestamp)
-            });
-            emit UpdatedBeacon(
-                templateId,
-                requestId,
-                int224(decodedData),
-                uint32(block.timestamp)
-            );
-        } else {
-            emit ErroredBeaconUpdate(templateId, requestId, statusCode);
-        }
+        int256 decodedData = abi.decode(data, (int256));
+        require(
+            decodedData >= type(int224).min && decodedData <= type(int224).max,
+            "Value typecasting error"
+        );
+        require(
+            block.timestamp <= type(uint32).max,
+            "Timestamp typecasting error"
+        );
+        templateIdToBeacon[templateId] = Beacon({
+            value: int224(decodedData),
+            timestamp: uint32(block.timestamp)
+        });
+        emit UpdatedBeacon(
+            templateId,
+            requestId,
+            int224(decodedData),
+            uint32(block.timestamp)
+        );
     }
 
     /// @notice Called by an admin to extend the whitelist expiration of a user

@@ -48,4 +48,14 @@ module.exports = {
     const currentBlock = await provider.getBlock(currentBlockNumber);
     return currentBlock.timestamp;
   },
+  decodeRevertString: (callData) => {
+    // Refer to https://ethereum.stackexchange.com/a/83577
+    // Assuming `callData` is a hex string
+    if (callData.length < 2 + 68 * 2) {
+      // callData is exactly "0x" when there is no revert string but let's do what everybody else does
+      return 'No revert string';
+    }
+    // We probably don't want the signature either
+    return ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0];
+  },
 };
