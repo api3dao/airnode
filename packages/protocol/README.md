@@ -4,11 +4,6 @@
 
 > The contracts that implement the Airnode protocols
 
-**_This documents the Beta version of the protocol. We have also published and documented the pre-alpha version widely.
-The pre-alpha and the Beta versions are very different in implementation and the terminology they use is contradictory.
-If you are referring to any outside source, make sure that it is not referring to the pre-alpha version, or at least
-interpret it accordingly._**
-
 ## Instructions
 
 Install the dependencies **at the repo root** (i.e., `airnode/`)
@@ -34,9 +29,6 @@ yarn run test:coverage
 # Outputs to `.gas_report`
 yarn run test:gas
 ```
-
-Note that the scripts at the repo root and the CI/CD runs may fail. This is because the rest of the repo is currently
-outdated. At this stage, consider this as a standalone package.
 
 ## Introduction
 
@@ -208,43 +200,9 @@ Note that the Airnode operator may not announce its extended public key (that be
 
 4. The requester contract can make two kinds of requests:
 
-   - Template requests refer to a set of request parameters that were previously recorded on-chain. To be able to make a
-     template request, the developer will call `createTemplate()` to create the template, then refer to the ID of this
-     template in their template request.
-   - Full requests do not refer to any template, all request parameters are provided at request-time.
-
-   Let us assume the requester contract is called, which triggers a template request.
-
-5. The Airnode sees a `MadeTemplateRequest` event (and no matching `FulfilledRequest` or `FailedRequest` event), which
-   means there is a request to be responded to. It first uses the fields provided in the `MadeTemplateRequest` log to
-   recreate the `requestId`. If the newly created `requestId` does not match the one from the log, this means that the
-   request parameters are tampered with and the request must not be responded to. Then, it fetches the template referred
-   to with `templateId`, and using the fields of the template, it recreates the `templateId`. If the newly created
-   `templateId` does not match the one from the log, this means the template parameters are tampered with and the
-   request must not be responded to.
-
-Another test that the Airnode must do is to derive the sponsor wallet that is specified in the request using the
-requester address and check if it is correct (and not respond if it is not). This is done because we cannot derive the
-sponsor wallet from `xpub` on-chain, so we let the requester specify it in the request, and have the Airnode check it
-for correctness, which is equally secure (i.e., it will be obvious if one attempts to make a request to be fulfilled by
-a sponsor wallet that they are not authorized to use).
-
-6. Assuming all tests pass (and they are expected to virtually every time), the Airnode makes a static call to its
-   authorizer contracts with the request parameters, and only continues if at least one of these returns `true`, i.e.,
-   says that the request is authorized. Assuming that the requester contract developer has done Step 3, one of the
-   authorizers will have whitelisted the requester contract and will return `true`.
-
-7. The Airnode makes the API call specified by the request (with an `endpointId` and ABI-encoded `parameters`) and
-   encodes the payload as specified by the request (these specifications are outside the scope of this package). Then,
-   the Airnode calls `fulfill()` of `AirnodeRrp`, which forwards this call to the callback function in the destination
-   address. The callback function can be as flexible as needed, but note that the gas cost of execution will be
-   undertaken by the sponsor wallet.
-
-If anything goes wrong during this flow, the Airnode still calls back with a non-zero `statusCode` and an empty `data`
-field. However, there are some cases where this is not possible, e.g., the specified sponsor wallet does not match the
-requester address or the function to be called back reverts. Then, the Airnode calls the `fail()` function of
-`AirnodeRrp`, essentially reporting that it could not even attempt to fulfill the request, which the requester can then
-check for.
+If anything goes wrong during this flow, the Airnode calls the `fail()` function of `AirnodeRrp` with an error message
+that explains what went wrong. However, there are some cases where this is not possible, e.g., the specified sponsor
+wallet does not match the sponsor address, in which case the request will not be responded to at all.
 
 ## Sponsor wallet derivation
 
