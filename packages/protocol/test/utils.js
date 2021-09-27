@@ -51,7 +51,7 @@ module.exports = {
   decodeRevertString: (callData) => {
     // Refer to https://ethereum.stackexchange.com/a/83577
     try {
-      // We don't want the signature, only the revert string
+      // Skip the signature, only get the revert string
       return ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0];
     } catch {
       return 'No revert string';
