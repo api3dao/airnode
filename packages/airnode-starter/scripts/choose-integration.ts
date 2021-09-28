@@ -60,9 +60,9 @@ const chooseIntegration = async (): Promise<IntegrationInfo> => {
   return response as IntegrationInfo;
 };
 
-async function main() {
+const main = async () => {
   const integration = await chooseIntegration();
   writeFileSync(join(__dirname, '../integration-info.json'), JSON.stringify(integration, null, 2));
-}
+};
 
 runAndHandleErrors(main);

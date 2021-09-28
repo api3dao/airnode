@@ -1,7 +1,7 @@
 import { runAndHandleErrors, runShellCommand } from '../src';
 
-async function main() {
+const main = async () => {
   runShellCommand(`yarn --cwd ../../ docker:artifacts`);
-}
+};
 
 runAndHandleErrors(main);

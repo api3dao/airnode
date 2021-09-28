@@ -7,7 +7,7 @@ import {
   runShellCommand,
 } from '../src';
 
-async function main() {
+const main = async () => {
   const integrationInfo = readIntegrationInfo();
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
@@ -22,6 +22,6 @@ async function main() {
     `--mnemonic "${integrationInfo.mnemonic}"`,
   ].join(' ');
   runShellCommand(command);
-}
+};
 
 runAndHandleErrors(main);

@@ -11,11 +11,11 @@ import {
   IntegrationInfo,
 } from '../src';
 
-async function fulfilled(requestId: string) {
+const fulfilled = async (requestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
   const provider = getProvider();
   return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
-}
+};
 
 export const deriveSponsorWalletAddress = (
   integrationInfo: IntegrationInfo,
@@ -37,7 +37,7 @@ export const deriveSponsorWalletAddress = (
   return sponsorWalletAddress;
 };
 
-export async function makeRequest(): Promise<string> {
+export const makeRequest = async (): Promise<string> => {
   const integrationInfo = readIntegrationInfo();
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
@@ -63,9 +63,9 @@ export async function makeRequest(): Promise<string> {
       resolve(parsedLog.args.requestId);
     })
   );
-}
+};
 
-async function main() {
+const main = async () => {
   console.log('Making request...');
   const requestId = await makeRequest();
   console.log('Waiting for fulfillment...');
@@ -75,6 +75,6 @@ async function main() {
   const integrationInfo = readIntegrationInfo();
   const { printResponse } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
   await printResponse(requestId);
-}
+};
 
 runAndHandleErrors(main);

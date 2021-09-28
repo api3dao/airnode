@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
-async function main() {
+const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType !== 'aws') {
     console.log('You only need to deploy run this script if you deploy on AWS');
@@ -21,6 +21,6 @@ async function main() {
 
   runShellCommand(deployCommand);
   console.log('Airnode deployment successful. See the generated receipt.json for detailed information.');
-}
+};
 
 runAndHandleErrors(main);

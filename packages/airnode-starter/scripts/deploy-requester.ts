@@ -1,6 +1,6 @@
 import { readIntegrationInfo, deployContract, getDeployedContract, runAndHandleErrors } from '../src';
 
-async function main() {
+const main = async () => {
   const integrationInfo = readIntegrationInfo();
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
 
@@ -8,6 +8,6 @@ async function main() {
     airnodeRrp.address,
   ]);
   console.log(`Requester deployed to address: ${requester.address}`);
-}
+};
 
 runAndHandleErrors(main);
