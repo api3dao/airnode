@@ -130,7 +130,8 @@ which you can run locally.
 yarn run-airnode-locally
 ```
 
-Runs the previously built version of Airnode container in a detached mode (in the backround).
+Runs the previously built version of Airnode container. Note that the containerized version runs a cron job which
+triggers every minute - this means that Airnode logs won't start appearing immediately.
 
 ### 11. Deploy a requester
 
