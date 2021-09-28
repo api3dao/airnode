@@ -7,7 +7,7 @@ async function main() {
   const requester = await deployContract(`contracts/${integrationInfo.integration}/Requester.sol`, [
     airnodeRrp.address,
   ]);
-  console.log(`Requester deployed at address: ${requester.address}`);
+  console.log(`Requester deployed to address: ${requester.address}`);
 }
 
 main()
