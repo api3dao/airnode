@@ -1,7 +1,8 @@
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { ethers } from 'ethers';
 import prompts, { PromptObject } from 'prompts';
-import { IntegrationInfo, runAndHandleErrors } from '../src';
+import { getUserWallet, IntegrationInfo, runAndHandleErrors } from '../src';
 
 const createOption = (name: string) => ({
   title: name,
@@ -63,6 +64,11 @@ const chooseIntegration = async (): Promise<IntegrationInfo> => {
 const main = async () => {
   const integration = await chooseIntegration();
   writeFileSync(join(__dirname, '../integration-info.json'), JSON.stringify(integration, null, 2));
+  console.log(`A file 'integration-info.json' was created!`);
+
+  const wallet = await getUserWallet();
+  const balance = ethers.utils.formatEther(await wallet.getBalance());
+  console.log(`The account derived from the mnemonic has address: "${wallet.address}" and contains "${balance}" ETH`);
 };
 
 runAndHandleErrors(main);
