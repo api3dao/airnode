@@ -2,7 +2,7 @@ import { deployContract } from '../src';
 
 async function main() {
   const airnodeRrp = await deployContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
-  console.log(`AirnodeRrp deployed at address: ${airnodeRrp.address}`);
+  console.log(`AirnodeRrp deployed to address: ${airnodeRrp.address}`);
 }
 
 main()

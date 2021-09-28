@@ -29,22 +29,23 @@ const questions: PromptObject[] = [
     type: (_prev, values) => (values.airnodeType === 'aws' ? 'text' : null),
     name: 'accessKeyId',
     message: [
-      'Since you want to deploy on AWS, we need your credentials.',
+      'In order to deploy to AWS, your access and secret keys are required.',
+      'Secrets and keys you enter here will remain on your machine and will not be uploaded anywhere.',
       '',
       'See video how to create these: https://www.youtube.com/watch?v=KngM5bfpttA',
       '',
-      'Specify access key id',
+      'Enter AWS access key ID',
     ].join('\n'),
   },
   {
     type: (_prev, values) => (values.airnodeType === 'aws' ? 'text' : null),
     name: 'secretKey',
-    message: 'Specify secret access key',
+    message: 'Enter AWS secret access key',
   },
   {
     type: 'select',
     name: 'network',
-    message: 'Choose target network',
+    message: 'Select target blockchain network',
     choices: [createOption('rinkeby'), createOption('localhost')],
   },
   {
@@ -53,10 +54,9 @@ const questions: PromptObject[] = [
     message: [
       'Since you chose testnet network, we need an account with testnet funds to connect to the blockchain.',
       '',
-      'DO NOT USE YOUR REAL WALLET!!!',
-      '(create a test only wallet instead)',
+      'IMPORTANT: DO NOT ENTER A MNEMONIC LINKED WITH MAINNET ACCOUNTS!!!',
       '',
-      'Specify the mnemonic of the wallet',
+      'Enter the testnet mnemonic phrase',
     ].join('\n'),
     initial: (_prev, values) =>
       values.network === 'localhost' ? 'test test test test test test test test test test test junk' : '',
@@ -64,10 +64,10 @@ const questions: PromptObject[] = [
   {
     type: 'text',
     name: 'providerUrl',
-    message: 'Specify provider URL',
+    message: 'Enter a provider URL',
     initial: (_prev, values) => {
       if (values.network === 'localhost') return 'http://127.0.0.1:8545/';
-      if (values.network === 'rinkeby') return 'https://rinkeby.infura.io/v3/<YOUR-KEY>';
+      if (values.network === 'rinkeby') return 'https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID>';
       return '';
     },
   },
