@@ -9,7 +9,7 @@ import {
   runAndHandleErrors,
 } from '../src';
 
-async function main() {
+const main = async () => {
   const integrationInfo = readIntegrationInfo();
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
   const airnodeWallet = getAirnodeWallet();
@@ -34,6 +34,6 @@ async function main() {
   await sponsor.sendTransaction({ to: sponsorWalletAddress, value: amountToSend });
 
   console.log(`Successfully sent funds to sponsor wallet address: ${sponsorWalletAddress}`);
-}
+};
 
 runAndHandleErrors(main);

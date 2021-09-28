@@ -28,7 +28,7 @@ const questions: PromptObject[] = [
   },
 ];
 
-async function main() {
+const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType !== 'aws') {
     console.log('You only need to run this script if you want to deploy Airnode on AWS');
@@ -48,6 +48,6 @@ async function main() {
 
   writeFileSync(join(__dirname, '../aws.env'), airnodeSecrets.join('\n') + '\n');
   console.log(`An 'aws.env' file with the required credentials has been created.`);
-}
+};
 
 runAndHandleErrors(main);
