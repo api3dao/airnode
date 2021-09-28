@@ -43,7 +43,7 @@ const main = async () => {
     '# https://docs.api3.org/pre-alpha/guides/provider/deploying-airnode.html#creating-cloud-credentials',
     `AWS_ACCESS_KEY_ID=${response.accessKeyId}`,
     `AWS_SECRET_KEY=${response.secretKey}`,
-    `AWS_SESSION_TOKEN==${response.sessionToken}`,
+    `AWS_SESSION_TOKEN=${response.sessionToken}`,
   ];
 
   writeFileSync(join(__dirname, '../aws.env'), airnodeSecrets.join('\n') + '\n');
