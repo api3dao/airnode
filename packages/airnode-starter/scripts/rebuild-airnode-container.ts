@@ -1,5 +1,4 @@
-import { spawnSync } from 'child_process';
-import { readIntegrationInfo } from '../src';
+import { readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -8,15 +7,7 @@ async function main() {
     return;
   }
 
-  spawnSync(`yarn --cwd ../../ docker:node`, {
-    shell: true,
-    stdio: 'inherit',
-  });
+  runShellCommand(`yarn --cwd ../../ docker:node`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

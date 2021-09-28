@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import prompts, { PromptObject } from 'prompts';
-import { readIntegrationInfo } from '../src';
+import { readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const questions: PromptObject[] = [
   {
@@ -50,9 +50,4 @@ async function main() {
   console.log(`An 'aws.env' file with the required credentials has been created.`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

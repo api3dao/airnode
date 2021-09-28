@@ -1,7 +1,7 @@
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import prompts, { PromptObject } from 'prompts';
-import { IntegrationInfo } from '../src';
+import { IntegrationInfo, runAndHandleErrors } from '../src';
 
 const createOption = (name: string) => ({
   title: name,
@@ -62,12 +62,7 @@ const chooseIntegration = async (): Promise<IntegrationInfo> => {
 
 async function main() {
   const integration = await chooseIntegration();
-  writeFileSync('integration-info.json', JSON.stringify(integration, null, 2));
+  writeFileSync(join(__dirname, '../integration-info.json'), JSON.stringify(integration, null, 2));
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

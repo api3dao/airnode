@@ -1,5 +1,11 @@
-import { spawnSync } from 'child_process';
-import { getAirnodeWallet, getAirnodeXpub, getDeployedContract, readIntegrationInfo } from '../src';
+import {
+  getAirnodeWallet,
+  getAirnodeXpub,
+  getDeployedContract,
+  readIntegrationInfo,
+  runAndHandleErrors,
+  runShellCommand,
+} from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -7,19 +13,15 @@ async function main() {
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
   const airnodeWallet = getAirnodeWallet();
 
-  const args = [
+  const command = [
+    `yarn api3-admin sponsor-requester`,
     `--providerUrl ${integrationInfo.providerUrl}`,
     `--airnodeRrp ${airnodeRrp.address}`,
     `--xpub ${getAirnodeXpub(airnodeWallet)}`,
     `--requesterAddress ${requester.address}`,
     `--mnemonic "${integrationInfo.mnemonic}"`,
-  ];
-  spawnSync(`yarn api3-admin sponsor-requester ${args.join(' ')}`, { shell: true, stdio: 'inherit' }).toString();
+  ].join(' ');
+  runShellCommand(command);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

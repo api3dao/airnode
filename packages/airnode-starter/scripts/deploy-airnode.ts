@@ -1,6 +1,5 @@
-import { spawnSync } from 'child_process';
 import { join } from 'path';
-import { readIntegrationInfo } from '../src';
+import { readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -20,16 +19,8 @@ async function main() {
     `api3/deployer:latest deploy`,
   ].join(' ');
 
-  spawnSync(deployCommand, {
-    shell: true,
-    stdio: 'inherit',
-  });
+  runShellCommand(deployCommand);
   console.log('Airnode deployment successful. See the generated receipt.json for detailed information.');
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

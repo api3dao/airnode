@@ -1,4 +1,4 @@
-import { readIntegrationInfo } from '../src';
+import { readIntegrationInfo, runAndHandleErrors } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -7,9 +7,4 @@ async function main() {
   await createSecrets.default();
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

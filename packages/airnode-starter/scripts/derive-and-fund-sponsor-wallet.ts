@@ -1,6 +1,13 @@
 import { execSync } from 'child_process';
 import { ethers } from 'ethers';
-import { getAirnodeWallet, getAirnodeXpub, getDeployedContract, getProvider, readIntegrationInfo } from '../src';
+import {
+  getAirnodeWallet,
+  getAirnodeXpub,
+  getDeployedContract,
+  getProvider,
+  readIntegrationInfo,
+  runAndHandleErrors,
+} from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -29,9 +36,4 @@ async function main() {
   console.log(`Successfully sent funds to sponsor wallet address: ${sponsorWalletAddress}`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);
