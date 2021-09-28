@@ -8,10 +8,6 @@ async function main() {
     return;
   }
 
-  spawnSync(`yarn --cwd ../../ docker:artifacts`, {
-    shell: true,
-    stdio: 'inherit',
-  });
   spawnSync(`yarn --cwd ../../ docker:node`, {
     shell: true,
     stdio: 'inherit',

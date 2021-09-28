@@ -17,7 +17,9 @@
     "make-request": "ts-node scripts/make-request.ts",
     "api3-admin": "ts-node ../../node_modules/@api3/admin/bin/admin.ts",
     "run-airnode-locally": "ts-node scripts/run-airnode-locally.ts",
-    "rebuild-airnode-container": "ts-node scripts/rebuild-airnode-container.ts"
+    "rebuild-airnode-container": "ts-node scripts/rebuild-airnode-container.ts",
+    "rebuild-deployer-container": "ts-node scripts/rebuild-deployer-container.ts",
+    "rebuild-docker-artifacts": "ts-node scripts/rebuild-docker-artifacts.ts"
   },
   "dependencies": {
     "@api3/admin": "^0.1.0",
