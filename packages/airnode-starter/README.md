@@ -181,3 +181,13 @@ yarn make-request
 
 When there is an blockchain event received by Airnode, it will immediately perform the API call and submit the response
 back on chain. This command will wait for all of this to happen and you should see the final output in the CLI.
+
+### 15. (Only if deploying to AWS) Remove Airnode from AWS
+
+If you want to tear down the Airnode from AWS run:
+
+```sh
+yarn remove-airnode
+```
+
+This will use the deployer to remove the Airnode lambdas from AWS.
