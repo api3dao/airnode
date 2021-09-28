@@ -61,12 +61,12 @@ Please, refer to the implementation for more details.
 
 ## Developer commands
 
-### `derive-sponsor-wallet-address`
+### `derive-sponsor-wallet`
 
-Derives the address of the wallet designated by an Airnode for a requester. You need to specify the xpub but if it is not provided then this command will try to fetch it from the AirnodeRrp contract.
+Derives a sponsor wallet designated by an Airnode for a sponsor and returns the address of the wallet. You need to specify the xpub but if it is not provided then this command will try to fetch it from the AirnodeRrp contract.
 
 ```sh
-npx @api3/airnode-admin derive-sponsor-wallet-address \
+npx @api3/airnode-admin derive-sponsor-wallet \
   --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --xpub xpub6CUGRUo... \
   --airnodeAddress 0xe1e0dd... \

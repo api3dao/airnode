@@ -110,7 +110,7 @@ describe('CLI', () => {
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
-  describe('derive-sponsor-wallet-address', () => {
+  describe('derive-sponsor-wallet', () => {
     it('derives using provided xpub arg', async () => {
       const sponsorAddress = alice.address;
 
@@ -119,7 +119,7 @@ describe('CLI', () => {
 
       // Derive the wallet using CLI and admin SDK
       const out = execCommand(
-        'derive-sponsor-wallet-address',
+        'derive-sponsor-wallet',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--airnodeAddress', airnodeWallet.address],
@@ -141,7 +141,7 @@ describe('CLI', () => {
 
       // Derive the wallet using CLI and admin SDK
       const out = execCommand(
-        'derive-sponsor-wallet-address',
+        'derive-sponsor-wallet',
         ['--providerUrl', PROVIDER_URL],
         ['--airnodeRrp', airnodeRrp.address],
         ['--airnodeAddress', airnodeWallet.address],
@@ -158,7 +158,7 @@ describe('CLI', () => {
       const sponsorAddress = alice.address;
       expect(() =>
         execCommand(
-          'derive-sponsor-wallet-address',
+          'derive-sponsor-wallet',
           ['--providerUrl', PROVIDER_URL],
           ['--airnodeRrp', airnodeRrp.address],
           ['--airnodeAddress', airnodeWallet.address],

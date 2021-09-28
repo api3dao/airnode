@@ -4,7 +4,7 @@ exports[`CLI shows help 1`] = `
 "cli.js <command>
 
 Commands:
-  cli.js derive-sponsor-wallet-address      Derives the address of the wallet
+  cli.js derive-sponsor-wallet              Derives the address of the wallet
                                             for an airnode-sponsor pair
   cli.js sponsor-requester                  Allows a requester to make requests
                                             that will be fulfilled by the

@@ -106,7 +106,7 @@ const toJSON = JSON.stringify;
 
 yargs
   .command(
-    'derive-sponsor-wallet-address',
+    'derive-sponsor-wallet',
     'Derives the address of the wallet for an airnode-sponsor pair',
     {
       ...airnodeRrpCommands,
