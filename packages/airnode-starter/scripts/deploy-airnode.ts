@@ -10,14 +10,20 @@ async function main() {
   }
 
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
-  spawnSync(
-    `yarn api3-deployer deploy --config ${integrationPath}/config.json --secrets ${integrationPath}/secrets.env --receipt ${integrationPath}/receipt.json`,
-    {
-      shell: true,
-      stdio: 'inherit',
-    }
-  );
+  const secretsFilePath = join(__dirname, '../aws.env');
+  const deployCommand = [
+    `docker run -it --rm`,
+    `--env-file ${secretsFilePath}`,
+    `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
+    `-v ${integrationPath}:/app/config`,
+    `-v ${integrationPath}/output:/app/output`,
+    `api3/deployer:latest deploy`,
+  ].join(' ');
 
+  spawnSync(deployCommand, {
+    shell: true,
+    stdio: 'inherit',
+  });
   console.log('Airnode deployment successful. See the generated receipt.json for detailed information.');
 }
 
