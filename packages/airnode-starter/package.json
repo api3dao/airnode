@@ -4,7 +4,7 @@
   "license": "MIT",
   "description": "A starter project for deploying an Airnode and making requests to it",
   "scripts": {
-    "compile": "hardhat compile",
+    "build": "hardhat compile",
     "eth-node": "hardhat node",
     "deploy-rrp": "ts-node scripts/deploy-rrp.ts",
     "choose-integration": "ts-node scripts/choose-integration.ts",
