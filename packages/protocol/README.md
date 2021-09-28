@@ -3,6 +3,11 @@
 
 > The contracts that implement the Airnode protocols
 
+***This documents the Beta version of the protocol.
+We have also published and documented the pre-alpha version widely.
+The pre-alpha and the Beta versions are very different in implementation and the terminology they use is contradictory.
+If you are referring to any outside source, make sure that it is not referring to the pre-alpha version, or at least interpret it accordingly.***
+
 ## Instructions
 
 Install the dependencies **at the repo root** (i.e., `airnode/`)
