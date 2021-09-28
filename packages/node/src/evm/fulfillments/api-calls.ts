@@ -6,10 +6,11 @@ import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import { ApiCall, Request, LogsErrorData, RequestErrorCode, RequestStatus, TransactionOptions } from '../../types';
 import { AirnodeRrp } from '../contracts';
+import { decodeRevertString } from '..';
 
 const GAS_LIMIT = 500_000;
 
-type StaticResponse = { readonly callSuccess: boolean } | null;
+type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
 
 type SubmitResponse = ethers.Transaction | null;
 
@@ -39,19 +40,11 @@ async function testFulfill(
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
-  const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
-
-  const noticeLog = logger.pend(
-    'DEBUG',
-    `Attempting to fulfill API call with status code:${statusCode.toString()} for Request:${request.id}...`
-  );
-
+  const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
   const operation = (): Promise<StaticResponse> =>
     airnodeRrp.callStatic.fulfill(
       request.id,
-      // TODO: make sure airnodeAddress is not null
-      request.airnodeAddress!,
-      statusCode,
+      request.airnodeAddress,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
       request.fulfillFunctionId,
@@ -74,19 +67,12 @@ async function submitFulfill(
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
-  const statusCode = ethers.BigNumber.from(requests.getErrorCode(request));
-
-  const noticeLog = logger.pend(
-    'INFO',
-    `Submitting API call fulfillment with status code:${statusCode.toString()} for Request:${request.id}...`
-  );
+  const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
 
   const tx = (): Promise<ethers.ContractTransaction> =>
     airnodeRrp.fulfill(
       request.id,
-      // TODO: make sure airnodeAddress is not null
-      request.airnodeAddress!,
-      statusCode,
+      request.airnodeAddress,
       request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
       request.fulfillFunctionId,
@@ -113,6 +99,17 @@ async function testAndSubmitFulfill(
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
+  const errorCode = requests.getErrorCode(request);
+  if (errorCode !== 0) {
+    const [submitLogs, submitErr, submitData] = await submitFail(
+      airnodeRrp,
+      request,
+      options,
+      `API call failed with error code: ${errorCode}`
+    );
+    return [submitLogs, submitErr, submitData];
+  }
+
   // Should not throw
   const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
 
@@ -122,7 +119,12 @@ async function testAndSubmitFulfill(
       status: RequestStatus.Errored,
       errorCode: RequestErrorCode.FulfillTransactionFailed,
     };
-    const [submitLogs, submitErr, submitData] = await submitFail(airnodeRrp, updatedRequest, options);
+    const [submitLogs, submitErr, submitData] = await submitFail(
+      airnodeRrp,
+      updatedRequest,
+      options,
+      testErr?.message ?? decodeRevertString(testData?.callData || '0x')
+    );
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
 
@@ -151,17 +153,25 @@ async function testAndSubmitFulfill(
 async function submitFail(
   airnodeRrp: AirnodeRrp,
   request: Request<ApiCall>,
-  options: TransactionOptions
+  options: TransactionOptions,
+  errorMessage: string
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
   const tx = (): Promise<ethers.ContractTransaction> =>
-    // TODO: make sure airnodeAddress is not null
-    airnodeRrp.fail(request.id, request.airnodeAddress!, request.fulfillAddress, request.fulfillFunctionId, {
-      gasLimit: GAS_LIMIT,
-      gasPrice: options.gasPrice,
-      nonce: request.nonce!,
-    });
+    airnodeRrp.fail(
+      request.id,
+      request.airnodeAddress,
+      request.fulfillAddress,
+      request.fulfillFunctionId,
+      errorMessage,
+      {
+        gasLimit: GAS_LIMIT,
+        gasPrice: options.gasPrice,
+        nonce: request.nonce!,
+      }
+    );
+
   const [err, res] = await go(tx, { retries: 1, timeoutMs: DEFAULT_RETRY_TIMEOUT_MS });
   if (err) {
     const errorLog = logger.pend('ERROR', `Error submitting API call fail transaction for Request:${request.id}`, err);
