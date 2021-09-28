@@ -15,7 +15,9 @@
     "deploy-requester": "ts-node scripts/deploy-requester.ts",
     "sponsor-requester": "ts-node scripts/sponsor-requester.ts",
     "make-request": "ts-node scripts/make-request.ts",
-    "api3-admin": "ts-node ../../node_modules/@api3/admin/bin/admin.ts"
+    "api3-admin": "ts-node ../../node_modules/@api3/admin/bin/admin.ts",
+    "run-airnode-locally": "ts-node scripts/run-airnode-locally.ts",
+    "rebuild-airnode-container": "ts-node scripts/rebuild-airnode-container.ts"
   },
   "dependencies": {
     "@api3/admin": "^0.1.0",
