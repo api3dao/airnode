@@ -1,4 +1,4 @@
-import { getDeployedContract, getProvider, readIntegrationInfo } from '../src';
+import { getDeployedContract, getProvider, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 async function fulfilled(requestId: string) {
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
@@ -22,9 +22,4 @@ async function main() {
   await printResponse(requestId);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

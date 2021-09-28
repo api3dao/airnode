@@ -1,4 +1,4 @@
-import { readIntegrationInfo, deployContract, getDeployedContract } from '../src';
+import { readIntegrationInfo, deployContract, getDeployedContract, runAndHandleErrors } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -10,9 +10,4 @@ async function main() {
   console.log(`Requester deployed to address: ${requester.address}`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

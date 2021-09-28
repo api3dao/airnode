@@ -1,6 +1,5 @@
-import { spawnSync } from 'child_process';
 import { join } from 'path';
-import { readIntegrationInfo } from '../src';
+import { readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 async function main() {
   const integrationInfo = readIntegrationInfo();
@@ -10,15 +9,9 @@ async function main() {
   }
 
   const integrationPath = join(__dirname, '../integrations', integrationInfo.integration);
-  spawnSync(`docker run -d -v ${integrationPath}:/app/config --network="host" --name airnode api3/airnode:latest`, {
-    shell: true,
-    stdio: 'inherit',
-  });
+  runShellCommand(
+    `docker run -d -v ${integrationPath}:/app/config --network="host" --name airnode api3/airnode:latest`
+  );
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);

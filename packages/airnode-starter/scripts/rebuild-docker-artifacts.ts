@@ -1,15 +1,7 @@
-import { spawnSync } from 'child_process';
+import { runAndHandleErrors, runShellCommand } from '../src';
 
 async function main() {
-  spawnSync(`yarn --cwd ../../ docker:artifacts`, {
-    shell: true,
-    stdio: 'inherit',
-  });
+  runShellCommand(`yarn --cwd ../../ docker:artifacts`);
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+runAndHandleErrors(main);
