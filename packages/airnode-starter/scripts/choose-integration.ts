@@ -13,8 +13,9 @@ const questions: PromptObject[] = [
     type: 'select',
     name: 'integration',
     message: 'Choose integration',
-    choices: readdirSync(join(__dirname, '../integrations'))
-      .filter((integration) => integration !== 'README.md')
+    choices: readdirSync(join(__dirname, '../integrations'), { withFileTypes: true })
+      .filter((integration) => integration.isDirectory())
+      .map((integration) => integration.name)
       .map(createOption),
   },
   {
