@@ -47,7 +47,7 @@ const questions: PromptObject[] = [
     choices: [createOption('rinkeby'), createOption('localhost')],
   },
   {
-    type: (_prev, values) => (values.network !== 'localhost' ? 'text' : null),
+    type: 'text',
     name: 'mnemonic',
     message: [
       'Since you chose testnet network, we need an account with testnet funds to connect to the blockchain.',
@@ -57,6 +57,8 @@ const questions: PromptObject[] = [
       '',
       'Specify the mnemonic of the wallet',
     ].join('\n'),
+    initial: (_prev, values) =>
+      values.network === 'localhost' ? 'test test test test test test test test test test test junk' : '',
   },
   {
     type: 'text',
