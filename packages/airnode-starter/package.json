@@ -18,7 +18,7 @@
     "run-airnode-locally": "ts-node scripts/run-airnode-locally.ts",
     "rebuild-airnode-container": "ts-node scripts/rebuild-airnode-container.ts",
     "rebuild-deployer-container": "ts-node scripts/rebuild-deployer-container.ts",
-    "rebuild-docker-artifacts": "ts-node scripts/rebuild-docker-artifacts.ts"
+    "rebuild-artifacts-container": "ts-node scripts/rebuild-artifacts-container.ts"
   },
   "dependencies": {
     "@api3/admin": "^0.1.0",
