@@ -24,24 +24,6 @@ const questions: PromptObject[] = [
     message: 'Choose Airnode type',
     choices: [createOption('local'), createOption('aws')],
   },
-  // TODO: move AWS secrets to separate script
-  {
-    type: (_prev, values) => (values.airnodeType === 'aws' ? 'text' : null),
-    name: 'accessKeyId',
-    message: [
-      'In order to deploy to AWS, your access and secret keys are required.',
-      'Secrets and keys you enter here will remain on your machine and will not be uploaded anywhere.',
-      '',
-      'See video how to create these: https://www.youtube.com/watch?v=KngM5bfpttA',
-      '',
-      'Enter AWS access key ID',
-    ].join('\n'),
-  },
-  {
-    type: (_prev, values) => (values.airnodeType === 'aws' ? 'text' : null),
-    name: 'secretKey',
-    message: 'Enter AWS secret access key',
-  },
   {
     type: 'select',
     name: 'network',
