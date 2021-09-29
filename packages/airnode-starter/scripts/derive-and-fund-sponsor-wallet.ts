@@ -29,7 +29,7 @@ const main = async () => {
 
   // Fund the derived sponsor wallet using sponsor account
   const balance = await sponsor.getBalance();
-  const amountToSend = ethers.utils.parseEther('0.3');
+  const amountToSend = ethers.utils.parseEther('0.1');
   if (balance.lt(amountToSend)) throw new Error(`Sponsor account (${sponsor.address}) doesn't have enough funds!`);
   await sponsor.sendTransaction({ to: sponsorWalletAddress, value: amountToSend });
 
