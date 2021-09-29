@@ -31,7 +31,12 @@ const questions: PromptObject[] = [
     type: 'select',
     name: 'network',
     message: 'Select target blockchain network',
-    choices: [createCliOption('rinkeby'), createCliOption('localhost')],
+    choices: (prev) => {
+      const options = [createCliOption('rinkeby')];
+      // Only allow running on localhost if running Airnode locally
+      if (prev === 'local') options.push(createCliOption('localhost'));
+      return options;
+    },
   },
   {
     type: 'text',
