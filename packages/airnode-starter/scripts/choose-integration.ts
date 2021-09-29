@@ -9,6 +9,8 @@ const createOption = (name: string) => ({
   value: name,
 });
 
+// NOTE: We could add "initial" field with the contents of current integration-info.json, but we already use the
+// "initial value" semantics for hinting mnemonic and provider URL.
 const questions: PromptObject[] = [
   {
     type: 'select',

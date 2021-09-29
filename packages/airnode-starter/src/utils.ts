@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { parse as parseEnvFile } from 'dotenv';
 
 export interface IntegrationInfo {
   integration: string;
@@ -13,6 +14,8 @@ export interface IntegrationInfo {
 
 export const readIntegrationInfo = (): IntegrationInfo =>
   JSON.parse(readFileSync(join(__dirname, '../integration-info.json')).toString());
+
+export const readAwsSecrets = () => parseEnvFile(readFileSync(join(__dirname, '../aws.env')));
 
 export const readConfig = () => {
   const integrationInfo = readIntegrationInfo();
