@@ -95,7 +95,6 @@ describe('processTransactions', () => {
     expect(fulfillMock).toHaveBeenCalledWith(
       apiCall.id,
       apiCall.airnodeAddress,
-      ethers.BigNumber.from('0'),
       '0x000000000000000000000000000000000000000000000000000000000001252b',
       apiCall.fulfillAddress,
       apiCall.fulfillFunctionId,

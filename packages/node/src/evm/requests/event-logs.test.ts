@@ -167,7 +167,7 @@ describe('EVM event logs - group', () => {
       // Fulfillment
       {
         blockNumber: 10716083,
-        parsedLog: { topic: '0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066' },
+        parsedLog: { topic: '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a' },
         transactionHash: '0x2',
       },
       // Unknown event
@@ -188,7 +188,7 @@ describe('EVM event logs - group', () => {
         },
         {
           blockNumber: 10716083,
-          parsedLog: { topic: '0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066' },
+          parsedLog: { topic: '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a' },
           transactionHash: '0x2',
         },
       ],
