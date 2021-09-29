@@ -1,12 +1,12 @@
 import { writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import prompts, { PromptObject } from 'prompts';
-import { readAwsSecrets, readIntegrationInfo, runAndHandleErrors } from '../src';
+import { cliPrint, readAwsSecrets, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType !== 'aws') {
-    console.log('You only need to run this script if you want to deploy Airnode on AWS');
+    cliPrint.error('You only need to run this script if you want to deploy Airnode on AWS');
     return;
   }
 
@@ -51,7 +51,7 @@ const main = async () => {
   ];
 
   writeFileSync(join(__dirname, '../aws.env'), airnodeSecrets.join('\n') + '\n');
-  console.log(`An 'aws.env' file with the required credentials has been created.`);
+  cliPrint.info(`An 'aws.env' file with the required credentials has been created.`);
 };
 
 runAndHandleErrors(main);

@@ -1,7 +1,7 @@
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import prompts, { PromptObject } from 'prompts';
-import { IntegrationInfo, runAndHandleErrors } from '../src';
+import { cliPrint, IntegrationInfo, runAndHandleErrors } from '../src';
 
 const createOption = (name: string) => ({
   title: name,
@@ -65,7 +65,7 @@ const chooseIntegration = async (): Promise<IntegrationInfo> => {
 const main = async () => {
   const integration = await chooseIntegration();
   writeFileSync(join(__dirname, '../integration-info.json'), JSON.stringify(integration, null, 2));
-  console.log(`A file 'integration-info.json' was created!`);
+  cliPrint.info(`A file 'integration-info.json' was created!`);
 };
 
 runAndHandleErrors(main);

@@ -1,10 +1,10 @@
 import { join } from 'path';
-import { readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType !== 'aws') {
-    console.log('You only need to run this script if you deploy on AWS');
+    cliPrint.error('You only need to run this script if you deploy on AWS');
     return;
   }
 
@@ -20,7 +20,7 @@ const main = async () => {
   ].join(' ');
 
   runShellCommand(deployCommand);
-  console.log('Airnode deployment successful. See the generated receipt.json for detailed information.');
+  cliPrint.info('Airnode deployment successful. See the generated receipt.json for detailed information.');
 };
 
 runAndHandleErrors(main);

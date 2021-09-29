@@ -1,4 +1,4 @@
-import { readIntegrationInfo, deployContract, getDeployedContract, runAndHandleErrors } from '../src';
+import { readIntegrationInfo, deployContract, getDeployedContract, runAndHandleErrors, cliPrint } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -7,7 +7,7 @@ const main = async () => {
   const requester = await deployContract(`contracts/${integrationInfo.integration}/Requester.sol`, [
     airnodeRrp.address,
   ]);
-  console.log(`Requester deployed to address: ${requester.address}`);
+  cliPrint.info(`Requester deployed to address: ${requester.address}`);
 };
 
 runAndHandleErrors(main);

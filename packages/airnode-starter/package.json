@@ -34,6 +34,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@types/node": "^16.9.2",
     "@types/prompts": "^2.0.14",
+    "chalk": "^4.1.2",
     "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.6.0",
