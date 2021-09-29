@@ -104,8 +104,8 @@ async function testAndSubmitFulfill(
     const [submitLogs, submitErr, submitData] = await submitFail(
       airnodeRrp,
       request,
-      options,
-      `API call failed with error code: ${errorCode}`
+      `API call failed with error code: ${errorCode}`,
+      options
     );
     return [submitLogs, submitErr, submitData];
   }
@@ -122,8 +122,8 @@ async function testAndSubmitFulfill(
     const [submitLogs, submitErr, submitData] = await submitFail(
       airnodeRrp,
       updatedRequest,
-      options,
-      testErr?.message ?? decodeRevertString(testData?.callData || '0x')
+      testErr?.message ?? decodeRevertString(testData?.callData || '0x'),
+      options
     );
     return [[...testLogs, ...submitLogs], submitErr, submitData];
   }
@@ -153,8 +153,8 @@ async function testAndSubmitFulfill(
 async function submitFail(
   airnodeRrp: AirnodeRrp,
   request: Request<ApiCall>,
-  options: TransactionOptions,
-  errorMessage: string
+  errorMessage: string,
+  options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fail for Request:${request.id}...`);
 
