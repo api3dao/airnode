@@ -52,7 +52,18 @@ yarn eth-node
 
 which will spin up a [hardhat network](https://hardhat.org/hardhat-network/) on your machine.
 
-### 3. Deploy the RRP contract
+### 3. (Optional) Print out the user account information
+
+Run:
+
+```sh
+yarn print-account-details
+```
+
+This script will show you the address of the account derived from the specified mnemonic. This account will be used to
+deploy the contracts and make transactions, so make sure it is funded. The recommended amount is at least 0.3 ETH.
+
+### 4. Deploy the RRP contract
 
 The RRP is a contract that through with the [requester](link) triggers a request for Airnode. This contract is common for all Airnodes and requesters on a chain.
 
@@ -62,7 +73,7 @@ API3 team will deploy this contract for the most popular chains at some point, b
 yarn deploy-rrp
 ```
 
-### 4. (Only if deploying to AWS) Create AWS secrets file
+### 5. (Only if deploying to AWS) Create AWS secrets file
 
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the [airnode
 deployer](link). If you are not sure where to find these or how to create an AWS account, follow [this
@@ -77,7 +88,7 @@ yarn create-aws-secrets
 The command will generate an `aws.env` file with the entered secrets. This file be used only by the deployer and will
 never leave your machine.
 
-### 5. Create Airnode secrets
+### 6. Create Airnode secrets
 
 Airnode is configured by two files - `config.json` and `secrets.env`. Run the script below to create the `secrets.env` file with the necessary values.
 
@@ -87,7 +98,7 @@ yarn create-airnode-secrets
 
 _Refer to the [documentation](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for more details_
 
-### 6. Build docker artifacts
+### 7. Build docker artifacts
 
 Our docker images are based on a common container which we call "artifacts". This intermediate container is then used by
 both [deployer](https://github.com/api3dao/airnode/tree/master/packages/deployer) and
@@ -97,7 +108,7 @@ both [deployer](https://github.com/api3dao/airnode/tree/master/packages/deployer
 yarn rebuild-artifacts-container
 ```
 
-### 7. (Only if deploying to AWS) Build deployer container
+### 8. (Only if deploying to AWS) Build deployer container
 
 ```sh
 yarn rebuild-deployer-container
@@ -105,7 +116,7 @@ yarn rebuild-deployer-container
 
 This command will facilitate the previously built artifacts container to build the deployer.
 
-### 8. (Only if deploying to AWS) Deploy Airnode
+### 9. (Only if deploying to AWS) Deploy Airnode
 
 Now you're ready to deploy Airnode on AWS. Just run:
 
@@ -115,7 +126,7 @@ yarn deploy-airnode
 
 This command will just use the [airnode deployer](https://github.com/api3dao/airnode/tree/master/packages/deployer) package. Deployment may take some time so be patient.
 
-### 9. (Only if running Airnode locally) Build Airnode docker container
+### 10. (Only if running Airnode locally) Build Airnode docker container
 
 ```sh
 yarn rebuild-airnode-container
@@ -124,7 +135,7 @@ yarn rebuild-airnode-container
 This command will facilitate the previously built artifacts container to build the containerized version of Airnode
 which you can run locally.
 
-### 10. (Only if running Airnode locally) Run the Airnode container
+### 11. (Only if running Airnode locally) Run the Airnode container
 
 ```sh
 yarn run-airnode-locally
@@ -133,7 +144,7 @@ yarn run-airnode-locally
 Runs the previously built version of Airnode container. Note that the containerized version runs a cron job which
 triggers every minute - this means that Airnode logs won't start appearing immediately.
 
-### 11. Deploy a requester
+### 12. Deploy a requester
 
 At this point, you have a RRP contract deployed. You also either have a docker running locally or deployed on AWS.
 Airnode is now listening on the events (requests to be made) of the RRP contract. All that is left now, is making a
@@ -146,7 +157,7 @@ of our scripts. Run:
 yarn deploy-requester
 ```
 
-### 12. Derive and fund the sponsor wallet
+### 13. Derive and fund the sponsor wallet
 
 Airnode requests requires a [sponsor](link), which will pay for the response transaction made by Airnode. Each sponsor
 has a dedicated wallet for a given Airnode. This wallet is called a "sponsor wallet" and can be derived from sponsor
@@ -162,7 +173,7 @@ yarn derive-and-fund-sponsor-wallet
 This script will first derive the sponsor wallet and afterwards fund it with "0.3" ETH. This means, that
 your account (derived from the mnemonic by `choose-integration` script) must have enough funds.
 
-### 13. Allow the sponsor to pay for requests made by requester
+### 14. Allow the sponsor to pay for requests made by requester
 
 In order to prevent misuse, each sponsor has to explicitely approve a requester. Once the requester is approved, his
 requests can be paid by this sponsor. 
@@ -171,7 +182,7 @@ requests can be paid by this sponsor.
 yarn sponsor-requester
 ```
 
-### 14. Make the request
+### 15. Make the request
 
 Finally, the last step is to make an trigger Airnode request using the requester.
 
@@ -182,7 +193,7 @@ yarn make-request
 When there is an blockchain event received by Airnode, it will immediately perform the API call and submit the response
 back on chain. This command will wait for all of this to happen and you should see the final output in the CLI.
 
-### 15. (Only if deploying to AWS) Remove Airnode from AWS
+### 16. (Only if deploying to AWS) Remove Airnode from AWS
 
 If you want to tear down the Airnode from AWS run:
 
