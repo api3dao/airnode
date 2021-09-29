@@ -20,7 +20,6 @@ const main = async () => {
   ].join(' ');
 
   runShellCommand(deployCommand);
-  cliPrint.info('Airnode deployment successful. See the generated receipt.json for detailed information.');
 };
 
 runAndHandleErrors(main);

@@ -1,7 +1,7 @@
-import { writeFileSync } from 'fs';
+import { existsSync, writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import prompts, { PromptObject } from 'prompts';
-import { cliPrint, readAwsSecrets, readIntegrationInfo, runAndHandleErrors } from '../src';
+import { cliPrint, formatSecrets, readAwsSecrets, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -10,7 +10,8 @@ const main = async () => {
     return;
   }
 
-  const awsSecrets = readAwsSecrets();
+  // We try to populate the options with initial values from the existing `aws.env` (if it exists)
+  const awsSecrets = existsSync(join(__dirname, '../aws.env')) ? readAwsSecrets() : null;
   const questions: PromptObject[] = [
     {
       type: 'text',
@@ -23,19 +24,19 @@ const main = async () => {
         '',
         'Enter AWS access key ID',
       ].join('\n'),
-      initial: awsSecrets.AWS_ACCESS_KEY_ID,
+      initial: awsSecrets?.AWS_ACCESS_KEY_ID,
     },
     {
       type: 'text',
       name: 'secretKey',
       message: 'Enter AWS secret access key',
-      initial: awsSecrets.AWS_SECRET_KEY,
+      initial: awsSecrets?.AWS_SECRET_KEY,
     },
     {
       type: 'text',
       name: 'sessionToken',
       message: '(Optional) Enter AWS session token',
-      initial: awsSecrets.AWS_SESSION_TOKEN,
+      initial: awsSecrets?.AWS_SESSION_TOKEN,
     },
   ];
 
@@ -50,7 +51,7 @@ const main = async () => {
     `AWS_SESSION_TOKEN=${response.sessionToken}`,
   ];
 
-  writeFileSync(join(__dirname, '../aws.env'), airnodeSecrets.join('\n') + '\n');
+  writeFileSync(join(__dirname, '../aws.env'), formatSecrets(airnodeSecrets));
   cliPrint.info(`An 'aws.env' file with the required credentials has been created.`);
 };
 

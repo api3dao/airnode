@@ -1,15 +1,28 @@
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 
+/**
+ * Executes the function passed as an argument and properly shuts down the node environment.
+ *
+ * Any uncaught error or promise rejection will be printed out in the console.
+ */
 export const runAndHandleErrors = (fn: () => Promise<unknown>) => {
-  fn()
-    .then(() => process.exit(0))
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
+  try {
+    fn()
+      .then(() => process.exit(0))
+      .catch((error) => {
+        cliPrint.error(error);
+        process.exit(1);
+      });
+  } catch (error) {
+    cliPrint.error(error);
+    process.exit(1);
+  }
 };
 
+/**
+ * Run the command passed as an argument in the current shell and stream the output of the command in the CLI.
+ */
 export const runShellCommand = (command: string) => {
   cliPrint.info(command);
   spawnSync(command, {
