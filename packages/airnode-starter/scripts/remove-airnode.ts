@@ -1,10 +1,10 @@
 import { join } from 'path';
-import { readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
+import { cliPrint, readIntegrationInfo, runAndHandleErrors, runShellCommand } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
   if (integrationInfo.airnodeType !== 'aws') {
-    console.log('You only need to run this script if you deploy on AWS');
+    cliPrint.error('You only need to run this script if you deploy on AWS');
     return;
   }
 
@@ -20,7 +20,6 @@ const main = async () => {
 
   // TODO: It doesn't work for some reason (neither does redeploy)
   runShellCommand(deployCommand);
-  console.log('Airnode removal successful.');
 };
 
 runAndHandleErrors(main);

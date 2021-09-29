@@ -1,7 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { ethers } from 'ethers';
-import { formatSecrets, getDeployedContract, readChainId, readIntegrationInfo } from '../src';
+import { cliPrint, formatSecrets, getDeployedContract, readChainId, readIntegrationInfo } from '../src';
 
 export const getCommonSecrets = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -20,5 +20,5 @@ export const getCommonSecrets = async () => {
 export const writeSecrets = (secrets: string[]) => {
   const integrationInfo = readIntegrationInfo();
   writeFileSync(join(__dirname, integrationInfo.integration, 'secrets.env'), formatSecrets(secrets));
-  console.log(`A 'secrets.env' file with the required credentials has been created.`);
+  cliPrint.info(`A 'secrets.env' file with the required credentials has been created.`);
 };

@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import { ethers } from 'ethers';
 import { deriveWalletPathFromSponsorAddress } from '@api3/admin';
 import {
+  cliPrint,
   getAirnodeWallet,
   getAirnodeXpub,
   getDeployedContract,
@@ -45,8 +46,8 @@ const main = async () => {
 
   const sponsorWallet = getSponsorWallet(sponsor.address);
   const sponsorWalletBalance = ethers.utils.formatEther(await sponsorWallet.getBalance());
-  console.log(`Successfully sent funds to sponsor wallet address: ${sponsorWallet.address}.`);
-  console.log(`Current balance: ${sponsorWalletBalance}`);
+  cliPrint.info(`Successfully sent funds to sponsor wallet address: ${sponsorWallet.address}.`);
+  cliPrint.info(`Current balance: ${sponsorWalletBalance}`);
 };
 
 runAndHandleErrors(main);

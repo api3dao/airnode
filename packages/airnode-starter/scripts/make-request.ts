@@ -9,6 +9,7 @@ import {
   getAirnodeXpub,
   readConfig,
   IntegrationInfo,
+  cliPrint,
 } from '../src';
 
 const fulfilled = async (requestId: string) => {
@@ -66,11 +67,11 @@ export const makeRequest = async (): Promise<string> => {
 };
 
 const main = async () => {
-  console.log('Making request...');
+  cliPrint.info('Making request...');
   const requestId = await makeRequest();
-  console.log('Waiting for fulfillment...');
+  cliPrint.info('Waiting for fulfillment...');
   await fulfilled(requestId);
-  console.log('Request fulfilled');
+  cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();
   const { printResponse } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
