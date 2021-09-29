@@ -102,7 +102,7 @@ describe('CLI', () => {
       'fulfill-withdrawal',
       'make-full-request',
       'make-template-request',
-      'request-with-id-has-failed',
+      'request-is-awaiting-fulfillment',
       'requester-to-request-count-plus-one',
       'sponsor-to-withdrawal-request-count',
       'templates',
