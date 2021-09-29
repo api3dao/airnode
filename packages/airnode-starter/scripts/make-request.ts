@@ -1,5 +1,5 @@
-import { execSync } from 'child_process';
 import { ethers } from 'ethers';
+import { deriveSponsorWalletAddress, getAirnodeRrp } from '@api3/admin';
 import {
   getDeployedContract,
   getProvider,
@@ -8,7 +8,6 @@ import {
   getAirnodeWallet,
   getAirnodeXpub,
   readConfig,
-  IntegrationInfo,
   cliPrint,
 } from '../src';
 
@@ -16,26 +15,6 @@ const fulfilled = async (requestId: string) => {
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
   const provider = getProvider();
   return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
-};
-
-export const deriveSponsorWalletAddress = (
-  integrationInfo: IntegrationInfo,
-  airnodeRrp: ethers.Contract,
-  airnodeWallet: ethers.Wallet,
-  sponsor: ethers.Wallet
-) => {
-  const command = [
-    `yarn api3-admin derive-sponsor-wallet-address`,
-    `--providerUrl ${integrationInfo.providerUrl}`,
-    `--airnodeRrp ${airnodeRrp.address}`,
-    `--airnodeAddress ${airnodeWallet.address}`,
-    `--sponsorAddress ${sponsor.address}`,
-    `--xpub ${getAirnodeXpub(airnodeWallet)}`,
-  ].join(' ');
-
-  const output = execSync(command).toString();
-  const sponsorWalletAddress = output.split('Sponsor wallet address:')[1].trim();
-  return sponsorWalletAddress;
 };
 
 export const makeRequest = async (): Promise<string> => {
@@ -46,7 +25,13 @@ export const makeRequest = async (): Promise<string> => {
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
-  const sponsorWalletAddress = deriveSponsorWalletAddress(integrationInfo, airnodeRrp, airnodeWallet, sponsor);
+  const airnodeRrpTyped = await getAirnodeRrp(integrationInfo.providerUrl, airnodeRrp.address);
+  const sponsorWalletAddress = deriveSponsorWalletAddress(
+    airnodeRrpTyped,
+    airnodeWallet.address,
+    sponsor.address,
+    getAirnodeXpub(airnodeWallet)
+  );
 
   // Import the function to get encoded parameters for the Airnode. See the respective "make-request.ts" for details.
   const { getEncodedParameters } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
