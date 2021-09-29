@@ -44,11 +44,13 @@ export const makeRequest = async (): Promise<string> => {
   const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
   const airnodeWallet = getAirnodeWallet();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
+  // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
   const sponsorWalletAddress = deriveSponsorWalletAddress(integrationInfo, airnodeRrp, airnodeWallet, sponsor);
 
-  // Make the request
+  // Import the function to get encoded parameters for the Airnode. See the respective "make-request.ts" for details.
   const { getEncodedParameters } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
+  // Trigger the Airnode request
   const receipt = await requester.makeRequest(
     airnodeWallet.address,
     endpointId,
@@ -57,7 +59,7 @@ export const makeRequest = async (): Promise<string> => {
     getEncodedParameters()
   );
 
-  // Wait until the transaction was mined
+  // Wait until the transaction is mined
   return new Promise((resolve) =>
     getProvider().once(receipt.hash, (tx) => {
       const parsedLog = airnodeRrp.interface.parseLog(tx.logs[0]);
@@ -74,6 +76,8 @@ const main = async () => {
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();
+  // Import the function to print the response from the chosen integration. See the respective "make-request.ts" for
+  // details.
   const { printResponse } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
   await printResponse(requestId);
 };

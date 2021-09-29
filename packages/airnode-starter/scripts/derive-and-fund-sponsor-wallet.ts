@@ -44,6 +44,7 @@ const main = async () => {
   if (balance.lt(amountToSend)) throw new Error(`Sponsor account (${sponsor.address}) doesn't have enough funds!`);
   await sponsor.sendTransaction({ to: sponsorWalletAddress, value: amountToSend });
 
+  // Print out the sponsor wallet address and balance
   const sponsorWallet = getSponsorWallet(sponsor.address);
   const sponsorWalletBalance = ethers.utils.formatEther(await sponsorWallet.getBalance());
   cliPrint.info(`Successfully sent funds to sponsor wallet address: ${sponsorWallet.address}.`);
