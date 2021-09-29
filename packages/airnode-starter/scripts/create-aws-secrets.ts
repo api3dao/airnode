@@ -1,32 +1,7 @@
 import { writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import prompts, { PromptObject } from 'prompts';
-import { readIntegrationInfo, runAndHandleErrors } from '../src';
-
-const questions: PromptObject[] = [
-  {
-    type: 'text',
-    name: 'accessKeyId',
-    message: [
-      'In order to deploy to AWS, your access and secret keys are required.',
-      'Secrets and keys you enter here will remain on your machine and will not be uploaded anywhere.',
-      '',
-      'See video how to create these: https://www.youtube.com/watch?v=KngM5bfpttA',
-      '',
-      'Enter AWS access key ID',
-    ].join('\n'),
-  },
-  {
-    type: 'text',
-    name: 'secretKey',
-    message: 'Enter AWS secret access key',
-  },
-  {
-    type: 'text',
-    name: 'sessionToken',
-    message: '(Optional) Enter AWS session token',
-  },
-];
+import { readAwsSecrets, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -34,6 +9,35 @@ const main = async () => {
     console.log('You only need to run this script if you want to deploy Airnode on AWS');
     return;
   }
+
+  const awsSecrets = readAwsSecrets();
+  const questions: PromptObject[] = [
+    {
+      type: 'text',
+      name: 'accessKeyId',
+      message: [
+        'In order to deploy to AWS, your access and secret keys are required.',
+        'Secrets and keys you enter here will remain on your machine and will not be uploaded anywhere.',
+        '',
+        'See video how to create these: https://www.youtube.com/watch?v=KngM5bfpttA',
+        '',
+        'Enter AWS access key ID',
+      ].join('\n'),
+      initial: awsSecrets.AWS_ACCESS_KEY_ID,
+    },
+    {
+      type: 'text',
+      name: 'secretKey',
+      message: 'Enter AWS secret access key',
+      initial: awsSecrets.AWS_SECRET_KEY,
+    },
+    {
+      type: 'text',
+      name: 'sessionToken',
+      message: '(Optional) Enter AWS session token',
+      initial: awsSecrets.AWS_SESSION_TOKEN,
+    },
+  ];
 
   const response = await prompts(questions);
   const airnodeSecrets = [
