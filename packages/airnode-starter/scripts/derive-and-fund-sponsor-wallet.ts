@@ -1,13 +1,23 @@
 import { execSync } from 'child_process';
 import { ethers } from 'ethers';
+import { deriveWalletPathFromSponsorAddress } from '@api3/admin';
 import {
   getAirnodeWallet,
   getAirnodeXpub,
   getDeployedContract,
   getProvider,
+  readAirnodeSecrets,
   readIntegrationInfo,
   runAndHandleErrors,
 } from '../src';
+
+const getSponsorWallet = (sponsorAddress: string) => {
+  const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
+  const airnodeSecrets = readAirnodeSecrets();
+  const provider = getProvider();
+
+  return ethers.Wallet.fromMnemonic(airnodeSecrets.AIRNODE_WALLET_MNEMONIC, derivationPath).connect(provider);
+};
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
@@ -33,7 +43,10 @@ const main = async () => {
   if (balance.lt(amountToSend)) throw new Error(`Sponsor account (${sponsor.address}) doesn't have enough funds!`);
   await sponsor.sendTransaction({ to: sponsorWalletAddress, value: amountToSend });
 
-  console.log(`Successfully sent funds to sponsor wallet address: ${sponsorWalletAddress}`);
+  const sponsorWallet = getSponsorWallet(sponsor.address);
+  const sponsorWalletBalance = ethers.utils.formatEther(await sponsorWallet.getBalance());
+  console.log(`Successfully sent funds to sponsor wallet address: ${sponsorWallet.address}.`);
+  console.log(`Current balance: ${sponsorWalletBalance}`);
 };
 
 runAndHandleErrors(main);

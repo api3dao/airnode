@@ -10,7 +10,7 @@ export const getProvider = () => {
   return provider;
 };
 
-export const getUserWallet = async () => {
+export const getUserWallet = () => {
   const integrationInfo = readIntegrationInfo();
   const provider = getProvider();
   return ethers.Wallet.fromMnemonic(integrationInfo.mnemonic).connect(provider);

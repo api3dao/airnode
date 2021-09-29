@@ -17,6 +17,12 @@ export const readIntegrationInfo = (): IntegrationInfo =>
 
 export const readAwsSecrets = () => parseEnvFile(readFileSync(join(__dirname, '../aws.env')));
 
+export const readAirnodeSecrets = () => {
+  const integrationInfo = readIntegrationInfo();
+
+  return parseEnvFile(readFileSync(join(__dirname, `../integrations/${integrationInfo.integration}/secrets.env`)));
+};
+
 export const readConfig = () => {
   const integrationInfo = readIntegrationInfo();
 
