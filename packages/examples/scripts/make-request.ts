@@ -33,8 +33,8 @@ export const makeRequest = async (): Promise<string> => {
     getAirnodeXpub(airnodeWallet)
   );
 
-  // Import the function to get encoded parameters for the Airnode. See the respective "make-request.ts" for details.
-  const { getEncodedParameters } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
+  // Import the function to get encoded parameters for the Airnode. See the respective "request-utils.ts" for details.
+  const { getEncodedParameters } = await import(`../integrations/${integrationInfo.integration}/request-utils.ts`);
   // Trigger the Airnode request
   const receipt = await requester.makeRequest(
     airnodeWallet.address,
@@ -61,9 +61,9 @@ const main = async () => {
   cliPrint.info('Request fulfilled');
 
   const integrationInfo = readIntegrationInfo();
-  // Import the function to print the response from the chosen integration. See the respective "make-request.ts" for
+  // Import the function to print the response from the chosen integration. See the respective "request-utils.ts" for
   // details.
-  const { printResponse } = await import(`../integrations/${integrationInfo.integration}/make-request.ts`);
+  const { printResponse } = await import(`../integrations/${integrationInfo.integration}/request-utils.ts`);
   await printResponse(requestId);
 };
 
