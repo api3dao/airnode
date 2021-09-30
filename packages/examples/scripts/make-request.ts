@@ -41,7 +41,7 @@ export const makeRequest = async (): Promise<string> => {
     endpointId,
     sponsor.address,
     sponsorWalletAddress,
-    getEncodedParameters()
+    await getEncodedParameters()
   );
 
   // Wait until the transaction is mined
