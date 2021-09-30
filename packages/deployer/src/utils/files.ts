@@ -9,7 +9,6 @@ import { DeployAirnodeOutput } from '../infrastructure';
 export function parseSecretsFile(secretsPath: string) {
   logger.debug('Parsing secrets file');
   try {
-    // TODO: this should join cwd with the secrets path
     return dotenv.parse(fs.readFileSync(secretsPath));
   } catch (e) {
     logger.fail('Failed to parse secrets file');
