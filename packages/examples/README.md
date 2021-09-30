@@ -7,11 +7,11 @@ contents of the scripts as you run them.
 
 Airnode is very flexible and can be used in various ways. For example, you may:
 - Run Airnode as a docker container locally while connected to Rinkeby network
-- Run Airnode as docker container locally, but connect it to the hardhat (local) network
+- Run Airnode as a docker container locally, but connected to the hardhat (local) network
 - Deploy Airnode on AWS and use the Rinkeby network
 
-You can run these examples with any of the methods above. We have decided to support Rinkeby for simplicity, but you may
-adapt the configuration to work for your target chain.
+You can run these examples with any of the combination above. We have decided to support Rinkeby just for simplicity,
+but you may adapt the configuration to work for your target chain.
 
 ## Request-Response protocol (RRP)
 
@@ -34,10 +34,12 @@ run the example with Rinkeby.
 
 ### 1. Choose an example
 
-First, you need to choose what example you want to run. We call these examples "integrations" because they are
-integrated to some API. You will also need to choose how you want to run the Airnode and which network to use. If you
-intend to run an integration on Rinkeby, you will also need a funded account to deploy necessary contracts and trigger
-an Airnode request.
+First, you need to choose what example you want to run. We call these examples "integrations" because they are integrate
+with some API. You will also need to choose how you want to run the Airnode and which network to use. 
+
+If you intend to run an integration on Rinkeby, you will also need a funded account to deploy necessary contracts and
+trigger an Airnode request. For hardhat network you can use the account derived by hardhat default mnemonic which is
+already funded.
 
 Run the following script to interactively choose your integration:
 ```sh
@@ -92,13 +94,13 @@ After you know the secrets, run the following script to specify them:
 yarn create-aws-secrets
 ```
 
-The command will generate an `aws.env` file with the entered secrets. This file be used only by the deployer and will
+The command will generate an `aws.env` file with the entered secrets. This file is used only by the deployer and will
 never leave your machine.
 
 ### 6. Create Airnode secrets
 
-Airnode is configured by two files - `config.json` and `secrets.env`. Run the script below to create the `secrets.env`
-file with the necessary values.
+Airnode is configured by two files - `config.json` and `secrets.env`. The `config.json` is already created in the
+integration. The latter, `secrets.env` must be created. You can generate it using:
 
 ```sh
 yarn create-airnode-secrets
@@ -162,8 +164,7 @@ At this point, you have a RRP contract deployed. You also either have a docker r
 Airnode is now listening on the events (requests to be made) of the RRP contract. All that is left now, is making a
 request to it. 
 
-The first step is to deploy a requester contract. Via this contract we will trigger an Airnode request using one of our
-scripts. Run:
+The first step is to deploy a requester contract. Run:
 
 ```sh
 yarn deploy-requester
@@ -171,9 +172,9 @@ yarn deploy-requester
 
 ### 13. Derive and fund the sponsor wallet
 
-Airnode requests requires a [sponsor](https://docs.api3.org/airnode/next/concepts/sponsor.html), which will pay for the
+Airnode request requires a [sponsor](https://docs.api3.org/airnode/next/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
-"sponsor wallet" and can be derived from sponsor address and Airnode extended public key with the [admin CLI
+"sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the [admin CLI
 package](https://github.com/api3dao/airnode/tree/master/packages/admin). Refer to the
 [documentation](https://docs.api3.org/airnode/next/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
@@ -186,7 +187,7 @@ yarn derive-and-fund-sponsor-wallet
 This script will first derive the sponsor wallet and afterwards fund it with 0.1 ETH. This means, that your account
 (derived from the mnemonic by `choose-integration` script) must have enough funds.
 
-### 14. Allow the sponsor to pay for requests made by requester
+### 14. Allow the sponsor to pay for requests made by the requester
 
 In order to prevent misuse, each sponsor has to explicitely approve a requester. Once the requester is approved, his
 requests can be paid by this sponsor. 
