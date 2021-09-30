@@ -1,12 +1,10 @@
 import { ethers } from 'ethers';
 import * as events from './events';
 import { retryOperation } from '../../utils/promise-utils';
-import { AirnodeRrpArtifact } from '../contracts';
+import { AirnodeRrpFactory } from '../contracts';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
 import {
   EVMEventLog,
-  AirnodeRrpFilters,
-  AirnodeRrpLog,
   EVMMadeRequestLog,
   EVMFulfilledRequestLog,
   EVMFulfilledWithdrawalLog,
@@ -28,12 +26,12 @@ interface GroupedLogs {
   readonly withdrawals: (EVMFulfilledWithdrawalLog | EVMRequestedWithdrawalLog)[];
 }
 
-export function parseAirnodeRrpLog<T extends keyof AirnodeRrpFilters>(
-  log: ethers.providers.Log
-): AirnodeLogDescription<AirnodeRrpLog<T>> {
-  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpArtifact.abi);
+// NOTE: The generic parameter could have a better default value (unknown instead of any) but doing so would make the
+// tests less readable because a lot of type casting would be needed.
+export function parseAirnodeRrpLog<T = { readonly args: any }>(log: ethers.providers.Log): AirnodeLogDescription<T> {
+  const airnodeRrpInterface = new ethers.utils.Interface(AirnodeRrpFactory.abi);
   const parsedLog = airnodeRrpInterface.parseLog(log);
-  return parsedLog as AirnodeLogDescription<AirnodeRrpLog<T>>;
+  return parsedLog as AirnodeLogDescription<T>;
 }
 
 export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {

@@ -1,7 +1,14 @@
 import { OIS } from '@api3/ois';
 import { ApiCredentials as AdapterApiCredentials } from '@api3/adapter';
 import { ethers } from 'ethers';
-import { AirnodeRrp, TypedEventFilter } from '@api3/protocol';
+import {
+  MadeTemplateRequestEvent,
+  MadeFullRequestEvent,
+  FulfilledRequestEvent,
+  FailedRequestEvent,
+  RequestedWithdrawalEvent,
+  FulfilledWithdrawalEvent,
+} from '@api3/protocol';
 
 // ===========================================
 // State
@@ -227,46 +234,30 @@ interface EVMEventLogMetadata {
   readonly transactionHash: string;
 }
 
-// Maybe there will be less hacky way to obtain this in the future.
-// See: https://github.com/ethereum-ts/TypeChain/issues/376
-// NOTE: I am also ignoring the typed tupple and only extracting the typed event object.
-type ExtractTypedEvent<T> = T extends TypedEventFilter<any, infer EventArgsObject> ? EventArgsObject : never;
-// NOTE: Picking only the events used by node code
-export type AirnodeRrpFilters = Pick<
-  InstanceType<typeof AirnodeRrp>['filters'],
-  | 'MadeTemplateRequest'
-  | 'MadeFullRequest'
-  | 'FulfilledRequest'
-  | 'FailedRequest'
-  | 'RequestedWithdrawal'
-  | 'FulfilledWithdrawal'
->;
-export type AirnodeRrpLog<T extends keyof AirnodeRrpFilters> = ExtractTypedEvent<ReturnType<AirnodeRrpFilters[T]>>;
-
-export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { readonly args: T };
+export type AirnodeLogDescription<Event> = Event extends { readonly args: infer EventArgs }
+  ? Omit<ethers.utils.LogDescription, 'args'> & { readonly args: EventArgs }
+  : never;
 
 export interface EVMMadeFullRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'MadeFullRequest'>>;
+  readonly parsedLog: AirnodeLogDescription<MadeFullRequestEvent>;
 }
 
 export interface EVMMadeTemplateRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'MadeTemplateRequest'>>;
+  readonly parsedLog: AirnodeLogDescription<MadeTemplateRequestEvent>;
 }
 
 export type EVMMadeRequestLog = EVMMadeTemplateRequestLog | EVMMadeFullRequestLog;
 
 export interface EVMFulfilledRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog:
-    | AirnodeLogDescription<AirnodeRrpLog<'FulfilledRequest'>>
-    | AirnodeLogDescription<AirnodeRrpLog<'FailedRequest'>>;
+  readonly parsedLog: AirnodeLogDescription<FulfilledRequestEvent> | AirnodeLogDescription<FailedRequestEvent>;
 }
 
 export interface EVMRequestedWithdrawalLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'RequestedWithdrawal'>>;
+  readonly parsedLog: AirnodeLogDescription<RequestedWithdrawalEvent>;
 }
 
 export interface EVMFulfilledWithdrawalLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'FulfilledWithdrawal'>>;
+  readonly parsedLog: AirnodeLogDescription<FulfilledWithdrawalEvent>;
 }
 
 export type EVMEventLog =

@@ -28,12 +28,7 @@ export function buildProvider() {
   return new ethers.providers.StaticJsonRpcProvider('http://127.0.0.1:8545/');
 }
 
-export async function fetchAllLogs(
-  provider: ethers.providers.JsonRpcProvider,
-  address: string
-  // NOTE: The return type could be typed better (e.g. unknown instead of any)
-  // but doing so would make the tests less readable.
-): Promise<AirnodeLogDescription<any>[]> {
+export async function fetchAllLogs(provider: ethers.providers.JsonRpcProvider, address: string) {
   const filter: ethers.providers.Filter = {
     fromBlock: 0,
     address,

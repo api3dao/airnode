@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
-// TODO: refactor once https://github.com/ethereum-ts/TypeChain/pull/368 is merged and published
-import { AirnodeRrp, AirnodeRrpFactory, AirnodeRrpArtifact } from '@api3/protocol';
+import { AirnodeRrp, AirnodeRrpFactory } from '@api3/protocol';
 
 const MadeTemplateRequest = ethers.utils.id(
   'MadeTemplateRequest(address,bytes32,uint256,uint256,address,bytes32,address,address,address,bytes4,bytes)'
@@ -28,4 +27,4 @@ const airnodeRrpTopics = {
   FulfilledWithdrawal,
 };
 
-export { AirnodeRrpFactory, AirnodeRrp, AirnodeRrpArtifact, airnodeRrpTopics };
+export { AirnodeRrpFactory, AirnodeRrp, airnodeRrpTopics };
