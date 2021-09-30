@@ -13,7 +13,7 @@ There need to be a few files for each integration:
   details
 - `secrets.example.env` - An example file listing the necessary secrets of `secrets.env` file. This is useful for people
   looking the integration on github
-- `make-request.ts` - This file contains functions which are necessary to make the Airnode request
+- `request-utils.ts` - This file contains functions which are necessary to make the Airnode request
 
 ## Adding new integration
 
@@ -41,14 +41,14 @@ Try to make your integration as simple and focused as possible. Any values that 
 example is run should be interpolated from the `secrets.env` (e.g. `nodeSettings.cloudProvider` depends whether Airnode
 is deployed on AWS or run locally).
 
-You also need to define a single trigger in `config.json`, because the `../scripts/make-request.ts` will use the first trigger.
+You also need to define a single trigger in `config.json`, because the `../scripts/request-utils.ts` will use the first trigger.
 
 ### create-secrets.ts
 
 This file is expected to `export default` a single function, which is used to create the `secrets.env`. This function
 can be asynchronous.
 
-### make-request.ts
+### request-utils.ts
 
 This file is expected to `export const` a pair of functions (both can be asynchronous):
 - `getEncodedParameters` - Returns the encoded parameters that are passed to the requester contract when making the
