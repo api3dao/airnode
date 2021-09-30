@@ -39,7 +39,7 @@ integrated to some API. You will also need to choose how you want to run the Air
 intend to run an integration on Rinkeby, you will also need a funded account to deploy necessary contracts and trigger
 an Airnode request.
 
-Run the following script and provide this information:
+Run the following script to interactively choose your integration:
 ```sh
 yarn choose-integration
 ```
