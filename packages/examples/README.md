@@ -43,6 +43,8 @@ Run the following script and provide this information:
 yarn choose-integration
 ```
 
+After you have chosen an integration, be sure to read out its README for details.
+
 ### 2. (Only if using local blockchain) Start hardhat network
 
 Run:
