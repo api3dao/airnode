@@ -4,7 +4,7 @@ This folder contains integrations showcasing various features and API integratio
 Airnode flow. Each integration is self contained in its own folder. The only exception is the contract of the
 requester. All requesters are located in the `../contracts` directory.
 
-There need to be a few files for each integration:
+Each integration consist of a these files:
 - `README.md` - Should explain what the particular integration is about
 - `config.json` - See the
   [docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for details
@@ -12,7 +12,7 @@ There need to be a few files for each integration:
   the [docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
   details
 - `secrets.example.env` - An example file listing the necessary secrets of `secrets.env` file. This is useful for people
-  looking the integration on github
+  looking at the integration on github or advanced users who want to create secrets themselves.
 - `request-utils.ts` - This file contains functions which are necessary to make the Airnode request
 
 ## Adding new integration
@@ -54,5 +54,5 @@ can be asynchronous.
 This file is expected to `export const` a pair of functions (both can be asynchronous):
 - `getEncodedParameters` - Returns the encoded parameters that are passed to the requester contract when making the
   request.
-- `printResponse` - Is a function where you can output the data received by the requester contract (and maybe format it
-  before showing it to the user). This function received a `requestId` as the only parameter.
+- `printResponse` - Is a function which outputs the data received by the requester contract (and maybe format it before
+  showing it to the user). This function receives a `requestId` as the only parameter.

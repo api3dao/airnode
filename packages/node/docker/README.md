@@ -38,7 +38,7 @@ $ tree
 
 ### Running Airnode
 ```bash
-docker run \
+docker run -d \
   -v $(pwd)/config:/app/config \
   --name airnode \
   api3/airnode:latest
