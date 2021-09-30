@@ -2,6 +2,8 @@
 
 This is the most basic example showcasing `config.json` and `secrets.env` (which is automatically generated for you as part of the deployment flow).
 
-The `config.json` defines a single callable endpoint, called `coinMarketData` which you can call to determine the current price of some crypto currency.
+The `config.json` defines a single callable endpoint, called `coinMarketData` which you can call to determine the
+current price of some crypto currency. The example request uses this endpoint to retrieve the current price of Ethereum.
 
-For more information refer to the [docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html).
+For more information about how the Airnode is configured refer to the
+[docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html).

@@ -1,8 +1,8 @@
 # Integrations
 
 This folder contains integrations showcasing various features and API integrations, which can be run using a basic
-Airnode flow. Each integration is self contained in its own folder. The only exception is the contract of the requester
-for this integration. All requesters are located in the `../contracts` directory.
+Airnode flow. Each integration is self contained in its own folder. The only exception is the contract of the
+requester. All requesters are located in the `../contracts` directory.
 
 There need to be a few files for each integration:
 - `README.md` - Should explain what the particular integration is about
@@ -24,9 +24,9 @@ First, make sure there is not a similar integration already.
 When adding an integration you need to do a few things:
 1. Pick a `kebab-case` name for your integration and create such folder in this directory and in `../contracts`
 2. Create an `Requester.sol` contract in `../contracts/<your-chosen-name>` - Important part is to handle how to decode
-   the data received by the Airnode.
+   the data received by the Airnode
 3. Create all the necessary files (see the section above) for your integration. Some of the files are explained more in
-   depth below.
+   depth below
 
 Tip: You can get inspired by the existing integrations.
 
@@ -41,7 +41,8 @@ Try to make your integration as simple and focused as possible. Any values that 
 example is run should be interpolated from the `secrets.env` (e.g. `nodeSettings.cloudProvider` depends whether Airnode
 is deployed on AWS or run locally).
 
-You also need to define a single trigger in `config.json`, because the `../scripts/request-utils.ts` will use the first trigger.
+You only need to define a single trigger in `config.json`, because the `../scripts/request-utils.ts` will use the first
+trigger that is listed.
 
 ### create-secrets.ts
 
@@ -54,4 +55,4 @@ This file is expected to `export const` a pair of functions (both can be asynchr
 - `getEncodedParameters` - Returns the encoded parameters that are passed to the requester contract when making the
   request.
 - `printResponse` - Is a function where you can output the data received by the requester contract (and maybe format it
-  before showing it to the user.)
+  before showing it to the user). This function received a `requestId` as the only parameter.
