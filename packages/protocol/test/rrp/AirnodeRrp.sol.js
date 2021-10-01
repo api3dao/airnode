@@ -32,19 +32,6 @@ beforeEach(async () => {
   });
 });
 
-describe('setAirnodeXpub', function () {
-  it('sets Airnode public key', async function () {
-    const initialPublicKey = await airnodeRrp.airnodeToXpub(airnodeAddress);
-    expect(initialPublicKey).to.equal('');
-    const airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic).connect(hre.ethers.provider);
-    await expect(airnodeRrp.connect(airnodeWallet).setAirnodeXpub(airnodeXpub, { gasLimit: 500000 }))
-      .to.emit(airnodeRrp, 'SetAirnodeXpub')
-      .withArgs(airnodeAddress, airnodeXpub);
-    const setPublicKey = await airnodeRrp.airnodeToXpub(airnodeAddress);
-    expect(setPublicKey).to.equal(airnodeXpub);
-  });
-});
-
 describe('setSponsorshipStatus', function () {
   it('sets sponsorship status', async function () {
     expect(
