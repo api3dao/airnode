@@ -16,10 +16,6 @@ contract AirnodeRrp is
 {
     using ECDSA for bytes32;
 
-    /// @notice Called to get the extended public key of the Airnode
-    /// @dev The xpub belongs to the HDNode with the path m/44'/60'/0'
-    mapping(address => string) public override airnodeToXpub;
-
     /// @notice Called to get the sponsorship status for a sponsor–requester
     /// pair
     mapping(address => mapping(address => bool))
@@ -36,25 +32,6 @@ contract AirnodeRrp is
     /// also used to check if the fulfillment for the particular request is
     /// expected (i.e., if there are recorded fulfillment parameters)
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
-
-    /// @notice Called by the Airnode operator to announce its extended public
-    /// key
-    /// @dev It is expected for the Airnode operator to call this function with
-    /// the respective Airnode's default BIP 44 wallet (m/44'/60'/0'/0/0), to
-    /// report the xpub belongs to the HDNode with the path m/44'/60'/0'. Then,
-    /// if the address of the default BIP 44 wallet derived from the extended
-    /// public key (with the remaining non-hardened path, 0/0) does not match
-    /// the respective Airnode address, the extended public key is invalid
-    /// (does not belong to the respective Airnode).
-    /// An Airnode operator can also announce their extended public key through
-    /// off-chain channels. Validation method remains the same.
-    /// The extended public key of an Airnode is used with a sponsor address to
-    /// derive the address of the respective sponsor wallet.
-    /// @param xpub Extended public key of the Airnode
-    function setAirnodeXpub(string calldata xpub) external override {
-        airnodeToXpub[msg.sender] = xpub;
-        emit SetAirnodeXpub(msg.sender, xpub);
-    }
 
     /// @notice Called by the sponsor to set the sponsorship status of a
     /// requester, i.e., allow or disallow a requester to make requests that
