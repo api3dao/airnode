@@ -28,9 +28,9 @@ const main = async () => {
     },
     {
       type: 'text',
-      name: 'secretKey',
+      name: 'secretAccessKey',
       message: 'Enter AWS secret access key',
-      initial: awsSecrets?.AWS_SECRET_KEY,
+      initial: awsSecrets?.AWS_SECRET_ACCESS_KEY,
     },
     {
       type: 'text',
@@ -47,7 +47,7 @@ const main = async () => {
     '# For further information see:',
     '# https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/deploying-airnode.html#creating-cloud-credentials',
     `AWS_ACCESS_KEY_ID=${response.accessKeyId}`,
-    `AWS_SECRET_KEY=${response.secretKey}`,
+    `AWS_SECRET_ACCESS_KEY=${response.secretAccessKey}`,
     `AWS_SESSION_TOKEN=${response.sessionToken}`,
   ];
 
