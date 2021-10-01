@@ -5,7 +5,7 @@ const utils = require('../../utils');
 
 let roles;
 let airnodeRrp, rrpBeaconServer;
-let airnodeAddress, airnodeMnemonic, airnodeXpub;
+let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
 let sponsorWalletAddress, sponsorWallet;
 let endpointId, parameters, templateId;
 
@@ -35,6 +35,7 @@ beforeEach(async () => {
   await rrpBeaconServer.connect(roles.metaAdmin).setRank(roles.admin.address, AdminRank.Admin);
   await rrpBeaconServer.connect(roles.metaAdmin).setRank(roles.superAdmin.address, AdminRank.SuperAdmin);
   ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
   sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   await roles.deployer.sendTransaction({
     to: sponsorWalletAddress,
@@ -111,13 +112,16 @@ describe('requestBeaconUpdate', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -516,13 +520,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -538,14 +545,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -569,13 +582,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -591,14 +607,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -622,13 +644,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -644,14 +669,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -675,13 +706,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -697,14 +731,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -726,13 +766,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -748,14 +791,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -775,13 +824,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -797,14 +849,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -824,13 +882,16 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpBeaconServer.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               '0x',
             ]
           )
@@ -846,14 +907,20 @@ describe('readBeacon', function () {
         await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
         const decodedData = 123;
         const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
+        );
         await airnodeRrp
           .connect(sponsorWallet)
           .fulfill(
             requestId,
             airnodeAddress,
-            data,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         // Read the beacon again
@@ -1009,13 +1076,16 @@ describe('fulfill', function () {
           // Compute the expected request ID
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpBeaconServer.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpBeaconServer.address,
+                rrpBeaconServer.interface.getSighash('fulfill'),
                 '0x',
               ]
             )
@@ -1031,15 +1101,21 @@ describe('fulfill', function () {
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [nextBlockTimestamp]);
           const decodedData = 123;
           const data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [decodedData]);
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 requestId,
                 airnodeAddress,
-                data,
                 rrpBeaconServer.address,
                 rrpBeaconServer.interface.getSighash('fulfill'),
+                data,
+                signature,
                 { gasLimit: 500000 }
               )
           )
@@ -1054,13 +1130,16 @@ describe('fulfill', function () {
           // Compute the expected request ID
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpBeaconServer.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpBeaconServer.address,
+                rrpBeaconServer.interface.getSighash('fulfill'),
                 '0x',
               ]
             )
@@ -1072,30 +1151,44 @@ describe('fulfill', function () {
           // Fulfill with non-typecastable data
           // Data should not be too large
           let staticCallResult;
+          let data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [hre.ethers.BigNumber.from(2).pow(223)]);
+          let signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+            )
+          );
           staticCallResult = await airnodeRrp
             .connect(sponsorWallet)
             .callStatic.fulfill(
               requestId,
               airnodeAddress,
-              hre.ethers.utils.defaultAbiCoder.encode(['int256'], [hre.ethers.BigNumber.from(2).pow(223)]),
               rrpBeaconServer.address,
               rrpBeaconServer.interface.getSighash('fulfill'),
+              data,
+              signature,
               { gasLimit: 500000 }
             );
           expect(staticCallResult.callSuccess).to.equal(false);
           expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Value typecasting error');
           // Data should not be too small
+          data = hre.ethers.utils.defaultAbiCoder.encode(
+            ['int256'],
+            [hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1)]
+          );
+          signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+            )
+          );
           staticCallResult = await airnodeRrp
             .connect(sponsorWallet)
             .callStatic.fulfill(
               requestId,
               airnodeAddress,
-              hre.ethers.utils.defaultAbiCoder.encode(
-                ['int256'],
-                [hre.ethers.BigNumber.from(2).pow(223).add(1).mul(-1)]
-              ),
               rrpBeaconServer.address,
               rrpBeaconServer.interface.getSighash('fulfill'),
+              data,
+              signature,
               { gasLimit: 500000 }
             );
           expect(staticCallResult.callSuccess).to.equal(false);
@@ -1103,14 +1196,21 @@ describe('fulfill', function () {
           // Year should not be 2038+
           await hre.ethers.provider.send('evm_setNextBlockTimestamp', [2 ** 32]);
           await hre.ethers.provider.send('evm_mine');
+          data = hre.ethers.utils.defaultAbiCoder.encode(['int256'], [123]);
+          signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+            )
+          );
           staticCallResult = await airnodeRrp
             .connect(sponsorWallet)
             .callStatic.fulfill(
               requestId,
               airnodeAddress,
-              hre.ethers.utils.defaultAbiCoder.encode(['int256'], [123]),
               rrpBeaconServer.address,
               rrpBeaconServer.interface.getSighash('fulfill'),
+              data,
+              signature,
               { gasLimit: 500000 }
             );
           expect(staticCallResult.callSuccess).to.equal(false);
@@ -1137,29 +1237,38 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               roles.randomPerson.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpBeaconServer.address,
+              rrpBeaconServer.interface.getSighash('fulfill'),
               requestTimeParameters,
             ]
           )
         );
         // Fulfill the request
-        const fulfillData = hre.ethers.utils.keccak256(
+        const data = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+        );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, data]))
+          )
         );
         const staticCallResult = await airnodeRrp
           .connect(sponsorWallet)
           .callStatic.fulfill(
             requestId,
             airnodeAddress,
-            fulfillData,
             rrpBeaconServer.address,
             rrpBeaconServer.interface.getSighash('fulfill'),
+            data,
+            signature,
             { gasLimit: 500000 }
           );
         expect(staticCallResult.callSuccess).to.equal(false);

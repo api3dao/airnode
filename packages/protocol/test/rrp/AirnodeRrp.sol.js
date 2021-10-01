@@ -5,7 +5,7 @@ const utils = require('../utils');
 
 let roles;
 let airnodeRrp, rrpRequester;
-let airnodeAddress, airnodeMnemonic, airnodeXpub;
+let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
 let sponsorWalletAddress;
 
 beforeEach(async () => {
@@ -20,6 +20,7 @@ beforeEach(async () => {
   const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
   rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
   ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
   sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   await roles.deployer.sendTransaction({
     to: airnodeAddress,
@@ -89,13 +90,16 @@ describe('makeTemplateRequest', function () {
           const requestTimeParameters = utils.generateRandomBytes();
           const expectedRequestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 requesterRequestCount,
                 chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -218,13 +222,28 @@ describe('makeFullRequest', function () {
           const requestTimeParameters = utils.generateRandomBytes();
           const expectedRequestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 requesterRequestCount,
                 chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -332,415 +351,580 @@ describe('fulfill', function () {
   context('Template request made', function () {
     context('Caller is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
-        context('Fulfill function does not revert', function () {
-          it('returns `true` and fulfills', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Create the template
-            const endpointId = utils.generateRandomBytes32();
-            const parameters = utils.generateRandomBytes();
-            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-            const templateId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-            );
-            // Make the request
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeTemplateRequest(
-                templateId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                requestTimeParameters,
-                { gasLimit: 500000 }
+        context('Signature is valid', function () {
+          context('Fulfill function does not revert', function () {
+            it('returns `true` and fulfills', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Create the template
+              const endpointId = utils.generateRandomBytes32();
+              const parameters = utils.generateRandomBytes();
+              await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+              const templateId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpRequester.address,
+              // Make the request
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeTemplateRequest(
                   templateId,
                   roles.sponsor.address,
+                  sponsorWalletAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
                   requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
+                  { gasLimit: 500000 }
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    templateId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    requestTimeParameters,
+                  ]
+                )
               );
-            expect(staticCallResult.callSuccess).to.equal(true);
-            expect(staticCallResult.callData).to.equal('0x');
-            // Fulfill the request
-            expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(true);
-            await expect(
-              airnodeRrp
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              const staticCallResult = await airnodeRrp
                 .connect(sponsorWallet)
-                .fulfill(
+                .callStatic.fulfill(
                   requestId,
                   airnodeAddress,
-                  fulfillData,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfill'),
-                  { gasLimit: 500000 }
-                )
-            )
-              .to.emit(airnodeRrp, 'FulfilledRequest')
-              .withArgs(airnodeAddress, requestId, fulfillData);
-            expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(false);
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal(fulfillData);
-            // Attempt to fulfill the request a second time
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
                   fulfillData,
-                  rrpRequester.address,
-                  rrpRequester.interface.getSighash('fulfill'),
+                  signature,
                   { gasLimit: 500000 }
-                )
-            ).to.be.revertedWith('Invalid request fulfillment');
+                );
+              expect(staticCallResult.callSuccess).to.equal(true);
+              expect(staticCallResult.callData).to.equal('0x');
+              // Fulfill the request
+              expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(true);
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FulfilledRequest')
+                .withArgs(airnodeAddress, requestId, fulfillData);
+              expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(false);
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal(fulfillData);
+              // Attempt to fulfill the request a second time
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              ).to.be.revertedWith('Invalid request fulfillment');
+            });
           });
-        });
-        context('Fulfill function reverts with string', function () {
-          it('returns `false` and the revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Create the template
-            const endpointId = utils.generateRandomBytes32();
-            const parameters = utils.generateRandomBytes();
-            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-            const templateId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-            );
-            // Make the request
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeTemplateRequest(
-                templateId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
-                requestTimeParameters
+          context('Fulfill function reverts with string', function () {
+            it('returns `false` and the revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Create the template
+              const endpointId = utils.generateRandomBytes32();
+              const parameters = utils.generateRandomBytes();
+              await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+              const templateId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpRequester.address,
+              // Make the request
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeTemplateRequest(
                   templateId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the target function always reverts
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
+                  sponsorWalletAddress,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
-                  { gasLimit: 500000 }
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    templateId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                    requestTimeParameters,
+                  ]
                 )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
-            // Attempt to fulfill the request a second time
-            await expect(
-              airnodeRrp
+              );
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the target function always reverts
+              const staticCallResult = await airnodeRrp
                 .connect(sponsorWallet)
-                .fulfill(
+                .callStatic.fulfill(
                   requestId,
                   airnodeAddress,
-                  fulfillData,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                  fulfillData,
+                  signature,
                   { gasLimit: 500000 }
-                )
-            ).to.be.revertedWith('Invalid request fulfillment');
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+              // Attempt to fulfill the request a second time
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              ).to.be.revertedWith('Invalid request fulfillment');
+            });
           });
-        });
-        context('Fulfill function reverts with string v2', function () {
-          it('returns `false` and the revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
-            // Create the template
-            const endpointId = utils.generateRandomBytes32();
-            const parameters = utils.generateRandomBytes();
-            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-            const templateId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-            );
-            // Make the request
-            const requestTimeParameters = utils.generateRandomBytes();
-            await airnodeRrp
-              .connect(roles.randomPerson)
-              .makeTemplateRequest(
-                templateId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                requestTimeParameters
+          context('Fulfill function reverts with string v2', function () {
+            it('returns `false` and the revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
+              // Create the template
+              const endpointId = utils.generateRandomBytes32();
+              const parameters = utils.generateRandomBytes();
+              await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+              const templateId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  roles.randomPerson.address,
+              // Make the request
+              const requestTimeParameters = utils.generateRandomBytes();
+              await airnodeRrp
+                .connect(roles.randomPerson)
+                .makeTemplateRequest(
                   templateId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the requester was not expecting the fulfillment
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
+                  sponsorWalletAddress,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfill'),
-                  { gasLimit: 500000 }
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    roles.randomPerson.address,
+                    templateId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    requestTimeParameters,
+                  ]
                 )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
-          });
-        });
-        context('Fulfill function reverts without string', function () {
-          it('returns `false` and no revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Create the template
-            const endpointId = utils.generateRandomBytes32();
-            const parameters = utils.generateRandomBytes();
-            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-            const templateId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-            );
-            // Make the request
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeTemplateRequest(
-                templateId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                requestTimeParameters
               );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the requester was not expecting the fulfillment
+              const staticCallResult = await airnodeRrp
+                .connect(sponsorWallet)
+                .callStatic.fulfill(
+                  requestId,
+                  airnodeAddress,
                   rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  signature,
+                  { gasLimit: 500000 }
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+            });
+          });
+          context('Fulfill function reverts without string', function () {
+            it('returns `false` and no revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Create the template
+              const endpointId = utils.generateRandomBytes32();
+              const parameters = utils.generateRandomBytes();
+              await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+              const templateId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+              );
+              // Make the request
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeTemplateRequest(
                   templateId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
+                  sponsorWalletAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    templateId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                    requestTimeParameters,
+                  ]
+                )
+              );
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the target function always reverts
+              const staticCallResult = await airnodeRrp
+                .connect(sponsorWallet)
+                .callStatic.fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                  fulfillData,
+                  signature,
+                  { gasLimit: 500000 }
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
               )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the target function always reverts
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
-                  rrpRequester.address,
-                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                  { gasLimit: 500000 }
-                )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
-            // Attempt to fulfill the request a second time
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
-                  rrpRequester.address,
-                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                  { gasLimit: 500000 }
-                )
-            ).to.be.revertedWith('Invalid request fulfillment');
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+              // Attempt to fulfill the request a second time
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              ).to.be.revertedWith('Invalid request fulfillment');
+            });
           });
-        });
-        context('Fulfill function does not return', function () {
-          it('returns `false` and no revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Create the template
-            const endpointId = utils.generateRandomBytes32();
-            const parameters = utils.generateRandomBytes();
-            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
-            const templateId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
-            );
-            // Make the request
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeTemplateRequest(
-                templateId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
-                requestTimeParameters
+          context('Fulfill function does not return', function () {
+            it('returns `false` and no revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Create the template
+              const endpointId = utils.generateRandomBytes32();
+              const parameters = utils.generateRandomBytes();
+              await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+              const templateId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
               );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpRequester.address,
+              // Make the request
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeTemplateRequest(
                   templateId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the target function always reverts
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
+                  sponsorWalletAddress,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    templateId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                    requestTimeParameters,
+                  ]
+                )
+              );
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the target function always reverts
+              const staticCallResult = await airnodeRrp
+                .connect(sponsorWallet)
+                .callStatic.fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                  fulfillData,
+                  signature,
+                  { gasLimit: 500000 }
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+            });
+          });
+        });
+        context('Signature is invalid', function () {
+          it('reverts', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Create the template
+            const endpointId = utils.generateRandomBytes32();
+            const parameters = utils.generateRandomBytes();
+            await airnodeRrp.connect(roles.randomPerson).createTemplate(airnodeAddress, endpointId, parameters);
+            const templateId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [airnodeAddress, endpointId, parameters])
+            );
+            // Make the request
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeTemplateRequest(
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+                [
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  templateId,
+                  roles.sponsor.address,
+                  sponsorWalletAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Attempt to fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            const invalidSignature1 = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [hre.ethers.constants.HashZero, fulfillData])
+                )
+              )
+            );
+            const invalidSignature2 = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, '0x123456']))
+              )
+            );
+            const invalidSignature3 = '0x123456';
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  invalidSignature1,
                   { gasLimit: 500000 }
                 )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+            ).to.be.revertedWith('Invalid signature');
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  invalidSignature2,
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Invalid signature');
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  invalidSignature3,
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('ECDSA: invalid signature length');
           });
         });
       });
@@ -767,6 +951,22 @@ describe('fulfill', function () {
               rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters
             );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+              [
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                templateId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters,
+              ]
+            )
+          );
           // Attempt to fulfill the request
           const sponsorWallet = utils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
@@ -774,15 +974,21 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 hre.ethers.constants.HashZero,
                 airnodeAddress,
-                fulfillData,
                 rrpRequester.address,
                 rrpRequester.interface.getSighash('fulfill'),
+                fulfillData,
+                signature,
                 { gasLimit: 500000 }
               )
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -813,13 +1019,16 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -831,15 +1040,21 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 requestId,
                 hre.ethers.constants.AddressZero,
-                fulfillData,
                 rrpRequester.address,
                 rrpRequester.interface.getSighash('fulfill'),
+                fulfillData,
+                signature,
                 { gasLimit: 500000 }
               )
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -870,13 +1085,16 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -888,15 +1106,21 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 requestId,
                 airnodeAddress,
-                fulfillData,
                 hre.ethers.constants.AddressZero,
                 rrpRequester.interface.getSighash('fulfill'),
+                fulfillData,
+                signature,
                 { gasLimit: 500000 }
               )
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -927,13 +1151,16 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -945,10 +1172,15 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
-              .fulfill(requestId, airnodeAddress, fulfillData, rrpRequester.address, '0x00000000', {
+              .fulfill(requestId, airnodeAddress, rrpRequester.address, '0x00000000', fulfillData, signature, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -980,13 +1212,16 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters,
             ]
           )
@@ -995,15 +1230,21 @@ describe('fulfill', function () {
         const fulfillData = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
         );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+          )
+        );
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
             .fulfill(
               requestId,
               airnodeAddress,
-              fulfillData,
               rrpRequester.address,
               rrpRequester.interface.getSighash('fulfill'),
+              fulfillData,
+              signature,
               { gasLimit: 500000 }
             )
         ).to.be.revertedWith('Invalid request fulfillment');
@@ -1013,389 +1254,621 @@ describe('fulfill', function () {
   context('Full request made', function () {
     context('Caller is sponsor wallet', function () {
       context('Fulfillment parameters are correct', function () {
-        context('Fulfill function does not revert', function () {
-          it('returns `true` and fulfills', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Make the request
-            const endpointId = utils.generateRandomBytes32();
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeFullRequest(
-                airnodeAddress,
-                endpointId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                requestTimeParameters
-              );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpRequester.address,
+        context('Signature is valid', function () {
+          context('Fulfill function does not revert', function () {
+            it('returns `true` and fulfills', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Make the request
+              const endpointId = utils.generateRandomBytes32();
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeFullRequest(
+                  airnodeAddress,
                   endpointId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
+                  sponsorWalletAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  [
+                    'uint256',
+                    'uint256',
+                    'address',
+                    'address',
+                    'bytes32',
+                    'address',
+                    'address',
+                    'address',
+                    'bytes4',
+                    'bytes',
+                  ],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    airnodeAddress,
+                    endpointId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    requestTimeParameters,
+                  ]
+                )
               );
-            expect(staticCallResult.callSuccess).to.equal(true);
-            expect(staticCallResult.callData).to.equal('0x');
-            // Fulfill the request
-            expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(true);
-            await expect(
-              airnodeRrp
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              const staticCallResult = await airnodeRrp
                 .connect(sponsorWallet)
-                .fulfill(
+                .callStatic.fulfill(
                   requestId,
                   airnodeAddress,
-                  fulfillData,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfill'),
-                  { gasLimit: 500000 }
-                )
-            )
-              .to.emit(airnodeRrp, 'FulfilledRequest')
-              .withArgs(airnodeAddress, requestId, fulfillData);
-            expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(false);
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal(fulfillData);
-            // Attempt to fulfill the request a second time
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
                   fulfillData,
-                  rrpRequester.address,
-                  rrpRequester.interface.getSighash('fulfill'),
+                  signature,
                   { gasLimit: 500000 }
-                )
-            ).to.be.revertedWith('Invalid request fulfillment');
+                );
+              expect(staticCallResult.callSuccess).to.equal(true);
+              expect(staticCallResult.callData).to.equal('0x');
+              // Fulfill the request
+              expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(true);
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FulfilledRequest')
+                .withArgs(airnodeAddress, requestId, fulfillData);
+              expect(await airnodeRrp.requestIsAwaitingFulfillment(requestId)).to.equal(false);
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal(fulfillData);
+              // Attempt to fulfill the request a second time
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              ).to.be.revertedWith('Invalid request fulfillment');
+            });
           });
-        });
-        context('Fulfill function reverts with string', function () {
-          it('returns `false` and the revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Make the request
-            const endpointId = utils.generateRandomBytes32();
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeFullRequest(
-                airnodeAddress,
-                endpointId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
-                requestTimeParameters
-              );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpRequester.address,
+          context('Fulfill function reverts with string', function () {
+            it('returns `false` and the revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Make the request
+              const endpointId = utils.generateRandomBytes32();
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeFullRequest(
+                  airnodeAddress,
                   endpointId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the target function always reverts
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
+                  sponsorWalletAddress,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
-                  { gasLimit: 500000 }
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  [
+                    'uint256',
+                    'uint256',
+                    'address',
+                    'address',
+                    'bytes32',
+                    'address',
+                    'address',
+                    'address',
+                    'bytes4',
+                    'bytes',
+                  ],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    airnodeAddress,
+                    endpointId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                    requestTimeParameters,
+                  ]
                 )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
-            // Attempt to fulfill the request a second time
-            await expect(
-              airnodeRrp
+              );
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the target function always reverts
+              const staticCallResult = await airnodeRrp
                 .connect(sponsorWallet)
-                .fulfill(
+                .callStatic.fulfill(
                   requestId,
                   airnodeAddress,
-                  fulfillData,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                  fulfillData,
+                  signature,
                   { gasLimit: 500000 }
-                )
-            ).to.be.revertedWith('Invalid request fulfillment');
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('Always reverts');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+              // Attempt to fulfill the request a second time
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysReverts'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              ).to.be.revertedWith('Invalid request fulfillment');
+            });
           });
-        });
-        context('Fulfill function reverts with string v2', function () {
-          it('returns `false` and the revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
-            // Make the request
-            const endpointId = utils.generateRandomBytes32();
-            const requestTimeParameters = utils.generateRandomBytes();
-            await airnodeRrp
-              .connect(roles.randomPerson)
-              .makeFullRequest(
-                airnodeAddress,
-                endpointId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                requestTimeParameters
-              );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  roles.randomPerson.address,
+          context('Fulfill function reverts with string v2', function () {
+            it('returns `false` and the revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(roles.randomPerson.address, true);
+              // Make the request
+              const endpointId = utils.generateRandomBytes32();
+              const requestTimeParameters = utils.generateRandomBytes();
+              await airnodeRrp
+                .connect(roles.randomPerson)
+                .makeFullRequest(
+                  airnodeAddress,
                   endpointId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the requester was not expecting the fulfillment
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfill'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
+                  sponsorWalletAddress,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfill'),
-                  { gasLimit: 500000 }
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  [
+                    'uint256',
+                    'uint256',
+                    'address',
+                    'address',
+                    'bytes32',
+                    'address',
+                    'address',
+                    'address',
+                    'bytes4',
+                    'bytes',
+                  ],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    roles.randomPerson.address,
+                    airnodeAddress,
+                    endpointId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    requestTimeParameters,
+                  ]
                 )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
-          });
-        });
-        context('Fulfill function reverts without string', function () {
-          it('returns `false` and no revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Make the request
-            const endpointId = utils.generateRandomBytes32();
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeFullRequest(
-                airnodeAddress,
-                endpointId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                requestTimeParameters
               );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the requester was not expecting the fulfillment
+              const staticCallResult = await airnodeRrp
+                .connect(sponsorWallet)
+                .callStatic.fulfill(
+                  requestId,
+                  airnodeAddress,
                   rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  signature,
+                  { gasLimit: 500000 }
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No such request made');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfill'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+            });
+          });
+          context('Fulfill function reverts without string', function () {
+            it('returns `false` and no revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Make the request
+              const endpointId = utils.generateRandomBytes32();
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeFullRequest(
+                  airnodeAddress,
                   endpointId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
+                  sponsorWalletAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  [
+                    'uint256',
+                    'uint256',
+                    'address',
+                    'address',
+                    'bytes32',
+                    'address',
+                    'address',
+                    'address',
+                    'bytes4',
+                    'bytes',
+                  ],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    airnodeAddress,
+                    endpointId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                    requestTimeParameters,
+                  ]
+                )
+              );
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the target function always reverts
+              const staticCallResult = await airnodeRrp
+                .connect(sponsorWallet)
+                .callStatic.fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                  fulfillData,
+                  signature,
+                  { gasLimit: 500000 }
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
               )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the target function always reverts
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
-                  rrpRequester.address,
-                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                  { gasLimit: 500000 }
-                )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
-            // Attempt to fulfill the request a second time
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
-                  rrpRequester.address,
-                  rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
-                  { gasLimit: 500000 }
-                )
-            ).to.be.revertedWith('Invalid request fulfillment');
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+              // Attempt to fulfill the request a second time
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRevertsWithNoString'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              ).to.be.revertedWith('Invalid request fulfillment');
+            });
           });
-        });
-        context('Fulfill function does not return', function () {
-          it('returns `false` and no revert string and fails', async function () {
-            // Endorse the requester
-            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
-            // Make the request
-            const endpointId = utils.generateRandomBytes32();
-            const requestTimeParameters = utils.generateRandomBytes();
-            await rrpRequester
-              .connect(roles.randomPerson)
-              .makeFullRequest(
-                airnodeAddress,
-                endpointId,
-                roles.sponsor.address,
-                sponsorWalletAddress,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
-                requestTimeParameters
-              );
-            const requestId = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(
-                ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
-                [
-                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
-                  (await hre.ethers.provider.getNetwork()).chainId,
-                  rrpRequester.address,
+          context('Fulfill function does not return', function () {
+            it('returns `false` and no revert string and fails', async function () {
+              // Endorse the requester
+              await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+              // Make the request
+              const endpointId = utils.generateRandomBytes32();
+              const requestTimeParameters = utils.generateRandomBytes();
+              await rrpRequester
+                .connect(roles.randomPerson)
+                .makeFullRequest(
+                  airnodeAddress,
                   endpointId,
                   roles.sponsor.address,
-                  requestTimeParameters,
-                ]
-              )
-            );
-            const sponsorWallet = utils
-              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
-              .connect(hre.ethers.provider);
-            const fulfillData = hre.ethers.utils.keccak256(
-              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
-            );
-            // Make static call to check fulfillment result
-            // Returns false because the target function always reverts
-            const staticCallResult = await airnodeRrp
-              .connect(sponsorWallet)
-              .callStatic.fulfill(
-                requestId,
-                airnodeAddress,
-                fulfillData,
-                rrpRequester.address,
-                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
-                { gasLimit: 500000 }
-              );
-            expect(staticCallResult.callSuccess).to.equal(false);
-            expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
-            // Fulfill the request (which will emit a failed event)
-            await expect(
-              airnodeRrp
-                .connect(sponsorWallet)
-                .fulfill(
-                  requestId,
-                  airnodeAddress,
-                  fulfillData,
+                  sponsorWalletAddress,
                   rrpRequester.address,
                   rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                  requestTimeParameters
+                );
+              const requestId = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(
+                  [
+                    'uint256',
+                    'uint256',
+                    'address',
+                    'address',
+                    'bytes32',
+                    'address',
+                    'address',
+                    'address',
+                    'bytes4',
+                    'bytes',
+                  ],
+                  [
+                    (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                    (await hre.ethers.provider.getNetwork()).chainId,
+                    rrpRequester.address,
+                    airnodeAddress,
+                    endpointId,
+                    roles.sponsor.address,
+                    sponsorWalletAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                    requestTimeParameters,
+                  ]
+                )
+              );
+              const sponsorWallet = utils
+                .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+                .connect(hre.ethers.provider);
+              const fulfillData = hre.ethers.utils.keccak256(
+                hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+              );
+              const signature = await airnodeWallet.signMessage(
+                hre.ethers.utils.arrayify(
+                  hre.ethers.utils.keccak256(
+                    hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData])
+                  )
+                )
+              );
+              // Make static call to check fulfillment result
+              // Returns false because the target function always reverts
+              const staticCallResult = await airnodeRrp
+                .connect(sponsorWallet)
+                .callStatic.fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                  fulfillData,
+                  signature,
+                  { gasLimit: 500000 }
+                );
+              expect(staticCallResult.callSuccess).to.equal(false);
+              expect(utils.decodeRevertString(staticCallResult.callData)).to.equal('No revert string');
+              // Fulfill the request (which will emit a failed event)
+              await expect(
+                airnodeRrp
+                  .connect(sponsorWallet)
+                  .fulfill(
+                    requestId,
+                    airnodeAddress,
+                    rrpRequester.address,
+                    rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                    fulfillData,
+                    signature,
+                    { gasLimit: 500000 }
+                  )
+              )
+                .to.emit(airnodeRrp, 'FailedRequest')
+                .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
+              expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+            });
+          });
+        });
+        context('Signature is invalid', function () {
+          it('reverts', async function () {
+            // Endorse the requester
+            await airnodeRrp.connect(roles.sponsor).setSponsorshipStatus(rrpRequester.address, true);
+            // Make the request
+            const endpointId = utils.generateRandomBytes32();
+            const requestTimeParameters = utils.generateRandomBytes();
+            await rrpRequester
+              .connect(roles.randomPerson)
+              .makeFullRequest(
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
+                requestTimeParameters
+              );
+            const requestId = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(
+                [
+                  'uint256',
+                  'uint256',
+                  'address',
+                  'address',
+                  'bytes32',
+                  'address',
+                  'address',
+                  'address',
+                  'bytes4',
+                  'bytes',
+                ],
+                [
+                  (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                  (await hre.ethers.provider.getNetwork()).chainId,
+                  rrpRequester.address,
+                  airnodeAddress,
+                  endpointId,
+                  roles.sponsor.address,
+                  sponsorWalletAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  requestTimeParameters,
+                ]
+              )
+            );
+            // Attempt to fulfill the request
+            const sponsorWallet = utils
+              .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
+              .connect(hre.ethers.provider);
+            const fulfillData = hre.ethers.utils.keccak256(
+              hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
+            );
+            const invalidSignature1 = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(
+                  hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [hre.ethers.constants.HashZero, fulfillData])
+                )
+              )
+            );
+            const invalidSignature2 = await airnodeWallet.signMessage(
+              hre.ethers.utils.arrayify(
+                hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, '0x123456']))
+              )
+            );
+            const invalidSignature3 = '0x123456';
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  invalidSignature1,
                   { gasLimit: 500000 }
                 )
-            )
-              .to.emit(airnodeRrp, 'FailedRequest')
-              .withArgs(airnodeAddress, requestId, 'Fulfillment failed unexpectedly');
-            expect(await rrpRequester.requestIdToData(requestId)).to.equal('0x');
+            ).to.be.revertedWith('Invalid signature');
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  invalidSignature2,
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('Invalid signature');
+            await expect(
+              airnodeRrp
+                .connect(sponsorWallet)
+                .fulfill(
+                  requestId,
+                  airnodeAddress,
+                  rrpRequester.address,
+                  rrpRequester.interface.getSighash('fulfill'),
+                  fulfillData,
+                  invalidSignature3,
+                  { gasLimit: 500000 }
+                )
+            ).to.be.revertedWith('ECDSA: invalid signature length');
           });
         });
       });
@@ -1417,6 +1890,34 @@ describe('fulfill', function () {
               rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters
             );
+          const requestId = hre.ethers.utils.keccak256(
+            hre.ethers.utils.solidityPack(
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
+              [
+                (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
+                (await hre.ethers.provider.getNetwork()).chainId,
+                rrpRequester.address,
+                airnodeAddress,
+                endpointId,
+                roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfillAlwaysRunsOutOfGas'),
+                requestTimeParameters,
+              ]
+            )
+          );
           // Attempt to fulfill the request
           const sponsorWallet = utils
             .deriveSponsorWallet(airnodeMnemonic, roles.sponsor.address)
@@ -1424,15 +1925,21 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 hre.ethers.constants.HashZero,
                 airnodeAddress,
-                fulfillData,
                 rrpRequester.address,
                 rrpRequester.interface.getSighash('fulfill'),
+                fulfillData,
+                signature,
                 { gasLimit: 500000 }
               )
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -1458,13 +1965,28 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1476,15 +1998,21 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 requestId,
                 hre.ethers.constants.AddressZero,
-                fulfillData,
                 rrpRequester.address,
                 rrpRequester.interface.getSighash('fulfill'),
+                fulfillData,
+                signature,
                 { gasLimit: 500000 }
               )
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -1510,13 +2038,28 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1528,15 +2071,21 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
               .fulfill(
                 requestId,
                 airnodeAddress,
-                fulfillData,
                 hre.ethers.constants.AddressZero,
                 rrpRequester.interface.getSighash('fulfill'),
+                fulfillData,
+                signature,
                 { gasLimit: 500000 }
               )
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -1562,13 +2111,28 @@ describe('fulfill', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1580,10 +2144,15 @@ describe('fulfill', function () {
           const fulfillData = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
           );
+          const signature = await airnodeWallet.signMessage(
+            hre.ethers.utils.arrayify(
+              hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+            )
+          );
           await expect(
             airnodeRrp
               .connect(sponsorWallet)
-              .fulfill(requestId, airnodeAddress, fulfillData, rrpRequester.address, '0x00000000', {
+              .fulfill(requestId, airnodeAddress, rrpRequester.address, '0x00000000', fulfillData, signature, {
                 gasLimit: 500000,
               })
           ).to.be.revertedWith('Invalid request fulfillment');
@@ -1610,13 +2179,17 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
+              airnodeAddress,
               endpointId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters,
             ]
           )
@@ -1625,15 +2198,21 @@ describe('fulfill', function () {
         const fulfillData = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
         );
+        const signature = await airnodeWallet.signMessage(
+          hre.ethers.utils.arrayify(
+            hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+          )
+        );
         await expect(
           airnodeRrp
             .connect(roles.randomPerson)
             .fulfill(
               requestId,
               airnodeAddress,
-              fulfillData,
               rrpRequester.address,
               rrpRequester.interface.getSighash('fulfill'),
+              fulfillData,
+              signature,
               { gasLimit: 500000 }
             )
         ).to.be.revertedWith('Invalid request fulfillment');
@@ -1670,13 +2249,16 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1789,13 +2371,16 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1844,13 +2429,16 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1899,13 +2487,16 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
                 templateId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -1948,13 +2539,16 @@ describe('fail', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
               templateId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters,
             ]
           )
@@ -2000,13 +2594,28 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -2109,13 +2718,28 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -2159,13 +2783,28 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -2209,13 +2848,28 @@ describe('fail', function () {
             );
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+              [
+                'uint256',
+                'uint256',
+                'address',
+                'address',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
               [
                 (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
                 (await hre.ethers.provider.getNetwork()).chainId,
                 rrpRequester.address,
+                airnodeAddress,
                 endpointId,
                 roles.sponsor.address,
+                sponsorWalletAddress,
+                rrpRequester.address,
+                rrpRequester.interface.getSighash('fulfill'),
                 requestTimeParameters,
               ]
             )
@@ -2253,13 +2907,17 @@ describe('fail', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+            ['uint256', 'uint256', 'address', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
               (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
               rrpRequester.address,
+              airnodeAddress,
               endpointId,
               roles.sponsor.address,
+              sponsorWalletAddress,
+              rrpRequester.address,
+              rrpRequester.interface.getSighash('fulfill'),
               requestTimeParameters,
             ]
           )

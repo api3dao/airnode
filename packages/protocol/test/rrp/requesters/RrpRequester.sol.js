@@ -5,7 +5,7 @@ const utils = require('../../utils');
 
 let roles;
 let rrpRequester, airnodeRrp;
-let airnodeAddress, airnodeMnemonic, airnodeXpub;
+let airnodeAddress, airnodeMnemonic, airnodeXpub, airnodeWallet;
 let sponsorWalletAddress;
 
 beforeEach(async () => {
@@ -20,6 +20,7 @@ beforeEach(async () => {
   const rrpRequesterFactory = await hre.ethers.getContractFactory('MockRrpRequester', roles.deployer);
   rrpRequester = await rrpRequesterFactory.deploy(airnodeRrp.address);
   ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
+  airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
   sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
   await roles.deployer.sendTransaction({
     to: airnodeAddress,
@@ -67,13 +68,16 @@ describe('onlyAirnodeRrp', function () {
         );
       const requestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'bytes32', 'address', 'bytes'],
+          ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
           [
             (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
             (await hre.ethers.provider.getNetwork()).chainId,
             rrpRequester.address,
             templateId,
             roles.sponsor.address,
+            sponsorWalletAddress,
+            rrpRequester.address,
+            rrpRequester.interface.getSighash('fulfill'),
             requestTimeParameters,
           ]
         )
@@ -85,6 +89,11 @@ describe('onlyAirnodeRrp', function () {
       const fulfillData = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(['uint256', 'string'], ['123456', 'hello'])
       );
+      const signature = await airnodeWallet.signMessage(
+        hre.ethers.utils.arrayify(
+          hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['bytes32', 'bytes'], [requestId, fulfillData]))
+        )
+      );
       // Since `onlyAirnodeRrp` is a part of the external call, the transaction that
       // the Airnode made to AirnodeRrp will not revert. This means that we should
       // not check if the transaction reverts here, but rather the returned success value.
@@ -93,9 +102,10 @@ describe('onlyAirnodeRrp', function () {
         .callStatic.fulfill(
           requestId,
           airnodeAddress,
-          fulfillData,
           rrpRequester.address,
           rrpRequester.interface.getSighash('fulfill'),
+          fulfillData,
+          signature,
           { gasLimit: 500000 }
         );
       expect(staticCallResult.callSuccess).to.equal(true);
