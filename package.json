@@ -45,7 +45,7 @@
     "lint:eslint:fix": "eslint . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
     "pack": "lerna run pack --stream",
-    "postinstall": "husky install",
+    "postinstall": "husky install && lerna link",
     "prettify": "prettier --write ./**/*.{js,sol,ts} --loglevel silent",
     "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|sol|ts)\"",
     "publish": "lerna publish",
