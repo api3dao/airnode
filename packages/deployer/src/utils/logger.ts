@@ -1,8 +1,8 @@
-import ora from 'ora';
+import * as ora from 'ora';
 
 let debugModeFlag = false;
 const dummySpinner: ora.Ora = {
-  ...ora(),
+  ...ora.default(),
   start: (_text?: string) => dummySpinner,
   stop: () => dummySpinner,
   succeed: (_text?: string) => dummySpinner,
@@ -16,7 +16,7 @@ const dummySpinner: ora.Ora = {
 };
 
 function oraInstance(text?: string) {
-  return debugModeFlag ? ora({ text, prefixText: () => new Date().toISOString() }) : ora(text);
+  return debugModeFlag ? ora.default({ text, prefixText: () => new Date().toISOString() }) : ora.default(text);
 }
 
 export function succeed(text: string) {
