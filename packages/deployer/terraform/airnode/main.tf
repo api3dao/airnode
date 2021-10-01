@@ -66,6 +66,7 @@ module "startCoordinator" {
 
 module "testApi" {
   source = "./modules/function"
+  count  = var.api_key == null ? 0 : 1
 
   name               = "${local.name_prefix}-testApi"
   handler            = "handlers/aws/index.testApi"
@@ -85,11 +86,11 @@ module "testApiGateway" {
   stage         = "v1"
   template_file = "./templates/apigateway.yaml.tpl"
   template_variables = {
-    proxy_lambda = module.testApi.lambda_arn
+    proxy_lambda = module.testApi[0].lambda_arn
     region       = var.aws_region
   }
   lambdas = [
-    module.testApi.lambda_arn
+    module.testApi[0].lambda_arn
   ]
   api_key = var.api_key
 }
