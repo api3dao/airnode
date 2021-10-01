@@ -6043,9 +6043,9 @@ eslint-module-utils@^2.6.2:
     pkg-dir "^2.0.0"
 
 eslint-plugin-functional@^3.5.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-functional/-/eslint-plugin-functional-3.6.0.tgz#566126a33cd05b64ffb1bcaa11c96ee280398a44"
-  integrity sha512-Utujj1dfQ5Bf79kN2BCoMHqnpM4KTMjQ5emMicaWHtcvySBc01+drGVEo9AEojUD9Rs9siprMCzbrT4zwFYzRA==
+  version "3.7.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-functional/-/eslint-plugin-functional-3.7.2.tgz#c90325dddfa822fab27419375084d12158f05da1"
+  integrity sha512-BuWPOeE0nuXYlZjObYOHnYf7G3iG+sysxw84I579MsrH+hy5XdXb2sdabmXQ5z7eFGCg2/DWNbZ/yz5GAgtcUg==
   dependencies:
     "@typescript-eslint/experimental-utils" "^4.9.1"
     array.prototype.flatmap "^1.2.4"
