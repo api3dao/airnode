@@ -81,9 +81,10 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
     function fulfill(
         bytes32 requestId,
         address airnode,
-        bytes calldata data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        bytes calldata data,
+        bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
     function fail(

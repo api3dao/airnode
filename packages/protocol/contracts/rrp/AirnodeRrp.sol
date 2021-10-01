@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./AuthorizationUtils.sol";
 import "./TemplateUtils.sol";
 import "./WithdrawalUtils.sol";
@@ -13,6 +14,8 @@ contract AirnodeRrp is
     WithdrawalUtils,
     IAirnodeRrp
 {
+    using ECDSA for bytes32;
+
     /// @notice Called to get the extended public key of the Airnode
     /// @dev The xpub belongs to the HDNode with the path m/44'/60'/0'
     mapping(address => string) public override airnodeToXpub;
@@ -33,33 +36,6 @@ contract AirnodeRrp is
     /// also used to check if the fulfillment for the particular request is
     /// expected (i.e., if there are recorded fulfillment parameters)
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
-
-    /// @dev Reverts if the incoming fulfillment parameters do not match the
-    /// ones provided in the request
-    /// @param requestId Request ID
-    /// @param airnode Airnode address
-    /// @param fulfillAddress Address that will be called to fulfill
-    /// @param fulfillFunctionId Signature of the function that will be called
-    /// to fulfill
-    modifier onlyCorrectFulfillmentParameters(
-        bytes32 requestId,
-        address airnode,
-        address fulfillAddress,
-        bytes4 fulfillFunctionId
-    ) {
-        require(
-            keccak256(
-                abi.encodePacked(
-                    airnode,
-                    msg.sender,
-                    fulfillAddress,
-                    fulfillFunctionId
-                )
-            ) == requestIdToFulfillmentParameters[requestId],
-            "Invalid request fulfillment"
-        );
-        _;
-    }
 
     /// @notice Called by the Airnode operator to announce its extended public
     /// key
@@ -145,6 +121,9 @@ contract AirnodeRrp is
                 msg.sender,
                 templateId,
                 sponsor,
+                sponsorWallet,
+                fulfillAddress,
+                fulfillFunctionId,
                 parameters
             )
         );
@@ -210,8 +189,12 @@ contract AirnodeRrp is
                 requesterRequestCount,
                 block.chainid,
                 msg.sender,
+                airnode,
                 endpointId,
                 sponsor,
+                sponsorWallet,
+                fulfillAddress,
+                fulfillFunctionId,
                 parameters
             )
         );
@@ -261,20 +244,29 @@ contract AirnodeRrp is
     function fulfill(
         bytes32 requestId,
         address airnode,
-        bytes calldata data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
-    )
-        external
-        override
-        onlyCorrectFulfillmentParameters(
-            requestId,
-            airnode,
-            fulfillAddress,
-            fulfillFunctionId
-        )
-        returns (bool callSuccess, bytes memory callData)
-    {
+        bytes4 fulfillFunctionId,
+        bytes calldata data,
+        bytes calldata signature
+    ) external override returns (bool callSuccess, bytes memory callData) {
+        require(
+            keccak256(
+                abi.encodePacked(
+                    airnode,
+                    msg.sender,
+                    fulfillAddress,
+                    fulfillFunctionId
+                )
+            ) == requestIdToFulfillmentParameters[requestId],
+            "Invalid request fulfillment"
+        );
+        require(
+            (
+                keccak256(abi.encodePacked(requestId, data))
+                    .toEthSignedMessageHash()
+            ).recover(signature) == airnode,
+            "Invalid signature"
+        );
         delete requestIdToFulfillmentParameters[requestId];
         (callSuccess, callData) = fulfillAddress.call( // solhint-disable-line avoid-low-level-calls
             abi.encodeWithSelector(fulfillFunctionId, requestId, data)
@@ -306,16 +298,18 @@ contract AirnodeRrp is
         address fulfillAddress,
         bytes4 fulfillFunctionId,
         string calldata errorMessage
-    )
-        external
-        override
-        onlyCorrectFulfillmentParameters(
-            requestId,
-            airnode,
-            fulfillAddress,
-            fulfillFunctionId
-        )
-    {
+    ) external override {
+        require(
+            keccak256(
+                abi.encodePacked(
+                    airnode,
+                    msg.sender,
+                    fulfillAddress,
+                    fulfillFunctionId
+                )
+            ) == requestIdToFulfillmentParameters[requestId],
+            "Invalid request fulfillment"
+        );
         delete requestIdToFulfillmentParameters[requestId];
         emit FailedRequest(airnode, requestId, errorMessage);
     }
