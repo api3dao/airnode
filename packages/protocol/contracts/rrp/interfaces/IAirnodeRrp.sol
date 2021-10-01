@@ -6,8 +6,6 @@ import "./ITemplateUtils.sol";
 import "./IWithdrawalUtils.sol";
 
 interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
-    event SetAirnodeXpub(address indexed airnode, string xpub);
-
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
@@ -54,8 +52,6 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         string errorMessage
     );
 
-    function setAirnodeXpub(string calldata xpub) external;
-
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
 
@@ -94,11 +90,6 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         bytes4 fulfillFunctionId,
         string calldata errorMessage
     ) external;
-
-    function airnodeToXpub(address airnode)
-        external
-        view
-        returns (string memory xpub);
 
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
