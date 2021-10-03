@@ -49,6 +49,9 @@ yarn choose-integration
 After you have chosen an integration, be sure to read out its README for details. You will find it in
 `integrations/<integration-name>/README.md`.
 
+> NOTE: If you are using WSL2 on Windows, you will not be able to run Airnode locally with hardhat network. This is a
+> docker and WSL2 limitation. See: https://github.com/docker/for-win/issues/6736.
+
 ### 2. (Only if using local blockchain) Start hardhat network
 
 Run:
