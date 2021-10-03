@@ -25,7 +25,7 @@ export const makeRequest = async (): Promise<string> => {
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
-  const airnodeRrpTyped = await getAirnodeRrp(integrationInfo.providerUrl, airnodeRrp.address);
+  const airnodeRrpTyped = await getAirnodeRrp(integrationInfo.providerUrl, { airnodeRrpAddress: airnodeRrp.address });
   const sponsorWalletAddress = deriveSponsorWalletAddress(
     airnodeRrpTyped,
     airnodeWallet.address,

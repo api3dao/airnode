@@ -18,7 +18,6 @@ const main = async () => {
     `api3/deployer:latest remove -r output/receipt.json`,
   ].join(' ');
 
-  // TODO: It doesn't work for some reason (neither does redeploy)
   runShellCommand(deployCommand);
 };
 

@@ -1,8 +1,8 @@
 {
-  "name": "@api3/airnode-starter",
+  "name": "@api3/examples",
   "version": "0.1.0",
   "license": "MIT",
-  "description": "A starter project for deploying an Airnode and making requests to it",
+  "description": "A collection of examples showcasing the features of Airnode",
   "scripts": {
     "build": "hardhat compile",
     "choose-integration": "ts-node scripts/choose-integration.ts",

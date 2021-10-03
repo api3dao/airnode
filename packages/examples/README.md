@@ -34,8 +34,8 @@ run the example with Rinkeby.
 
 ### 1. Choose an example
 
-First, you need to choose what example you want to run. We call these examples "integrations" because they are integrate
-with some API. You will also need to choose how you want to run the Airnode and which network to use. 
+First, you need to choose what example you want to run. We call these examples "integrations" because they are
+integrated with some API. You will also need to choose how you want to run the Airnode and which network to use.
 
 If you intend to run an integration on Rinkeby, you will also need a funded account to deploy necessary contracts and
 trigger an Airnode request. For hardhat network you can use the account derived by hardhat default mnemonic which is
