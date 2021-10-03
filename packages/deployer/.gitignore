@@ -11,6 +11,7 @@ coverage/
 *config.json
 *secrets.env
 *secrets.json
+*receipt.json
 
 # Packed package
 *.tgz
