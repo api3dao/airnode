@@ -93,9 +93,10 @@ contract AirnodeRrp is
         ];
         requestId = keccak256(
             abi.encodePacked(
-                requesterRequestCount,
                 block.chainid,
+                address(this),
                 msg.sender,
+                requesterRequestCount,
                 templateId,
                 sponsor,
                 sponsorWallet,
@@ -163,9 +164,10 @@ contract AirnodeRrp is
         ];
         requestId = keccak256(
             abi.encodePacked(
-                requesterRequestCount,
                 block.chainid,
+                address(this),
                 msg.sender,
+                requesterRequestCount,
                 airnode,
                 endpointId,
                 sponsor,
