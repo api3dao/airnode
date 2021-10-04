@@ -63,11 +63,10 @@ Please, refer to the implementation for more details.
 
 ### `derive-sponsor-wallet-address`
 
-Derives the address of the wallet designated by an Airnode for a requester, which is called the sponsor wallet. The `mnemonic` must be from the Airnode wallet and the `xpub` must belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
+Derives the address of the wallet designated by an Airnode for a requester, which is called the sponsor wallet. The `xpub` must belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
 
 ```sh
 npx @api3/airnode-admin derive-sponsor-wallet-address \
-  --mnemonic "nature about salad..." \
   --airnodeXpub xpub6CUGRUo... \
   --airnodeAddress 0xe1e0dd... \
   --sponsorAddress 0x9Ec6C4...
