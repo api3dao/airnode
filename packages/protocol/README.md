@@ -121,7 +121,7 @@ API3 DAO has any special privileges (except for `DaoRequesterRrpAuthorizer`, whi
 
 In other words, the Airnode operators do not need to deploy any contracts in the regular user flow. This is preferred
 because deploying contracts causes a lot of UX friction and costs a lot of gas. Furthermore, the requester now has to
-verify that the individually-deployed contracts are not tampered with, which cannot peasibly be done in a trustless way.
+verify that the individually-deployed contracts are not tampered with, which cannot feasibly be done in a trustless way.
 Implementing the protocol as a single, communal contract solves these problems.
 
 ### No transactions needed for Airnode deployment
@@ -181,11 +181,11 @@ negligible compared to the value that will be created by an oracle protocol that
    the ones that have matching `FulfilledRequest` and `FailedRequest` events).
 
 2. A developer decides to build a contract that makes requests to a specific Airnode (we will call this contract
-   _requester_). Using the `xpub` of the Airnode (which is announced off-chain) and the address of an Ethereum account
-   they control, the developer derives the address of their sponsor wallet (see below for how this is done). The
-   developer funds this sponsor wallet, then calls `setSponsorshipStatus()` in `AirnodeRrp` with the address of their
-   requester contract to sponsor it. This means the developer is now the _sponsor_ of their requester contract, i.e.,
-   the requester contract can make Airnode requests that will be fulfilled by their sponsor wallet.
+   _requester_). Using the `xpub` (extended public key) of the Airnode (which is announced off-chain) and the address of
+   an Ethereum account they control, the developer derives the address of their sponsor wallet (see below for how this
+   is done). The developer funds this sponsor wallet, then calls `setSponsorshipStatus()` in `AirnodeRrp` with the
+   address of their requester contract to sponsor it. This means the developer is now the _sponsor_ of their requester
+   contract, i.e., the requester contract can make Airnode requests that will be fulfilled by their sponsor wallet.
 
 3. Before making a request, the developer should make sure that at least one of the authorizer contracts that the
    Airnode is using will authorize the request. Assume the Airnode is using `AirnodeRequesterRrpAuthorizer` and
