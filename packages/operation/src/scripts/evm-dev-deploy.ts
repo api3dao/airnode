@@ -22,22 +22,19 @@ async function run() {
   const state9 = await deploy.fundSponsorAccounts(state8);
   const state10 = await deploy.fundSponsorWallets(state9);
 
-  console.log('--> Setting Airnode xpub...');
-  const state11 = await deploy.setAirnodeXpub(state10);
-
   console.log('--> Sponsoring requester contracts...');
-  const state12 = await deploy.sponsorRequesters(state11);
+  const state11 = await deploy.sponsorRequesters(state10);
 
   console.log('--> Creating templates...');
-  const state13 = await deploy.createTemplates(state12);
+  const state12 = await deploy.createTemplates(state11);
 
   console.log('--> Deployment successful!');
 
   console.log('--> Saving deployment...');
-  io.saveDeployment(state13);
+  io.saveDeployment(state12);
   console.log('--> Deployment saved!');
 
-  return state13;
+  return state12;
 }
 
 run();

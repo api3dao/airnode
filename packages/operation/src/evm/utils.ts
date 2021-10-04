@@ -5,11 +5,6 @@ export function deriveEndpointId(oisTitle: string, endpointName: string): string
   return keccak256(defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
 }
 
-export function deriveExtendedPublicKey(mnemonic: string): string {
-  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  return hdNode.neuter().extendedKey;
-}
-
 export function deriveWalletFromMnemonic(mnemonic: string, provider: ethers.providers.JsonRpcProvider, path?: string) {
   return ethers.Wallet.fromMnemonic(mnemonic, path).connect(provider);
 }

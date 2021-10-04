@@ -45,7 +45,6 @@ export interface Airnode {
   readonly airnodeWalletAddress: string;
   readonly mnemonic: string;
   readonly signer: ethers.providers.JsonRpcSigner | ethers.Wallet;
-  readonly xpub: string;
 }
 
 export interface Template {
