@@ -15,10 +15,6 @@ const COMMON_COMMAND_ARGUMENTS = {
       type: 'string',
       describe: 'Address of the deployed AirnodeRrp contract',
     },
-    xpub: {
-      type: 'string',
-      describe: 'Extended public key for the Airnode wallet',
-    },
   },
   airnodeRequesterRrpAuthorizerCommands: {
     'provider-url': {
@@ -51,6 +47,11 @@ const COMMON_COMMAND_ARGUMENTS = {
       type: 'string',
       describe: 'Derivation path to be used for deriving the wallet account',
     },
+  },
+  airnodeXpub: {
+    type: 'string',
+    demandOption: true,
+    describe: 'Extended public key for the Airnode wallet',
   },
   sponsorAddress: {
     type: 'string',
@@ -93,8 +94,9 @@ const {
   airnodeRrpCommands,
   airnodeRequesterRrpAuthorizerCommands,
   mnemonicCommands,
-  sponsorAddress,
   airnodeAddress,
+  airnodeXpub,
+  sponsorAddress,
   sponsorWalletAddress,
   requesterAddress,
   withdrawalRequestId,
@@ -109,17 +111,17 @@ yargs
     'derive-sponsor-wallet-address',
     'Derives the address of the wallet for an airnode-sponsor pair',
     {
-      ...airnodeRrpCommands,
+      ...mnemonicCommands,
+      airnodeXpub,
       'airnode-address': airnodeAddress,
       'sponsor-address': sponsorAddress,
     },
     async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], { airnodeRrpAddress: args['airnode-rrp'] });
       const sponsorWalletAddress = await admin.deriveSponsorWalletAddress(
-        airnodeRrp,
+        args['mnemonic'],
+        args.airnodeXpub,
         args['airnode-address'],
-        args['sponsor-address'],
-        args.xpub
+        args['sponsor-address']
       );
       console.log(`Sponsor wallet address: ${sponsorWalletAddress}`);
     }
@@ -255,35 +257,6 @@ yargs
       } else {
         console.log(`Withdrawal request is not fulfilled yet`);
       }
-    }
-  )
-  .command(
-    'set-airnode-xpub',
-    'Sets the xpub of an Airnode',
-    {
-      ...airnodeRrpCommands,
-      ...mnemonicCommands,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
-        airnodeRrpAddress: args['airnode-rrp'],
-        signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
-      });
-      const xpub = await admin.setAirnodeXpub(airnodeRrp);
-      console.log(`Airnode xpub: ${xpub}`);
-    }
-  )
-  .command(
-    'get-airnode-xpub',
-    'Returns the Airnode xpub for the given Airnode',
-    {
-      ...airnodeRrpCommands,
-      'airnode-address': airnodeAddress,
-    },
-    async (args) => {
-      const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], { airnodeRrpAddress: args['airnode-rrp'] });
-      const xpub = await admin.getAirnodeXpub(airnodeRrp, args['airnode-address']);
-      console.log(`Airnode xpub: ${xpub}`);
     }
   )
   .command(
