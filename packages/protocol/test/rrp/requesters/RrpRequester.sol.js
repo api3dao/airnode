@@ -68,11 +68,12 @@ describe('onlyAirnodeRrp', function () {
         );
       const requestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+          ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
           [
-            (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
             (await hre.ethers.provider.getNetwork()).chainId,
+            airnodeRrp.address,
             rrpRequester.address,
+            (await airnodeRrp.requesterToRequestCountPlusOne(rrpRequester.address)).sub(1),
             templateId,
             roles.sponsor.address,
             sponsorWalletAddress,
