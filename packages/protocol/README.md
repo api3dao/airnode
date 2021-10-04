@@ -100,7 +100,7 @@ The contracts are implemented in a way that they are entirely trustless and perm
 
 In other words, the Airnode operators do not need to deploy any contracts in the regular user flow.
 This is preferred because deploying contracts causes a lot of UX friction and costs a lot of gas.
-Furthermore, the requester now has to verify that the individually-deployed contracts are not tampered with, which cannot peasibly be done in a trustless way.
+Furthermore, the requester now has to verify that the individually-deployed contracts are not tampered with, which cannot feasibly be done in a trustless way.
 Implementing the protocol as a single, communal contract solves these problems.
 
 ### No transactions needed for Airnode deployment
@@ -147,7 +147,7 @@ The address of the default BIP 44 wallet (`m/44'/60'/0'/0/0`) derived from this 
 The Airnode (referring to the node application) polls `AirnodeRrp` for `MadeTemplateRequest` and `MadeFullRequest` events indexed by its own identifying address (and drops the ones that have matching `FulfilledRequest` and `FailedRequest` events).
 
 2. A developer decides to build a contract that makes requests to a specific Airnode (we will call this contract *requester*).
-Using the `xpub` of the Airnode (which is announced off-chain) and the address of an Ethereum account they control, the developer derives the address of their sponsor wallet (see below for how this is done).
+Using the `xpub` (extended public key) of the Airnode (which is announced off-chain) and the address of an Ethereum account they control, the developer derives the address of their sponsor wallet (see below for how this is done).
 The developer funds this sponsor wallet, then calls `setSponsorshipStatus()` in `AirnodeRrp` with the address of their requester contract to sponsor it.
 This means the developer is now the *sponsor* of their requester contract, i.e., the requester contract can make Airnode requests that will be fulfilled by their sponsor wallet.
 
