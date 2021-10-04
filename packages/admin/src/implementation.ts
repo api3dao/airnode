@@ -34,19 +34,20 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
 };
 
 export async function deriveSponsorWalletAddress(
-  airnodeRrp: AirnodeRrp,
+  airnodeMnemonic: string,
+  airnodeXpub: string,
   airnodeAddress: string,
-  sponsorAddress: string,
-  xpub?: string
+  sponsorAddress: string
 ) {
-  const airnodeXpub = xpub ?? (await airnodeRrp.airnodeToXpub(airnodeAddress));
-  if (!airnodeXpub) {
-    throw new Error('Airnode xpub is missing in AirnodeRrp contract');
-  }
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+  // The xpub is exptected to be from the hardened path m/44'/60'/0'
+  // so we must derive the child m/44'/60'/0'/0/0 path to check if
+  // xpub belongs to the Airnode
+  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
+    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
+  }
   const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
-  const designatedWalletNode = hdNode.derivePath(derivationPath);
-  return designatedWalletNode.address;
+  return ethers.Wallet.fromMnemonic(airnodeMnemonic, derivationPath).address;
 }
 
 export async function sponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
@@ -109,32 +110,6 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: 
 
   // cast ethers BigNumber for portability
   return { ...logParams, amount: amount.toString() };
-}
-
-const isEthersWallet = (signer: any): signer is ethers.Wallet => !!signer.mnemonic;
-
-export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
-  const wallet = airnodeRrp.signer;
-
-  if (!isEthersWallet(wallet)) {
-    throw new Error('Expected AirnodeRrp contract signer must be an ethers.Wallet instance');
-  }
-
-  const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
-  const xpub = hdNode.neuter().extendedKey;
-
-  const tx = await airnodeRrp.setAirnodeXpub(xpub);
-
-  return new Promise<string>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
-      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
-      resolve(parsedLog.args.xpub);
-    })
-  );
-}
-
-export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnodeAddress: string) {
-  return airnodeRrp.airnodeToXpub(airnodeAddress);
 }
 
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {

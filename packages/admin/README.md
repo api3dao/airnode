@@ -63,12 +63,12 @@ Please, refer to the implementation for more details.
 
 ### `derive-sponsor-wallet-address`
 
-Derives the address of the wallet designated by an Airnode for a requester. You need to specify the xpub but if it is not provided then this command will try to fetch it from the AirnodeRrp contract.
+Derives the address of the wallet designated by an Airnode for a requester, which is called the sponsor wallet. The `mnemonic` must be from the Airnode wallet and the `xpub` must belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
 
 ```sh
 npx @api3/airnode-admin derive-sponsor-wallet-address \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --xpub xpub6CUGRUo... \
+  --mnemonic "nature about salad..." \
+  --airnodeXpub xpub6CUGRUo... \
   --airnodeAddress 0xe1e0dd... \
   --sponsorAddress 0x9Ec6C4...
 ```
@@ -155,30 +155,6 @@ npx @api3/airnode-admin check-withdrawal-request \
 
 ## Airnode commands
 
-### `set-airnode-xpub`
-
-Sets the xpub of an Airnode.
-
-**This extended public key does not need to be announced on-chain for the protocol to be used, it is mainly for convenience.**
-
-```sh
-npx @api3/airnode-admin set-airnode-xpub \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --mnemonic "nature about salad..." \
-```
-
-The account derived from the `mnemonic` you provide here has to belong to the Airnode.
-
-### `get-airnode-xpub`
-
-Returns the Airnode xpub for the given `airnode`.
-
-```sh
-npx @api3/airnode-admin get-airnode-xpub \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeAddress 0xe1e0dd...
-```
-
 ### `derive-endpoint-id`
 
 Derives the endpoint ID using the OIS title and the endpoint name.
@@ -188,6 +164,8 @@ npx @api3/airnode-admin derive-endpoint-id \
   --oisTitle "My OIS title..." \
   --endpointName "My endpoint name..."
 ```
+
+## AirnodeRequesterRrpAuthorizer commands
 
 ### `set-whitelist-expiration`
 

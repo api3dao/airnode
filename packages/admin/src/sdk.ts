@@ -14,8 +14,12 @@ export class AdminSdk {
 
   constructor(public airnodeRrp: AirnodeRrp, public airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer) {}
 
-  deriveSponsorWalletAddress = (airnodeAddress: string, sponsorAddress: string, xpub?: string) =>
-    admin.deriveSponsorWalletAddress(this.airnodeRrp, airnodeAddress, sponsorAddress, xpub);
+  deriveSponsorWalletAddress = (
+    airnodeMnemonic: string,
+    airnodeXpub: string,
+    airnodeAddress: string,
+    sponsorAddress: string
+  ) => admin.deriveSponsorWalletAddress(airnodeMnemonic, airnodeXpub, airnodeAddress, sponsorAddress);
 
   sponsorRequester = (requesterAddress: string) => admin.sponsorRequester(this.airnodeRrp, requesterAddress);
 
@@ -28,10 +32,6 @@ export class AdminSdk {
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
-
-  setAirnodeXpub = () => admin.setAirnodeXpub(this.airnodeRrp);
-
-  getAirnodeXpub = (airnodeAddress: string) => admin.getAirnodeXpub(this.airnodeRrp, airnodeAddress);
 
   requesterToRequestCountPlusOne = (requesterAddress: string) =>
     admin.requesterToRequestCountPlusOne(this.airnodeRrp, requesterAddress);

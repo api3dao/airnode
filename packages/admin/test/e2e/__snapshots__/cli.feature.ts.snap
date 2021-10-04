@@ -22,9 +22,6 @@ Commands:
                                             sponsor
   cli.js check-withdrawal-request           Checks the state of the withdrawal
                                             request
-  cli.js set-airnode-xpub                   Sets the xpub of an Airnode
-  cli.js get-airnode-xpub                   Returns the Airnode xpub for the
-                                            given Airnode
   cli.js derive-endpoint-id                 Derives an endpoint ID using the OIS
                                             title and endpoint name
   cli.js set-whitelist-expiration           Sets whitelist expiration of a user
