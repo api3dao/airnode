@@ -14,12 +14,8 @@ export class AdminSdk {
 
   constructor(public airnodeRrp: AirnodeRrp, public airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer) {}
 
-  deriveSponsorWalletAddress = (
-    airnodeMnemonic: string,
-    airnodeXpub: string,
-    airnodeAddress: string,
-    sponsorAddress: string
-  ) => admin.deriveSponsorWalletAddress(airnodeMnemonic, airnodeXpub, airnodeAddress, sponsorAddress);
+  deriveSponsorWalletAddress = (airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) =>
+    admin.deriveSponsorWalletAddress(airnodeXpub, airnodeAddress, sponsorAddress);
 
   sponsorRequester = (requesterAddress: string) => admin.sponsorRequester(this.airnodeRrp, requesterAddress);
 

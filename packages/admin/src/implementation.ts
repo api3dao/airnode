@@ -8,6 +8,17 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   }
 };
 
+const verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string): ethers.utils.HDNode => {
+  // The xpub is exptected to be from the hardened path m/44'/60'/0'
+  // so we must derive the child m/44'/60'/0'/0/0 path to check if
+  // xpub belongs to the Airnode
+  const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
+    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
+  }
+  return hdNode;
+};
+
 /**
  * HD wallets allow us to create multiple accounts from a single mnemonic.
  * Each sponsor creates a designated wallet for each provider to use
@@ -30,24 +41,13 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `m/0/${paths.join('/')}`;
+  return `0/${paths.join('/')}`;
 };
 
-export async function deriveSponsorWalletAddress(
-  airnodeMnemonic: string,
-  airnodeXpub: string,
-  airnodeAddress: string,
-  sponsorAddress: string
-) {
-  const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
-  // The xpub is exptected to be from the hardened path m/44'/60'/0'
-  // so we must derive the child m/44'/60'/0'/0/0 path to check if
-  // xpub belongs to the Airnode
-  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
-    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
-  }
+export async function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) {
+  const hdNode = verifyAirnodeXpub(airnodeXpub, airnodeAddress);
   const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
-  return ethers.Wallet.fromMnemonic(airnodeMnemonic, derivationPath).address;
+  return hdNode.derivePath(derivationPath).address;
 }
 
 export async function sponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {

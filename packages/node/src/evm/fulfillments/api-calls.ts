@@ -45,9 +45,10 @@ async function testFulfill(
     airnodeRrp.callStatic.fulfill(
       request.id,
       request.airnodeAddress,
-      request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
       request.fulfillFunctionId,
+      request.responseValue || ethers.constants.HashZero,
+      '', // TODO: add signature
       {
         gasLimit: GAS_LIMIT,
         gasPrice: options.gasPrice,
@@ -73,9 +74,10 @@ async function submitFulfill(
     airnodeRrp.fulfill(
       request.id,
       request.airnodeAddress,
-      request.responseValue || ethers.constants.HashZero,
       request.fulfillAddress,
       request.fulfillFunctionId,
+      request.responseValue || ethers.constants.HashZero,
+      '', // TODO: add signature
       {
         gasLimit: GAS_LIMIT,
         gasPrice: options.gasPrice,
