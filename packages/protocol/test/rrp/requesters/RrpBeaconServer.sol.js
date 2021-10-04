@@ -112,11 +112,12 @@ describe('requestBeaconUpdate', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -520,11 +521,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -582,11 +584,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -644,11 +647,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -706,11 +710,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -766,11 +771,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -824,11 +830,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -882,11 +889,12 @@ describe('readBeacon', function () {
         // Compute the expected request ID
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               rrpBeaconServer.address,
+              await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
@@ -1076,11 +1084,23 @@ describe('fulfill', function () {
           // Compute the expected request ID
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
-                await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+                'uint256',
+                'address',
+                'address',
+                'uint256',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
+              [
                 (await hre.ethers.provider.getNetwork()).chainId,
+                airnodeRrp.address,
                 rrpBeaconServer.address,
+                await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
                 templateId,
                 roles.sponsor.address,
                 sponsorWalletAddress,
@@ -1130,11 +1150,23 @@ describe('fulfill', function () {
           // Compute the expected request ID
           const requestId = hre.ethers.utils.keccak256(
             hre.ethers.utils.solidityPack(
-              ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
               [
-                await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
+                'uint256',
+                'address',
+                'address',
+                'uint256',
+                'bytes32',
+                'address',
+                'address',
+                'address',
+                'bytes4',
+                'bytes',
+              ],
+              [
                 (await hre.ethers.provider.getNetwork()).chainId,
+                airnodeRrp.address,
                 rrpBeaconServer.address,
+                await airnodeRrp.requesterToRequestCountPlusOne(rrpBeaconServer.address),
                 templateId,
                 roles.sponsor.address,
                 sponsorWalletAddress,
@@ -1237,11 +1269,12 @@ describe('fulfill', function () {
           );
         const requestId = hre.ethers.utils.keccak256(
           hre.ethers.utils.solidityPack(
-            ['uint256', 'uint256', 'address', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
+            ['uint256', 'address', 'address', 'uint256', 'bytes32', 'address', 'address', 'address', 'bytes4', 'bytes'],
             [
-              (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
               (await hre.ethers.provider.getNetwork()).chainId,
+              airnodeRrp.address,
               roles.randomPerson.address,
+              (await airnodeRrp.requesterToRequestCountPlusOne(roles.randomPerson.address)).sub(1),
               templateId,
               roles.sponsor.address,
               sponsorWalletAddress,
