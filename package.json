@@ -13,7 +13,7 @@
   },
   "scripts": {
     "bootstrap": "yarn install && lerna bootstrap",
-    "build": "lerna run build --stream",
+    "build": "lerna run build --stream && ts-node scripts/make-cli-executable.ts",
     "build:adapter": "(cd packages/adapter && yarn run build)",
     "build:admin": "(cd packages/admin && yarn run build)",
     "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
