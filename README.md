@@ -12,9 +12,13 @@ It houses the following packages:
 
 [**adapter**:](https://github.com/api3dao/airnode/tree/master/packages/adapter) The module that makes an API call, processes the response and returns a single value
 
+[**admin**:](https://github.com/api3dao/airnode/tree/master/packages/admin) A package/CLI tool to interact with the Airnode contracts across chains
+
 [**airnode-abi**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi) Encoding and decoding utilities for Airnode according to the [Airnode ABI specifications](https://github.com/api3dao/api3-docs/blob/master/airnode/airnode-abi-specifications.md)
 
 [**deployer**:](https://github.com/api3dao/airnode/tree/master/packages/deployer) Tools to automate Airnode deployment
+
+[**examples**:](https://github.com/api3dao/airnode/tree/master/packages/examples) A public list of examples showcasing the features of Airnode
 
 [**node**:](https://github.com/api3dao/airnode/tree/master/packages/node) Airnode itself
 
