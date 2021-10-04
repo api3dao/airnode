@@ -91,7 +91,6 @@ describe('CLI', () => {
 
     const sdkCliDiff = difference(allFunctions, allCommands);
     const uncoveredFunctions = [
-      'airnode-to-xpub',
       'sponsor-to-requester-to-sponsorship-status',
       'set-sponsorship-status',
       'get-templates',
@@ -111,20 +110,19 @@ describe('CLI', () => {
   });
 
   describe('derive-sponsor-wallet-address', () => {
-    it('derives using provided xpub arg', async () => {
+    it('derives using airnode xpub', async () => {
       const sponsorAddress = alice.address;
 
       const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
-      const airnodeXpub = airnodeHdNode.neuter().extendedKey;
+      const airnodeXpub = airnodeHdNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
 
       // Derive the wallet using CLI and admin SDK
       const out = execCommand(
         'derive-sponsor-wallet-address',
-        ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
-        ['--airnode-address', airnodeWallet.address],
-        ['--sponsor-address', sponsorAddress],
-        ['--xpub', airnodeXpub]
+        ['--mnemonic', airnodeWallet.mnemonic.phrase],
+        ['--airnodeXpub', airnodeXpub],
+        ['--airnodeAddress', airnodeWallet.address],
+        ['--sponsorAddress', sponsorAddress]
       );
 
       // Derive the wallet programatically
@@ -133,38 +131,22 @@ describe('CLI', () => {
       // Check that they generate the same wallet address
       expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
     });
-    it('derives using on chain xpub', async () => {
+    it('errors out with wrong xpub message', async () => {
       const sponsorAddress = alice.address;
 
-      airnodeRrp = airnodeRrp.connect(airnodeWallet);
-      await admin.setAirnodeXpub(airnodeRrp);
+      const randomWallet = ethers.Wallet.createRandom();
+      const randomHdNode = ethers.utils.HDNode.fromMnemonic(randomWallet.mnemonic.phrase);
+      const randomXpub = randomHdNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
 
-      // Derive the wallet using CLI and admin SDK
-      const out = execCommand(
-        'derive-sponsor-wallet-address',
-        ['--provider-url', PROVIDER_URL],
-        ['--airnode-rrp', airnodeRrp.address],
-        ['--airnode-address', airnodeWallet.address],
-        ['--sponsor-address', sponsorAddress]
-      );
-
-      // Derive the wallet programatically
-      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsorAddress);
-
-      // Check that they generate the same wallet address
-      expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
-    });
-    it('errors out with missing xpub message', async () => {
-      const sponsorAddress = alice.address;
       expect(() =>
         execCommand(
           'derive-sponsor-wallet-address',
-          ['--provider-url', PROVIDER_URL],
-          ['--airnode-rrp', airnodeRrp.address],
-          ['--airnode-address', airnodeWallet.address],
-          ['--sponsor-address', sponsorAddress]
+          ['--mnemonic', mnemonic],
+          ['--airnodeXpub', randomXpub],
+          ['--airnodeAddress', airnodeWallet.address],
+          ['--sponsorAddress', sponsorAddress]
         )
-      ).toThrow('Airnode xpub is missing in AirnodeRrp contract');
+      ).toThrow(`xpub does not belong to Airnode: ${airnodeWallet.address}`);
     });
   });
 
@@ -317,29 +299,6 @@ describe('CLI', () => {
         balanceBefore.add(ethers.BigNumber.from('800000000000000000')).toString()
       );
     });
-  });
-
-  it('can set/get airnode xpub', async () => {
-    const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
-    const airnodeXpub = airnodeHdNode.neuter().extendedKey;
-
-    const setAirnodeXpubOut = execCommand(
-      'set-airnode-xpub',
-      ['--mnemonic', airnodeWallet.mnemonic.phrase],
-      ['--derivation-path', airnodeWallet.mnemonic.path],
-      ['--provider-url', PROVIDER_URL],
-      ['--airnode-rrp', airnodeRrp.address]
-    );
-    expect(setAirnodeXpubOut).toEqual(`Airnode xpub: ${airnodeXpub}`);
-
-    const getAirnodeXpubOut = execCommand(
-      'get-airnode-xpub',
-      ['--provider-url', PROVIDER_URL],
-      ['--airnode-rrp', airnodeRrp.address],
-      ['--airnode-address', airnodeWallet.address]
-    );
-
-    expect(getAirnodeXpubOut).toEqual(`Airnode xpub: ${airnodeXpub}`);
   });
 
   it('derives endpoint ID', () => {
