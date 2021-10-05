@@ -6,6 +6,10 @@
     "node": "^14.17.1"
   },
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/api3dao/airnode"
+  },
   "workspaces": {
     "packages": [
       "packages/*"
