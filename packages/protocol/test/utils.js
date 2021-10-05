@@ -7,7 +7,7 @@ function deriveWalletPathFromSponsorAddress(sponsorAddress) {
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `m/0/${paths.join('/')}`;
+  return `0/${paths.join('/')}`;
 }
 
 module.exports = {
@@ -17,9 +17,10 @@ module.exports = {
   },
   generateRandomAirnodeWallet: () => {
     const airnodeWallet = ethers.Wallet.createRandom();
-    const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
+    const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
+    const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic).derivePath("m/44'/60'/0'");
     const airnodeXpub = airnodeHdNode.neuter().extendedKey;
-    return { airnodeAddress: airnodeWallet.address, airnodeMnemonic: airnodeWallet.mnemonic.phrase, airnodeXpub };
+    return { airnodeAddress: airnodeWallet.address, airnodeMnemonic, airnodeXpub };
   },
   generateRandomAddress: () => {
     return ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
@@ -36,9 +37,10 @@ module.exports = {
     return sponsorWalletHdNode.address;
   },
   deriveSponsorWallet: (airnodeMnemonic, sponsorAddress) => {
-    const hdNodeFromMnemonic = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic);
-    const sponsorWalletHdNode = hdNodeFromMnemonic.derivePath(deriveWalletPathFromSponsorAddress(sponsorAddress));
-    return new ethers.Wallet(sponsorWalletHdNode.privateKey);
+    return ethers.Wallet.fromMnemonic(
+      airnodeMnemonic,
+      `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`
+    );
   },
   deriveServiceId: (airnodeAddress, endpointId) => {
     return ethers.utils.keccak256(ethers.utils.solidityPack(['address', 'bytes32'], [airnodeAddress, endpointId]));
