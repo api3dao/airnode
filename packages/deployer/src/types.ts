@@ -5,7 +5,7 @@
 export interface AirnodeWallet {
   airnodeAddress: string;
   airnodeAddressShort: string;
-  xpub: string;
+  airnodeXpub: string;
 }
 
 export interface Deployment {

@@ -17,10 +17,10 @@ export function deriveAirnodeAddress(mnemonic: string) {
   return airnodeWallet.address;
 }
 
-export function deriveXpub(mnemonic: string) {
-  logger.debug('Deriving xpub from mnemonic');
-  const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic);
-  return hdNode.neuter().extendedKey;
+export function deriveAirnodeXpub(mnemonic: string) {
+  logger.debug('Deriving Airnode xpub from mnemonic');
+  const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(mnemonic).derivePath("m/44'/60'/0'");
+  return airnodeHdNode.neuter().extendedKey;
 }
 
 export function shortenAirnodeAddress(airnodeAddress: string) {
