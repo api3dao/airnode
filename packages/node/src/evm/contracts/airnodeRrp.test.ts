@@ -8,7 +8,6 @@ describe('AirnodeRrp', () => {
       .sort();
 
     expect(functions).toEqual([
-      'airnodeToXpub',
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
       'createTemplate',
@@ -21,7 +20,6 @@ describe('AirnodeRrp', () => {
       'requestIsAwaitingFulfillment',
       'requestWithdrawal',
       'requesterToRequestCountPlusOne',
-      'setAirnodeXpub',
       'setSponsorshipStatus',
       'sponsorToRequesterToSponsorshipStatus',
       'sponsorToWithdrawalRequestCount',
@@ -42,7 +40,6 @@ describe('AirnodeRrp', () => {
       'MadeFullRequest',
       'MadeTemplateRequest',
       'RequestedWithdrawal',
-      'SetAirnodeXpub',
       'SetSponsorshipStatus',
     ]);
   });

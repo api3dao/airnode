@@ -12,7 +12,7 @@ import { Config } from '../types';
  *
  * Since addresses can be represented as 160bits (20bytes) we can then
  * split it in chunks of 31bits and create a path with the following pattern:
- * m/0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
+ * 0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
  * @returns The path derived from the address
@@ -25,7 +25,7 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `m/0/${paths.join('/')}`;
+  return `0/${paths.join('/')}`;
 };
 
 export function getMasterHDNode(config: Config): ethers.utils.HDNode {
@@ -39,7 +39,7 @@ export function getAirnodeWallet(config: Config): ethers.Wallet {
 }
 
 export function getExtendedPublicKey(masterHDNode: ethers.utils.HDNode): string {
-  return masterHDNode.neuter().extendedKey;
+  return masterHDNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
 }
 
 export function getAirnodeAddressShort(airnodeAddress: string): string {
@@ -48,6 +48,8 @@ export function getAirnodeAddressShort(airnodeAddress: string): string {
 }
 
 export function deriveSponsorWallet(masterHDNode: ethers.utils.HDNode, sponsorAddress: string): ethers.Wallet {
-  const sponsorWalletHdNode = masterHDNode.derivePath(deriveWalletPathFromSponsorAddress(sponsorAddress));
-  return new ethers.Wallet(sponsorWalletHdNode.privateKey);
+  const sponsorWalletHdNode = masterHDNode.derivePath(
+    `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`
+  );
+  return new ethers.Wallet(sponsorWalletHdNode);
 }

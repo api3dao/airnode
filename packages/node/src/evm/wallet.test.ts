@@ -8,7 +8,7 @@ describe('getExtendedPublicKey', () => {
     const masterHDNode = wallet.getMasterHDNode(config);
     const xpub = wallet.getExtendedPublicKey(masterHDNode);
     expect(xpub).toEqual(
-      'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx'
+      'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY'
     );
   });
 });
@@ -33,6 +33,6 @@ describe('deriveSponsorWallet', () => {
     const masterHDNode = wallet.getMasterHDNode(config);
     const signingWallet = wallet.deriveSponsorWallet(masterHDNode, '0x06f509f73eefba36352bc8228f9112c3786100da');
     expect(signingWallet._isSigner).toEqual(true);
-    expect(signingWallet.address).toEqual('0x1492D895B7d597c645eB96D54f8F872d879BA7fE');
+    expect(signingWallet.address).toEqual('0x8857812BF8b001ED3021bFaF9Df77262204D17e3');
   });
 });
