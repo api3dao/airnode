@@ -3,7 +3,7 @@ import { encode } from '@api3/airnode-abi';
 import { ReservedParameterName } from '@api3/ois';
 import { startCoordinator } from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
-import { RequestErrorCode } from '../../src/types';
+import { RequestErrorMessage } from '../../src/types';
 import { deployAirnodeAndMakeRequests, fetchAllLogs, increaseTestTimeout } from '../setup/e2e';
 
 it('sets the correct status code for both successful and failed requests', async () => {
@@ -44,8 +44,8 @@ it('sets the correct status code for both successful and failed requests', async
   const failedRequest = logs.find(
     (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'FailedRequest'
   );
-  // The error message will contain an error code
+  // The error message will contain the API error message
   expect(failedRequest!.args.errorMessage).toEqual(
-    `API call failed with error code: ${RequestErrorCode.ApiCallFailed.toString()}`
+    `${RequestErrorMessage.ApiCallFailed} with error: Request failed with status code 404`
   );
 });

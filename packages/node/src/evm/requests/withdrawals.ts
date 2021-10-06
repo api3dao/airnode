@@ -19,6 +19,7 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
     sponsorWalletAddress: parsedLog.args.sponsorWallet,
     id: parsedLog.args.withdrawalRequestId,
     metadata: {
+      address: logWithMetadata.address,
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,

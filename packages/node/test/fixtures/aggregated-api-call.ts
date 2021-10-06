@@ -9,7 +9,7 @@ export function buildAggregatedApiCall(params?: Partial<AggregatedApiCall>): Agg
     chainId: '31337',
     endpointId: 'endpointId',
     endpointName: 'convertToUSD',
-    id: 'apiCallId',
+    id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8', //apiCallId
     oisTitle: 'Currency Converter API',
     parameters: { from: 'ETH' },
     ...params,

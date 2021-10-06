@@ -1,13 +1,13 @@
 import * as authorization from './authorization-application';
 import * as fixtures from '../../../test/fixtures';
-import { RequestErrorCode, RequestStatus } from '../../types';
+import { RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('mergeAuthorizations', () => {
   it('does nothing if the API call is already invalid', () => {
     const apiCall = fixtures.requests.buildApiCall({
       id: '0xapiCallId',
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.RequestParameterDecodingFailed,
+      errorMessage: RequestErrorMessage.RequestParameterDecodingFailed,
     });
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
@@ -19,7 +19,7 @@ describe('mergeAuthorizations', () => {
     const apiCall = fixtures.requests.buildApiCall({
       id: '0xapiCallId',
       status: RequestStatus.Blocked,
-      errorCode: RequestErrorCode.TemplateNotFound,
+      errorMessage: RequestErrorMessage.TemplateNotFound,
     });
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
@@ -32,7 +32,9 @@ describe('mergeAuthorizations', () => {
     const authorizationByRequestId = { '0xapiCallId': true };
     const [logs, res] = authorization.mergeAuthorizations([apiCall], authorizationByRequestId);
     expect(logs).toEqual([{ level: 'ERROR', message: 'No endpoint ID found for Request ID:0xapiCallId' }]);
-    expect(res).toEqual([{ ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.TemplateNotFound }]);
+    expect(res).toEqual([
+      { ...apiCall, status: RequestStatus.Blocked, errorMessage: RequestErrorMessage.TemplateNotFound },
+    ]);
   });
 
   it('blocks the request if no authorization is found', () => {
@@ -40,7 +42,7 @@ describe('mergeAuthorizations', () => {
     const [logs, res] = authorization.mergeAuthorizations([apiCall], {});
     expect(logs).toEqual([{ level: 'WARN', message: 'Authorization not found for Request ID:0xapiCallId' }]);
     expect(res).toEqual([
-      { ...apiCall, status: RequestStatus.Blocked, errorCode: RequestErrorCode.AuthorizationNotFound },
+      { ...apiCall, status: RequestStatus.Blocked, errorMessage: RequestErrorMessage.AuthorizationNotFound },
     ]);
   });
 
@@ -67,6 +69,12 @@ describe('mergeAuthorizations', () => {
           'Requester:0xrequesterAddress is not authorized to access Endpoint ID:0xendpointId for Request ID:0xapiCallId',
       },
     ]);
-    expect(res).toEqual([{ ...apiCall, status: RequestStatus.Errored, errorCode: RequestErrorCode.Unauthorized }]);
+    expect(res).toEqual([
+      {
+        ...apiCall,
+        status: RequestStatus.Errored,
+        errorMessage: `${RequestErrorMessage.Unauthorized}: ${apiCall.requesterAddress}`,
+      },
+    ]);
   });
 });

@@ -7,7 +7,7 @@ import {
   ApiCallTemplate,
   Request,
   LogsData,
-  RequestErrorCode,
+  RequestErrorMessage,
   RequestStatus,
 } from '../../types';
 
@@ -58,10 +58,10 @@ function updateApiCallWithTemplate(
   // Block the request for now and it will be retried on the next run
   if (!template) {
     const log = logger.pend('ERROR', `Unable to fetch template ID:${templateId} for Request ID:${id}`);
-    const updatedApiCall = {
+    const updatedApiCall: Request<ApiCall> = {
       ...apiCall,
       status: RequestStatus.Blocked,
-      errorCode: RequestErrorCode.TemplateNotFound,
+      errorMessage: `${RequestErrorMessage.TemplateNotFound}: ${templateId}`,
     };
     return [[log], updatedApiCall];
   }
@@ -75,10 +75,10 @@ function updateApiCallWithTemplate(
       'ERROR',
       `Template ID:${template.id} contains invalid parameters: ${template.encodedParameters}`
     );
-    const updatedApiCall = {
+    const updatedApiCall: Request<ApiCall> = {
       ...apiCall,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.TemplateParameterDecodingFailed,
+      errorMessage: `${RequestErrorMessage.TemplateParameterDecodingFailed}: ${template.encodedParameters}`,
     };
     return [[log], updatedApiCall];
   }
