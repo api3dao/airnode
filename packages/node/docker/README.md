@@ -44,6 +44,9 @@ docker run -d \
   api3/airnode:latest
 ```
 
+If you are connected to a local blockchain, you need to make the URL accessible from within the docker itself by using
+`--network="host"` parameter.
+
 ### Checking Airnode logs
 ```bash
 docker logs airnode

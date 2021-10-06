@@ -1,0 +1,15 @@
+node_modules
+log.json
+
+# Hardhat files
+/cache
+/artifacts
+/deployments
+
+# Holds information about the current integration
+/integration-info.json
+
+# Integration secrets
+aws.env
+secrets.env
+receipt.json
