@@ -4,7 +4,7 @@ import { go } from '../../utils/promise-utils';
 import * as logger from '../../logger';
 import * as requests from '../../requests';
 import { DEFAULT_RETRY_TIMEOUT_MS } from '../../constants';
-import { ApiCall, Request, LogsErrorData, RequestErrorCode, RequestStatus, TransactionOptions } from '../../types';
+import { ApiCall, Request, LogsErrorData, RequestErrorMessage, RequestStatus, TransactionOptions } from '../../types';
 import { AirnodeRrp } from '../contracts';
 import { decodeRevertString } from '..';
 
@@ -13,6 +13,22 @@ const GAS_LIMIT = 500_000;
 type StaticResponse = { readonly callSuccess: boolean; readonly callData: string } | null;
 
 type SubmitResponse = ethers.Transaction | null;
+
+type ApiCallWithSignature = ApiCall & { readonly signature: string };
+
+async function signResponseMessage(request: Request<ApiCall>, masterHDNode: ethers.utils.HDNode) {
+  const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
+  return await airnodeWallet.signMessage(
+    ethers.utils.arrayify(
+      ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ['bytes32', 'bytes'],
+          [request.id, request.responseValue || ethers.constants.HashZero]
+        )
+      )
+    )
+  );
+}
 
 // NOTE:
 // This module attempts to fulfill a given API call requests through a series of checks
@@ -37,10 +53,11 @@ type SubmitResponse = ethers.Transaction | null;
 // =================================================================
 async function testFulfill(
   airnodeRrp: AirnodeRrp,
-  request: Request<ApiCall>,
+  request: Request<ApiCallWithSignature>,
   options: TransactionOptions
 ): Promise<LogsErrorData<StaticResponse>> {
   const noticeLog = logger.pend('DEBUG', `Attempting to fulfill API call for Request:${request.id}...`);
+
   const operation = (): Promise<StaticResponse> =>
     airnodeRrp.callStatic.fulfill(
       request.id,
@@ -48,7 +65,7 @@ async function testFulfill(
       request.fulfillAddress,
       request.fulfillFunctionId,
       request.responseValue || ethers.constants.HashZero,
-      '', // TODO: add signature
+      request.signature,
       {
         gasLimit: GAS_LIMIT,
         gasPrice: options.gasPrice,
@@ -65,7 +82,7 @@ async function testFulfill(
 
 async function submitFulfill(
   airnodeRrp: AirnodeRrp,
-  request: Request<ApiCall>,
+  request: Request<ApiCallWithSignature>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
   const noticeLog = logger.pend('INFO', `Submitting API call fulfillment for Request:${request.id}...`);
@@ -77,7 +94,7 @@ async function submitFulfill(
       request.fulfillAddress,
       request.fulfillFunctionId,
       request.responseValue || ethers.constants.HashZero,
-      '', // TODO: add signature
+      request.signature,
       {
         gasLimit: GAS_LIMIT,
         gasPrice: options.gasPrice,
@@ -101,25 +118,26 @@ async function testAndSubmitFulfill(
   request: Request<ApiCall>,
   options: TransactionOptions
 ): Promise<LogsErrorData<SubmitResponse>> {
-  const errorCode = requests.getErrorCode(request);
-  if (errorCode !== 0) {
-    const [submitLogs, submitErr, submitData] = await submitFail(
-      airnodeRrp,
-      request,
-      `API call failed with error code: ${errorCode}`,
-      options
-    );
+  const errorMessage = requests.getErrorMessage(request);
+  if (errorMessage) {
+    const [submitLogs, submitErr, submitData] = await submitFail(airnodeRrp, request, errorMessage, options);
     return [submitLogs, submitErr, submitData];
   }
 
+  // Compute signature once.
+  // Not computing this beforehand because it might be a very computational expensive operation
+  const signature = await signResponseMessage(request, options.masterHDNode);
+
   // Should not throw
-  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, request, options);
+  const [testLogs, testErr, testData] = await testFulfill(airnodeRrp, { ...request, signature }, options);
 
   if (testErr || (testData && !testData.callSuccess)) {
-    const updatedRequest = {
+    const updatedRequest: Request<ApiCall> = {
       ...request,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.FulfillTransactionFailed,
+      errorMessage: testErr
+        ? `${RequestErrorMessage.FulfillTransactionFailed} with error: ${testErr.message}`
+        : RequestErrorMessage.FulfillTransactionFailed,
     };
     const [submitLogs, submitErr, submitData] = await submitFail(
       airnodeRrp,
@@ -132,7 +150,7 @@ async function testAndSubmitFulfill(
 
   // We expect the transaction to be successful if submitted
   if (testData?.callSuccess) {
-    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, request, options);
+    const [submitLogs, submitErr, submitData] = await submitFulfill(airnodeRrp, { ...request, signature }, options);
 
     // The transaction was submitted successfully
     if (submitData) {

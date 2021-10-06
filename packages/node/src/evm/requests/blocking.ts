@@ -1,6 +1,14 @@
 import fromPairs from 'lodash/fromPairs';
 import * as logger from '../../logger';
-import { ApiCall, Request, GroupedRequests, LogsData, PendingLog, RequestErrorCode, RequestStatus } from '../../types';
+import {
+  ApiCall,
+  Request,
+  GroupedRequests,
+  LogsData,
+  PendingLog,
+  RequestErrorMessage,
+  RequestStatus,
+} from '../../types';
 
 interface ApiCallsWithLogs {
   readonly apiCalls: Request<ApiCall>[];
@@ -23,7 +31,11 @@ export function blockRequestsWithWithdrawals(requests: GroupedRequests): LogsDat
         'WARN',
         `Ignoring Request ID:${apiCall.id} as it has a pending Withdrawl ID:${pendingWithdrawal.id}`
       );
-      const blockedCall = { ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.PendingWithdrawal };
+      const blockedCall: Request<ApiCall> = {
+        ...apiCall,
+        status: RequestStatus.Ignored,
+        errorMessage: `${RequestErrorMessage.PendingWithdrawal}: ${pendingWithdrawal.id}`,
+      };
       return {
         ...acc,
         logs: [...acc.logs, warningLog],

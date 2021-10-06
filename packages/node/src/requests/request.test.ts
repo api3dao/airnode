@@ -1,6 +1,6 @@
 import * as request from './request';
 import * as fixtures from '../../test/fixtures';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from '../types';
+import { GroupedRequests, RequestErrorMessage, RequestStatus } from '../types';
 
 describe('blockdOrIgnored', () => {
   it('ignores requests that have passed the specified block limit', () => {
@@ -152,14 +152,14 @@ describe('getStatusNames', () => {
   });
 });
 
-describe('getErrorCode', () => {
-  it('returns the error code for the request', () => {
-    const apiCall = fixtures.requests.buildApiCall({ errorCode: RequestErrorCode.TemplateNotFound });
-    expect(request.getErrorCode(apiCall)).toEqual(RequestErrorCode.TemplateNotFound);
+describe('getErrorMessage', () => {
+  it('returns the error message for the request', () => {
+    const apiCall = fixtures.requests.buildApiCall({ errorMessage: RequestErrorMessage.TemplateNotFound });
+    expect(request.getErrorMessage(apiCall)).toEqual(RequestErrorMessage.TemplateNotFound);
   });
 
-  it('returns 0 if no error code is present', () => {
-    const apiCall = fixtures.requests.buildApiCall({ errorCode: undefined });
-    expect(request.getErrorCode(apiCall)).toEqual(0);
+  it('returns 0 if no error message is present', () => {
+    const apiCall = fixtures.requests.buildApiCall({ errorMessage: undefined });
+    expect(request.getErrorMessage(apiCall)).toBeUndefined();
   });
 });

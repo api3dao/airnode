@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import * as logger from '../../logger';
 import { go } from '../../utils/promise-utils';
 import { spawnNewApiCall } from '../../adapters/http/worker';
-import { AggregatedApiCall, LogsData, LogOptions, RequestErrorCode, WorkerOptions } from '../../types';
+import { AggregatedApiCall, LogsData, LogOptions, RequestErrorMessage, WorkerOptions } from '../../types';
 import { WORKER_CALL_API_TIMEOUT } from '../../constants';
 
 async function execute(
@@ -28,23 +28,29 @@ async function execute(
   // If the worker crashed for whatever reason, mark the request as failed
   if (err || !logData || !logData[1]) {
     const log = logger.pend('ERROR', `${baseLogMsg} failed after ${durationMs}ms`, err);
-    const updatedApiCall = { ...aggregatedApiCall, errorCode: RequestErrorCode.ApiCallFailed };
+    const updatedApiCall: AggregatedApiCall = { ...aggregatedApiCall, errorMessage: RequestErrorMessage.ApiCallFailed };
     return [[...resLogs, log], updatedApiCall];
   }
   const res = logData[1];
 
   // If the request completed but has an errorCode, then it means that something
   // went wrong. Save the errorCode and message if one exists.
-  if (res.errorCode) {
-    const log = logger.pend('ERROR', `${baseLogMsg} errored after ${durationMs}ms with error code:${res.errorCode}`);
-    const updatedApiCall = { ...aggregatedApiCall, errorCode: res.errorCode as RequestErrorCode };
+  if (res.errorMessage) {
+    const log = logger.pend(
+      'ERROR',
+      `${baseLogMsg} errored after ${durationMs}ms with error message:${res.errorMessage}`
+    );
+    const updatedApiCall: AggregatedApiCall = {
+      ...aggregatedApiCall,
+      errorMessage: res.errorMessage,
+    };
     return [[...resLogs, log], updatedApiCall];
   }
 
   const completeLog = logger.pend('INFO', `${baseLogMsg} responded successfully in ${durationMs}ms`);
 
   // We can assume that the request was successful at this point
-  const updatedApiCall = { ...aggregatedApiCall, responseValue: res.value as string };
+  const updatedApiCall: AggregatedApiCall = { ...aggregatedApiCall, responseValue: res.value as string };
   return [[...resLogs, completeLog], updatedApiCall];
 }
 
@@ -53,8 +59,8 @@ export async function callApis(
   logOptions: LogOptions,
   workerOpts: WorkerOptions
 ): Promise<LogsData<AggregatedApiCall[]>> {
-  const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorCode);
-  const skippedAggregatedCalls = aggregatedApiCalls.filter((a) => a.errorCode);
+  const pendingAggregatedCalls = aggregatedApiCalls.filter((a) => !a.errorMessage);
+  const skippedAggregatedCalls = aggregatedApiCalls.filter((a) => a.errorMessage);
 
   if (isEmpty(pendingAggregatedCalls)) {
     const log = logger.pend('INFO', 'No pending API calls to process. Skipping API calls...');
@@ -74,7 +80,7 @@ export async function callApis(
   const successfulResponsesCount = responses.filter((r) => !!r.responseValue).length;
   const successLog = logger.pend('INFO', `Received ${successfulResponsesCount} successful API call(s)`);
 
-  const erroredResponsesCount = responses.filter((r) => !!r.errorCode).length;
+  const erroredResponsesCount = responses.filter((r) => !!r.errorMessage).length;
   const errorLog = logger.pend('INFO', `Received ${erroredResponsesCount} errored API call(s)`);
 
   const logs = [processLog, ...responseLogs, successLog, errorLog];

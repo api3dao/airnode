@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import { ApiCall, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 
 interface ValidatedField {
   readonly type: string;
@@ -12,21 +12,30 @@ function getValidatedFields(apiCall: Request<ApiCall>): ValidatedField[] {
   switch (apiCall.type) {
     case 'template':
       return [
-        { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: ethers.BigNumber.from(apiCall.chainId), type: 'uint256' },
+        { value: apiCall.metadata.address, type: 'address' },
         { value: apiCall.requesterAddress, type: 'address' },
+        { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: apiCall.templateId, type: 'bytes32' },
         { value: apiCall.sponsorAddress, type: 'address' },
+        { value: apiCall.sponsorWalletAddress, type: 'address' },
+        { value: apiCall.fulfillAddress, type: 'address' },
+        { value: apiCall.fulfillFunctionId, type: 'bytes4' },
         { value: apiCall.encodedParameters, type: 'bytes' },
       ];
 
     case 'full':
       return [
-        { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
         { value: ethers.BigNumber.from(apiCall.chainId), type: 'uint256' },
+        { value: apiCall.metadata.address, type: 'address' },
         { value: apiCall.requesterAddress, type: 'address' },
+        { value: ethers.BigNumber.from(apiCall.requestCount), type: 'uint256' },
+        { value: apiCall.airnodeAddress, type: 'address' },
         { value: apiCall.endpointId, type: 'bytes32' },
         { value: apiCall.sponsorAddress, type: 'address' },
+        { value: apiCall.sponsorWalletAddress, type: 'address' },
+        { value: apiCall.fulfillAddress, type: 'address' },
+        { value: apiCall.fulfillFunctionId, type: 'bytes4' },
         { value: apiCall.encodedParameters, type: 'bytes' },
       ];
   }
@@ -54,10 +63,10 @@ export function verifyApiCallIds(apiCalls: Request<ApiCall>[]): LogsData<Request
     const expectedRequestId = getExpectedRequestId(apiCall);
     if (apiCall.id !== expectedRequestId) {
       const log = logger.pend('ERROR', `Invalid ID for Request:${apiCall.id}. Expected:${expectedRequestId}`);
-      const updatedApiCall = {
+      const updatedApiCall: Request<ApiCall> = {
         ...apiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.RequestInvalid,
+        errorMessage: `${RequestErrorMessage.RequestIdInvalid}: ${apiCall.id}`,
       };
       return [[log], updatedApiCall];
     }

@@ -51,5 +51,5 @@ export function deriveSponsorWallet(masterHDNode: ethers.utils.HDNode, sponsorAd
   const sponsorWalletHdNode = masterHDNode.derivePath(
     `m/44'/60'/0'/${deriveWalletPathFromSponsorAddress(sponsorAddress)}`
   );
-  return new ethers.Wallet(sponsorWalletHdNode);
+  return new ethers.Wallet(sponsorWalletHdNode.privateKey);
 }

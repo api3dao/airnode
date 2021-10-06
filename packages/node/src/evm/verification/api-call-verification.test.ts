@@ -1,7 +1,7 @@
 import * as verification from './api-call-verification';
 import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
-import { RequestErrorCode, RequestStatus } from '../../types';
+import { RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('verifyApiCallIds', () => {
   requests.getStatusNames().forEach((status) => {
@@ -26,8 +26,11 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
-      id: '0x0e057c8346837c50e08df0dbb35cf3df8f9493aa7f4ff113ee9a94f1438316dc',
+      id: '0x67caaa2862cf971502d5c5b3d94d09d15c770f3313e76aa95c296b6587e7e5f1',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
       type: 'template',
@@ -43,9 +46,12 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
-      id: '0xac5176efb4045a8b1539acff96557dc9cd90862c81037e984f099614757ec903',
+      id: '0x37b3b5fd437d12e3b6ed6e70f6564d521ffe93f138bd47436b4a53929cee7fbe',
       requestCount: '0',
       templateId: null,
       type: 'full',
@@ -61,16 +67,23 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       id: '0xinvalid',
       requestCount: '5',
       templateId: '0xe29a81893520cc4964bea1bc003e836e658c8043ba841fb7e5f7f91fe99fbb5b',
       type: 'template',
     });
-    const expectedId = '0x0e057c8346837c50e08df0dbb35cf3df8f9493aa7f4ff113ee9a94f1438316dc';
+    const expectedId = '0x67caaa2862cf971502d5c5b3d94d09d15c770f3313e76aa95c296b6587e7e5f1';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
+    expect(res[0]).toEqual({
+      ...apiCall,
+      status: RequestStatus.Ignored,
+      errorMessage: `${RequestErrorMessage.RequestIdInvalid}: ${apiCall.id}`,
+    });
   });
 
   it('ignores full API calls with invalid IDs', () => {
@@ -79,6 +92,9 @@ describe('verifyApiCallIds', () => {
       chainId: '31337',
       requesterAddress: '0x7f7d1Aa0792aC39f43C6e7FA2ec31258Fc5FD612',
       sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
+      sponsorWalletAddress: '0xd5e6a768f1d23d30B386Bb5c125DBe83A9c40c73',
+      fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      fulfillFunctionId: '0x7c1de7e1',
       encodedParameters: '0x62746f6355534466616d6f756e746131',
       endpointId: '0xc3eb02c57654b57e06a745a970317987f7886c000e95a4a51d4a4447c515cc05',
       id: '0xinvalid',
@@ -86,9 +102,13 @@ describe('verifyApiCallIds', () => {
       templateId: null,
       type: 'full',
     });
-    const expectedId = '0xac5176efb4045a8b1539acff96557dc9cd90862c81037e984f099614757ec903';
+    const expectedId = '0x37b3b5fd437d12e3b6ed6e70f6564d521ffe93f138bd47436b4a53929cee7fbe';
     const [logs, res] = verification.verifyApiCallIds([apiCall]);
     expect(logs).toEqual([{ level: 'ERROR', message: `Invalid ID for Request:${apiCall.id}. Expected:${expectedId}` }]);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.RequestInvalid });
+    expect(res[0]).toEqual({
+      ...apiCall,
+      status: RequestStatus.Ignored,
+      errorMessage: `${RequestErrorMessage.RequestIdInvalid}: ${apiCall.id}`,
+    });
   });
 });

@@ -3,7 +3,7 @@ import { RequestType, TransactionReceipt } from '../../../src/types';
 
 export function buildTransactionReceipt(overrides?: Partial<TransactionReceipt>): TransactionReceipt {
   return {
-    id: 'apiCallId',
+    id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8', //apiCallId
     data: {
       chainId: 31337,
       data: '0xdata',

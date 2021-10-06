@@ -52,6 +52,7 @@ export async function fetch(options: FetchOptions): Promise<EVMEventLog[]> {
   const rawLogs = await retryableOperation;
 
   const logsWithBlocks = rawLogs.map((log) => ({
+    address: log.address,
     blockNumber: log.blockNumber,
     currentBlock: options.currentBlock,
     ignoreBlockedRequestsAfterBlocks: options.ignoreBlockedRequestsAfterBlocks,

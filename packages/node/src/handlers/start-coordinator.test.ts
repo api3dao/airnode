@@ -71,11 +71,12 @@ describe('startCoordinator', () => {
     // API call was submitted
     expect(fulfillMock).toHaveBeenCalledTimes(1);
     expect(fulfillMock).toHaveBeenCalledWith(
-      '0x389ed0979942f53a68aa855b5dae391f3979f77f7fa417de4bf99361f48a4507',
+      '0xbb7a523ebcb9c151457d6ea26ced6bbc0fab1aa7f170156bd0f63a295e5f8e16',
       '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      '0x0000000000000000000000000000000000000000000000000000000002a5213d',
       '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       '0x7c1de7e1',
+      '0x0000000000000000000000000000000000000000000000000000000002a5213d',
+      '0xddf643d543a2c2ce3e80b42e060ecc0297e172678cec56930661b0a648c1af3b68fc2ee118331562a6d8827095cc212bb111244f53e8189c3d97613002c5e2461c',
       { gasLimit: 500_000, gasPrice, nonce: 212 }
     );
   });

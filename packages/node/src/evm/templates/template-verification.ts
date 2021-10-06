@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import flatMap from 'lodash/flatMap';
 import * as logger from '../../logger';
-import { ApiCall, ApiCallTemplate, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, ApiCallTemplate, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 
 interface ApiCallTemplatesById {
   readonly [id: string]: ApiCallTemplate;
@@ -40,10 +40,10 @@ export function verify(
         'ERROR',
         `Ignoring Request:${apiCall.id} as the template could not be found for verification`
       );
-      const updatedApiCall = {
+      const updatedApiCall: Request<ApiCall> = {
         ...apiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.TemplateNotFound,
+        errorMessage: `${RequestErrorMessage.TemplateNotFound}: ${apiCall.templateId}`,
       };
       return [[log], updatedApiCall];
     }
@@ -55,10 +55,10 @@ export function verify(
         'ERROR',
         `Invalid template ID:${apiCall.templateId} found for Request:${apiCall.id}. Expected template ID:${expectedTemplateId}`
       );
-      const updatedApiCall = {
+      const updatedApiCall: Request<ApiCall> = {
         ...apiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.TemplateInvalid,
+        errorMessage: `${RequestErrorMessage.TemplateIdInvalid}: ${apiCall.templateId}`,
       };
       return [[log], updatedApiCall];
     }
