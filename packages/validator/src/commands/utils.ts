@@ -34,7 +34,7 @@ export const conversions: {
 } = {};
 
 conversionTemplates.forEach((file) => {
-  const [from, to] = file.replace(/\.json$/, '').split('->');
+  const [from, to] = file.replace(/\.json$/, '').split('------');
   const [fromName, fromVersion] = from.split('@');
   const [toName, toVersion] = to.split('@');
 
@@ -164,10 +164,10 @@ export function getConversionPath(
     toVersion = toLatest;
   }
 
-  if (!fs.existsSync(path.resolve(conversionsPath, `${from}@${fromVersion}->${to}@${toVersion}.json`))) {
+  if (!fs.existsSync(path.resolve(conversionsPath, `${from}@${fromVersion}------${to}@${toVersion}.json`))) {
     messages.push(unknownConversion(`${from}@${fromVersion}`, `${to}@${toVersion}`));
     return null;
   }
 
-  return path.resolve(conversionsPath, `${from}@${fromVersion}->${to}@${toVersion}.json`);
+  return path.resolve(conversionsPath, `${from}@${fromVersion}------${to}@${toVersion}.json`);
 }
