@@ -14,17 +14,16 @@ type StaticResponse = { readonly callSuccess: boolean; readonly callData: string
 
 type SubmitResponse = ethers.Transaction | null;
 
-type ApiCallWithSignature = ApiCall & { readonly signature: string };
+interface ApiCallWithSignature extends ApiCall {
+  readonly signature: string;
+}
 
 async function signResponseMessage(request: Request<ApiCall>, masterHDNode: ethers.utils.HDNode) {
   const airnodeWallet = ethers.Wallet.fromMnemonic(masterHDNode.mnemonic!.phrase);
   return await airnodeWallet.signMessage(
     ethers.utils.arrayify(
       ethers.utils.keccak256(
-        ethers.utils.solidityPack(
-          ['bytes32', 'bytes'],
-          [request.id, request.responseValue || ethers.constants.HashZero]
-        )
+        ethers.utils.solidityPack(['bytes32', 'bytes'], [request.id, request.responseValue || '0x'])
       )
     )
   );
@@ -64,7 +63,7 @@ async function testFulfill(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      request.responseValue || ethers.constants.HashZero,
+      request.responseValue || '0x',
       request.signature,
       {
         gasLimit: GAS_LIMIT,
@@ -93,7 +92,7 @@ async function submitFulfill(
       request.airnodeAddress,
       request.fulfillAddress,
       request.fulfillFunctionId,
-      request.responseValue || ethers.constants.HashZero,
+      request.responseValue || '0x',
       request.signature,
       {
         gasLimit: GAS_LIMIT,

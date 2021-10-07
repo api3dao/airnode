@@ -21,7 +21,10 @@ export function decodeRevertString(callData: string) {
   // Refer to https://ethereum.stackexchange.com/a/83577
   // eslint-disable-next-line functional/no-try-statement
   try {
-    // Skip the signature, only get the revert string
+    // Skip the funciton selector from the returned encoded data
+    // and only decode the revert reason string.
+    // Function selector is 4 bytes long and that is why we skip
+    // the first 2 bytes (0x) and the rest 8 bytes is the function selector
     return ethers.utils.defaultAbiCoder.decode(['string'], `0x${callData.substring(2 + 4 * 2)}`)[0];
   } catch {
     return 'No revert string';
