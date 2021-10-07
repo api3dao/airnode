@@ -49,9 +49,6 @@ yarn choose-integration
 After you have chosen an integration, be sure to read out its README for details. You will find it in
 `integrations/<integration-name>/README.md`.
 
-> NOTE: If you are using WSL2 on Windows, you will not be able to run Airnode locally with hardhat network. This is a
-> docker and WSL2 limitation. See: https://github.com/docker/for-win/issues/6736.
-
 ### 2. (Only if using local blockchain) Start hardhat network
 
 Run:
@@ -109,8 +106,8 @@ integration. The latter, `secrets.env` must be created. You can generate it usin
 yarn create-airnode-secrets
 ```
 
-> If you are not using docker for linux and you want to connect to hardhat network, you will need to modify the
-> `secrets.env` and replace the provider URL with the following `PROVIDER_URL=http://host.docker.internal:8545`. This is
+> If you are not using docker for linux and you want to connect to your local hardhat network, you will need to modify the generated
+> `secrets.env` file found in `integrations/<integration-name>/` by replacing the provider URL with the following: `PROVIDER_URL=http://host.docker.internal:8545`. This is
 > a docker limitaton. See: https://stackoverflow.com/a/24326540
 
 Refer to the
