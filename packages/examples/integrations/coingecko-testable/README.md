@@ -17,6 +17,7 @@ curl -X POST -H 'x-api-key: <HTTP_GATEWAY_API_KEY>' -d '{"parameters": {"coinId"
 ```
 
 Before making the request, you need to replace the example values:
+
 - `<HTTP_GATEWAY_API_KEY>` - You can find this value in `secrets.env`
 - `<HTTP_GATEWAY_URL>` - You can find this value in `receipt.json` under `api.httpGatewayUrl` path
 - `<ENDPOINT_ID>` - You can find this value in `config.json` under `triggers.rrp[0].endpointId` path

@@ -6,6 +6,7 @@ The project will contain many runnable scripts to guide you through the necessar
 contents of the scripts as you run them.
 
 Airnode is very flexible and can be used in various ways. For example, you may:
+
 - Run Airnode as a docker container locally while connected to Rinkeby network
 - Run Airnode as a docker container locally, but connected to the hardhat (local) network
 - Deploy Airnode on AWS and use the Rinkeby network
@@ -16,6 +17,7 @@ but you may adapt the configuration to work for your target chain.
 ## Request-Response protocol (RRP)
 
 Currently, all of the examples facilitate the RRP protocol. The example RRP flow consists of two high level parts:
+
 1. Deploy an `AirnodeRrp` contract and a `RrpRequester` on a supported chain
 2. Deploy Airnode on a cloud provider (or run locally in a docker) and make a request using the deployed requester
 
@@ -42,6 +44,7 @@ trigger an Airnode request. For hardhat network you can use the account derived 
 already funded.
 
 Run the following script to interactively choose your integration:
+
 ```sh
 yarn choose-integration
 ```
@@ -52,6 +55,7 @@ After you have chosen an integration, be sure to read out its README for details
 ### 2. (Only if using local blockchain) Start hardhat network
 
 Run:
+
 ```sh
 yarn eth-node
 ```
@@ -106,9 +110,10 @@ integration. The latter, `secrets.env` must be created. You can generate it usin
 yarn create-airnode-secrets
 ```
 
-> If you are not using docker for linux and you want to connect to your local hardhat network, you will need to modify the generated
-> `secrets.env` file found in `integrations/<integration-name>/` by replacing the provider URL with the following: `PROVIDER_URL=http://host.docker.internal:8545`. This is
-> a docker limitaton. See: https://stackoverflow.com/a/24326540
+> If you are not using docker for linux and you want to connect to your local hardhat network, you will need to modify
+> the generated `secrets.env` file found in `integrations/<integration-name>/` by replacing the provider URL with the
+> following: `PROVIDER_URL=http://host.docker.internal:8545`. This is a docker limitaton. See:
+> https://stackoverflow.com/a/24326540
 
 Refer to the
 [documentation](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
@@ -166,7 +171,7 @@ triggers every minute - this means that Airnode logs won't start appearing immed
 
 At this point, you have a RRP contract deployed. You also either have a docker running locally or deployed on AWS.
 Airnode is now listening on the events (requests to be made) of the RRP contract. All that is left now, is making a
-request to it. 
+request to it.
 
 The first step is to deploy a requester contract. Run:
 
@@ -178,12 +183,13 @@ yarn deploy-requester
 
 Airnode request requires a [sponsor](https://docs.api3.org/airnode/next/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
-"sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the [admin CLI
-package](https://github.com/api3dao/airnode/tree/master/packages/admin). Refer to the
+"sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the
+[admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/admin). Refer to the
 [documentation](https://docs.api3.org/airnode/next/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
 
 Run:
+
 ```sh
 yarn derive-and-fund-sponsor-wallet
 ```
@@ -194,7 +200,7 @@ This script will first derive the sponsor wallet and afterwards fund it with 0.1
 ### 14. Allow the sponsor to pay for requests made by the requester
 
 In order to prevent misuse, each sponsor has to explicitely approve a requester. Once the requester is approved, his
-requests can be paid by this sponsor. 
+requests can be paid by this sponsor.
 
 ```sh
 yarn sponsor-requester
