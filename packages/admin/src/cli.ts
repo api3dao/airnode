@@ -111,13 +111,13 @@ yargs
     'derive-sponsor-wallet-address',
     'Derives the address of the wallet for an airnode-sponsor pair',
     {
-      airnodeXpub,
+      'airnode-xpub': airnodeXpub,
       'airnode-address': airnodeAddress,
       'sponsor-address': sponsorAddress,
     },
     async (args) => {
       const sponsorWalletAddress = await admin.deriveSponsorWalletAddress(
-        args.airnodeXpub,
+        args['airnode-xpub'],
         args['airnode-address'],
         args['sponsor-address']
       );

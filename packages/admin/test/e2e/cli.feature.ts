@@ -120,9 +120,9 @@ describe('CLI', () => {
       // Derive the wallet using CLI and admin SDK
       const out = execCommand(
         'derive-sponsor-wallet-address',
-        ['--airnodeXpub', airnodeXpub],
-        ['--airnodeAddress', airnodeWallet.address],
-        ['--sponsorAddress', sponsorAddress]
+        ['--airnode-xpub', airnodeXpub],
+        ['--airnode-address', airnodeWallet.address],
+        ['--sponsor-address', sponsorAddress]
       );
 
       // Derive the wallet programatically
@@ -141,9 +141,9 @@ describe('CLI', () => {
       expect(() =>
         execCommand(
           'derive-sponsor-wallet-address',
-          ['--airnodeXpub', randomXpub],
-          ['--airnodeAddress', airnodeWallet.address],
-          ['--sponsorAddress', sponsorAddress]
+          ['--airnode-xpub', randomXpub],
+          ['--airnode-address', airnodeWallet.address],
+          ['--sponsor-address', sponsorAddress]
         )
       ).toThrow(`xpub does not belong to Airnode: ${airnodeWallet.address}`);
     });
