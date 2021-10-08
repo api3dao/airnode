@@ -29,8 +29,8 @@ variable "secrets_file" {
   description = "Airnode secrets file"
 }
 
-variable "handler_file" {
-  description = "Airnode handler source code file"
+variable "handler_dir" {
+  description = "Airnode handler source code directory"
 }
 
 variable "api_key" {

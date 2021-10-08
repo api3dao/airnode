@@ -26,6 +26,7 @@
     "@api3/airnode-abi": "^0.1.0",
     "@api3/ois": "^0.1.0",
     "@api3/protocol": "^0.1.0",
+    "@api3/validator": "^0.1.0",
     "@lifeomic/attempt": "^3.0.0",
     "aws-sdk": "^2.753.0",
     "date-fns": "^2.16.1",

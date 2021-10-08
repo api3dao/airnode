@@ -5,8 +5,8 @@ resource "null_resource" "fetch_lambda_files" {
   provisioner "local-exec" {
     command = <<EOC
 rm -rf ${local.tmp_dir}
-mkdir -p "${local.tmp_source_dir}" "${local.tmp_configuration_dir}"
-cp "${var.source_file}" "${local.tmp_source_dir}"
+mkdir -p "${local.tmp_input_dir}" "${local.tmp_configuration_dir}"
+cp -r "${var.source_dir}/." "${local.tmp_input_dir}"
 cp "${var.configuration_file}" "${local.tmp_configuration_dir}"
 EOC
   }

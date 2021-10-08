@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   devtool: 'source-map',
@@ -16,4 +17,12 @@ module.exports = {
     mainFields: ['main'],
   },
   target: 'node',
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: '../validator/dist/templates', to: 'templates' },
+        { from: '../validator/dist/conversions', to: 'conversions' },
+      ],
+    }),
+  ],
 };
