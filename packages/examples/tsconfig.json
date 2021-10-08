@@ -2,11 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist",
+    "outDir": "dist"
   },
   "include": ["./src/**/*", "./deploy/**/*", "./scripts/**/*", "./hardhat.config.ts"],
-  "exclude": [
-    "dist/**/*",
-    "node_modules/**/*"
-  ]
+  "exclude": ["dist/**/*", "node_modules/**/*"]
 }

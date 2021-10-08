@@ -12,7 +12,7 @@ module.exports = {
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
-    waffle: true
+    waffle: true,
   },
   extends: [
     'eslint:recommended',
@@ -22,11 +22,7 @@ module.exports = {
     'plugin:import/typescript',
     'plugin:jest/recommended',
   ],
-  plugins: [
-    '@typescript-eslint',
-    'import',
-    'jest',
-  ],
+  plugins: ['@typescript-eslint', 'import', 'jest'],
   rules: {
     // TypeScript
     '@typescript-eslint/ban-ts-comment': 0,
@@ -48,10 +44,13 @@ module.exports = {
 
     // eslint-plugin-import
     'import/namespace': [2, { allowComputed: true }],
-    'import/order': ['error', {
-      groups: ['builtin', 'external', 'internal', 'sibling', 'parent', 'index', 'object', 'type'],
-      pathGroups: [{ pattern: 'mock-utils', group: 'builtin', patternOptions: { matchBase: true, nocomment: true } }],
-    }],
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'internal', 'sibling', 'parent', 'index', 'object', 'type'],
+        pathGroups: [{ pattern: 'mock-utils', group: 'builtin', patternOptions: { matchBase: true, nocomment: true } }],
+      },
+    ],
 
     // ESLint
     'comma-dangle': [2, 'only-multiline'],

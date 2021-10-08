@@ -6,7 +6,5 @@
     "rootDir": "src"
   },
   "include": ["./src/**/*", "./deploy/**/*", "./scripts/**/*", "./hardhat.config.ts"],
-  "exclude": [
-    "src/**/*.test.ts"
-  ]
+  "exclude": ["src/**/*.test.ts"]
 }
