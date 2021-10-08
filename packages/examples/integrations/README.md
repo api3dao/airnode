@@ -1,10 +1,11 @@
 # Integrations
 
 This folder contains integrations showcasing various features and API integrations, which can be run using a basic
-Airnode flow. Each integration is self contained in its own folder. The only exception is the contract of the
-requester. All requesters are located in the `../contracts` directory.
+Airnode flow. Each integration is self contained in its own folder. The only exception is the contract of the requester.
+All requesters are located in the `../contracts` directory.
 
 Each integration consist of a these files:
+
 - `README.md` - Should explain what the particular integration is about
 - `config.json` - See the
   [docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for details
@@ -17,11 +18,12 @@ Each integration consist of a these files:
 
 ## Adding new integration
 
-> This section is intended for developers, if you are only interested in running the examples you can skip this section 
+> This section is intended for developers, if you are only interested in running the examples you can skip this section
 
 First, make sure there is not a similar integration already.
 
 When adding an integration you need to do a few things:
+
 1. Pick a `kebab-case` name for your integration and create such folder in this directory and in `../contracts`
 2. Create an `Requester.sol` contract in `../contracts/<your-chosen-name>` - Important part is to handle how to decode
    the data received by the Airnode
@@ -52,6 +54,7 @@ can be asynchronous.
 ### request-utils.ts
 
 This file is expected to `export const` a pair of functions (both can be asynchronous):
+
 - `getEncodedParameters` - Returns the encoded parameters that are passed to the requester contract when making the
   request.
 - `printResponse` - Is a function which outputs the data received by the requester contract (and maybe format it before

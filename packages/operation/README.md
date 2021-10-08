@@ -4,7 +4,8 @@
 
 ## Setup
 
-This package is currently not intended to be used in a standalone way. Instead you can clone and setup the full monorepo by running the following commands:
+This package is currently not intended to be used in a standalone way. Instead you can clone and setup the full monorepo
+by running the following commands:
 
 ```sh
 # Install and link dependencies
@@ -16,7 +17,10 @@ yarn run build
 
 ## Dummy web API
 
-An optional "dummy" web API is also included in this package. This API uses [express.js](https://github.com/expressjs/express) behind the scenes that exposes a few hardcoded endpoints. These endpoint are intended to only be used when developing Airnode and running E2E tests. The server can be controlled with the following commands:
+An optional "dummy" web API is also included in this package. This API uses
+[express.js](https://github.com/expressjs/express) behind the scenes that exposes a few hardcoded endpoints. These
+endpoint are intended to only be used when developing Airnode and running E2E tests. The server can be controlled with
+the following commands:
 
 ```sh
 # Start the API at http://localhost:5000
@@ -26,7 +30,8 @@ yarn run dev:api
 yarn run dev:api:background
 ```
 
-See [Managing background processes](#managing-background-processes) for more information on how to control background processes.
+See [Managing background processes](#managing-background-processes) for more information on how to control background
+processes.
 
 ## Airnode Development
 
@@ -59,9 +64,11 @@ Start an Ethereum development node by running:
 yarn run dev:eth-node
 ```
 
-By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your `config.json` when running the Airnode.
+By default, this node listens on `http://127.0.0.1:8545/`. This is important as you will need to use this value in your
+`config.json` when running the Airnode.
 
-This development node uses [Hardhat](https://hardhat.org/) behind the scenes. It creates no contracts by itself and only pre-funds a (configurable) number of accounts/addresses.
+This development node uses [Hardhat](https://hardhat.org/) behind the scenes. It creates no contracts by itself and only
+pre-funds a (configurable) number of accounts/addresses.
 
 ### Deploying Airnode
 
@@ -71,11 +78,16 @@ After starting an Ethereum development node, you can deploy the Airnode RRP cont
 yarn run dev:eth-deploy
 ```
 
-Along with simply deploying the Airnode RRP contracts, the above command will also set Airnode xpub onchain, deploy requester contracts, create request templates and authorizers and several other things. See [Configuration](#Configuration) below for more information on customizing this behaviour.
+Along with simply deploying the Airnode RRP contracts, the above command will also set Airnode xpub onchain, deploy
+requester contracts, create request templates and authorizers and several other things. See
+[Configuration](#Configuration) below for more information on customizing this behaviour.
 
-Running this command will build and save a "deployment" file in a `./deployments` folder. This file contains the addresses for the relevant accounts and contracts that are created. This is necessary as subsequent scripts do not have context of what these addresses and contracts are. You do not need to edit this file yourself.
+Running this command will build and save a "deployment" file in a `./deployments` folder. This file contains the
+addresses for the relevant accounts and contracts that are created. This is necessary as subsequent scripts do not have
+context of what these addresses and contracts are. You do not need to edit this file yourself.
 
-It is important to note that the Ethereum development node uses the same mnemonic which means that the contracts will be deployed to the same addresses after restarting the node.
+It is important to note that the Ethereum development node uses the same mnemonic which means that the contracts will be
+deployed to the same addresses after restarting the node.
 
 ### Making Requests
 
@@ -93,7 +105,8 @@ Airnode can now be invoked which will cause these requests to be actioned.
 
 ### Configuring deployment
 
-Deployment can be configured by adjusting the `config/eth-dev-config.json` file. This file has the following top level structure:
+Deployment can be configured by adjusting the `config/eth-dev-config.json` file. This file has the following top level
+structure:
 
 ```json
 {
@@ -107,23 +120,31 @@ Deployment can be configured by adjusting the `config/eth-dev-config.json` file.
 
 ### 1. deployerIndex
 
-This is the index that will be used to select an account from the list of accounts provided by hardhat when deploying the contracts and funding the wallets.
+This is the index that will be used to select an account from the list of accounts provided by hardhat when deploying
+the contracts and funding the wallets.
 
 ### 2. airnodes
 
 `airnodes` must have a unique name as the key.
 
-`mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic [here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's wallet. The airnode wallet address also serves as the Airnode identifier and AirnodeRrp will expect this address to be used as caller (for example when setting the xpub) or to be sent as argument (for example when calling `makeFullRequest`). **DO NOT SEND REAL FUNDS TO A WALLET LINKED TO A TEST MNEMONIC**
+`mnemonic` - must be a unique 12 or 24 list of dictionary words. You can generate a mnemonic
+[here](https://iancoleman.io/bip39/). This mnemonic is used to derive the Airnode's wallet. The airnode wallet address
+also serves as the Airnode identifier and AirnodeRrp will expect this address to be used as caller (for example when
+setting the xpub) or to be sent as argument (for example when calling `makeFullRequest`). **DO NOT SEND REAL FUNDS TO A
+WALLET LINKED TO A TEST MNEMONIC**
 
 **Authorizers**
 
-`authorizers` - a list of `authorizer` contracts. The values must correspond to a value defined in the `authorizers` top-level field.
+`authorizers` - a list of `authorizer` contracts. The values must correspond to a value defined in the `authorizers`
+top-level field.
 
 **Endpoints**
 
-`endpoints` - a key/value object where the key is the unique endpoint name and the value is an object describing the endpoint details. Casing matters here as the endpoint is encoded and hashed to generate the `endpointId`.
+`endpoints` - a key/value object where the key is the unique endpoint name and the value is an object describing the
+endpoint details. Casing matters here as the endpoint is encoded and hashed to generate the `endpointId`.
 
-`endpoints.[name].oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a `config.json` trigger.
+`endpoints.[name].oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an
+`endpointId` in a `config.json` trigger.
 
 **Templates**
 
@@ -131,31 +152,39 @@ This is the index that will be used to select an account from the list of accoun
 
 `templates.[name].endpoint` - a unique name given to the endpoint. Casing is important here
 
-`templates.[name].oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a `config.json` trigger.
+`templates.[name].oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an
+`endpointId` in a `config.json` trigger.
 
-`templates.[name].parameters` - a list of parameters that will be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
+`templates.[name].parameters` - a list of parameters that will be encoded directly using
+[airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 ### 3. authorizers
 
-`authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed, while all other values will require a contract of the same name.
+`authorizers` is a key/value object where the key represents the unique authorizer name and the value is either an
+existing address or a string name of an existing authorizer contract. Values beginning with `0x` will not be deployed,
+while all other values will require a contract of the same name.
 
 ### 4. requesters
 
-`requesters` - a key/value object where the key represents the unique requester contract name and the value represents the requester options. All names defined correspond with actual contracts in the `contracts/folder`.
+`requesters` - a key/value object where the key represents the unique requester contract name and the value represents
+the requester options. All names defined correspond with actual contracts in the `contracts/folder`.
 
 `requester.[name].sponsors` - a list of sponsors who have sponsored the requester.
 
 ### 5. sponsors
 
-Sponsors represent an ordered list of entities making requests to a given Airnode. Typically these would be individuals or businesses.
+Sponsors represent an ordered list of entities making requests to a given Airnode. Typically these would be individuals
+or businesses.
 
-It is important to note that sponsors is an array as they are assigned accounts in order. This is necessary as sponsors need to use the same wallet when running each script.
+It is important to note that sponsors is an array as they are assigned accounts in order. This is necessary as sponsors
+need to use the same wallet when running each script.
 
 Each sponsor object has the following structure:
 
 `id` - a unique string that can be used to identify the same sponsor between script runs
 
-`airnodes.[name].ethBalance` - a string value that represents how much ETH should be deposited into the sponsor's wallet for the given Airnode. Sponsors have one wallet per Airnode.
+`airnodes.[name].ethBalance` - a string value that represents how much ETH should be deposited into the sponsor's wallet
+for the given Airnode. Sponsors have one wallet per Airnode.
 
 ### 6. requests
 
@@ -175,9 +204,11 @@ There are currently two types of requests that can be made. Template and Full re
 
 `template` - the name of the template
 
-`fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would be `fulfill` or similar.
+`fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would
+be `fulfill` or similar.
 
-`parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
+`parameters` - parameters that can be encoded directly using
+[airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 **Full Requests**
 
@@ -185,11 +216,14 @@ There are currently two types of requests that can be made. Template and Full re
 
 `endpoint` - the name of the endpoint for the specific Airnode
 
-`fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would be `fulfill` or similar.
+`fulfillFunctionName` - the name of the function to call when a fulfill transaction is submitted. Typically this would
+be `fulfill` or similar.
 
-`oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a `config.json` trigger.
+`oisTitle` - the title of an `OIS`. This is used to derive the `endpointId` which should match an `endpointId` in a
+`config.json` trigger.
 
-`parameters` - parameters that can be encoded directly using [airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
+`parameters` - parameters that can be encoded directly using
+[airnode-abi](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi)
 
 **Withdrawals**
 
@@ -278,7 +312,9 @@ The withdrawn funds should be sent back to the address of the sponsor.
 
 ## Managing background processes
 
-Background processes are managed using [PM2](https://pm2.keymetrics.io/). The configuration for PM2 can be found in the `ecosystem.config.js` file. This file also controls where logs for background processes are output. By default, they will be output to a `logs/` folder within the operation package.
+Background processes are managed using [PM2](https://pm2.keymetrics.io/). The configuration for PM2 can be found in the
+`ecosystem.config.js` file. This file also controls where logs for background processes are output. By default, they
+will be output to a `logs/` folder within the operation package.
 
 Background processes can be controlled using the following commands:
 
