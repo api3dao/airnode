@@ -1,11 +1,18 @@
 # @api3/deployer
 
-> Airnode deployment CLI
+> Airnode deployment CLI and its docker image
 
-**The recommended way to deploy Airnode is by using the [Deployer Docker](../../docker/README.md) image. This package
-simply implements the CLI used by that image and is not meant to be used directly by the end user.**
+## User documentation
 
-## Prerequisites
+You can find documentation on how to use the deployer in the
+[deployer docs](https://docs.api3.org/airnode/next/grp-providers/docker/deployer-image.html).
+
+## For developers
+
+The rest of the README contains instructions on how to build and use the deployer CLI. However, the intended way to run
+the deployer for users is using the [deployer docker image](./docker/README.md).
+
+### Prerequisites
 
 - Install [Terraform v0.15.x](https://www.terraform.io/downloads.html) and make sure that the `terraform` binary is
   available in your `PATH`
@@ -16,7 +23,7 @@ simply implements the CLI used by that image and is not meant to be used directl
   you need help setting up an AWS IAM user you can follow
   [this video tutorial](https://www.youtube.com/watch?v=bT19B3IBWHE).
 
-## Setup
+### Setup
 
 - Build all the Airnode packages
 
@@ -36,22 +43,18 @@ cp config/secrets.env.example config/secrets.env
 # Edit both `config.json` and `secrets.env` to reflect your configuration
 ```
 
-## Common user flow
+### Common user flow
 
 1. Use the `deploy` command for your first deployment.
-
-   **Write down the displayed mnemonic and safely store the outputted receipt file.**
-
 2. In order to update the Airnode configuration:
    - Update the `config.json` file
-   - Ensure the `AIRNODE_WALLET_MNEMONIC` value in `secrets.env` has your previously generated mnemonic phrase
    - Run the `deploy` command again
 3. Use the `remove` command to remove the Airnode deployment. Use the `-r` option to provide the receipt file from the
    latest deployment.
 
-## Commands
+### Commands
 
-### deploy
+#### deploy
 
 ```bash
 Deploys an Airnode instance using the `config.json` and `secrets.env` files. This can be used for a new deployment or to update an existing deployment.
@@ -66,7 +69,7 @@ Options:
       --interactive                      Run in interactive mode                               [boolean] [default: true]
 ```
 
-### remove
+#### remove
 
 ```bash
 Removes a deployed Airnode instance
