@@ -1,3 +1,66 @@
-it('TODO:', () => {
-  expect(1).toBe(1);
+import { spawnSync, spawn } from 'child_process';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
+
+const runCommand = (command: string) =>
+  spawnSync(command, {
+    shell: true,
+  }).stdout.toString();
+
+const runCommandInBackground = (command: string) =>
+  spawn(command, {
+    detached: true,
+    shell: true,
+  });
+
+const chooseIntegration = () => {
+  // We can't use the interactive script to choose the integration, so we specify the details manually
+  const content = JSON.stringify(
+    {
+      integration: 'coingecko',
+      airnodeType: 'local',
+      network: 'localhost',
+      mnemonic: 'test test test test test test test test test test test junk',
+      providerUrl: 'http://127.0.0.1:8545/',
+    },
+    null,
+    2
+  );
+  writeFileSync(join(__dirname, '../integration-info.json'), content);
+};
+
+describe('Coingecko integration with containerized Airnode and hardhat', () => {
+  it('works', () => {
+    chooseIntegration();
+
+    runCommand('yarn deploy-rrp');
+    runCommand('yarn create-airnode-secrets');
+
+    runCommand('yarn rebuild-artifacts-container');
+    runCommand('yarn rebuild-airnode-container');
+    const airnodeProcess = runCommandInBackground('yarn run-airnode-locally');
+
+    runCommand('yarn deploy-requester');
+    runCommand('yarn derive-and-fund-sponsor-wallet');
+    runCommand('yarn sponsor-requester');
+    const response = runCommand('yarn make-request');
+
+    // Only the following reliably kills the Airnode process. See:
+    // https://azimi.me/2014/12/31/kill-child_process-node-js.html
+    //
+    // We need to gracefully kill the Airnode docker otherwise it remains running on background
+    process.kill(-airnodeProcess.pid!);
+
+    const pathOfResponseText = 'Ethereum price is';
+    expect(response).toContain(pathOfResponseText);
+
+    const priceText = response.split(pathOfResponseText)[1];
+    expect(priceText).toContain('USD');
+
+    const price = priceText.split('USD')[0].trim();
+    expect(Number(price)).toEqual(expect.any(Number));
+    expect(Number(price).toString()).toBe(price);
+
+    console.log(`FYI: The Ethereum price is ${price} USD.`);
+  });
 });

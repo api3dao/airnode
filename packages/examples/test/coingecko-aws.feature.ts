@@ -2,6 +2,8 @@
 // this test could fail a number of reasons and is not a good target to be run on CI.
 //
 // Instead, the developers should run this before making a release to double check that the most basic flow is correct.
+
+// eslint-disable-next-line jest/no-disabled-tests
 it.skip('TODO:', () => {
   expect(1).toBe(1);
 });
