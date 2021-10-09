@@ -1,17 +1,6 @@
-import { spawnSync, spawn } from 'child_process';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-
-const runCommand = (command: string) =>
-  spawnSync(command, {
-    shell: true,
-  }).stdout.toString();
-
-const runCommandInBackground = (command: string) =>
-  spawn(command, {
-    detached: true,
-    shell: true,
-  });
+import { killBackgroundProcess, runCommand, runCommandInBackground } from './utils';
 
 const chooseIntegration = () => {
   // We can't use the interactive script to choose the integration, so we specify the details manually
@@ -38,18 +27,14 @@ describe('Coingecko integration with containerized Airnode and hardhat', () => {
 
     runCommand('yarn rebuild-artifacts-container');
     runCommand('yarn rebuild-airnode-container');
-    const airnodeProcess = runCommandInBackground('yarn run-airnode-locally');
+    const airnodeDocker = runCommandInBackground('yarn run-airnode-locally');
 
     runCommand('yarn deploy-requester');
     runCommand('yarn derive-and-fund-sponsor-wallet');
     runCommand('yarn sponsor-requester');
     const response = runCommand('yarn make-request');
 
-    // Only the following reliably kills the Airnode process. See:
-    // https://azimi.me/2014/12/31/kill-child_process-node-js.html
-    //
-    // We need to gracefully kill the Airnode docker otherwise it remains running on background
-    process.kill(-airnodeProcess.pid!);
+    killBackgroundProcess(airnodeDocker);
 
     const pathOfResponseText = 'Ethereum price is';
     expect(response).toContain(pathOfResponseText);
