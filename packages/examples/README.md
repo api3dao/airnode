@@ -226,3 +226,15 @@ yarn remove-airnode
 ```
 
 This will use the deployer to remove the Airnode lambdas from AWS.
+
+## For developers
+
+The examples package is also a nice fit for an end to end test of the whole Airnode infrastructure. There are two tests:
+
+1. An integration using Airnode docker on localhost - This test also builds the necessary docker images and runs on as
+   part of end to end test suite on CI.
+2. An integration using the Airnode deployed on AWS with rinkeby network - This is intended to be run by a developer
+   before making a release. This test is located in the `scripts` directory, because it should not be run on CI because
+   if its performance and complexity.
+
+   Be sure to define the necessary secrets before running this test.
