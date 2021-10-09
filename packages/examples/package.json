@@ -21,6 +21,7 @@
     "remove-airnode": "ts-node scripts/remove-airnode.ts",
     "run-airnode-locally": "ts-node scripts/run-airnode-locally.ts",
     "sponsor-requester": "ts-node scripts/sponsor-requester.ts",
+    "test:coingecko-aws": "ts-node scripts/aws-test/coingecko-aws-test.ts",
     "test:e2e": "jest --selectProjects e2e"
   },
   "dependencies": {
