@@ -12,6 +12,9 @@ you've done that, you can build the Docker image by running following command fr
 docker build -f packages/deployer/docker/Dockerfile -t api3/deployer:latest .
 ```
 
+> If building on windows ensure that the `entrypoint.sh` file uses `LF` line endings. Otherwise the image will not be
+> built correctly.
+
 ## Configuration
 
 ### Credentials

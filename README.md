@@ -55,6 +55,13 @@ To build all the packages, run this at the repository root:
 yarn run build
 ```
 
+Airnode packages are cross platform, available as npm packages or docker containers. You should also be able to clone,
+build and use the packages on any platform. However we do not guarantee that the development only features (e.g. test or
+examples) will work out of the box.
+
+We heavily recommend using UNIX based systems for development. If you are using Windows, consider
+[WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
+
 ## Contributing
 
 To request/propose new features, fixes, etc. create an issue. If you wish to contribute to the project, contact us over
