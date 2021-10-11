@@ -12,6 +12,9 @@ you've done that, you can build the Docker image by running following command fr
 docker build -f packages/node/docker/Dockerfile -t api3/airnode:latest .
 ```
 
+> If building on windows ensure that the `airnode-crontab` file uses `LF` line endings. Otherwise the image will not be
+> built correctly.
+
 ## Configuration
 
 ### Volumes
