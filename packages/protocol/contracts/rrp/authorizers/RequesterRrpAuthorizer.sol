@@ -10,6 +10,11 @@ abstract contract RequesterRrpAuthorizer is
     Whitelister,
     IRequesterRrpAuthorizer
 {
+    /// @notice Returns if an account has whitelisted a user for an
+    /// Airnode–endpoint pair past expiration
+    mapping(address => mapping(bytes32 => mapping(address => mapping(address => bool))))
+        public airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration;
+
     /// @notice Called to check if a user is whitelisted to use the
     /// Airnode–endpoint pair
     /// @param airnode Airnode address
@@ -31,8 +36,8 @@ abstract contract RequesterRrpAuthorizer is
     /// @param user User address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
     /// user will expire
-    /// @return whitelistedPastExpiration Whitelist status that the user will
-    /// have past expiration
+    /// @return timesWhitelistedPastExpiration Number of times the user has
+    /// been whitelisted past expiration
     function airnodeToEndpointIdToUserToWhitelistStatus(
         address airnode,
         bytes32 endpointId,
@@ -41,14 +46,18 @@ abstract contract RequesterRrpAuthorizer is
         external
         view
         override
-        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
+        returns (
+            uint64 expirationTimestamp,
+            uint192 timesWhitelistedPastExpiration
+        )
     {
         WhitelistStatus
             storage whitelistStatus = serviceIdToUserToWhitelistStatus[
                 deriveServiceId(airnode, endpointId)
             ][user];
         expirationTimestamp = whitelistStatus.expirationTimestamp;
-        whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;
+        timesWhitelistedPastExpiration = whitelistStatus
+            .timesWhitelistedPastExpiration;
     }
 
     /// @notice Called internally to derive the service ID of the
@@ -139,9 +148,31 @@ abstract contract RequesterRrpAuthorizer is
         address user,
         bool status
     ) internal {
-        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
-            user
-        ].whitelistedPastExpiration = status;
+        if (
+            status &&
+            !airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration[airnode][
+                endpointId
+            ][user][msg.sender]
+        ) {
+            airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration[airnode][
+                endpointId
+            ][user][msg.sender] = true;
+            serviceIdToUserToWhitelistStatus[
+                deriveServiceId(airnode, endpointId)
+            ][user].timesWhitelistedPastExpiration++;
+        } else if (
+            !status &&
+            airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration[airnode][
+                endpointId
+            ][user][msg.sender]
+        ) {
+            airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration[airnode][
+                endpointId
+            ][user][msg.sender] = false;
+            serviceIdToUserToWhitelistStatus[
+                deriveServiceId(airnode, endpointId)
+            ][user].timesWhitelistedPastExpiration--;
+        }
         emit SetWhitelistStatusPastExpiration(
             airnode,
             endpointId,

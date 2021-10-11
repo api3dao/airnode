@@ -62,5 +62,8 @@ interface IRequesterRrpAuthorizer is IRrpAuthorizer {
     )
         external
         view
-        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);
+        returns (
+            uint64 expirationTimestamp,
+            uint192 timesWhitelistedPastExpiration
+        );
 }

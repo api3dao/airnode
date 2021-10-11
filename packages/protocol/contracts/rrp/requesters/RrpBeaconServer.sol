@@ -36,6 +36,11 @@ contract RrpBeaconServer is
         uint32 timestamp;
     }
 
+    /// @notice Returns if an account has whitelisted a user for an
+    /// Airnode–endpoint pair past expiration
+    mapping(bytes32 => mapping(address => mapping(address => bool)))
+        public templateIdToUserToAdminToWhitelistPastExpiration;
+
     /// @notice Called to check if a sponsor has permitted an account to
     /// request updates at this contract
     mapping(address => mapping(address => bool))
@@ -215,14 +220,58 @@ contract RrpBeaconServer is
         onlyWithRank(uint256(AdminRank.SuperAdmin))
         onlyIfTemplateExists(templateId)
     {
-        serviceIdToUserToWhitelistStatus[templateId][user]
-            .whitelistedPastExpiration = status;
+        if (
+            status &&
+            !templateIdToUserToAdminToWhitelistPastExpiration[templateId][user][
+                msg.sender
+            ]
+        ) {
+            templateIdToUserToAdminToWhitelistPastExpiration[templateId][user][
+                msg.sender
+            ] = true;
+            serviceIdToUserToWhitelistStatus[templateId][user]
+                .timesWhitelistedPastExpiration++;
+        } else if (
+            !status &&
+            templateIdToUserToAdminToWhitelistPastExpiration[templateId][user][
+                msg.sender
+            ]
+        ) {
+            templateIdToUserToAdminToWhitelistPastExpiration[templateId][user][
+                msg.sender
+            ] = false;
+            serviceIdToUserToWhitelistStatus[templateId][user]
+                .timesWhitelistedPastExpiration--;
+        }
         emit SetWhitelistStatusPastExpiration(
             templateId,
             user,
             msg.sender,
             status
         );
+    }
+
+    function revokeWhitelistStatusPastExpiration(
+        bytes32 templateId,
+        address user,
+        address admin
+    ) external onlyIfTemplateExists(templateId) {
+        require(
+            adminToRank[admin] < uint256(AdminRank.SuperAdmin) &&
+                admin != metaAdmin,
+            "Whitelister still super admin"
+        );
+        require(
+            templateIdToUserToAdminToWhitelistPastExpiration[templateId][user][
+                admin
+            ],
+            "Admin has not whitelisted"
+        );
+        templateIdToUserToAdminToWhitelistPastExpiration[templateId][user][
+            admin
+        ] = false;
+        serviceIdToUserToWhitelistStatus[templateId][user]
+            .timesWhitelistedPastExpiration--;
     }
 
     /// @notice Called to read the beacon
@@ -271,20 +320,24 @@ contract RrpBeaconServer is
     /// @param user User address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
     /// user will expire
-    /// @return whitelistedPastExpiration Whitelist status that the user will
-    /// have past expiration
+    /// @return timesWhitelistedPastExpiration Number of times the user has
+    /// been whitelisted past expiration
     function templateIdToUserToWhitelistStatus(bytes32 templateId, address user)
         external
         view
         override
         onlyIfTemplateExists(templateId)
-        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
+        returns (
+            uint64 expirationTimestamp,
+            uint192 timesWhitelistedPastExpiration
+        )
     {
         WhitelistStatus
             storage whitelistStatus = serviceIdToUserToWhitelistStatus[
                 templateId
             ][user];
         expirationTimestamp = whitelistStatus.expirationTimestamp;
-        whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;
+        timesWhitelistedPastExpiration = whitelistStatus
+            .timesWhitelistedPastExpiration;
     }
 }

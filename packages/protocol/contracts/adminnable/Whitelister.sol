@@ -7,7 +7,7 @@ pragma solidity 0.8.6;
 contract Whitelister {
     struct WhitelistStatus {
         uint64 expirationTimestamp;
-        bool whitelistedPastExpiration;
+        uint192 timesWhitelistedPastExpiration;
     }
 
     mapping(bytes32 => mapping(address => WhitelistStatus))
@@ -53,7 +53,7 @@ contract Whitelister {
                 serviceId
             ][user];
         return
-            whitelistStatus.whitelistedPastExpiration ||
+            whitelistStatus.timesWhitelistedPastExpiration > 0 ||
             whitelistStatus.expirationTimestamp > block.timestamp;
     }
 }

@@ -88,7 +88,10 @@ interface IRrpBeaconServer is IAdminnable {
     function templateIdToUserToWhitelistStatus(bytes32 templateId, address user)
         external
         view
-        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);
+        returns (
+            uint64 expirationTimestamp,
+            uint192 timesWhitelistedPastExpiration
+        );
 
     function sponsorToUpdateRequesterToPermissionStatus(
         address sponsor,

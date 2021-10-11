@@ -76,6 +76,31 @@ contract DaoRequesterRrpAuthorizer is
         setWhitelistStatusPastExpiration_(airnode, endpointId, user, status);
     }
 
+    function revokeWhitelistStatusPastExpiration(
+        address airnode,
+        bytes32 endpointId,
+        address user,
+        address admin
+    ) external {
+        require(
+            adminToRank[admin] < uint256(AdminRank.SuperAdmin) &&
+                admin != metaAdmin,
+            "Whitelister still super admin"
+        );
+        require(
+            airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration[airnode][
+                endpointId
+            ][user][admin],
+            "Admin has not whitelisted"
+        );
+        airnodeToEndpointIdToUserToAdminToWhitelistPastExpiration[airnode][
+            endpointId
+        ][user][admin] = false;
+        serviceIdToUserToWhitelistStatus[deriveServiceId(airnode, endpointId)][
+            user
+        ].timesWhitelistedPastExpiration--;
+    }
+
     /// @notice Verifies the authorization status of a request
     /// @dev This method has redundant arguments because all authorizer
     /// contracts have to have the same interface and potential authorizer
