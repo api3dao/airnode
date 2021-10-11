@@ -13,8 +13,6 @@ Commands:
   cli.js get-template                          Returns the template for the given template-id
   cli.js request-withdrawal                    Requests withdrawal from the designated wallet of an Airnode as a sponsor
   cli.js check-withdrawal-request              Checks the state of the withdrawal request
-  cli.js set-airnode-xpub                      Sets the xpub of an Airnode
-  cli.js get-airnode-xpub                      Returns the Airnode xpub for the given Airnode
   cli.js derive-endpoint-id                    Derives an endpoint ID using the OIS title and endpoint name
   cli.js set-whitelist-expiration              Sets whitelist expiration of a user for the Airnode–endpoint pair
   cli.js extend-whitelist-expiration           Extends whitelist expiration of a user for the Airnode–endpoint pair

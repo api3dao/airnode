@@ -3,7 +3,7 @@ import { encode } from '@api3/airnode-abi';
 import { ReservedParameterName } from '@api3/ois';
 import { startCoordinator } from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
-import { RequestErrorCode } from '../../src/types';
+import { RequestErrorMessage } from '../../src/types';
 import { deployAirnodeAndMakeRequests, fetchAllLogs, increaseTestTimeout } from '../setup/e2e';
 
 it('sets the correct status code for both successful and failed requests', async () => {
@@ -38,17 +38,14 @@ it('sets the correct status code for both successful and failed requests', async
   // The API responds with 723.392028 which multipled by the _times parameter
   const validResponseValue = ethers.BigNumber.from(validFulfillment!.args.data).toString();
   expect(validResponseValue).toEqual('723392028');
-  // 0 indicates success
-  expect(validFulfillment!.args.statusCode.toString()).toEqual('0');
 
   const encodedInvalidParams = encode(invalidParameters);
   const invalidRequest = logs.find((log) => log.args.parameters === encodedInvalidParams);
-  const invalidFulfillment = logs.find(
-    (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'FulfilledRequest'
+  const failedRequest = logs.find(
+    (log) => log.args.requestId === invalidRequest!.args.requestId && log.name === 'FailedRequest'
   );
-  // There is no valid response data to return so this is empty
-  const invalidResponseValue = ethers.BigNumber.from(invalidFulfillment!.args.data).toString();
-  expect(invalidResponseValue).toEqual('0');
-  // A status code > 1 indicates an error
-  expect(invalidFulfillment!.args.statusCode.toString()).toEqual(RequestErrorCode.ApiCallFailed.toString());
+  // The error message will contain the API error message
+  expect(failedRequest!.args.errorMessage).toEqual(
+    `${RequestErrorMessage.ApiCallFailed} with error: Request failed with status code 404`
+  );
 });

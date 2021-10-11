@@ -8,7 +8,6 @@ describe('AirnodeRrp', () => {
       .sort();
 
     expect(functions).toEqual([
-      'airnodeToXpub',
       'checkAuthorizationStatus',
       'checkAuthorizationStatuses',
       'createTemplate',
@@ -18,10 +17,9 @@ describe('AirnodeRrp', () => {
       'getTemplates',
       'makeFullRequest',
       'makeTemplateRequest',
-      'requestWithIdHasFailed',
+      'requestIsAwaitingFulfillment',
       'requestWithdrawal',
       'requesterToRequestCountPlusOne',
-      'setAirnodeXpub',
       'setSponsorshipStatus',
       'sponsorToRequesterToSponsorshipStatus',
       'sponsorToWithdrawalRequestCount',
@@ -42,7 +40,6 @@ describe('AirnodeRrp', () => {
       'MadeFullRequest',
       'MadeTemplateRequest',
       'RequestedWithdrawal',
-      'SetAirnodeXpub',
       'SetSponsorshipStatus',
     ]);
   });
@@ -69,10 +66,10 @@ describe('AirnodeRrp', () => {
     );
 
     expect(airnodeRrpTopics.FulfilledRequest).toEqual(
-      '0xd1cc11d12363af4b6022e66d14b18ba1779ecd85a5b41891349d530fb6eee066'
+      '0xc0977dab79883641ece94bb6a932ca83049f561ffff8d8daaeafdbc1acce9e0a'
     );
     expect(airnodeRrpTopics.FailedRequest).toEqual(
-      '0x8c087e42b178608800a2ea8b3d009bdbbf75e0d23426510c2edd447d4f8b8ebd'
+      '0xc7143b2270cddda57e0087ca5e2a4325657dcab10d10f6b1f9d5ce6b41cb97fc'
     );
 
     // Withdrawals

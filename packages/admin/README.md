@@ -65,15 +65,14 @@ The SDK will also provide TS typings out of the box. Please, refer to the implem
 
 ### `derive-sponsor-wallet-address`
 
-Derives the address of the wallet designated by an Airnode for a requester. You need to specify the xpub but if it is
-not provided then this command will try to fetch it from the AirnodeRrp contract.
+Derives the address of the wallet designated by an Airnode for a sponsor, which is called the sponsor wallet. The
+`airnode-xpub` must belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
 
 ```sh
 npx @api3/airnode-admin derive-sponsor-wallet-address \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --xpub xpub6CUGRUo... \
-  --airnodeAddress 0xe1e0dd... \
-  --sponsorAddress 0x9Ec6C4...
+  --airnode-xpub xpub6CUGRUo... \
+  --airnode-address 0xe1e0dd... \
+  --sponsor-address 0x9Ec6C4...
 ```
 
 ### `sponsor-requester`
@@ -83,9 +82,9 @@ the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
 npx @api3/airnode-admin sponsor-requester \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --requesterAddress 0x2c2e12...
+  --requester-address 0x2c2e12...
 ```
 
 ### `unsponsor-requester`
@@ -95,9 +94,9 @@ The account derived from the `mnemonic` you provide here has to belong to the sp
 
 ```sh
 npx @api3/airnode-admin unsponsor-requester \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --requesterAddress 0x2c2e12...
+  --requester-address 0x2c2e12...
 ```
 
 ### `get-sponsor-status`
@@ -106,9 +105,9 @@ Returns the sponsorship status for the given sponsor and requester (`true` if sp
 
 ```sh
 npx @api3/airnode-admin get-sponsor-status \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --sponsorAddress 0x9Ec6C4... \
-  --requesterAddress 0x2c2e12...
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --sponsor-address 0x9Ec6C4... \
+  --requester-address 0x2c2e12...
 ```
 
 ### `create-template`
@@ -118,9 +117,9 @@ example template file.
 
 ```sh
 npx @api3/airnode-admin create-template \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --templateFilePath ./template.json
+  --template-file-path ./template.json
 ```
 
 ### `get-template`
@@ -129,8 +128,8 @@ Returns the template for the given `templateId`.
 
 ```sh
 npx @api3/airnode-admin get-template \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --templateId 0x8d3b9...
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --template-id 0x8d3b9...
 ```
 
 ### `request-withdrawal`
@@ -140,10 +139,10 @@ derived from the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
   --mnemonic "nature about salad..." \
-  --airnodeAddress 0xe1e0dd... \
-  --sponsorWalletAddress 0x9Ec6C4... \
+  --airnode-address 0xe1e0dd... \
+  --sponsor-wallet-address 0x9Ec6C4... \
 ```
 
 ### `check-withdrawal-request`
@@ -152,36 +151,11 @@ Checks the status of the withdrawal request with the given ID.
 
 ```sh
 npx @api3/airnode-admin check-withdrawal-request \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --withdrawalRequestId 0x011d1b...
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --withdrawal-request-id 0x011d1b...
 ```
 
 ## Airnode commands
-
-### `set-airnode-xpub`
-
-Sets the xpub of an Airnode.
-
-**This extended public key does not need to be announced on-chain for the protocol to be used, it is mainly for
-convenience.**
-
-```sh
-npx @api3/airnode-admin set-airnode-xpub \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --mnemonic "nature about salad..." \
-```
-
-The account derived from the `mnemonic` you provide here has to belong to the Airnode.
-
-### `get-airnode-xpub`
-
-Returns the Airnode xpub for the given `airnode`.
-
-```sh
-npx @api3/airnode-admin get-airnode-xpub \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeAddress 0xe1e0dd...
-```
 
 ### `derive-endpoint-id`
 
@@ -189,9 +163,11 @@ Derives the endpoint ID using the OIS title and the endpoint name.
 
 ```sh
 npx @api3/airnode-admin derive-endpoint-id \
-  --oisTitle "My OIS title..." \
-  --endpointName "My endpoint name..."
+  --ois-title "My OIS title..." \
+  --endpoint-name "My endpoint name..."
 ```
+
+## AirnodeRequesterRrpAuthorizer commands
 
 ### `set-whitelist-expiration`
 
@@ -200,13 +176,13 @@ Called by a super admin to set the whitelisting expiration of a user for the Air
 ```sh
 npx @api3/airnode-admin set-whitelist-expiration \
   --mnemonic "nature about salad..." \
-  --derivationPath "m/44'/60'/0'/0/..." \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
-  --endpointId 0xda088e2d94... \
-  --userAddress 0x2c2e12... \
-  --expirationTimestamp 1947451793 \
-  --airnodeAddress 0xe1e0dd... \
+  --derivation-path "m/44'/60'/0'/0/..." \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnode-requester-rrp-authorizer 0xDc64a1... \
+  --endpoint-id 0xda088e2d94... \
+  --user-address 0x2c2e12... \
+  --expiration-timestamp 1947451793 \
+  --airnode-address 0xe1e0dd... \
 ```
 
 ### `extend-whitelist-expiration`
@@ -216,13 +192,13 @@ Called by an admin to extend the whitelist expiration of a user for the Airnode�
 ```sh
 npx @api3/airnode-admin extend-whitelist-expiration \
   --mnemonic "nature about salad..." \
-  --derivationPath "m/44'/60'/0'/0/..." \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
-  --endpointId 0xda088e2d94... \
-  --userAddress 0x2c2e12... \
-  --expirationTimestamp 1947451793 \
-  --airnodeAddress 0xe1e0dd... \
+  --derivation-path "m/44'/60'/0'/0/..." \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnode-requester-rrp-authorizer 0xDc64a1... \
+  --endpoint-id 0xda088e2d94... \
+  --user-address 0x2c2e12... \
+  --expiration-timestamp 1947451793 \
+  --airnode-address 0xe1e0dd... \
 ```
 
 ### `set-whitelist-status-past-expiration`
@@ -232,13 +208,13 @@ Called by a super admin to set the whitelist status of a user past expiration fo
 ```sh
 npx @api3/airnode-admin set-whitelist-status-past-expiration \
   --mnemonic "nature about salad..." \
-  --derivationPath "m/44'/60'/0'/0/..." \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
-  --endpointId 0xda088e2d94... \
-  --userAddress 0x2c2e12... \
-  --whitelistStatusPastExpiration true \
-  --airnodeAddress 0xe1e0dd... \
+  --derivation-path "m/44'/60'/0'/0/..." \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnode-requester-rrp-authorizer 0xDc64a1... \
+  --endpoint-id 0xda088e2d94... \
+  --user-address 0x2c2e12... \
+  --whitelist-status-past-expiration true \
+  --airnode-address 0xe1e0dd... \
 ```
 
 ### `get-whitelist-status`
@@ -247,11 +223,11 @@ Called to get the detailed whitelist status of a user for the Airnode–endpoint
 
 ```sh
 npx @api3/airnode-admin get-whitelist-status \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
-  --endpointId 0xda088e2d94... \
-  --userAddress 0x2c2e12... \
-  --airnodeAddress 0xe1e0dd... \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnode-requester-rrp-authorizer 0xDc64a1... \
+  --endpoint-id 0xda088e2d94... \
+  --user-address 0x2c2e12... \
+  --airnode-address 0xe1e0dd... \
 ```
 
 ### `user-is-whitelisted`
@@ -260,11 +236,11 @@ Called to check if a user is whitelisted to use the Airnode–endpoint pair
 
 ```sh
 npx @api3/airnode-admin user-is-whitelisted \
-  --providerUrl https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
-  --airnodeRequesterRrpAuthorizer 0xDc64a1... \
-  --endpointId 0xda088e2d94... \
-  --userAddress 0x2c2e12... \
-  --airnodeAddress 0xe1e0dd... \
+  --provider-url https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID> \
+  --airnode-requester-rrp-authorizer 0xDc64a1... \
+  --endpoint-id 0xda088e2d94... \
+  --user-address 0x2c2e12... \
+  --airnode-address 0xe1e0dd... \
 ```
 
 ## More examples

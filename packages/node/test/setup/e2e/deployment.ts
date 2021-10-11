@@ -18,16 +18,13 @@ export async function deployAirnodeRrp(config: operation.Config): Promise<operat
   const state9 = await operation.fundSponsorAccounts(state8);
   const state10 = await operation.fundSponsorWallets(state9);
 
-  // Set Airnode xpub
-  const state11 = await operation.setAirnodeXpub(state10);
-
   // Sponsor requester contracts
-  const state12 = await operation.sponsorRequesters(state11);
+  const state11 = await operation.sponsorRequesters(state10);
 
   // Create templates
-  const state13 = await operation.createTemplates(state12);
+  const state12 = await operation.createTemplates(state11);
 
-  const deployment = operation.buildSaveableDeployment(state13);
+  const deployment = operation.buildSaveableDeployment(state12);
 
   return deployment;
 }

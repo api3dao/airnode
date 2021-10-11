@@ -1,6 +1,6 @@
 import * as application from './template-application';
 import * as fixtures from '../../../test/fixtures';
-import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCallTemplate, RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
@@ -96,7 +96,7 @@ describe('mergeApiCallsWithTemplates', () => {
       { level: 'ERROR', message: 'Unable to fetch template ID:templateId-0 for Request ID:apiCallId' },
     ]);
     expect(res[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
+    expect(res[0].errorMessage).toEqual(`${RequestErrorMessage.TemplateNotFound}: templateId-0`);
   });
 
   it('invalidates API calls with invalid template parameters', () => {
@@ -116,6 +116,6 @@ describe('mergeApiCallsWithTemplates', () => {
       { level: 'ERROR', message: 'Template ID:templateId-0 contains invalid parameters: invalid-parameters' },
     ]);
     expect(res[0].status).toEqual(RequestStatus.Errored);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.TemplateParameterDecodingFailed);
+    expect(res[0].errorMessage).toEqual(`${RequestErrorMessage.TemplateParameterDecodingFailed}: invalid-parameters`);
   });
 });

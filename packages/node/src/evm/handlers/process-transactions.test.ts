@@ -95,10 +95,10 @@ describe('processTransactions', () => {
     expect(fulfillMock).toHaveBeenCalledWith(
       apiCall.id,
       apiCall.airnodeAddress,
-      ethers.BigNumber.from('0'),
-      '0x000000000000000000000000000000000000000000000000000000000001252b',
       apiCall.fulfillAddress,
       apiCall.fulfillFunctionId,
+      '0x000000000000000000000000000000000000000000000000000000000001252b',
+      '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
       { gasLimit: 500_000, gasPrice, nonce: 79 }
     );
   });
