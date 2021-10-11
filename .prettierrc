@@ -1,28 +1,35 @@
 {
-    "bracketSpacing": true,
-    "printWidth": 120,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "es5",
-    "useTabs": false,
-    "overrides": [
-      {
-        "files": "*.ts",
-        "options": {
-          "parser": "typescript"
-        }
-      },
-      {
-        "files": "*.sol",
-        "options": {
-          "compiler": "0.8.6",
-          "printWidth": 80,
-          "tabWidth": 4,
-          "useTabs": false,
-          "singleQuote": false,
-          "bracketSpacing": false,
-          "explicitTypes": "always"
-        }
+  "bracketSpacing": true,
+  "printWidth": 120,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": "*.ts",
+      "options": {
+        "parser": "typescript"
       }
-    ]
+    },
+    {
+      "files": "*.md",
+      "options": {
+        "parser": "markdown",
+        "proseWrap": "always"
+      }
+    },
+    {
+      "files": "*.sol",
+      "options": {
+        "compiler": "0.8.6",
+        "printWidth": 80,
+        "tabWidth": 4,
+        "useTabs": false,
+        "singleQuote": false,
+        "bracketSpacing": false,
+        "explicitTypes": "always"
+      }
+    }
+  ]
 }

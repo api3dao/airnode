@@ -4,14 +4,16 @@
 
 > A package/CLI tool to interact with the Airnode contracts across chains
 
-Almost all commands require you to provide a `providerUrl` such as `https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID>`, `https://xdai.poanetwork.dev`, etc.
-The CLI connects to [AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/rrp/AirnodeRrp.sol) contract, which address is derived from the current chain.
-You can optionally specify the contract address yourself by providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
+Almost all commands require you to provide a `providerUrl` such as
+`https://eth-rinkeby.gateway.pokt.network/v1/lb/<APP_ID>`, `https://xdai.poanetwork.dev`, etc. The CLI connects to
+[AirnodeRrp.sol](https://github.com/api3dao/airnode/blob/master/packages/protocol/contracts/rrp/AirnodeRrp.sol)
+contract, which address is derived from the current chain. You can optionally specify the contract address yourself by
+providing optional `airnodeRrp` command argument with address of the deployed contract on your targeted chain.
 
-Commands that require `mnemonic` will make an on-chain transaction.
-The application will derive the account from the mnemonic with default ethereum derivation path `m/44'/60'/0'/0/0`, but you can override this by `derivationPath` flag.
-Make sure that the wallet that is associated with the mnemonic is funded on the target chain.
-The application will not exit until the transaction is confirmed.
+Commands that require `mnemonic` will make an on-chain transaction. The application will derive the account from the
+mnemonic with default ethereum derivation path `m/44'/60'/0'/0/0`, but you can override this by `derivationPath` flag.
+Make sure that the wallet that is associated with the mnemonic is funded on the target chain. The application will not
+exit until the transaction is confirmed.
 
 To see all commands:
 
@@ -27,8 +29,8 @@ npx @api3/airnode-admin $COMMAND --help
 
 ## SDK
 
-You can also use the package programatically. The SDK exports respective functions for all CLI commands as
-well as helper functions for obtaining the contract instance on the targeted chain.
+You can also use the package programatically. The SDK exports respective functions for all CLI commands as well as
+helper functions for obtaining the contract instance on the targeted chain.
 
 ```js
 import { sponsorRequester, getAirnodeRrpWithSigner } from '@api3/admin';
@@ -39,7 +41,8 @@ const airnodeRrp = await getAirnodeRrpWithSigner(mnemonic, derivationPath, provi
 const requester = await sponsorRequester(airnodeRrp, requester);
 ```
 
-If you plan to use multiple commands it might be tedious to pass the contract instance to every function call. For this reason there is also class based `AdminSdk` which you initialize with `AirnodeRrp` contract only once.
+If you plan to use multiple commands it might be tedious to pass the contract instance to every function call. For this
+reason there is also class based `AdminSdk` which you initialize with `AirnodeRrp` contract only once.
 
 ```js
 import { AdminSdk } from '@api3/admin';
@@ -56,14 +59,14 @@ const requester = await adminSdk.sponsorRequester(requester);
 adminSdk.airnodeRrp = airnodeRrp.connect(someOtherWallet);
 ```
 
-The SDK will also provide TS typings out of the box.
-Please, refer to the implementation for more details.
+The SDK will also provide TS typings out of the box. Please, refer to the implementation for more details.
 
 ## Developer commands
 
 ### `derive-sponsor-wallet-address`
 
-Derives the address of the wallet designated by an Airnode for a sponsor, which is called the sponsor wallet. The `airnode-xpub` must belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
+Derives the address of the wallet designated by an Airnode for a sponsor, which is called the sponsor wallet. This command will error if
+`airnode-xpub` does not belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
 
 ```sh
 npx @api3/airnode-admin derive-sponsor-wallet-address \
@@ -74,8 +77,8 @@ npx @api3/airnode-admin derive-sponsor-wallet-address \
 
 ### `sponsor-requester`
 
-Sponsors a requester contract so that its requests can be fulfilled by the sponsor's wallet.
-The account derived from the `mnemonic` you provide here has to belong to the sponsor.
+Sponsors a requester contract so that its requests can be fulfilled by the sponsor's wallet. The account derived from
+the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
 npx @api3/airnode-admin sponsor-requester \
@@ -109,8 +112,8 @@ npx @api3/airnode-admin get-sponsor-status \
 
 ### `create-template`
 
-Reads a file, uses its contents to create a template and returns the template ID.
-See the `/example` directory for an example template file.
+Reads a file, uses its contents to create a template and returns the template ID. See the `/example` directory for an
+example template file.
 
 ```sh
 npx @api3/airnode-admin create-template \
@@ -131,8 +134,8 @@ npx @api3/airnode-admin get-template \
 
 ### `request-withdrawal`
 
-Requests a withdrawal from the wallet designated by an Airnode for a sponsor, and returns the request ID.
-The account derived from the `mnemonic` you provide here has to belong to the sponsor.
+Requests a withdrawal from the wallet designated by an Airnode for a sponsor, and returns the request ID. The account
+derived from the `mnemonic` you provide here has to belong to the sponsor.
 
 ```sh
 npx @api3/airnode-admin request-withdrawal \

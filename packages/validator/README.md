@@ -4,22 +4,28 @@ Package for JSON specifications validation. Validation process can be configured
 
 ## Usage
 
-The validator can be run as a yarn script, by providing template of specification, and the path to the JSON file of specification that will be validated:
+The validator can be run as a yarn script, by providing template of specification, and the path to the JSON file of
+specification that will be validated:
+
 ```sh
 yarn run validate --template="[template]" --specs="[specsFile]"
 ```
 
 Templates are case-insensitive, valid templates are: `config`, `OIS`, `apiSpecifications`/`apiSpecs` and `endpoints`:
+
 ```sh
 yarn run validate --template="config" --specs="exampleSpecs/config.specs.json"
 ```
 
-Validator will automatically validate the latest available version of provided template, in case a specific version should be used in validation, it can be appended to template argument:
+Validator will automatically validate the latest available version of provided template, in case a specific version
+should be used in validation, it can be appended to template argument:
+
 ```sh
 yarn run validate --template="config@0.1.0" --specs="exampleSpecs/config.specs.json"
 ```
 
 Custom templates can be used, by providing path to the validator template file in place of `template`:
+
 ```sh
 yarn run validate --template="templates/0.1.0/config.json" --specs="exampleSpecs/config.specs.json"
 ```
@@ -39,7 +45,8 @@ Above mentioned commands will return json in following format:
 
 ## Templates
 
-Validator behavior can be configured with validator templates, which are regular `json` files using special keywords for specification validation. Usage of these keywords is described in the following chapters:
+Validator behavior can be configured with validator templates, which are regular `json` files using special keywords for
+specification validation. Usage of these keywords is described in the following chapters:
 
 - [basics](docs/basics.md)
 - [regular expressions](docs/regex.md)
@@ -53,21 +60,27 @@ Validator behavior can be configured with validator templates, which are regular
 
 # `@airnode/convertor`
 
-Built-in validator extension capable of conversions between various specifications, conversions are configured using validator templates with conversion actions.
+Built-in validator extension capable of conversions between various specifications, conversions are configured using
+validator templates with conversion actions.
 
 ## Usage
 
 Convertor works the same way as validator and can be invoked with the `convert` command, for example:
+
 ```sh
 yarn run convert --template="conversions/oas@3.0.0------ois@0.1.0.json" --specs="exampleSpecs/OAS.specs.json"
 ```
 
-Conversions can be invoked without providing any template, specifying which format provided specification is in and to which format it should be converted into, is enough:
+Conversions can be invoked without providing any template, specifying which format provided specification is in and to
+which format it should be converted into, is enough:
+
 ```sh
 yarn run convert --from="OAS" --to="OIS" --specs="exampleSpecs/OAS.specs.json"
 ```
 
-Specification formats are case-insensitive, currently available conversions are from `OAS` to `OIS` or from `OIS` to `config`. Version of the format can be provided as in `validate` command:
+Specification formats are case-insensitive, currently available conversions are from `OAS` to `OIS` or from `OIS` to
+`config`. Version of the format can be provided as in `validate` command:
+
 ```sh
 yarn run convert --from="OIS@pre-alpha" --to="config@pre-alpha" --specs="exampleSpecs/ois.specs.json"
 ```
@@ -88,8 +101,12 @@ Alternatively command can be ran with argument `--specs-only`, which will return
 
 ## Templates
 
-Convertor uses the same templates as validator. The resulting specification can be written into `output` object with [actions](docs/actions.md).
+Convertor uses the same templates as validator. The resulting specification can be written into `output` object with
+[actions](docs/actions.md).
 
 # Documentation
 
-Source documentation markdown files are located in `docs/src/` directory. All template related examples are located in `test/fixtures/` and injected into markdown using [markdown-snippet-injector](https://github.com/NativeScript/markdown-snippet-injector) by running `yarn run docs`. Generated markdown files can be found in `docs/`, test files using the same examples can be found in `test/` directory.
+Source documentation markdown files are located in `docs/src/` directory. All template related examples are located in
+`test/fixtures/` and injected into markdown using
+[markdown-snippet-injector](https://github.com/NativeScript/markdown-snippet-injector) by running `yarn run docs`.
+Generated markdown files can be found in `docs/`, test files using the same examples can be found in `test/` directory.
