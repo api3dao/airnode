@@ -119,6 +119,22 @@ yargs
     }
   )
   .command(
+    'verify-airnode-xpub',
+    'Verifies that the xpub belongs to the Airnode wallet',
+    {
+      'airnode-xpub': airnodeXpub,
+      'airnode-address': airnodeAddress,
+    },
+    async (args) => {
+      try {
+        admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']);
+        console.log(`Airnode xpub is: VALID`);
+      } catch {
+        console.log(`Airnode xpub is: INVALID`);
+      }
+    }
+  )
+  .command(
     'derive-sponsor-wallet-address',
     'Derives the address of the wallet for an airnode-sponsor pair',
     {
