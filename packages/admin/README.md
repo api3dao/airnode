@@ -65,8 +65,8 @@ The SDK will also provide TS typings out of the box. Please, refer to the implem
 
 ### `derive-sponsor-wallet-address`
 
-Derives the address of the wallet designated by an Airnode for a sponsor, which is called the sponsor wallet. This command will error if
-`airnode-xpub` does not belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
+Derives the address of the wallet designated by an Airnode for a sponsor, which is called the sponsor wallet. This
+command will error if `airnode-xpub` does not belong to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet.
 
 ```sh
 npx @api3/airnode-admin derive-sponsor-wallet-address \
