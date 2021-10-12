@@ -1,0 +1,80 @@
+{
+	"ois": [
+		{
+			"oisFormat": "1.0.0",
+			"version": "1.0.0",
+			"title": "myOisTitle",
+			"apiSpecifications": {
+				"servers": [],
+				"paths": {},
+				"components": {
+					"securitySchemes": {}
+				},
+				"security": []
+			},
+			"endpoints": []
+		}
+	],
+	"triggers": {
+		"rrp": []
+	},
+	"chains": [
+		{
+			"id": "1",
+			"type": "evm",
+			"providerNames": [
+				"provider1", "provider2"
+			],
+			"contracts": {
+				"AirnodeRrp": "0xF6d2675468989387e96127546e0CBC9A384fa418"
+			},
+			"authorizers": [
+				"0x0000000000000000000000000000000000000000"
+			]
+		},
+		{
+			"id": "2",
+			"type": "evm",
+			"providerNames": [
+				"provider1", "provider3"
+			],
+			"contracts": {
+				"AirnodeRrp": "0xF6d2675468989387e96127546e0CBC9A384fa418"
+			},
+			"authorizers": [
+				"0x0000000000000000000000000000000000000000"
+			]
+		}
+	],
+	"nodeSettings": {
+		"nodeVersion": "0.1.0",
+		"cloudProvider": "aws",
+		"region": "us-east-1",
+		"stage": "testnet",
+		"logFormat": "json",
+		"logLevel": "INFO"
+	},
+	"environment": {
+		"securitySchemes": [],
+		"chainProviders": [
+			{
+				"chainType": "evm",
+				"chainId": "1",
+				"name": "provider1",
+				"envName": "ev_1_provider1"
+			},
+			{
+				"chainType": "evm",
+				"chainId": "1",
+				"name": "provider2",
+				"envName": "ev_1_provider2"
+			},
+			{
+				"chainType": "evm",
+				"chainId": "2",
+				"name": "provider2",
+				"envName": "ev_2_provider2"
+			}
+		]
+	}
+}

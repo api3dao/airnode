@@ -1,0 +1,13 @@
+{
+	"valid": false,
+	"messages": [
+		{
+			"level": "error",
+			"message": "Provider provider3 from chains.[1].providerNames.[1] must be included in environment.chainProviders"
+		},
+		{
+			"level": "error",
+			"message": "chains must contain entry with provider: \"provider2\", id: \"2\" and type: \"evm\", as it is specified in environment.chainProviders.[2].name"
+		}
+	]
+}
