@@ -78,7 +78,7 @@ export function validateParameter(
     ).messages;
   }
 
-  if (!specs[param]) {
+  if (typeof specs !== 'object' || !(param in specs)) {
     return [logger.error(`Missing parameter ${[...paramPathPrefix, ...paramPath, param].join('.')}`)];
   }
 
