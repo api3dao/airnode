@@ -20,13 +20,16 @@
               "__any": {
                 "name": {
                   "__regexp": "^__match$"
+                },
+                "in": {
+                  "__regexp": "^path$"
                 }
               }
             }
           }
         },
         "__catch": {
-          "__message": "Parameter __match from __fullPath must be in parameters of path {{1}}"
+          "__message": "Parameter __match from __fullPath must be in parameters of path {{1}} and value of 'in' must be 'path'"
         }
       }
     ],
@@ -71,7 +74,9 @@
           },
           "__rootThen": {
             "security": {
-              "__match": {}
+              "__any": {
+                "__match": {}
+              }
             }
           },
           "__catch": {
@@ -95,7 +100,7 @@
               "name": {}
             },
             "__catch": {
-              "__message": "__fullPath must contain \"name\" since value of \"type\" is \"apiKey\""
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" since value of \"type\" is \"apiKey\""
             }
           },
           {
@@ -106,7 +111,7 @@
               "scheme": {}
             },
             "__catch": {
-              "__message": "__fullPath must contain \"scheme\" since value of \"type\" is \"http\""
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"scheme\" since value of \"type\" is \"http\""
             }
           },
           {
@@ -157,6 +162,7 @@
           "scheme": {
             "__regexp": "^(basic|bearer)$",
             "__catch": {
+              "__message": "__fullPath: Allowed values are \"basic\" or \"bearer\"",
               "__level": "error"
             }
           }
@@ -165,26 +171,28 @@
     }
   },
   "security": {
-    "__keyRegexp": "^[^\\s'\"\\\\]+$",
-    "__conditions": [
-      {
-        "__if": {
-          "__this_name": ".*"
-        },
-        "__rootThen": {
-          "components": {
-            "securitySchemes": {
-              "__match": {}
+    "__arrayItem": {
+      "__keyRegexp": "^[^\\s'\"\\\\]+$",
+      "__objectItem": {
+        "__arrayItem": {}
+      },
+      "__conditions": [
+        {
+          "__if": {
+            "__this_name": ".*"
+          },
+          "__rootThen": {
+            "components": {
+              "securitySchemes": {
+                "__match": {}
+              }
             }
+          },
+          "__catch": {
+            "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
           }
-        },
-        "__catch": {
-          "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
         }
-      }
-    ],
-    "__objectItem": {
-      "__arrayItem": {}
+      ]
     }
   }
 }

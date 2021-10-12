@@ -18,7 +18,10 @@
       "__arrayItem": {
         "operationParameter": {
           "name": {
-            "__type": "string"
+            "__regexp": "^(?!.*(_type|_path|_times|_relay_metadata)).*",
+            "__catch": {
+              "__message": "__fullPath: Can't have a name of reserved parameter"
+            }
           },
           "in": {
             "__regexp": "^(query|header|path|cookie)$",
@@ -51,7 +54,10 @@
         },
         "operationParameter": {
           "name": {
-            "__type": "string"
+            "__regexp": "^(?!.*(_type|_path|_times|_relay_metadata)).*",
+            "__catch": {
+              "__message": "__fullPath: Can't have a name of reserved parameter"
+            }
           },
           "in": {
             "__regexp": "^(path|query|header|cookie)$",
@@ -71,7 +77,10 @@
     "__optional": {
       "summary": {},
       "description": {},
-      "externalDocs": {}
+      "externalDocs": {},
+      "testable": {
+        "__type": "boolean"
+      }
     }
   }
 }
