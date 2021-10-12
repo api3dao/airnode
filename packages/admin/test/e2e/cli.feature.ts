@@ -110,14 +110,25 @@ describe('CLI', () => {
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
+  describe('derive-airnode-xpub', () => {
+    it('derives airnode xpub', () => {
+      const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
+
+      // Derive the xpub programatically
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeMnemonic);
+
+      // Derive the wallet using CLI
+      const out = execCommand('derive-airnode-xpub', ['--mnemonic', airnodeMnemonic]);
+      expect(out).toBe(`Airnode xpub: ${airnodeXpub}`);
+    });
+  });
+
   describe('derive-sponsor-wallet-address', () => {
     it('derives using airnode xpub', async () => {
       const sponsorAddress = alice.address;
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
 
-      const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
-      const airnodeXpub = airnodeHdNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
-
-      // Derive the wallet using CLI and admin SDK
+      // Derive the wallet using CLI
       const out = execCommand(
         'derive-sponsor-wallet-address',
         ['--airnode-xpub', airnodeXpub],

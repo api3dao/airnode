@@ -39,17 +39,6 @@ export const getAirnodeWallet = () => {
 };
 
 /**
- * Derives the Airnode extended public key from the Airnode wallet.
- *
- * @param airnodeWallet
- * @returns The extended public key
- */
-export const getAirnodeXpub = (airnodeWallet: ethers.Wallet) => {
-  const hdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
-  return hdNode.neuter().extendedKey;
-};
-
-/**
  * Reads the compiled solidity artifact necessary for contract deployment.
  *
  * @param artifactsFolderPath
