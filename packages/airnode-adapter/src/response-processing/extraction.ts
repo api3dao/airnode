@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js';
 import isUndefined from 'lodash/isUndefined';
 import * as casting from './casting';
 import * as encoding from './encoding';
+import { isNumericType } from './casting';
 import { ReservedParameters } from '../types';
 
 export function getRawValue(data: any, path?: string, defaultValue?: any) {
@@ -40,7 +41,7 @@ export function extractAndEncodeResponse(data: unknown, parameters: ReservedPara
   const rawValue = extractValue(data, parameters._path);
   const value = casting.castValue(rawValue, parameters._type);
 
-  if ((parameters._type === 'uint256' || parameters._type === 'int256') && value instanceof BigNumber) {
+  if (isNumericType(parameters._type) && value instanceof BigNumber) {
     const multipledValue = casting.multiplyValue(value, parameters._times);
     const encodedValue = encoding.encodeValue(multipledValue.toString(), parameters._type);
     return { value: multipledValue, encodedValue };

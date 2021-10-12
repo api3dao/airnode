@@ -61,12 +61,15 @@ function castBytes32(value: any): string {
   return String(value);
 }
 
-export function castValue(value: unknown, type: ResponseType): ValueType {
-  switch (type) {
-    case 'uint256':
-    case 'int256':
-      return castNumber(value, type);
+// Numeric types should be multiplied by the "_times" reserved parameter
+export function isNumericType(type: ResponseType): type is 'uint256' | 'int256' {
+  return type === 'int256' || type === 'uint256';
+}
 
+export function castValue(value: unknown, type: ResponseType): ValueType {
+  if (isNumericType(type)) return castNumber(value, type);
+
+  switch (type) {
     case 'bool':
       return castBoolean(value);
 
