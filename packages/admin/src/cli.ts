@@ -48,11 +48,6 @@ const COMMON_COMMAND_ARGUMENTS = {
       describe: 'Derivation path to be used for deriving the wallet account',
     },
   },
-  airnodeMnemonic: {
-    type: 'string',
-    demandOption: true,
-    describe: 'The Airnode mnemonic',
-  },
   airnodeXpub: {
     type: 'string',
     demandOption: true,
@@ -96,7 +91,6 @@ const COMMON_COMMAND_ARGUMENTS = {
 } as const;
 
 const {
-  airnodeMnemonic,
   airnodeRrpCommands,
   airnodeRequesterRrpAuthorizerCommands,
   mnemonicCommands,
@@ -117,10 +111,10 @@ yargs
     'derive-airnode-xpub',
     'Derives the Airnode extended public key',
     {
-      'airnode-mnemonic': airnodeMnemonic,
+      ...mnemonicCommands,
     },
     async (args) => {
-      const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
+      const xpub = await admin.deriveAirnodeXpub(args.mnemonic);
       console.log(`Airnode xpub: ${xpub}`);
     }
   )

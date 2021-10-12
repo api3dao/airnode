@@ -118,7 +118,7 @@ describe('CLI', () => {
       const airnodeXpub = admin.deriveAirnodeXpub(airnodeMnemonic);
 
       // Derive the wallet using CLI
-      const out = execCommand('derive-airnode-xpub', ['--airnode-mnemonic', airnodeMnemonic]);
+      const out = execCommand('derive-airnode-xpub', ['--mnemonic', airnodeMnemonic]);
       expect(out).toBe(`Airnode xpub: ${airnodeXpub}`);
     });
   });

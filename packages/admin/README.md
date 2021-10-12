@@ -65,10 +65,10 @@ The SDK will also provide TS typings out of the box. Please, refer to the implem
 
 ### `derive-airnode-xpub`
 
-Derives the Airnode extended public key (xpub). Many of the CLI commands require the xpub as a parameter.
+Derives the Airnode extended public key (xpub).
 
 ```sh
-npx @api3/airnode-admin derive-airnode-xpub --airnode-mnemonic "nature about salad..."
+npx @api3/airnode-admin derive-airnode-xpub --mnemonic "nature about salad..."
 ```
 
 ### `derive-sponsor-wallet-address`
