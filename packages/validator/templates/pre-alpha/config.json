@@ -1,135 +1,135 @@
 {
-	"ois": {
-		"__arrayItem": {
-			"__template": "ois.json"
-		}
-	},
-	"triggers": {
-		"request": {
-			"__arrayItem": {
-				"endpointId": {
-					"__regexp": "^0x[a-fA-F0-9]{64}$"
-				},
-				"oisTitle": {
-					"__type": "string"
-				},
-				"endpointName": {
-					"__type": "string"
-				},
-				"__conditions": [
-					{
-						"__if": {
-							"oisTitle": ".*"
-						},
-						"__rootThen": {
-							"ois": {
-								"__any": {
-									"title": {
-										"__regexp": "^__match$"
-									},
-									"endpoints": {
-										"__any": {
-											"name": {
-												"__regexp": "[['endpointName']]"
-											}
-										}
-									}
-								}
-							}
-						},
-						"__catch": {
-							"__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in triggers.{{1}}.{{2}}"
-						}
-					}
-				]
-			}
-		}
-	},
-	"nodeSettings": {
-		"nodeVersion": {
-			"__regexp": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
-		},
-		"cloudProvider": {
-			"__regexp": "^aws$",
-			"__catch": {
-				"__message": "__fullPath: Currently only \"aws\" is supported"
-			}
-		},
-		"region": {
-			"__type": "string"
-		},
-		"stage": {
-			"__regexp": "^[a-zA-Z0-9-_]{1,16}$",
-			"__catch": {
-				"__message": "__fullPath can contain only alphanumeric characters, '-' or '_' and cannot be longer than 16 characters"
-			}
-		},
-		"logFormat": {
-			"__regexp": "^(json|plain)$",
-			"__catch": {
-				"__message": "__fullPath: Allowed values are \"json\" or \"plain\""
-			}
-		},
-		"__optional": {
-			"providerIdShort": {
-				"__regexp": "^[a-fA-F0-9]{7}$",
-				"__catch": {
-					"__level": "error",
-					"__message": "__fullPath should be only first 7 characters of provider ID"
-				}
-			}
-		},
-		"chains": {
-			"__arrayItem": {
-				"id": {
-					"__type": "string"
-				},
-				"type": {
-					"__regexp": "^evm$",
-					"__catch": {
-						"__message": "__fullPath: Currently only \"evm\" is supported"
-					}
-				},
-				"providers": {
-					"__arrayItem": {
-						"name": {
-							"__type": "string"
-						},
-						"url": {
-							"__regexp": "^(http:|https:)(\\/\\/([^\\/?#]*))([^?#]*)$",
-							"__catch": {
-								"__level": "error",
-								"__message": "__fullPath must be valid HTTP endpoint"
-							}
-						}
-					}
-				},
-				"contracts": {
-					"Airnode": {
-						"__regexp": "^0x[a-fA-F0-9]{64}$"
-					},
-					"Convenience": {
-						"__regexp": "^0x[a-fA-F0-9]{64}$"
-					}
-				},
-				"__optional": {
-					"providerAdminForRecordCreation": {
-						"__regexp": "^0x[a-fA-F0-9]{64}$"
-					},
-					"blockHistoryLimit": {
-						"__type": "number"
-					},
-					"minConfirmations": {
-						"__type": "number"
-					},
-					"ignoreBlockedRequestsAfterBlocks": {
-						"__type": "number"
-					}
-				}
-			}
-		}
-	},
-	"id": {
-		"__regexp": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	}
+  "ois": {
+    "__arrayItem": {
+      "__template": "ois.json"
+    }
+  },
+  "triggers": {
+    "request": {
+      "__arrayItem": {
+        "endpointId": {
+          "__regexp": "^0x[a-fA-F0-9]{64}$"
+        },
+        "oisTitle": {
+          "__type": "string"
+        },
+        "endpointName": {
+          "__type": "string"
+        },
+        "__conditions": [
+          {
+            "__if": {
+              "oisTitle": ".*"
+            },
+            "__rootThen": {
+              "ois": {
+                "__any": {
+                  "title": {
+                    "__regexp": "^__match$"
+                  },
+                  "endpoints": {
+                    "__any": {
+                      "name": {
+                        "__regexp": "[['endpointName']]"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "__catch": {
+              "__message": "OIS \"[['oisTitle']]\" must contain endpoint \"'[['endpointName']]\", as it is specified in triggers.{{1}}.{{2}}"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "nodeSettings": {
+    "nodeVersion": {
+      "__regexp": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "cloudProvider": {
+      "__regexp": "^aws$",
+      "__catch": {
+        "__message": "__fullPath: Currently only \"aws\" is supported"
+      }
+    },
+    "region": {
+      "__type": "string"
+    },
+    "stage": {
+      "__regexp": "^[a-zA-Z0-9-_]{1,16}$",
+      "__catch": {
+        "__message": "__fullPath can contain only alphanumeric characters, '-' or '_' and cannot be longer than 16 characters"
+      }
+    },
+    "logFormat": {
+      "__regexp": "^(json|plain)$",
+      "__catch": {
+        "__message": "__fullPath: Allowed values are \"json\" or \"plain\""
+      }
+    },
+    "__optional": {
+      "providerIdShort": {
+        "__regexp": "^[a-fA-F0-9]{7}$",
+        "__catch": {
+          "__level": "error",
+          "__message": "__fullPath should be only first 7 characters of provider ID"
+        }
+      }
+    },
+    "chains": {
+      "__arrayItem": {
+        "id": {
+          "__type": "string"
+        },
+        "type": {
+          "__regexp": "^evm$",
+          "__catch": {
+            "__message": "__fullPath: Currently only \"evm\" is supported"
+          }
+        },
+        "providers": {
+          "__arrayItem": {
+            "name": {
+              "__type": "string"
+            },
+            "url": {
+              "__regexp": "^(http:|https:)(\\/\\/([^\\/?#]*))([^?#]*)$",
+              "__catch": {
+                "__level": "error",
+                "__message": "__fullPath must be valid HTTP endpoint"
+              }
+            }
+          }
+        },
+        "contracts": {
+          "Airnode": {
+            "__regexp": "^0x[a-fA-F0-9]{64}$"
+          },
+          "Convenience": {
+            "__regexp": "^0x[a-fA-F0-9]{64}$"
+          }
+        },
+        "__optional": {
+          "providerAdminForRecordCreation": {
+            "__regexp": "^0x[a-fA-F0-9]{64}$"
+          },
+          "blockHistoryLimit": {
+            "__type": "number"
+          },
+          "minConfirmations": {
+            "__type": "number"
+          },
+          "ignoreBlockedRequestsAfterBlocks": {
+            "__type": "number"
+          }
+        }
+      }
+    }
+  },
+  "id": {
+    "__regexp": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  }
 }

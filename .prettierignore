@@ -1,5 +1,4 @@
 **/node_modules/**
-.eslintrc.js
 
 # Buidler
 **/cache/**
@@ -11,7 +10,5 @@
 **/coverage/**
 **/dist/**
 **/.webpack/**
-
-*.json
 
 packages/validator/test/fixtures
