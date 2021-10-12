@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
 import { ResponseType, ValueType } from '../types';
 
-export function convertUnsignedIntegerToBytes32(value: string) {
+export function convertUnsignedInteger(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['uint256'], [value]);
 }
 
-export function convertSignedIntegerToBytes32(value: string) {
+export function convertSignedInteger(value: string) {
   return ethers.utils.defaultAbiCoder.encode(['int256'], [value]);
 }
 
@@ -15,28 +15,28 @@ function trimValue(value: string) {
   return value.length > 31 ? value.substring(0, 31) : value;
 }
 
-export function convertStringToBytes32(value: string) {
+export function convertString(value: string) {
   const trimmedValue = trimValue(value);
   const bytes32String = ethers.utils.formatBytes32String(trimmedValue);
   return ethers.utils.defaultAbiCoder.encode(['bytes32'], [bytes32String]);
 }
 
-export function convertBoolToBytes32(value: boolean) {
+export function convertBool(value: boolean) {
   return ethers.utils.defaultAbiCoder.encode(['bool'], [value]);
 }
 
 export function encodeValue(value: ValueType, type: ResponseType) {
   switch (type) {
     case 'uint256':
-      return convertUnsignedIntegerToBytes32(value as string);
+      return convertUnsignedInteger(value as string);
 
     case 'int256':
-      return convertSignedIntegerToBytes32(value as string);
+      return convertSignedInteger(value as string);
 
     case 'bool':
-      return convertBoolToBytes32(value as boolean);
+      return convertBool(value as boolean);
 
     case 'bytes32':
-      return convertStringToBytes32(value as string);
+      return convertString(value as string);
   }
 }
