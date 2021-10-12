@@ -1,53 +1,30 @@
-import { execSync } from 'child_process';
 import { ethers } from 'ethers';
-import { deriveWalletPathFromSponsorAddress } from '@api3/admin';
-import {
-  cliPrint,
-  getAirnodeWallet,
-  getAirnodeXpub,
-  getDeployedContract,
-  getProvider,
-  readAirnodeSecrets,
-  readIntegrationInfo,
-  runAndHandleErrors,
-} from '../src';
-
-const getSponsorWallet = (sponsorAddress: string) => {
-  const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
-  const airnodeSecrets = readAirnodeSecrets();
-  const provider = getProvider();
-
-  return ethers.Wallet.fromMnemonic(airnodeSecrets.AIRNODE_WALLET_MNEMONIC, derivationPath).connect(provider);
-};
+import { deriveSponsorWalletAddress, deriveAirnodeXpub } from '@api3/admin';
+import { cliPrint, getAirnodeWallet, getProvider, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {
   const integrationInfo = readIntegrationInfo();
-  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
   const airnodeWallet = getAirnodeWallet();
   const provider = getProvider();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic).connect(provider);
+  // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' from the admin CLI package
+  const airnodeXpub = deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
 
-  // Derive the sponsor wallet address
-  const args = [
-    `--providerUrl ${integrationInfo.providerUrl}`,
-    `--airnodeRrp ${airnodeRrp.address}`,
-    `--airnodeAddress ${airnodeWallet.address}`,
-    `--sponsorAddress ${sponsor.address}`,
-    `--xpub ${getAirnodeXpub(airnodeWallet)}`,
-  ];
-  const output = execSync(`yarn api3-admin derive-sponsor-wallet-address ${args.join(' ')}`).toString();
-  const sponsorWalletAddress = output.split('Sponsor wallet address:')[1].trim();
+  // Derive the sponsor wallet address programatically
+  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' from the admin CLI package
+  const sponsorWalletAddress = await deriveSponsorWalletAddress(airnodeXpub, airnodeWallet.address, sponsor.address);
 
   // Fund the derived sponsor wallet using sponsor account
   const balance = await sponsor.getBalance();
   const amountToSend = ethers.utils.parseEther('0.1');
   if (balance.lt(amountToSend)) throw new Error(`Sponsor account (${sponsor.address}) doesn't have enough funds!`);
-  await sponsor.sendTransaction({ to: sponsorWalletAddress, value: amountToSend });
+  const tx = await sponsor.sendTransaction({ to: sponsorWalletAddress, value: amountToSend });
+  await tx.wait();
 
   // Print out the sponsor wallet address and balance
-  const sponsorWallet = getSponsorWallet(sponsor.address);
-  const sponsorWalletBalance = ethers.utils.formatEther(await sponsorWallet.getBalance());
-  cliPrint.info(`Successfully sent funds to sponsor wallet address: ${sponsorWallet.address}.`);
+  const sponsorWalletRawBalance = await provider.getBalance(sponsorWalletAddress);
+  const sponsorWalletBalance = ethers.utils.formatEther(sponsorWalletRawBalance);
+  cliPrint.info(`Successfully sent funds to sponsor wallet address: ${sponsorWalletAddress}.`);
   cliPrint.info(`Current balance: ${sponsorWalletBalance}`);
 };
 

@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { exit } from 'process';
 import * as yargs from 'yargs';
 import * as evm from './evm';
-import * as admin from '.';
+import * as admin from './implementation';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
@@ -48,6 +48,11 @@ const COMMON_COMMAND_ARGUMENTS = {
       describe: 'Derivation path to be used for deriving the wallet account',
     },
   },
+  airnodeMnemonic: {
+    type: 'string',
+    demandOption: true,
+    describe: 'The Airnode mnemonic',
+  },
   airnodeXpub: {
     type: 'string',
     demandOption: true,
@@ -91,6 +96,7 @@ const COMMON_COMMAND_ARGUMENTS = {
 } as const;
 
 const {
+  airnodeMnemonic,
   airnodeRrpCommands,
   airnodeRequesterRrpAuthorizerCommands,
   mnemonicCommands,
@@ -107,6 +113,17 @@ const {
 const toJSON = JSON.stringify;
 
 yargs
+  .command(
+    'derive-airnode-xpub',
+    'Derives the Airnode extended public key',
+    {
+      'airnode-mnemonic': airnodeMnemonic,
+    },
+    async (args) => {
+      const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
+      console.log(`Airnode xpub: ${xpub}`);
+    }
+  )
   .command(
     'derive-sponsor-wallet-address',
     'Derives the address of the wallet for an airnode-sponsor pair',
