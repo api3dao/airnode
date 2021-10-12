@@ -49,7 +49,7 @@ export interface Config {
 
 export type ValueType = string | BigNumber | boolean;
 
-export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32';
+export type ResponseType = 'uint256' | 'int256' | 'bool' | 'bytes32' | 'address' | 'bytes' | 'string';
 
 export interface ReservedParameters {
   readonly _path?: string;

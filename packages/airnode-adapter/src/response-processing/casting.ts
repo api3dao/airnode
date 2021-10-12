@@ -3,6 +3,7 @@ import isFinite from 'lodash/isFinite';
 import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import { BigNumber } from 'bignumber.js';
+import { ethers } from 'ethers';
 import { ResponseType, ValueType } from '../types';
 
 interface SpecialNumber {
@@ -53,12 +54,20 @@ function castBoolean(value: unknown): boolean {
   }
 }
 
-function castBytes32(value: any): string {
+function castStringLike(value: any): string {
   // Objects convert to "[object Object]" which isn't very useful
   if (isArray(value) || isPlainObject(value)) {
     throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes32`);
   }
   return String(value);
+}
+
+function castHexString(value: any): string {
+  // Objects convert to "[object Object]" which isn't very useful
+  if (isArray(value) || isPlainObject(value)) {
+    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to hex string`);
+  }
+  return ethers.utils.hexlify(value);
 }
 
 // Numeric types should be multiplied by the "_times" reserved parameter
@@ -72,9 +81,12 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
   switch (type) {
     case 'bool':
       return castBoolean(value);
-
     case 'bytes32':
-      return castBytes32(value);
+    case 'address':
+    case 'string':
+      return castStringLike(value);
+    case 'bytes':
+      return castHexString(value);
   }
 }
 

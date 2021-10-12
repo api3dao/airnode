@@ -37,6 +37,8 @@ export function extractValue(data: unknown, path?: string) {
   return rawValue;
 }
 
+// This function can throw an error in both extraction and encoding
+// TODO: Should we suffix it with "orThrow" to make this explicit?
 export function extractAndEncodeResponse(data: unknown, parameters: ReservedParameters) {
   const rawValue = extractValue(data, parameters._path);
   const value = casting.castValue(rawValue, parameters._type);
