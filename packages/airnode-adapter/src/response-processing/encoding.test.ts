@@ -194,4 +194,26 @@ describe('encodeValue', () => {
       '0x72616e646f6d737472696e670000000000000000000000000000000000000000'
     );
   });
+
+  it('encodes address values', () => {
+    expect(encoding.encodeValue('0xe021f6bfbdd53c3fd0c5cfd4139b51d1f3108a74', 'address')).toEqual(
+      '0x000000000000000000000000e021f6bfbdd53c3fd0c5cfd4139b51d1f3108a74'
+    );
+  });
+
+  it('encodes bytes values', () => {
+    const exampleString = 'random string';
+    const bytesString = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(exampleString));
+    expect(bytesString).toBe('0x72616e646f6d20737472696e67');
+
+    expect(encoding.encodeValue(bytesString, 'bytes')).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000d72616e646f6d20737472696e6700000000000000000000000000000000000000'
+    );
+  });
+
+  it('encodes string values', () => {
+    expect(encoding.encodeValue('randomstring', 'string')).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000c72616e646f6d737472696e670000000000000000000000000000000000000000'
+    );
+  });
 });
