@@ -45,7 +45,8 @@ cp config/secrets.env.example config/secrets.env
 
 ### Common user flow
 
-1. Use the `deploy` command for your first deployment.
+1. Make sure you have `config.json` and `secrets.env` ready. Then, use the `deploy` command to trigger your first
+   deployment.
 2. In order to update the Airnode configuration:
    - Update the `config.json` file
    - Run the `deploy` command again
