@@ -54,18 +54,33 @@ function castBoolean(value: unknown): boolean {
   }
 }
 
-function castStringLike(value: any): string {
+function castStringLike(value: any, target: 'string' | 'bytes32'): string {
+  // TODO: Should we throw here? Isn't String(JSON.stringify(value)) better?
   // Objects convert to "[object Object]" which isn't very useful
   if (isArray(value) || isPlainObject(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes32`);
+    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to ${target}`);
   }
   return String(value);
 }
 
-function castHexString(value: any): string {
+function castAddress(value: any): string {
   // Objects convert to "[object Object]" which isn't very useful
   if (isArray(value) || isPlainObject(value)) {
-    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to hex string`);
+    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to address`);
+  }
+
+  const stringValue = String(value);
+  if (!ethers.utils.isAddress(stringValue)) {
+    throw new Error(`Unable to convert: '${stringValue}' to address`);
+  }
+  return stringValue;
+}
+
+function castHexString(value: any): string {
+  // Objects convert to "[object Object]" which isn't very useful
+  // also checks if the value is nil
+  if (isArray(value) || isPlainObject(value) || isNil(value)) {
+    throw new Error(`Unable to convert: '${JSON.stringify(value)}' to bytes`);
   }
   return ethers.utils.hexlify(value);
 }
@@ -82,9 +97,11 @@ export function castValue(value: unknown, type: ResponseType): ValueType {
     case 'bool':
       return castBoolean(value);
     case 'bytes32':
-    case 'address':
+      return castStringLike(value, 'bytes32');
     case 'string':
-      return castStringLike(value);
+      return castStringLike(value, 'string');
+    case 'address':
+      return castAddress(value);
     case 'bytes':
       return castHexString(value);
   }

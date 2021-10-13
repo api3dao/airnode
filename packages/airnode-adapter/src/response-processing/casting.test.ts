@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js';
+import { ethers } from 'ethers';
 import * as casting from './casting';
 
 describe('castValue', () => {
@@ -208,6 +209,90 @@ describe('castValue', () => {
       expect(casting.castValue(777.89, 'bytes32')).toEqual('777.89');
       expect(casting.castValue(Infinity, 'bytes32')).toEqual('Infinity');
       expect(casting.castValue(NaN, 'bytes32')).toEqual('NaN');
+    });
+  });
+
+  describe('casting string values', () => {
+    it('throws an error for object values', () => {
+      expect(() => casting.castValue({}, 'string')).toThrowError(new Error("Unable to convert: '{}' to string"));
+      expect(() => casting.castValue({ a: 1 }, 'string')).toThrowError(
+        new Error('Unable to convert: \'{"a":1}\' to string')
+      );
+    });
+
+    it('throws an error for array values', () => {
+      expect(() => casting.castValue([], 'string')).toThrowError(new Error("Unable to convert: '[]' to string"));
+      expect(() => casting.castValue([false], 'string')).toThrowError(
+        new Error("Unable to convert: '[false]' to string")
+      );
+      expect(() => casting.castValue([true], 'string')).toThrowError(
+        new Error("Unable to convert: '[true]' to string")
+      );
+      expect(() => casting.castValue(['unknown'], 'string')).toThrowError(
+        new Error('Unable to convert: \'["unknown"]\' to string')
+      );
+      expect(() => casting.castValue([{ a: 1 }], 'string')).toThrowError(
+        new Error('Unable to convert: \'[{"a":1}]\' to string')
+      );
+    });
+
+    it('converts values to strings', () => {
+      // Nil values
+      expect(casting.castValue(null, 'string')).toEqual('null');
+      expect(casting.castValue(undefined, 'string')).toEqual('undefined');
+
+      // Booleans
+      expect(casting.castValue(false, 'string')).toEqual('false');
+      expect(casting.castValue('false', 'string')).toEqual('false');
+      expect(casting.castValue(true, 'string')).toEqual('true');
+      expect(casting.castValue('true', 'string')).toEqual('true');
+
+      // Strings
+      expect(casting.castValue('', 'string')).toEqual('');
+      expect(casting.castValue('unknown', 'string')).toEqual('unknown');
+
+      // Numbers
+      expect(casting.castValue(-1, 'string')).toEqual('-1');
+      expect(casting.castValue(0, 'string')).toEqual('0');
+      expect(casting.castValue(1, 'string')).toEqual('1');
+      expect(casting.castValue(777.89, 'string')).toEqual('777.89');
+      expect(casting.castValue(Infinity, 'string')).toEqual('Infinity');
+      expect(casting.castValue(NaN, 'string')).toEqual('NaN');
+    });
+  });
+
+  describe('convert address values', () => {
+    it('throws on invalid address', () => {
+      expect(() => casting.castValue(null, 'address')).toThrow(`Unable to convert: 'null' to address`);
+      expect(() => casting.castValue('invalid address', 'address')).toThrow(
+        `Unable to convert: 'invalid address' to address`
+      );
+      expect(() => casting.castValue({}, 'address')).toThrow(`Unable to convert: '{}' to address`);
+    });
+
+    it('casts valid addresses', () => {
+      const addressStr = '0xe021f6bfbdd53c3fd0c5cfd4139b51d1f3108a74';
+      expect(casting.castValue(addressStr, 'address')).toBe(addressStr);
+    });
+  });
+
+  describe('convert bytes values', () => {
+    it('throws on invalid value', () => {
+      expect(() => casting.castValue(null, 'bytes')).toThrow(`Unable to convert: 'null' to bytes`);
+      expect(() => casting.castValue('invalid bytes', 'bytes')).toThrow(`invalid hexlify value`);
+      expect(() => casting.castValue({}, 'bytes')).toThrow(`Unable to convert: '{}' to bytes`);
+
+      expect(() => casting.castValue('0x123', 'bytes')).toThrow('hex data is odd-length');
+    });
+
+    it('casts valid bytes string', () => {
+      const exampleString = 'this is an example string that is a bit longer';
+      const bytesString = ethers.utils.hexlify(ethers.utils.toUtf8Bytes(exampleString));
+      expect(bytesString).toBe(
+        '0x7468697320697320616e206578616d706c6520737472696e672074686174206973206120626974206c6f6e676572'
+      );
+
+      expect(casting.castValue(bytesString, 'bytes')).toBe(bytesString);
     });
   });
 });
