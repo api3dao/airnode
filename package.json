@@ -42,7 +42,7 @@
     "dev:stop": "(cd packages/operation && yarn run dev:stop)",
     "docker": "yarn docker:artifacts && yarn docker:deployer && yarn docker:node",
     "docker:artifacts": "docker rmi --force api3/artifacts && docker build --tag api3/artifacts:latest --file docker/Dockerfile .",
-    "docker:deployer": "docker build --tag api3/deployer:latest --file packages/deployer/docker/Dockerfile .",
+    "docker:deployer": "docker build --tag api3/airnode-deployer:latest --file packages/deployer/docker/Dockerfile .",
     "docker:node": "docker build --tag api3/airnode:latest --file packages/node/docker/Dockerfile .",
     "lint": "yarn run lint:eslint && yarn run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",

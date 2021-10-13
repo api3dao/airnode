@@ -15,7 +15,7 @@ const main = async () => {
     `--env-file ${secretsFilePath}`,
     `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
     `-v ${integrationPath}:/app/output`,
-    `api3/deployer:latest remove -r output/receipt.json`,
+    `api3/airnode-deployer:latest remove -r output/receipt.json`,
   ].join(' ');
 
   runShellCommand(deployCommand);
