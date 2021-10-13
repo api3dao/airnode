@@ -18,6 +18,7 @@ module.exports = {
   },
   target: 'node',
   plugins: [
+    // https://github.com/api3dao/airnode/pull/623#discussion_r729083235
     new CopyPlugin({
       patterns: [
         { from: '../validator/dist/templates', to: 'templates' },
