@@ -1,12 +1,11 @@
 import { ethers } from 'ethers';
-import { deriveSponsorWalletAddress, getAirnodeRrp } from '@api3/admin';
+import { deriveAirnodeXpub, deriveSponsorWalletAddress } from '@api3/admin';
 import {
   getDeployedContract,
   getProvider,
   readIntegrationInfo,
   runAndHandleErrors,
   getAirnodeWallet,
-  getAirnodeXpub,
   readConfig,
   cliPrint,
 } from '../src';
@@ -25,17 +24,18 @@ export const makeRequest = async (): Promise<string> => {
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json
   const endpointId = readConfig().triggers.rrp[0].endpointId;
-  const airnodeRrpTyped = await getAirnodeRrp(integrationInfo.providerUrl, { airnodeRrpAddress: airnodeRrp.address });
-  const sponsorWalletAddress = deriveSponsorWalletAddress(
-    airnodeRrpTyped,
+  // NOTE: When doing this manually, you can use the 'derive-sponsor-wallet-address' from the admin CLI package
+  const sponsorWalletAddress = await deriveSponsorWalletAddress(
+    // NOTE: When doing this manually, you can use the 'derive-airnode-xpub' from the admin CLI package
+    deriveAirnodeXpub(airnodeWallet.mnemonic.phrase),
     airnodeWallet.address,
-    sponsor.address,
-    getAirnodeXpub(airnodeWallet)
+    sponsor.address
   );
 
   // Import the function to get encoded parameters for the Airnode. See the respective "request-utils.ts" for details.
   const { getEncodedParameters } = await import(`../integrations/${integrationInfo.integration}/request-utils.ts`);
   // Trigger the Airnode request
+
   const receipt = await requester.makeRequest(
     airnodeWallet.address,
     endpointId,

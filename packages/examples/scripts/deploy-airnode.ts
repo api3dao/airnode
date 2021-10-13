@@ -16,7 +16,7 @@ const main = async () => {
     `-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)`,
     `-v ${integrationPath}:/app/config`,
     `-v ${integrationPath}:/app/output`,
-    `api3/deployer:latest deploy`,
+    `api3/airnode-deployer:latest deploy`,
   ].join(' ');
 
   runShellCommand(deployCommand);

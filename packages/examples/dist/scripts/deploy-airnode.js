@@ -54,7 +54,7 @@ var main = function () { return __awaiter(void 0, void 0, void 0, function () {
             "-e USER_ID=$(id -u) -e GROUP_ID=$(id -g)",
             "-v " + integrationPath + ":/app/config",
             "-v " + integrationPath + ":/app/output",
-            "api3/deployer:latest deploy",
+            "api3/airnode-deployer:latest deploy",
         ].join(' ');
         (0, src_1.runShellCommand)(deployCommand);
         return [2 /*return*/];

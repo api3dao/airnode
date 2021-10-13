@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { exit } from 'process';
 import * as yargs from 'yargs';
 import * as evm from './evm';
-import * as admin from '.';
+import * as admin from './implementation';
 
 const COMMON_COMMAND_ARGUMENTS = {
   airnodeRrpCommands: {
@@ -107,6 +107,17 @@ const {
 const toJSON = JSON.stringify;
 
 yargs
+  .command(
+    'derive-airnode-xpub',
+    'Derives the Airnode extended public key',
+    {
+      ...mnemonicCommands,
+    },
+    async (args) => {
+      const xpub = await admin.deriveAirnodeXpub(args.mnemonic);
+      console.log(`Airnode xpub: ${xpub}`);
+    }
+  )
   .command(
     'derive-sponsor-wallet-address',
     'Derives the address of the wallet for an airnode-sponsor pair',

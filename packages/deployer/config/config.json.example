@@ -3,12 +3,12 @@
     {
       "authorizers": [],
       "contracts": {
-        "AirnodeRrp": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+        "AirnodeRrp": "0x534DfA0d242e7fDCFD096C2B1a3D70F172008778"
       },
-      "id": "31337",
+      "id": "4",
       "providers": {
-        "local": {
-          "url": "${LOCAL_PROVIDER_URL}"
+        "rinkeby": {
+          "url": "${RINKEBY_PROVIDER_URL}"
         }
       },
       "type": "evm"
@@ -36,74 +36,113 @@
   "triggers": {
     "rrp": [
       {
-        "endpointId": "0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353",
-        "oisTitle": "Currency Converter API",
-        "endpointName": "convertToUSD"
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "CoinGecko basic request",
+        "endpointName": "coinMarketData"
       }
     ]
   },
   "ois": [
     {
       "oisFormat": "1.0.0",
-      "version": "1.2.3",
-      "title": "Currency Converter API",
+      "title": "CoinGecko basic request",
+      "version": "1.0.0",
       "apiSpecifications": {
-        "info": {
-          "title": "Currency Converter API"
-        },
         "servers": [
           {
-            "url": "http://localhost:5000"
+            "url": "https://api.coingecko.com/api/v3"
           }
         ],
         "paths": {
-          "/convert": {
+          "/coins/{id}": {
             "get": {
               "parameters": [
                 {
-                  "in": "query",
-                  "name": "from"
+                  "in": "path",
+                  "name": "id"
                 },
                 {
                   "in": "query",
-                  "name": "to"
+                  "name": "localization"
                 },
                 {
                   "in": "query",
-                  "name": "amount"
+                  "name": "tickers"
                 },
                 {
                   "in": "query",
-                  "name": "date"
+                  "name": "market_data"
+                },
+                {
+                  "in": "query",
+                  "name": "community_data"
+                },
+                {
+                  "in": "query",
+                  "name": "developer_data"
+                },
+                {
+                  "in": "query",
+                  "name": "sparkline"
                 }
               ]
             }
           }
         },
         "components": {
-          "securitySchemes": {
-            "Currency Converter Security Scheme": {
-              "in": "query",
-              "type": "apiKey",
-              "name": "access_key"
-            }
-          }
-        }
+          "securitySchemes": {}
+        },
+        "security": {}
       },
       "endpoints": [
         {
-          "name": "convertToUSD",
+          "name": "coinMarketData",
           "operation": {
             "method": "get",
-            "path": "/convert"
+            "path": "/coins/{id}"
           },
           "fixedOperationParameters": [
             {
               "operationParameter": {
                 "in": "query",
-                "name": "to"
+                "name": "localization"
               },
-              "value": "USD"
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "tickers"
+              },
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "market_data"
+              },
+              "value": "true"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "community_data"
+              },
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "developer_data"
+              },
+              "value": "false"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "sparkline"
+              },
+              "value": "false"
             }
           ],
           "reservedParameters": [
@@ -113,45 +152,25 @@
             },
             {
               "name": "_path",
-              "fixed": "result"
+              "fixed": "market_data.current_price.usd"
             },
             {
               "name": "_times",
-              "default": "1000000"
-            },
-            {
-              "name": "_relay_metadata",
-              "default": "v1"
+              "fixed": "1000000"
             }
           ],
           "parameters": [
             {
-              "name": "from",
-              "default": "EUR",
+              "name": "coinId",
               "operationParameter": {
-                "in": "query",
-                "name": "from"
-              }
-            },
-            {
-              "name": "amount",
-              "default": "1",
-              "operationParameter": {
-                "name": "amount",
-                "in": "query"
+                "in": "path",
+                "name": "id"
               }
             }
-          ],
-          "testable": true
+          ]
         }
       ]
     }
   ],
-  "apiCredentials": [
-    {
-      "oisTitle": "Currency Converter API",
-      "securitySchemeName": "Currency Converter Security Scheme",
-      "securitySchemeValue": "${SS_CURRENCY_CONVERTER_API_KEY}"
-    }
-  ]
+  "apiCredentials": []
 }
