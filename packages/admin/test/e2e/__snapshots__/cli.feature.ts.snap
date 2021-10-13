@@ -5,6 +5,7 @@ exports[`CLI shows help 1`] = `
 
 Commands:
   cli.js derive-airnode-xpub                   Derives the Airnode extended public key
+  cli.js verify-airnode-xpub                   Verifies that the xpub belongs to the Airnode wallet
   cli.js derive-sponsor-wallet-address         Derives the address of the wallet for an airnode-sponsor pair
   cli.js sponsor-requester                     Allows a requester to make requests that will be fulfilled by the Airnode
                                                using the sponsor wallet

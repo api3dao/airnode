@@ -71,6 +71,17 @@ Derives the Airnode extended public key (xpub).
 npx @api3/airnode-admin derive-airnode-xpub --mnemonic "nature about salad..."
 ```
 
+### `verify-airnode-xpub`
+
+Verifies that the xpub belongs to the HDNode with the path `m/44'/60'/0'` of the Airnode wallet. This command checks
+that the Airnode address can be derived with provided Airnode xpub and default derivation path `m/44'/60'/0'/0/0`.
+
+```sh
+npx @api3/airnode-admin verify-airnode-xpub \
+  --airnode-xpub xpub6CUGRUo... \
+  --airnode-address 0xe1e0dd...
+```
+
 ### `derive-sponsor-wallet-address`
 
 Derives the address of the wallet designated by an Airnode for a sponsor, which is called the sponsor wallet. This
