@@ -7,7 +7,7 @@ import { CoordinatorState, PendingLog } from '../types';
 export async function reportHeartbeat(state: CoordinatorState): Promise<PendingLog[]> {
   const heartbeat = state.config.nodeSettings.heartbeat;
 
-  if (!heartbeat.enabled) {
+  if (!heartbeat?.enabled) {
     const log = logger.pend('INFO', `Not sending heartbeat as 'nodeSettings.heartbeat' is disabled`);
     return [log];
   }

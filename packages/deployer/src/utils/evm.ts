@@ -11,8 +11,24 @@ export function validateMnemonic(mnemonic: string) {
   return true;
 }
 
+export function validateMasterKeyMnemonic(mnemonic: string) {
+  logger.debug('Validating master key mnemonic');
+
+  if (!mnemonic) {
+    return false;
+  }
+
+  try {
+    ethers.Wallet.fromMnemonic(mnemonic);
+  } catch {
+    return false;
+  }
+  return true;
+}
+
 export function deriveAirnodeAddress(mnemonic: string) {
   logger.debug('Deriving airnode wallet from mnemonic');
+
   const airnodeWallet = ethers.Wallet.fromMnemonic(mnemonic);
   return airnodeWallet.address;
 }

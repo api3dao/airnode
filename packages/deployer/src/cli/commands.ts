@@ -11,6 +11,7 @@ import {
   shortenAirnodeAddress,
   validateConfig,
   validateMnemonic,
+  validateMasterKeyMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
 
@@ -25,9 +26,14 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
     throw new Error('Invalid mnemonic');
   }
 
+  if (!validateMasterKeyMnemonic(secrets.MASTER_KEY_MNEMONIC)) {
+    logger.fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
+    throw Error('MASTER_KEY_MNEMONIC not found.');
+  }
+
   const httpGateway = config.nodeSettings.httpGateway;
   let httpGatewayApiKey: string | undefined = undefined;
-  if (httpGateway.enabled) {
+  if (httpGateway?.enabled) {
     httpGatewayApiKey = httpGateway.apiKey;
     if (!httpGatewayApiKey) {
       throw new Error('Unable to deploy HTTP gateway as the API key is missing');

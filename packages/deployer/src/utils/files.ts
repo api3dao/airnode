@@ -22,6 +22,7 @@ export function writeReceiptFile(
   config: Config,
   commandOutput: DeployAirnodeOutput
 ) {
+  const heartbeat = config.nodeSettings.heartbeat;
   const airnodeAddress = deriveAirnodeAddress(mnemonic);
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
   const receipt: Receipt = {
@@ -38,7 +39,7 @@ export function writeReceiptFile(
       nodeVersion: config.nodeSettings.nodeVersion,
     },
     api: {
-      ...(config.nodeSettings.heartbeat.enabled ? { heartbeatId: config.nodeSettings.heartbeat.id } : {}),
+      ...(heartbeat?.enabled ? { heartbeatId: heartbeat.id } : {}),
       // `httpGatewayUrl` comes from Airnode deployment output
       ...commandOutput,
     },
