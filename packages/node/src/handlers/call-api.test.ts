@@ -1,7 +1,7 @@
 import * as adapter from '@api3/adapter';
 import { ReservedParameterName } from '@api3/ois';
 import { callApi } from './call-api';
-import { RequestErrorCode } from '../types';
+import { RequestErrorMessage } from '../types';
 import * as fixtures from '../../test/fixtures';
 
 describe('callApi', () => {
@@ -79,7 +79,7 @@ describe('callApi', () => {
               ...(expectMetadata && {
                 _airnode_airnode_address: aggregatedCall.airnodeAddress,
                 _airnode_requester_address: aggregatedCall.requesterAddress,
-                _airnode_sponsor_wallet: aggregatedCall.sponsorWallet,
+                _airnode_sponsor_wallet_address: aggregatedCall.sponsorWalletAddress,
                 _airnode_endpoint_id: aggregatedCall.endpointId,
                 _airnode_sponsor_address: aggregatedCall.sponsorAddress,
                 _airnode_request_id: aggregatedCall.id,
@@ -115,7 +115,7 @@ describe('callApi', () => {
       },
     ]);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.ReservedParametersInvalid,
+      errorMessage: `${RequestErrorMessage.ReservedParametersInvalid}: _type is missing for endpoint convertToUSD`,
     });
   });
 
@@ -130,7 +130,7 @@ describe('callApi', () => {
       { level: 'ERROR', message: 'Failed to call Endpoint:convertToUSD', error: new Error('Network is down') },
     ]);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.ApiCallFailed,
+      errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: Network is down`,
     });
   });
 
@@ -144,7 +144,7 @@ describe('callApi', () => {
       { level: 'ERROR', message: 'Unable to find response value from {"price":1000}. Path: unknown' },
     ]);
     expect(res).toEqual({
-      errorCode: RequestErrorCode.ResponseValueNotFound,
+      errorMessage: RequestErrorMessage.ResponseValueNotFound,
     });
   });
 });

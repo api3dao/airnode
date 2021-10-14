@@ -1,1 +1,1 @@
-*/1 * * * * airnode
+*/1 * * * * node /app/src/cli/invoke.js

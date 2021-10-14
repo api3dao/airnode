@@ -17,9 +17,6 @@ COPY packages/node/docker/airnode-crontab ${cronjob}
 
     # Install Tini to pass signals correctly
 RUN apk add --update --no-cache tini && \
-    # Make Airnode available to system as a binary
-    ln -s ${appDir}/bin/invoke.js ${appBin} && \
-    chmod +x ${appBin} && \
     # Create Airnode user
     adduser -h ${appDir} -s /bin/false -S -D -H ${name} && \
     # Enable Airnode cronjob

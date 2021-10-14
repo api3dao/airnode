@@ -83,7 +83,7 @@ yargs(hideBin(process.argv))
         description: 'Path to receipt file',
         type: 'string',
       },
-      airnodeAddressShort: {
+      'airnode-address-short': {
         alias: 'a',
         description: 'Airnode Address (short version)',
         type: 'string',
@@ -93,7 +93,7 @@ yargs(hideBin(process.argv))
         description: 'Stage (environment)',
         type: 'string',
       },
-      cloudProvider: {
+      'cloud-provider': {
         alias: 'c',
         description: 'Cloud provider',
         type: 'string',
@@ -123,7 +123,7 @@ yargs(hideBin(process.argv))
 
       if (isEmpty(descriptiveArgsMissing)) {
         await runCommand(() =>
-          remove(args.airnodeAddressShort!.toLowerCase(), args.stage!, args.cloudProvider!, args.region!)
+          remove(args['airnode-address-short']!.toLowerCase(), args.stage!, args['cloud-provider']!, args.region!)
         );
         return;
       }

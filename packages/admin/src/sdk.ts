@@ -1,4 +1,4 @@
-import { AirnodeRrp } from '@api3/protocol';
+import { AirnodeRequesterRrpAuthorizer, AirnodeRrp } from '@api3/protocol';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -7,44 +7,94 @@ import * as admin from './implementation';
  */
 export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;
-  static getAirnodeRrpWithSigner = evm.getAirnodeRrpWithSigner;
+  static getAirnodeRequesterRrpAuthorizer = evm.getAirnodeRequesterRrpAuthorizer;
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
-  static deriveWalletPathFromSponsorAddress = (address: string) => admin.deriveWalletPathFromSponsorAddress(address);
+  static deriveWalletPathFromSponsorAddress = (sponsorAddress: string) =>
+    admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
 
-  constructor(public airnodeRrp: AirnodeRrp) {}
+  constructor(public airnodeRrp: AirnodeRrp, public airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer) {}
 
-  deriveSponsorWallet = (airnode: string, sponsor: string, xpub?: string) =>
-    admin.deriveSponsorWallet(this.airnodeRrp, airnode, sponsor, xpub);
+  deriveAirnodeXpub = (airnodeMnemonic: string) => admin.deriveAirnodeXpub(airnodeMnemonic);
 
-  sponsorRequester = (requester: string) => admin.sponsorRequester(this.airnodeRrp, requester);
+  verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string) =>
+    admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
 
-  unsponsorRequester = (requester: string) => admin.unsponsorRequester(this.airnodeRrp, requester);
+  deriveSponsorWalletAddress = (airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) =>
+    admin.deriveSponsorWalletAddress(airnodeXpub, airnodeAddress, sponsorAddress);
+
+  sponsorRequester = (requesterAddress: string) => admin.sponsorRequester(this.airnodeRrp, requesterAddress);
+
+  unsponsorRequester = (requesterAddress: string) => admin.unsponsorRequester(this.airnodeRrp, requesterAddress);
 
   createTemplate = (template: admin.Template) => admin.createTemplate(this.airnodeRrp, template);
 
-  requestWithdrawal = (airnode: string, sponsorWallet: string) =>
-    admin.requestWithdrawal(this.airnodeRrp, airnode, sponsorWallet);
+  requestWithdrawal = (airnodeAddress: string, sponsorWallet: string) =>
+    admin.requestWithdrawal(this.airnodeRrp, airnodeAddress, sponsorWallet);
 
   checkWithdrawalRequest = (withdrawalRequestId: string) =>
     admin.checkWithdrawalRequest(this.airnodeRrp, withdrawalRequestId);
 
-  setAirnodeXpub = () => admin.setAirnodeXpub(this.airnodeRrp);
-
-  getAirnodeXpub = (airnode: string) => admin.getAirnodeXpub(this.airnodeRrp, airnode);
-
-  requesterToRequestCountPlusOne = (requester: string) =>
-    admin.requesterToRequestCountPlusOne(this.airnodeRrp, requester);
+  requesterToRequestCountPlusOne = (requesterAddress: string) =>
+    admin.requesterToRequestCountPlusOne(this.airnodeRrp, requesterAddress);
 
   getTemplate = (templateId: string) => admin.getTemplate(this.airnodeRrp, templateId);
 
   getTemplates = (templateIds: string[]) => admin.getTemplates(this.airnodeRrp, templateIds);
 
-  sponsorToRequesterToSponsorshipStatus = (sponsor: string, requester: string) =>
-    admin.sponsorToRequesterToSponsorshipStatus(this.airnodeRrp, sponsor, requester);
+  sponsorToRequesterToSponsorshipStatus = (sponsorAddress: string, requesterAddress: string) =>
+    admin.sponsorToRequesterToSponsorshipStatus(this.airnodeRrp, sponsorAddress, requesterAddress);
 
-  sponsorToWithdrawalRequestCount = (sponsor: string) =>
-    admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsor);
+  sponsorToWithdrawalRequestCount = (sponsorAddress: string) =>
+    admin.sponsorToWithdrawalRequestCount(this.airnodeRrp, sponsorAddress);
 
-  fulfillWithdrawal = (requestId: string, airnode: string, sponsor: string, amount: string) =>
-    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnode, sponsor, amount);
+  fulfillWithdrawal = (requestId: string, airnodeAddress: string, sponsorAddress: string, amount: string) =>
+    admin.fulfillWithdrawal(this.airnodeRrp, requestId, airnodeAddress, sponsorAddress, amount);
+
+  setWhitelistExpiration = (
+    airnodeAddress: string,
+    endpointId: string,
+    userAddress: string,
+    expirationTimestamp: number
+  ) =>
+    admin.setWhitelistExpiration(
+      this.airnodeRequesterRrpAuthorizer,
+      airnodeAddress,
+      endpointId,
+      userAddress,
+      expirationTimestamp
+    );
+
+  extendWhitelistExpiration = (
+    airnodeAddress: string,
+    endpointId: string,
+    userAddress: string,
+    expirationTimestamp: number
+  ) =>
+    admin.extendWhitelistExpiration(
+      this.airnodeRequesterRrpAuthorizer,
+      airnodeAddress,
+      endpointId,
+      userAddress,
+      expirationTimestamp
+    );
+
+  setWhitelistStatusPastExpiration = (
+    airnodeAddress: string,
+    endpointId: string,
+    userAddress: string,
+    status: boolean
+  ) =>
+    admin.setWhitelistStatusPastExpiration(
+      this.airnodeRequesterRrpAuthorizer,
+      airnodeAddress,
+      endpointId,
+      userAddress,
+      status
+    );
+
+  getWhitelistStatus = (airnodeAddress: string, endpointId: string, userAddress: string) =>
+    admin.getWhitelistStatus(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
+
+  isUserWhitelisted = (airnodeAddress: string, endpointId: string, userAddress: string) =>
+    admin.isUserWhitelisted(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
 }

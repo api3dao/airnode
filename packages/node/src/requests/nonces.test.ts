@@ -16,7 +16,7 @@ describe('assign', () => {
     const secondMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xb' });
     const thirdMeta = fixtures.requests.buildMetadata({ blockNumber: 101, transactionHash: '0xc' });
 
-    const sponsorAddress = '0x64b7d7c64A534086EfF591B73fcFa912feE74c69';
+    const sponsorAddress = '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181';
     const first = fixtures.requests.buildApiCall({
       id: '0x1',
       nonce: undefined,

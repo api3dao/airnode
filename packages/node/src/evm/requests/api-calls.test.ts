@@ -1,32 +1,36 @@
+import { MadeTemplateRequestEvent } from '@api3/protocol';
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
-import { EVMMadeRequestLog, RequestErrorCode, RequestStatus } from '../../types';
+import { EVMMadeRequestLog, RequestErrorMessage, RequestStatus, EVMFulfilledRequestLog } from '../../types';
 import * as fixtures from '../../../test/fixtures';
 
 describe('initialize (ApiCall)', () => {
   it('builds a new ApiCall request', () => {
     const event = fixtures.evm.logs.buildMadeTemplateRequest();
-    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
+    const parsedLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(event);
     const parsedLogWithMetadata = {
       parsedLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
       transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
     };
+
     expect(apiCalls.initialize(parsedLogWithMetadata)).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       chainId: '31337',
       requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
-      sponsorWallet: '0x3598aF73AAaCCf46A36e00490627029487D9730c',
+      sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
+      sponsorWalletAddress: '0x654B6d01E1A03eeF91F50D79203Ace648be81350',
       endpointId: null,
       fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      fulfillFunctionId: '0x48a4157c',
+      fulfillFunctionId: '0x7c1de7e1',
       encodedParameters:
         '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-      id: '0xa6a89a13798466887dd047d47b94e0b9ce7e12dcfc5f51454696cbd73ebf3961',
+      id: '0xbb7a523ebcb9c151457d6ea26ced6bbc0fab1aa7f170156bd0f63a295e5f8e16',
       metadata: {
+        address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
@@ -42,9 +46,10 @@ describe('initialize (ApiCall)', () => {
 
   it('sets the API call type', () => {
     const event = fixtures.evm.logs.buildMadeTemplateRequest();
-    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
+    const parsedLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(event);
     const base = {
       parsedLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -69,9 +74,10 @@ describe('applyParameters', () => {
 
   beforeEach(() => {
     const event = fixtures.evm.logs.buildMadeTemplateRequest();
-    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
+    const parsedLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(event);
     mutableParsedLogWithMetadata = {
       parsedLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -110,7 +116,7 @@ describe('applyParameters', () => {
     expect(withDecodedParameters).toEqual({
       ...withEncodedParams,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.RequestParameterDecodingFailed,
+      errorMessage: `${RequestErrorMessage.RequestParameterDecodingFailed}: 0xincorrectparameters`,
     });
   });
 });
@@ -133,12 +139,13 @@ describe('updateFulfilledRequests (ApiCall)', () => {
         chainId: '31337',
         requesterAddress: 'requesterAddress',
         sponsorAddress: 'sponsorAddress',
-        sponsorWallet: 'sponsorWallet',
+        sponsorWalletAddress: 'sponsorWalletAddress',
         endpointId: 'endpointId',
         fulfillAddress: 'fulfillAddress',
         fulfillFunctionId: 'fulfillFunctionId',
         encodedParameters: 'encodedParameters',
         metadata: {
+          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716090,
           ignoreBlockedRequestsAfterBlocks: 20,
@@ -164,9 +171,10 @@ describe('updateFulfilledRequests (ApiCall)', () => {
 describe('mapRequests (ApiCall)', () => {
   it('initializes, applies parameters and returns API call requests', () => {
     const event = fixtures.evm.logs.buildMadeTemplateRequest();
-    const parsedLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(event);
+    const parsedLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(event);
     const parsedLogWithMetadata = {
       parsedLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -179,15 +187,16 @@ describe('mapRequests (ApiCall)', () => {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         chainId: '31337',
         requesterAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-        sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
-        sponsorWallet: '0x3598aF73AAaCCf46A36e00490627029487D9730c',
+        sponsorAddress: '0x61648B2Ec3e6b3492E90184Ef281C2ba28a675ec',
+        sponsorWalletAddress: '0x654B6d01E1A03eeF91F50D79203Ace648be81350',
         endpointId: null,
         fulfillAddress: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-        fulfillFunctionId: '0x48a4157c',
+        fulfillFunctionId: '0x7c1de7e1',
         encodedParameters:
           '0x316200000000000000000000000000000000000000000000000000000000000066726f6d000000000000000000000000000000000000000000000000000000004554480000000000000000000000000000000000000000000000000000000000',
-        id: '0xa6a89a13798466887dd047d47b94e0b9ce7e12dcfc5f51454696cbd73ebf3961',
+        id: '0xbb7a523ebcb9c151457d6ea26ced6bbc0fab1aa7f170156bd0f63a295e5f8e16',
         metadata: {
+          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
@@ -205,11 +214,12 @@ describe('mapRequests (ApiCall)', () => {
   it('updates the status of fulfilled ApiCall requests', () => {
     const requestEvent = fixtures.evm.logs.buildMadeTemplateRequest();
     const fulfillEvent = fixtures.evm.logs.buildTemplateFulfilledRequest();
-    const requestLog = parseAirnodeRrpLog<'MadeTemplateRequest'>(requestEvent);
-    const fulfillLog = parseAirnodeRrpLog<'FulfilledRequest'>(fulfillEvent);
+    const requestLog = parseAirnodeRrpLog<MadeTemplateRequestEvent>(requestEvent);
+    const fulfillLog = parseAirnodeRrpLog<EVMFulfilledRequestLog>(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -217,6 +227,7 @@ describe('mapRequests (ApiCall)', () => {
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716084,
       currentBlock: 10716087,
       ignoreBlockedRequestsAfterBlocks: 20,

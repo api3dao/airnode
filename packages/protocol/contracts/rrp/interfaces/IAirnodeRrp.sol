@@ -6,8 +6,6 @@ import "./ITemplateUtils.sol";
 import "./IWithdrawalUtils.sol";
 
 interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
-    event SetAirnodeXpub(address indexed airnode, string xpub);
-
     event SetSponsorshipStatus(
         address indexed sponsor,
         address indexed requester,
@@ -45,13 +43,14 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
     event FulfilledRequest(
         address indexed airnode,
         bytes32 indexed requestId,
-        uint256 statusCode,
         bytes data
     );
 
-    event FailedRequest(address indexed airnode, bytes32 indexed requestId);
-
-    function setAirnodeXpub(string calldata xpub) external;
+    event FailedRequest(
+        address indexed airnode,
+        bytes32 indexed requestId,
+        string errorMessage
+    );
 
     function setSponsorshipStatus(address requester, bool sponsorshipStatus)
         external;
@@ -78,23 +77,19 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
     function fulfill(
         bytes32 requestId,
         address airnode,
-        uint256 statusCode,
-        bytes calldata data,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        bytes calldata data,
+        bytes calldata signature
     ) external returns (bool callSuccess, bytes memory callData);
 
     function fail(
         bytes32 requestId,
         address airnode,
         address fulfillAddress,
-        bytes4 fulfillFunctionId
+        bytes4 fulfillFunctionId,
+        string calldata errorMessage
     ) external;
-
-    function airnodeToXpub(address airnode)
-        external
-        view
-        returns (string memory xpub);
 
     function sponsorToRequesterToSponsorshipStatus(
         address sponsor,
@@ -106,8 +101,8 @@ interface IAirnodeRrp is IAuthorizationUtils, ITemplateUtils, IWithdrawalUtils {
         view
         returns (uint256 requestCountPlusOne);
 
-    function requestWithIdHasFailed(bytes32 requestId)
+    function requestIsAwaitingFulfillment(bytes32 requestId)
         external
         view
-        returns (bool hasFailed);
+        returns (bool isAwaitingFulfillment);
 }

@@ -1,11 +1,15 @@
 {
   "name": "api3",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "engines": {
     "node": "^14.17.1"
   },
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/api3dao/airnode"
+  },
   "workspaces": {
     "packages": [
       "packages/*"
@@ -13,7 +17,7 @@
   },
   "scripts": {
     "bootstrap": "yarn install && lerna bootstrap",
-    "build": "lerna run build --stream",
+    "build": "lerna run build --stream && ts-node scripts/make-cli-executable.ts",
     "build:adapter": "(cd packages/adapter && yarn run build)",
     "build:admin": "(cd packages/admin && yarn run build)",
     "build:airnode-abi": "(cd packages/airnode-abi && yarn run build)",
@@ -38,16 +42,16 @@
     "dev:stop": "(cd packages/operation && yarn run dev:stop)",
     "docker": "yarn docker:artifacts && yarn docker:deployer && yarn docker:node",
     "docker:artifacts": "docker rmi --force api3/artifacts && docker build --tag api3/artifacts:latest --file docker/Dockerfile .",
-    "docker:deployer": "docker build --tag api3/deployer:latest --file packages/deployer/docker/Dockerfile .",
-    "docker:node": "docker build --tag api3/airnode:latest --file packages/node/docker/Dockerfile .",
+    "docker:deployer": "docker build --tag api3/airnode-deployer:latest --file packages/deployer/docker/Dockerfile .",
+    "docker:node": "docker build --tag api3/airnode-client:latest --file packages/node/docker/Dockerfile .",
     "lint": "yarn run lint:eslint && yarn run lint:solhint",
     "lint:eslint": "eslint . --ext .js,.ts",
     "lint:eslint:fix": "eslint . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
     "pack": "lerna run pack --stream",
-    "postinstall": "husky install",
-    "prettify": "prettier --write ./**/*.{js,sol,ts} --loglevel silent",
-    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|sol|ts)\"",
+    "postinstall": "husky install && lerna link",
+    "prettify": "prettier --write ./**/*.{js,sol,ts,md,yml,json} --loglevel silent",
+    "pretty-quick": "pretty-quick --staged --pattern \"**/*.*(js|sol|ts|md|yml|json)\"",
     "publish": "lerna publish",
     "test": "lerna run test --stream",
     "test:adapter": "(cd packages/adapter && yarn run test)",
@@ -63,7 +67,7 @@
     "test:e2e-node:debug": "cd packages/node && yarn run test:e2e:debug",
     "test:protocol": "cd packages/protocol && yarn run test",
     "test:node": "(cd packages/node && yarn run test)",
-    "test:node:watch": "(cd packages/node && yarn run test:watch)",
+    "test:node:watch": "cd packages/node && yarn run test:watch",
     "test:validator": "(cd packages/validator && yarn run test)"
   },
   "dependencies": {
@@ -81,7 +85,7 @@
     "eslint-plugin-functional": "^3.5.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-jest": "^24.4.0",
-    "husky": "^6.0.0",
+    "husky": "^7.0.2",
     "jest": "^26.4.2",
     "lerna": "^4.0.0",
     "prettier": "^2.3.2",

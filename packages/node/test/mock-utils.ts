@@ -33,6 +33,7 @@ export function mockEthers({ airnodeRrpMocks = {}, ethersMocks = {} }: MockProps
     return {
       ...jest.requireActual<any>('@api3/protocol'),
       AirnodeRrpFactory: {
+        ...jest.requireActual<any>('@api3/protocol').AirnodeRrpFactory,
         connect: jest.requireMock('ethers').ethers.Contract,
       },
     };

@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 import * as coordinatedExecution from './coordinated-execution';
 import * as fixtures from '../../../test/fixtures';
 import * as workers from '../../workers/index';
-import { LogOptions, RequestErrorCode } from '../../types';
+import { LogOptions, RequestErrorMessage } from '../../types';
 
 describe('callApis', () => {
   const logOptions: LogOptions = {
@@ -17,7 +17,7 @@ describe('callApis', () => {
 
   it('filters out API calls that already have an error code', async () => {
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest');
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorCode: RequestErrorCode.Unauthorized });
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorMessage: RequestErrorMessage.Unauthorized });
     const workerOpts = fixtures.buildWorkerOptions();
     const [logs, res] = await coordinatedExecution.callApis([aggregatedApiCall], logOptions, workerOpts);
     expect(logs).toEqual([{ level: 'INFO', message: 'No pending API calls to process. Skipping API calls...' }]);
@@ -44,7 +44,7 @@ describe('callApis', () => {
       {
         ...aggregatedApiCall,
         responseValue: '0x0000000000000000000000000000000000000000000000000000000002a230ab',
-        errorCode: undefined,
+        errorMessage: undefined,
       },
     ]);
     // Check that the correct value was selected
@@ -69,14 +69,14 @@ describe('callApis', () => {
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error code:${RequestErrorCode.ResponseValueNotFound}`);
+    expect(logs[1].message).toContain(`with error message:${RequestErrorMessage.ResponseValueNotFound}`);
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorCode: RequestErrorCode.ResponseValueNotFound,
+        errorMessage: RequestErrorMessage.ResponseValueNotFound,
       },
     ]);
     expect(executeSpy).toHaveBeenCalledTimes(1);
@@ -87,7 +87,7 @@ describe('callApis', () => {
     const config = fixtures.buildConfig();
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
     const spy = jest.spyOn(adapter, 'buildAndExecuteRequest') as jest.SpyInstance;
-    spy.mockRejectedValueOnce(new Error('API call failed'));
+    spy.mockRejectedValueOnce(new Error('Unexpected error'));
     const parameters = { _type: 'int256', _path: 'prices.1' };
     const aggregatedApiCall = fixtures.buildAggregatedApiCall({ parameters });
     const workerOpts = fixtures.buildWorkerOptions();
@@ -96,14 +96,14 @@ describe('callApis', () => {
     expect(logs[0]).toEqual({ level: 'INFO', message: 'Processing 1 pending API call(s)...' });
     expect(logs[1].level).toEqual('ERROR');
     expect(logs[1].message).toContain('API call to Endpoint:convertToUSD errored after ');
-    expect(logs[1].message).toContain(`with error code:${RequestErrorCode.ApiCallFailed}`);
+    expect(logs[1].message).toContain(`with error: Unexpected error`);
     expect(logs[2]).toEqual({ level: 'INFO', message: 'Received 0 successful API call(s)' });
     expect(logs[3]).toEqual({ level: 'INFO', message: 'Received 1 errored API call(s)' });
     expect(res).toEqual([
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorCode: RequestErrorCode.ApiCallFailed,
+        errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: Unexpected error`,
       },
     ]);
     expect(spy).toHaveBeenCalledTimes(1);
@@ -130,7 +130,7 @@ describe('callApis', () => {
       {
         ...aggregatedApiCall,
         response: undefined,
-        errorCode: RequestErrorCode.ApiCallFailed,
+        errorMessage: RequestErrorMessage.ApiCallFailed,
       },
     ]);
     expect(spy).toHaveBeenCalledTimes(1);

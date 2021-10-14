@@ -1,5 +1,5 @@
 import * as airnodeAbi from '@api3/airnode-abi';
-import { AirnodeRrp } from '@api3/protocol';
+import { AirnodeRrp, AirnodeRequesterRrpAuthorizer } from '@api3/protocol';
 import { ethers } from 'ethers';
 
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
@@ -18,7 +18,7 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
  *
  * Since addresses can be represented as 160bits (20bytes) we can then
  * split it in chunks of 31bits and create a path with the following pattern:
- * m/0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
+ * 0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
  * @returns The path derived from the address
@@ -30,28 +30,39 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `m/0/${paths.join('/')}`;
+  return `0/${paths.join('/')}`;
 };
 
-export async function deriveSponsorWallet(airnodeRrp: AirnodeRrp, airnode: string, sponsor: string, xpub?: string) {
-  const airnodeXpub = xpub ?? (await airnodeRrp.airnodeToXpub(airnode));
-  if (!airnodeXpub) {
-    throw new Error('Airnode xpub is missing in AirnodeRrp contract');
-  }
+export const deriveAirnodeXpub = (airnodeMnemonic: string): string => {
+  const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic).derivePath("m/44'/60'/0'");
+  return airnodeHdNode.neuter().extendedKey;
+};
+
+export const verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string): ethers.utils.HDNode => {
+  // The xpub is expected to belong to the hardened path m/44'/60'/0'
+  // so we must derive the child default derivation path m/44'/60'/0'/0/0
+  // to compare it and check if xpub belongs to the Airnode wallet
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
-  const derivationPath = deriveWalletPathFromSponsorAddress(sponsor);
-  const designatedWalletNode = hdNode.derivePath(derivationPath);
-  return designatedWalletNode.address;
+  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
+    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
+  }
+  return hdNode;
+};
+
+export async function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) {
+  const hdNode = verifyAirnodeXpub(airnodeXpub, airnodeAddress);
+  const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
+  return hdNode.derivePath(derivationPath).address;
 }
 
-export async function sponsorRequester(airnodeRrp: AirnodeRrp, requester: string) {
-  await airnodeRrp.setSponsorshipStatus(requester, true);
-  return requester;
+export async function sponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
+  await airnodeRrp.setSponsorshipStatus(requesterAddress, true);
+  return requesterAddress;
 }
 
-export async function unsponsorRequester(airnodeRrp: AirnodeRrp, requester: string) {
-  await airnodeRrp.setSponsorshipStatus(requester, false);
-  return requester;
+export async function unsponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
+  await airnodeRrp.setSponsorshipStatus(requesterAddress, false);
+  return requesterAddress;
 }
 
 export interface Template {
@@ -77,8 +88,8 @@ export async function createTemplate(airnodeRrp: AirnodeRrp, template: Template)
   );
 }
 
-export async function requestWithdrawal(airnodeRrp: AirnodeRrp, airnode: string, sponsorWallet: string) {
-  const tx = await airnodeRrp.requestWithdrawal(airnode, sponsorWallet);
+export async function requestWithdrawal(airnodeRrp: AirnodeRrp, airnodeAddress: string, sponsorWalletAddress: string) {
+  const tx = await airnodeRrp.requestWithdrawal(airnodeAddress, sponsorWalletAddress);
 
   return new Promise<string>((resolve) =>
     airnodeRrp.provider.once(tx.hash, ({ logs }) => {
@@ -106,38 +117,12 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: 
   return { ...logParams, amount: amount.toString() };
 }
 
-const isEthersWallet = (signer: any): signer is ethers.Wallet => !!signer.mnemonic;
-
-export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
-  const wallet = airnodeRrp.signer;
-
-  if (!isEthersWallet(wallet)) {
-    throw new Error('Expected AirnodeRrp contract signer must be an ethers.Wallet instance');
-  }
-
-  const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
-  const xpub = hdNode.neuter().extendedKey;
-
-  const tx = await airnodeRrp.setAirnodeXpub(xpub);
-
-  return new Promise<string>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
-      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
-      resolve(parsedLog.args.xpub);
-    })
-  );
-}
-
-export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnode: string) {
-  return airnodeRrp.airnodeToXpub(airnode);
-}
-
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {
   return ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`]));
 }
 
-export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requester: string) {
-  return (await airnodeRrp.requesterToRequestCountPlusOne(requester)).toString();
+export async function requesterToRequestCountPlusOne(airnodeRrp: AirnodeRrp, requesterAddress: string) {
+  return (await airnodeRrp.requesterToRequestCountPlusOne(requesterAddress)).toString();
 }
 
 export async function getTemplate(airnodeRrp: AirnodeRrp, templateId: string) {
@@ -171,12 +156,16 @@ export async function getTemplates(airnodeRrp: AirnodeRrp, templateIds: string[]
   return formattedTemplates;
 }
 
-export function sponsorToRequesterToSponsorshipStatus(airnodeRrp: AirnodeRrp, sponsor: string, requester: string) {
-  return airnodeRrp.sponsorToRequesterToSponsorshipStatus(sponsor, requester);
+export function sponsorToRequesterToSponsorshipStatus(
+  airnodeRrp: AirnodeRrp,
+  sponsorAddress: string,
+  requesterAddress: string
+) {
+  return airnodeRrp.sponsorToRequesterToSponsorshipStatus(sponsorAddress, requesterAddress);
 }
 
-export async function sponsorToWithdrawalRequestCount(airnodeRrp: AirnodeRrp, sponsor: string) {
-  const requestsCount = await airnodeRrp.sponsorToWithdrawalRequestCount(sponsor);
+export async function sponsorToWithdrawalRequestCount(airnodeRrp: AirnodeRrp, sponsorAddress: string) {
+  const requestsCount = await airnodeRrp.sponsorToWithdrawalRequestCount(sponsorAddress);
   return requestsCount.toString();
 }
 
@@ -191,14 +180,14 @@ export interface FulfillWithdrawalReturnValue {
 export async function fulfillWithdrawal(
   airnodeRrp: AirnodeRrp,
   requestId: string,
-  airnode: string,
-  sponsor: string,
+  airnodeAddress: string,
+  sponsorAddress: string,
   amount: string
 ) {
-  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnode, sponsor, {
+  const tx = await airnodeRrp.fulfillWithdrawal(requestId, airnodeAddress, sponsorAddress, {
     value: ethers.utils.parseEther(amount),
   });
-  const filter = airnodeRrp.filters.FulfilledWithdrawal(airnode, sponsor, requestId, null, null);
+  const filter = airnodeRrp.filters.FulfilledWithdrawal(airnodeAddress, sponsorAddress, requestId, null, null);
 
   return new Promise<FulfillWithdrawalReturnValue | null>((resolve) =>
     airnodeRrp.once(filter, (airnode, sponsor, withdrawalRequestId, sponsorWallet, amount, event) => {
@@ -210,4 +199,77 @@ export async function fulfillWithdrawal(
       resolve({ airnode, sponsor, withdrawalRequestId, sponsorWallet, amount: amount.toString() });
     })
   );
+}
+
+export async function setWhitelistExpiration(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string,
+  expirationTimestamp: number
+) {
+  const tx = await airnodeRequesterRrpAuthorizer.setWhitelistExpiration(
+    airnodeAddress,
+    endpointId,
+    userAddress,
+    expirationTimestamp
+  );
+  await tx.wait();
+}
+
+export async function extendWhitelistExpiration(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string,
+  expirationTimestamp: number
+) {
+  const tx = await airnodeRequesterRrpAuthorizer.extendWhitelistExpiration(
+    airnodeAddress,
+    endpointId,
+    userAddress,
+    expirationTimestamp
+  );
+  await tx.wait();
+}
+
+export async function setWhitelistStatusPastExpiration(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string,
+  status: boolean
+) {
+  const tx = await airnodeRequesterRrpAuthorizer.setWhitelistStatusPastExpiration(
+    airnodeAddress,
+    endpointId,
+    userAddress,
+    status
+  );
+  await tx.wait();
+}
+
+export async function getWhitelistStatus(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string
+) {
+  const { expirationTimestamp, whitelistedPastExpiration } =
+    await airnodeRequesterRrpAuthorizer.airnodeToEndpointIdToUserToWhitelistStatus(
+      airnodeAddress,
+      endpointId,
+      userAddress
+    );
+
+  return { expirationTimestamp: expirationTimestamp.toNumber(), whitelistedPastExpiration };
+}
+
+export async function isUserWhitelisted(
+  airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer,
+  airnodeAddress: string,
+  endpointId: string,
+  userAddress: string
+) {
+  return airnodeRequesterRrpAuthorizer.userIsWhitelisted(airnodeAddress, endpointId, userAddress);
 }

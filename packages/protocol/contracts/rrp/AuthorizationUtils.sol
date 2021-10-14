@@ -4,17 +4,17 @@ pragma solidity 0.8.6;
 import "./interfaces/IAuthorizationUtils.sol";
 import "./authorizers/interfaces/IRrpAuthorizer.sol";
 
-/// @title Contract that implements convenience functions
+/// @title Contract that implements authorization checks
 contract AuthorizationUtils is IAuthorizationUtils {
     /// @notice Uses the authorizer contracts of an Airnode to decide if a
     /// request is authorized. Once an Airnode receives a request, it calls
     /// this method to determine if it should respond. Similarly, third parties
     /// can use this method to determine if a particular request would be
     /// authorized.
-    /// @dev This method is meant to be called off-chain by the Airnode to
-    /// decide if it should respond to a request. The requester can also call
-    /// it, yet this function returning true should not be taken as a guarantee
-    /// of the subsequent request being fulfilled.
+    /// @dev This method is meant to be called off-chain, statically by the
+    /// Airnode to decide if it should respond to a request. The requester can
+    /// also call it, yet this function returning true should not be taken as a
+    /// guarantee of the subsequent request being fulfilled.
     /// It is enough for only one of the authorizer contracts to return true
     /// for the request to be authorized.
     /// @param authorizers Authorizer contract addresses
@@ -51,6 +51,7 @@ contract AuthorizationUtils is IAuthorizationUtils {
 
     /// @notice A convenience function to make multiple authorization status
     /// checks with a single call
+    /// @param authorizers Authorizer contract addresses
     /// @param airnode Airnode address
     /// @param requestIds Request IDs
     /// @param endpointIds Endpoint IDs

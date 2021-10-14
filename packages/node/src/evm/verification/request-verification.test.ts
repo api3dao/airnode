@@ -2,7 +2,7 @@ import * as verification from './request-verification';
 import * as requests from '../../requests';
 import * as wallet from '../wallet';
 import * as fixtures from '../../../test/fixtures';
-import { RequestErrorCode, RequestStatus } from '../../types';
+import { RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('verifySponsorWallets', () => {
   const config = fixtures.buildConfig();
@@ -12,7 +12,7 @@ describe('verifySponsorWallets', () => {
     if (status !== 'Pending') {
       it(`returns API calls that have status: ${status}`, () => {
         const apiCall = fixtures.requests.buildApiCall({
-          sponsorWallet: '0xinvalid',
+          sponsorWalletAddress: '0xinvalid',
           status: RequestStatus[status as RequestStatus],
         });
         const [logs, res] = verification.verifySponsorWallets([apiCall], masterHDNode);
@@ -27,7 +27,7 @@ describe('verifySponsorWallets', () => {
 
       it(`returns withdrawals that have status: ${status}`, () => {
         const withdrawal = fixtures.requests.buildWithdrawal({
-          sponsorWallet: '0xinvalid',
+          sponsorWalletAddress: '0xinvalid',
           status: RequestStatus[status as RequestStatus],
         });
         const [logs, res] = verification.verifySponsorWallets([withdrawal], masterHDNode);
@@ -44,12 +44,12 @@ describe('verifySponsorWallets', () => {
 
   it('ignores API calls where the sponsor wallet does not match the expected address', () => {
     const invalidSponsorWallet = {
-      sponsorWallet: '0xinvalid',
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorWalletAddress: '0xinvalid',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     };
     const sponsorWalletDoesNotBelongToSponsor = {
-      sponsorWallet: '0x927c6353B05dD326f922BB28e8282d591278CDfa',
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorWalletAddress: '0x927c6353B05dD326f922BB28e8282d591278CDfa',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     };
     const invalidApiCall = fixtures.requests.buildApiCall(invalidSponsorWallet);
     const doNotMatchApiCall = fixtures.requests.buildApiCall(sponsorWalletDoesNotBelongToSponsor);
@@ -60,11 +60,11 @@ describe('verifySponsorWallets', () => {
     expect(apiCalllogs).toEqual([
       {
         level: 'ERROR',
-        message: `Invalid sponsor wallet:${invalidApiCall.sponsorWallet} for Request:${invalidApiCall.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Invalid sponsor wallet:${invalidApiCall.sponsorWalletAddress} for Request:${invalidApiCall.id}. Expected:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1`,
       },
       {
         level: 'ERROR',
-        message: `Invalid sponsor wallet:${doNotMatchApiCall.sponsorWallet} for Request:${doNotMatchApiCall.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Invalid sponsor wallet:${doNotMatchApiCall.sponsorWalletAddress} for Request:${doNotMatchApiCall.id}. Expected:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1`,
       },
     ]);
     expect(verifiesdApiCalls.length).toEqual(2);
@@ -72,12 +72,12 @@ describe('verifySponsorWallets', () => {
       {
         ...invalidApiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.SponsorWalletInvalid,
+        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${invalidApiCall.sponsorWalletAddress}`,
       },
       {
         ...doNotMatchApiCall,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.SponsorWalletInvalid,
+        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${doNotMatchApiCall.sponsorWalletAddress}`,
       },
     ]);
 
@@ -90,11 +90,11 @@ describe('verifySponsorWallets', () => {
     expect(withdrawalLogs).toEqual([
       {
         level: 'ERROR',
-        message: `Invalid sponsor wallet:${invalidWithdrawal.sponsorWallet} for Request:${invalidWithdrawal.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Invalid sponsor wallet:${invalidWithdrawal.sponsorWalletAddress} for Request:${invalidWithdrawal.id}. Expected:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1`,
       },
       {
         level: 'ERROR',
-        message: `Invalid sponsor wallet:${doNotMatchWithdrawal.sponsorWallet} for Request:${doNotMatchWithdrawal.id}. Expected:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Invalid sponsor wallet:${doNotMatchWithdrawal.sponsorWalletAddress} for Request:${doNotMatchWithdrawal.id}. Expected:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1`,
       },
     ]);
     expect(withdrawals.length).toEqual(2);
@@ -102,40 +102,40 @@ describe('verifySponsorWallets', () => {
       {
         ...invalidWithdrawal,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.SponsorWalletInvalid,
+        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${invalidWithdrawal.sponsorWalletAddress}`,
       },
       {
         ...doNotMatchWithdrawal,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.SponsorWalletInvalid,
+        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${doNotMatchApiCall.sponsorWalletAddress}`,
       },
     ]);
   });
 
   it('does nothing if the sponsor wallet matches the expected wallet', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      sponsorWallet: '0x3598aF73AAaCCf46A36e00490627029487D9730c',
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorWalletAddress: '0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const [apiCallLogs, apiCalls] = verification.verifySponsorWallets([apiCall], masterHDNode);
     expect(apiCallLogs).toEqual([
       {
         level: 'DEBUG',
-        message: `Request ID:${apiCall.id} is linked to a valid sponsor wallet:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Request ID:${apiCall.id} is linked to a valid sponsor wallet:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1`,
       },
     ]);
     expect(apiCalls.length).toEqual(1);
     expect(apiCalls[0]).toEqual(apiCall);
 
     const withdrawal = fixtures.requests.buildWithdrawal({
-      sponsorWallet: '0x3598aF73AAaCCf46A36e00490627029487D9730c',
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorWalletAddress: '0x15c2D488bE806Ee769078Cceec00E57a9f2009E1',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const [withdrawalLogs, withdrawals] = verification.verifySponsorWallets([withdrawal], masterHDNode);
     expect(withdrawalLogs).toEqual([
       {
         level: 'DEBUG',
-        message: `Request ID:${withdrawal.id} is linked to a valid sponsor wallet:0x3598aF73AAaCCf46A36e00490627029487D9730c`,
+        message: `Request ID:${withdrawal.id} is linked to a valid sponsor wallet:0x15c2D488bE806Ee769078Cceec00E57a9f2009E1`,
       },
     ]);
     expect(withdrawals.length).toEqual(1);
@@ -180,7 +180,7 @@ describe('verifyTriggers', () => {
     expect(res[0]).toEqual({
       ...apiCall,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.UnknownEndpointId,
+      errorMessage: `${RequestErrorMessage.UnknownEndpointId}: ${apiCall.endpointId}`,
     });
   });
 
@@ -199,7 +199,7 @@ describe('verifyTriggers', () => {
     expect(res[0]).toEqual({
       ...apiCall,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.UnknownOIS,
+      errorMessage: `${RequestErrorMessage.UnknownOIS}: ${rrpTrigger.oisTitle}`,
     });
   });
 
@@ -218,7 +218,7 @@ describe('verifyTriggers', () => {
     expect(res[0]).toEqual({
       ...apiCall,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.UnknownOIS,
+      errorMessage: `${RequestErrorMessage.UnknownEndpointName}: ${rrpTrigger.endpointName} for OIS ${rrpTrigger.oisTitle}`,
     });
   });
 

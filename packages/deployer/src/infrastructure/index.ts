@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
-import ora from 'ora';
+import { Ora } from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
 
@@ -25,7 +25,7 @@ const terraformDir = path.resolve(`${__dirname}/../../terraform`);
 const terraformStateDir = `${terraformDir}/state`;
 const terraformAirnodeDir = `${terraformDir}/airnode`;
 
-let spinner: ora.Ora;
+let spinner: Ora;
 
 async function runCommand(command: string, options: child.ExecOptions) {
   const stringifiedOptions = JSON.stringify(options);
@@ -99,7 +99,7 @@ async function deploy(
   await runCommand(command, options);
 
   const httpGatewayApiKeyVar = httpGatewayApiKey ? `-var='api_key=${httpGatewayApiKey}'` : '';
-  command = `terraform apply -var="aws_region=${region}" -var="airnode_id_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
+  command = `terraform apply -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=${path.resolve(
     configPath
   )}" -var="secrets_file=${path.resolve(
     secretsPath

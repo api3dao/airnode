@@ -11,7 +11,7 @@ export function buildApiCall(params?: Partial<Request<ApiCall>>): Request<ApiCal
     chainId: '31337',
     requesterAddress: 'requesterAddress',
     sponsorAddress: 'sponsorAddress',
-    sponsorWallet: 'sponsorWallet',
+    sponsorWalletAddress: 'sponsorWalletAddress',
     encodedParameters: 'encodedParameters',
     endpointId: 'endpointId',
     fulfillAddress: 'fulfillAddress',
@@ -31,6 +31,7 @@ export function buildSubmittableApiCall(params?: Partial<Request<ApiCall>>): Req
   return {
     ...buildApiCall(),
     // Decodes to: '75051'
+    id: '0xb56b66dc089eab3dc98672ea5e852488730a8f76621fd9ea719504ea205980f8',
     responseValue: '0x000000000000000000000000000000000000000000000000000000000001252b',
     ...params,
   };

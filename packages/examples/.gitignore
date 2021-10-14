@@ -1,0 +1,17 @@
+node_modules
+log.json
+/dist
+
+# Hardhat files
+/cache
+/artifacts
+/deployments
+
+# Holds information about the current integration
+/integration-info.json
+
+# Integration secrets
+aws.env
+secrets.env
+receipt.json
+coingecko-aws-secrets.env

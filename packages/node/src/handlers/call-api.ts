@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
-import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorCode } from '../types';
+import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorMessage } from '../types';
 import { removeKeys, removeKey } from '../utils/object-utils';
 import { go, retryOnTimeout } from '../utils/promise-utils';
 
@@ -18,7 +18,7 @@ function buildMetadataParameters(
       const metadataParametersV1: adapter.MetadataParametersV1 = {
         _airnode_airnode_address: aggregatedApiCall.airnodeAddress,
         _airnode_requester_address: aggregatedApiCall.requesterAddress,
-        _airnode_sponsor_wallet: aggregatedApiCall.sponsorWallet,
+        _airnode_sponsor_wallet_address: aggregatedApiCall.sponsorWalletAddress,
         _airnode_endpoint_id: aggregatedApiCall.endpointId,
         _airnode_sponsor_address: aggregatedApiCall.sponsorAddress,
         _airnode_request_id: aggregatedApiCall.id,
@@ -72,7 +72,12 @@ export async function callApi(
   const reservedParameters = getReservedParameters(endpoint, aggregatedApiCall.parameters || {});
   if (!reservedParameters._type) {
     const log = logger.pend('ERROR', `No '_type' parameter was found for Endpoint:${endpoint.name}, OIS:${oisTitle}`);
-    return [[log], { errorCode: RequestErrorCode.ReservedParametersInvalid }];
+    return [
+      [log],
+      {
+        errorMessage: `${RequestErrorMessage.ReservedParametersInvalid}: _type is missing for endpoint ${endpoint.name}`,
+      },
+    ];
   }
 
   const options: adapter.BuildRequestOptions = buildOptions(
@@ -94,7 +99,7 @@ export async function callApi(
   const [err, res] = await go(() => retryableCall);
   if (err) {
     const log = logger.pend('ERROR', `Failed to call Endpoint:${aggregatedApiCall.endpointName}`, err);
-    return [[log], { errorCode: RequestErrorCode.ApiCallFailed }];
+    return [[log], { errorMessage: `${RequestErrorMessage.ApiCallFailed} with error: ${err.message}` }];
   }
 
   // eslint-disable-next-line functional/no-try-statement
@@ -106,6 +111,6 @@ export async function callApi(
   } catch (e) {
     const data = JSON.stringify(res?.data || {});
     const log = logger.pend('ERROR', `Unable to find response value from ${data}. Path: ${reservedParameters._path}`);
-    return [[log], { errorCode: RequestErrorCode.ResponseValueNotFound }];
+    return [[log], { errorMessage: RequestErrorMessage.ResponseValueNotFound }];
   }
 }

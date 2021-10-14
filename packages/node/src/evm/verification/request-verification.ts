@@ -3,7 +3,7 @@ import flatMap from 'lodash/flatMap';
 import { OIS } from '@api3/ois';
 import * as logger from '../../logger';
 import * as wallet from '../wallet';
-import { ApiCall, Request, LogsData, RequestErrorCode, RequestStatus, RrpTrigger } from '../../types';
+import { ApiCall, Request, LogsData, RequestErrorMessage, RequestStatus, RrpTrigger } from '../../types';
 
 export function verifySponsorWallets<T>(
   requests: Request<T>[],
@@ -16,19 +16,19 @@ export function verifySponsorWallets<T>(
       return [[log], request];
     }
 
-    const expectedSponsorWallet = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
-    if (request.sponsorWallet !== expectedSponsorWallet) {
-      const message = `Invalid sponsor wallet:${request.sponsorWallet} for Request:${request.id}. Expected:${expectedSponsorWallet}`;
+    const expectedSponsorWalletAddress = wallet.deriveSponsorWallet(masterHDNode, request.sponsorAddress).address;
+    if (request.sponsorWalletAddress !== expectedSponsorWalletAddress) {
+      const message = `Invalid sponsor wallet:${request.sponsorWalletAddress} for Request:${request.id}. Expected:${expectedSponsorWalletAddress}`;
       const log = logger.pend('ERROR', message);
-      const updatedRequest = {
+      const updatedRequest: Request<T> = {
         ...request,
         status: RequestStatus.Ignored,
-        errorCode: RequestErrorCode.SponsorWalletInvalid,
+        errorMessage: `${RequestErrorMessage.SponsorWalletInvalid}: ${request.sponsorWalletAddress}`,
       };
       return [[log], updatedRequest];
     }
 
-    const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWallet}`;
+    const message = `Request ID:${request.id} is linked to a valid sponsor wallet:${request.sponsorWalletAddress}`;
     const log = logger.pend('DEBUG', message);
     return [[log], request];
   });
@@ -55,10 +55,10 @@ export function verifyRrpTriggers(
     if (!rrpTrigger) {
       const message = `Request:${apiCall.id} has no matching endpointId:${apiCall.endpointId} in Airnode config`;
       const log = logger.pend('WARN', message);
-      const updatedApiCall = {
+      const updatedApiCall: Request<ApiCall> = {
         ...apiCall,
         status: RequestStatus.Errored,
-        errorCode: RequestErrorCode.UnknownEndpointId,
+        errorMessage: `${RequestErrorMessage.UnknownEndpointId}: ${apiCall.endpointId}`,
       };
       return [[log], updatedApiCall];
     }
@@ -70,10 +70,10 @@ export function verifyRrpTriggers(
     // lies with the API provider
     if (!ois) {
       const log = logger.pend('ERROR', `Unknown OIS:${oisTitle} received for Request:${apiCall.id}`);
-      const updatedApiCall = {
+      const updatedApiCall: Request<ApiCall> = {
         ...apiCall,
         status: RequestStatus.Errored,
-        errorCode: RequestErrorCode.UnknownOIS,
+        errorMessage: `${RequestErrorMessage.UnknownOIS}: ${oisTitle}`,
       };
       return [[log], updatedApiCall];
     }
@@ -87,10 +87,10 @@ export function verifyRrpTriggers(
         'ERROR',
         `Unknown Endpoint:${endpointName} for OIS:${oisTitle} received for Request:${apiCall.id}`
       );
-      const updatedApiCall = {
+      const updatedApiCall: Request<ApiCall> = {
         ...apiCall,
         status: RequestStatus.Errored,
-        errorCode: RequestErrorCode.UnknownOIS,
+        errorMessage: `${RequestErrorMessage.UnknownEndpointName}: ${endpointName} for OIS ${oisTitle}`,
       };
       return [[log], updatedApiCall];
     }

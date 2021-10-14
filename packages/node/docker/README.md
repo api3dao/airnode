@@ -1,55 +1,22 @@
-# api3/airnode
+# Airnode client image
 
-**This documentation focuses on the Airnode Docker image and its usage, not the Airnode itself. If you want learn more about the Airnode, please read [its documentation](../README.md).**
+**This README is intended for the developers. Documentation on how to use the client image is in the
+[docs](https://docs.api3.org/airnode/next/grp-providers/docker/client-image.html).**
+
+This documentation focuses on the Airnode Docker image, not the Airnode itself. If you want to learn more about Airnode,
+please read [its documentation](../README.md).
 
 ## Build
-In order to build Airnode Docker image you need to build the [artifacts image first](../../../docker/README.md). Once you've done that, you can build the Docker image by running following command from the root directory:
+
+In order to build Airnode Docker image you need to build the [artifacts image first](../../../docker/README.md). Once
+you've done that, you can build the Docker image by running following command from the root directory:
+
 ```bash
-docker build -f packages/node/docker/Dockerfile -t api3/airnode:latest .
+docker build -f packages/node/docker/Dockerfile -t api3/airnode-client:latest .
 ```
 
-## Configuration
-### Volumes
-The Airnode needs two configuration files for its run: `config.json` and `secrets.env`. These files need to be passed to the Docker container via volumes.
+> If building on windows ensure that the `airnode-crontab` file uses `LF` line endings. Otherwise the image will not be
+> built correctly.
 
-The Docker container looks for configuration files mounted internally in the `/app/config` directory.
-```bash
-$ tree
-.
-└── config
-    ├── config.json
-    └── secrets.env
-$ docker run -v $(pwd)/config:/app/config ...
-```
-
-## Usage
-Example directory structure and commands for running the Airnode Docker container. The below commands are run from the depicted directory.
-
-> If you are using Windows, use CMD (and not PowerShell), replace `\` with `^` and `$(pwd)` with `%cd%`.
-
-### Directory structure
-```bash
-$ tree
-.
-└── config
-    ├── config.json
-    └── secrets.env
-```
-
-### Running Airnode
-```bash
-docker run -d \
-  -v $(pwd)/config:/app/config \
-  --name airnode \
-  api3/airnode:latest
-```
-
-### Checking Airnode logs
-```bash
-docker logs airnode
-```
-
-## Stopping Airnode
-```bash
-docker stop airnode
-```
+The configuration and usage is documented in the
+[docs](https://docs.api3.org/airnode/next/grp-providers/docker/client-image.html).

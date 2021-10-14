@@ -44,7 +44,7 @@ export async function testApi(
     airnodeAddress,
     requesterAddress: '',
     sponsorAddress: '',
-    sponsorWallet: '',
+    sponsorWalletAddress: '',
     chainId: '',
     endpointId,
     endpointName: rrpTrigger.endpointName,

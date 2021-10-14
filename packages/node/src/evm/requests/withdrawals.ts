@@ -7,8 +7,8 @@ import {
   EVMRequestedWithdrawalLog,
   LogsData,
   RequestStatus,
-  Withdrawal,
   PendingLog,
+  Withdrawal,
 } from '../../types';
 
 export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<Withdrawal> {
@@ -16,9 +16,10 @@ export function initialize(logWithMetadata: EVMRequestedWithdrawalLog): Request<
 
   const request: Request<Withdrawal> = {
     airnodeAddress: parsedLog.args.airnode,
-    sponsorWallet: parsedLog.args.sponsorWallet,
+    sponsorWalletAddress: parsedLog.args.sponsorWallet,
     id: parsedLog.args.withdrawalRequestId,
     metadata: {
+      address: logWithMetadata.address,
       blockNumber: logWithMetadata.blockNumber,
       currentBlock: logWithMetadata.currentBlock,
       ignoreBlockedRequestsAfterBlocks: logWithMetadata.ignoreBlockedRequestsAfterBlocks,

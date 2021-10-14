@@ -10,7 +10,7 @@ import {
   LogsData,
   PendingLog,
   ProviderState,
-  RequestErrorCode,
+  RequestErrorMessage,
   RequestStatus,
 } from '../../types';
 
@@ -33,17 +33,17 @@ function updateApiCallResponse(
   // There should always be a matching AggregatedApiCall. Something has gone wrong if there isn't
   if (!aggregatedApiCall) {
     const log = logger.pend('ERROR', `Unable to find matching aggregated API calls for Request:${apiCall.id}`);
-    const updatedCall = {
+    const updatedCall: Request<ApiCall> = {
       ...apiCall,
       status: RequestStatus.Blocked,
-      errorCode: RequestErrorCode.NoMatchingAggregatedCall,
+      errorMessage: `${RequestErrorMessage.NoMatchingAggregatedApiCall}: ${apiCall.id}`,
     };
     return [[log], updatedCall];
   }
 
   // Add the error to the ApiCall
-  if (aggregatedApiCall.errorCode) {
-    return [[], { ...apiCall, status: RequestStatus.Errored, errorCode: aggregatedApiCall.errorCode }];
+  if (aggregatedApiCall.errorMessage) {
+    return [[], { ...apiCall, status: RequestStatus.Errored, errorMessage: aggregatedApiCall.errorMessage }];
   }
 
   return [[], { ...apiCall, responseValue: aggregatedApiCall.responseValue! }];

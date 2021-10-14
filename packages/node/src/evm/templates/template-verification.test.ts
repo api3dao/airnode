@@ -1,7 +1,7 @@
 import * as verification from './template-verification';
 import * as fixtures from '../../../test/fixtures';
 import * as requests from '../../requests';
-import { RequestErrorCode, RequestStatus } from '../../types';
+import { RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('TEMPLATE_VALIDATION_FIELDS', () => {
   it('returns the list of validated template fields', () => {
@@ -50,7 +50,11 @@ describe('verify', () => {
     expect(logs).toEqual([
       { level: 'ERROR', message: `Ignoring Request:${apiCall.id} as the template could not be found for verification` },
     ]);
-    expect(res[0]).toEqual({ ...apiCall, status: RequestStatus.Ignored, errorCode: RequestErrorCode.TemplateNotFound });
+    expect(res[0]).toEqual({
+      ...apiCall,
+      status: RequestStatus.Ignored,
+      errorMessage: `${RequestErrorMessage.TemplateNotFound}: ${TEMPLATE_ID}`,
+    });
   });
 
   it('does nothing where API calls are linked to a valid templated', () => {
@@ -80,7 +84,7 @@ describe('verify', () => {
     });
 
     const invalidFields = {
-      airnodeAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      airnodeAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
       endpointId: '0x05218bc3e2497776d24b7da2890e12c910d07ce647cc45bd565cbb167e620df3',
       encodedParameters: '0x1234',
     };
@@ -106,7 +110,7 @@ describe('verify', () => {
         expect(res[0]).toEqual({
           ...apiCall,
           status: RequestStatus.Ignored,
-          errorCode: RequestErrorCode.TemplateInvalid,
+          errorMessage: `${RequestErrorMessage.TemplateIdInvalid}: ${apiCall.templateId}`,
         });
       });
     });

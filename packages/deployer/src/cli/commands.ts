@@ -45,7 +45,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
   const tmpSecretsFile = path.join(tmpDir, 'secrets.json');
   fs.writeFileSync(tmpSecretsFile, JSON.stringify(secrets, null, 2));
 
-  const airnodeAddress = deriveAirnodeAddress(secrets.MASTER_KEY_MNEMONIC);
+  const airnodeAddress = deriveAirnodeAddress(mnemonic);
   // AWS doesn't allow uppercase letters in S3 bucket and lambda function names
   const airnodeAddressShort = shortenAirnodeAddress(airnodeAddress);
 

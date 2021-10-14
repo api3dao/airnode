@@ -17,27 +17,15 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
     operation.buildFullRequest(),
   ]);
 
+  const preInvokeExpectedLogs = ['MadeTemplateRequest', 'MadeFullRequest'];
   const preInvokeLogs = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
-  expect(preInvokeLogs).toEqual([
-    'SetAirnodeXpub',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-  ]);
+  expect(preInvokeLogs).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
 
   await startCoordinator();
 
+  const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FailedRequest', 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(postInvokeLogs.map(({ name }) => name)).toEqual([
-    'SetAirnodeXpub',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-    'FailedRequest',
-    'FulfilledRequest',
-  ]);
+  expect(postInvokeLogs.map(({ name }) => name)).toEqual(expect.arrayContaining(postInvokeExpectedLogs));
 
   const failedRequest = filterLogsByName(postInvokeLogs, 'FailedRequest')[0];
   const templateRequest = filterLogsByName(postInvokeLogs, 'MadeTemplateRequest')[0];
@@ -55,27 +43,15 @@ it('should call fail function on AirnodeRrp contract and emit FailedRequest if r
     operation.buildFullRequest(),
   ]);
 
+  const preInvokeExpectedLogs = ['MadeTemplateRequest', 'MadeFullRequest'];
   const preInvokelogNames = await fetchAllLogNames(provider, deployment.contracts.AirnodeRrp);
-  expect(preInvokelogNames).toEqual([
-    'SetAirnodeXpub',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-  ]);
+  expect(preInvokelogNames).toEqual(expect.arrayContaining(preInvokeExpectedLogs));
 
   await startCoordinator();
 
+  const postInvokeExpectedLogs = [...preInvokeExpectedLogs, 'FailedRequest', 'FulfilledRequest'];
   const postInvokeLogs = await fetchAllLogs(provider, deployment.contracts.AirnodeRrp);
-  expect(postInvokeLogs.map(({ name }) => name)).toEqual([
-    'SetAirnodeXpub',
-    'SetSponsorshipStatus',
-    'CreatedTemplate',
-    'MadeTemplateRequest',
-    'MadeFullRequest',
-    'FailedRequest',
-    'FulfilledRequest',
-  ]);
+  expect(postInvokeLogs.map(({ name }) => name)).toEqual(expect.arrayContaining(postInvokeExpectedLogs));
 
   const failedRequest = filterLogsByName(postInvokeLogs, 'FailedRequest')[0];
   const templateRequest = filterLogsByName(postInvokeLogs, 'MadeTemplateRequest')[0];

@@ -42,7 +42,7 @@ describe('processTransactions', () => {
     });
 
     const apiCall = fixtures.requests.buildSubmittableApiCall({
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const withdrawal = fixtures.requests.buildWithdrawal({
       sponsorAddress: '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E',
@@ -52,7 +52,7 @@ describe('processTransactions', () => {
       withdrawals: [withdrawal],
     };
     const transactionCountsBySponsorAddress = {
-      '0x64b7d7c64A534086EfF591B73fcFa912feE74c69': 79,
+      '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 79,
       '0x99bd3a5A045066F1CEf37A0A952DFa87Af9D898E': 212,
     };
     const state = fixtures.buildEVMProviderState({
@@ -95,10 +95,10 @@ describe('processTransactions', () => {
     expect(fulfillMock).toHaveBeenCalledWith(
       apiCall.id,
       apiCall.airnodeAddress,
-      ethers.BigNumber.from('0'),
-      '0x000000000000000000000000000000000000000000000000000000000001252b',
       apiCall.fulfillAddress,
       apiCall.fulfillFunctionId,
+      '0x000000000000000000000000000000000000000000000000000000000001252b',
+      '0x34c1f1547c1f2f7c3a8bd893e20444ccee56622d37a18b7dc461fb2359ef044e3b63c21e18a93354569207c7d21d1f92f8e8a310a78eeb9a57c455052695491f1b',
       { gasLimit: 500_000, gasPrice, nonce: 79 }
     );
   });
@@ -109,13 +109,13 @@ describe('processTransactions', () => {
     gasPriceSpy.mockRejectedValue(new Error('Gas price cannot be fetched'));
 
     const apiCall = fixtures.requests.buildSubmittableApiCall({
-      sponsorAddress: '0x64b7d7c64A534086EfF591B73fcFa912feE74c69',
+      sponsorAddress: '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181',
     });
     const requests: GroupedRequests = {
       apiCalls: [apiCall],
       withdrawals: [],
     };
-    const transactionCountsBySponsorAddress = { '0x64b7d7c64A534086EfF591B73fcFa912feE74c69': 79 };
+    const transactionCountsBySponsorAddress = { '0x69e2B095fbAc6C3f9E528Ef21882b86BF1595181': 79 };
     const state = fixtures.buildEVMProviderState({
       requests,
       transactionCountsBySponsorAddress,

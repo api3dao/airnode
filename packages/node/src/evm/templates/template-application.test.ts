@@ -1,6 +1,6 @@
 import * as application from './template-application';
 import * as fixtures from '../../../test/fixtures';
-import { ApiCallTemplate, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCallTemplate, RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('mergeApiCallsWithTemplates', () => {
   it('returns API calls without a template ID', () => {
@@ -12,7 +12,7 @@ describe('mergeApiCallsWithTemplates', () => {
 
   it('merges the template into the API call', () => {
     const apiCall = fixtures.requests.buildApiCall({
-      airnodeAddress: null,
+      airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
       endpointId: null,
       parameters: {},
       templateId: 'templateId-0',
@@ -20,7 +20,7 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
-        airnodeAddress: 'templateAirnode-0',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         encodedParameters:
           '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
         endpointId: 'templateEndpointId-0',
@@ -30,12 +30,12 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const [logs, res] = application.mergeApiCallsWithTemplates([apiCall], templatesById);
     expect(logs).toEqual([{ level: 'DEBUG', message: `Template ID:templateId-0 applied to Request:${apiCall.id}` }]);
-    expect(res[0].airnodeAddress).toEqual('templateAirnode-0');
+    expect(res[0].airnodeAddress).toEqual('0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace');
     expect(res[0].endpointId).toEqual('templateEndpointId-0');
     // These fields are not overwritten
     expect(res[0].fulfillAddress).toEqual('fulfillAddress');
     expect(res[0].fulfillFunctionId).toEqual('fulfillFunctionId');
-    expect(res[0].sponsorWallet).toEqual('sponsorWallet');
+    expect(res[0].sponsorWalletAddress).toEqual('sponsorWalletAddress');
     expect(res[0].sponsorAddress).toEqual('sponsorAddress');
   });
 
@@ -50,7 +50,7 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
-        airnodeAddress: 'templateAirnode-0',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         endpointId: 'templateEndpointId-0',
         encodedParameters:
           '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
@@ -76,7 +76,7 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
-        airnodeAddress: 'templateAirnode-0',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         endpointId: 'templateEndpointId-0',
         encodedParameters:
           '0x315375000000000000000000000000000000000000000000000000000000000066726f6d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0616d6f756e74000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000000034554480000000000000000000000000000000000000000000000000000000000',
@@ -96,7 +96,7 @@ describe('mergeApiCallsWithTemplates', () => {
       { level: 'ERROR', message: 'Unable to fetch template ID:templateId-0 for Request ID:apiCallId' },
     ]);
     expect(res[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.TemplateNotFound);
+    expect(res[0].errorMessage).toEqual(`${RequestErrorMessage.TemplateNotFound}: templateId-0`);
   });
 
   it('invalidates API calls with invalid template parameters', () => {
@@ -104,7 +104,7 @@ describe('mergeApiCallsWithTemplates', () => {
 
     const templatesById: { readonly [id: string]: ApiCallTemplate } = {
       'templateId-0': {
-        airnodeAddress: 'templateAirnode-0',
+        airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
         endpointId: 'templateEndpointId-0',
         encodedParameters: 'invalid-parameters',
         id: 'templateId-0',
@@ -116,6 +116,6 @@ describe('mergeApiCallsWithTemplates', () => {
       { level: 'ERROR', message: 'Template ID:templateId-0 contains invalid parameters: invalid-parameters' },
     ]);
     expect(res[0].status).toEqual(RequestStatus.Errored);
-    expect(res[0].errorCode).toEqual(RequestErrorCode.TemplateParameterDecodingFailed);
+    expect(res[0].errorMessage).toEqual(`${RequestErrorMessage.TemplateParameterDecodingFailed}: invalid-parameters`);
   });
 });
