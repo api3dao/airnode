@@ -37,8 +37,8 @@ describe('requestWithdrawal', function () {
     const chainId = (await hre.ethers.provider.getNetwork()).chainId;
     const firstExpectedWithdrawalRequestId = hre.ethers.utils.keccak256(
       hre.ethers.utils.solidityPack(
-        ['uint256', 'uint256', 'address', 'address'],
-        [firstExpectedSponsorToWithdrawalRequestCount, chainId, roles.sponsor.address, airnodeRrp.address]
+        ['uint256', 'address', 'address', 'uint256'],
+        [chainId, airnodeRrp.address, roles.sponsor.address, firstExpectedSponsorToWithdrawalRequestCount]
       )
     );
     await expect(airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress))
@@ -51,8 +51,8 @@ describe('requestWithdrawal', function () {
     const secondExpectedSponsorToWithdrawalRequestCount = firstExpectedSponsorToWithdrawalRequestCount.add(1);
     const secondExpectedWithdrawalRequestId = hre.ethers.utils.keccak256(
       hre.ethers.utils.solidityPack(
-        ['uint256', 'uint256', 'address', 'address'],
-        [secondExpectedSponsorToWithdrawalRequestCount, chainId, roles.sponsor.address, airnodeRrp.address]
+        ['uint256', 'address', 'address', 'uint256'],
+        [chainId, airnodeRrp.address, roles.sponsor.address, secondExpectedSponsorToWithdrawalRequestCount]
       )
     );
     await expect(airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress))
@@ -71,12 +71,12 @@ describe('fulfillWithdrawal', function () {
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       const withdrawalRequestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'address'],
+          ['uint256', 'address', 'address', 'uint256'],
           [
-            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
             (await hre.ethers.provider.getNetwork()).chainId,
-            roles.sponsor.address,
             airnodeRrp.address,
+            roles.sponsor.address,
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
           ]
         )
       );
@@ -130,12 +130,12 @@ describe('fulfillWithdrawal', function () {
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       const withdrawalRequestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'address'],
+          ['uint256', 'address', 'address', 'uint256'],
           [
-            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
             (await hre.ethers.provider.getNetwork()).chainId,
-            roles.sponsor.address,
             airnodeRrp.address,
+            roles.sponsor.address,
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
           ]
         )
       );
@@ -157,12 +157,12 @@ describe('fulfillWithdrawal', function () {
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       const withdrawalRequestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'address'],
+          ['uint256', 'address', 'address', 'uint256'],
           [
-            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
             (await hre.ethers.provider.getNetwork()).chainId,
-            roles.sponsor.address,
             airnodeRrp.address,
+            roles.sponsor.address,
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
           ]
         )
       );
@@ -184,12 +184,12 @@ describe('fulfillWithdrawal', function () {
       await rrpRequester.requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       const withdrawalRequestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'address'],
+          ['uint256', 'address', 'address', 'uint256'],
           [
-            await airnodeRrp.sponsorToWithdrawalRequestCount(rrpRequester.address),
             (await hre.ethers.provider.getNetwork()).chainId,
-            rrpRequester.address,
             airnodeRrp.address,
+            rrpRequester.address,
+            await airnodeRrp.sponsorToWithdrawalRequestCount(rrpRequester.address),
           ]
         )
       );
@@ -212,12 +212,12 @@ describe('fulfillWithdrawal', function () {
       await airnodeRrp.connect(roles.sponsor).requestWithdrawal(airnodeAddress, sponsorWalletAddress);
       const withdrawalRequestId = hre.ethers.utils.keccak256(
         hre.ethers.utils.solidityPack(
-          ['uint256', 'uint256', 'address', 'address'],
+          ['uint256', 'address', 'address', 'uint256'],
           [
-            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
             (await hre.ethers.provider.getNetwork()).chainId,
-            roles.sponsor.address,
             airnodeRrp.address,
+            roles.sponsor.address,
+            await airnodeRrp.sponsorToWithdrawalRequestCount(roles.sponsor.address),
           ]
         )
       );

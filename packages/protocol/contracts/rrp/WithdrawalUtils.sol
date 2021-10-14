@@ -30,10 +30,10 @@ contract WithdrawalUtils is IWithdrawalUtils {
     {
         bytes32 withdrawalRequestId = keccak256(
             abi.encodePacked(
-                ++sponsorToWithdrawalRequestCount[msg.sender],
                 block.chainid,
+                address(this),
                 msg.sender,
-                address(this)
+                ++sponsorToWithdrawalRequestCount[msg.sender]
             )
         );
         withdrawalRequestIdToParameters[withdrawalRequestId] = keccak256(
