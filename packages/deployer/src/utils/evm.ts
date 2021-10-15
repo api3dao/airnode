@@ -2,25 +2,17 @@ import * as ethers from 'ethers';
 import * as logger from '../utils/logger';
 
 export function validateMnemonic(mnemonic: string) {
-  logger.debug('Validating mnemonic');
-  try {
-    ethers.Wallet.fromMnemonic(mnemonic);
-  } catch {
-    return false;
-  }
-  return true;
-}
-
-export function validateMasterKeyMnemonic(mnemonic: string) {
-  logger.debug('Validating master key mnemonic');
+  logger.debug(`Validating mnemonic`);
 
   if (!mnemonic) {
+    logger.fail(`Mnemonic not found.`);
     return false;
   }
 
   try {
     ethers.Wallet.fromMnemonic(mnemonic);
   } catch {
+    logger.fail(`Mnemonic is invalid.`);
     return false;
   }
   return true;

@@ -11,7 +11,6 @@ import {
   shortenAirnodeAddress,
   validateConfig,
   validateMnemonic,
-  validateMasterKeyMnemonic,
 } from '../utils';
 import * as logger from '../utils/logger';
 
@@ -22,13 +21,7 @@ export async function deploy(configFile: string, secretsFile: string, receiptFil
 
   const mnemonic = config.nodeSettings.airnodeWalletMnemonic;
   if (!validateMnemonic(mnemonic)) {
-    logger.fail('AIRNODE_WALLET_MNEMONIC in your secrets.env file is not valid');
-    throw new Error('Invalid mnemonic');
-  }
-
-  if (!validateMasterKeyMnemonic(secrets.MASTER_KEY_MNEMONIC)) {
-    logger.fail('MASTER_KEY_MNEMONIC in your secrets.env file is not valid');
-    throw Error('MASTER_KEY_MNEMONIC not found.');
+    throw new Error('AIRNODE_WALLET_MNEMONIC invalid or not found');
   }
 
   const httpGateway = config.nodeSettings.httpGateway;
