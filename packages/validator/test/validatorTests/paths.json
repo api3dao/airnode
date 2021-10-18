@@ -1,223 +1,227 @@
 {
-	"ois": [
-		{
-			"oisFormat": "1.0.0",
-			"version": "1.0.0",
-			"title": "myOisTitle",
-			"apiSpecifications": {
-				"servers": [],
-				"paths": {
-					"/path1/{param1}/{param2}": {
-						"get": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "param1"
-								},
-								{
-									"in": "path",
-									"name": "param2"
-								},
-								{
-									"in": "header",
-									"name": "param3"
-								},
-								{
-									"in": "cookie",
-									"name": "param4"
-								},
-								{
-									"in": "query",
-									"name": "param5"
-								}
-							]
-						},
-						"post": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "param1"
-								},
-								{
-									"in": "path",
-									"name": "param2"
-								}
-							]
-						}
-					},
-					"/path2/{param1}/{param2}": {
-						"get": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "param1"
-								},
-								{
-									"in": "query",
-									"name": "param2"
-								},
-								{
-									"in": "invalid",
-									"name": "param3"
-								}
-							]
-						}
-					},
-					"/path3/{param1}/{param2}": {
-						"get": {
-							"parameters": [
-								{
-									"in": "invalid",
-									"name": "param3"
-								}
-							]
-						}
-					}
-				},
-				"components": {
-					"securitySchemes": {}
-				},
-				"security": []
-			},
-			"endpoints": [
-				{
-					"name": "",
-					"operation": {
-						"method": "get",
-						"path": "/path1/{param1}/{param2}"
-					},
-					"fixedOperationParameters": [],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "param1",
-							"operationParameter": {
-								"in": "path",
-								"name": "param1"
-							}
-						},
-						{
-							"name": "param2",
-							"operationParameter": {
-								"in": "path",
-								"name": "param2"
-							}
-						},
-						{
-							"name": "param3",
-							"operationParameter": {
-								"in": "header",
-								"name": "param3"
-							}
-						},
-						{
-							"name": "param4",
-							"operationParameter": {
-								"in": "cookie",
-								"name": "param4"
-							}
-						},
-						{
-							"name": "param5",
-							"operationParameter": {
-								"in": "query",
-								"name": "param5"
-							}
-						}
-					]
-				},
-				{
-					"name": "",
-					"operation": {
-						"method": "post",
-						"path": "/path1/{param1}/{param2}"
-					},
-					"fixedOperationParameters": [],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "param1",
-							"operationParameter": {
-								"in": "path",
-								"name": "param1"
-							}
-						},
-						{
-							"name": "param2",
-							"operationParameter": {
-								"in": "path",
-								"name": "param2"
-							}
-						}
-					]
-				},
-				{
-					"name": "",
-					"operation": {
-						"method": "get",
-						"path": "/path2/{param1}/{param2}"
-					},
-					"fixedOperationParameters": [],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "param1",
-							"operationParameter": {
-								"in": "path",
-								"name": "param1"
-							}
-						},
-						{
-							"name": "param2",
-							"operationParameter": {
-								"in": "query",
-								"name": "param2"
-							}
-						},
-						{
-							"name": "param3",
-							"operationParameter": {
-								"in": "invalid",
-								"name": "param3"
-							}
-						}
-					]
-				},
-				{
-					"name": "",
-					"operation": {
-						"method": "get",
-						"path": "/path3/{param1}/{param2}"
-					},
-					"fixedOperationParameters": [],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "param1",
-							"operationParameter": {
-								"in": "invalid",
-								"name": "param3"
-							}
-						}
-					]
-				}
-			]
-		}
-	],
-	"triggers": {
-		"rrp": []
-	},
-	"chains": [],
-	"nodeSettings": {
-		"nodeVersion": "1.0.0",
-		"cloudProvider": "aws",
-		"region": "us-east-1",
-		"stage": "testnet",
-		"logFormat": "json",
-		"logLevel": "INFO"
-	},
-	"environment": {
-		"securitySchemes": [],
-		"chainProviders": []
-	}
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "myOisTitle",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {
+          "/path1/{param1}/{param2}": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "param1"
+                },
+                {
+                  "in": "path",
+                  "name": "param2"
+                },
+                {
+                  "in": "header",
+                  "name": "param3"
+                },
+                {
+                  "in": "cookie",
+                  "name": "param4"
+                },
+                {
+                  "in": "query",
+                  "name": "param5"
+                }
+              ]
+            },
+            "post": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "param1"
+                },
+                {
+                  "in": "path",
+                  "name": "param2"
+                }
+              ]
+            }
+          },
+          "/path2/{param1}/{param2}": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "param1"
+                },
+                {
+                  "in": "query",
+                  "name": "param2"
+                },
+                {
+                  "in": "invalid",
+                  "name": "param3"
+                }
+              ]
+            }
+          },
+          "/path3/{param1}/{param2}": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "invalid",
+                  "name": "param3"
+                }
+              ]
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {}
+        },
+        "security": []
+      },
+      "endpoints": [
+        {
+          "name": "",
+          "operation": {
+            "method": "get",
+            "path": "/path1/{param1}/{param2}"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param1",
+              "operationParameter": {
+                "in": "path",
+                "name": "param1"
+              }
+            },
+            {
+              "name": "param2",
+              "operationParameter": {
+                "in": "path",
+                "name": "param2"
+              }
+            },
+            {
+              "name": "param3",
+              "operationParameter": {
+                "in": "header",
+                "name": "param3"
+              }
+            },
+            {
+              "name": "param4",
+              "operationParameter": {
+                "in": "cookie",
+                "name": "param4"
+              }
+            },
+            {
+              "name": "param5",
+              "operationParameter": {
+                "in": "query",
+                "name": "param5"
+              }
+            }
+          ]
+        },
+        {
+          "name": "",
+          "operation": {
+            "method": "post",
+            "path": "/path1/{param1}/{param2}"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param1",
+              "operationParameter": {
+                "in": "path",
+                "name": "param1"
+              }
+            },
+            {
+              "name": "param2",
+              "operationParameter": {
+                "in": "path",
+                "name": "param2"
+              }
+            }
+          ]
+        },
+        {
+          "name": "",
+          "operation": {
+            "method": "get",
+            "path": "/path2/{param1}/{param2}"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param1",
+              "operationParameter": {
+                "in": "path",
+                "name": "param1"
+              }
+            },
+            {
+              "name": "param2",
+              "operationParameter": {
+                "in": "query",
+                "name": "param2"
+              }
+            },
+            {
+              "name": "param3",
+              "operationParameter": {
+                "in": "invalid",
+                "name": "param3"
+              }
+            }
+          ]
+        },
+        {
+          "name": "",
+          "operation": {
+            "method": "get",
+            "path": "/path3/{param1}/{param2}"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param1",
+              "operationParameter": {
+                "in": "invalid",
+                "name": "param3"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "triggers": {
+    "rrp": []
+  },
+  "chains": [],
+  "nodeSettings": {
+    "nodeVersion": "1.0.0",
+    "cloudProvider": "aws",
+    "region": "us-east-1",
+    "stage": "testnet",
+    "logFormat": "json",
+    "logLevel": "INFO",
+    "airnodeWalletMnemonic": "mnemonic",
+    "heartbeat": {
+      "enabled": false
+    },
+    "httpGateway": {
+      "enabled": false
+    }
+  },
+  "apiCredentials": []
 }

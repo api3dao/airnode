@@ -74,9 +74,7 @@
           },
           "__rootThen": {
             "security": {
-              "__any": {
-                "__match": {}
-              }
+              "__match": {}
             }
           },
           "__catch": {
@@ -171,28 +169,26 @@
     }
   },
   "security": {
-    "__arrayItem": {
-      "__keyRegexp": "^[^\\s'\"\\\\]+$",
-      "__objectItem": {
-        "__arrayItem": {}
-      },
-      "__conditions": [
-        {
-          "__if": {
-            "__this_name": ".*"
-          },
-          "__rootThen": {
-            "components": {
-              "securitySchemes": {
-                "__match": {}
-              }
+    "__keyRegexp": "^[^\\s'\"\\\\]+$",
+    "__objectItem": {
+      "__arrayItem": {}
+    },
+    "__conditions": [
+      {
+        "__if": {
+          "__this_name": ".*"
+        },
+        "__rootThen": {
+          "components": {
+            "securitySchemes": {
+              "__match": {}
             }
-          },
-          "__catch": {
-            "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
           }
+        },
+        "__catch": {
+          "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixcomponents.securitySchemes"
         }
-      ]
-    }
+      }
+    ]
   }
 }
