@@ -54,13 +54,13 @@ describe('fetchPendingRequests', () => {
         {
           airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
           sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
-          id: '0x0dd22fb3710966e310910c895c5291f6ce27cf4742ad5565f9cf61fc50893907',
+          id: '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
           metadata: {
             address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
             blockNumber: 13,
             currentBlock: null,
             ignoreBlockedRequestsAfterBlocks: 20,
-            transactionHash: '0x786e3f9a5ee19f103e3a4999e82684a5e6de2d3f5394f8dc36725c93a8a039b0',
+            transactionHash: '0x4a882834f48c7505ed6cdaef430fb8d1acfd0fa6173f2e859dfd00fb18a2bdfc',
           },
           sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
           status: 'Pending',
