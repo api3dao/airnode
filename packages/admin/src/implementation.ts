@@ -8,17 +8,6 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
   }
 };
 
-const verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string): ethers.utils.HDNode => {
-  // The xpub is expected to be from the hardened path m/44'/60'/0'
-  // so we must derive the child m/44'/60'/0'/0/0 path to check if
-  // xpub belongs to the Airnode
-  const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
-  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
-    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
-  }
-  return hdNode;
-};
-
 /**
  * HD wallets allow us to create multiple accounts from a single mnemonic.
  * Each sponsor creates a designated wallet for each provider to use
@@ -47,6 +36,17 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
 export const deriveAirnodeXpub = (airnodeMnemonic: string): string => {
   const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic).derivePath("m/44'/60'/0'");
   return airnodeHdNode.neuter().extendedKey;
+};
+
+export const verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string): ethers.utils.HDNode => {
+  // The xpub is expected to belong to the hardened path m/44'/60'/0'
+  // so we must derive the child default derivation path m/44'/60'/0'/0/0
+  // to compare it and check if xpub belongs to the Airnode wallet
+  const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
+    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
+  }
+  return hdNode;
 };
 
 export async function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) {

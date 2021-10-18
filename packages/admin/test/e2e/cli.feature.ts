@@ -117,9 +117,34 @@ describe('CLI', () => {
       // Derive the xpub programatically
       const airnodeXpub = admin.deriveAirnodeXpub(airnodeMnemonic);
 
-      // Derive the wallet using CLI
+      // Derive the xpub using CLI
       const out = execCommand('derive-airnode-xpub', ['--mnemonic', airnodeMnemonic]);
       expect(out).toBe(`Airnode xpub: ${airnodeXpub}`);
+    });
+  });
+
+  describe('verify-airnode-xpub', () => {
+    it('verifies airnode xpub', () => {
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
+
+      // Verify the xpub using CLI
+      let out = execCommand(
+        'verify-airnode-xpub',
+        ['--airnode-xpub', airnodeXpub],
+        ['--airnode-address', airnodeWallet.address]
+      );
+      expect(out).toBe(`Airnode xpub is: VALID`);
+
+      out = execCommand('verify-airnode-xpub', ['--airnode-xpub', airnodeXpub], ['--airnode-address', alice.address]);
+      expect(out).toBe(`Airnode xpub is: INVALID`);
+
+      const aliceXpub = admin.deriveAirnodeXpub(alice.mnemonic.phrase);
+      out = execCommand(
+        'verify-airnode-xpub',
+        ['--airnode-xpub', aliceXpub],
+        ['--airnode-address', airnodeWallet.address]
+      );
+      expect(out).toBe(`Airnode xpub is: INVALID`);
     });
   });
 
