@@ -16,6 +16,9 @@ export class AdminSdk {
 
   deriveAirnodeXpub = (airnodeMnemonic: string) => admin.deriveAirnodeXpub(airnodeMnemonic);
 
+  verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string) =>
+    admin.verifyAirnodeXpub(airnodeXpub, airnodeAddress);
+
   deriveSponsorWalletAddress = (airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) =>
     admin.deriveSponsorWalletAddress(airnodeXpub, airnodeAddress, sponsorAddress);
 
