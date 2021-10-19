@@ -23,9 +23,8 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
 }));
 
-jest.mock('fs');
-
 import fs from 'fs';
+import * as validator from '@api3/validator';
 import { ethers } from 'ethers';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
@@ -66,6 +65,7 @@ describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumber.mockResolvedValueOnce(123456);
     getBlockNumber.mockResolvedValueOnce(987654);

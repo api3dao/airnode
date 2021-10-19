@@ -1,4 +1,5 @@
 import { Config } from '@api3/node';
+import { validateJsonWithTemplate } from '@api3/validator';
 import * as logger from '../utils/logger';
 
 export function validateConfig(config: Config, nodeVersion: string) {
@@ -8,6 +9,9 @@ export function validateConfig(config: Config, nodeVersion: string) {
     );
     throw new Error("Node version specified in config.json does not match the deployer's version");
   }
+}
 
-  // TODO: validator integration
+export function validateReceipt(supposedReceipt: any) {
+  // TODO: receipt version
+  return validateJsonWithTemplate(supposedReceipt, 'receipt');
 }
