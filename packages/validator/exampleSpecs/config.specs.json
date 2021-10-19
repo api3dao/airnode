@@ -77,9 +77,6 @@
               "name": "sec"
             }
           }
-        },
-        "security": {
-          "sec": []
         }
       },
       "endpoints": [

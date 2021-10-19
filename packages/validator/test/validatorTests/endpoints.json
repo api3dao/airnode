@@ -73,8 +73,7 @@
         },
         "components": {
           "securitySchemes": {}
-        },
-        "security": []
+        }
       },
       "endpoints": [
         {

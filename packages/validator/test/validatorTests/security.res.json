@@ -3,10 +3,6 @@
   "messages": [
     {
       "level": "error",
-      "message": "Expected security scheme \"sec2\" from ois.[0].apiSpecifications.components.securitySchemes.sec2 to be present in ois.[0].apiSpecifications.security"
-    },
-    {
-      "level": "error",
       "message": "ois.[0].apiSpecifications.components.securitySchemes.sec4 must contain \"name\" since value of \"type\" is \"apiKey\""
     },
     {

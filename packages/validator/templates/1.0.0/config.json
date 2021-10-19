@@ -193,8 +193,10 @@
                   "__regexp": "^__match$"
                 },
                 "apiSpecifications": {
-                  "security": {
-                    "[['securitySchemeName']]": {}
+                  "components": {
+                    "securitySchemes": {
+                      "[['securitySchemeName']]": {}
+                    }
                   }
                 }
               }

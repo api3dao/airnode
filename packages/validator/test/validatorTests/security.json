@@ -25,10 +25,6 @@
               "scheme": ""
             }
           }
-        },
-        "security": {
-          "sec1": [],
-          "sec4": []
         }
       },
       "endpoints": []
