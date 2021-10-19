@@ -111,9 +111,9 @@
       }
     },
     "cloudProvider": {
-      "__regexp": "^aws$",
+      "__regexp": "^(aws|local)$",
       "__catch": {
-        "__message": "__fullPath: Currently only \"aws\" is supported"
+        "__message": "__fullPath: Allowed values are aws or local"
       }
     },
     "region": {
