@@ -108,18 +108,15 @@ contract AirnodeFeeRegistry is Adminnable, IAirnodeFeeRegistry {
             chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][
                 _endpointId
             ] != 0
-        ) {
+        )
             return
                 chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][
                     _endpointId
                 ];
-        }
-        if (defaultChainAirnodePrice[_chainId][_airnode] != 0) {
+        if (defaultChainAirnodePrice[_chainId][_airnode] != 0)
             return defaultChainAirnodePrice[_chainId][_airnode];
-        }
-        if (defaultChainPrice[_chainId] != 0) {
+        if (defaultChainPrice[_chainId] != 0)
             return defaultChainPrice[_chainId];
-        }
         return defaultPrice;
     }
 }
