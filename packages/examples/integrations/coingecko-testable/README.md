@@ -6,7 +6,7 @@ This example contains the same API integration as `../coingecko`.
 
 The only difference is that this integration allows the endpoint to be testable. This means you can deploy the Airnode
 and then use CLI tools to trigger API requests without touching the blockchain. Refer to the
-[docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/http-gateway.html) for more information.
+[docs](https://docs.api3.org/airnode/v1.0/grp-providers/guides/build-an-airnode/http-gateway.html) for more information.
 
 ## Testing the API call
 
