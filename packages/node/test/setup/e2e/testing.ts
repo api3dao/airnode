@@ -1,5 +1,6 @@
 import fs from 'fs';
 import { Request } from '@api3/operation';
+import * as validator from '@api3/validator';
 import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
 import { buildConfig, operation } from '../../fixtures';
@@ -22,6 +23,7 @@ export const deployAirnodeAndMakeRequests = async (filename: string, requests?: 
   // eslint-disable-next-line functional/immutable-data
   config.nodeSettings.airnodeWalletMnemonic = deployConfig.airnodes.CurrencyConverterAirnode.mnemonic;
   jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+  jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
 
   return { deployment, provider: buildProvider(), config };
 };
