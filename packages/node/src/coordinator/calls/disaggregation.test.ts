@@ -2,7 +2,7 @@ import * as disaggregation from './disaggregation';
 import * as fixtures from '../../../test/fixtures';
 import * as coordinatorState from '../state';
 import * as providerState from '../../providers/state';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
+import { GroupedRequests, RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('disaggregate - Requests', () => {
   it('maps aggregated responses back to requests for each provider', () => {
@@ -78,16 +78,18 @@ describe('disaggregate - Requests', () => {
     ]);
     expect(res[0].requests.apiCalls[0].responseValue).toEqual(undefined);
     expect(res[0].requests.apiCalls[0].status).toEqual(RequestStatus.Blocked);
-    expect(res[0].requests.apiCalls[0].errorCode).toEqual(RequestErrorCode.NoMatchingAggregatedCall);
+    expect(res[0].requests.apiCalls[0].errorMessage).toEqual(
+      `${RequestErrorMessage.NoMatchingAggregatedApiCall}: ethCall`
+    );
     expect(res[1].requests.apiCalls[0].responseValue).toEqual('0x123');
     expect(res[1].requests.apiCalls[0].status).toEqual(RequestStatus.Pending);
-    expect(res[1].requests.apiCalls[0].errorCode).toEqual(undefined);
+    expect(res[1].requests.apiCalls[0].errorMessage).toEqual(undefined);
   });
 
   it('does not update API calls if the status is not pending', () => {
     const apiCall = fixtures.requests.buildApiCall({
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.Unauthorized,
+      errorMessage: RequestErrorMessage.Unauthorized,
     });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
@@ -127,7 +129,7 @@ describe('disaggregate - Requests', () => {
     mutableProvider1 = providerState.update(mutableProvider1, { requests });
     mutableProvider2 = providerState.update(mutableProvider2, { requests });
 
-    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorCode: RequestErrorCode.ApiCallFailed });
+    const aggregatedApiCall = fixtures.buildAggregatedApiCall({ errorMessage: RequestErrorMessage.ApiCallFailed });
     const aggregatedApiCallsById = { apiCallId: aggregatedApiCall };
 
     const config = fixtures.buildConfig();
@@ -139,13 +141,13 @@ describe('disaggregate - Requests', () => {
     const [logs, res] = disaggregation.disaggregate(mutableState);
     expect(logs).toEqual([]);
     expect(res[0].requests.apiCalls).toEqual([
-      { ...apiCall, errorCode: RequestErrorCode.ApiCallFailed, status: RequestStatus.Errored },
+      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, status: RequestStatus.Errored },
     ]);
     expect(res[1].requests.apiCalls).toEqual([
-      { ...apiCall, errorCode: RequestErrorCode.ApiCallFailed, status: RequestStatus.Errored },
+      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, status: RequestStatus.Errored },
     ]);
     expect(res[2].requests.apiCalls).toEqual([
-      { ...apiCall, errorCode: RequestErrorCode.ApiCallFailed, status: RequestStatus.Errored },
+      { ...apiCall, errorMessage: RequestErrorMessage.ApiCallFailed, status: RequestStatus.Errored },
     ]);
   });
 });

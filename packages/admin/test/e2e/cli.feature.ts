@@ -47,10 +47,11 @@ describe('CLI', () => {
     }
   };
 
-  const deriveSponsorWallet = async (wallet: ethers.Wallet, sponsor: string) => {
-    const airnodeMnemonic = wallet.mnemonic.phrase;
-    const derivationPath = admin.deriveWalletPathFromSponsorAddress(sponsor);
-    return ethers.Wallet.fromMnemonic(airnodeMnemonic, derivationPath).connect(provider);
+  const deriveSponsorWallet = async (airnodeMnemonic: string, sponsorAddress: string): Promise<ethers.Wallet> => {
+    return ethers.Wallet.fromMnemonic(
+      airnodeMnemonic,
+      `m/44'/60'/0'/${admin.deriveWalletPathFromSponsorAddress(sponsorAddress)}`
+    ).connect(provider);
   };
 
   beforeAll(() => {
@@ -91,7 +92,6 @@ describe('CLI', () => {
 
     const sdkCliDiff = difference(allFunctions, allCommands);
     const uncoveredFunctions = [
-      'airnode-to-xpub',
       'sponsor-to-requester-to-sponsorship-status',
       'set-sponsorship-status',
       'get-templates',
@@ -102,7 +102,7 @@ describe('CLI', () => {
       'fulfill-withdrawal',
       'make-full-request',
       'make-template-request',
-      'request-with-id-has-failed',
+      'request-is-awaiting-fulfillment',
       'requester-to-request-count-plus-one',
       'sponsor-to-withdrawal-request-count',
       'templates',
@@ -110,61 +110,78 @@ describe('CLI', () => {
     expect(sdkCliDiff).toEqual(uncoveredFunctions);
   });
 
+  describe('derive-airnode-xpub', () => {
+    it('derives airnode xpub', () => {
+      const airnodeMnemonic = airnodeWallet.mnemonic.phrase;
+
+      // Derive the xpub programatically
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeMnemonic);
+
+      // Derive the xpub using CLI
+      const out = execCommand('derive-airnode-xpub', ['--mnemonic', airnodeMnemonic]);
+      expect(out).toBe(`Airnode xpub: ${airnodeXpub}`);
+    });
+  });
+
+  describe('verify-airnode-xpub', () => {
+    it('verifies airnode xpub', () => {
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
+
+      // Verify the xpub using CLI
+      let out = execCommand(
+        'verify-airnode-xpub',
+        ['--airnode-xpub', airnodeXpub],
+        ['--airnode-address', airnodeWallet.address]
+      );
+      expect(out).toBe(`Airnode xpub is: VALID`);
+
+      out = execCommand('verify-airnode-xpub', ['--airnode-xpub', airnodeXpub], ['--airnode-address', alice.address]);
+      expect(out).toBe(`Airnode xpub is: INVALID`);
+
+      const aliceXpub = admin.deriveAirnodeXpub(alice.mnemonic.phrase);
+      out = execCommand(
+        'verify-airnode-xpub',
+        ['--airnode-xpub', aliceXpub],
+        ['--airnode-address', airnodeWallet.address]
+      );
+      expect(out).toBe(`Airnode xpub is: INVALID`);
+    });
+  });
+
   describe('derive-sponsor-wallet-address', () => {
-    it('derives using provided xpub arg', async () => {
+    it('derives using airnode xpub', async () => {
       const sponsorAddress = alice.address;
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
 
-      const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
-      const airnodeXpub = airnodeHdNode.neuter().extendedKey;
-
-      // Derive the wallet using CLI and admin SDK
+      // Derive the wallet using CLI
       const out = execCommand(
         'derive-sponsor-wallet-address',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--airnodeAddress', airnodeWallet.address],
-        ['--sponsorAddress', sponsorAddress],
-        ['--xpub', airnodeXpub]
+        ['--airnode-xpub', airnodeXpub],
+        ['--airnode-address', airnodeWallet.address],
+        ['--sponsor-address', sponsorAddress]
       );
 
       // Derive the wallet programatically
-      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsorAddress);
+      const sponsorWallet = await deriveSponsorWallet(airnodeWallet.mnemonic.phrase, sponsorAddress);
 
       // Check that they generate the same wallet address
       expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
     });
-    it('derives using on chain xpub', async () => {
+    it('errors out with wrong xpub message', async () => {
       const sponsorAddress = alice.address;
 
-      airnodeRrp = airnodeRrp.connect(airnodeWallet);
-      await admin.setAirnodeXpub(airnodeRrp);
+      const randomWallet = ethers.Wallet.createRandom();
+      const randomHdNode = ethers.utils.HDNode.fromMnemonic(randomWallet.mnemonic.phrase);
+      const randomXpub = randomHdNode.derivePath("m/44'/60'/0'").neuter().extendedKey;
 
-      // Derive the wallet using CLI and admin SDK
-      const out = execCommand(
-        'derive-sponsor-wallet-address',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--airnodeAddress', airnodeWallet.address],
-        ['--sponsorAddress', sponsorAddress]
-      );
-
-      // Derive the wallet programatically
-      const sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsorAddress);
-
-      // Check that they generate the same wallet address
-      expect(out).toBe(`Sponsor wallet address: ${sponsorWallet.address}`);
-    });
-    it('errors out with missing xpub message', async () => {
-      const sponsorAddress = alice.address;
       expect(() =>
         execCommand(
           'derive-sponsor-wallet-address',
-          ['--providerUrl', PROVIDER_URL],
-          ['--airnodeRrp', airnodeRrp.address],
-          ['--airnodeAddress', airnodeWallet.address],
-          ['--sponsorAddress', sponsorAddress]
+          ['--airnode-xpub', randomXpub],
+          ['--airnode-address', airnodeWallet.address],
+          ['--sponsor-address', sponsorAddress]
         )
-      ).toThrow('Airnode xpub is missing in AirnodeRrp contract');
+      ).toThrow(`xpub does not belong to Airnode: ${airnodeWallet.address}`);
     });
   });
 
@@ -175,11 +192,11 @@ describe('CLI', () => {
 
       const out = execCommand(
         'sponsor-requester',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-rrp', airnodeRrp.address],
         ['--mnemonic', mnemonic],
-        ['--derivationPath', aliceDerivationPath],
-        ['--requesterAddress', requesterAddress]
+        ['--derivation-path', aliceDerivationPath],
+        ['--requester-address', requesterAddress]
       );
       expect(out).toBe(`Requester address ${requesterAddress} is now sponsored by ${sponsorAddress}`);
 
@@ -200,10 +217,10 @@ describe('CLI', () => {
       const out = execCommand(
         'unsponsor-requester',
         ['--mnemonic', mnemonic],
-        ['--derivationPath', aliceDerivationPath],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--requesterAddress', requesterAddress]
+        ['--derivation-path', aliceDerivationPath],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-rrp', airnodeRrp.address],
+        ['--requester-address', requesterAddress]
       );
       expect(out).toBe(`Requester address ${requesterAddress} is no longer sponsored by ${sponsorAddress}`);
       expect(await isSponsored()).toBe(false);
@@ -216,10 +233,10 @@ describe('CLI', () => {
       const getSponsorStatus = () =>
         execCommand(
           'get-sponsor-status',
-          ['--providerUrl', PROVIDER_URL],
-          ['--airnodeRrp', airnodeRrp.address],
-          ['--sponsorAddress', sponsorAddress],
-          ['--requesterAddress', requesterAddress]
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp', airnodeRrp.address],
+          ['--sponsor-address', sponsorAddress],
+          ['--requester-address', requesterAddress]
         );
 
       expect(getSponsorStatus()).toBe('Requester address sponsored: false');
@@ -234,10 +251,10 @@ describe('CLI', () => {
       execCommand(
         'create-template',
         ['--mnemonic', mnemonic],
-        ['--derivationPath', aliceDerivationPath],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--templateFilePath', `${__dirname}/../fixtures/${fileName}`]
+        ['--derivation-path', aliceDerivationPath],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-rrp', airnodeRrp.address],
+        ['--template-file-path', `${__dirname}/../fixtures/${fileName}`]
       );
 
     it('can create template', async () => {
@@ -254,9 +271,9 @@ describe('CLI', () => {
 
       const out = execCommand(
         'get-template',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--templateId', templateId]
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-rrp', airnodeRrp.address],
+        ['--template-id', templateId]
       );
 
       expect(JSON.parse(out)).toEqual({
@@ -278,7 +295,7 @@ describe('CLI', () => {
       sponsor = alice;
 
       // Derive and fund the designated sponsor wallet
-      sponsorWallet = await deriveSponsorWallet(airnodeWallet, sponsor.address);
+      sponsorWallet = await deriveSponsorWallet(airnodeWallet.mnemonic.phrase, sponsor.address);
       await deployer.sendTransaction({
         to: sponsorWallet.address,
         value: ethers.utils.parseEther('1'),
@@ -289,11 +306,11 @@ describe('CLI', () => {
       const requestWithdrawalOutput = execCommand(
         'request-withdrawal',
         ['--mnemonic', mnemonic],
-        ['--derivationPath', aliceDerivationPath],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRrp', airnodeRrp.address],
-        ['--airnodeAddress', airnodeWallet.address],
-        ['--sponsorWalletAddress', sponsorWallet.address]
+        ['--derivation-path', aliceDerivationPath],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-rrp', airnodeRrp.address],
+        ['--airnode-address', airnodeWallet.address],
+        ['--sponsor-wallet-address', sponsorWallet.address]
       );
 
       expect(requestWithdrawalOutput).toMatch(new RegExp(`Withdrawal request ID: 0x\\w+`));
@@ -302,9 +319,9 @@ describe('CLI', () => {
       const checkWithdrawalStatus = () =>
         execCommand(
           'check-withdrawal-request',
-          ['--providerUrl', PROVIDER_URL],
-          ['--airnodeRrp', airnodeRrp.address],
-          ['--withdrawalRequestId', withdrawalRequestId]
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp', airnodeRrp.address],
+          ['--withdrawal-request-id', withdrawalRequestId]
         );
 
       expect(checkWithdrawalStatus()).toBe('Withdrawal request is not fulfilled yet');
@@ -319,34 +336,11 @@ describe('CLI', () => {
     });
   });
 
-  it('can set/get airnode xpub', async () => {
-    const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeWallet.mnemonic.phrase);
-    const airnodeXpub = airnodeHdNode.neuter().extendedKey;
-
-    const setAirnodeXpubOut = execCommand(
-      'set-airnode-xpub',
-      ['--mnemonic', airnodeWallet.mnemonic.phrase],
-      ['--derivationPath', airnodeWallet.mnemonic.path],
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address]
-    );
-    expect(setAirnodeXpubOut).toEqual(`Airnode xpub: ${airnodeXpub}`);
-
-    const getAirnodeXpubOut = execCommand(
-      'get-airnode-xpub',
-      ['--providerUrl', PROVIDER_URL],
-      ['--airnodeRrp', airnodeRrp.address],
-      ['--airnodeAddress', airnodeWallet.address]
-    );
-
-    expect(getAirnodeXpubOut).toEqual(`Airnode xpub: ${airnodeXpub}`);
-  });
-
   it('derives endpoint ID', () => {
     const oisTitle = 'title';
     const endpointName = 'endpoint';
 
-    const out = execCommand('derive-endpoint-id', ['--oisTitle', oisTitle], ['--endpointName', endpointName]);
+    const out = execCommand('derive-endpoint-id', ['--ois-title', oisTitle], ['--endpoint-name', endpointName]);
 
     const expected = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(['string'], [`${oisTitle}_${endpointName}`])
@@ -360,18 +354,18 @@ describe('CLI', () => {
         execCommand(
           'sponsor-requester',
           ['--mnemonic', mnemonic],
-          ['--derivationPath', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
-          ['--providerUrl', PROVIDER_URL],
-          ['--airnodeRrp', airnodeRrp.address]
-          // missing ['--requesterAddress', requester]
+          ['--derivation-path', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
+          ['--provider-url', PROVIDER_URL],
+          ['--airnode-rrp', airnodeRrp.address]
+          // missing ['--requester-address', requester]
         )
       ).toThrow('Missing required argument: requester');
     });
 
     it('unknown command', () => {
       expect(() =>
-        execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--providerUrl', PROVIDER_URL])
-      ).toThrow('Unknown arguments: mnemonic, providerUrl, not-existent-command');
+        execCommand('not-existent-command', ['--mnemonic', mnemonic], ['--provider-url', PROVIDER_URL])
+      ).toThrow('Unknown arguments: mnemonic, provider-url, providerUrl, not-existent-command');
     });
   });
 
@@ -409,13 +403,13 @@ describe('CLI', () => {
       const setWhitelistExpirationOut = execCommand(
         'set-whitelist-expiration',
         ['--mnemonic', airnodeWallet.mnemonic.phrase],
-        ['--derivationPath', airnodeWallet.mnemonic.path],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--expirationTimestamp', expirationTimestamp.getTime()],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--derivation-path', airnodeWallet.mnemonic.path],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--expiration-timestamp', expirationTimestamp.getTime()],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(setWhitelistExpirationOut).toEqual(
         `Whitelist expiration: ${expirationTimestamp.toUTCString()} (${expirationTimestamp.getTime()})`
@@ -449,13 +443,13 @@ describe('CLI', () => {
       const extendWhitelistExpirationOut = execCommand(
         'extend-whitelist-expiration',
         ['--mnemonic', bob.mnemonic.phrase], // An admin should be able to extend whitelist expiration
-        ['--derivationPath', bobDerivationPath],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--expirationTimestamp', extendedExpirationTimestamp.getTime()],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--derivation-path', bobDerivationPath],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--expiration-timestamp', extendedExpirationTimestamp.getTime()],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(extendWhitelistExpirationOut).toEqual(
         `Whitelist expiration: ${extendedExpirationTimestamp.toUTCString()} (${extendedExpirationTimestamp.getTime()})`
@@ -485,13 +479,13 @@ describe('CLI', () => {
       const setWhitelistStatusPastExpirationOut = execCommand(
         'set-whitelist-status-past-expiration',
         ['--mnemonic', airnodeWallet.mnemonic.phrase],
-        ['--derivationPath', airnodeWallet.mnemonic.path],
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--whitelistStatusPastExpiration', true],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--derivation-path', airnodeWallet.mnemonic.path],
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--whitelist-status-past-expiration', true],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(setWhitelistStatusPastExpirationOut).toEqual(`Whitelist status: ${true}`);
 
@@ -507,11 +501,11 @@ describe('CLI', () => {
     it('can get whitelist status', async () => {
       let out = execCommand(
         'get-whitelist-status',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(JSON.parse(out)).toEqual({
         expirationTimestamp: 0,
@@ -523,11 +517,11 @@ describe('CLI', () => {
         .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp.getTime());
       out = execCommand(
         'get-whitelist-status',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(JSON.parse(out)).toEqual(
         expect.objectContaining({
@@ -540,11 +534,11 @@ describe('CLI', () => {
         .setWhitelistStatusPastExpiration(airnodeWallet.address, endpointId, alice.address, true);
       out = execCommand(
         'get-whitelist-status',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(JSON.parse(out)).toEqual(
         expect.objectContaining({
@@ -556,11 +550,11 @@ describe('CLI', () => {
     it('can get if user is whitelist', async () => {
       let out = execCommand(
         'is-user-whitelisted',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(out).toEqual('Is user whitelisted: false');
 
@@ -569,11 +563,11 @@ describe('CLI', () => {
         .setWhitelistExpiration(airnodeWallet.address, endpointId, alice.address, expirationTimestamp.getTime());
       out = execCommand(
         'is-user-whitelisted',
-        ['--providerUrl', PROVIDER_URL],
-        ['--airnodeRequesterRrpAuthorizer', airnodeRequesterRrpAuthorizer.address],
-        ['--endpointId', endpointId],
-        ['--userAddress', alice.address],
-        ['--airnodeAddress', airnodeWallet.address]
+        ['--provider-url', PROVIDER_URL],
+        ['--airnode-requester-rrp-authorizer', airnodeRequesterRrpAuthorizer.address],
+        ['--endpoint-id', endpointId],
+        ['--user-address', alice.address],
+        ['--airnode-address', airnodeWallet.address]
       );
       expect(out).toEqual('Is user whitelisted: true');
     });

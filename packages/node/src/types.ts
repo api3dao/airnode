@@ -1,7 +1,14 @@
 import { OIS } from '@api3/ois';
 import { ApiCredentials as AdapterApiCredentials } from '@api3/adapter';
 import { ethers } from 'ethers';
-import { AirnodeRrp, TypedEventFilter } from '@api3/protocol';
+import {
+  MadeTemplateRequestEvent,
+  MadeFullRequestEvent,
+  FulfilledRequestEvent,
+  FailedRequestEvent,
+  RequestedWithdrawalEvent,
+  FulfilledWithdrawalEvent,
+} from '@api3/protocol';
 
 // ===========================================
 // State
@@ -10,24 +17,24 @@ export interface ApiCallParameters {
   readonly [key: string]: string;
 }
 
-export enum RequestErrorCode {
-  RequestParameterDecodingFailed = 1,
-  RequestInvalid = 2,
-  TemplateNotFound = 3,
-  TemplateParameterDecodingFailed = 4,
-  TemplateInvalid = 5,
-  SponsorWalletInvalid = 6,
-  AuthorizationNotFound = 7,
-  Unauthorized = 8,
-  PendingWithdrawal = 9,
-  UnknownEndpointId = 10,
-  UnknownOIS = 11,
-  NoMatchingAggregatedCall = 12,
-  ApiCallFailed = 13,
-  ReservedParametersInvalid = 14,
-  ResponseValueNotFound = 15,
-  ResponseValueNotCastable = 16,
-  FulfillTransactionFailed = 17,
+export enum RequestErrorMessage {
+  RequestParameterDecodingFailed = 'Request parameter decoding failed',
+  RequestIdInvalid = 'RequestId is invalid',
+  TemplateNotFound = 'Template not found',
+  TemplateParameterDecodingFailed = 'Template parameter decoding failed',
+  TemplateIdInvalid = 'TemplateId is invalid',
+  SponsorWalletInvalid = 'Sponsor wallet is invalid',
+  AuthorizationNotFound = 'Authorization not found',
+  Unauthorized = 'Unauthorized',
+  PendingWithdrawal = 'Pending withdrawal',
+  UnknownOIS = 'Unknown OIS',
+  UnknownEndpointId = 'Unknown endpointId',
+  UnknownEndpointName = 'Unknown endpoint name',
+  NoMatchingAggregatedApiCall = 'No matching aggregated API call',
+  ApiCallFailed = 'API call failed',
+  ReservedParametersInvalid = 'Reserved parameters are invalid',
+  ResponseValueNotFound = 'Response value not found',
+  FulfillTransactionFailed = 'Fulfill transaction failed',
 }
 
 export enum RequestStatus {
@@ -45,6 +52,7 @@ export enum RequestType {
 }
 
 export interface RequestMetadata {
+  readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
@@ -60,7 +68,7 @@ export type Request<T extends {}> = T & {
   readonly airnodeAddress: string;
   readonly sponsorAddress: string;
   readonly sponsorWalletAddress: string;
-  readonly errorCode?: RequestErrorCode;
+  readonly errorMessage?: string;
   readonly fulfillment?: RequestFulfillment;
   readonly metadata: RequestMetadata;
   readonly nonce?: number;
@@ -176,7 +184,7 @@ export interface AuthorizationByRequestId {
 
 export interface ApiCallResponse {
   readonly value?: string | boolean;
-  readonly errorCode?: RequestErrorCode;
+  readonly errorMessage?: string;
 }
 
 export interface AggregatedApiCall {
@@ -190,7 +198,7 @@ export interface AggregatedApiCall {
   readonly endpointName?: string;
   readonly oisTitle?: string;
   readonly parameters: ApiCallParameters;
-  readonly errorCode?: RequestErrorCode;
+  readonly errorMessage?: string;
   readonly responseValue?: string;
 }
 
@@ -221,52 +229,37 @@ export interface WorkerResponse {
 // Events
 // ===========================================
 interface EVMEventLogMetadata {
+  readonly address: string;
   readonly blockNumber: number;
   readonly currentBlock: number;
   readonly ignoreBlockedRequestsAfterBlocks: number;
   readonly transactionHash: string;
 }
 
-// Maybe there will be less hacky way to obtain this in the future.
-// See: https://github.com/ethereum-ts/TypeChain/issues/376
-// NOTE: I am also ignoring the typed tupple and only extracting the typed event object.
-type ExtractTypedEvent<T> = T extends TypedEventFilter<any, infer EventArgsObject> ? EventArgsObject : never;
-// NOTE: Picking only the events used by node code
-export type AirnodeRrpFilters = Pick<
-  InstanceType<typeof AirnodeRrp>['filters'],
-  | 'MadeTemplateRequest'
-  | 'MadeFullRequest'
-  | 'FulfilledRequest'
-  | 'FailedRequest'
-  | 'RequestedWithdrawal'
-  | 'FulfilledWithdrawal'
->;
-export type AirnodeRrpLog<T extends keyof AirnodeRrpFilters> = ExtractTypedEvent<ReturnType<AirnodeRrpFilters[T]>>;
-
-export type AirnodeLogDescription<T> = Omit<ethers.utils.LogDescription, 'args'> & { readonly args: T };
+export type AirnodeLogDescription<Event> = Event extends { readonly args: infer EventArgs }
+  ? Omit<ethers.utils.LogDescription, 'args'> & { readonly args: EventArgs }
+  : never;
 
 export interface EVMMadeFullRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'MadeFullRequest'>>;
+  readonly parsedLog: AirnodeLogDescription<MadeFullRequestEvent>;
 }
 
 export interface EVMMadeTemplateRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'MadeTemplateRequest'>>;
+  readonly parsedLog: AirnodeLogDescription<MadeTemplateRequestEvent>;
 }
 
 export type EVMMadeRequestLog = EVMMadeTemplateRequestLog | EVMMadeFullRequestLog;
 
 export interface EVMFulfilledRequestLog extends EVMEventLogMetadata {
-  readonly parsedLog:
-    | AirnodeLogDescription<AirnodeRrpLog<'FulfilledRequest'>>
-    | AirnodeLogDescription<AirnodeRrpLog<'FailedRequest'>>;
+  readonly parsedLog: AirnodeLogDescription<FulfilledRequestEvent> | AirnodeLogDescription<FailedRequestEvent>;
 }
 
 export interface EVMRequestedWithdrawalLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'RequestedWithdrawal'>>;
+  readonly parsedLog: AirnodeLogDescription<RequestedWithdrawalEvent>;
 }
 
 export interface EVMFulfilledWithdrawalLog extends EVMEventLogMetadata {
-  readonly parsedLog: AirnodeLogDescription<AirnodeRrpLog<'FulfilledWithdrawal'>>;
+  readonly parsedLog: AirnodeLogDescription<FulfilledWithdrawalEvent>;
 }
 
 export type EVMEventLog =

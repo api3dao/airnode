@@ -4,6 +4,7 @@ export const templates = {
   config: 'config.json',
   endpoints: 'endpoints.json',
   ois: 'ois.json',
+  receipt: 'receipt.json',
 };
 
 export interface Log {

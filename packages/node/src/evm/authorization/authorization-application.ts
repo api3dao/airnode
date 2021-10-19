@@ -1,14 +1,14 @@
 import flatMap from 'lodash/flatMap';
 import isNil from 'lodash/isNil';
 import * as logger from '../../logger';
-import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestErrorCode, RequestStatus } from '../../types';
+import { ApiCall, AuthorizationByRequestId, Request, LogsData, RequestErrorMessage, RequestStatus } from '../../types';
 
 function applyAuthorization(
   apiCall: Request<ApiCall>,
   authorizationByRequestId: AuthorizationByRequestId
 ): LogsData<Request<ApiCall>> {
   // Don't overwrite any existing error codes or statuses
-  if (apiCall.errorCode || apiCall.status !== RequestStatus.Pending) {
+  if (apiCall.errorMessage || apiCall.status !== RequestStatus.Pending) {
     return [[], apiCall];
   }
 
@@ -17,10 +17,10 @@ function applyAuthorization(
   // template was not loaded
   if (!apiCall.endpointId) {
     const log = logger.pend('ERROR', `No endpoint ID found for Request ID:${apiCall.id}`);
-    const updatedApiCall = {
+    const updatedApiCall: Request<ApiCall> = {
       ...apiCall,
       status: RequestStatus.Blocked,
-      errorCode: RequestErrorCode.TemplateNotFound,
+      errorMessage: RequestErrorMessage.TemplateNotFound, // TODO: shouldn't this be UnknownEndpointId?
     };
     return [[log], updatedApiCall];
   }
@@ -30,10 +30,10 @@ function applyAuthorization(
   // If we couldn't fetch the authorization status, block the request until the next run
   if (isNil(authorized)) {
     const log = logger.pend('WARN', `Authorization not found for Request ID:${apiCall.id}`);
-    const updatedApiCall = {
+    const updatedApiCall: Request<ApiCall> = {
       ...apiCall,
       status: RequestStatus.Blocked,
-      errorCode: RequestErrorCode.AuthorizationNotFound,
+      errorMessage: RequestErrorMessage.AuthorizationNotFound,
     };
     return [[log], updatedApiCall];
   }
@@ -47,10 +47,10 @@ function applyAuthorization(
     `Requester:${apiCall.requesterAddress} is not authorized to access Endpoint ID:${apiCall.endpointId} for Request ID:${apiCall.id}`
   );
   // If the request is unauthorized, update the status of the request
-  const updatedApiCall = {
+  const updatedApiCall: Request<ApiCall> = {
     ...apiCall,
     status: RequestStatus.Errored,
-    errorCode: RequestErrorCode.Unauthorized,
+    errorMessage: `${RequestErrorMessage.Unauthorized}: ${apiCall.requesterAddress}`,
   };
   return [[log], updatedApiCall];
 }

@@ -5,11 +5,6 @@
     "outDir": "./dist",
     "rootDirs": ["./src", "./artifacts"]
   },
-  "include": [
-    "./src/**/*",
-    "./src/**/*.d.ts"
-  ],
-  "exclude": [
-    "./src/**/*.test.ts"
-  ]
+  "include": ["./src/**/*", "./src/**/*.d.ts"],
+  "exclude": ["./src/**/*.test.ts"]
 }

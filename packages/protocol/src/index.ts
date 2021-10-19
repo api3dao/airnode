@@ -15,8 +15,6 @@ import {
   AirnodeRrp__factory as AirnodeRrpFactory,
   AirnodeRequesterRrpAuthorizer__factory as AirnodeRequesterRrpAuthorizerFactory,
 } from './contracts';
-import AirnodeRrpArtifact from '../artifacts/contracts/rrp/AirnodeRrp.sol/AirnodeRrp.json';
-import MockRrpRequesterArtifact from '../artifacts/contracts/rrp/requesters/mock/MockRrpRequester.sol/MockRrpRequester.json';
 import AirnodeRrpDeploymentRinkeby from '../deployments/rinkeby/AirnodeRrp.json';
 import AirnodeRequesterRrpAuthorizerRinkeby from '../deployments/rinkeby/AirnodeRequesterRrpAuthorizer.json';
 
@@ -27,13 +25,19 @@ const AirnodeRequesterRrpAuthorizerAddresses: { [chainId: number]: string } = {
 const mocks = {
   MockRrpRequesterFactory,
 };
-// TODO:
 const authorizers = {
   AirnodeRequesterRrpAuthorizerFactory,
 };
 
-// NOTE: For now, we only want to expose AirnodeRrp contract (and it's mock)
 export { AirnodeRrpAddresses, AirnodeRequesterRrpAuthorizerAddresses, AirnodeRrpFactory, mocks, authorizers };
-// Export the artifacts for API consumers using web3
-export { AirnodeRrpArtifact, MockRrpRequesterArtifact };
-export type { AirnodeRrp, MockRrpRequester, TypedEventFilter, AirnodeRequesterRrpAuthorizer } from './contracts';
+
+export type { AirnodeRrp, MockRrpRequester, AirnodeRequesterRrpAuthorizer } from './contracts';
+export {
+  MadeTemplateRequestEvent,
+  MadeFullRequestEvent,
+  FulfilledRequestEvent,
+  FailedRequestEvent,
+  RequestedWithdrawalEvent,
+  FulfilledWithdrawalEvent,
+} from './contracts/AirnodeRrp';
+export { TypedEventFilter } from './contracts/commons';

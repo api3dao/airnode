@@ -1,6 +1,6 @@
 import * as blocking from './blocking';
 import * as fixtures from '../../../test/fixtures';
-import { GroupedRequests, RequestErrorCode, RequestStatus } from '../../types';
+import { GroupedRequests, RequestErrorMessage, RequestStatus } from '../../types';
 
 describe('blockRequestsWithWithdrawals', () => {
   it('blocks API calls with pending withdrawals from the same sponsor', () => {
@@ -18,7 +18,7 @@ describe('blockRequestsWithWithdrawals', () => {
     ]);
     expect(res.apiCalls.length).toEqual(1);
     expect(res.apiCalls[0].status).toEqual(RequestStatus.Ignored);
-    expect(res.apiCalls[0].errorCode).toEqual(RequestErrorCode.PendingWithdrawal);
+    expect(res.apiCalls[0].errorMessage).toEqual(`${RequestErrorMessage.PendingWithdrawal}: ${withdrawal.id}`);
     expect(res.withdrawals.length).toEqual(1);
     expect(res.withdrawals[0].status).toEqual(RequestStatus.Pending);
   });

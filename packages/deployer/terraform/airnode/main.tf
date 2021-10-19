@@ -7,7 +7,7 @@ module "initializeProvider" {
 
   name               = "${local.name_prefix}-initializeProvider"
   handler            = "handlers/aws/index.initializeProvider"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 20
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -21,7 +21,7 @@ module "callApi" {
 
   name               = "${local.name_prefix}-callApi"
   handler            = "handlers/aws/index.callApi"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -35,7 +35,7 @@ module "processProviderRequests" {
 
   name               = "${local.name_prefix}-processProviderRequests"
   handler            = "handlers/aws/index.processProviderRequests"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -49,7 +49,7 @@ module "startCoordinator" {
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "handlers/aws/index.startCoordinator"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 60
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -66,10 +66,11 @@ module "startCoordinator" {
 
 module "testApi" {
   source = "./modules/function"
+  count  = var.api_key == null ? 0 : 1
 
   name               = "${local.name_prefix}-testApi"
   handler            = "handlers/aws/index.testApi"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -85,11 +86,11 @@ module "testApiGateway" {
   stage         = "v1"
   template_file = "./templates/apigateway.yaml.tpl"
   template_variables = {
-    proxy_lambda = module.testApi.lambda_arn
+    proxy_lambda = module.testApi[0].lambda_arn
     region       = var.aws_region
   }
   lambdas = [
-    module.testApi.lambda_arn
+    module.testApi[0].lambda_arn
   ]
   api_key = var.api_key
 }

@@ -14,7 +14,8 @@
 
 **Important: Airnode is in active development and likely to change before the stable release**
 
-Airnode has not yet been published, so you will need to clone and install the entire repository. This can be done by running:
+Airnode has not yet been published, so you will need to clone and install the entire repository. This can be done by
+running:
 
 ```sh
 git clone git@github.com:api3dao/airnode.git
@@ -28,15 +29,19 @@ yarn run build
 
 ## Configuration
 
-Before running Airnode, you will need to have a valid `config.json` and `security.json` placed in the packages/node folder. You can find more information on these files in the API3 documentation [repository](https://github.com/api3dao/api3-docs).
+Before running Airnode, you will need to have a valid `config.json` and `security.json` placed in the packages/node
+folder. You can find more information on these files in the API3 documentation
+[repository](https://github.com/api3dao/api3-docs).
 
 ## Usage
 
-You must have a valid `config.json` file present in the `__dev__` folder. It is also recommended to use a `.env` file for handling secrets. See [Development](#Development) below for more details.
+You must have a valid `config.json` file present in the `__dev__` folder. It is also recommended to use a `.env` file
+for handling secrets. See [Development](#Development) below for more details.
 
 ### Invoking
 
-Airnode does not yet have an stable API for usage. However, you can run Airnode locally, for development and test environments, by running the following command:
+Airnode does not yet have an stable API for usage. However, you can run Airnode locally, for development and test
+environments, by running the following command:
 
 ```sh
 # Run Airnode once using the AWS serverless handler
@@ -55,7 +60,8 @@ yarn run dev:testApi --endpoint-id "0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a5
 
 ## Behaviour
 
-This is a running list of how different errors are handled by the node and test tracking. It is likely to change in the future.
+This is a running list of how different errors are handled by the node and test tracking. It is likely to change in the
+future.
 
 https://docs.google.com/spreadsheets/d/1DanVn7WyP96D5max2_5T5enJz7TcCsRceoqDfDfCcnA/edit?usp=sharing
 
@@ -88,13 +94,17 @@ src/
 
 ### config.json
 
-Before you can use or invoke Airnode locally, you must have a valid `config.json` in the `__dev__` folder. You can find the [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) specifications with the [API3 documentation](https://github.com/api3dao/api3-docs).
+Before you can use or invoke Airnode locally, you must have a valid `config.json` in the `__dev__` folder. You can find
+the [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) specifications with the
+[API3 documentation](https://github.com/api3dao/api3-docs).
 
-For your convenience, example `config.json` and `.env` files are provided in the `__dev__` folder. You can simply copy these files and remove the `.example` extension.
+For your convenience, example `config.json` and `.env` files are provided in the `__dev__` folder. You can simply copy
+these files and remove the `.example` extension.
 
 ### Blockchain node
 
-In order to invoke Airnode, you will need to provide the HTTP URL to an existing blockchain node. For your convenience, the following blockchain nodes can be started in development mode using:
+In order to invoke Airnode, you will need to provide the HTTP URL to an existing blockchain node. For your convenience,
+the following blockchain nodes can be started in development mode using:
 
 ```sh
 ###########################################
@@ -110,11 +120,13 @@ yarn run dev:eth-deploy
 yarn run dev:eth-requests
 ```
 
-For more information, please refer to the [operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
+For more information, please refer to the
+[operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
 
 ### Dummy web API
 
-A "dummy" web API is also included with the operation package. This exposes a simple [Express.js](https://github.com/expressjs/express) server with a few hardcoded endpoints.
+A "dummy" web API is also included with the operation package. This exposes a simple
+[Express.js](https://github.com/expressjs/express) server with a few hardcoded endpoints.
 
 This API can be started by running:
 
@@ -123,15 +135,18 @@ This API can be started by running:
 yarn run dev:api
 ```
 
-For more information, please refer to the [operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
+For more information, please refer to the
+[operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
 
 ### Dependencies
 
-If an update has been made to another sibling dependency package, you must remember to build these changes by running `yarn run build` from the monorepo root.
+If an update has been made to another sibling dependency package, you must remember to build these changes by running
+`yarn run build` from the monorepo root.
 
 ## Testing
 
-Like with a development setup, it is important to ensure that all sibling dependencies are built before running tests. Use `yarn run build` from the monorepo root to build all of these packages.
+Like with a development setup, it is important to ensure that all sibling dependencies are built before running tests.
+Use `yarn run build` from the monorepo root to build all of these packages.
 
 Tests can run using the following commands:
 
@@ -153,9 +168,12 @@ yarn run test:watch -f evm/handlers/initialize-provider.test.ts
 
 ### E2E tests
 
-End-to-end (E2E) tests test the entire Airnode request–response protocol, from start to finish. This includes (but is not limited to): deploying Airnode RRP, creating the relevant onchain data, making onchain requests, invoking Airnode and testing relevant expected outcomes.
+End-to-end (E2E) tests test the entire Airnode request–response protocol, from start to finish. This includes (but is
+not limited to): deploying Airnode RRP, creating the relevant onchain data, making onchain requests, invoking Airnode
+and testing relevant expected outcomes.
 
-In order to run E2E tests, you will need to have both an Ethereum node and the "dummy" web API running. The simplest way to accomplish this is by running:
+In order to run E2E tests, you will need to have both an Ethereum node and the "dummy" web API running. The simplest way
+to accomplish this is by running:
 
 ```sh
 # Start an Ethereum node and mock API
@@ -178,6 +196,7 @@ yarn run test:e2e
 yarn run test:e2e:debug
 ```
 
-For more information, please refer to the [operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
+For more information, please refer to the
+[operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
 
 E2E tests are defined in the `test/e2e/` folder and are identified by the `feature.ts` extension.

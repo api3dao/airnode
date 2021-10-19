@@ -12,7 +12,7 @@ import {
   EVMFulfilledRequestLog,
   LogsData,
   PendingLog,
-  RequestErrorCode,
+  RequestErrorMessage,
   RequestStatus,
 } from '../../types';
 
@@ -42,6 +42,7 @@ export function initialize(log: EVMMadeRequestLog): Request<ApiCall> {
     fulfillAddress: parsedLog.args.fulfillAddress,
     fulfillFunctionId: parsedLog.args.fulfillFunctionId,
     metadata: {
+      address: log.address,
       blockNumber: log.blockNumber,
       currentBlock: log.currentBlock,
       ignoreBlockedRequestsAfterBlocks: log.ignoreBlockedRequestsAfterBlocks,
@@ -70,10 +71,10 @@ export function applyParameters(request: Request<ApiCall>): LogsData<Request<Api
 
     const log = logger.pend('ERROR', `Request ID:${id} submitted with invalid parameters: ${encodedParameters}`);
 
-    const updatedRequest = {
+    const updatedRequest: Request<ApiCall> = {
       ...request,
       status: RequestStatus.Errored,
-      errorCode: RequestErrorCode.RequestParameterDecodingFailed,
+      errorMessage: `${RequestErrorMessage.RequestParameterDecodingFailed}: ${encodedParameters}`,
     };
 
     return [[log], updatedRequest];

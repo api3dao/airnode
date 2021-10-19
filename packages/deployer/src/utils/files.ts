@@ -1,9 +1,10 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import { Config } from '@api3/node';
+import { validateReceipt } from './validation';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';
-import { deriveAirnodeAddress, deriveXpub, shortenAirnodeAddress } from '../utils';
+import { deriveAirnodeAddress, deriveAirnodeXpub, shortenAirnodeAddress } from '../utils';
 import { DeployAirnodeOutput } from '../infrastructure';
 
 export function parseSecretsFile(secretsPath: string) {
@@ -28,7 +29,7 @@ export function writeReceiptFile(
     airnodeWallet: {
       airnodeAddress,
       airnodeAddressShort,
-      xpub: deriveXpub(mnemonic),
+      airnodeXpub: deriveAirnodeXpub(mnemonic),
     },
     deployment: {
       airnodeAddressShort,
@@ -50,11 +51,21 @@ export function writeReceiptFile(
 }
 
 export function parseReceiptFile(receiptFilename: string) {
+  let receipt: any;
   logger.debug('Parsing receipt file');
+
   try {
-    return JSON.parse(fs.readFileSync(receiptFilename, 'utf8')) as Receipt;
+    receipt = JSON.parse(fs.readFileSync(receiptFilename, 'utf8'));
   } catch (e) {
     logger.fail('Failed to parse receipt file');
     throw e;
   }
+
+  const validationResult = validateReceipt(receipt);
+  if (!validationResult.valid) {
+    logger.fail('Failed to validate receipt file');
+    throw new Error(`Invalid Airnode receipt file: ${JSON.stringify(validationResult.messages)}`);
+  }
+
+  return receipt as Receipt;
 }

@@ -18,7 +18,7 @@ const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {
  *
  * Since addresses can be represented as 160bits (20bytes) we can then
  * split it in chunks of 31bits and create a path with the following pattern:
- * m/0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
+ * 0/1st31bits/2nd31bits/3rd31bits/4th31bits/5th31bits/6th31bits.
  *
  * @param sponsorAddress A string representing a 20bytes hex address
  * @returns The path derived from the address
@@ -30,23 +30,29 @@ export const deriveWalletPathFromSponsorAddress = (sponsorAddress: string): stri
     const shiftedSponsorAddressBN = sponsorAddressBN.shr(31 * i);
     paths.push(shiftedSponsorAddressBN.mask(31).toString());
   }
-  return `m/0/${paths.join('/')}`;
+  return `0/${paths.join('/')}`;
 };
 
-export async function deriveSponsorWalletAddress(
-  airnodeRrp: AirnodeRrp,
-  airnodeAddress: string,
-  sponsorAddress: string,
-  xpub?: string
-) {
-  const airnodeXpub = xpub ?? (await airnodeRrp.airnodeToXpub(airnodeAddress));
-  if (!airnodeXpub) {
-    throw new Error('Airnode xpub is missing in AirnodeRrp contract');
-  }
+export const deriveAirnodeXpub = (airnodeMnemonic: string): string => {
+  const airnodeHdNode = ethers.utils.HDNode.fromMnemonic(airnodeMnemonic).derivePath("m/44'/60'/0'");
+  return airnodeHdNode.neuter().extendedKey;
+};
+
+export const verifyAirnodeXpub = (airnodeXpub: string, airnodeAddress: string): ethers.utils.HDNode => {
+  // The xpub is expected to belong to the hardened path m/44'/60'/0'
+  // so we must derive the child default derivation path m/44'/60'/0'/0/0
+  // to compare it and check if xpub belongs to the Airnode wallet
   const hdNode = ethers.utils.HDNode.fromExtendedKey(airnodeXpub);
+  if (airnodeAddress !== hdNode.derivePath('0/0').address) {
+    throw new Error(`xpub does not belong to Airnode: ${airnodeAddress}`);
+  }
+  return hdNode;
+};
+
+export async function deriveSponsorWalletAddress(airnodeXpub: string, airnodeAddress: string, sponsorAddress: string) {
+  const hdNode = verifyAirnodeXpub(airnodeXpub, airnodeAddress);
   const derivationPath = deriveWalletPathFromSponsorAddress(sponsorAddress);
-  const designatedWalletNode = hdNode.derivePath(derivationPath);
-  return designatedWalletNode.address;
+  return hdNode.derivePath(derivationPath).address;
 }
 
 export async function sponsorRequester(airnodeRrp: AirnodeRrp, requesterAddress: string) {
@@ -109,32 +115,6 @@ export async function checkWithdrawalRequest(airnodeRrp: AirnodeRrp, requestId: 
 
   // cast ethers BigNumber for portability
   return { ...logParams, amount: amount.toString() };
-}
-
-const isEthersWallet = (signer: any): signer is ethers.Wallet => !!signer.mnemonic;
-
-export async function setAirnodeXpub(airnodeRrp: AirnodeRrp) {
-  const wallet = airnodeRrp.signer;
-
-  if (!isEthersWallet(wallet)) {
-    throw new Error('Expected AirnodeRrp contract signer must be an ethers.Wallet instance');
-  }
-
-  const hdNode = ethers.utils.HDNode.fromMnemonic(wallet.mnemonic.phrase);
-  const xpub = hdNode.neuter().extendedKey;
-
-  const tx = await airnodeRrp.setAirnodeXpub(xpub);
-
-  return new Promise<string>((resolve) =>
-    airnodeRrp.provider.once(tx.hash, ({ logs }) => {
-      const parsedLog = airnodeRrp.interface.parseLog(logs[0]);
-      resolve(parsedLog.args.xpub);
-    })
-  );
-}
-
-export async function getAirnodeXpub(airnodeRrp: AirnodeRrp, airnodeAddress: string) {
-  return airnodeRrp.airnodeToXpub(airnodeAddress);
 }
 
 export async function deriveEndpointId(oisTitle: string, endpointName: string) {

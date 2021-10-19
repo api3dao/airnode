@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as util from 'util';
 import * as child from 'child_process';
 import * as path from 'path';
-import ora from 'ora';
+import { Ora } from 'ora';
 import { removeDeployment, stateExists } from './aws';
 import * as logger from '../utils/logger';
 
@@ -20,12 +20,12 @@ export type DeployAirnodeOutput = {
 const exec = util.promisify(child.exec);
 // TODO:
 // Pass handler as argument
-const handlerFile = path.resolve(`${__dirname}/../../.webpack/handlers/aws/index.js`);
+const handlerDir = path.resolve(`${__dirname}/../../.webpack`);
 const terraformDir = path.resolve(`${__dirname}/../../terraform`);
 const terraformStateDir = `${terraformDir}/state`;
 const terraformAirnodeDir = `${terraformDir}/airnode`;
 
-let spinner: ora.Ora;
+let spinner: Ora;
 
 async function runCommand(command: string, options: child.ExecOptions) {
   const stringifiedOptions = JSON.stringify(options);
@@ -103,7 +103,7 @@ async function deploy(
     configPath
   )}" -var="secrets_file=${path.resolve(
     secretsPath
-  )}" -var="handler_file=${handlerFile}" ${httpGatewayApiKeyVar} -auto-approve -input=false -no-color`;
+  )}" -var="handler_dir=${handlerDir}" ${httpGatewayApiKeyVar} -auto-approve -input=false -no-color`;
   await runCommand(command, options);
 
   command = 'terraform output -json -no-color';
@@ -138,7 +138,7 @@ async function remove(airnodeAddressShort: string, stage: string, region: string
   const options = { cwd: airnodeTmpDir };
   await runCommand(command, options);
 
-  command = `terraform destroy -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -var="handler_file=${handlerFile}" -auto-approve -input=false -no-color`;
+  command = `terraform destroy -var="aws_region=${region}" -var="airnode_address_short=${airnodeAddressShort}" -var="stage=${stage}" -var="configuration_file=X" -var="secrets_file=X" -var="handler_dir=${handlerDir}" -auto-approve -input=false -no-color`;
   await runCommand(command, options);
 
   // Remove state

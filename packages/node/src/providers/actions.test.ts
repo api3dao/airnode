@@ -23,9 +23,8 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
   spawn: spawnAwsMock,
 }));
 
-jest.mock('fs');
-
 import fs from 'fs';
+import * as validator from '@api3/validator';
 import { ethers } from 'ethers';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';
@@ -66,6 +65,7 @@ describe('initialize', () => {
   it('sets the initial state for each provider', async () => {
     const config = fixtures.buildConfig({ chains });
     jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(config));
+    jest.spyOn(validator, 'validateJsonWithTemplate').mockReturnValue({ valid: true, messages: [] });
     const getBlockNumber = jest.spyOn(ethers.providers.JsonRpcProvider.prototype, 'getBlockNumber');
     getBlockNumber.mockResolvedValueOnce(123456);
     getBlockNumber.mockResolvedValueOnce(987654);
@@ -97,7 +97,7 @@ describe('initialize', () => {
             region: 'us-east-1',
             stage: 'test',
             url: 'https://eth-mainnet.gateway.pokt.network/v1/lb/<app_id>',
-            xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+            xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',
           },
           coordinatorId: 'abcdefg',
           currentBlock: 123456,
@@ -131,7 +131,7 @@ describe('initialize', () => {
             region: 'us-east-1',
             stage: 'test',
             url: 'https://ropsten.infura.io/v3/<key>',
-            xpub: 'xpub661MyMwAqRbcGeCE1g3KTUVGZsFDE3jMNinRPGCQGQsAp1nwinB9Pi16ihKPJw7qtaaTFuBHbRPeSc6w3AcMjxiHkAPfyp1hqQRbthv4Ryx',
+            xpub: 'xpub6C8tvRgYkjNVaGMtpyZf4deBcUQHf7vgWUraVxY6gYiZhBYbPkFkLLWJzUUeVFdkKpVtatmXHX8kB76xgfmTpVZWbVWdq1rneaAY6a8RtbY',
           },
           coordinatorId: 'abcdefg',
           currentBlock: 987654,
@@ -171,7 +171,11 @@ describe('processRequests', () => {
     });
 
     const sponsorAddress = '0x641eeb15B15d8E2CFB5f9d6480B175d93c14e6B6';
-    const apiCall = fixtures.requests.buildApiCall({ responseValue: '0x123', sponsorAddress });
+    const apiCall = fixtures.requests.buildApiCall({
+      id: '0x67caaa2862cf971502d5c5b3d94d09d15c770f3313e76aa95c296b6587e7e5f1',
+      responseValue: '0x448b8ad3a330cf8f269f487881b59efff721b3dfa8e61f7c8fd2480389459ed3',
+      sponsorAddress,
+    });
     const requests: GroupedRequests = { apiCalls: [apiCall], withdrawals: [] };
 
     const transactionCountsBySponsorAddress = { [sponsorAddress]: 5 };

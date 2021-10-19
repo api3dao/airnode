@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   devtool: 'source-map',
@@ -16,4 +17,13 @@ module.exports = {
     mainFields: ['main'],
   },
   target: 'node',
+  plugins: [
+    // https://github.com/api3dao/airnode/pull/623#discussion_r729083235
+    new CopyPlugin({
+      patterns: [
+        { from: '../validator/dist/templates', to: 'templates' },
+        { from: '../validator/dist/conversions', to: 'conversions' },
+      ],
+    }),
+  ],
 };

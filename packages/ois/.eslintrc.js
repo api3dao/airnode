@@ -1,6 +1,3 @@
 module.exports = {
-  extends: [
-    '../../.eslintrc.fp.js',
-    '../../.eslintrc.js',
-  ],
+  extends: ['../../.eslintrc.fp.js', '../../.eslintrc.js'],
 };

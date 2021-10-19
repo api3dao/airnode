@@ -1,3 +1,4 @@
+import { RequestedWithdrawalEvent } from '@api3/protocol';
 import * as withdrawals from './withdrawals';
 import { parseAirnodeRrpLog } from './event-logs';
 import * as fixtures from '../../../test/fixtures';
@@ -9,6 +10,7 @@ describe('initialize (Withdrawal)', () => {
     const parsedLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(event);
     const parseLogWithMetadata = {
       parsedLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -17,15 +19,16 @@ describe('initialize (Withdrawal)', () => {
     const res = withdrawals.initialize(parseLogWithMetadata);
     expect(res).toEqual({
       airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-      sponsorWalletAddress: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
-      id: '0xed9362918d8f2df5d4fbae9a684d0045914b90ff61f4d9ce1bad8fcce2f5e720',
+      sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
+      id: '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
       metadata: {
+        address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         blockNumber: 10716082,
         currentBlock: 10716085,
         ignoreBlockedRequestsAfterBlocks: 20,
         transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
       },
-      sponsorAddress: '0x3409cf0Ef3E984018819fD370A338F0BDc182239',
+      sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
       status: RequestStatus.Pending,
     });
   });
@@ -48,6 +51,7 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
         sponsorWalletAddress: 'sponsorWalletAddress',
         id,
         metadata: {
+          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716090,
           ignoreBlockedRequestsAfterBlocks: 20,
@@ -70,9 +74,10 @@ describe('updateFulfilledRequests (Withdrawal)', () => {
 describe('mapRequests (Withdrawal)', () => {
   it('initializes and returns withdrawal requests', () => {
     const event = fixtures.evm.logs.buildRequestedWithdrawal();
-    const parsedLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(event);
+    const parsedLog = parseAirnodeRrpLog<RequestedWithdrawalEvent>(event);
     const parsedLogWithMetadata = {
       parsedLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -83,15 +88,16 @@ describe('mapRequests (Withdrawal)', () => {
     expect(res).toEqual([
       {
         airnodeAddress: '0xA30CA71Ba54E83127214D3271aEA8F5D6bD4Dace',
-        sponsorWalletAddress: '0x295e2190B3574Ea6ab17b32AbaF77BAdF2aA57C4',
-        id: '0xed9362918d8f2df5d4fbae9a684d0045914b90ff61f4d9ce1bad8fcce2f5e720',
+        sponsorWalletAddress: '0xB3806eb17832fc796247037EFe6d6079909b2192',
+        id: '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
         metadata: {
+          address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
           blockNumber: 10716082,
           currentBlock: 10716085,
           ignoreBlockedRequestsAfterBlocks: 20,
           transactionHash: '0x61c972d98485da38115a5730b6741ffc4f3e09ae5e1df39a7ff18a68777ab318',
         },
-        sponsorAddress: '0x3409cf0Ef3E984018819fD370A338F0BDc182239',
+        sponsorAddress: '0x2479808b1216E998309A727df8A0A98A1130A162',
         status: RequestStatus.Pending,
       },
     ]);
@@ -100,11 +106,12 @@ describe('mapRequests (Withdrawal)', () => {
   it('updates the status of fulfilled withdrawal requests', () => {
     const requestEvent = fixtures.evm.logs.buildRequestedWithdrawal();
     const fulfillEvent = fixtures.evm.logs.buildFulfilledWithdrawal();
-    const requestLog = parseAirnodeRrpLog<'RequestedWithdrawal'>(requestEvent);
-    const fulfillLog = parseAirnodeRrpLog<'FulfilledWithdrawal'>(fulfillEvent);
+    const requestLog = parseAirnodeRrpLog<RequestedWithdrawalEvent>(requestEvent);
+    const fulfillLog = parseAirnodeRrpLog<RequestedWithdrawalEvent>(fulfillEvent);
 
     const requestLogWithMetadata = {
       parsedLog: requestLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716082,
       currentBlock: 10716085,
       ignoreBlockedRequestsAfterBlocks: 20,
@@ -112,6 +119,7 @@ describe('mapRequests (Withdrawal)', () => {
     };
     const fulfillLogWithMetadata = {
       parsedLog: fulfillLog,
+      address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       blockNumber: 10716084,
       currentBlock: 10716087,
       ignoreBlockedRequestsAfterBlocks: 20,

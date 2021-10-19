@@ -25,7 +25,7 @@ export async function makeTemplateRequest(state: State, request: TemplateRequest
       sponsorAddress,
       sponsorWalletAddress,
       requester.address,
-      requester.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
+      requester.interface.getSighash(`${request.fulfillFunctionName}`),
       encodedParameters
     );
   await tx.wait();
@@ -54,7 +54,7 @@ export async function makeFullRequest(state: State, request: FullRequest) {
       sponsorAddress,
       sponsorWalletAddress,
       requester.address,
-      requester.interface.getSighash(`${request.fulfillFunctionName}(bytes32,uint256,bytes)`),
+      requester.interface.getSighash(`${request.fulfillFunctionName}`),
       encodedParameters
     );
   await tx.wait();
