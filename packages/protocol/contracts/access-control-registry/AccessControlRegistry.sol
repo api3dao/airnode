@@ -14,7 +14,7 @@ import "./interfaces/IAccessControlRegistry.sol";
 //
 // The root node of the tree of a manager (i.e., that manager's highest ranking
 // role) is derived using `managerToRootRole(manager)`. Only the manager is
-// allowed to admin it.
+// allowed to admin it (and its admin role is DEFAULT_ADMIN_ROLE, which has no members).
 //
 // Initializing a role means appending a node to one of the nodes of the tree.
 // A member of a role can initialize a role whose admin role is the role that they have
