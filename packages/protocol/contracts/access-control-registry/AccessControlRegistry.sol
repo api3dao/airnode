@@ -138,4 +138,41 @@ contract AccessControlRegistry is
     {
         roleCount = managerToRoles[manager].length;
     }
+
+    function getManagerRoles(address manager, uint256 offset, uint256 limit)
+        external
+        view
+        override
+        returns (bytes32[] memory roles)
+    {
+        bytes32[] storage rolesInStorage = managerToRoles[manager];
+        uint256 maximumIterationEnding = rolesInStorage.length;
+        if (offset > maximumIterationEnding) {
+          return new bytes32[](0);
+        }
+        uint256 requestedIterationEnding = offset + limit;
+        uint256 iterationEnding = requestedIterationEnding > maximumIterationEnding ? maximumIterationEnding : requestedIterationEnding;
+        roles = new bytes32[](iterationEnding - offset);
+        for (uint256 ind = offset; ind < iterationEnding; ind++) {
+          roles[ind - offset] = rolesInStorage[ind];
+        }
+    }
+
+    function getRoleMembers(bytes32 role, uint256 offset, uint256 limit)
+        external
+        view
+        override
+        returns (address[] memory members)
+    {
+        uint256 maximumIterationEnding = getRoleMemberCount(role);
+        if (offset > maximumIterationEnding) {
+          return new address[](0);
+        }
+        uint256 requestedIterationEnding = offset + limit;
+        uint256 iterationEnding = requestedIterationEnding > maximumIterationEnding ? maximumIterationEnding : requestedIterationEnding;
+        members = new address[](iterationEnding - offset);
+        for (uint256 ind = offset; ind < iterationEnding; ind++) {
+          members[ind - offset] = getRoleMember(role, ind);
+        }
+    }
 }

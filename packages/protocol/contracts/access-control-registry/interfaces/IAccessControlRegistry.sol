@@ -41,4 +41,14 @@ interface IAccessControlRegistry is IAccessControlEnumerable {
         external
         view
         returns (uint256 roleCount);
+
+    function getManagerRoles(address manager, uint256 offset, uint256 limit)
+        external
+        view
+        returns (bytes32[] memory roles);
+    
+    function getRoleMembers(bytes32 role, uint256 offset, uint256 limit)
+        external
+        view
+        returns (address[] memory members);
 }
