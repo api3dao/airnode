@@ -7,10 +7,6 @@
     },
     {
       "level": "error",
-      "message": "Security scheme sec2 from ois.[2].apiSpecifications.components.securitySchemes.sec2 must be present in apiCredentials"
-    },
-    {
-      "level": "error",
       "message": "OIS \"ois2\" must contain endpoint \"'endpt2\", as it is specified in triggers.rrp.[2].oisTitle"
     },
     {

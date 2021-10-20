@@ -4,30 +4,7 @@
       "__template": "ois.json",
       "apiSpecifications": {
         "components": {
-          "securitySchemes": {
-            "__conditions": [
-              {
-                "__if": {
-                  "__this_name": ".*"
-                },
-                "__rootThen": {
-                  "apiCredentials": {
-                    "__any": {
-                      "oisTitle": {
-                        "__regexp": "^[['/', '{{0}}', '{{1}}', 'title']]$"
-                      },
-                      "securitySchemeName": {
-                        "__regexp": "^__match$"
-                      }
-                    }
-                  }
-                },
-                "__catch": {
-                  "__message": "Security scheme __match from __fullPath must be present in apiCredentials"
-                }
-              }
-            ]
-          }
+          "securitySchemes": {}
         }
       }
     }
