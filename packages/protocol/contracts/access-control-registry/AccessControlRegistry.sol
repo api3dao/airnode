@@ -30,8 +30,6 @@ contract AccessControlRegistry is
     mapping(bytes32 => address) public override roleToManager;
     // To keep track of all roles that belong to a manager (excluding the root role)
     mapping(address => bytes32[]) public override managerToRoles;
-    // A nonce to generate hashes
-    uint256 private roleCountPlusOne = 1;
     // Roles of a specific manager have to be described with different strings
     // because role IDs are derived from these
     mapping(bytes32 => string) public override roleToDescription;
