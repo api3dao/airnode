@@ -51,4 +51,10 @@ interface IAccessControlRegistry is IAccessControlEnumerable {
         external
         view
         returns (address[] memory members);
+    
+
+    function getDescriptions(bytes32[] calldata roles)
+        external
+        view
+        returns (string[] memory descriptions);
 }

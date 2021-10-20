@@ -32,7 +32,8 @@ contract AccessControlRegistry is
     mapping(address => bytes32[]) public override managerToRoles;
     // A nonce to generate hashes
     uint256 private roleCountPlusOne = 1;
-    // Would be nice if people used this
+    // Roles of a specific manager have to be described with different strings
+    // because role IDs are derived from these
     mapping(bytes32 => string) public override roleToDescription;
 
     // Prevents the manager from being targeted as `account` for its roles
@@ -95,13 +96,12 @@ contract AccessControlRegistry is
     ) public override onlyRole(adminRole) returns (bytes32 role) {
         require(
             adminRole == managerToRootRole(manager) || // Admin role should be the root role...
-                roleToManager[adminRole] == manager, // or a non-root role
-            "adminRole does not belong to manager"
+                roleToManager[adminRole] == manager, // or a non-root role of the manager
+            "manager-adminRole mismatch"
         );
 
-        // We don't let the user choose their own `role` because they can choose any
-        // `managerToRootRole(manager)` as the role that they want to admin
-        role = keccak256(abi.encodePacked(address(this), roleCountPlusOne++));
+        role = keccak256(abi.encodePacked(manager, description));
+        require(getRoleAdmin(role) == DEFAULT_ADMIN_ROLE, "Role already initialized");
         roleToManager[role] = manager;
         roleToDescription[role] = description;
         managerToRoles[manager].push(role);
@@ -173,6 +173,18 @@ contract AccessControlRegistry is
         members = new address[](iterationEnding - offset);
         for (uint256 ind = offset; ind < iterationEnding; ind++) {
           members[ind - offset] = getRoleMember(role, ind);
+        }
+    }
+
+    function getDescriptions(bytes32[] calldata roles)
+        external
+        view
+        override
+        returns (string[] memory descriptions)
+    {
+        descriptions = new string[](roles.length);
+        for(uint256 ind = 0; ind < roles.length; ind++) {
+          descriptions[ind] = roleToDescription[roles[ind]];
         }
     }
 }
