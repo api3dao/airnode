@@ -134,6 +134,6 @@ contract AccessControlRegistry is
         override
         returns (bytes32 rootRole)
     {
-        rootRole = bytes32(abi.encodePacked(manager));
+        rootRole = bytes32(abi.encode(manager));
     }
 }
