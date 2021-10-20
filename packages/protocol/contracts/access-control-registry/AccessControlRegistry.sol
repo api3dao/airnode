@@ -44,23 +44,29 @@ contract AccessControlRegistry is
         _;
     }
 
-    // Override function to give manager all roles under them
-    function hasRole(bytes32 role, address account)
-        public
+    function initializeAndGrantRole(
+        address manager,
+        bytes32 adminRole,
+        string calldata description,
+        address account
+    ) external override returns (bytes32 role) {
+        require(account != address(0), "Account address zero");
+        role = initializeRole(manager, adminRole, description);
+        grantRole(role, account);
+    }
+
+    function managerToRoleCount(address manager)
+        external
         view
         override
-        returns (bool)
+        returns (uint256 roleCount)
     {
-        return
-            AccessControl.hasRole(role, account) || // The account actually has the role
-            role == managerToRootRole(_msgSender()) || // Caller is the manager and `role` is its root role
-            roleToManager[role] == _msgSender(); // Caller is the manager and `role` is one of its non-root roles
+        roleCount = managerToRoles[manager].length;
     }
 
     // Override function to disallow roles under it being granted to the manager
     function grantRole(bytes32 role, address account)
         public
-        virtual
         override(AccessControlEnumerable, IAccessControl)
         onlyNonManagerAccount(role, account)
     {
@@ -70,7 +76,6 @@ contract AccessControlRegistry is
     // Override function to disallow roles under it being revoked from the manager
     function revokeRole(bytes32 role, address account)
         public
-        virtual
         override(AccessControlEnumerable, IAccessControl)
         onlyNonManagerAccount(role, account)
     {
@@ -80,7 +85,6 @@ contract AccessControlRegistry is
     // Override function to disallow roles under it being renounced by the manager
     function renounceRole(bytes32 role, address account)
         public
-        virtual
         override(AccessControlEnumerable, IAccessControl)
         onlyNonManagerAccount(role, account)
     {
@@ -110,15 +114,17 @@ contract AccessControlRegistry is
         _setRoleAdmin(role, adminRole);
     }
 
-    function initializeAndGrantRole(
-        address manager,
-        bytes32 adminRole,
-        string calldata description,
-        address account
-    ) external override returns (bytes32 role) {
-        require(account != address(0), "Account address zero");
-        role = initializeRole(manager, adminRole, description);
-        grantRole(role, account);
+    // Override function to give manager all roles under them
+    function hasRole(bytes32 role, address account)
+        public
+        view
+        override
+        returns (bool)
+    {
+        return
+            AccessControl.hasRole(role, account) || // The account actually has the role
+            role == managerToRootRole(_msgSender()) || // Caller is the manager and `role` is its root role
+            roleToManager[role] == _msgSender(); // Caller is the manager and `role` is one of its non-root roles
     }
 
     // Prefer zero-padding over hashing for human-readability
@@ -129,14 +135,5 @@ contract AccessControlRegistry is
         returns (bytes32 rootRole)
     {
         rootRole = bytes32(abi.encodePacked(manager));
-    }
-
-    function managerToRoleCount(address manager)
-        external
-        view
-        override
-        returns (uint256 roleCount)
-    {
-        roleCount = managerToRoles[manager].length;
     }
 }
