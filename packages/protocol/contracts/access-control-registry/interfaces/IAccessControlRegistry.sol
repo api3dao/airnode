@@ -26,7 +26,7 @@ interface IAccessControlRegistry is IAccessControlEnumerable {
         external
         view
         returns (address manager);
-    
+
     function managerToRoles(address manager, uint256 index)
         external
         view
@@ -36,22 +36,23 @@ interface IAccessControlRegistry is IAccessControlEnumerable {
         external
         view
         returns (string memory description);
-    
+
     function managerToRoleCount(address manager)
         external
         view
         returns (uint256 roleCount);
 
-    function getManagerRoles(address manager, uint256 offset, uint256 limit)
-        external
-        view
-        returns (bytes32[] memory roles);
-    
-    function getRoleMembers(bytes32 role, uint256 offset, uint256 limit)
-        external
-        view
-        returns (address[] memory members);
-    
+    function getManagerRoles(
+        address manager,
+        uint256 offset,
+        uint256 limit
+    ) external view returns (bytes32[] memory roles);
+
+    function getRoleMembers(
+        bytes32 role,
+        uint256 offset,
+        uint256 limit
+    ) external view returns (address[] memory members);
 
     function getDescriptions(bytes32[] calldata roles)
         external
