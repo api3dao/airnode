@@ -5,27 +5,27 @@ import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
 
 interface IAccessControlRegistry is IAccessControlEnumerable {
     function initializeRole(
-        address treeOwner,
+        address manager,
         bytes32 adminRole,
         string calldata description
     ) external returns (bytes32 role);
 
     function initializeAndGrantRole(
-        address treeOwner,
+        address manager,
         bytes32 adminRole,
         string calldata description,
         address account
     ) external returns (bytes32 role);
 
-    function treeOwnerToRootRole(address treeOwner)
+    function managerToRootRole(address manager)
         external
         pure
         returns (bytes32 rootRole);
 
-    function roleToTreeOwner(bytes32 role)
+    function roleToManager(bytes32 role)
         external
         view
-        returns (address treeOwner);
+        returns (address manager);
 
     function roleToDescription(bytes32 role)
         external

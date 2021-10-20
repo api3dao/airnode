@@ -4,47 +4,46 @@ pragma solidity 0.8.6;
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./interfaces/IAccessControlRegistry.sol";
 
-// This is a registry for multiple users to manage their own access control
-// tables independently. These users are named "tree owners" and are
-// identified by their addresses. (I didn't use "owner" to avoid confusion
-// with Ownable.sol)
+// This is a registry for multiple users to manage independent access control tables.
+// These users are called managers and are identified by their addresses.
 //
 // The access control tables implemented by this contract are tree-shaped,
 // meaning that they consist of a root node and non-cyclical nodes branching
-// down. Each node in this tree is a role from AccessControl.sol, and lower
-// level nodes are the admins of the higher level nodes (where the root is level 0).
+// down. Each node in this tree is a role from AccessControl.sol. Each node
+// is the admin of the node with one level higher (where the root is level 0).
 //
-// The root node of the tree of a owner (i.e., that tree owner's highest ranking
-// role) is derived using `treeOwnerToRootRole(address treeOwner)`. Only the
-// tree owner is allowed to admin it.
+// The root node of the tree of a manager (i.e., that manager's highest ranking
+// role) is derived using `managerToRootRole(manager)`. Only the manager is
+// allowed to admin it.
 //
-// Initializing a role means appending a node to one of the nodes of the tree
-// A member of a role can initialize a role whose admin role is the role that they have.
+// Initializing a role means appending a node to one of the nodes of the tree.
+// A member of a role can initialize a role whose admin role is the role that they have
+// (i.e., they can append a new node under the node that they belong to).
 //
-// Tree owners have all of the roles in their tree. This means they can grant or revoke
+// Managers have all of the roles in their tree. This means they can grant or revoke
 // all roles, and initialize roles under any role in their tree.
 contract AccessControlRegistry is
     AccessControlEnumerable,
     IAccessControlRegistry
 {
-    // To keep track of which role belongs to which tree owner
-    mapping(bytes32 => address) public override roleToTreeOwner;
+    // To keep track of which role belongs to which manager
+    mapping(bytes32 => address) public override roleToManager;
     // A nonce to generate hashes
     uint256 private roleCountPlusOne = 1;
     // Would be nice if people used this
     mapping(bytes32 => string) public override roleToDescription;
 
-    // Prevents the tree owner from being targeted as `account` for its roles
-    modifier onlyNonTreeOwnerAccount(bytes32 role, address account) {
+    // Prevents the manager from being targeted as `account` for its roles
+    modifier onlyNonManagerAccount(bytes32 role, address account) {
         require(
-            role != treeOwnerToRootRole(account) && // Is this a root role of the tree
-                roleToTreeOwner[role] != account, // Is this a non-root role of the tree
-            "Account is tree owner"
+            role != managerToRootRole(account) && // This shouldn't be the root role of the tree
+                roleToManager[role] != account, // This shouldn't be a non-root role of the tree
+            "Account is manager"
         );
         _;
     }
 
-    // Override function to give tree owners all roles under them
+    // Override function to give manager all roles under them
     function hasRole(bytes32 role, address account)
         public
         view
@@ -53,78 +52,78 @@ contract AccessControlRegistry is
     {
         return
             AccessControl.hasRole(role, account) || // The account actually has the role
-            role == treeOwnerToRootRole(_msgSender()) || // Caller is the tree owner and `role` is its root role
-            roleToTreeOwner[role] == _msgSender(); // Caller is the tree owner and `role` is one of its non-root roles
+            role == managerToRootRole(_msgSender()) || // Caller is the manager and `role` is its root role
+            roleToManager[role] == _msgSender(); // Caller is the manager and `role` is one of its non-root roles
     }
 
-    // Override function to disallow roles under it being granted to the tree owner
+    // Override function to disallow roles under it being granted to the manager
     function grantRole(bytes32 role, address account)
         public
         virtual
         override(AccessControlEnumerable, IAccessControl)
-        onlyNonTreeOwnerAccount(role, account)
+        onlyNonManagerAccount(role, account)
     {
         AccessControlEnumerable.grantRole(role, account);
     }
 
-    // Override function to disallow roles under it being revoked from the tree owner
+    // Override function to disallow roles under it being revoked from the manager
     function revokeRole(bytes32 role, address account)
         public
         virtual
         override(AccessControlEnumerable, IAccessControl)
-        onlyNonTreeOwnerAccount(role, account)
+        onlyNonManagerAccount(role, account)
     {
         AccessControlEnumerable.revokeRole(role, account);
     }
 
-    // Override function to disallow roles under it being renounced by the tree owner
+    // Override function to disallow roles under it being renounced by the manager
     function renounceRole(bytes32 role, address account)
         public
         virtual
         override(AccessControlEnumerable, IAccessControl)
-        onlyNonTreeOwnerAccount(role, account)
+        onlyNonManagerAccount(role, account)
     {
         AccessControlEnumerable.renounceRole(role, account);
     }
 
     function initializeRole(
-        address treeOwner,
+        address manager,
         bytes32 adminRole,
         string calldata description
     ) public override onlyRole(adminRole) returns (bytes32 role) {
         require(
-            adminRole == treeOwnerToRootRole(treeOwner) || // Admin role is the root role
-                roleToTreeOwner[adminRole] == treeOwner, // or a non-root role
-            "adminRole does not belong to treeOwner"
+            adminRole == managerToRootRole(manager) || // Admin role should be the root role...
+                roleToManager[adminRole] == manager, // or a non-root role
+            "adminRole does not belong to manager"
         );
 
         // We don't let the user choose their own `role` because they can choose any
-        // `treeOwnerToRootRole(treeOwner)` as the role that they want to admin
+        // `managerToRootRole(manager)` as the role that they want to admin
         role = keccak256(abi.encodePacked(address(this), roleCountPlusOne++));
-        roleToTreeOwner[role] = treeOwner;
+        roleToManager[role] = manager;
         roleToDescription[role] = description;
 
         _setRoleAdmin(role, adminRole);
     }
 
     function initializeAndGrantRole(
-        address treeOwner,
+        address manager,
         bytes32 adminRole,
         string calldata description,
         address account
     ) external override returns (bytes32 role) {
         require(account != address(0), "Account address zero");
-        role = initializeRole(treeOwner, adminRole, description);
+        role = initializeRole(manager, adminRole, description);
         grantRole(role, account);
     }
 
     // Prefer zero-padding over hashing for human-readability
-    function treeOwnerToRootRole(address treeOwner)
+    function managerToRootRole(address manager)
         public
         pure
         override
         returns (bytes32 rootRole)
     {
-        rootRole = bytes32(abi.encodePacked(treeOwner));
+        rootRole = bytes32(abi.encodePacked(manager));
     }
 }

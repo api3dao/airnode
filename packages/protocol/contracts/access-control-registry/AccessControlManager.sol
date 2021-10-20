@@ -3,13 +3,13 @@ pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IAccessControlRegistry.sol";
-import "./interfaces/ITreeOwner.sol";
+import "./interfaces/IAccessControlManager.sol";
 
 // This is for when you want to use AccessControlRegistry, but want the ownership
-// of the tree to be transferrable. For example, an Airnode would rather use it
-// where the tree owner is immutably itself, while a DAO would rather use it
-// with a TreeOwner proxy that it can transfer to any other address later on.
-contract TreeOwner is Ownable, ITreeOwner {
+// of the manager to be transferrable. For example, an Airnode would rather use it
+// where the manager is immutably itself, while a DAO would rather use it
+// with a AccessControlManager proxy that it can transfer to any other address later on.
+contract AccessControlManager is Ownable, IAccessControlManager {
     IAccessControlRegistry public immutable accessControlRegistry;
 
     constructor(address accessControlRegistry_) {
