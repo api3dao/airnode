@@ -1,7 +1,7 @@
 # Deployer docker image
 
 **This README is intended for the developers. Documentation on how to use the deployer image is in the
-[docs](https://docs.api3.org/airnode/next/grp-providers/docker/deployer-image.html).**
+[docs](https://docs.api3.org/airnode/v1.0/grp-providers/docker/deployer-image.html).**
 
 This documentation focuses on the Deployer docker image, not the Deployer itself. If you want to learn more about the
 Deployer, please read [its documentation](../README.md).
@@ -19,4 +19,4 @@ docker build -f packages/deployer/docker/Dockerfile -t api3/airnode-deployer:lat
 > If building on windows ensure that the `entrypoint.sh` file uses `LF` line endings. Otherwise the image will not be
 > built correctly.
 
-The usage is documented in the [docs](https://docs.api3.org/airnode/next/grp-providers/docker/deployer-image.html).
+The usage is documented in the [docs](https://docs.api3.org/airnode/v1.0/grp-providers/docker/deployer-image.html).
