@@ -28,6 +28,8 @@ contract AccessControlRegistry is
 {
     // To keep track of which role belongs to which manager
     mapping(bytes32 => address) public override roleToManager;
+    // To keep track of all roles that belong to a manager (excluding the root role)
+    mapping(address => bytes32[]) public override managerToRoles;
     // A nonce to generate hashes
     uint256 private roleCountPlusOne = 1;
     // Would be nice if people used this
@@ -102,6 +104,7 @@ contract AccessControlRegistry is
         role = keccak256(abi.encodePacked(address(this), roleCountPlusOne++));
         roleToManager[role] = manager;
         roleToDescription[role] = description;
+        managerToRoles[manager].push(role);
 
         _setRoleAdmin(role, adminRole);
     }
@@ -125,5 +128,14 @@ contract AccessControlRegistry is
         returns (bytes32 rootRole)
     {
         rootRole = bytes32(abi.encodePacked(manager));
+    }
+
+    function managerToRoleCount(address manager)
+        external
+        view
+        override
+        returns (uint256 roleCount)
+    {
+        roleCount = managerToRoles[manager].length;
     }
 }
