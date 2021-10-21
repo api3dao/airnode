@@ -1,0 +1,233 @@
+{
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "ois1",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {},
+        "components": {
+          "securitySchemes": {}
+        },
+        "security": {}
+      },
+      "endpoints": []
+    },
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "ois2",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {
+          "/path1": {
+            "post": {
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "param"
+                }
+              ]
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {
+            "sec1": {
+              "in": "query",
+              "type": "http",
+              "scheme": "basic"
+            }
+          }
+        },
+        "security": {}
+      },
+      "endpoints": [
+        {
+          "name": "endpt1",
+          "operation": {
+            "method": "post",
+            "path": "/path1"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param",
+              "operationParameter": {
+                "in": "query",
+                "name": "param"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "ois3",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {
+          "/path1": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "param"
+                }
+              ]
+            },
+            "post": {
+              "parameters": [
+                {
+                  "in": "query",
+                  "name": "param"
+                }
+              ]
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {
+            "sec1": {
+              "in": "query",
+              "type": "http",
+              "scheme": "basic"
+            },
+            "sec2": {
+              "in": "query",
+              "type": "http",
+              "scheme": "basic"
+            }
+          }
+        },
+        "security": {}
+      },
+      "endpoints": [
+        {
+          "name": "endpt1",
+          "operation": {
+            "method": "get",
+            "path": "/path1"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param",
+              "operationParameter": {
+                "in": "query",
+                "name": "param"
+              }
+            }
+          ]
+        },
+        {
+          "name": "endpt2",
+          "operation": {
+            "method": "post",
+            "path": "/path1"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param",
+              "operationParameter": {
+                "in": "query",
+                "name": "param"
+              }
+            }
+          ]
+        },
+        {
+          "name": "endpt2",
+          "operation": {
+            "method": "post",
+            "path": "/path1"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param",
+              "operationParameter": {
+                "in": "path",
+                "name": "param2"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "triggers": {
+    "rrp": [
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "ois2",
+        "endpointName": "endpt1"
+      },
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "ois3",
+        "endpointName": "endpt1"
+      },
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "ois2",
+        "endpointName": "endpt2"
+      }
+    ]
+  },
+  "chains": [
+    {
+      "id": "1",
+      "type": "evm",
+      "providers": {
+        "provider": {
+          "url": "https://api.provider.com"
+        }
+      },
+      "contracts": {
+        "AirnodeRrp": "0xF6d2675468989387e96127546e0CBC9A384fa418"
+      },
+      "authorizers": ["0x0000000000000000000000000000000000000000"]
+    }
+  ],
+  "nodeSettings": {
+    "nodeVersion": "1.0.0",
+    "cloudProvider": "aws",
+    "region": "us-east-1",
+    "stage": "testnet",
+    "logFormat": "json",
+    "logLevel": "INFO",
+    "airnodeWalletMnemonic": "mnemonic",
+    "heartbeat": {
+      "enabled": false
+    },
+    "httpGateway": {
+      "enabled": false
+    }
+  },
+  "apiCredentials": [
+    {
+      "oisTitle": "ois2",
+      "securitySchemeName": "sec1",
+      "securitySchemeValue": "test"
+    },
+    {
+      "oisTitle": "ois3",
+      "securitySchemeName": "sec1",
+      "securitySchemeValue": "test"
+    },
+    {
+      "oisTitle": "ois2",
+      "securitySchemeName": "sec2",
+      "securitySchemeValue": "test"
+    }
+  ]
+}

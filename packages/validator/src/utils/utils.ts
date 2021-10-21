@@ -258,7 +258,12 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
     }
 
     if (spec.length <= index) {
-      spec.push({});
+      if (paramPath[1] === '' || !paramPath[1]) {
+        spec.push(JSON.parse(JSON.stringify(value)));
+        return;
+      } else {
+        spec.push({});
+      }
     }
 
     spec = spec[index];

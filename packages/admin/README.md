@@ -7,7 +7,7 @@
 ## User documentation
 
 You can find documentation on how to use the admin CLI package in the
-[admin CLI docs](https://docs.api3.org/airnode/next/reference/admin-cli-commands.html).
+[admin CLI docs](https://docs.api3.org/airnode/v1.0/reference/admin-cli-commands.html).
 
 ## For developers
 
