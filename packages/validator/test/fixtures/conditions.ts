@@ -480,7 +480,7 @@ export const typesInvalidSpecs =
   // >> conditions-types-invalid-specs
     [
       {
-        "number": 10,
+        "number": 10
       },
       {
         "bool": true
@@ -499,11 +499,11 @@ export const typesInvalidOut =
       "messages": [
         {
           "level": "error",
-          "message": "Condition in [0].number is not met with number",
+          "message": "Condition in [0].number is not met with number"
         },
         {
           "level": "error",
-          "message": "Condition in [2].boolean is not met with boolean",
+          "message": "Condition in [2].boolean is not met with boolean"
         }
       ]
     }
