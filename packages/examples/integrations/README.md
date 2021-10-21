@@ -8,9 +8,9 @@ Each integration consist of a these files:
 
 - `README.md` - Should explain what the particular integration is about
 - `config.json` - See the
-  [docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for details
+  [docs](https://docs.api3.org/airnode/v1.0/grp-providers/guides/build-an-airnode/configuring-airnode.html) for details
 - `create-secrets.ts` - A file that will be called by `create-airnode-secrets.ts` to create the `secrets.env` file. See
-  the [docs](https://docs.api3.org/airnode/next/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
+  the [docs](https://docs.api3.org/airnode/v1.0/grp-providers/guides/build-an-airnode/configuring-airnode.html) for
   details
 - `secrets.example.env` - An example file listing the necessary secrets of `secrets.env` file. This is useful for people
   looking at the integration on github or advanced users who want to create secrets themselves.
