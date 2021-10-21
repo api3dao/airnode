@@ -46,6 +46,7 @@ contract AccessControlRegistry is
         _setupRole(rootRole, manager);
         roleToManager[rootRole] = manager;
         managerToRoles[manager].push(rootRole);
+        emit InitializedManager(manager, rootRole);
     }
 
     // Override function to disallow manager from renouncing its root role
@@ -55,7 +56,10 @@ contract AccessControlRegistry is
     {
         // This will revert if account is the manager and its trying to
         // renounce its root role
-        require(role != deriveRootRole(account), "role is root role");
+        require(
+            role != deriveRootRole(account),
+            "role is root role of account"
+        );
         AccessControlEnumerable.renounceRole(role, account);
     }
 
@@ -78,6 +82,7 @@ contract AccessControlRegistry is
         managerToRoles[manager].push(role);
 
         _setRoleAdmin(role, adminRole);
+        emit InitializedRole(role, adminRole, description, _msgSender());
     }
 
     // A convenience function because most users will initialize a role to grant it to one account
