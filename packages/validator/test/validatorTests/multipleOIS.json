@@ -9,7 +9,8 @@
         "paths": {},
         "components": {
           "securitySchemes": {}
-        }
+        },
+        "security": {}
       },
       "endpoints": []
     },
@@ -39,7 +40,8 @@
               "scheme": "basic"
             }
           }
-        }
+        },
+        "security": {}
       },
       "endpoints": [
         {
@@ -101,7 +103,8 @@
               "scheme": "basic"
             }
           }
-        }
+        },
+        "security": {}
       },
       "endpoints": [
         {

@@ -9,7 +9,8 @@
         "paths": {},
         "components": {
           "securitySchemes": {}
-        }
+        },
+        "security": {}
       },
       "endpoints": []
     }
