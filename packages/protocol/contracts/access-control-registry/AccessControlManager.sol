@@ -17,29 +17,24 @@ contract AccessControlManager is Ownable, IAccessControlManager {
         accessControlRegistry = IAccessControlRegistry(accessControlRegistry_);
     }
 
-    function initializeAndGrantRole(
-        bytes32 adminRole,
-        string calldata description,
-        address account
-    ) external override onlyOwner returns (bytes32 role) {
-        role = accessControlRegistry.initializeAndGrantRole(
-            _msgSender(),
-            adminRole,
-            description,
-            account
-        );
-    }
-
     function initializeRole(bytes32 adminRole, string calldata description)
         external
         override
         onlyOwner
         returns (bytes32 role)
     {
-        role = accessControlRegistry.initializeRole(
-            _msgSender(),
+        role = accessControlRegistry.initializeRole(adminRole, description);
+    }
+
+    function initializeAndGrantRole(
+        bytes32 adminRole,
+        string calldata description,
+        address account
+    ) external override onlyOwner returns (bytes32 role) {
+        role = accessControlRegistry.initializeAndGrantRole(
             adminRole,
-            description
+            description,
+            account
         );
     }
 
@@ -57,5 +52,13 @@ contract AccessControlManager is Ownable, IAccessControlManager {
         onlyOwner
     {
         accessControlRegistry.revokeRole(role, account);
+    }
+
+    function renounceRole(bytes32 role, address account)
+        external
+        override
+        onlyOwner
+    {
+        accessControlRegistry.renounceRole(role, account);
     }
 }

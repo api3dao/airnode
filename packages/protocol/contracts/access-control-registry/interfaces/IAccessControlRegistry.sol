@@ -4,8 +4,13 @@ pragma solidity 0.8.6;
 import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
 
 interface IAccessControlRegistry is IAccessControlEnumerable {
+    function initializeManager(address manager) external;
+
+    function initializeRole(bytes32 adminRole, string calldata description)
+        external
+        returns (bytes32 role);
+
     function initializeAndGrantRole(
-        address manager,
         bytes32 adminRole,
         string calldata description,
         address account
@@ -16,16 +21,20 @@ interface IAccessControlRegistry is IAccessControlEnumerable {
         view
         returns (uint256 roleCount);
 
-    function initializeRole(
-        address manager,
-        bytes32 adminRole,
-        string calldata description
-    ) external returns (bytes32 role);
+    function hasRoleOrIsManagerOfRole(bytes32 role, address account)
+        external
+        view
+        returns (bool);
 
-    function managerToRootRole(address manager)
+    function deriveRootRole(address manager)
         external
         pure
         returns (bytes32 rootRole);
+
+    function deriveRole(bytes32 adminRole, string calldata description)
+        external
+        pure
+        returns (bytes32 role);
 
     function roleToManager(bytes32 role)
         external
