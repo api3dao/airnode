@@ -66,7 +66,6 @@
   },
   "components": {
     "securitySchemes": {
-      "__keyRegexp": "^[^\\s'\"\\\\]+$",
       "__objectItem": {
         "type": {
           "__regexp": "^(apiKey|http)$",
@@ -154,7 +153,6 @@
     }
   },
   "security": {
-    "__keyRegexp": "^[^\\s'\"\\\\]+$",
     "__conditions": [
       {
         "__if": {
