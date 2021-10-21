@@ -418,3 +418,94 @@ export const thisInvalidOut =
     }
   // << conditions-this-invalid-out
 ;
+
+export const typesTemplate =
+  // >> conditions-types-template
+    {
+      "__arrayItem": {
+        "__objectItem": {
+          "__conditions": [
+            {
+              "__if": {
+                "__this": false
+              },
+              "__rootThen": {
+                "__any": {
+                  "bool": {
+                    "__regexp": "^true$"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "__conditions": [
+          {
+            "__if": {
+              "number": 10
+            },
+            "__then": {
+              "num": {
+                "__regexp": "^ten$"
+              }
+            }
+          }
+        ]
+      }
+    }
+  // << conditions-types-template
+;
+
+export const typesValidSpecs =
+  // >> conditions-types-valid-specs
+    [
+      {
+        "number": 10,
+        "num": "ten"
+      },
+      {
+        "number": 3
+      },
+      {
+        "boolean": false
+      },
+      {
+        "bool": "true"
+      }
+    ]
+  // << conditions-types-valid-specs
+;
+
+export const typesInvalidSpecs =
+  // >> conditions-types-invalid-specs
+    [
+      {
+        "number": 10,
+      },
+      {
+        "bool": true
+      },
+      {
+        "boolean": false
+      }
+    ]
+  // << conditions-types-invalid-specs
+;
+
+export const typesInvalidOut =
+  // >> conditions-types-invalid-out
+    {
+      "valid": false,
+      "messages": [
+        {
+          "level": "error",
+          "message": "Condition in [0].number is not met with number",
+        },
+        {
+          "level": "error",
+          "message": "Condition in [2].boolean is not met with boolean",
+        }
+      ]
+    }
+  // << conditions-types-invalid-out
+;
