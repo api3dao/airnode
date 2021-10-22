@@ -21,7 +21,7 @@
               "__any": {
                 "operation": {
                   "path": {
-                    "__regexp": "__match"
+                    "__regexp": "^__match$"
                   }
                 }
               }
