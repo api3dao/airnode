@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IAccessControlRegistry.sol";
 
 // This is a registry for multiple users to manage independent access control tables.
@@ -20,39 +20,32 @@ import "./interfaces/IAccessControlRegistry.sol";
 //
 // Initializing a role means appending a node to one of the nodes of the tree.
 // A member of a role can initialize a role whose admin role is the role that they have
-// (i.e., they can append a new node under the node that they belong to).
+// (i.e., they can append a new node under the node that they belong to). The initalized
+// role is granted to the sender.
 //
-// Managers cannot grant or revoke all roles in their tree, they are only the highest
+// Managers cannot inherently grant or revoke all roles in their tree, they are only the highest
 // ranking admin. However, they can grant a role that grants itself all the roles needed,
 // perform the grant/revoke actions required and self-destruct, effectively allowing the
 // manager to perform these actions.
-contract AccessControlRegistry is
-    AccessControlEnumerable,
-    IAccessControlRegistry
-{
+contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
     // To keep track of which role belongs to which manager
     mapping(bytes32 => address) public override roleToManager;
-    // To keep track of all roles that belong to a manager
-    mapping(address => bytes32[]) public override managerToRoles;
-    // Roles adminned by the same role have to be described with different strings
-    // because their IDs are derived from the admin role and the description
-    mapping(bytes32 => string) public override roleToDescription;
 
     // Anyone can initialize a manager
-    // A manager can only be initialized once
-    function initializeManager(address manager) external override {
+    // Subsequent initializations don't do anything
+    function initializeManager(address manager) public override {
         bytes32 rootRole = deriveRootRole(manager);
-        require(!hasRole(rootRole, manager), "Manager already initialized");
-        _setupRole(rootRole, manager);
-        roleToManager[rootRole] = manager;
-        managerToRoles[manager].push(rootRole);
-        emit InitializedManager(manager, rootRole);
+        if (!hasRole(rootRole, manager)) {
+            _setupRole(rootRole, manager);
+            roleToManager[rootRole] = manager;
+            emit InitializedManager(manager, rootRole);
+        }
     }
 
     // Override function to disallow manager from renouncing its root role
     function renounceRole(bytes32 role, address account)
         public
-        override(AccessControlEnumerable, IAccessControl)
+        override(AccessControl, IAccessControl)
     {
         // This will revert if account is the manager and its trying to
         // renounce its root role
@@ -60,61 +53,55 @@ contract AccessControlRegistry is
             role != deriveRootRole(account),
             "role is root role of account"
         );
-        AccessControlEnumerable.renounceRole(role, account);
+        AccessControl.renounceRole(role, account);
     }
 
     // Only a member of adminRole can initialize a role
+    // Subsequent initializations don't do anything
+    // Initialized role is granted to the sender
     function initializeRole(bytes32 adminRole, string calldata description)
         public
         override
-        onlyRole(adminRole)
         returns (bytes32 role)
     {
         role = deriveRole(adminRole, description);
-        require(
-            getRoleAdmin(role) == DEFAULT_ADMIN_ROLE,
-            "Role already initialized"
-        );
-        roleToDescription[role] = description;
-
-        address manager = roleToManager[adminRole];
-        roleToManager[role] = manager;
-        managerToRoles[manager].push(role);
-
-        _setRoleAdmin(role, adminRole);
-        emit InitializedRole(role, adminRole, description, _msgSender());
+        if (getRoleAdmin(role) != DEFAULT_ADMIN_ROLE) {
+            if (adminRole == deriveRootRole(_msgSender())) {
+                initializeManager(_msgSender());
+            }
+            _checkRole(adminRole, _msgSender());
+            address manager = roleToManager[adminRole];
+            roleToManager[role] = manager;
+            _setRoleAdmin(role, adminRole);
+            grantRole(role, _msgSender());
+            emit InitializedRole(role, adminRole, description, _msgSender());
+        } else {
+            // If the role is already initialized but msg.sender does not have adminRole
+            // we still wanna revert
+            _checkRole(adminRole, _msgSender());
+        }
     }
 
     // A convenience function because most users will initialize a role to grant it to one account
-    function initializeAndGrantRole(
-        bytes32 adminRole,
-        string calldata description,
-        address account
-    ) external override returns (bytes32 role) {
-        // Not checking if account is zero because neither does AccessControl
-        role = initializeRole(adminRole, description);
-        grantRole(role, account);
-    }
-
-    function managerToRoleCount(address manager)
-        external
-        view
-        override
-        returns (uint256 roleCount)
-    {
-        roleCount = managerToRoles[manager].length;
-    }
-
-    // This can be used instead of hasRole() to allow the manager do everything
-    // that its roles can do (for example, SelfAuthorizer will use this to allow
-    // the Airnode address to do everything itself).
-    function hasRoleOrIsManagerOfRole(bytes32 role, address account)
-        external
-        view
-        override
-        returns (bool)
-    {
-        return hasRole(role, account) || roleToManager[role] == account;
+    function initializeAndGrantRoles(
+        bytes32[] calldata adminRoles,
+        string[] calldata descriptions,
+        address[] calldata accounts
+    ) external override returns (bytes32[] memory roles) {
+        require(
+            adminRoles.length == descriptions.length &&
+                adminRoles.length == accounts.length,
+            "Argument length mismatch"
+        );
+        roles = new bytes32[](adminRoles.length);
+        for (uint256 ind = 0; ind < adminRoles.length; ind++) {
+            roles[ind] = initializeRole(adminRoles[ind], descriptions[ind]);
+            // It's also fine to grant the role to address(0) but it will emit
+            // an event
+            if (accounts[ind] != address(0)) {
+                grantRole(roles[ind], accounts[ind]);
+            }
+        }
     }
 
     // Prefer zero-padding over hashing for human-readability

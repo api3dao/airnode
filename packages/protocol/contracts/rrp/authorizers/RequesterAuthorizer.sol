@@ -95,14 +95,13 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry)
-                .hasRoleOrIsManagerOfRole(
-                    deriveRole(
-                        airnode,
-                        WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION
-                    ),
-                    msg.sender
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                deriveRole(
+                    airnode,
+                    WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION
                 ),
+                msg.sender
+            ),
             "Not expiration extender"
         );
         require(
@@ -139,14 +138,13 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry)
-                .hasRoleOrIsManagerOfRole(
-                    deriveRole(
-                        airnode,
-                        WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION
-                    ),
-                    msg.sender
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                deriveRole(
+                    airnode,
+                    WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION
                 ),
+                msg.sender
+            ),
             "Not expiration setter"
         );
         airnodeToEndpointIdToRequesterToWhitelistStatus[airnode][endpointId][
@@ -174,14 +172,10 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         bool status
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry)
-                .hasRoleOrIsManagerOfRole(
-                    deriveRole(
-                        airnode,
-                        INDEFINITE_WHITELISTER_ROLE_DESCRIPTION
-                    ),
-                    msg.sender
-                ),
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                deriveRole(airnode, INDEFINITE_WHITELISTER_ROLE_DESCRIPTION),
+                msg.sender
+            ),
             "Not indefinite whitelister"
         );
         if (
@@ -231,14 +225,10 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         address setter
     ) external override {
         require(
-            !IAccessControlRegistry(accessControlRegistry)
-                .hasRoleOrIsManagerOfRole(
-                    deriveRole(
-                        airnode,
-                        INDEFINITE_WHITELISTER_ROLE_DESCRIPTION
-                    ),
-                    setter
-                ),
+            !IAccessControlRegistry(accessControlRegistry).hasRole(
+                deriveRole(airnode, INDEFINITE_WHITELISTER_ROLE_DESCRIPTION),
+                setter
+            ),
             "setter is indefinite whitelister"
         );
         if (

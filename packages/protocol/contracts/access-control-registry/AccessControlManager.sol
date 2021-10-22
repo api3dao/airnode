@@ -10,11 +10,11 @@ import "./interfaces/IAccessControlManager.sol";
 // where the manager is immutably itself, while a DAO would rather use it
 // with an AccessControlManager proxy that it can transfer to any other address later on.
 contract AccessControlManager is Ownable, IAccessControlManager {
-    IAccessControlRegistry public immutable accessControlRegistry;
+    address public immutable override accessControlRegistry;
 
-    constructor(address accessControlRegistry_) {
-        require(accessControlRegistry_ != address(0), "Zero address");
-        accessControlRegistry = IAccessControlRegistry(accessControlRegistry_);
+    constructor(address _accessControlRegistry) {
+        require(_accessControlRegistry != address(0), "Zero address");
+        accessControlRegistry = _accessControlRegistry;
     }
 
     function initializeRole(bytes32 adminRole, string calldata description)
@@ -23,19 +23,19 @@ contract AccessControlManager is Ownable, IAccessControlManager {
         onlyOwner
         returns (bytes32 role)
     {
-        role = accessControlRegistry.initializeRole(adminRole, description);
+        role = IAccessControlRegistry(accessControlRegistry).initializeRole(
+            adminRole,
+            description
+        );
     }
 
-    function initializeAndGrantRole(
-        bytes32 adminRole,
-        string calldata description,
-        address account
-    ) external override onlyOwner returns (bytes32 role) {
-        role = accessControlRegistry.initializeAndGrantRole(
-            adminRole,
-            description,
-            account
-        );
+    function initializeAndGrantRoles(
+        bytes32[] calldata adminRoles,
+        string[] calldata descriptions,
+        address[] calldata accounts
+    ) external override onlyOwner returns (bytes32[] memory roles) {
+        roles = IAccessControlRegistry(accessControlRegistry)
+            .initializeAndGrantRoles(adminRoles, descriptions, accounts);
     }
 
     function grantRole(bytes32 role, address account)
@@ -43,7 +43,7 @@ contract AccessControlManager is Ownable, IAccessControlManager {
         override
         onlyOwner
     {
-        accessControlRegistry.grantRole(role, account);
+        IAccessControlRegistry(accessControlRegistry).grantRole(role, account);
     }
 
     function revokeRole(bytes32 role, address account)
@@ -51,7 +51,7 @@ contract AccessControlManager is Ownable, IAccessControlManager {
         override
         onlyOwner
     {
-        accessControlRegistry.revokeRole(role, account);
+        IAccessControlRegistry(accessControlRegistry).revokeRole(role, account);
     }
 
     function renounceRole(bytes32 role, address account)
@@ -59,6 +59,9 @@ contract AccessControlManager is Ownable, IAccessControlManager {
         override
         onlyOwner
     {
-        accessControlRegistry.renounceRole(role, account);
+        IAccessControlRegistry(accessControlRegistry).renounceRole(
+            role,
+            account
+        );
     }
 }
