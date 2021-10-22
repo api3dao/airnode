@@ -14,9 +14,11 @@ contract DaoRequesterAuthorizer is RequesterAuthorizer {
 
     /// @param _dao Address of the DAO that manages the authorized
     /// AccessControlRegistry roles
-    constructor(address _accessControlRegistry, address _dao)
-        RequesterAuthorizer(_accessControlRegistry)
-    {
+    constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription,
+        address _dao
+    ) RequesterAuthorizer(_accessControlRegistry, _adminRoleDescription) {
         dao = _dao;
     }
 
@@ -37,7 +39,7 @@ contract DaoRequesterAuthorizer is RequesterAuthorizer {
         bytes32 daoRootRole = iAccessControlRegistry.deriveRootRole(dao);
         bytes32 adminRole = iAccessControlRegistry.deriveRole(
             daoRootRole,
-            ADMIN_ROLE_DESCRIPTION
+            adminRoleDescription
         );
         role = iAccessControlRegistry.deriveRole(adminRole, roleDescription);
     }

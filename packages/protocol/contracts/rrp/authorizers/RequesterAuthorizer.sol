@@ -28,8 +28,7 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
     //     └── (4) Indefinite whitelister
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
-    string public constant override ADMIN_ROLE_DESCRIPTION =
-        "RequesterAuthorizer admin";
+    string public override adminRoleDescription;
     string
         public constant
         override WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION =
@@ -57,8 +56,12 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         override airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus;
 
     /// @param _accessControlRegistry AccessControlRegistry address
-    constructor(address _accessControlRegistry) {
+    constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription
+    ) {
         accessControlRegistry = _accessControlRegistry;
+        adminRoleDescription = _adminRoleDescription;
     }
 
     /// @notice Returns if `requester` is whitelisted for the
@@ -273,7 +276,7 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         );
         bytes32 airnodeAdminRole = iAccessControlRegistry.deriveRole(
             airnodeRootRole,
-            ADMIN_ROLE_DESCRIPTION
+            adminRoleDescription
         );
         role = iAccessControlRegistry.deriveRole(
             airnodeAdminRole,
