@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IAccessControlManager {
+interface IAccessControlAgent {
     function initializeRole(bytes32 adminRole, string calldata description)
         external
         returns (bytes32 role);

@@ -1,6 +1,7 @@
 /* globals context */
 const hre = require('hardhat');
 const { expect } = require('chai');
+const utils = require('../utils');
 
 let roles;
 let accessControlRegistry;
@@ -26,23 +27,18 @@ describe('initializeManager', function () {
       const manager = roles.manager.address;
       expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(false);
       expect(await accessControlRegistry.roleToManager(managerRootRole)).to.equal(hre.ethers.constants.AddressZero);
-      expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(0);
       await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager))
         .to.emit(accessControlRegistry, 'InitializedManager')
         .withArgs(manager, managerRootRole);
       expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(true);
       expect(await accessControlRegistry.roleToManager(managerRootRole)).to.equal(manager);
-      expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(1);
-      expect(await accessControlRegistry.managerToRoles(manager, 0)).to.equal(managerRootRole);
     });
   });
   context('Manager initialized', function () {
-    it('reverts', async function () {
+    it('does nothing', async function () {
       const manager = roles.manager.address;
       await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
-      await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager)).to.be.revertedWith(
-        'Manager already initialized'
-      );
+      await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager)).to.not.be.reverted;
     });
   });
 });
@@ -51,14 +47,14 @@ describe('initializeManager', function () {
 describe('renounceRole', function () {
   context('role is not the root role of account', function () {
     context('account has role', function () {
-      context('Caller is account', function () {
+      context('Sender is account', function () {
         it('renounces role', async function () {
           await accessControlRegistry.connect(roles.randomPerson).initializeManager(roles.manager.address);
           const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
           expect(await accessControlRegistry.hasRole(role, roles.account.address)).to.equal(false);
           await accessControlRegistry
             .connect(roles.manager)
-            .initializeAndGrantRole(managerRootRole, roleDescription, roles.account.address);
+            .initializeAndGrantRoles([managerRootRole], [roleDescription], [roles.account.address]);
           expect(await accessControlRegistry.hasRole(role, roles.account.address)).to.equal(true);
           await accessControlRegistry.connect(roles.account).renounceRole(role, roles.account.address);
           expect(await accessControlRegistry.hasRole(role, roles.account.address)).to.equal(false);
@@ -76,167 +72,276 @@ describe('renounceRole', function () {
 });
 
 describe('initializeRole', function () {
-  context('Caller has adminRole', function () {
-    context('Role is not initialized', function () {
-      it('initializes role', async function () {
-        const manager = roles.manager.address;
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
-        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-        expect(await accessControlRegistry.roleToDescription(role)).to.equal('');
-        expect(await accessControlRegistry.roleToManager(role)).to.equal(hre.ethers.constants.AddressZero);
-        expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(1);
-        expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
-        await expect(accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription))
-          .to.emit(accessControlRegistry, 'InitializedRole')
-          .withArgs(role, managerRootRole, roleDescription, manager);
-        expect(await accessControlRegistry.roleToDescription(role)).to.equal(roleDescription);
-        expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
-        expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(2);
-        expect(await accessControlRegistry.managerToRoles(manager, 1)).to.equal(role);
-        expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
-      });
-    });
-    context('Role is initialized', function () {
-      it('reverts', async function () {
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(roles.manager.address);
-        await accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription);
-        await expect(
-          accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription)
-        ).to.be.revertedWith('Role already initialized');
-      });
-    });
-  });
-  context('Caller does not have adminRole', function () {
-    it('reverts', async function () {
-      await expect(
-        accessControlRegistry.connect(roles.randomPerson).initializeRole(managerRootRole, roleDescription)
-      ).to.be.revertedWith(
-        `AccessControl: account ${roles.randomPerson.address.toLowerCase()} is missing role ${managerRootRole.toLowerCase()}`
-      );
-    });
-  });
-});
-
-describe('initializeAndGrantRole', function () {
-  context('Caller has adminRole', function () {
-    context('Role is not initialized', function () {
-      it('initializes and grants role', async function () {
-        const manager = roles.manager.address;
-        const account = roles.account.address;
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
-        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-        expect(await accessControlRegistry.roleToDescription(role)).to.equal('');
-        expect(await accessControlRegistry.roleToManager(role)).to.equal(hre.ethers.constants.AddressZero);
-        expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(1);
-        expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
-        expect(await accessControlRegistry.hasRole(role, account)).to.equal(false);
-        await accessControlRegistry
-          .connect(roles.manager)
-          .initializeAndGrantRole(managerRootRole, roleDescription, account);
-        expect(await accessControlRegistry.roleToDescription(role)).to.equal(roleDescription);
-        expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
-        expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(2);
-        expect(await accessControlRegistry.managerToRoles(manager, 1)).to.equal(role);
-        expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
-        expect(await accessControlRegistry.hasRole(role, account)).to.equal(true);
-      });
-    });
-    context('Role is initialized', function () {
-      it('reverts', async function () {
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(roles.manager.address);
-        await accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription);
-        await expect(
-          accessControlRegistry
-            .connect(roles.manager)
-            .initializeAndGrantRole(managerRootRole, roleDescription, roles.account.address)
-        ).to.be.revertedWith('Role already initialized');
-      });
-    });
-  });
-  context('Caller does not have adminRole', function () {
-    it('reverts', async function () {
-      await expect(
-        accessControlRegistry
-          .connect(roles.randomPerson)
-          .initializeAndGrantRole(managerRootRole, roleDescription, roles.account.address)
-      ).to.be.revertedWith(
-        `AccessControl: account ${roles.randomPerson.address.toLowerCase()} is missing role ${managerRootRole.toLowerCase()}`
-      );
-    });
-  });
-});
-
-describe('managerToRoleCount', function () {
-  it('returns role count of manager', async function () {
-    const manager = roles.manager.address;
-    expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(0);
-    await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
-    expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(1);
-    // The manager creates a role and grants it to account
-    const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-    await accessControlRegistry
-      .connect(roles.manager)
-      .initializeAndGrantRole(managerRootRole, roleDescription, roles.account.address);
-    expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(2);
-    // The account creates two additional roles under the newly created role
-    await accessControlRegistry.connect(roles.account).initializeRole(role, 'Another role');
-    expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(3);
-    await accessControlRegistry.connect(roles.account).initializeRole(role, 'Yet another role');
-    expect(await accessControlRegistry.managerToRoleCount(manager)).to.equal(4);
-  });
-});
-
-describe('hasRoleOrIsManagerOfRole', function () {
-  context('account has the role', function () {
-    context('account is the manager of role', function () {
-      context('role is the root role of the manager', function () {
-        it('returns true', async function () {
-          const manager = roles.manager.address;
-          await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
-          expect(await accessControlRegistry.hasRoleOrIsManagerOfRole(managerRootRole, manager)).to.equal(true);
-        });
-      });
-      context('role is not the root role of the manager', function () {
-        it('returns true', async function () {
+  context('Role is not initialized', function () {
+    context('adminRole is the root role of the sender', function () {
+      context('Sender manager is initialized', function () {
+        it('initializes role', async function () {
           const manager = roles.manager.address;
           await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
           const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-          await accessControlRegistry
-            .connect(roles.manager)
-            .initializeAndGrantRole(managerRootRole, roleDescription, manager);
-          expect(await accessControlRegistry.hasRoleOrIsManagerOfRole(role, manager)).to.equal(true);
+          expect(await accessControlRegistry.roleToManager(role)).to.equal(hre.ethers.constants.AddressZero);
+          expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
+          expect(await accessControlRegistry.hasRole(role, manager)).to.equal(false);
+          await expect(accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription))
+            .to.emit(accessControlRegistry, 'InitializedRole')
+            .withArgs(role, managerRootRole, roleDescription, manager);
+          expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
+          expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
+          expect(await accessControlRegistry.hasRole(role, manager)).to.equal(true);
+        });
+      });
+      context('Sender manager is not initialized', function () {
+        it('initializes sender manager and role', async function () {
+          const manager = roles.manager.address;
+          const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
+          expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(false);
+          expect(await accessControlRegistry.roleToManager(managerRootRole)).to.equal(hre.ethers.constants.AddressZero);
+          expect(await accessControlRegistry.roleToManager(role)).to.equal(hre.ethers.constants.AddressZero);
+          expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
+          expect(await accessControlRegistry.hasRole(role, manager)).to.equal(false);
+          await expect(accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription))
+            .to.emit(accessControlRegistry, 'InitializedRole')
+            .withArgs(role, managerRootRole, roleDescription, manager);
+          expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(true);
+          expect(await accessControlRegistry.roleToManager(managerRootRole)).to.equal(manager);
+          expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
+          expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
+          expect(await accessControlRegistry.hasRole(role, manager)).to.equal(true);
         });
       });
     });
-    context('account is not the manager of role', function () {
-      it('returns true', async function () {
-        const account = roles.account.address;
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(roles.manager.address);
-        const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-        await accessControlRegistry
-          .connect(roles.manager)
-          .initializeAndGrantRole(managerRootRole, roleDescription, account);
-        expect(await accessControlRegistry.hasRoleOrIsManagerOfRole(role, account)).to.equal(true);
+    context('adminRole is not the root role of the sender', function () {
+      context('Sender has adminRole', function () {
+        it('initializes role', async function () {
+          const manager = roles.manager.address;
+          const account = roles.account.address;
+          await accessControlRegistry
+            .connect(roles.manager)
+            .initializeAndGrantRoles([managerRootRole], [roleDescription], [roles.account.address]);
+          const role1 = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
+          const role2 = await accessControlRegistry.deriveRole(role1, roleDescription);
+          expect(await accessControlRegistry.roleToManager(role2)).to.equal(hre.ethers.constants.AddressZero);
+          expect(await accessControlRegistry.getRoleAdmin(role2)).to.equal(hre.ethers.constants.HashZero);
+          expect(await accessControlRegistry.hasRole(role2, manager)).to.equal(false);
+          expect(await accessControlRegistry.hasRole(role2, account)).to.equal(false);
+          await expect(accessControlRegistry.connect(roles.account).initializeRole(role1, roleDescription))
+            .to.emit(accessControlRegistry, 'InitializedRole')
+            .withArgs(role2, role1, roleDescription, account);
+          expect(await accessControlRegistry.roleToManager(role2)).to.equal(manager);
+          expect(await accessControlRegistry.getRoleAdmin(role2)).to.equal(role1);
+          // The role didn't propagate to the manager
+          expect(await accessControlRegistry.hasRole(role2, manager)).to.equal(false);
+          expect(await accessControlRegistry.hasRole(role2, account)).to.equal(true);
+        });
+      });
+      context('Sender does not have adminRole', function () {
+        it('reverts', async function () {
+          await expect(
+            accessControlRegistry.connect(roles.randomPerson).initializeRole(managerRootRole, roleDescription)
+          ).to.be.revertedWith(
+            `AccessControl: account ${roles.randomPerson.address.toLowerCase()} is missing role ${managerRootRole.toLowerCase()}`
+          );
+        });
       });
     });
   });
-  context('account does not have the role', function () {
-    context('account is the manager of role', function () {
-      it('returns true', async function () {
+  context('Role is initialized', function () {
+    context('Sender has adminRole', function () {
+      it('grants role to sender', async function () {
         const manager = roles.manager.address;
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(manager);
         const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
         await accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription);
-        expect(await accessControlRegistry.hasRoleOrIsManagerOfRole(role, manager)).to.equal(true);
+        await accessControlRegistry.connect(roles.manager).renounceRole(role, manager);
+        expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
+        expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
+        expect(await accessControlRegistry.hasRole(role, manager)).to.equal(false);
+        await expect(
+          accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription)
+        ).to.not.be.reverted;
+        expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
+        expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
+        expect(await accessControlRegistry.hasRole(role, manager)).to.equal(true);
       });
     });
-    context('account is not the manager of role', function () {
-      it('returns false', async function () {
-        await accessControlRegistry.connect(roles.randomPerson).initializeManager(roles.manager.address);
-        expect(
-          await accessControlRegistry.hasRoleOrIsManagerOfRole(managerRootRole, roles.randomPerson.address)
-        ).to.equal(false);
+    context('Sender does not have adminRole', function () {
+      it('reverts', async function () {
+        await accessControlRegistry.connect(roles.manager).initializeRole(managerRootRole, roleDescription);
+        await expect(
+          accessControlRegistry.connect(roles.randomPerson).initializeRole(managerRootRole, roleDescription)
+        ).to.be.revertedWith(
+          `AccessControl: account ${roles.randomPerson.address.toLowerCase()} is missing role ${managerRootRole.toLowerCase()}`
+        );
       });
+    });
+  });
+});
+
+describe('initializeAndGrantRoles', function () {
+  context('Argument lengths are equal', function () {
+    context('Argument lengths do not exceed 32', function () {
+      context('Account to be granted role is not zero address', function () {
+        context('Roles to be initialized are on the same level', function () {
+          it('initializes and grants roles', async function () {
+            const manager = roles.manager.address;
+            const descriptions = Array(32)
+              .fill()
+              .map(() => Math.random());
+            const accounts = Array(32)
+              .fill()
+              .map(() => utils.generateRandomAddress());
+            for (let ind = 0; ind < descriptions.length; ind++) {
+              const role = await accessControlRegistry.deriveRole(managerRootRole, descriptions[ind]);
+              expect(await accessControlRegistry.roleToManager(role)).to.equal(hre.ethers.constants.AddressZero);
+              expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
+              expect(await accessControlRegistry.hasRole(role, manager)).to.equal(false);
+              expect(await accessControlRegistry.hasRole(role, accounts[ind])).to.equal(false);
+            }
+            await accessControlRegistry
+              .connect(roles.manager)
+              .initializeAndGrantRoles(Array(32).fill(managerRootRole), descriptions, accounts);
+            for (let ind = 0; ind < descriptions.length; ind++) {
+              const role = await accessControlRegistry.deriveRole(managerRootRole, descriptions[ind]);
+              expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
+              expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
+              expect(await accessControlRegistry.hasRole(role, manager)).to.equal(true);
+              expect(await accessControlRegistry.hasRole(role, accounts[ind])).to.equal(true);
+            }
+          });
+        });
+        context('Roles to be initialized form a tree', function () {
+          context('Arguments are ordered from lower levels to higher levels', function () {
+            it('initializes and grants roles', async function () {
+              const manager = roles.manager.address;
+              const description1 = Math.random();
+              const role1 = await accessControlRegistry.deriveRole(managerRootRole, description1);
+              const account1 = utils.generateRandomAddress();
+              const description11 = Math.random();
+              const role11 = await accessControlRegistry.deriveRole(role1, description11);
+              const account11 = utils.generateRandomAddress();
+              const description12 = Math.random();
+              const role12 = await accessControlRegistry.deriveRole(role1, description12);
+              const account12 = utils.generateRandomAddress();
+              expect(await accessControlRegistry.roleToManager(role1)).to.equal(hre.ethers.constants.AddressZero);
+              expect(await accessControlRegistry.getRoleAdmin(role1)).to.equal(hre.ethers.constants.HashZero);
+              expect(await accessControlRegistry.hasRole(role1, manager)).to.equal(false);
+              expect(await accessControlRegistry.hasRole(role1, account1)).to.equal(false);
+              expect(await accessControlRegistry.roleToManager(role11)).to.equal(hre.ethers.constants.AddressZero);
+              expect(await accessControlRegistry.getRoleAdmin(role11)).to.equal(hre.ethers.constants.HashZero);
+              expect(await accessControlRegistry.hasRole(role11, manager)).to.equal(false);
+              expect(await accessControlRegistry.hasRole(role11, account11)).to.equal(false);
+              expect(await accessControlRegistry.roleToManager(role12)).to.equal(hre.ethers.constants.AddressZero);
+              expect(await accessControlRegistry.getRoleAdmin(role12)).to.equal(hre.ethers.constants.HashZero);
+              expect(await accessControlRegistry.hasRole(role12, manager)).to.equal(false);
+              expect(await accessControlRegistry.hasRole(role12, account12)).to.equal(false);
+              await accessControlRegistry
+                .connect(roles.manager)
+                .initializeAndGrantRoles(
+                  [managerRootRole, role1, role1],
+                  [description1, description11, description12],
+                  [account1, account11, account12]
+                );
+              expect(await accessControlRegistry.roleToManager(role1)).to.equal(manager);
+              expect(await accessControlRegistry.getRoleAdmin(role1)).to.equal(managerRootRole);
+              expect(await accessControlRegistry.hasRole(role1, manager)).to.equal(true);
+              expect(await accessControlRegistry.hasRole(role1, account1)).to.equal(true);
+              expect(await accessControlRegistry.roleToManager(role11)).to.equal(manager);
+              expect(await accessControlRegistry.getRoleAdmin(role11)).to.equal(role1);
+              expect(await accessControlRegistry.hasRole(role11, manager)).to.equal(true);
+              expect(await accessControlRegistry.hasRole(role11, account11)).to.equal(true);
+              expect(await accessControlRegistry.roleToManager(role12)).to.equal(manager);
+              expect(await accessControlRegistry.getRoleAdmin(role12)).to.equal(role1);
+              expect(await accessControlRegistry.hasRole(role12, manager)).to.equal(true);
+              expect(await accessControlRegistry.hasRole(role12, account12)).to.equal(true);
+            });
+          });
+          context('Arguments are not ordered properly', function () {
+            it('reverts', async function () {
+              const description1 = Math.random();
+              const role1 = await accessControlRegistry.deriveRole(managerRootRole, description1);
+              const account1 = utils.generateRandomAddress();
+              const description11 = Math.random();
+              const account11 = utils.generateRandomAddress();
+              const description12 = Math.random();
+              const account12 = utils.generateRandomAddress();
+              // role1 should be the first argument because it is of lower level
+              await expect(
+                accessControlRegistry
+                  .connect(roles.manager)
+                  .initializeAndGrantRoles(
+                    [role1, role1, managerRootRole],
+                    [description11, description12, description1],
+                    [account11, account12, account1]
+                  )
+              ).to.be.reverted;
+              await expect(
+                accessControlRegistry
+                  .connect(roles.manager)
+                  .initializeAndGrantRoles(
+                    [role1, managerRootRole, role1],
+                    [description11, description1, description12],
+                    [account11, account1, account12]
+                  )
+              ).to.be.reverted;
+            });
+          });
+        });
+      });
+      context('Account to be granted role is zero address', function () {
+        it('initializes roles', async function () {
+          const manager = roles.manager.address;
+          const descriptions = Array(32)
+            .fill()
+            .map(() => Math.random());
+          const accounts = Array(32).fill(hre.ethers.constants.AddressZero);
+          for (let ind = 0; ind < descriptions.length; ind++) {
+            const role = await accessControlRegistry.deriveRole(managerRootRole, descriptions[ind]);
+            expect(await accessControlRegistry.roleToManager(role)).to.equal(hre.ethers.constants.AddressZero);
+            expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(hre.ethers.constants.HashZero);
+            expect(await accessControlRegistry.hasRole(role, manager)).to.equal(false);
+            expect(await accessControlRegistry.hasRole(role, accounts[ind])).to.equal(false);
+          }
+          await accessControlRegistry
+            .connect(roles.manager)
+            .initializeAndGrantRoles(Array(32).fill(managerRootRole), descriptions, accounts);
+          for (let ind = 0; ind < descriptions.length; ind++) {
+            const role = await accessControlRegistry.deriveRole(managerRootRole, descriptions[ind]);
+            expect(await accessControlRegistry.roleToManager(role)).to.equal(manager);
+            expect(await accessControlRegistry.getRoleAdmin(role)).to.equal(managerRootRole);
+            expect(await accessControlRegistry.hasRole(role, manager)).to.equal(true);
+            expect(await accessControlRegistry.hasRole(role, accounts[ind])).to.equal(false);
+          }
+        });
+      });
+    });
+    context('Argument lengths exceed 32', function () {
+      it('reverts', async function () {
+        await expect(
+          accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
+            Array(33).fill(managerRootRole),
+            Array(33)
+              .fill()
+              .map(() => Math.random()),
+            Array(33)
+              .fill()
+              .map(() => utils.generateRandomAddress())
+          )
+        ).to.be.revertedWith('Arguments too long');
+      });
+    });
+  });
+  context('Argument lengths are not equal', function () {
+    it('reverts', async function () {
+      await expect(
+        accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
+          Array(31).fill(managerRootRole),
+          Array(32)
+            .fill()
+            .map(() => Math.random()),
+          Array(32)
+            .fill()
+            .map(() => utils.generateRandomAddress())
+        )
+      ).to.be.revertedWith('Argument length mismatch');
     });
   });
 });
