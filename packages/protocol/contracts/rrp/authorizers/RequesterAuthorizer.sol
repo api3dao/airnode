@@ -4,8 +4,8 @@ pragma solidity 0.8.6;
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IRequesterAuthorizer.sol";
 
-/// @title Authorizer contract that can be used to temporarily or indefinitely
-/// whitelist requesters for Airnode–endpoint pairs
+/// @title Authorizer contract that Airnodes can use to temporarily or
+/// indefinitely whitelist requesters for Airnode–endpoint pairs
 contract RequesterAuthorizer is IRequesterAuthorizer {
     // This contract implements two kinds of whitelisting:
     // (1) Temporary, ends when the expiration timestamp is in the past
@@ -56,32 +56,18 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
         override airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus;
 
     /// @param _accessControlRegistry AccessControlRegistry address
+    /// @param _adminRoleDescription Admin role description
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription
     ) {
+        require(_accessControlRegistry != address(0), "ACR address zero");
+        require(
+            bytes(_adminRoleDescription).length > 0,
+            "Admin role description empty"
+        );
         accessControlRegistry = _accessControlRegistry;
         adminRoleDescription = _adminRoleDescription;
-    }
-
-    /// @notice Returns if `requester` is whitelisted for the
-    /// `airnode`–`endpointId` pair
-    /// @param airnode Airnode address
-    /// @param endpointId Endpoint ID
-    /// @param requester Requester address
-    /// @return isWhitelisted If the requester is whitelisted
-    function requesterIsWhitelisted(
-        address airnode,
-        bytes32 endpointId,
-        address requester
-    ) internal view returns (bool isWhitelisted) {
-        WhitelistStatus
-            storage whitelistStatus = airnodeToEndpointIdToRequesterToWhitelistStatus[
-                airnode
-            ][endpointId][requester];
-        return
-            whitelistStatus.indefiniteWhitelistCount > 0 ||
-            whitelistStatus.expirationTimestamp > block.timestamp;
     }
 
     /// @notice Extends the expiration of the temporary whitelist of
@@ -99,7 +85,7 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
     ) external override {
         require(
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveRole(
+                deriveRequesterAuthorizerRole(
                     airnode,
                     WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION
                 ),
@@ -142,7 +128,7 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
     ) external override {
         require(
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveRole(
+                deriveRequesterAuthorizerRole(
                     airnode,
                     WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION
                 ),
@@ -176,7 +162,10 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
     ) external override {
         require(
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveRole(airnode, INDEFINITE_WHITELISTER_ROLE_DESCRIPTION),
+                deriveRequesterAuthorizerRole(
+                    airnode,
+                    INDEFINITE_WHITELISTER_ROLE_DESCRIPTION
+                ),
                 msg.sender
             ),
             "Not indefinite whitelister"
@@ -211,7 +200,10 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
             endpointId,
             requester,
             msg.sender,
-            status
+            status,
+            airnodeToEndpointIdToRequesterToWhitelistStatus[airnode][
+                endpointId
+            ][requester].indefiniteWhitelistCount
         );
     }
 
@@ -229,7 +221,10 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
     ) external override {
         require(
             !IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveRole(airnode, INDEFINITE_WHITELISTER_ROLE_DESCRIPTION),
+                deriveRequesterAuthorizerRole(
+                    airnode,
+                    INDEFINITE_WHITELISTER_ROLE_DESCRIPTION
+                ),
                 setter
             ),
             "setter is indefinite whitelister"
@@ -245,14 +240,17 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
             airnodeToEndpointIdToRequesterToWhitelistStatus[airnode][
                 endpointId
             ][requester].indefiniteWhitelistCount--;
+            emit RevokedIndefiniteWhitelistStatus(
+                airnode,
+                endpointId,
+                requester,
+                setter,
+                msg.sender,
+                airnodeToEndpointIdToRequesterToWhitelistStatus[airnode][
+                    endpointId
+                ][requester].indefiniteWhitelistCount
+            );
         }
-        emit RevokedIndefiniteWhitelistStatus(
-            airnode,
-            endpointId,
-            requester,
-            setter,
-            msg.sender
-        );
     }
 
     /// @notice Derives the role ID that should be used to authorize whitelist
@@ -261,27 +259,33 @@ contract RequesterAuthorizer is IRequesterAuthorizer {
     /// @param airnode Airnode address
     /// @param roleDescription Role description
     /// @return role Role ID
-    function deriveRole(address airnode, string memory roleDescription)
-        public
-        view
-        virtual
-        override
-        returns (bytes32 role)
-    {
-        IAccessControlRegistry iAccessControlRegistry = IAccessControlRegistry(
-            accessControlRegistry
-        );
-        bytes32 airnodeRootRole = iAccessControlRegistry.deriveRootRole(
-            airnode
-        );
-        bytes32 airnodeAdminRole = iAccessControlRegistry.deriveRole(
-            airnodeRootRole,
-            adminRoleDescription
-        );
-        role = iAccessControlRegistry.deriveRole(
-            airnodeAdminRole,
-            roleDescription
-        );
+    function deriveRequesterAuthorizerRole(
+        address airnode,
+        string memory roleDescription
+    ) public view virtual override returns (bytes32 role) {
+        bytes32 airnodeRootRole = keccak256(abi.encodePacked(airnode));
+        bytes32 airnodeRequesterAuthorizerAdminRole = keccak256(abi.encodePacked(airnodeRootRole, adminRoleDescription));
+        role = keccak256(abi.encodePacked(airnodeRequesterAuthorizerAdminRole, roleDescription));
+    }
+
+    /// @notice Returns if `requester` is whitelisted for the
+    /// `airnode`–`endpointId` pair
+    /// @param airnode Airnode address
+    /// @param endpointId Endpoint ID
+    /// @param requester Requester address
+    /// @return isWhitelisted If the requester is whitelisted
+    function requesterIsWhitelisted(
+        address airnode,
+        bytes32 endpointId,
+        address requester
+    ) public view override returns (bool isWhitelisted) {
+        WhitelistStatus
+            storage whitelistStatus = airnodeToEndpointIdToRequesterToWhitelistStatus[
+                airnode
+            ][endpointId][requester];
+        return
+            whitelistStatus.indefiniteWhitelistCount > 0 ||
+            whitelistStatus.expirationTimestamp > block.timestamp;
     }
 
     /// @notice Verifies the authorization status of a request

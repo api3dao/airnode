@@ -25,7 +25,8 @@ interface IRequesterAuthorizer is IAuthorizer {
         bytes32 endpointId,
         address indexed requester,
         address indexed sender,
-        bool status
+        bool status,
+        uint192 indefiniteWhitelistCount
     );
 
     event RevokedIndefiniteWhitelistStatus(
@@ -33,7 +34,8 @@ interface IRequesterAuthorizer is IAuthorizer {
         bytes32 endpointId,
         address indexed requester,
         address indexed setter,
-        address sender
+        address sender,
+        uint192 indefiniteWhitelistCount
     );
 
     function extendWhitelistExpiration(
@@ -64,11 +66,16 @@ interface IRequesterAuthorizer is IAuthorizer {
         address setter
     ) external;
 
-    function deriveRole(address airnode, string memory roleDescription)
-        external
-        view
-        virtual
-        returns (bytes32 role);
+    function deriveRequesterAuthorizerRole(
+        address airnode,
+        string memory roleDescription
+    ) external view returns (bytes32 role);
+
+    function requesterIsWhitelisted(
+        address airnode,
+        bytes32 endpointId,
+        address requester
+    ) external view returns (bool isWhitelisted);
 
     function adminRoleDescription() external view returns (string memory);
 
