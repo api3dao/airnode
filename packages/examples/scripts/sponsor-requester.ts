@@ -6,7 +6,7 @@ const main = async () => {
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
 
   const command = [
-    `yarn api3-admin sponsor-requester`,
+    `yarn airnode-admin sponsor-requester`,
     `--provider-url ${integrationInfo.providerUrl}`,
     `--airnode-rrp ${airnodeRrp.address}`,
     `--requester-address ${requester.address}`,

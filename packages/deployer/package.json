@@ -3,7 +3,7 @@
   "license": "MIT",
   "version": "0.1.0",
   "bin": {
-    "api3-deployer": "./dist/bin/deployer.js"
+    "airnode-deployer": "./dist/bin/deployer.js"
   },
   "main": "./dist/bin/deployer.js",
   "files": [
