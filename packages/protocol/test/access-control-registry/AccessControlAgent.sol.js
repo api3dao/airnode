@@ -19,7 +19,7 @@ beforeEach(async () => {
   const accessControlAgentFactory = await hre.ethers.getContractFactory('AccessControlAgent', roles.deployer);
   accessControlAgent = await accessControlAgentFactory.deploy(accessControlRegistry.address);
   await accessControlAgent.transferOwnership(roles.agentOwner.address);
-  managerRootRole = hre.ethers.utils.defaultAbiCoder.encode(['address'], [accessControlAgent.address]);
+  managerRootRole = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address'], [accessControlAgent.address]));
   roleDescription = 'Role description unique to adminRole';
 });
 

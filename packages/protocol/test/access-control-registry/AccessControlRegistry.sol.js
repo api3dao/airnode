@@ -17,7 +17,7 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
-  managerRootRole = hre.ethers.utils.defaultAbiCoder.encode(['address'], [roles.manager.address]);
+  managerRootRole = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['address'], [roles.manager.address]));
   roleDescription = 'Role description unique to adminRole';
 });
 
@@ -347,10 +347,8 @@ describe('initializeAndGrantRoles', function () {
 });
 
 describe('deriveRootRole', function () {
-  it('derives root role of manager by left-padding its address with zeros', async function () {
-    expect(await accessControlRegistry.deriveRootRole(roles.manager.address)).to.equal(
-      hre.ethers.utils.hexZeroPad(roles.manager.address, 32).toLowerCase()
-    );
+  it('derives root role by hashing the manager address', async function () {
+    expect(await accessControlRegistry.deriveRootRole(roles.manager.address)).to.equal(managerRootRole);
   });
 });
 

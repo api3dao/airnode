@@ -100,8 +100,7 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
         }
     }
 
-    /// @notice Derices ID of the root role from the manager address
-    /// @dev Zero-padding is preferred over hashing for human-readability
+    /// @notice Derives ID of the root role from the manager address
     /// @param manager Manager address
     /// @return rootRole ID of the root role
     function deriveRootRole(address manager)
@@ -110,7 +109,7 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
         override
         returns (bytes32 rootRole)
     {
-        rootRole = bytes32(abi.encode(manager));
+        rootRole = keccak256(abi.encodePacked(manager));
     }
 
     /// @notice Derives the ID of the role from its admin role and description
