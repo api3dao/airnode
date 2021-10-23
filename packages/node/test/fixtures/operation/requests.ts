@@ -1,5 +1,5 @@
-import { ReservedParameterName } from '@api3/ois';
-import { FullRequest, TemplateRequest, Request } from '@api3/operation';
+import { ReservedParameterName } from '@api3/airnode-ois';
+import { FullRequest, TemplateRequest, Request } from '@api3/airnode-operation';
 
 export function buildTemplateRequest(overrides?: Partial<TemplateRequest>): TemplateRequest {
   return {

@@ -1,4 +1,4 @@
-import { RequesterAuthorizerWithAirnode, AirnodeRrp } from '@api3/protocol';
+import { RequesterAuthorizerWithAirnode, AirnodeRrp } from '@api3/airnode-protocol';
 import * as evm from './evm';
 import * as admin from './implementation';
 

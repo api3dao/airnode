@@ -1,4 +1,4 @@
-# @api3/node
+# @api3/airnode-node
 
 > The node part of Airnode that allows for connecting multiple blockchains to the rest of the world
 

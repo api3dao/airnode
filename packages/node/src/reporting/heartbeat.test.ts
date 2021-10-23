@@ -1,5 +1,5 @@
 const executeMock = jest.fn();
-jest.mock('@api3/adapter', () => ({
+jest.mock('@api3/airnode-adapter', () => ({
   execute: executeMock,
 }));
 

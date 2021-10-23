@@ -1,5 +1,5 @@
-import { OIS } from '@api3/ois';
-import { ApiCredentials as AdapterApiCredentials } from '@api3/adapter';
+import { OIS } from '@api3/airnode-ois';
+import { ApiCredentials as AdapterApiCredentials } from '@api3/airnode-adapter';
 import { ethers } from 'ethers';
 import {
   MadeTemplateRequestEvent,
@@ -8,7 +8,7 @@ import {
   FailedRequestEvent,
   RequestedWithdrawalEvent,
   FulfilledWithdrawalEvent,
-} from '@api3/protocol';
+} from '@api3/airnode-protocol';
 
 // ===========================================
 // State

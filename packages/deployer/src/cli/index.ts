@@ -6,7 +6,7 @@ import join from 'lodash/join';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import { hideBin } from 'yargs/helpers';
-import { version as nodeVersion } from '@api3/node';
+import { version as nodeVersion } from '@api3/airnode-node';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
 import { version as packageVersion } from '../../package.json';

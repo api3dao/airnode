@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { deriveAirnodeXpub, deriveSponsorWalletAddress } from '@api3/admin';
+import { deriveAirnodeXpub, deriveSponsorWalletAddress } from '@api3/airnode-admin';
 import {
   getDeployedContract,
   getProvider,
@@ -11,7 +11,7 @@ import {
 } from '../src';
 
 const fulfilled = async (requestId: string) => {
-  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
   const provider = getProvider();
   return new Promise((resolve) => provider.once(airnodeRrp.filters.FulfilledRequest(null, requestId), resolve));
 };
@@ -19,7 +19,7 @@ const fulfilled = async (requestId: string) => {
 export const makeRequest = async (): Promise<string> => {
   const integrationInfo = readIntegrationInfo();
   const requester = await getDeployedContract(`contracts/${integrationInfo.integration}/Requester.sol`);
-  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
   const airnodeWallet = getAirnodeWallet();
   const sponsor = ethers.Wallet.fromMnemonic(integrationInfo.mnemonic);
   // NOTE: The request is always made to the first endpoint listed in the "triggers.rrp" inside config.json

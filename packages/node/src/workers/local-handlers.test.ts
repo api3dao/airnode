@@ -1,5 +1,5 @@
 import fs from 'fs';
-import * as validator from '@api3/validator';
+import * as validator from '@api3/airnode-validator';
 import * as local from './local-handlers';
 import * as handlers from '../handlers';
 import { scrub } from '../providers/state';

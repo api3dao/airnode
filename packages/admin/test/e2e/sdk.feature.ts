@@ -1,4 +1,4 @@
-import { AccessControlRegistryFactory, AirnodeRrpFactory, authorizers } from '@api3/protocol';
+import { AccessControlRegistryFactory, AirnodeRrpFactory, authorizers } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import difference from 'lodash/difference';
 import * as admin from '../../src/implementation';

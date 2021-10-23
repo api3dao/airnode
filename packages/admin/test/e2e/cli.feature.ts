@@ -3,11 +3,10 @@ import difference from 'lodash/difference';
 import {
   AirnodeRrp,
   AirnodeRrpFactory,
-  AccessControlRegistryFactory,
   authorizers,
   RequesterAuthorizerWithAirnode,
-  AccessControlRegistry,
-} from '@api3/protocol';
+  AccessControlRegistryFactory,
+} from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import * as admin from '../../src';
 

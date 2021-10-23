@@ -1,4 +1,4 @@
-# Monorepo version: `@api3/admin`
+# Monorepo version: `@api3/airnode-admin`
 
 # Stand-alone version: `@api3/airnode-admin`
 

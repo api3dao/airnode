@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { Config } from '@api3/operation';
-import { ReservedParameterName } from '@api3/ois';
+import { Config } from '@api3/airnode-operation';
+import { ReservedParameterName } from '@api3/airnode-ois';
 
 export function buildDeployConfig(config?: Partial<Config>): Config {
   return {

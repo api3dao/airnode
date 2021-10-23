@@ -1,4 +1,4 @@
-import { Endpoint } from '@api3/ois';
+import { Endpoint } from '@api3/airnode-ois';
 import { testApi } from './test-api';
 import * as worker from '../adapters/http/worker';
 import * as fixtures from '../../test/fixtures';

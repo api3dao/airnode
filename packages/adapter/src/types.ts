@@ -1,6 +1,6 @@
 /* eslint-disable functional/prefer-readonly-type */
 
-import { Endpoint, Method, OIS, Operation } from '@api3/ois';
+import { Endpoint, Method, OIS, Operation } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
 
 export interface ApiCredentials {

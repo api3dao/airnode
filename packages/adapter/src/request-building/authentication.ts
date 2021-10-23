@@ -1,4 +1,4 @@
-import { ApiSecurityScheme } from '@api3/ois';
+import { ApiSecurityScheme } from '@api3/airnode-ois';
 import reduce from 'lodash/reduce';
 import find from 'lodash/find';
 import { CachedBuildRequestOptions, Parameters } from '../types';

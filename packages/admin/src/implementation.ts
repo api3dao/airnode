@@ -1,5 +1,5 @@
 import * as airnodeAbi from '@api3/airnode-abi';
-import { AirnodeRrp, RequesterAuthorizerWithAirnode } from '@api3/protocol';
+import { AirnodeRrp, RequesterAuthorizerWithAirnode } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 
 const assertAllParamsAreReturned = (params: object, ethersParams: any[]) => {

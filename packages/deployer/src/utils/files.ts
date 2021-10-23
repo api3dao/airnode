@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { Config } from '@api3/node';
+import { Config } from '@api3/airnode-node';
 import { validateReceipt } from './validation';
 import { Receipt } from '../types';
 import * as logger from '../utils/logger';

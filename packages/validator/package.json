@@ -1,5 +1,5 @@
 {
-  "name": "@api3/validator",
+  "name": "@api3/airnode-validator",
   "license": "MIT",
   "version": "0.1.0",
   "main": "./dist/src/index.js",

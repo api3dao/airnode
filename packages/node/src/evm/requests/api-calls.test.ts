@@ -1,4 +1,4 @@
-import { MadeTemplateRequestEvent } from '@api3/protocol';
+import { MadeTemplateRequestEvent } from '@api3/airnode-protocol';
 import * as apiCalls from './api-calls';
 import { parseAirnodeRrpLog } from './event-logs';
 import { EVMMadeRequestLog, RequestErrorMessage, RequestStatus, EVMFulfilledRequestLog } from '../../types';

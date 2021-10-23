@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "@api3/protocol/contracts/rrp/requesters/RrpRequester.sol";
+import "@api3/airnode-protocol/contracts/rrp/requesters/RrpRequester.sol";
 
 // An example requester which expects the response from Airnode is a single int256 value.
 contract Requester is RrpRequester {

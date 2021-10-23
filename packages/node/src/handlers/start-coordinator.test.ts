@@ -24,8 +24,8 @@ mockEthers({
 
 import fs from 'fs';
 import { ethers } from 'ethers';
-import * as adapter from '@api3/adapter';
-import * as validator from '@api3/validator';
+import * as adapter from '@api3/airnode-adapter';
+import * as validator from '@api3/airnode-validator';
 import { startCoordinator } from './start-coordinator';
 import * as fixtures from '../../test/fixtures';
 

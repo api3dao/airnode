@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { InputParameter } from '@api3/airnode-abi';
-import { AirnodeRrp, AccessControlRegistry } from '@api3/protocol';
+import { AirnodeRrp, AccessControlRegistry } from '@api3/airnode-protocol';
 
 // ===========================================
 // General

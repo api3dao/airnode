@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { Request } from '@api3/operation';
-import * as validator from '@api3/validator';
+import { Request } from '@api3/airnode-operation';
+import * as validator from '@api3/airnode-validator';
 import { buildChainConfig, buildProvider, getDeployerIndex } from './utils';
 import { deployAirnodeRrp, makeRequests } from './deployment';
 import { buildConfig, operation } from '../../fixtures';

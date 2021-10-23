@@ -1,5 +1,5 @@
-import * as adapter from '@api3/adapter';
-import { OIS } from '@api3/ois';
+import * as adapter from '@api3/airnode-adapter';
+import { OIS } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
 import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';

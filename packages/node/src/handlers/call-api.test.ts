@@ -1,5 +1,5 @@
-import * as adapter from '@api3/adapter';
-import { ReservedParameterName } from '@api3/ois';
+import * as adapter from '@api3/airnode-adapter';
+import { ReservedParameterName } from '@api3/airnode-ois';
 import { callApi } from './call-api';
 import { RequestErrorMessage } from '../types';
 import * as fixtures from '../../test/fixtures';

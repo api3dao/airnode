@@ -24,7 +24,7 @@ jest.mock('../workers/cloud-platforms/aws', () => ({
 }));
 
 import fs from 'fs';
-import * as validator from '@api3/validator';
+import * as validator from '@api3/airnode-validator';
 import { ethers } from 'ethers';
 import * as providers from './actions';
 import * as fixtures from '../../test/fixtures';

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { encode } from '@api3/airnode-abi';
-import { ReservedParameterName } from '@api3/ois';
+import { ReservedParameterName } from '@api3/airnode-ois';
 import { startCoordinator } from '../../src/workers/local-handlers';
 import { operation } from '../fixtures';
 import { RequestErrorMessage } from '../../src/types';

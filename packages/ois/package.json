@@ -1,5 +1,5 @@
 {
-  "name": "@api3/ois",
+  "name": "@api3/airnode-ois",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index",

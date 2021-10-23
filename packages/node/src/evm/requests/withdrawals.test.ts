@@ -1,4 +1,4 @@
-import { RequestedWithdrawalEvent } from '@api3/protocol';
+import { RequestedWithdrawalEvent } from '@api3/airnode-protocol';
 import * as withdrawals from './withdrawals';
 import { parseAirnodeRrpLog } from './event-logs';
 import * as fixtures from '../../../test/fixtures';

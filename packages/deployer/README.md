@@ -1,4 +1,4 @@
-# @api3/deployer
+# @api3/airnode-deployer
 
 > Airnode deployment CLI and its docker image
 

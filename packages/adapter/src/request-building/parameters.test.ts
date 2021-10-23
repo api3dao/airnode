@@ -1,6 +1,6 @@
 /* eslint-disable functional/immutable-data */
 
-import { EndpointParameter, FixedParameter } from '@api3/ois';
+import { EndpointParameter, FixedParameter } from '@api3/airnode-ois';
 import * as parameters from './parameters';
 import * as fixtures from '../../test/fixtures';
 

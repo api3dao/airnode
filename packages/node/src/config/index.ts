@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { OIS } from '@api3/ois';
-import { validateJsonWithTemplate, Result } from '@api3/validator';
+import { OIS } from '@api3/airnode-ois';
+import { validateJsonWithTemplate, Result } from '@api3/airnode-validator';
 import template from 'lodash/template';
 import { Config } from '../types';
 import { randomString } from '../utils/string-utils';

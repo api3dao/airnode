@@ -1,4 +1,4 @@
-import { AirnodeRrpFactory, AccessControlRegistryFactory, authorizers, mocks } from '@api3/protocol';
+import { AccessControlRegistryFactory, AirnodeRrpFactory, authorizers, mocks } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 

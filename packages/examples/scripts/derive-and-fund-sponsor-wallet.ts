@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { deriveSponsorWalletAddress, deriveAirnodeXpub } from '@api3/admin';
+import { deriveSponsorWalletAddress, deriveAirnodeXpub } from '@api3/airnode-admin';
 import { cliPrint, getAirnodeWallet, getProvider, readIntegrationInfo, runAndHandleErrors } from '../src';
 
 const main = async () => {

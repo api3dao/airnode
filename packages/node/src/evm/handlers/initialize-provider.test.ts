@@ -9,7 +9,7 @@ mockEthers({
 });
 
 import { ethers } from 'ethers';
-import * as adapter from '@api3/adapter';
+import * as adapter from '@api3/airnode-adapter';
 import { initializeProvider } from './initialize-provider';
 import * as fixtures from '../../../test/fixtures';
 

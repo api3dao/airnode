@@ -4,7 +4,7 @@ import {
   AirnodeRrpAddresses,
   RequesterAuthorizerWithAirnodeAddresses,
   authorizers,
-} from '@api3/protocol';
+} from '@api3/airnode-protocol';
 
 async function getAirnodeRrpAddress(provider: ethers.providers.Provider) {
   const network = await provider.getNetwork();

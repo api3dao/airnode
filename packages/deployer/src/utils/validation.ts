@@ -1,5 +1,5 @@
-import { Config } from '@api3/node';
-import { validateJsonWithTemplate } from '@api3/validator';
+import { Config } from '@api3/airnode-node';
+import { validateJsonWithTemplate } from '@api3/airnode-validator';
 import * as logger from '../utils/logger';
 
 export function validateConfig(config: Config, nodeVersion: string) {

@@ -6,7 +6,7 @@ import { cliPrint, formatSecrets, getDeployedContract, readChainId, readIntegrat
 export const getCommonSecrets = async () => {
   const integrationInfo = readIntegrationInfo();
   const wallet = ethers.Wallet.createRandom();
-  const airnodeRrp = await getDeployedContract('@api3/protocol/contracts/rrp/AirnodeRrp.sol');
+  const airnodeRrp = await getDeployedContract('@api3/airnode-protocol/contracts/rrp/AirnodeRrp.sol');
 
   return [
     `PROVIDER_URL=${integrationInfo.providerUrl}`,

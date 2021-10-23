@@ -1,4 +1,4 @@
-import { execute } from '@api3/adapter';
+import { execute } from '@api3/airnode-adapter';
 import { getEnvValue } from '../config';
 import * as logger from '../logger';
 import { go } from '../utils';

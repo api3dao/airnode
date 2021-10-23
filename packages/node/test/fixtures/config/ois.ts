@@ -1,4 +1,4 @@
-import { OIS, ReservedParameterName } from '@api3/ois';
+import { OIS, ReservedParameterName } from '@api3/airnode-ois';
 
 export function buildOIS(ois?: Partial<OIS>): OIS {
   return {

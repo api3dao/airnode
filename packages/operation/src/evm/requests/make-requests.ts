@@ -1,5 +1,5 @@
 import { encode } from '@api3/airnode-abi';
-import { mocks } from '@api3/protocol';
+import { mocks } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
 import { FullRequest, RequestsState as State, RequestType, TemplateRequest, Request } from '../../types';
 import { deriveEndpointId, getSponsorWallet } from '../utils';
