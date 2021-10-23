@@ -95,8 +95,8 @@ src/
 ### config.json
 
 Before you can use or invoke Airnode locally, you must have a valid `config.json` in the `__dev__` folder. You can find
-the [config.json](https://github.com/api3dao/api3-docs/blob/master/airnode/config-json.md) specifications with the
-[API3 documentation](https://github.com/api3dao/api3-docs).
+the specification in the
+[config.json documentation](https://docs.api3.org/airnode/v0.2/reference/deployment-files/config-json.html).
 
 For your convenience, example `config.json` and `.env` files are provided in the `__dev__` folder. You can simply copy
 these files and remove the `.example` extension.

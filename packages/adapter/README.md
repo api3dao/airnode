@@ -1,8 +1,8 @@
 # @api3/airnode-adapter
 
 The adapter package for @api3 contains logic for building requests from an
-[Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md), executing
-those requests and returning a single value from the response.
+[Oracle Integration Specification (OIS)](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/api-integration.html#ois-template),
+executing those requests and returning a single value from the response.
 
 ## Getting Started
 
