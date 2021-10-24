@@ -19,9 +19,6 @@ contract AccessControlRegistry is
     RoleDeriver,
     IAccessControlRegistry
 {
-    /// @notice Returns the manager the role belongs to
-    mapping(bytes32 => address) public override roleToManager;
-
     /// @notice Initializes the manager by initializing its root role and
     /// granting it to them
     /// @dev Anyone can initialize a manager. An uninitialized manager
@@ -33,7 +30,6 @@ contract AccessControlRegistry is
         bytes32 rootRole = deriveRootRole(manager);
         if (!hasRole(rootRole, manager)) {
             _setupRole(rootRole, manager);
-            roleToManager[rootRole] = manager;
             emit InitializedManager(manager, rootRole);
         }
     }
@@ -77,7 +73,6 @@ contract AccessControlRegistry is
                 initializeManager(_msgSender());
             }
             _setRoleAdmin(role, adminRole);
-            roleToManager[role] = roleToManager[adminRole];
             emit InitializedRole(role, adminRole, description, _msgSender());
         }
         grantRole(role, _msgSender());

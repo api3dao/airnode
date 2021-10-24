@@ -34,9 +34,4 @@ interface IAccessControlRegistry is IAccessControl {
         external
         pure
         returns (bytes32 role);
-
-    function roleToManager(bytes32 role)
-        external
-        view
-        returns (address manager);
 }
