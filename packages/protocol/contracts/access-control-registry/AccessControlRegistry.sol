@@ -2,11 +2,23 @@
 pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./RoleDeriver.sol";
 import "./interfaces/IAccessControlRegistry.sol";
 
-/// @title Access control registry contract that allows users manage
-/// independent tree-shaped access control tables
-contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
+/// @title Contract that allows users to manage independent, tree-shaped access
+/// control tables
+/// @notice Multiple contracts can refer to this contract to check if their
+/// users have granted accounts with specific roles. Therefore, it aims to keep
+/// all access control roles of its users in this single contract.
+/// @dev Each user is called a "manager", and are the only member of their root
+/// role. Starting from this root role, one can create an arbitrary tree of
+/// roles and grant these to accounts. Each role has a description, and roles
+/// adminned by the same role cannot have the same description.
+contract AccessControlRegistry is
+    AccessControl,
+    RoleDeriver,
+    IAccessControlRegistry
+{
     /// @notice Returns the manager the role belongs to
     mapping(bytes32 => address) public override roleToManager;
 
@@ -14,9 +26,9 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
     /// granting it to them
     /// @dev Anyone can initialize a manager. An uninitialized manager
     /// attempting to initialize a role will be initialized automatically.
-    /// Once a manager is initialized, subsequent initialization have no
+    /// Once a manager is initialized, subsequent initializations have no
     /// effect.
-    /// @param manager Manager address
+    /// @param manager Manager address to be initialized
     function initializeManager(address manager) public override {
         bytes32 rootRole = deriveRootRole(manager);
         if (!hasRole(rootRole, manager)) {
@@ -26,9 +38,10 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
         }
     }
 
-    /// @notice Overriden to disallow managers from renouncing their root roles
+    /// @notice Called for the account to renounce the role
+    /// @dev Overriden to disallow managers from renouncing their root roles
     /// @param role Role to be renounced
-    /// @param account Account that will renounce the role
+    /// @param account Account to renounce the role
     function renounceRole(bytes32 role, address account)
         public
         override(AccessControl, IAccessControl)
@@ -40,7 +53,8 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
         AccessControl.renounceRole(role, account);
     }
 
-    /// @notice Initializes a role, which includes granting it to the sender
+    /// @notice Initializes a role, which includes setting its admin,
+    /// associating it with its manager and granting it to the sender
     /// @dev If the sender should not have the initialized role, they should
     /// explicitly renounce it afterwards.
     /// Once a role is initialized, subsequent initialization have no effect,
@@ -49,9 +63,9 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
     /// If the sender is an uninitialized manager that is initializing a role
     /// directly under their root role, manager initialization will happen
     /// automatically, which will grant the sender `adminRole`.
-    /// @param adminRole Admin role of the initialized role
+    /// @param adminRole Admin role to be assigned to the initialized role
     /// @param description Human-readable description of the initialized role
-    /// @return role ID of the initialized role
+    /// @return role Initialized role
     function initializeRole(bytes32 adminRole, string calldata description)
         public
         override
@@ -69,16 +83,15 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
         grantRole(role, _msgSender());
     }
 
-    /// @notice Initializes roles and grants them to the respective accounts in
-    /// addition to the sender
+    /// @notice Initializes roles and grants them to the respective accounts
     /// @dev If a specific role should be initialized but not granted to an
-    /// account (in addition to the sender), the respective account parameter
-    /// can be left as `address(0)`.
-    /// @param adminRoles Admin roles of the initialized roles
+    /// account, the respective account parameter can be left as `address(0)`.
+    /// Lengths of the arguments must be equal, and less than 33.
+    /// @param adminRoles Admin role to be assigned to the initialized roles
     /// @param descriptions Human-readable descriptions of the initialized
     /// roles
     /// @param accounts Accounts the initialized roles will be granted to
-    /// @return roles IDs of the initalized roles
+    /// @return roles Initialized roles
     function initializeAndGrantRoles(
         bytes32[] calldata adminRoles,
         string[] calldata descriptions,
@@ -100,30 +113,30 @@ contract AccessControlRegistry is AccessControl, IAccessControlRegistry {
         }
     }
 
-    /// @notice Derives ID of the root role from the manager address
+    /// @notice Derives the root role of the manager
     /// @param manager Manager address
-    /// @return rootRole ID of the root role
+    /// @return rootRole Root role
     function deriveRootRole(address manager)
         public
         pure
         override
         returns (bytes32 rootRole)
     {
-        rootRole = keccak256(abi.encodePacked(manager));
+        rootRole = _deriveRootRole(manager);
     }
 
-    /// @notice Derives the ID of the role from its admin role and description
+    /// @notice Derives the role using its admin role and description
     /// @dev This implies that roles adminned by the same role cannot have the
     /// same description
-    /// @param adminRole Admin role of the role
-    /// @param description Description of the role
-    /// @return role ID of the role
+    /// @param adminRole Admin role
+    /// @param description Description
+    /// @return role Role
     function deriveRole(bytes32 adminRole, string calldata description)
         public
         pure
         override
         returns (bytes32 role)
     {
-        role = keccak256(abi.encodePacked(adminRole, description));
+        role = _deriveRole(adminRole, description);
     }
 }

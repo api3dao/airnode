@@ -37,7 +37,7 @@ describe('constructor', function () {
     it('reverts', async function () {
       const accessControlAgentFactory = await hre.ethers.getContractFactory('AccessControlAgent', roles.deployer);
       await expect(accessControlAgentFactory.deploy(hre.ethers.constants.AddressZero)).to.be.revertedWith(
-        'Zero address'
+        'ACR address zero'
       );
     });
   });
@@ -62,7 +62,7 @@ describe('initializeRole', function () {
   });
 });
 
-describe('initializeAndGrantRole', function () {
+describe('initializeAndGrantRoles', function () {
   describe('Sender is agent owner', function () {
     it('initializes role', async function () {
       await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);

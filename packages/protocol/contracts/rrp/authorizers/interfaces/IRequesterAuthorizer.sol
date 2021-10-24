@@ -66,38 +66,11 @@ interface IRequesterAuthorizer is IAuthorizer {
         address setter
     ) external;
 
-    function deriveRequesterAuthorizerRole(
-        address airnode,
-        string memory roleDescription
-    ) external view returns (bytes32 role);
-
     function requesterIsWhitelisted(
         address airnode,
         bytes32 endpointId,
         address requester
     ) external view returns (bool isWhitelisted);
-
-    function adminRoleDescription() external view returns (string memory);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION()
-        external
-        view
-        returns (string memory);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION()
-        external
-        view
-        returns (string memory);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
-        external
-        view
-        returns (string memory);
-
-    function accessControlRegistry() external view returns (address);
 
     function airnodeToEndpointIdToRequesterToWhitelistStatus(
         address airnode,

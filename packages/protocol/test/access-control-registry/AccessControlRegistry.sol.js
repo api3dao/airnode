@@ -353,10 +353,13 @@ describe('deriveRootRole', function () {
 });
 
 describe('deriveRole', function () {
-  it('derives role by hashing the adminRole and description', async function () {
+  it('derives role by hashing the adminRole and the description hash', async function () {
     expect(await accessControlRegistry.deriveRole(managerRootRole, roleDescription)).to.equal(
       hre.ethers.utils.keccak256(
-        hre.ethers.utils.solidityPack(['bytes32', 'string'], [managerRootRole, roleDescription])
+        hre.ethers.utils.solidityPack(
+          ['bytes32', 'bytes32'],
+          [managerRootRole, hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(['string'], [roleDescription]))]
+        )
       )
     );
   });

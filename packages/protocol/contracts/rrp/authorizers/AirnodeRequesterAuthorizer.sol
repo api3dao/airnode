@@ -3,61 +3,22 @@ pragma solidity 0.8.6;
 
 import "./RequesterAuthorizer.sol";
 import "../../access-control-registry/RoleDeriver.sol";
-import "./interfaces/IDaoRequesterAuthorizer.sol";
+import "./interfaces/IAirnodeRequesterAuthorizer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
-/// @title Authorizer contract that a DAO can use to temporarily or
+/// @title Authorizer contract that Airnodes can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
-/// @notice The DAO address here will most likely belong to an
-/// AccessControlAgent contract that is owned by the DAO, rather than being
-/// the DAO itself
-contract DaoRequesterAuthorizer is
+contract AirnodeRequesterAuthorizer is
     RequesterAuthorizer,
     RoleDeriver,
-    IDaoRequesterAuthorizer
+    IAirnodeRequesterAuthorizer
 {
-    /// @notice Address of the DAO that manages the related
-    /// AccessControlRegistry roles
-    address public immutable override dao;
-
-    /// @notice Admin role
-    bytes32 public immutable override adminRole;
-
-    /// @notice Whitelist expiration extender role
-    bytes32 public immutable override whitelistExpirationExtenderRole;
-
-    /// @notice Whitelist expiration setter role
-    bytes32 public immutable override whitelistExpirationSetterRole;
-
-    /// @notice Indefinite whitelister role
-    bytes32 public immutable override indefiniteWhitelisterRole;
-
     /// @param _accessControlRegistry AccessControlRegistry address
     /// @param _adminRoleDescription Admin role description
-    /// @param _dao DAO address
     constructor(
         address _accessControlRegistry,
-        string memory _adminRoleDescription,
-        address _dao
-    ) RequesterAuthorizer(_accessControlRegistry, _adminRoleDescription) {
-        require(_dao != address(0), "DAO address zero");
-        dao = _dao;
-        bytes32 daoRootRole = _deriveRootRole(_dao);
-        bytes32 _adminRole = _deriveRole(daoRootRole, _adminRoleDescription);
-        adminRole = _adminRole;
-        whitelistExpirationExtenderRole = _deriveRole(
-            _adminRole,
-            WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
-        );
-        whitelistExpirationSetterRole = _deriveRole(
-            _adminRole,
-            WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
-        );
-        indefiniteWhitelisterRole = _deriveRole(
-            _adminRole,
-            INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH
-        );
-    }
+        string memory _adminRoleDescription
+    ) RequesterAuthorizer(_accessControlRegistry, _adminRoleDescription) {}
 
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair if the sender has the
@@ -75,7 +36,7 @@ contract DaoRequesterAuthorizer is
     ) external override {
         require(
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                whitelistExpirationExtenderRole,
+                deriveWhitelistExpirationExtenderRole(airnode),
                 msg.sender
             ),
             "Not expiration extender"
@@ -105,7 +66,7 @@ contract DaoRequesterAuthorizer is
     ) external override {
         require(
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                whitelistExpirationSetterRole,
+                deriveWhitelistExpirationSetterRole(airnode),
                 msg.sender
             ),
             "Not expiration setter"
@@ -133,7 +94,7 @@ contract DaoRequesterAuthorizer is
     ) external override {
         require(
             IAccessControlRegistry(accessControlRegistry).hasRole(
-                indefiniteWhitelisterRole,
+                deriveIndefiniteWhitelisterRole(airnode),
                 msg.sender
             ),
             "Not indefinite whitelister"
@@ -160,7 +121,7 @@ contract DaoRequesterAuthorizer is
     ) external override {
         require(
             !IAccessControlRegistry(accessControlRegistry).hasRole(
-                indefiniteWhitelisterRole,
+                deriveIndefiniteWhitelisterRole(airnode),
                 setter
             ),
             "setter is indefinite whitelister"
@@ -170,6 +131,70 @@ contract DaoRequesterAuthorizer is
             endpointId,
             requester,
             setter
+        );
+    }
+
+    /// @notice Derives the admin role for the specific Airnode address
+    /// @param airnode Airnode address
+    /// @return adminRole Admin role
+    function deriveAdminRole(address airnode)
+        public
+        view
+        override
+        returns (bytes32 adminRole)
+    {
+        adminRole = _deriveRole(
+            _deriveRootRole(airnode),
+            adminRoleDescriptionHash
+        );
+    }
+
+    /// @notice Derives the whitelist expiration extender role for the specific
+    /// Airnode address
+    /// @param airnode Airnode address
+    /// @return whitelistExpirationExtenderRole Whitelist expiration extender
+    /// role
+    function deriveWhitelistExpirationExtenderRole(address airnode)
+        public
+        view
+        override
+        returns (bytes32 whitelistExpirationExtenderRole)
+    {
+        whitelistExpirationExtenderRole = _deriveRole(
+            deriveAdminRole(airnode),
+            WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
+    /// @notice Derives the whitelist expiration setter role for the specific
+    /// Airnode address
+    /// @param airnode Airnode address
+    /// @return whitelistExpirationSetterRole Whitelist expiration setter role
+    function deriveWhitelistExpirationSetterRole(address airnode)
+        public
+        view
+        override
+        returns (bytes32 whitelistExpirationSetterRole)
+    {
+        whitelistExpirationSetterRole = _deriveRole(
+            deriveAdminRole(airnode),
+            WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
+    /// @notice Derives the indefinite whitelister role for the specific
+    /// Airnode address
+    /// @param airnode Airnode address
+    /// @return indefiniteWhitelisterRole Indefinite whitelister role
+    function deriveIndefiniteWhitelisterRole(address airnode)
+        public
+        view
+        override
+        returns (bytes32 indefiniteWhitelisterRole)
+    {
+        indefiniteWhitelisterRole = _deriveRole(
+            deriveAdminRole(airnode),
+            INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH
         );
     }
 }

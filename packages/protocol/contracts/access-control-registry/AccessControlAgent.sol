@@ -5,11 +5,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IAccessControlRegistry.sol";
 import "./interfaces/IAccessControlAgent.sol";
 
-/// @title An agent contract that is meant to be used as a proxy for
+/// @title Contract that acts as an agent that will interact with
 /// AccessControlRegistry
 /// @notice AccessControlRegistry users that want their access control tables
 /// to be transferrable (e.g., a DAO) will use this. There are cases where this
-/// transferrability is not desired, e.g., if the user is an Airnode.
+/// transferrability is not desired, e.g., if the user is an Airnode and is
+/// immutably associated with a single address.
 contract AccessControlAgent is Ownable, IAccessControlAgent {
     /// @notice Address of the AccessControlRegistry contract that this
     /// contract interfaces with
@@ -18,15 +19,16 @@ contract AccessControlAgent is Ownable, IAccessControlAgent {
     /// @param _accessControlRegistry Address of the AccessControlRegistry
     /// contract
     constructor(address _accessControlRegistry) {
-        require(_accessControlRegistry != address(0), "Zero address");
+        require(_accessControlRegistry != address(0), "ACR address zero");
         accessControlRegistry = _accessControlRegistry;
     }
 
-    /// @notice Initializes a role, which includes granting it to the sender
+    /// @notice Initializes a role, which includes setting its admin,
+    /// associating it with its manager and granting it to the sender
     /// @dev See AccessControlRegistry.sol for details
-    /// @param adminRole Admin role of the initialized role
+    /// @param adminRole Admin role to be assigned to the initialized role
     /// @param description Human-readable description of the initialized role
-    /// @return role ID of the initialized role
+    /// @return role Initialized role
     function initializeRole(bytes32 adminRole, string calldata description)
         external
         override
@@ -39,14 +41,13 @@ contract AccessControlAgent is Ownable, IAccessControlAgent {
         );
     }
 
-    /// @notice Initializes roles and grants them to the respective accounts in
-    /// addition to the sender
+    /// @notice Initializes roles and grants them to the respective accounts
     /// @dev See AccessControlRegistry.sol for details
-    /// @param adminRoles Admin roles of the initialized roles
+    /// @param adminRoles Admin role to be assigned to the initialized roles
     /// @param descriptions Human-readable descriptions of the initialized
     /// roles
     /// @param accounts Accounts the initialized roles will be granted to
-    /// @return roles IDs of the initalized roles
+    /// @return roles Initialized roles
     function initializeAndGrantRoles(
         bytes32[] calldata adminRoles,
         string[] calldata descriptions,
@@ -80,10 +81,10 @@ contract AccessControlAgent is Ownable, IAccessControlAgent {
         IAccessControlRegistry(accessControlRegistry).revokeRole(role, account);
     }
 
-    /// @notice Revokes role
+    /// @notice Renounces role
     /// @dev See AccessControlRegistry.sol for details
     /// @param role Role to be renounced
-    /// @param account Account that will be renouncing the role
+    /// @param account Account to renounce the role
     function renounceRole(bytes32 role, address account)
         external
         override
