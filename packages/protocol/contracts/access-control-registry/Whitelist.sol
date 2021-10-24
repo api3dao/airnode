@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "./RoleDeriver.sol";
 import "./interfaces/IWhitelist.sol";
 
 /// @title Contract that implements a generic whitelist
@@ -14,7 +15,7 @@ import "./interfaces/IWhitelist.sol";
 /// there is at least one active indefinite whitelist.
 /// Indefinite whitelists can be revoked if the sender that set them no
 /// longer has the indefinite whitelister role.
-contract Whitelist is IWhitelist {
+contract Whitelist is RoleDeriver, IWhitelist {
     struct WhitelistStatus {
         uint64 expirationTimestamp;
         uint192 indefiniteWhitelistCount;
@@ -39,7 +40,7 @@ contract Whitelist is IWhitelist {
         "Whitelist expiration setter";
     string public constant override INDEFINITE_WHITELISTER_ROLE_DESCRIPTION =
         "Indefinite whitelister";
-    bytes32 internal immutable adminRoleDescriptionHash;
+    bytes32 internal adminRoleDescriptionHash;
     bytes32
         internal constant WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH =
         keccak256(
@@ -208,5 +209,65 @@ contract Whitelist is IWhitelist {
         return
             whitelistStatus.indefiniteWhitelistCount > 0 ||
             whitelistStatus.expirationTimestamp > block.timestamp;
+    }
+
+    /// @notice Derives the admin role for the specific manager address
+    /// @param manager Manager address
+    /// @return adminRole Admin role
+    function _deriveAdminRole(address manager)
+        internal
+        view
+        returns (bytes32 adminRole)
+    {
+        adminRole = _deriveRole(
+            _deriveRootRole(manager),
+            adminRoleDescriptionHash
+        );
+    }
+
+    /// @notice Derives the whitelist expiration extender role for the specific
+    /// manager address
+    /// @param manager Manager address
+    /// @return whitelistExpirationExtenderRole Whitelist expiration extender
+    /// role
+    function _deriveWhitelistExpirationExtenderRole(address manager)
+        internal
+        view
+        returns (bytes32 whitelistExpirationExtenderRole)
+    {
+        whitelistExpirationExtenderRole = _deriveRole(
+            _deriveAdminRole(manager),
+            WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
+    /// @notice Derives the whitelist expiration setter role for the specific
+    /// manager address
+    /// @param manager Manager address
+    /// @return whitelistExpirationSetterRole Whitelist expiration setter role
+    function _deriveWhitelistExpirationSetterRole(address manager)
+        internal
+        view
+        returns (bytes32 whitelistExpirationSetterRole)
+    {
+        whitelistExpirationSetterRole = _deriveRole(
+            _deriveAdminRole(manager),
+            WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
+    /// @notice Derives the indefinite whitelister role for the specific
+    /// manager address
+    /// @param manager Manager address
+    /// @return indefiniteWhitelisterRole Indefinite whitelister role
+    function _deriveIndefiniteWhitelisterRole(address manager)
+        internal
+        view
+        returns (bytes32 indefiniteWhitelisterRole)
+    {
+        indefiniteWhitelisterRole = _deriveRole(
+            _deriveAdminRole(manager),
+            INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH
+        );
     }
 }

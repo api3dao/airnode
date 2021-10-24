@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../adminnable/Adminnable.sol";
-import "../../adminnable/Whitelister.sol";
+import "../../access-control-registry/Whitelist.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
+import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
 /// @notice A beacon is a live data point associated with a template ID. This
@@ -17,27 +17,32 @@ import "./interfaces/IRrpBeaconServer.sol";
 /// a completely different type such as `bytes32`), do not use this contract
 /// and implement a customized version instead.
 /// The contract casts the timestamps to `uint32`, which means it will not work
-/// work past-2038 in the current form. If this is an issue, consider casting
+/// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract RrpBeaconServer is
-    Adminnable,
-    Whitelister,
-    RrpRequester,
-    IRrpBeaconServer
-{
-    enum AdminRank {
-        Unauthorized,
-        Admin,
-        SuperAdmin
-    }
-
+contract RrpBeaconServer is Whitelist, RrpRequester, IRrpBeaconServer {
     struct Beacon {
         int224 value;
         uint32 timestamp;
     }
 
-    /// @notice Called to check if a sponsor has permitted an account to
-    /// request updates at this contract
+    /// @notice Address of the account that manages the related
+    /// AccessControlRegistry roles
+    address public immutable override manager;
+
+    /// @notice Admin role
+    bytes32 public immutable override adminRole;
+
+    /// @notice Whitelist expiration extender role
+    bytes32 public immutable override whitelistExpirationExtenderRole;
+
+    /// @notice Whitelist expiration setter role
+    bytes32 public immutable override whitelistExpirationSetterRole;
+
+    /// @notice Indefinite whitelister role
+    bytes32 public immutable override indefiniteWhitelisterRole;
+
+    /// @notice Returns if a sponsor has permitted an account to request
+    /// updates at this contract
     mapping(address => mapping(address => bool))
         public
         override sponsorToUpdateRequesterToPermissionStatus;
@@ -53,8 +58,150 @@ contract RrpBeaconServer is
         _;
     }
 
-    /// @param airnodeRrp_ Airnode RRP address
-    constructor(address airnodeRrp_) RrpRequester(airnodeRrp_) {}
+    /// @param _accessControlRegistry AccessControlRegistry address
+    /// @param _adminRoleDescription Admin role description
+    /// @param _airnodeRrp Airnode RRP contract address
+    /// @param _manager Manager address
+    constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription,
+        address _airnodeRrp,
+        address _manager
+    )
+        Whitelist(_accessControlRegistry, _adminRoleDescription)
+        RrpRequester(_airnodeRrp)
+    {
+        require(_manager != address(0), "Manager address zero");
+        manager = _manager;
+        adminRole = _deriveAdminRole(_manager);
+        whitelistExpirationExtenderRole = _deriveWhitelistExpirationExtenderRole(
+            _manager
+        );
+        whitelistExpirationSetterRole = _deriveWhitelistExpirationSetterRole(
+            _manager
+        );
+        indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(_manager);
+    }
+
+    /// @notice Extends the expiration of the temporary whitelist of `reader`
+    /// to be able to read the beacon with `templateId` if the sender has the
+    /// whitelist expiration extender role
+    /// @param templateId Template ID
+    /// @param reader Reader address
+    /// @param expirationTimestamp Timestamp at which the temporary whitelist
+    /// will expire
+    function extendWhitelistExpiration(
+        bytes32 templateId,
+        address reader,
+        uint64 expirationTimestamp
+    ) external override {
+        require(
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                whitelistExpirationExtenderRole,
+                msg.sender
+            ),
+            "Not expiration extender"
+        );
+        _extendWhitelistExpiration(templateId, reader, expirationTimestamp);
+        emit ExtendedWhitelistExpiration(
+            templateId,
+            reader,
+            msg.sender,
+            expirationTimestamp
+        );
+    }
+
+    /// @notice Sets the expiration of the temporary whitelist of `reader` to
+    /// be able to read the beacon with `templateId` if the sender has the
+    /// whitelist expiration extender role
+    /// @param templateId Template ID
+    /// @param reader Reader address
+    /// @param expirationTimestamp Timestamp at which the temporary whitelist
+    /// will expire
+    function setWhitelistExpiration(
+        bytes32 templateId,
+        address reader,
+        uint64 expirationTimestamp
+    ) external override {
+        require(
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                whitelistExpirationSetterRole,
+                msg.sender
+            ),
+            "Not expiration setter"
+        );
+        _setWhitelistExpiration(templateId, reader, expirationTimestamp);
+        emit SetWhitelistExpiration(
+            templateId,
+            reader,
+            msg.sender,
+            expirationTimestamp
+        );
+    }
+
+    /// @notice Sets the indefinite whitelist status of `reader` to be able to
+    /// read the beacon with `templateId` if the sender has the indefinite
+    /// whitelister role
+    /// @param templateId Template ID
+    /// @param reader Reader address
+    /// @param status Indefinite whitelist status
+    function setIndefiniteWhitelistStatus(
+        bytes32 templateId,
+        address reader,
+        bool status
+    ) external override {
+        require(
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                indefiniteWhitelisterRole,
+                msg.sender
+            ),
+            "Not indefinite whitelister"
+        );
+        uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
+            templateId,
+            reader,
+            status
+        );
+        emit SetIndefiniteWhitelistStatus(
+            templateId,
+            reader,
+            msg.sender,
+            status,
+            indefiniteWhitelistCount
+        );
+    }
+
+    /// @notice Revokes the indefinite whitelist status granted by a specific
+    /// account that no longer has the indefinite whitelister role
+    /// @param templateId Template ID
+    /// @param reader Reader address
+    /// @param setter Setter of the indefinite whitelist status
+    function revokeIndefiniteWhitelistStatus(
+        bytes32 templateId,
+        address reader,
+        address setter
+    ) external override {
+        require(
+            !IAccessControlRegistry(accessControlRegistry).hasRole(
+                indefiniteWhitelisterRole,
+                setter
+            ),
+            "setter is indefinite whitelister"
+        );
+        (
+            bool revoked,
+            uint192 indefiniteWhitelistCount
+        ) = _revokeIndefiniteWhitelistStatus(templateId, reader, setter);
+        if (revoked) {
+            emit RevokedIndefiniteWhitelistStatus(
+                templateId,
+                reader,
+                setter,
+                msg.sender,
+                indefiniteWhitelistCount
+            );
+        }
+    }
 
     /// @notice Called by the sponsor to set the update request permission
     /// status of an account
@@ -146,92 +293,13 @@ contract RrpBeaconServer is
         );
     }
 
-    /// @notice Called by an admin to extend the whitelist expiration of a user
-    /// for the beacon
-    /// @param templateId Template ID
-    /// @param user User address
-    /// @param expirationTimestamp Timestamp at which the user will no longer
-    /// be whitelisted
-    function extendWhitelistExpiration(
-        bytes32 templateId,
-        address user,
-        uint64 expirationTimestamp
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.Admin))
-        onlyIfTimestampExtends(templateId, user, expirationTimestamp)
-        onlyIfTemplateExists(templateId)
-    {
-        serviceIdToUserToWhitelistStatus[templateId][user]
-            .expirationTimestamp = expirationTimestamp;
-        emit ExtendedWhitelistExpiration(
-            templateId,
-            user,
-            msg.sender,
-            expirationTimestamp
-        );
-    }
-
-    /// @notice Called by a super admin to set the whitelisting expiration of a
-    /// user for the beacon
-    /// @dev Unlike `extendWhitelistExpiration()`, this can hasten expiration
-    /// @param templateId Template ID
-    /// @param user User address
-    /// @param expirationTimestamp Timestamp at which the whitelisting of the
-    /// user will expire
-    function setWhitelistExpiration(
-        bytes32 templateId,
-        address user,
-        uint64 expirationTimestamp
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.SuperAdmin))
-        onlyIfTemplateExists(templateId)
-    {
-        serviceIdToUserToWhitelistStatus[templateId][user]
-            .expirationTimestamp = expirationTimestamp;
-        emit SetWhitelistExpiration(
-            templateId,
-            user,
-            msg.sender,
-            expirationTimestamp
-        );
-    }
-
-    /// @notice Called by a super admin to set the whitelist status of a user
-    /// past expiration for the beacon
-    /// @param templateId Template ID
-    /// @param user User address
-    /// @param status Whitelist status that the user will have past expiration
-    function setWhitelistStatusPastExpiration(
-        bytes32 templateId,
-        address user,
-        bool status
-    )
-        external
-        override
-        onlyWithRank(uint256(AdminRank.SuperAdmin))
-        onlyIfTemplateExists(templateId)
-    {
-        serviceIdToUserToWhitelistStatus[templateId][user]
-            .whitelistedPastExpiration = status;
-        emit SetWhitelistStatusPastExpiration(
-            templateId,
-            user,
-            msg.sender,
-            status
-        );
-    }
-
     /// @notice Called to read the beacon
     /// @dev The caller must be whitelisted.
     /// If the `timestamp` of a beacon is zero, this means that it was never
     /// written to before, and the zero value in the `value` field is not
     /// valid. In general, make sure to check if the timestamp of the beacon is
     /// fresh enough, and definitely disregard beacons with zero `timestamp`.
-    /// @param templateId Template ID whose beacon will be returned
+    /// @param templateId Template ID of the beacon that will be returned
     /// @return value Beacon value
     /// @return timestamp Beacon timestamp
     function readBeacon(bytes32 templateId)
@@ -241,50 +309,68 @@ contract RrpBeaconServer is
         returns (int224 value, uint32 timestamp)
     {
         require(
-            userCanReadBeacon(templateId, msg.sender),
+            readerCanReadBeacon(templateId, msg.sender),
             "Caller not whitelisted"
         );
         Beacon storage beacon = templateIdToBeacon[templateId];
         return (beacon.value, beacon.timestamp);
     }
 
-    /// @notice Called to check if a user is whitelisted to read the beacon
+    /// @notice Called to check if a reader is whitelisted to read the beacon
     /// @param templateId Template ID
-    /// @param user User address
-    /// @return isWhitelisted If the user is whitelisted
-    function userCanReadBeacon(bytes32 templateId, address user)
+    /// @param reader Reader address
+    /// @return isWhitelisted If the reader is whitelisted
+    function readerCanReadBeacon(bytes32 templateId, address reader)
         public
         view
         override
         onlyIfTemplateExists(templateId)
-        returns (bool isWhitelisted)
+        returns (bool)
     {
-        return
-            userIsWhitelisted(templateId, user) ||
-            adminToRank[user] >= uint256(AdminRank.Admin) ||
-            user == metaAdmin;
+        return userIsWhitelisted(templateId, reader);
     }
 
-    /// @notice Called to get the detailed whitelist status of a user for the
-    /// beacon
+    /// @notice Called to get the detailed whitelist status of the reader for
+    /// the beacon
     /// @param templateId Template ID
-    /// @param user User address
+    /// @param reader Reader address
     /// @return expirationTimestamp Timestamp at which the whitelisting of the
-    /// user will expire
-    /// @return whitelistedPastExpiration Whitelist status that the user will
-    /// have past expiration
-    function templateIdToUserToWhitelistStatus(bytes32 templateId, address user)
+    /// reader will expire
+    /// @return indefiniteWhitelistCount Number of times `reader` was
+    /// whitelisted indefinitely for `templateId`
+    function templateIdToReaderToWhitelistStatus(
+        bytes32 templateId,
+        address reader
+    )
         external
         view
         override
         onlyIfTemplateExists(templateId)
-        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration)
+        returns (uint64 expirationTimestamp, uint192 indefiniteWhitelistCount)
     {
         WhitelistStatus
             storage whitelistStatus = serviceIdToUserToWhitelistStatus[
                 templateId
-            ][user];
+            ][reader];
         expirationTimestamp = whitelistStatus.expirationTimestamp;
-        whitelistedPastExpiration = whitelistStatus.whitelistedPastExpiration;
+        indefiniteWhitelistCount = whitelistStatus.indefiniteWhitelistCount;
+    }
+
+    /// @notice Returns if an account has indefinitely whitelisted the reader
+    /// for the beacon
+    /// @param templateId Template ID
+    /// @param reader Reader address
+    /// @param setter Address of the account that has potentially whitelisted
+    /// the reader for the beacon indefinitely
+    /// @return indefiniteWhitelistStatus If `setter` has indefinitely
+    /// whitelisted reader for the beacon
+    function templateIdToReaderToSetterToIndefiniteWhitelistStatus(
+        bytes32 templateId,
+        address reader,
+        address setter
+    ) external view override returns (bool indefiniteWhitelistStatus) {
+        indefiniteWhitelistStatus = serviceIdToUserToSetterToIndefiniteWhitelistStatus[
+            templateId
+        ][reader][setter];
     }
 }

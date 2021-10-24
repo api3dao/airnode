@@ -19,9 +19,9 @@ contract RrpRequester {
     /// RrpRequester is made its own sponsor by default. RrpRequester can also
     /// be sponsored by others and use these sponsorships while making
     /// requests, i.e., using this default sponsorship is optional.
-    /// @param airnodeRrp_ Airnode RRP contract address
-    constructor(address airnodeRrp_) {
-        airnodeRrp = IAirnodeRrp(airnodeRrp_);
-        IAirnodeRrp(airnodeRrp_).setSponsorshipStatus(address(this), true);
+    /// @param _airnodeRrp Airnode RRP contract address
+    constructor(address _airnodeRrp) {
+        airnodeRrp = IAirnodeRrp(_airnodeRrp);
+        IAirnodeRrp(_airnodeRrp).setSponsorshipStatus(address(this), true);
     }
 }

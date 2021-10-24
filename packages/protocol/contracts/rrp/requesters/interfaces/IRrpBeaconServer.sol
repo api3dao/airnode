@@ -1,9 +1,39 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../../adminnable/interfaces/IAdminnable.sol";
+import "../../../access-control-registry/interfaces/IWhitelist.sol";
 
-interface IRrpBeaconServer is IAdminnable {
+interface IRrpBeaconServer is IWhitelist {
+    event ExtendedWhitelistExpiration(
+        bytes32 indexed templateId,
+        address indexed reader,
+        address indexed sender,
+        uint256 expiration
+    );
+
+    event SetWhitelistExpiration(
+        bytes32 indexed templateId,
+        address indexed reader,
+        address indexed sender,
+        uint256 expiration
+    );
+
+    event SetIndefiniteWhitelistStatus(
+        bytes32 indexed templateId,
+        address indexed reader,
+        address indexed sender,
+        bool status,
+        uint192 indefiniteWhitelistCount
+    );
+
+    event RevokedIndefiniteWhitelistStatus(
+        bytes32 indexed templateId,
+        address indexed reader,
+        address indexed setter,
+        address sender,
+        uint192 indefiniteWhitelistCount
+    );
+
     event SetUpdatePermissionStatus(
         address indexed sponsor,
         address indexed updateRequester,
@@ -25,26 +55,29 @@ interface IRrpBeaconServer is IAdminnable {
         uint32 timestamp
     );
 
-    event ExtendedWhitelistExpiration(
-        bytes32 indexed templateId,
-        address indexed user,
-        address indexed admin,
-        uint256 expiration
-    );
+    function extendWhitelistExpiration(
+        bytes32 templateId,
+        address reader,
+        uint64 expirationTimestamp
+    ) external;
 
-    event SetWhitelistExpiration(
-        bytes32 indexed templateId,
-        address indexed user,
-        address indexed admin,
-        uint256 expiration
-    );
+    function setWhitelistExpiration(
+        bytes32 templateId,
+        address reader,
+        uint64 expirationTimestamp
+    ) external;
 
-    event SetWhitelistStatusPastExpiration(
-        bytes32 indexed templateId,
-        address indexed user,
-        address indexed admin,
+    function setIndefiniteWhitelistStatus(
+        bytes32 templateId,
+        address reader,
         bool status
-    );
+    ) external;
+
+    function revokeIndefiniteWhitelistStatus(
+        bytes32 templateId,
+        address reader,
+        address setter
+    ) external;
 
     function setUpdatePermissionStatus(address updateRequester, bool status)
         external;
@@ -57,38 +90,39 @@ interface IRrpBeaconServer is IAdminnable {
 
     function fulfill(bytes32 requestId, bytes calldata data) external;
 
-    function extendWhitelistExpiration(
-        bytes32 templateId,
-        address user,
-        uint64 expirationTimestamp
-    ) external;
-
-    function setWhitelistExpiration(
-        bytes32 templateId,
-        address user,
-        uint64 expirationTimestamp
-    ) external;
-
-    function setWhitelistStatusPastExpiration(
-        bytes32 templateId,
-        address user,
-        bool status
-    ) external;
-
     function readBeacon(bytes32 templateId)
         external
         view
         returns (int224 value, uint32 timestamp);
 
-    function userCanReadBeacon(bytes32 templateId, address user)
+    function readerCanReadBeacon(bytes32 templateId, address reader)
         external
         view
-        returns (bool isWhitelisted);
+        returns (bool);
 
-    function templateIdToUserToWhitelistStatus(bytes32 templateId, address user)
+    function templateIdToReaderToWhitelistStatus(
+        bytes32 templateId,
+        address reader
+    )
         external
         view
-        returns (uint64 expirationTimestamp, bool whitelistedPastExpiration);
+        returns (uint64 expirationTimestamp, uint192 indefiniteWhitelistCount);
+
+    function templateIdToReaderToSetterToIndefiniteWhitelistStatus(
+        bytes32 templateId,
+        address reader,
+        address setter
+    ) external view returns (bool indefiniteWhitelistStatus);
+
+    function manager() external view returns (address);
+
+    function adminRole() external view returns (bytes32);
+
+    function whitelistExpirationExtenderRole() external view returns (bytes32);
+
+    function whitelistExpirationSetterRole() external view returns (bytes32);
+
+    function indefiniteWhitelisterRole() external view returns (bytes32);
 
     function sponsorToUpdateRequesterToPermissionStatus(
         address sponsor,

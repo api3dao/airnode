@@ -2,7 +2,6 @@
 pragma solidity 0.8.6;
 
 import "./RequesterAuthorizer.sol";
-import "../../access-control-registry/RoleDeriver.sol";
 import "./interfaces/IDaoRequesterAuthorizer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
@@ -13,7 +12,6 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// the DAO itself
 contract DaoRequesterAuthorizer is
     RequesterAuthorizer,
-    RoleDeriver,
     IDaoRequesterAuthorizer
 {
     /// @notice Address of the DAO that manages the related
@@ -42,21 +40,14 @@ contract DaoRequesterAuthorizer is
     ) RequesterAuthorizer(_accessControlRegistry, _adminRoleDescription) {
         require(_dao != address(0), "DAO address zero");
         dao = _dao;
-        bytes32 daoRootRole = _deriveRootRole(_dao);
-        bytes32 _adminRole = _deriveRole(daoRootRole, _adminRoleDescription);
-        adminRole = _adminRole;
-        whitelistExpirationExtenderRole = _deriveRole(
-            _adminRole,
-            WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
+        adminRole = _deriveAdminRole(_dao);
+        whitelistExpirationExtenderRole = _deriveWhitelistExpirationExtenderRole(
+            _dao
         );
-        whitelistExpirationSetterRole = _deriveRole(
-            _adminRole,
-            WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
+        whitelistExpirationSetterRole = _deriveWhitelistExpirationSetterRole(
+            _dao
         );
-        indefiniteWhitelisterRole = _deriveRole(
-            _adminRole,
-            INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH
-        );
+        indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(_dao);
     }
 
     /// @notice Extends the expiration of the temporary whitelist of

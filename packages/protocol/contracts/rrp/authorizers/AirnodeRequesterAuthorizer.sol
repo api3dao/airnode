@@ -2,7 +2,6 @@
 pragma solidity 0.8.6;
 
 import "./RequesterAuthorizer.sol";
-import "../../access-control-registry/RoleDeriver.sol";
 import "./interfaces/IAirnodeRequesterAuthorizer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
@@ -10,7 +9,6 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
 contract AirnodeRequesterAuthorizer is
     RequesterAuthorizer,
-    RoleDeriver,
     IAirnodeRequesterAuthorizer
 {
     /// @param _accessControlRegistry AccessControlRegistry address
@@ -143,10 +141,7 @@ contract AirnodeRequesterAuthorizer is
         override
         returns (bytes32 adminRole)
     {
-        adminRole = _deriveRole(
-            _deriveRootRole(airnode),
-            adminRoleDescriptionHash
-        );
+        adminRole = _deriveAdminRole(airnode);
     }
 
     /// @notice Derives the whitelist expiration extender role for the specific
@@ -160,9 +155,8 @@ contract AirnodeRequesterAuthorizer is
         override
         returns (bytes32 whitelistExpirationExtenderRole)
     {
-        whitelistExpirationExtenderRole = _deriveRole(
-            deriveAdminRole(airnode),
-            WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION_HASH
+        whitelistExpirationExtenderRole = _deriveWhitelistExpirationExtenderRole(
+            airnode
         );
     }
 
@@ -176,9 +170,8 @@ contract AirnodeRequesterAuthorizer is
         override
         returns (bytes32 whitelistExpirationSetterRole)
     {
-        whitelistExpirationSetterRole = _deriveRole(
-            deriveAdminRole(airnode),
-            WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION_HASH
+        whitelistExpirationSetterRole = _deriveWhitelistExpirationSetterRole(
+            airnode
         );
     }
 
@@ -192,9 +185,6 @@ contract AirnodeRequesterAuthorizer is
         override
         returns (bytes32 indefiniteWhitelisterRole)
     {
-        indefiniteWhitelisterRole = _deriveRole(
-            deriveAdminRole(airnode),
-            INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH
-        );
+        indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(airnode);
     }
 }
