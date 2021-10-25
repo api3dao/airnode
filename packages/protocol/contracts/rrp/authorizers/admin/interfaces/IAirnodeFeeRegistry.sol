@@ -6,13 +6,21 @@ interface IAirnodeFeeRegistry {
 
     event SetDefaultChainPrice(uint256 chainId, uint256 price);
 
+    event SetDefaultAirnodePrice(address airnode, uint256 price);
+
     event SetDefaultChainAirnodePrice(
         uint256 chainId,
         address airnode,
         uint256 price
     );
 
-    event SetAirnodeEndpointFee(
+    event SetAirnodeEndpointPrice(
+        address airnode,
+        bytes32 endpointId,
+        uint256 price
+    );
+
+    event SetChainAirnodeEndpointPrice(
         uint256 chainId,
         address airnode,
         bytes32 endpointId,
@@ -23,20 +31,28 @@ interface IAirnodeFeeRegistry {
 
     function setDefaultChainPrice(uint256 chainId, uint256 price) external;
 
+    function setDefaultAirnodePrice(address airnode, uint256 price) external;
+
     function setDefaultChainAirnodePrice(
         uint256 chainId,
         address airnode,
         uint256 price
     ) external;
 
-    function setAirnodeEndpointFee(
+    function setAirnodeEndpointPrice(
+        address airnode,
+        bytes32 endpointId,
+        uint256 price
+    ) external;
+
+    function setChainAirnodeEndpointPrice(
         uint256 chainId,
         address airnode,
         bytes32 endpointId,
         uint256 price
     ) external;
 
-    function getAirnodeEndpointFee(
+    function getEndpointPrice(
         uint256 chainId,
         address airnode,
         bytes32 endpointId
