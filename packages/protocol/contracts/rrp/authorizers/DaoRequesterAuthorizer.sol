@@ -65,10 +65,11 @@ contract DaoRequesterAuthorizer is
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                whitelistExpirationExtenderRole,
-                msg.sender
-            ),
+            dao == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    whitelistExpirationExtenderRole,
+                    msg.sender
+                ),
             "Not expiration extender"
         );
         _extendWhitelistExpirationAndEmit(
@@ -95,10 +96,11 @@ contract DaoRequesterAuthorizer is
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                whitelistExpirationSetterRole,
-                msg.sender
-            ),
+            dao == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    whitelistExpirationSetterRole,
+                    msg.sender
+                ),
             "Not expiration setter"
         );
         _setWhitelistExpirationAndEmit(
@@ -123,10 +125,11 @@ contract DaoRequesterAuthorizer is
         bool status
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                indefiniteWhitelisterRole,
-                msg.sender
-            ),
+            dao == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    indefiniteWhitelisterRole,
+                    msg.sender
+                ),
             "Not indefinite whitelister"
         );
         _setIndefiniteWhitelistStatusAndEmit(
@@ -150,10 +153,11 @@ contract DaoRequesterAuthorizer is
         address setter
     ) external override {
         require(
-            !IAccessControlRegistry(accessControlRegistry).hasRole(
-                indefiniteWhitelisterRole,
-                setter
-            ),
+            dao != setter &&
+                !IAccessControlRegistry(accessControlRegistry).hasRole(
+                    indefiniteWhitelisterRole,
+                    setter
+                ),
             "setter is indefinite whitelister"
         );
         _revokeIndefiniteWhitelistStatusAndEmit(

@@ -6,7 +6,7 @@ const utils = require('../../utils');
 let roles;
 let accessControlRegistry, daoRequesterAuthorizer;
 let daoRequesterAuthorizerAdminRoleDescription = 'DaoRequesterAuthorizer admin';
-let indefiniteWhitelisterRole;
+let adminRole, whitelistExpirationExtenderRole, whitelistExpirationSetterRole, indefiniteWhitelisterRole;
 let airnodeAddress = utils.generateRandomAddress();
 let endpointId = utils.generateRandomBytes32();
 
@@ -34,24 +34,14 @@ beforeEach(async () => {
     roles.dao.address
   );
   const daoRootRole = await accessControlRegistry.deriveRootRole(roles.dao.address);
-  const daoRequesterAuthorizerAdminRole = await accessControlRegistry.deriveRole(
-    daoRootRole,
-    daoRequesterAuthorizerAdminRoleDescription
-  );
-  indefiniteWhitelisterRole = await accessControlRegistry.deriveRole(
-    daoRequesterAuthorizerAdminRole,
-    await daoRequesterAuthorizer.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION()
-  );
+  adminRole = await accessControlRegistry.deriveRole(daoRootRole, daoRequesterAuthorizerAdminRoleDescription);
+  whitelistExpirationExtenderRole = await daoRequesterAuthorizer.whitelistExpirationExtenderRole();
+  whitelistExpirationSetterRole = await daoRequesterAuthorizer.whitelistExpirationSetterRole();
+  indefiniteWhitelisterRole = await daoRequesterAuthorizer.indefiniteWhitelisterRole();
   await accessControlRegistry
     .connect(roles.dao)
     .initializeAndGrantRoles(
-      [
-        daoRootRole,
-        daoRequesterAuthorizerAdminRole,
-        daoRequesterAuthorizerAdminRole,
-        daoRequesterAuthorizerAdminRole,
-        daoRequesterAuthorizerAdminRole,
-      ],
+      [daoRootRole, adminRole, adminRole, adminRole, adminRole],
       [
         daoRequesterAuthorizerAdminRoleDescription,
         await daoRequesterAuthorizer.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
@@ -180,7 +170,47 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Sender does not have whitelist extender role', function () {
+  context('Sender is the DAO address', function () {
+    context('Timestamp extends whitelist expiration', function () {
+      it('extends whitelist expiration', async function () {
+        await accessControlRegistry.connect(roles.dao).renounceRole(whitelistExpirationExtenderRole, roles.dao.address);
+        let whitelistStatus;
+        whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        const expirationTimestamp = 1000;
+        await expect(
+          daoRequesterAuthorizer
+            .connect(roles.dao)
+            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+        )
+          .to.emit(daoRequesterAuthorizer, 'ExtendedWhitelistExpiration')
+          .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, expirationTimestamp);
+        whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address
+        );
+        expect(whitelistStatus.expirationTimestamp).to.equal(1000);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+      });
+    });
+    context('Timestamp does not extend whitelist expiration', function () {
+      it('reverts', async function () {
+        await accessControlRegistry.connect(roles.dao).renounceRole(whitelistExpirationExtenderRole, roles.dao.address);
+        await expect(
+          daoRequesterAuthorizer
+            .connect(roles.dao)
+            .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+        ).to.be.revertedWith('Does not extend expiration');
+      });
+    });
+  });
+  context('Sender does not have whitelist extender role and is not the DAO address', function () {
     it('reverts', async function () {
       await expect(
         daoRequesterAuthorizer
@@ -232,7 +262,42 @@ describe('setWhitelistExpiration', function () {
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
     });
   });
-  context('Sender does not have whitelist expiration setter role', function () {
+  context('Sender is tha DAO address', function () {
+    it('sets whitelist expiration', async function () {
+      await accessControlRegistry.connect(roles.dao).renounceRole(whitelistExpirationSetterRole, roles.dao.address);
+      let whitelistStatus;
+      const expirationTimestamp = 1000;
+      await expect(
+        daoRequesterAuthorizer
+          .connect(roles.dao)
+          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, expirationTimestamp)
+      )
+        .to.emit(daoRequesterAuthorizer, 'SetWhitelistExpiration')
+        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, expirationTimestamp);
+      whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+        airnodeAddress,
+        endpointId,
+        roles.requester.address
+      );
+      expect(whitelistStatus.expirationTimestamp).to.equal(expirationTimestamp);
+      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+      await expect(
+        daoRequesterAuthorizer
+          .connect(roles.dao)
+          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+      )
+        .to.emit(daoRequesterAuthorizer, 'SetWhitelistExpiration')
+        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, 0);
+      whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+        airnodeAddress,
+        endpointId,
+        roles.requester.address
+      );
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+    });
+  });
+  context('Sender does not have whitelist expiration setter role and is not the DAO address', function () {
     it('reverts', async function () {
       await expect(
         daoRequesterAuthorizer
@@ -341,7 +406,105 @@ describe('setIndefiniteWhitelistStatus', function () {
       ).to.equal(false);
     });
   });
-  context('Sender does not have indefinite whitelister role', function () {
+  context('Sender is the DAO address', function () {
+    it('sets indefinite whitelist status', async function () {
+      await accessControlRegistry.connect(roles.dao).renounceRole(indefiniteWhitelisterRole, roles.dao.address);
+      let whitelistStatus;
+      // Whitelist indefinitely
+      await expect(
+        daoRequesterAuthorizer
+          .connect(roles.dao)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
+      )
+        .to.emit(daoRequesterAuthorizer, 'SetIndefiniteWhitelistStatus')
+        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, true, 1);
+      whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+        airnodeAddress,
+        endpointId,
+        roles.requester.address
+      );
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+      expect(
+        await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address,
+          roles.dao.address
+        )
+      ).to.equal(true);
+      // Whitelisting indefinitely again should have no effect
+      await expect(
+        daoRequesterAuthorizer
+          .connect(roles.dao)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
+      )
+        .to.emit(daoRequesterAuthorizer, 'SetIndefiniteWhitelistStatus')
+        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, true, 1);
+      whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+        airnodeAddress,
+        endpointId,
+        roles.requester.address
+      );
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(1);
+      expect(
+        await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address,
+          roles.dao.address
+        )
+      ).to.equal(true);
+      // Revoke indefinite whitelisting
+      await expect(
+        daoRequesterAuthorizer
+          .connect(roles.dao)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, false)
+      )
+        .to.emit(daoRequesterAuthorizer, 'SetIndefiniteWhitelistStatus')
+        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, false, 0);
+      whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+        airnodeAddress,
+        endpointId,
+        roles.requester.address
+      );
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+      expect(
+        await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address,
+          roles.dao.address
+        )
+      ).to.equal(false);
+      // Revoking indefinite whitelisting again should have no effect
+      await expect(
+        daoRequesterAuthorizer
+          .connect(roles.dao)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, false)
+      )
+        .to.emit(daoRequesterAuthorizer, 'SetIndefiniteWhitelistStatus')
+        .withArgs(airnodeAddress, endpointId, roles.requester.address, roles.dao.address, false, 0);
+      whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
+        airnodeAddress,
+        endpointId,
+        roles.requester.address
+      );
+      expect(whitelistStatus.expirationTimestamp).to.equal(0);
+      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+      expect(
+        await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToSetterToIndefiniteWhitelistStatus(
+          airnodeAddress,
+          endpointId,
+          roles.requester.address,
+          roles.dao.address
+        )
+      ).to.equal(false);
+    });
+  });
+  context('Sender does not have indefinite whitelister role and is not the DAO address', function () {
     it('reverts', async function () {
       await expect(
         daoRequesterAuthorizer
@@ -354,53 +517,65 @@ describe('setIndefiniteWhitelistStatus', function () {
 
 describe('revokeIndefiniteWhitelistStatus', function () {
   context('setter does not have the indefinite whitelister role', function () {
-    it('revokes indefinite whitelist status', async function () {
-      // Grant indefinite whitelist status
-      await daoRequesterAuthorizer
-        .connect(roles.indefiniteWhitelister)
-        .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
-      // Revoke the indefinite whitelister role
-      await accessControlRegistry
-        .connect(roles.dao)
-        .revokeRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address);
-      // Revoke the indefinite whitelist status
-      await expect(
-        daoRequesterAuthorizer
-          .connect(roles.randomPerson)
-          .revokeIndefiniteWhitelistStatus(
+    context('setter is not the DAO address', function () {
+      it('revokes indefinite whitelist status', async function () {
+        // Grant indefinite whitelist status
+        await daoRequesterAuthorizer
+          .connect(roles.indefiniteWhitelister)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true);
+        // Revoke the indefinite whitelister role
+        await accessControlRegistry
+          .connect(roles.dao)
+          .revokeRole(indefiniteWhitelisterRole, roles.indefiniteWhitelister.address);
+        // Revoke the indefinite whitelist status
+        await expect(
+          daoRequesterAuthorizer
+            .connect(roles.randomPerson)
+            .revokeIndefiniteWhitelistStatus(
+              airnodeAddress,
+              endpointId,
+              roles.requester.address,
+              roles.indefiniteWhitelister.address
+            )
+        )
+          .to.emit(daoRequesterAuthorizer, 'RevokedIndefiniteWhitelistStatus')
+          .withArgs(
             airnodeAddress,
             endpointId,
             roles.requester.address,
-            roles.indefiniteWhitelister.address
-          )
-      )
-        .to.emit(daoRequesterAuthorizer, 'RevokedIndefiniteWhitelistStatus')
-        .withArgs(
+            roles.indefiniteWhitelister.address,
+            roles.randomPerson.address,
+            0
+          );
+        const whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
           airnodeAddress,
           endpointId,
-          roles.requester.address,
-          roles.indefiniteWhitelister.address,
-          roles.randomPerson.address,
-          0
+          roles.requester.address
         );
-      const whitelistStatus = await daoRequesterAuthorizer.airnodeToEndpointIdToRequesterToWhitelistStatus(
-        airnodeAddress,
-        endpointId,
-        roles.requester.address
-      );
-      expect(whitelistStatus.expirationTimestamp).to.equal(0);
-      expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
-      // Revoking twice should not emit an event
-      await expect(
-        daoRequesterAuthorizer
-          .connect(roles.randomPerson)
-          .revokeIndefiniteWhitelistStatus(
-            airnodeAddress,
-            endpointId,
-            roles.requester.address,
-            roles.indefiniteWhitelister.address
-          )
-      ).to.not.emit(daoRequesterAuthorizer, 'RevokedIndefiniteWhitelistStatus');
+        expect(whitelistStatus.expirationTimestamp).to.equal(0);
+        expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
+        // Revoking twice should not emit an event
+        await expect(
+          daoRequesterAuthorizer
+            .connect(roles.randomPerson)
+            .revokeIndefiniteWhitelistStatus(
+              airnodeAddress,
+              endpointId,
+              roles.requester.address,
+              roles.indefiniteWhitelister.address
+            )
+        ).to.not.emit(daoRequesterAuthorizer, 'RevokedIndefiniteWhitelistStatus');
+      });
+    });
+    context('setter is the DAO address', function () {
+      it('reverts', async function () {
+        await accessControlRegistry.connect(roles.dao).renounceRole(indefiniteWhitelisterRole, roles.dao.address);
+        await expect(
+          daoRequesterAuthorizer
+            .connect(roles.randomPerson)
+            .revokeIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, roles.dao.address)
+        ).to.be.revertedWith('setter is indefinite whitelister');
+      });
     });
   });
   context('setter has the indefinite whitelister role', function () {

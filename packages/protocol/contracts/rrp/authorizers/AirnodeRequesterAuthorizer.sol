@@ -33,10 +33,11 @@ contract AirnodeRequesterAuthorizer is
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveWhitelistExpirationExtenderRole(airnode),
-                msg.sender
-            ),
+            airnode == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveWhitelistExpirationExtenderRole(airnode),
+                    msg.sender
+                ),
             "Not expiration extender"
         );
         _extendWhitelistExpirationAndEmit(
@@ -63,10 +64,11 @@ contract AirnodeRequesterAuthorizer is
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveWhitelistExpirationSetterRole(airnode),
-                msg.sender
-            ),
+            airnode == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveWhitelistExpirationSetterRole(airnode),
+                    msg.sender
+                ),
             "Not expiration setter"
         );
         _setWhitelistExpirationAndEmit(
@@ -91,10 +93,11 @@ contract AirnodeRequesterAuthorizer is
         bool status
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveIndefiniteWhitelisterRole(airnode),
-                msg.sender
-            ),
+            airnode == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveIndefiniteWhitelisterRole(airnode),
+                    msg.sender
+                ),
             "Not indefinite whitelister"
         );
         _setIndefiniteWhitelistStatusAndEmit(
@@ -118,10 +121,11 @@ contract AirnodeRequesterAuthorizer is
         address setter
     ) external override {
         require(
-            !IAccessControlRegistry(accessControlRegistry).hasRole(
-                deriveIndefiniteWhitelisterRole(airnode),
-                setter
-            ),
+            airnode != setter &&
+                !IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveIndefiniteWhitelisterRole(airnode),
+                    setter
+                ),
             "setter is indefinite whitelister"
         );
         _revokeIndefiniteWhitelistStatusAndEmit(

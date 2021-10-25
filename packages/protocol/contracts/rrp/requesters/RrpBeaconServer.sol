@@ -96,10 +96,11 @@ contract RrpBeaconServer is Whitelist, RrpRequester, IRrpBeaconServer {
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                whitelistExpirationExtenderRole,
-                msg.sender
-            ),
+            manager == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    whitelistExpirationExtenderRole,
+                    msg.sender
+                ),
             "Not expiration extender"
         );
         _extendWhitelistExpiration(templateId, reader, expirationTimestamp);
@@ -124,10 +125,11 @@ contract RrpBeaconServer is Whitelist, RrpRequester, IRrpBeaconServer {
         uint64 expirationTimestamp
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                whitelistExpirationSetterRole,
-                msg.sender
-            ),
+            manager == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    whitelistExpirationSetterRole,
+                    msg.sender
+                ),
             "Not expiration setter"
         );
         _setWhitelistExpiration(templateId, reader, expirationTimestamp);
@@ -151,10 +153,11 @@ contract RrpBeaconServer is Whitelist, RrpRequester, IRrpBeaconServer {
         bool status
     ) external override {
         require(
-            IAccessControlRegistry(accessControlRegistry).hasRole(
-                indefiniteWhitelisterRole,
-                msg.sender
-            ),
+            manager == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    indefiniteWhitelisterRole,
+                    msg.sender
+                ),
             "Not indefinite whitelister"
         );
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
@@ -182,10 +185,11 @@ contract RrpBeaconServer is Whitelist, RrpRequester, IRrpBeaconServer {
         address setter
     ) external override {
         require(
-            !IAccessControlRegistry(accessControlRegistry).hasRole(
-                indefiniteWhitelisterRole,
-                setter
-            ),
+            manager != setter &&
+                !IAccessControlRegistry(accessControlRegistry).hasRole(
+                    indefiniteWhitelisterRole,
+                    setter
+                ),
             "setter is indefinite whitelister"
         );
         (
