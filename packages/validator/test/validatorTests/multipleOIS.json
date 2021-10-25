@@ -35,7 +35,6 @@
         "components": {
           "securitySchemes": {
             "sec1": {
-              "in": "query",
               "type": "http",
               "scheme": "basic"
             }
@@ -93,7 +92,6 @@
         "components": {
           "securitySchemes": {
             "sec1": {
-              "in": "query",
               "type": "http",
               "scheme": "basic"
             },

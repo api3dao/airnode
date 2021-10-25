@@ -15,7 +15,6 @@
               "scheme": "basic"
             },
             "sec2": {
-              "in": "header",
               "type": "apiKey",
               "name": "sec2"
             },

@@ -79,10 +79,11 @@
               "type": "^apiKey$"
             },
             "__then": {
-              "name": {}
+              "name": {},
+              "in": {}
             },
             "__catch": {
-              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" since value of \"type\" is \"apiKey\""
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"apiKey\""
             }
           },
           {
@@ -129,14 +130,25 @@
               "__level": "warning",
               "__message": "Extra field: __fullPath"
             }
+          },
+          {
+            "__if": {
+              "in": ".*"
+            },
+            "__then": {
+              "type": {
+                "__regexp": "^apiKey$",
+                "__catch": {
+                  "__level": "error"
+                }
+              }
+            },
+            "__catch": {
+              "__level": "warning",
+              "__message": "Extra field: __fullPath"
+            }
           }
         ],
-        "in": {
-          "__regexp": "^(query|header|cookie)$",
-          "__catch": {
-            "__message": "__fullPath: Allowed values are \"query\", \"header\" or \"cookie\""
-          }
-        },
         "__optional": {
           "name": {
             "__type": "string"
@@ -146,6 +158,12 @@
             "__catch": {
               "__message": "__fullPath: Allowed values are \"basic\" or \"bearer\"",
               "__level": "error"
+            }
+          },
+          "in": {
+            "__regexp": "^(query|header|cookie)$",
+            "__catch": {
+              "__message": "__fullPath: Allowed values are \"query\", \"header\" or \"cookie\""
             }
           }
         }
