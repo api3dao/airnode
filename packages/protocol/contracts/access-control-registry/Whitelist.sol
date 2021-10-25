@@ -67,6 +67,11 @@ contract Whitelist is RoleDeriver, IWhitelist {
     mapping(bytes32 => mapping(address => mapping(address => bool)))
         internal serviceIdToUserToSetterToIndefiniteWhitelistStatus;
 
+    /// @dev Contracts deployed with the same admin role descriptions will have
+    /// the same role IDs, meaning that granting an account a role will
+    /// authorize it in multiple contracts. Unless you want your deployed
+    /// contract to reuse the role configuration of another contract, use a
+    /// unique admin role description.
     /// @param _accessControlRegistry AccessControlRegistry address
     /// @param _adminRoleDescription Admin role description
     constructor(
