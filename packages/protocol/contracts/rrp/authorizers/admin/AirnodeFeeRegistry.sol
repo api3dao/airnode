@@ -36,6 +36,15 @@ contract AirnodeFeeRegistry is IAirnodeFeeRegistry {
     /// @dev Prices will have upto 6 decimal places
     uint8 public immutable decimals = 6;
 
+    function setAirnodeEndpointFlag(address _airnode, bool status)
+        external
+        override
+    {
+        require(_airnode != address(0), "Address is zero");
+        airnodeEndpointFlag[_airnode] = status;
+        emit SetAirnodeEndpointFlag(_airnode, status);
+    }
+
     /// @dev Called by a Admin or higher rank to set the default price in USD
     /// @param _price The default price of an endpoint on any chain in USD
     function setDefaultPrice(uint256 _price) external override {
@@ -63,6 +72,7 @@ contract AirnodeFeeRegistry is IAirnodeFeeRegistry {
         external
         override
     {
+        require(_airnode != address(0), "Address is zero");
         require(_price != 0, "Price is Zero");
         defaultAirnodePrice[_airnode] = _price * 10**decimals;
         emit SetDefaultAirnodePrice(_airnode, _price);
@@ -77,6 +87,7 @@ contract AirnodeFeeRegistry is IAirnodeFeeRegistry {
         address _airnode,
         uint256 _price
     ) external override {
+        require(_airnode != address(0), "Address is zero");
         require(_price != 0, "Price is Zero");
         defaultChainAirnodePrice[_chainId][_airnode] = _price * 10**decimals;
         emit SetDefaultChainAirnodePrice(_chainId, _airnode, _price);
@@ -92,6 +103,7 @@ contract AirnodeFeeRegistry is IAirnodeFeeRegistry {
         bytes32 _endpointId,
         uint256 _price
     ) external override {
+        require(_airnode != address(0), "Address is zero");
         require(_price != 0, "Price is Zero");
         airnodeToEndpointToPrice[_airnode][_endpointId] = _price * 10**decimals;
         emit SetAirnodeEndpointPrice(_airnode, _endpointId, _price);
@@ -108,6 +120,7 @@ contract AirnodeFeeRegistry is IAirnodeFeeRegistry {
         bytes32 _endpointId,
         uint256 _price
     ) external override {
+        require(_airnode != address(0), "Address is zero");
         require(_price != 0, "Price is Zero");
         chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][_endpointId] =
             _price *
