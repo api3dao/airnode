@@ -8,9 +8,9 @@ ENV name="airnode-deployer" \
 LABEL application=${name} \
       description="Arinode Deployer CLI"
 
-COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
-COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/artifacts /build/packages/airnode-deployer/dist ${appDir}/
+COPY --from=api3/airnode-artifacts /dependencies ${appDir}/node_modules
+COPY --from=api3/airnode-artifacts /packages ${appDir}/node_modules/@api3/
+COPY --from=api3/airnode-artifacts /build/packages/airnode-deployer/dist ${appDir}/
 COPY packages/airnode-deployer/docker/entrypoint.sh /entrypoint.sh
 
     # Install external dependencies

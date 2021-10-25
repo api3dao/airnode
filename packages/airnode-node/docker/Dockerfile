@@ -10,9 +10,9 @@ LABEL application=${name} \
 
 WORKDIR ${appDir}
 
-COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
-COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/artifacts /build/packages/airnode-node/dist ${appDir}/
+COPY --from=api3/airnode-artifacts /dependencies ${appDir}/node_modules
+COPY --from=api3/airnode-artifacts /packages ${appDir}/node_modules/@api3/
+COPY --from=api3/airnode-artifacts /build/packages/airnode-node/dist ${appDir}/
 COPY packages/airnode-node/docker/airnode-crontab ${cronjob}
 
     # Install Tini to pass signals correctly
