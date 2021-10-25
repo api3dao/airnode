@@ -6,7 +6,7 @@ ENV appDir="/app" \
     cronjob="/etc/cron.d/${name}"
 
 LABEL application=${name} \
-      description="Arinode"
+      description="Airnode Client"
 
 WORKDIR ${appDir}
 

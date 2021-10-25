@@ -6,7 +6,7 @@ ENV name="airnode-deployer" \
     appDir="/app"
 
 LABEL application=${name} \
-      description="Arinode Deployer CLI"
+      description="Airnode Deployer CLI"
 
 COPY --from=api3/airnode-artifacts /dependencies ${appDir}/node_modules
 COPY --from=api3/airnode-artifacts /packages ${appDir}/node_modules/@api3/
