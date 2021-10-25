@@ -2,6 +2,8 @@
 pragma solidity 0.8.6;
 
 interface IAirnodeFeeRegistry {
+    event SetAirnodeEndpointFlag(address airnode, bool status);
+
     event SetDefaultPrice(uint256 price);
 
     event SetDefaultChainPrice(uint256 chainId, uint256 price);
@@ -26,6 +28,8 @@ interface IAirnodeFeeRegistry {
         bytes32 endpointId,
         uint256 price
     );
+
+    function setAirnodeEndpointFlag(address airnode, bool status) external;
 
     function setDefaultPrice(uint256 price) external;
 
