@@ -5,8 +5,14 @@ import * as authentication from './authentication';
 import * as fixtures from '../../test/fixtures';
 
 describe('building empty parameters', () => {
-  it('returns no parameters if credentials is empty', () => {
-    const options = fixtures.buildCacheRequestOptions({ apiCredentials: undefined });
+  it('returns no parameters if API security is empty', () => {
+    const ois = fixtures.buildOIS();
+    const apiSpecifications: ApiSpecification = {
+      ...ois.apiSpecifications,
+      security: {},
+    };
+    const invalidOIS = fixtures.buildOIS({ apiSpecifications });
+    const options = fixtures.buildCacheRequestOptions({ ois: invalidOIS });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
@@ -26,6 +32,16 @@ describe('building empty parameters', () => {
     };
     const invalidOIS = fixtures.buildOIS({ apiSpecifications });
     const options = fixtures.buildCacheRequestOptions({ ois: invalidOIS });
+    const res = authentication.buildParameters(options);
+    expect(res).toEqual({
+      headers: {},
+      query: {},
+      cookies: {},
+    });
+  });
+
+  it('returns no parameters if API credentials is empty', () => {
+    const options = fixtures.buildCacheRequestOptions({ apiCredentials: undefined });
     const res = authentication.buildParameters(options);
     expect(res).toEqual({
       headers: {},
