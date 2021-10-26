@@ -30,7 +30,7 @@
                   "endpoints": {
                     "__any": {
                       "name": {
-                        "__regexp": "[['endpointName']]"
+                        "__regexp": "^[['endpointName']]$"
                       }
                     }
                   }

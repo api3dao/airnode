@@ -12,7 +12,7 @@ import { getPath } from '../commands/utils';
 import { Log } from '../types';
 
 const messages: Log[] = [];
-const apiPath = getPath('apiSpecifications.json', messages);
+const apiPath = getPath('apiSpecifications.json', messages, 'pre-alpha');
 let apiTemplate: object;
 
 if (apiPath) {

@@ -20,13 +20,16 @@
               "__any": {
                 "name": {
                   "__regexp": "^__match$"
+                },
+                "in": {
+                  "__regexp": "^path$"
                 }
               }
             }
           }
         },
         "__catch": {
-          "__message": "Parameter __match from __fullPath must be in parameters of path {{1}}"
+          "__message": "Parameter __match from __fullPath must be in parameters of path {{1}} and value of 'in' must be 'path'"
         }
       }
     ],
@@ -63,22 +66,6 @@
   },
   "components": {
     "securitySchemes": {
-      "__keyRegexp": "^[^\\s'\"\\\\]+$",
-      "__conditions": [
-        {
-          "__if": {
-            "__this_name": ".*"
-          },
-          "__rootThen": {
-            "security": {
-              "__match": {}
-            }
-          },
-          "__catch": {
-            "__message": "Expected security scheme \"__match\" from __fullPath to be present in __prefixsecurity"
-          }
-        }
-      ],
       "__objectItem": {
         "type": {
           "__regexp": "^(apiKey|http)$",
@@ -92,10 +79,11 @@
               "type": "^apiKey$"
             },
             "__then": {
-              "name": {}
+              "name": {},
+              "in": {}
             },
             "__catch": {
-              "__message": "__fullPath must contain \"name\" since value of \"type\" is \"apiKey\""
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"name\" and \"in\" since value of \"type\" is \"apiKey\""
             }
           },
           {
@@ -106,7 +94,7 @@
               "scheme": {}
             },
             "__catch": {
-              "__message": "__fullPath must contain \"scheme\" since value of \"type\" is \"http\""
+              "__message": "__prefix{{0}}.{{1}}.{{2}} must contain \"scheme\" since value of \"type\" is \"http\""
             }
           },
           {
@@ -142,14 +130,25 @@
               "__level": "warning",
               "__message": "Extra field: __fullPath"
             }
+          },
+          {
+            "__if": {
+              "in": ".*"
+            },
+            "__then": {
+              "type": {
+                "__regexp": "^apiKey$",
+                "__catch": {
+                  "__level": "error"
+                }
+              }
+            },
+            "__catch": {
+              "__level": "warning",
+              "__message": "Extra field: __fullPath"
+            }
           }
         ],
-        "in": {
-          "__regexp": "^(query|header|cookie)$",
-          "__catch": {
-            "__message": "__fullPath: Allowed values are \"query\", \"header\" or \"cookie\""
-          }
-        },
         "__optional": {
           "name": {
             "__type": "string"
@@ -157,7 +156,14 @@
           "scheme": {
             "__regexp": "^(basic|bearer)$",
             "__catch": {
+              "__message": "__fullPath: Allowed values are \"basic\" or \"bearer\"",
               "__level": "error"
+            }
+          },
+          "in": {
+            "__regexp": "^(query|header|cookie)$",
+            "__catch": {
+              "__message": "__fullPath: Allowed values are \"query\", \"header\" or \"cookie\""
             }
           }
         }
@@ -165,7 +171,6 @@
     }
   },
   "security": {
-    "__keyRegexp": "^[^\\s'\"\\\\]+$",
     "__conditions": [
       {
         "__if": {

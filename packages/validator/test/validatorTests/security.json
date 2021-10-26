@@ -1,0 +1,77 @@
+{
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "myOisTitle",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {},
+        "components": {
+          "securitySchemes": {
+            "sec1": {
+              "in": "query",
+              "type": "http",
+              "scheme": "basic"
+            },
+            "sec2": {
+              "type": "apiKey",
+              "name": "sec2"
+            },
+            "sec4": {
+              "in": "query",
+              "type": "apiKey",
+              "scheme": ""
+            }
+          }
+        },
+        "security": {
+          "sec1": [],
+          "sec3": []
+        }
+      },
+      "endpoints": []
+    }
+  ],
+  "triggers": {
+    "rrp": []
+  },
+  "chains": [],
+  "nodeSettings": {
+    "nodeVersion": "1.0.0",
+    "cloudProvider": "aws",
+    "region": "us-east-1",
+    "stage": "testnet",
+    "logFormat": "json",
+    "logLevel": "INFO",
+    "airnodeWalletMnemonic": "mnemonic",
+    "heartbeat": {
+      "enabled": false
+    },
+    "httpGateway": {
+      "enabled": false
+    }
+  },
+  "apiCredentials": [
+    {
+      "oisTitle": "myOisTitle",
+      "securitySchemeName": "sec1",
+      "securitySchemeValue": "test"
+    },
+    {
+      "oisTitle": "myOisTitle",
+      "securitySchemeName": "sec3",
+      "securitySchemeValue": "test"
+    },
+    {
+      "oisTitle": "anotherOis",
+      "securitySchemeName": "sec1",
+      "securitySchemeValue": "test"
+    },
+    {
+      "oisTitle": "myOisTitle",
+      "securitySchemeName": "sec4",
+      "securitySchemeValue": "test"
+    }
+  ]
+}
