@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/WhitelistWithRoles.sol";
+import "../../access-control-registry/WhitelistWithManager.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
@@ -19,27 +19,15 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract RrpBeaconServer is WhitelistWithRoles, RrpRequester, IRrpBeaconServer {
+contract RrpBeaconServer is
+    WhitelistWithManager,
+    RrpRequester,
+    IRrpBeaconServer
+{
     struct Beacon {
         int224 value;
         uint32 timestamp;
     }
-
-    /// @notice Address of the account that manages the related
-    /// AccessControlRegistry roles
-    address public immutable override manager;
-
-    /// @notice Admin role
-    bytes32 public immutable override adminRole;
-
-    /// @notice Whitelist expiration extender role
-    bytes32 public immutable override whitelistExpirationExtenderRole;
-
-    /// @notice Whitelist expiration setter role
-    bytes32 public immutable override whitelistExpirationSetterRole;
-
-    /// @notice Indefinite whitelister role
-    bytes32 public immutable override indefiniteWhitelisterRole;
 
     /// @notice Returns if a sponsor has permitted an account to request
     /// updates at this contract
@@ -60,28 +48,21 @@ contract RrpBeaconServer is WhitelistWithRoles, RrpRequester, IRrpBeaconServer {
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
-    /// @param _airnodeRrp Airnode RRP contract address
     /// @param _manager Manager address
+    /// @param _airnodeRrp Airnode RRP contract address
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription,
-        address _airnodeRrp,
-        address _manager
+        address _manager,
+        address _airnodeRrp
     )
-        WhitelistWithRoles(_accessControlRegistry, _adminRoleDescription)
+        WhitelistWithManager(
+            _accessControlRegistry,
+            _adminRoleDescription,
+            _manager
+        )
         RrpRequester(_airnodeRrp)
-    {
-        require(_manager != address(0), "Manager address zero");
-        manager = _manager;
-        adminRole = _deriveAdminRole(_manager);
-        whitelistExpirationExtenderRole = _deriveWhitelistExpirationExtenderRole(
-            _manager
-        );
-        whitelistExpirationSetterRole = _deriveWhitelistExpirationSetterRole(
-            _manager
-        );
-        indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(_manager);
-    }
+    {}
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`
     /// to be able to read the beacon with `templateId` if the sender has the

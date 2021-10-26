@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../../access-control-registry/interfaces/IWhitelistWithRoles.sol";
+import "../../../access-control-registry/interfaces/IWhitelistWithManager.sol";
 
-interface IRrpBeaconServer is IWhitelistWithRoles {
+interface IRrpBeaconServer is IWhitelistWithManager {
     event ExtendedWhitelistExpiration(
         bytes32 indexed templateId,
         address indexed reader,
@@ -113,16 +113,6 @@ interface IRrpBeaconServer is IWhitelistWithRoles {
         address reader,
         address setter
     ) external view returns (bool indefiniteWhitelistStatus);
-
-    function manager() external view returns (address);
-
-    function adminRole() external view returns (bytes32);
-
-    function whitelistExpirationExtenderRole() external view returns (bytes32);
-
-    function whitelistExpirationSetterRole() external view returns (bytes32);
-
-    function indefiniteWhitelisterRole() external view returns (bytes32);
 
     function sponsorToUpdateRequesterToPermissionStatus(
         address sponsor,

@@ -33,8 +33,8 @@ beforeEach(async () => {
   rrpBeaconServer = await rrpBeaconServerFactory.deploy(
     accessControlRegistry.address,
     rrpBeaconServerAdminRoleDescription,
-    airnodeRrp.address,
-    roles.manager.address
+    roles.manager.address,
+    airnodeRrp.address
   );
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
   adminRole = await accessControlRegistry.deriveRole(managerRootRole, rrpBeaconServerAdminRoleDescription);
@@ -83,8 +83,8 @@ describe('constructor', function () {
       rrpBeaconServer = await rrpBeaconServerFactory.deploy(
         accessControlRegistry.address,
         rrpBeaconServerAdminRoleDescription,
-        airnodeRrp.address,
-        roles.manager.address
+        roles.manager.address,
+        airnodeRrp.address
       );
       expect(await rrpBeaconServer.accessControlRegistry()).to.equal(accessControlRegistry.address);
       expect(await rrpBeaconServer.adminRoleDescription()).to.equal(rrpBeaconServerAdminRoleDescription);
@@ -99,8 +99,8 @@ describe('constructor', function () {
         rrpBeaconServerFactory.deploy(
           accessControlRegistry.address,
           rrpBeaconServerAdminRoleDescription,
-          airnodeRrp.address,
-          hre.ethers.constants.AddressZero
+          hre.ethers.constants.AddressZero,
+          airnodeRrp.address
         )
       ).to.be.revertedWith('Manager address zero');
     });

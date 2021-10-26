@@ -45,7 +45,7 @@
     "docker:deployer": "docker build --tag api3/airnode-deployer:latest --file packages/deployer/docker/Dockerfile .",
     "docker:node": "docker build --tag api3/airnode-client:latest --file packages/node/docker/Dockerfile .",
     "lint": "yarn run lint:eslint && yarn run lint:solhint",
-    "lint:eslint": "eslint . --ext .js",
+    "lint:eslint": "eslint . --ext .js,.ts",
     "lint:eslint:fix": "eslint . --ext .js,.ts --fix",
     "lint:solhint": "solhint ./**/*.sol",
     "pack": "lerna run pack --stream",
