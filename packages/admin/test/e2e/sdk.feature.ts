@@ -1,4 +1,4 @@
-import { AirnodeRrpFactory, authorizers } from '@api3/protocol';
+import { AccessControlRegistryFactory, AirnodeRrpFactory, authorizers } from '@api3/protocol';
 import { ethers } from 'ethers';
 import difference from 'lodash/difference';
 import * as admin from '../../src/implementation';
@@ -10,20 +10,25 @@ it('provides same API', async () => {
   const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
   const deployer = provider.getSigner(0);
   const airnodeRrp = await new AirnodeRrpFactory(deployer).deploy();
-  const airnodeRequesterRrpAuthorizer = await new authorizers.AirnodeRequesterRrpAuthorizerFactory(deployer).deploy();
+  const accessControlRegistry = await new AccessControlRegistryFactory(deployer).deploy();
+  const requesterAuthorizerWithAirnode = await new authorizers.RequesterAuthorizerWithAirnodeFactory(deployer).deploy(
+    accessControlRegistry.address,
+    'RequesterAuthorizerWithAirnode admin'
+  );
   expect(airnodeRrp.address).toBeDefined();
-  expect(airnodeRequesterRrpAuthorizer.address).toBeDefined();
+  expect(accessControlRegistry.address).toBeDefined();
+  expect(requesterAuthorizerWithAirnode.address).toBeDefined();
 
-  const sdk = new AdminSdk(airnodeRrp, airnodeRequesterRrpAuthorizer);
-  const sdkApi = difference(Object.keys(sdk), ['airnodeRrp', 'airnodeRequesterRrpAuthorizer']).sort();
-  const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp', 'airnodeRequesterRrpAuthorizer']).sort();
+  const sdk = new AdminSdk(airnodeRrp, requesterAuthorizerWithAirnode);
+  const sdkApi = difference(Object.keys(sdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
+  const sdkStaticApi = difference(Object.keys(AdminSdk), ['airnodeRrp', 'requesterAuthorizerWithAirnode']).sort();
   const adminApi = difference(Object.keys(admin), ['deriveWalletPathFromSponsorAddress', 'deriveEndpointId']).sort();
 
   expect(sdkApi).toEqual(adminApi);
   expect(sdkStaticApi).toEqual([
     'deriveEndpointId',
     'deriveWalletPathFromSponsorAddress',
-    'getAirnodeRequesterRrpAuthorizer',
+    'getRequesterAuthorizerWithAirnode',
     'getAirnodeRrp',
   ]);
 });
