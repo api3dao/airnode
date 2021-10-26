@@ -28,7 +28,7 @@ it('provides same API', async () => {
   expect(sdkStaticApi).toEqual([
     'deriveEndpointId',
     'deriveWalletPathFromSponsorAddress',
-    'getRequesterAuthorizerWithAirnode',
     'getAirnodeRrp',
+    'getRequesterAuthorizerWithAirnode',
   ]);
 });

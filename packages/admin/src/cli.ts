@@ -22,7 +22,7 @@ const COMMON_COMMAND_ARGUMENTS = {
       demandOption: true,
       describe: 'URL of the blockchain provider',
     },
-    'airnode-requester-rrp-authorizer': {
+    'requester-authorizer-with-airnode': {
       type: 'string',
       describe: 'Address of the deployed RequesterAuthorizerWithAirnode contract',
     },
@@ -333,7 +333,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['airnode-requester-rrp-authorizer'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
 
@@ -362,7 +362,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['airnode-requester-rrp-authorizer'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       await admin.extendWhitelistExpiration(
@@ -390,7 +390,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['airnode-requester-rrp-authorizer'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
         signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
       });
       await admin.setIndefiniteWhitelistStatus(
@@ -412,7 +412,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['airnode-requester-rrp-authorizer'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
       });
       const whitelistStatus = await admin.getWhitelistStatus(
         requesterAuthorizerWithAirnode,
@@ -432,7 +432,7 @@ yargs
     },
     async (args) => {
       const requesterAuthorizerWithAirnode = await evm.getRequesterAuthorizerWithAirnode(args['provider-url'], {
-        requesterAuthorizerWithAirnodeAddress: args['airnode-requester-rrp-authorizer'],
+        requesterAuthorizerWithAirnodeAddress: args['requester-authorizer-with-airnode'],
       });
       const isRequesterWhitelisted = await admin.isRequesterWhitelisted(
         requesterAuthorizerWithAirnode,
