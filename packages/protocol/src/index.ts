@@ -13,25 +13,38 @@
 import {
   MockRrpRequester__factory as MockRrpRequesterFactory,
   AirnodeRrp__factory as AirnodeRrpFactory,
-  AirnodeRequesterRrpAuthorizer__factory as AirnodeRequesterRrpAuthorizerFactory,
+  AccessControlRegistry__factory as AccessControlRegistryFactory,
+  RequesterAuthorizerWithAirnode__factory as RequesterAuthorizerWithAirnodeFactory,
 } from './contracts';
 import AirnodeRrpDeploymentRinkeby from '../deployments/rinkeby/AirnodeRrp.json';
-import AirnodeRequesterRrpAuthorizerRinkeby from '../deployments/rinkeby/AirnodeRequesterRrpAuthorizer.json';
+import AccessControlRegistryDeploymentRinkeby from '../deployments/rinkeby/AccessControlRegistry.json';
+import RequesterAuthorizerWithAirnodeRinkeby from '../deployments/rinkeby/RequesterAuthorizerWithAirnode.json';
 
 const AirnodeRrpAddresses: { [chainId: number]: string } = { 4: AirnodeRrpDeploymentRinkeby.receipt.contractAddress };
-const AirnodeRequesterRrpAuthorizerAddresses: { [chainId: number]: string } = {
-  4: AirnodeRequesterRrpAuthorizerRinkeby.receipt.contractAddress,
+const AccessControlRegistryAddresses: { [chainId: number]: string } = {
+  4: AccessControlRegistryDeploymentRinkeby.receipt.contractAddress,
+};
+const RequesterAuthorizerWithAirnodeAddresses: { [chainId: number]: string } = {
+  4: RequesterAuthorizerWithAirnodeRinkeby.receipt.contractAddress,
 };
 const mocks = {
   MockRrpRequesterFactory,
 };
 const authorizers = {
-  AirnodeRequesterRrpAuthorizerFactory,
+  RequesterAuthorizerWithAirnodeFactory,
 };
 
-export { AirnodeRrpAddresses, AirnodeRequesterRrpAuthorizerAddresses, AirnodeRrpFactory, mocks, authorizers };
+export {
+  AirnodeRrpAddresses,
+  AccessControlRegistryAddresses,
+  RequesterAuthorizerWithAirnodeAddresses,
+  AirnodeRrpFactory,
+  AccessControlRegistryFactory,
+  mocks,
+  authorizers,
+};
 
-export type { AirnodeRrp, MockRrpRequester, AirnodeRequesterRrpAuthorizer } from './contracts';
+export type { AirnodeRrp, MockRrpRequester, AccessControlRegistry, RequesterAuthorizerWithAirnode } from './contracts';
 export {
   MadeTemplateRequestEvent,
   MadeFullRequestEvent,
