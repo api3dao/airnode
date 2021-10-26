@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/WhitelistRoles.sol";
+import "../../access-control-registry/WhitelistRolesWithAirnode.sol";
 import "./RequesterAuthorizer.sol";
 import "./interfaces/IRequesterAuthorizerWithAirnode.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
@@ -9,7 +9,7 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// @title Authorizer contract that Airnodes can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
 contract RequesterAuthorizerWithAirnode is
-    WhitelistRoles,
+    WhitelistRolesWithAirnode,
     RequesterAuthorizer,
     IRequesterAuthorizerWithAirnode
 {
@@ -18,7 +18,9 @@ contract RequesterAuthorizerWithAirnode is
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription
-    ) WhitelistRoles(_accessControlRegistry, _adminRoleDescription) {}
+    )
+        WhitelistRolesWithAirnode(_accessControlRegistry, _adminRoleDescription)
+    {}
 
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair if the sender has the
@@ -136,61 +138,5 @@ contract RequesterAuthorizerWithAirnode is
             requester,
             setter
         );
-    }
-
-    /// @notice Derives the admin role for the specific Airnode address
-    /// @param airnode Airnode address
-    /// @return adminRole Admin role
-    function deriveAdminRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 adminRole)
-    {
-        adminRole = _deriveAdminRole(airnode);
-    }
-
-    /// @notice Derives the whitelist expiration extender role for the specific
-    /// Airnode address
-    /// @param airnode Airnode address
-    /// @return whitelistExpirationExtenderRole Whitelist expiration extender
-    /// role
-    function deriveWhitelistExpirationExtenderRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 whitelistExpirationExtenderRole)
-    {
-        whitelistExpirationExtenderRole = _deriveWhitelistExpirationExtenderRole(
-            airnode
-        );
-    }
-
-    /// @notice Derives the whitelist expiration setter role for the specific
-    /// Airnode address
-    /// @param airnode Airnode address
-    /// @return whitelistExpirationSetterRole Whitelist expiration setter role
-    function deriveWhitelistExpirationSetterRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 whitelistExpirationSetterRole)
-    {
-        whitelistExpirationSetterRole = _deriveWhitelistExpirationSetterRole(
-            airnode
-        );
-    }
-
-    /// @notice Derives the indefinite whitelister role for the specific
-    /// Airnode address
-    /// @param airnode Airnode address
-    /// @return indefiniteWhitelisterRole Indefinite whitelister role
-    function deriveIndefiniteWhitelisterRole(address airnode)
-        public
-        view
-        override
-        returns (bytes32 indefiniteWhitelisterRole)
-    {
-        indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(airnode);
     }
 }
