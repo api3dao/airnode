@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/WhitelistRolesWithAirnode.sol";
+import "../../whitelist/WhitelistRolesWithAirnode.sol";
 import "./RequesterAuthorizer.sol";
 import "./interfaces/IRequesterAuthorizerWithAirnode.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";

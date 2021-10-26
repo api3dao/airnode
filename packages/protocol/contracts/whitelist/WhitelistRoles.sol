@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./RoleDeriver.sol";
-import "./AccessControlClient.sol";
+import "../access-control-registry/RoleDeriver.sol";
+import "../access-control-registry/AccessControlClient.sol";
 import "./interfaces/IWhitelistRoles.sol";
 
 /// @title Contract that implements a whitelist controlled by

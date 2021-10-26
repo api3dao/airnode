@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/Whitelist.sol";
-import "../../access-control-registry/WhitelistRolesWithManager.sol";
+import "../../whitelist/Whitelist.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";

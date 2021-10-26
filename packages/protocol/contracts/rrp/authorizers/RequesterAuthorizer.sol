@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/Whitelist.sol";
+import "../../whitelist/Whitelist.sol";
 import "./interfaces/IRequesterAuthorizer.sol";
 
 /// @title Abstract contract that can be used to build Airnode authorizers that
