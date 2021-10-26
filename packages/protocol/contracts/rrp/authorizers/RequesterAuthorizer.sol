@@ -3,17 +3,14 @@ pragma solidity 0.8.6;
 
 import "../../access-control-registry/Whitelist.sol";
 import "./interfaces/IRequesterAuthorizer.sol";
-import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title Abstract contract that can be used to build Airnode authorizers that
 /// temporarily or permanently whitelist requesters for Airnode–endpoint pairs
 abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
-    /// @param _accessControlRegistry AccessControlRegistry address
     /// @param _adminRoleDescription Admin role description
-    constructor(
-        address _accessControlRegistry,
-        string memory _adminRoleDescription
-    ) Whitelist(_accessControlRegistry, _adminRoleDescription) {}
+    constructor(string memory _adminRoleDescription)
+        Whitelist(_adminRoleDescription)
+    {}
 
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair and emits an event

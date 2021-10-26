@@ -21,6 +21,4 @@ interface IWhitelist {
         external
         view
         returns (string memory);
-
-    function accessControlRegistry() external view returns (address);
 }

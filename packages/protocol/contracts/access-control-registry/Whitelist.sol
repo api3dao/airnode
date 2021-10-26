@@ -54,10 +54,6 @@ contract Whitelist is RoleDeriver, IWhitelist {
     bytes32 internal constant INDEFINITE_WHITELISTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(INDEFINITE_WHITELISTER_ROLE_DESCRIPTION));
 
-    /// @notice Address of the AccessControlRegistry contract that keeps the
-    /// roles
-    address public immutable override accessControlRegistry;
-
     /// @notice Whitelist status of a service for a user
     mapping(bytes32 => mapping(address => WhitelistStatus))
         internal serviceIdToUserToWhitelistStatus;
@@ -72,18 +68,12 @@ contract Whitelist is RoleDeriver, IWhitelist {
     /// authorize it in multiple contracts. Unless you want your deployed
     /// contract to reuse the role configuration of another contract, use a
     /// unique admin role description.
-    /// @param _accessControlRegistry AccessControlRegistry address
     /// @param _adminRoleDescription Admin role description
-    constructor(
-        address _accessControlRegistry,
-        string memory _adminRoleDescription
-    ) {
-        require(_accessControlRegistry != address(0), "ACR address zero");
+    constructor(string memory _adminRoleDescription) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"
         );
-        accessControlRegistry = _accessControlRegistry;
         adminRoleDescription = _adminRoleDescription;
         adminRoleDescriptionHash = keccak256(
             abi.encodePacked(_adminRoleDescription)

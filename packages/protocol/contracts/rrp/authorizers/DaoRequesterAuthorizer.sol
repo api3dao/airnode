@@ -2,6 +2,7 @@
 pragma solidity 0.8.6;
 
 import "./RequesterAuthorizer.sol";
+import "../../access-control-registry/AccessControlClient.sol";
 import "./interfaces/IDaoRequesterAuthorizer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
@@ -12,6 +13,7 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// the DAO itself
 contract DaoRequesterAuthorizer is
     RequesterAuthorizer,
+    AccessControlClient,
     IDaoRequesterAuthorizer
 {
     /// @notice Address of the DAO that manages the related
@@ -37,7 +39,10 @@ contract DaoRequesterAuthorizer is
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _dao
-    ) RequesterAuthorizer(_accessControlRegistry, _adminRoleDescription) {
+    )
+        AccessControlClient(_accessControlRegistry)
+        RequesterAuthorizer(_adminRoleDescription)
+    {
         require(_dao != address(0), "DAO address zero");
         dao = _dao;
         adminRole = _deriveAdminRole(_dao);
