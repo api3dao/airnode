@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/Whitelist.sol";
+import "../../access-control-registry/WhitelistWithRoles.sol";
 import "./interfaces/IRequesterAuthorizer.sol";
 
 /// @title Abstract contract that can be used to build Airnode authorizers that
 /// temporarily or permanently whitelist requesters for Airnode–endpoint pairs
-abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
+abstract contract RequesterAuthorizer is
+    WhitelistWithRoles,
+    IRequesterAuthorizer
+{
     /// @param _adminRoleDescription Admin role description
     constructor(string memory _adminRoleDescription)
-        Whitelist(_adminRoleDescription)
+        WhitelistWithRoles(_adminRoleDescription)
     {}
 
     /// @notice Extends the expiration of the temporary whitelist of
