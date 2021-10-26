@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import {
   AirnodeRrpFactory,
   AirnodeRrpAddresses,
-  AirnodeRequesterRrpAuthorizerAddresses,
+  RequesterAuthorizerWithAirnodeAddresses,
   authorizers,
 } from '@api3/protocol';
 
@@ -11,9 +11,9 @@ async function getAirnodeRrpAddress(provider: ethers.providers.Provider) {
   return AirnodeRrpAddresses[network.chainId];
 }
 
-async function getAirnodeRequesterRrpAuthorizerAddress(provider: ethers.providers.Provider) {
+async function getRequesterAuthorizerWithAirnodeAddress(provider: ethers.providers.Provider) {
   const network = await provider.getNetwork();
-  return AirnodeRequesterRrpAuthorizerAddresses[network.chainId];
+  return RequesterAuthorizerWithAirnodeAddresses[network.chainId];
 }
 
 export async function getAirnodeRrp(
@@ -33,15 +33,15 @@ export async function getAirnodeRrp(
   return AirnodeRrpFactory.connect(address, signerOrProvider);
 }
 
-export async function getAirnodeRequesterRrpAuthorizer(
+export async function getRequesterAuthorizerWithAirnode(
   providerUrl: string,
-  props?: { airnodeRequesterRrpAuthorizerAddress?: string; signer?: { mnemonic: string; derivationPath?: string } }
+  props?: { requesterAuthorizerWithAirnodeAddress?: string; signer?: { mnemonic: string; derivationPath?: string } }
 ) {
   let signerOrProvider: ethers.providers.Provider | ethers.Signer = new ethers.providers.JsonRpcProvider(providerUrl);
 
   const address =
-    props?.airnodeRequesterRrpAuthorizerAddress || (await getAirnodeRequesterRrpAuthorizerAddress(signerOrProvider));
-  if (!address) throw new Error(`AirnodeRequesterRrpAuthorizer address is not provided`);
+    props?.requesterAuthorizerWithAirnodeAddress || (await getRequesterAuthorizerWithAirnodeAddress(signerOrProvider));
+  if (!address) throw new Error(`RequesterAuthorizerWithAirnode address is not provided`);
 
   if (props?.signer) {
     signerOrProvider = ethers.Wallet.fromMnemonic(props?.signer.mnemonic, props.signer.derivationPath).connect(
@@ -49,5 +49,5 @@ export async function getAirnodeRequesterRrpAuthorizer(
     );
   }
 
-  return authorizers.AirnodeRequesterRrpAuthorizerFactory.connect(address, signerOrProvider);
+  return authorizers.RequesterAuthorizerWithAirnodeFactory.connect(address, signerOrProvider);
 }
