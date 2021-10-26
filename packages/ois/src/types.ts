@@ -47,6 +47,7 @@ export interface ApiSpecification {
   components: ApiComponents;
   paths: { [key: string]: Path };
   servers: Server[];
+  security: { [key: string]: [] };
 }
 
 // ===========================================
