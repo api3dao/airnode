@@ -1,45 +1,41 @@
 {
-	"valid": false,
-	"messages": [
-		{
-			"level": "error",
-			"message": "Path \"/path5\" from ois.[0].apiSpecifications.paths./path5 must be included in endpoints array"
-		},
-		{
-			"level": "error",
-			"message": "Parameter \"param\" from \"ois.[0].apiSpecifications.paths./path3.get\" must be included in \"ois.[0].endpoints\""
-		},
-		{
-			"level": "error",
-			"message": "ois.[0].endpoints.[2].fixedOperationParameters.[0].operationParameter.name: Can't have a name of reserved parameter"
-		},
-		{
-			"level": "warning",
-			"message": "ois.[0].endpoints.[2].parameters.[0].name is not formatted correctly"
-		},
-		{
-			"level": "error",
-			"message": "ois.[0].endpoints.[2].parameters.[0].operationParameter.name: Can't have a name of reserved parameter"
-		},
-		{
-			"level": "error",
-			"message": "Expected \"ois.[0].apiSpecifications.paths./path3.post\" to exist as path \"/path3\" with method \"post\" is defined in ois.[0].endpoints.[3].operation.path"
-		},
-		{
-			"level": "error",
-			"message": "Expected \"ois.[0].apiSpecifications.paths./path4.get\" to exist as path \"/path4\" with method \"get\" is defined in ois.[0].endpoints.[4].operation.path"
-		},
-		{
-			"level": "error",
-			"message": "Properties of parameter \"param\" from ois.[0].endpoints.[4].parameters.[0], must match it's properties in ois.[0].apiSpecifications.paths"
-		},
-		{
-			"level": "error",
-			"message": "OIS \"anotherOis\" must contain endpoint \"'endpt3\", as it is specified in triggers.rrp.[2].oisTitle"
-		},
-		{
-			"level": "error",
-			"message": "OIS \"myOisTitle\" must contain endpoint \"'endpt4\", as it is specified in triggers.rrp.[3].oisTitle"
-		}
-	]
+  "valid": false,
+  "messages": [
+    {
+      "level": "error",
+      "message": "Path \"/path5\" from ois.[0].apiSpecifications.paths./path5 must be included in endpoints array"
+    },
+    {
+      "level": "error",
+      "message": "ois.[0].endpoints.[2].fixedOperationParameters.[0].operationParameter.name: Can't have a name of reserved parameter"
+    },
+    {
+      "level": "warning",
+      "message": "ois.[0].endpoints.[2].parameters.[0].name is not formatted correctly"
+    },
+    {
+      "level": "error",
+      "message": "ois.[0].endpoints.[2].parameters.[0].operationParameter.name: Can't have a name of reserved parameter"
+    },
+    {
+      "level": "error",
+      "message": "Expected \"ois.[0].apiSpecifications.paths./path3.post\" to exist as path \"/path3\" with method \"post\" is defined in ois.[0].endpoints.[3].operation.path"
+    },
+    {
+      "level": "error",
+      "message": "Expected \"ois.[0].apiSpecifications.paths./path4.get\" to exist as path \"/path4\" with method \"get\" is defined in ois.[0].endpoints.[4].operation.path"
+    },
+    {
+      "level": "error",
+      "message": "Properties of parameter \"param\" from ois.[0].endpoints.[4].parameters.[0], must match it's properties in ois.[0].apiSpecifications.paths"
+    },
+    {
+      "level": "error",
+      "message": "OIS \"anotherOis\" must contain endpoint \"'endpt3\", as it is specified in triggers.rrp.[2].oisTitle"
+    },
+    {
+      "level": "error",
+      "message": "OIS \"myOisTitle\" must contain endpoint \"'endpt4\", as it is specified in triggers.rrp.[3].oisTitle"
+    }
+  ]
 }

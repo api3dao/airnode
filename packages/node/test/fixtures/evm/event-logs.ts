@@ -90,7 +90,7 @@ export function buildFullFulfilledRequest(overrides?: Partial<Log>): Log {
 export function buildRequestedWithdrawal(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 13,
-    blockHash: '0x31204db3b10d9761429d607e8828e0b5979ca57a211eb95487767887060f81c7',
+    blockHash: '0x501c188c098927df967a255d9ea09a0417f61d9a27a5afff25510b3a013b7fba',
     transactionIndex: 0,
     removed: false,
     address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
@@ -99,9 +99,9 @@ export function buildRequestedWithdrawal(overrides?: Partial<Log>): Log {
       '0xd48d52c7c6d0c940f3f8d07591e1800ef3a70daf79929a97ccd80b4494769fc7',
       '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
       '0x0000000000000000000000002479808b1216e998309a727df8a0a98a1130a162',
-      '0x0dd22fb3710966e310910c895c5291f6ce27cf4742ad5565f9cf61fc50893907',
+      '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
     ],
-    transactionHash: '0x786e3f9a5ee19f103e3a4999e82684a5e6de2d3f5394f8dc36725c93a8a039b0',
+    transactionHash: '0x4a882834f48c7505ed6cdaef430fb8d1acfd0fa6173f2e859dfd00fb18a2bdfc',
     logIndex: 0,
     ...overrides,
   };
@@ -110,18 +110,18 @@ export function buildRequestedWithdrawal(overrides?: Partial<Log>): Log {
 export function buildFulfilledWithdrawal(overrides?: Partial<Log>): Log {
   return {
     blockNumber: 15,
-    blockHash: '0xc3b15a574fdf49c07d3cbbe1c734f8fc4d95b8228b718e58ccdfaef1b543c08c',
+    blockHash: '0x6f7901b2a2097da43eaddd6fb975222726d140acf50d86fee5c6040067747ebd',
     transactionIndex: 0,
     removed: false,
     address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-    data: '0x000000000000000000000000b3806eb17832fc796247037efe6d6079909b21920000000000000000000000000000000000000000000000000de072c64c39ee40',
+    data: '0x000000000000000000000000b3806eb17832fc796247037efe6d6079909b21920000000000000000000000000000000000000000000000000de072c63256bf90',
     topics: [
       '0xadb4840bbd5f924665ae7e0e0c83de5c0fb40a98c9b57dba53a6c978127a622e',
       '0x000000000000000000000000a30ca71ba54e83127214d3271aea8f5d6bd4dace',
       '0x0000000000000000000000002479808b1216e998309a727df8a0a98a1130a162',
-      '0x0dd22fb3710966e310910c895c5291f6ce27cf4742ad5565f9cf61fc50893907',
+      '0x08650529961d48077493a390fae6a5ecbdc60ab5ed8f1aa6f03cdfeeb24394d1',
     ],
-    transactionHash: '0xc38538b7640c11702d9f9d8fa62f399eeb15494f0f9045cfc1e7b31138d8c06b',
+    transactionHash: '0xcc373907316225b939a6456ce76e780f0fa0830649c9dfbb7823b519efff9706',
     logIndex: 0,
     ...overrides,
   };

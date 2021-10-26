@@ -1,260 +1,264 @@
 {
-	"ois": [
-		{
-			"oisFormat": "1.0.0",
-			"version": "1.0.0",
-			"title": "myOisTitle",
-			"apiSpecifications": {
-				"servers": [],
-				"paths": {
-					"/path1": {
-						"get": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "param1"
-								},
-								{
-									"in": "header",
-									"name": "param2"
-								},
-								{
-									"in": "cookie",
-									"name": "param3"
-								},
-								{
-									"in": "query",
-									"name": "param4"
-								}
-							]
-						},
-						"post": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "param1"
-								},
-								{
-									"in": "query",
-									"name": "param2"
-								}
-							]
-						}
-					},
-					"/path2": {
-						"post": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "_path"
-								},
-								{
-									"in": "query",
-									"name": "_type"
-								}
-							]
-						}
-					},
-					"/path3": {
-						"get": {
-							"parameters": [
-								{
-									"in": "path",
-									"name": "param"
-								}
-							]
-						}
-					},
-					"/path5": {
-						"get": {
-							"parameters": []
-						}
-					}
-				},
-				"components": {
-					"securitySchemes": {}
-				},
-				"security": []
-			},
-			"endpoints": [
-				{
-					"name": "endpt1",
-					"operation": {
-						"method": "get",
-						"path": "/path1"
-					},
-					"fixedOperationParameters": [
-						{
-							"operationParameter": {
-								"in": "header",
-								"name": "param2"
-							},
-							"value": "test"
-						},
-						{
-							"operationParameter": {
-								"in": "cookie",
-								"name": "param3"
-							},
-							"value": "test"
-						}
-					],
-					"reservedParameters": [
-						{
-							"name": "_type",
-							"fixed": "int256"
-						},
-						{
-							"name": "_path",
-							"fixed": "market_data.current_price.usd"
-						},
-						{
-							"name": "_times",
-							"fixed": "1000000"
-						}
-					],
-					"parameters": [
-						{
-							"name": "param1",
-							"operationParameter": {
-								"in": "path",
-								"name": "param1"
-							}
-						},
-						{
-							"name": "param4",
-							"operationParameter": {
-								"in": "query",
-								"name": "param4"
-							}
-						}
-					]
-				},
-				{
-					"name": "endpt2",
-					"operation": {
-						"method": "post",
-						"path": "/path1"
-					},
-					"fixedOperationParameters": [
-						{
-							"operationParameter": {
-								"in": "path",
-								"name": "param1"
-							},
-							"value": "test"
-						},
-						{
-							"operationParameter": {
-								"in": "query",
-								"name": "param2"
-							},
-							"value": "test"
-						}
-					],
-					"reservedParameters": [],
-					"parameters": []
-				},
-				{
-					"name": "endpt3",
-					"operation": {
-						"method": "post",
-						"path": "/path2"
-					},
-					"fixedOperationParameters": [
-						{
-							"operationParameter": {
-								"in": "path",
-								"name": "_path"
-							},
-							"value": "test"
-						}
-					],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "_type",
-							"operationParameter": {
-								"in": "query",
-								"name": "_type"
-							}
-						}
-					]
-				},
-				{
-					"name": "",
-					"operation": {
-						"method": "post",
-						"path": "/path3"
-					},
-					"fixedOperationParameters": [],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "param",
-							"operationParameter": {
-								"in": "path",
-								"name": "param"
-							}
-						}
-					]
-				},
-				{
-					"name": "",
-					"operation": {
-						"method": "get",
-						"path": "/path4"
-					},
-					"fixedOperationParameters": [],
-					"reservedParameters": [],
-					"parameters": [
-						{
-							"name": "param",
-							"operationParameter": {
-								"in": "path",
-								"name": "param"
-							}
-						}
-					]
-				}
-			]
-		}
-	],
-	"triggers": {
-		"rrp": [
-			{
-				"endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
-				"oisTitle": "myOisTitle",
-				"endpointName": "endpt1"
-			},
-			{
-				"endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
-				"oisTitle": "myOisTitle",
-				"endpointName": "endpt2"
-			},
-			{
-				"endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
-				"oisTitle": "anotherOis",
-				"endpointName": "endpt3"
-			},
-			{
-				"endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
-				"oisTitle": "myOisTitle",
-				"endpointName": "endpt4"
-			}
-		]
-	},
-	"chains": [],
-	"nodeSettings": {
-		"nodeVersion": "1.0.0",
-		"cloudProvider": "aws",
-		"region": "us-east-1",
-		"stage": "testnet",
-		"logFormat": "json",
-		"logLevel": "INFO"
-	},
-	"environment": {
-		"securitySchemes": [],
-		"chainProviders": []
-	}
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "myOisTitle",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {
+          "/path1": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "param1"
+                },
+                {
+                  "in": "header",
+                  "name": "param2"
+                },
+                {
+                  "in": "cookie",
+                  "name": "param3"
+                },
+                {
+                  "in": "query",
+                  "name": "param4"
+                }
+              ]
+            },
+            "post": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "param1"
+                },
+                {
+                  "in": "query",
+                  "name": "param2"
+                }
+              ]
+            }
+          },
+          "/path2": {
+            "post": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "_path"
+                },
+                {
+                  "in": "query",
+                  "name": "_type"
+                }
+              ]
+            }
+          },
+          "/path3": {
+            "get": {
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "param"
+                }
+              ]
+            }
+          },
+          "/path5": {
+            "get": {
+              "parameters": []
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {}
+        },
+        "security": {}
+      },
+      "endpoints": [
+        {
+          "name": "endpt1",
+          "operation": {
+            "method": "get",
+            "path": "/path1"
+          },
+          "fixedOperationParameters": [
+            {
+              "operationParameter": {
+                "in": "header",
+                "name": "param2"
+              },
+              "value": "test"
+            },
+            {
+              "operationParameter": {
+                "in": "cookie",
+                "name": "param3"
+              },
+              "value": "test"
+            }
+          ],
+          "reservedParameters": [
+            {
+              "name": "_type",
+              "fixed": "int256"
+            },
+            {
+              "name": "_path",
+              "fixed": "market_data.current_price.usd"
+            },
+            {
+              "name": "_times",
+              "fixed": "1000000"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "param1",
+              "operationParameter": {
+                "in": "path",
+                "name": "param1"
+              }
+            },
+            {
+              "name": "param4",
+              "operationParameter": {
+                "in": "query",
+                "name": "param4"
+              }
+            }
+          ]
+        },
+        {
+          "name": "endpt2",
+          "operation": {
+            "method": "post",
+            "path": "/path1"
+          },
+          "fixedOperationParameters": [
+            {
+              "operationParameter": {
+                "in": "path",
+                "name": "param1"
+              },
+              "value": "test"
+            },
+            {
+              "operationParameter": {
+                "in": "query",
+                "name": "param2"
+              },
+              "value": "test"
+            }
+          ],
+          "reservedParameters": [],
+          "parameters": []
+        },
+        {
+          "name": "endpt3",
+          "operation": {
+            "method": "post",
+            "path": "/path2"
+          },
+          "fixedOperationParameters": [
+            {
+              "operationParameter": {
+                "in": "path",
+                "name": "_path"
+              },
+              "value": "test"
+            }
+          ],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "_type",
+              "operationParameter": {
+                "in": "query",
+                "name": "_type"
+              }
+            }
+          ]
+        },
+        {
+          "name": "",
+          "operation": {
+            "method": "post",
+            "path": "/path3"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param",
+              "operationParameter": {
+                "in": "path",
+                "name": "param"
+              }
+            }
+          ]
+        },
+        {
+          "name": "",
+          "operation": {
+            "method": "get",
+            "path": "/path4"
+          },
+          "fixedOperationParameters": [],
+          "reservedParameters": [],
+          "parameters": [
+            {
+              "name": "param",
+              "operationParameter": {
+                "in": "path",
+                "name": "param"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "triggers": {
+    "rrp": [
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "myOisTitle",
+        "endpointName": "endpt1"
+      },
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "myOisTitle",
+        "endpointName": "endpt2"
+      },
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "anotherOis",
+        "endpointName": "endpt3"
+      },
+      {
+        "endpointId": "0xf466b8feec41e9e50815e0c9dca4db1ff959637e564bb13fefa99e9f9f90453c",
+        "oisTitle": "myOisTitle",
+        "endpointName": "endpt4"
+      }
+    ]
+  },
+  "chains": [],
+  "nodeSettings": {
+    "nodeVersion": "1.0.0",
+    "cloudProvider": "aws",
+    "region": "us-east-1",
+    "stage": "testnet",
+    "logFormat": "json",
+    "logLevel": "INFO",
+    "airnodeWalletMnemonic": "mnemonic",
+    "heartbeat": {
+      "enabled": false
+    },
+    "httpGateway": {
+      "enabled": false
+    }
+  },
+  "apiCredentials": []
 }

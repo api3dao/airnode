@@ -6,11 +6,10 @@ import join from 'lodash/join';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import { hideBin } from 'yargs/helpers';
+import { version as nodeVersion } from '@api3/node';
 import { deploy, removeWithReceipt, remove } from './commands';
 import * as logger from '../utils/logger';
-
-// TODO: Get nodeVersion from the package
-const nodeVersion = '0.1.0';
+import { version as packageVersion } from '../../package.json';
 
 function drawHeader() {
   console.log(
@@ -21,8 +20,8 @@ function drawHeader() {
       '| | | | | |  | | | | (_) | (_| |  __/\n' +
       '\\_| |_/_|_|  |_| |_|\\___/ \\__,_|\\___|\n'
   );
-  console.log(`\n          Airnode v${nodeVersion}`);
-  console.log(`        Deployer CLI v${process.env.npm_package_version}\n`);
+  console.log(`\n          Airnode v${nodeVersion()}`);
+  console.log(`        Deployer CLI v${packageVersion}\n`);
 }
 
 async function runCommand(command: () => Promise<void>) {
@@ -71,7 +70,7 @@ yargs(hideBin(process.argv))
     async (args) => {
       logger.debugMode(args.debug as boolean);
       logger.debug(`Running command ${args._[0]} with arguments ${longArguments(args)}`);
-      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, nodeVersion));
+      await runCommand(() => deploy(args.configuration, args.secrets, args.receipt, nodeVersion()));
     }
   )
   .command(

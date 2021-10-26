@@ -117,9 +117,34 @@ describe('CLI', () => {
       // Derive the xpub programatically
       const airnodeXpub = admin.deriveAirnodeXpub(airnodeMnemonic);
 
-      // Derive the wallet using CLI
-      const out = execCommand('derive-airnode-xpub', ['--mnemonic', airnodeMnemonic]);
+      // Derive the xpub using CLI
+      const out = execCommand('derive-airnode-xpub', ['--airnode-mnemonic', airnodeMnemonic]);
       expect(out).toBe(`Airnode xpub: ${airnodeXpub}`);
+    });
+  });
+
+  describe('verify-airnode-xpub', () => {
+    it('verifies airnode xpub', () => {
+      const airnodeXpub = admin.deriveAirnodeXpub(airnodeWallet.mnemonic.phrase);
+
+      // Verify the xpub using CLI
+      let out = execCommand(
+        'verify-airnode-xpub',
+        ['--airnode-xpub', airnodeXpub],
+        ['--airnode-address', airnodeWallet.address]
+      );
+      expect(out).toBe(`Airnode xpub is: VALID`);
+
+      out = execCommand('verify-airnode-xpub', ['--airnode-xpub', airnodeXpub], ['--airnode-address', alice.address]);
+      expect(out).toBe(`Airnode xpub is: INVALID`);
+
+      const aliceXpub = admin.deriveAirnodeXpub(alice.mnemonic.phrase);
+      out = execCommand(
+        'verify-airnode-xpub',
+        ['--airnode-xpub', aliceXpub],
+        ['--airnode-address', airnodeWallet.address]
+      );
+      expect(out).toBe(`Airnode xpub is: INVALID`);
     });
   });
 
@@ -169,7 +194,7 @@ describe('CLI', () => {
         'sponsor-requester',
         ['--provider-url', PROVIDER_URL],
         ['--airnode-rrp', airnodeRrp.address],
-        ['--mnemonic', mnemonic],
+        ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--requester-address', requesterAddress]
       );
@@ -191,7 +216,7 @@ describe('CLI', () => {
       expect(await isSponsored()).toBe(true);
       const out = execCommand(
         'unsponsor-requester',
-        ['--mnemonic', mnemonic],
+        ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--provider-url', PROVIDER_URL],
         ['--airnode-rrp', airnodeRrp.address],
@@ -280,7 +305,7 @@ describe('CLI', () => {
     it('can create and fulfill withdrawal request', async () => {
       const requestWithdrawalOutput = execCommand(
         'request-withdrawal',
-        ['--mnemonic', mnemonic],
+        ['--sponsor-mnemonic', mnemonic],
         ['--derivation-path', aliceDerivationPath],
         ['--provider-url', PROVIDER_URL],
         ['--airnode-rrp', airnodeRrp.address],
@@ -328,13 +353,13 @@ describe('CLI', () => {
       expect(() =>
         execCommand(
           'sponsor-requester',
-          ['--mnemonic', mnemonic],
+          ['--sponsor-mnemonic', mnemonic],
           ['--derivation-path', 'm/0/973563544/2109481170/2137349576/871269377/610184194/17'],
           ['--provider-url', PROVIDER_URL],
           ['--airnode-rrp', airnodeRrp.address]
           // missing ['--requester-address', requester]
         )
-      ).toThrow('Missing required argument: requester');
+      ).toThrow('Missing required argument: requester-address');
     });
 
     it('unknown command', () => {

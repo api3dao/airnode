@@ -7,7 +7,7 @@ module "initializeProvider" {
 
   name               = "${local.name_prefix}-initializeProvider"
   handler            = "handlers/aws/index.initializeProvider"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 20
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -21,7 +21,7 @@ module "callApi" {
 
   name               = "${local.name_prefix}-callApi"
   handler            = "handlers/aws/index.callApi"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -35,7 +35,7 @@ module "processProviderRequests" {
 
   name               = "${local.name_prefix}-processProviderRequests"
   handler            = "handlers/aws/index.processProviderRequests"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 10
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -49,7 +49,7 @@ module "startCoordinator" {
 
   name               = "${local.name_prefix}-startCoordinator"
   handler            = "handlers/aws/index.startCoordinator"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 60
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file
@@ -70,7 +70,7 @@ module "testApi" {
 
   name               = "${local.name_prefix}-testApi"
   handler            = "handlers/aws/index.testApi"
-  source_file        = var.handler_file
+  source_dir         = var.handler_dir
   timeout            = 30
   configuration_file = var.configuration_file
   secrets_file       = var.secrets_file

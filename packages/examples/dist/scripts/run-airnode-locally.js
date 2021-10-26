@@ -47,7 +47,7 @@ var main = function () { return __awaiter(void 0, void 0, void 0, function () {
             return [2 /*return*/];
         }
         integrationPath = (0, path_1.join)(__dirname, '../integrations', integrationInfo.integration);
-        (0, src_1.runShellCommand)("docker run --rm -v " + integrationPath + ":/app/config --network=\"host\" --name airnode api3/airnode:latest");
+        (0, src_1.runShellCommand)("docker run --rm -v " + integrationPath + ":/app/config --network=\"host\" --name airnode api3/airnode-client:latest");
         return [2 /*return*/];
     });
 }); };

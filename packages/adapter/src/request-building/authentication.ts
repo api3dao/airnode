@@ -1,5 +1,4 @@
 import { ApiSecurityScheme } from '@api3/ois';
-import isEmpty from 'lodash/isEmpty';
 import reduce from 'lodash/reduce';
 import find from 'lodash/find';
 import { CachedBuildRequestOptions, Parameters } from '../types';
@@ -76,21 +75,22 @@ export function buildParameters(options: CachedBuildRequestOptions): Authenticat
     cookies: {},
   };
 
-  const apiSecuritySchemes = options.ois.apiSpecifications.components.securitySchemes;
-  if (isEmpty(apiSecuritySchemes)) {
-    return initialParameters;
-  }
-
   return reduce(
-    apiSecuritySchemes,
-    (authentication, apiSecurityScheme, apiSecuritySchemeName) => {
-      // If there are no credentials available, ignore the scheme
-      const currentApisecurityScheme = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]);
-      if (!currentApisecurityScheme) {
+    options.ois.apiSpecifications.security,
+    (authentication, _security, apiSecuritySchemeName) => {
+      const apiSecurityScheme = options.ois.apiSpecifications.components.securitySchemes[apiSecuritySchemeName];
+      // If there is no security scheme, ignore the scheme
+      if (!apiSecurityScheme) {
         return authentication;
       }
 
-      return addSchemeAuthentication(authentication, apiSecurityScheme, currentApisecurityScheme.securitySchemeValue);
+      const apiCredential = find(options.apiCredentials, ['securitySchemeName', apiSecuritySchemeName]);
+      // If there are no credentials available, ignore the scheme
+      if (!apiCredential) {
+        return authentication;
+      }
+
+      return addSchemeAuthentication(authentication, apiSecurityScheme, apiCredential.securitySchemeValue);
     },
     initialParameters
   );

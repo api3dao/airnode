@@ -37,15 +37,31 @@ const COMMON_COMMAND_ARGUMENTS = {
       describe: 'Address of the user',
     },
   },
-  mnemonicCommands: {
+  userWallet: {
     mnemonic: {
       type: 'string',
       demandOption: true,
-      describe: 'Mnemonic phrase for the wallet',
+      describe: 'Mnemonic phrase for the wallet used to make transactions',
     },
     'derivation-path': {
       type: 'string',
       describe: 'Derivation path to be used for deriving the wallet account',
+    },
+  },
+  airnodeMnemonic: {
+    type: 'string',
+    demandOption: true,
+    describe: 'Airnode mnemonic phrase',
+  },
+  sponsorWallet: {
+    'sponsor-mnemonic': {
+      type: 'string',
+      demandOption: true,
+      describe: 'Mnemonic phrase of the sponsor wallet',
+    },
+    'derivation-path': {
+      type: 'string',
+      describe: 'Derivation path to be used for deriving the sponsor wallet account',
     },
   },
   airnodeXpub: {
@@ -91,14 +107,16 @@ const COMMON_COMMAND_ARGUMENTS = {
 } as const;
 
 const {
-  airnodeRrpCommands,
-  airnodeRequesterRrpAuthorizerCommands,
-  mnemonicCommands,
   airnodeAddress,
+  airnodeMnemonic,
+  airnodeRequesterRrpAuthorizerCommands,
+  airnodeRrpCommands,
   airnodeXpub,
-  sponsorAddress,
-  sponsorWalletAddress,
   requesterAddress,
+  sponsorAddress,
+  sponsorWallet,
+  sponsorWalletAddress,
+  userWallet,
   withdrawalRequestId,
   expirationTimestamp,
   whitelistStatusPastExpiration,
@@ -111,11 +129,27 @@ yargs
     'derive-airnode-xpub',
     'Derives the Airnode extended public key',
     {
-      ...mnemonicCommands,
+      'airnode-mnemonic': airnodeMnemonic,
     },
     async (args) => {
-      const xpub = await admin.deriveAirnodeXpub(args.mnemonic);
+      const xpub = await admin.deriveAirnodeXpub(args['airnode-mnemonic']);
       console.log(`Airnode xpub: ${xpub}`);
+    }
+  )
+  .command(
+    'verify-airnode-xpub',
+    'Verifies that the xpub belongs to the Airnode wallet',
+    {
+      'airnode-xpub': airnodeXpub,
+      'airnode-address': airnodeAddress,
+    },
+    async (args) => {
+      try {
+        admin.verifyAirnodeXpub(args['airnode-xpub'], args['airnode-address']);
+        console.log(`Airnode xpub is: VALID`);
+      } catch {
+        console.log(`Airnode xpub is: INVALID`);
+      }
     }
   )
   .command(
@@ -140,13 +174,13 @@ yargs
     'Allows a requester to make requests that will be fulfilled by the Airnode using the sponsor wallet',
     {
       ...airnodeRrpCommands,
-      ...mnemonicCommands,
+      ...sponsorWallet,
       'requester-address': requesterAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp'],
-        signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
+        signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.sponsorRequester(airnodeRrp, args['requester-address']);
       console.log(`Requester address ${requesterAddress} is now sponsored by ${await airnodeRrp.signer.getAddress()}`);
@@ -157,13 +191,13 @@ yargs
     'Disallow a requester to make requests to the Airnode',
     {
       ...airnodeRrpCommands,
-      ...mnemonicCommands,
+      ...sponsorWallet,
       'requester-address': requesterAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp'],
-        signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
+        signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
       const requesterAddress = await admin.unsponsorRequester(airnodeRrp, args['requester-address']);
       console.log(
@@ -194,7 +228,7 @@ yargs
     'Creates a template and returns its ID',
     {
       ...airnodeRrpCommands,
-      ...mnemonicCommands,
+      ...userWallet,
       'template-file-path': {
         type: 'string',
         demandOption: true,
@@ -233,14 +267,14 @@ yargs
     'Requests withdrawal from the designated wallet of an Airnode as a sponsor',
     {
       ...airnodeRrpCommands,
-      ...mnemonicCommands,
+      ...sponsorWallet,
       'airnode-address': airnodeAddress,
       'sponsor-wallet-address': sponsorWalletAddress,
     },
     async (args) => {
       const airnodeRrp = await evm.getAirnodeRrp(args['provider-url'], {
         airnodeRrpAddress: args['airnode-rrp'],
-        signer: { mnemonic: args.mnemonic, derivationPath: args['derivation-path'] },
+        signer: { mnemonic: args['sponsor-mnemonic'], derivationPath: args['derivation-path'] },
       });
 
       const withdrawalRequestId = await admin.requestWithdrawal(
@@ -293,7 +327,7 @@ yargs
     'Sets whitelist expiration of a user for the Airnode–endpoint pair',
     {
       ...airnodeRequesterRrpAuthorizerCommands,
-      ...mnemonicCommands,
+      ...userWallet,
       'airnode-address': airnodeAddress,
       'expiration-timestamp': expirationTimestamp,
     },
@@ -322,7 +356,7 @@ yargs
     'Extends whitelist expiration of a user for the Airnode–endpoint pair',
     {
       ...airnodeRequesterRrpAuthorizerCommands,
-      ...mnemonicCommands,
+      ...userWallet,
       'airnode-address': airnodeAddress,
       'expiration-timestamp': expirationTimestamp,
     },
@@ -350,7 +384,7 @@ yargs
     'Sets the whitelist status of a user past expiration for the Airnode–endpoint pair',
     {
       ...airnodeRequesterRrpAuthorizerCommands,
-      ...mnemonicCommands,
+      ...userWallet,
       'airnode-address': airnodeAddress,
       'whitelist-status-past-expiration': whitelistStatusPastExpiration,
     },

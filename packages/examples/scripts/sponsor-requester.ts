@@ -10,7 +10,7 @@ const main = async () => {
     `--provider-url ${integrationInfo.providerUrl}`,
     `--airnode-rrp ${airnodeRrp.address}`,
     `--requester-address ${requester.address}`,
-    `--mnemonic "${integrationInfo.mnemonic}"`,
+    `--sponsor-mnemonic "${integrationInfo.mnemonic}"`,
   ].join(' ');
   runShellCommand(command);
 };

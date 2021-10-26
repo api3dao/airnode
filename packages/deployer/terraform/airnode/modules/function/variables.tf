@@ -1,7 +1,6 @@
 locals {
   tmp_dir               = "/tmp/${var.name}-${random_uuid.uuid.result}"
   tmp_input_dir         = "${local.tmp_dir}/input"
-  tmp_source_dir        = "${local.tmp_input_dir}/handlers/aws"
   tmp_configuration_dir = "${local.tmp_input_dir}/config-data"
   tmp_output_dir        = "${local.tmp_dir}/output"
 }
@@ -10,8 +9,8 @@ variable "handler" {
   description = "Lambda handler in a form of `file.function`"
 }
 
-variable "source_file" {
-  description = "File with the source code for lambda function"
+variable "source_dir" {
+  description = "Directory with the source code for lambda function"
 }
 
 variable "timeout" {

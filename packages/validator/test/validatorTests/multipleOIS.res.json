@@ -1,21 +1,21 @@
 {
-	"valid": false,
-	"messages": [
-		{
-			"level": "error",
-			"message": "Properties of parameter \"param2\" from ois.[2].endpoints.[2].parameters.[0], must match it's properties in ois.[2].apiSpecifications.paths"
-		},
-		{
-			"level": "error",
-			"message": "Security scheme sec2 from ois.[2].apiSpecifications.components.securitySchemes.sec2 must be present in ois.environment.securitySchemes"
-		},
-		{
-			"level": "error",
-			"message": "OIS \"ois2\" must contain endpoint \"'endpt2\", as it is specified in triggers.rrp.[2].oisTitle"
-		},
-		{
-			"level": "error",
-			"message": "OIS \"ois2\" must contain security scheme \"sec2\", as it is specified in environment.securitySchemes.[2]"
-		}
-	]
+  "valid": false,
+  "messages": [
+    {
+      "level": "warning",
+      "message": "Extra field: ois.[2].apiSpecifications.components.securitySchemes.sec2.in"
+    },
+    {
+      "level": "error",
+      "message": "Properties of parameter \"param2\" from ois.[2].endpoints.[2].parameters.[0], must match it's properties in ois.[2].apiSpecifications.paths"
+    },
+    {
+      "level": "error",
+      "message": "OIS \"ois2\" must contain endpoint \"'endpt2\", as it is specified in triggers.rrp.[2].oisTitle"
+    },
+    {
+      "level": "error",
+      "message": "OIS \"ois2\" must contain security scheme \"sec2\", as it is specified in apiCredentials.[2]"
+    }
+  ]
 }

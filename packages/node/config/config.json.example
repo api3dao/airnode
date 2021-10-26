@@ -84,6 +84,9 @@
               "name": "access_key"
             }
           }
+        },
+        "security": {
+          "Currency Converter Security Scheme": []
         }
       },
       "endpoints": [
