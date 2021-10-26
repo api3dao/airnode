@@ -21,7 +21,7 @@
               "__any": {
                 "operation": {
                   "path": {
-                    "__regexp": "__match"
+                    "__regexp": "^__match$"
                   }
                 }
               }
@@ -31,52 +31,7 @@
             "__message": "Path \"__match\" from __fullPath must be included in endpoints array"
           }
         }
-      ],
-      "__objectItem": {
-        "__objectItem": {
-          "parameters": {
-            "__arrayItem": {
-              "__conditions": [
-                {
-                  "__if": {
-                    "name": ".*"
-                  },
-                  "__rootThen": {
-                    "endpoints": {
-                      "__any": {
-                        "__ignore": {},
-                        "operation": {
-                          "path": {
-                            "__regexp": "^{{2}}$"
-                          },
-                          "method": {
-                            "__regexp": "^{{3}}$"
-                          }
-                        },
-                        "__any": {
-                          "__any": {
-                            "operationParameter": {
-                              "name": {
-                                "__regexp": "^__match$"
-                              },
-                              "in": {
-                                "__regexp": "^[['in']]$"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "__catch": {
-                    "__message": "Parameter \"__match\" from \"__prefix{{0}}.{{1}}.{{2}}.{{3}}\" must be included in \"__prefixendpoints\""
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
+      ]
     }
   },
   "endpoints": {

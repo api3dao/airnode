@@ -2,8 +2,16 @@
   "valid": false,
   "messages": [
     {
+      "level": "warning",
+      "message": "Extra field: ois.[0].apiSpecifications.components.securitySchemes.sec1.in"
+    },
+    {
       "level": "error",
-      "message": "ois.[0].apiSpecifications.components.securitySchemes.sec4 must contain \"name\" since value of \"type\" is \"apiKey\""
+      "message": "ois.[0].apiSpecifications.components.securitySchemes.sec2 must contain \"name\" and \"in\" since value of \"type\" is \"apiKey\""
+    },
+    {
+      "level": "error",
+      "message": "ois.[0].apiSpecifications.components.securitySchemes.sec4 must contain \"name\" and \"in\" since value of \"type\" is \"apiKey\""
     },
     {
       "level": "error",
