@@ -105,7 +105,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         _;
     }
 
-    /// @dev Called by an admin or higher rank to set the status of an oracle address
+    /// @dev Called by an admin to set the status of an oracle address
     /// @param _oracle The address of the oracle that can update the price
     /// @param _status The status to be set
     function setOracle(address _oracle, bool _status) external override {
@@ -236,7 +236,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         );
     }
 
-    /// @notice Unlocks the API3 tokens for a given airnode-requester-endpoint pair.
+    /// @notice Unlocks the API3 tokens for a given chain-airnode-requester-endpoint pair.
     /// chainId-airnode-endpoint-requester pair will be unauthorized if no token lock for the pair is found.
     /// @dev Checks whether the user (msg.sender) has already locked anything,
     /// or if the requester address is blocked
@@ -293,7 +293,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         );
     }
 
-    /// @notice Called by a SuperAdmin set the Block status of a airnode-requester pair.
+    /// @notice Called by an Admin to set the Block status of a airnode-requester pair.
     /// A blocked requester can have its Locks be withdrawn into the address specified
     /// by the metaAdmin. This is an irreversible action.
     /// @param _airnode The airnode address
@@ -361,7 +361,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         );
     }
 
-    /// @dev Returns the locked amount for a target sponsor address to an airnode-requester pair
+    /// @dev Returns the locked amount of a locker for a chainId-airnode-endpoint-requester pair
     /// @param _chainId The id of the chain
     /// @param _airnode The airnode address
     /// @param _endpointId The endpointId
