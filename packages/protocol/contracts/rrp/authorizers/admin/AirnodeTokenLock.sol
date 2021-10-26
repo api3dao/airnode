@@ -60,11 +60,11 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
 
     /// @dev mapping used to store opted in status of Airnodes.
     /// The status are set by admins.
-    mapping(address => bool) public AirnodeOptStatus;
+    mapping(address => bool) public airnodeOptStatus;
 
     /// @dev mapping used to store opted in status of Airnodes.
     /// The status are set by the airnode itself.
-    mapping(address => bool) public AirnodeSelfOptStatus;
+    mapping(address => bool) public airnodeSelfOptStatus;
 
     /// @dev mapping used to store all the DaoRequesterRrpAuthorizer addresses for different chains
     mapping(uint256 => address) public chainIdToDaoRequesterRrpAuthorizer;
@@ -99,7 +99,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
     /// @param _airnode The airnode Address
     modifier isOptedIn(address _airnode) {
         require(
-            AirnodeOptStatus[_airnode] && AirnodeSelfOptStatus[_airnode],
+            airnodeOptStatus[_airnode] && airnodeSelfOptStatus[_airnode],
             ERROR_AIRNODE_NOT_OPTED_IN
         );
         _;
@@ -126,7 +126,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
     /// @param _status The Opted status for the airnode
     function setOptStatus(address _airnode, bool _status) external override {
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
-        AirnodeOptStatus[_airnode] = _status;
+        airnodeOptStatus[_airnode] = _status;
         emit SetOptStatus(_airnode, _status, msg.sender);
     }
 
@@ -138,7 +138,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         override
     {
         require(msg.sender == _airnode, ERROR_NOT_AIRNODE);
-        AirnodeSelfOptStatus[_airnode] = _status;
+        airnodeSelfOptStatus[_airnode] = _status;
         emit SetSelfOptStatus(_airnode, _status);
     }
 
