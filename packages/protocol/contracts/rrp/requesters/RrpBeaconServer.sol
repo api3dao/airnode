@@ -2,7 +2,6 @@
 pragma solidity 0.8.6;
 
 import "../../access-control-registry/WhitelistWithRoles.sol";
-import "../../access-control-registry/AccessControlClient.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
@@ -20,12 +19,7 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract RrpBeaconServer is
-    WhitelistWithRoles,
-    AccessControlClient,
-    RrpRequester,
-    IRrpBeaconServer
-{
+contract RrpBeaconServer is WhitelistWithRoles, RrpRequester, IRrpBeaconServer {
     struct Beacon {
         int224 value;
         uint32 timestamp;
@@ -64,7 +58,7 @@ contract RrpBeaconServer is
         _;
     }
 
-    /// @param _accessControlRegistry AccessControlRegistry address
+    /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _airnodeRrp Airnode RRP contract address
     /// @param _manager Manager address
@@ -74,8 +68,7 @@ contract RrpBeaconServer is
         address _airnodeRrp,
         address _manager
     )
-        WhitelistWithRoles(_adminRoleDescription)
-        AccessControlClient(_accessControlRegistry)
+        WhitelistWithRoles(_accessControlRegistry, _adminRoleDescription)
         RrpRequester(_airnodeRrp)
     {
         require(_manager != address(0), "Manager address zero");

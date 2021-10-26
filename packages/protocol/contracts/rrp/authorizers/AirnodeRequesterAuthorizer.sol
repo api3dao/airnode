@@ -2,7 +2,6 @@
 pragma solidity 0.8.6;
 
 import "./RequesterAuthorizer.sol";
-import "../../access-control-registry/AccessControlClient.sol";
 import "./interfaces/IAirnodeRequesterAuthorizer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
@@ -10,18 +9,14 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
 contract AirnodeRequesterAuthorizer is
     RequesterAuthorizer,
-    AccessControlClient,
     IAirnodeRequesterAuthorizer
 {
-    /// @param _accessControlRegistry AccessControlRegistry address
+    /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     constructor(
         address _accessControlRegistry,
         string memory _adminRoleDescription
-    )
-        AccessControlClient(_accessControlRegistry)
-        RequesterAuthorizer(_adminRoleDescription)
-    {}
+    ) RequesterAuthorizer(_accessControlRegistry, _adminRoleDescription) {}
 
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair if the sender has the

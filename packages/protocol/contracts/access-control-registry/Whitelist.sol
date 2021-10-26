@@ -10,8 +10,6 @@ pragma solidity 0.8.6;
 /// Multiple senders can grant and revoke indefinite whitelists
 /// independently. The requester will be considered whitelisted as long as
 /// there is at least one active indefinite whitelist.
-/// Indefinite whitelists can be revoked if the sender that set them no
-/// longer has the indefinite whitelister role.
 contract Whitelist {
     struct WhitelistStatus {
         uint64 expirationTimestamp;

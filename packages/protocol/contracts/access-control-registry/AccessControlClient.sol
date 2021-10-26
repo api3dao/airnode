@@ -8,7 +8,7 @@ contract AccessControlClient is IAccessControlClient {
     /// roles
     address public immutable override accessControlRegistry;
 
-    /// @param _accessControlRegistry AccessControlRegistry address
+    /// @param _accessControlRegistry AccessControlRegistry contract address
     constructor(address _accessControlRegistry) {
         require(_accessControlRegistry != address(0), "ACR address zero");
         accessControlRegistry = _accessControlRegistry;

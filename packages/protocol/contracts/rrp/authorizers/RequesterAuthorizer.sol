@@ -10,10 +10,12 @@ abstract contract RequesterAuthorizer is
     WhitelistWithRoles,
     IRequesterAuthorizer
 {
+    /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
-    constructor(string memory _adminRoleDescription)
-        WhitelistWithRoles(_adminRoleDescription)
-    {}
+    constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription
+    ) WhitelistWithRoles(_accessControlRegistry, _adminRoleDescription) {}
 
     /// @notice Extends the expiration of the temporary whitelist of
     /// `requester` for the `airnode`–`endpointId` pair and emits an event

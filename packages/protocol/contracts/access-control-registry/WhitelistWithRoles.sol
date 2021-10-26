@@ -3,6 +3,7 @@ pragma solidity 0.8.6;
 
 import "./Whitelist.sol";
 import "./RoleDeriver.sol";
+import "./AccessControlClient.sol";
 import "./interfaces/IWhitelistWithRoles.sol";
 
 /// @title Contract that implements a whitelist controlled by
@@ -10,6 +11,7 @@ import "./interfaces/IWhitelistWithRoles.sol";
 contract WhitelistWithRoles is
     Whitelist,
     RoleDeriver,
+    AccessControlClient,
     IWhitelistWithRoles
 {
     // There are four roles in this contract:
@@ -50,8 +52,12 @@ contract WhitelistWithRoles is
     /// authorize it in multiple contracts. Unless you want your deployed
     /// contract to reuse the role configuration of another contract, use a
     /// unique admin role description.
+    /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
-    constructor(string memory _adminRoleDescription) {
+    constructor(
+        address _accessControlRegistry,
+        string memory _adminRoleDescription
+    ) AccessControlClient(_accessControlRegistry) {
         require(
             bytes(_adminRoleDescription).length > 0,
             "Admin role description empty"
