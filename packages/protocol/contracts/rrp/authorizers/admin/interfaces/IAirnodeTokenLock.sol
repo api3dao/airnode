@@ -6,6 +6,10 @@ interface IAirnodeTokenLock {
 
     event SetAPI3Price(uint256 price, address oracle);
 
+    event SetOptStatus(address airnode, bool status, address admin);
+
+    event SetSelfOptStatus(address airnode, bool status);
+
     event SetDaoRequesterRrpAuthorizer(
         uint256 chainId,
         address daoRequesterRrpAuthorizer,
@@ -51,6 +55,10 @@ interface IAirnodeTokenLock {
     function setOracle(address oracle, bool status) external;
 
     function setAPI3Price(uint256 price) external;
+
+    function setOptStatus(address airnode, bool status) external;
+
+    function setSelfOptStatus(address airnode, bool status) external;
 
     function setDaoRequesterRrpAuthorizer(
         uint256 chainId,
