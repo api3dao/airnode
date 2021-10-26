@@ -10,6 +10,7 @@ import "./interfaces/IAirnodeTokenLock.sol";
 contract AirnodeTokenLock is IAirnodeTokenLock {
     string private constant ERROR_ZERO_CHAINID = "Zero ChainID";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
+    string private constant ERROR_NOT_AIRNODE = "Caller not Airnode";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
     string private constant ERROR_ALREADY_LOCKED = "Already locked";
@@ -19,6 +20,7 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
     string private constant ERROR_REQUESTER_BLOCKED = "Requester Blocked";
     string private constant ERROR_REQUESTER_NOT_BLOCKED =
         "Requester Not Blocked";
+    string private constant ERROR_AIRNODE_NOT_OPTED_IN = "Airnode not opted in";
     string private constant ERROR_NOT_ORACLE = "NOT ORACLE";
 
     /// @dev Address of Api3Token
@@ -56,6 +58,14 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
     /// @dev mapping used to store all the oracle addresses
     mapping(address => bool) public isOracle;
 
+    /// @dev mapping used to store opted in status of Airnodes.
+    /// The status are set by admins.
+    mapping(address => bool) public AirnodeOptStatus;
+
+    /// @dev mapping used to store opted in status of Airnodes.
+    /// The status are set by the airnode itself.
+    mapping(address => bool) public AirnodeSelfOptStatus;
+
     /// @dev mapping used to store all the DaoRequesterRrpAuthorizer addresses for different chains
     mapping(uint256 => address) public chainIdToDaoRequesterRrpAuthorizer;
 
@@ -85,6 +95,16 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         _;
     }
 
+    /// @dev Reverts if the requester is not opted in or has choosen to opt out
+    /// @param _airnode The airnode Address
+    modifier isOptedIn(address _airnode) {
+        require(
+            AirnodeOptStatus[_airnode] && AirnodeSelfOptStatus[_airnode],
+            ERROR_AIRNODE_NOT_OPTED_IN
+        );
+        _;
+    }
+
     /// @dev Called by an admin or higher rank to set the status of an oracle address
     /// @param _oracle The address of the oracle that can update the price
     /// @param _status The status to be set
@@ -99,6 +119,27 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         require(isOracle[msg.sender], ERROR_NOT_ORACLE);
         api3PriceInUsd = _price;
         emit SetAPI3Price(_price, msg.sender);
+    }
+
+    /// @dev Called by an admin to set the opt status of an airnode
+    /// @param _airnode The airnode address
+    /// @param _status The Opted status for the airnode
+    function setOptStatus(address _airnode, bool _status) external override {
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        AirnodeOptStatus[_airnode] = _status;
+        emit SetOptStatus(_airnode, _status, msg.sender);
+    }
+
+    /// @dev Called by the airnode to set the opt status for itself
+    /// @param _airnode The airnode address
+    /// @param _status The Opted status for the airnode
+    function setSelfOptStatus(address _airnode, bool _status)
+        external
+        override
+    {
+        require(msg.sender == _airnode, ERROR_NOT_AIRNODE);
+        AirnodeSelfOptStatus[_airnode] = _status;
+        emit SetSelfOptStatus(_airnode, _status);
     }
 
     /// @dev Called by an admin or higher rank to set the address of DaoRequesterRrpAuthorizer
@@ -142,7 +183,12 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         address _airnode,
         bytes32 _endpointId,
         address _requesterAddress
-    ) external override isNotBlocked(_airnode, _requesterAddress) {
+    )
+        external
+        override
+        isNotBlocked(_airnode, _requesterAddress)
+        isOptedIn(_airnode)
+    {
         require(_chainId != 0, ERROR_ZERO_CHAINID);
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         TokenLocks storage tokenLock = tokenLocks[_chainId][_airnode][
@@ -204,7 +250,12 @@ contract AirnodeTokenLock is IAirnodeTokenLock {
         address _airnode,
         bytes32 _endpointId,
         address _requesterAddress
-    ) external override isNotBlocked(_airnode, _requesterAddress) {
+    )
+        external
+        override
+        isNotBlocked(_airnode, _requesterAddress)
+        isOptedIn(_airnode)
+    {
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         TokenLocks storage tokenLock = tokenLocks[_chainId][_airnode][
             _endpointId
