@@ -11,7 +11,8 @@ specification that will be validated:
 yarn run validate --template="[template]" --specs="[specsFile]"
 ```
 
-Templates are case-insensitive, valid templates are: `config`, `OIS`, `apiSpecifications`/`apiSpecs`, `endpoints` and `receipt`:
+Templates are case-insensitive, valid templates are: `config`, `OIS`, `apiSpecifications`/`apiSpecs`, `endpoints` and
+`receipt`:
 
 ```sh
 yarn run validate --template="config" --specs="exampleSpecs/config.specs.json"
