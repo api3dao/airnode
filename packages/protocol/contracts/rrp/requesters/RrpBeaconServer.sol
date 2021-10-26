@@ -20,12 +20,7 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// The contract casts the timestamps to `uint32`, which means it will not work
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
-contract RrpBeaconServer is
-    Whitelist,
-    WhitelistRolesWithManager,
-    RrpRequester,
-    IRrpBeaconServer
-{
+contract RrpBeaconServer is Whitelist, RrpRequester, IRrpBeaconServer {
     struct Beacon {
         int224 value;
         uint32 timestamp;
@@ -48,23 +43,8 @@ contract RrpBeaconServer is
         _;
     }
 
-    /// @param _accessControlRegistry AccessControlRegistry contract address
-    /// @param _adminRoleDescription Admin role description
-    /// @param _manager Manager address
     /// @param _airnodeRrp Airnode RRP contract address
-    constructor(
-        address _accessControlRegistry,
-        string memory _adminRoleDescription,
-        address _manager,
-        address _airnodeRrp
-    )
-        WhitelistRolesWithManager(
-            _accessControlRegistry,
-            _adminRoleDescription,
-            _manager
-        )
-        RrpRequester(_airnodeRrp)
-    {}
+    constructor(address _airnodeRrp) RrpRequester(_airnodeRrp) {}
 
     /// @notice Extends the expiration of the temporary whitelist of `reader`
     /// to be able to read the beacon with `templateId` if the sender has the
@@ -73,19 +53,11 @@ contract RrpBeaconServer is
     /// @param reader Reader address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
-    function extendWhitelistExpiration(
+    function _extendWhitelistExpirationAndEmit(
         bytes32 templateId,
         address reader,
         uint64 expirationTimestamp
-    ) external override {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationExtenderRole,
-                    msg.sender
-                ),
-            "Not expiration extender"
-        );
+    ) internal {
         _extendWhitelistExpiration(templateId, reader, expirationTimestamp);
         emit ExtendedWhitelistExpiration(
             templateId,
@@ -102,19 +74,11 @@ contract RrpBeaconServer is
     /// @param reader Reader address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
     /// will expire
-    function setWhitelistExpiration(
+    function _setWhitelistExpirationAndEmit(
         bytes32 templateId,
         address reader,
         uint64 expirationTimestamp
-    ) external override {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationSetterRole,
-                    msg.sender
-                ),
-            "Not expiration setter"
-        );
+    ) internal {
         _setWhitelistExpiration(templateId, reader, expirationTimestamp);
         emit SetWhitelistExpiration(
             templateId,
@@ -130,19 +94,11 @@ contract RrpBeaconServer is
     /// @param templateId Template ID
     /// @param reader Reader address
     /// @param status Indefinite whitelist status
-    function setIndefiniteWhitelistStatus(
+    function _setIndefiniteWhitelistStatusAndEmit(
         bytes32 templateId,
         address reader,
         bool status
-    ) external override {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    msg.sender
-                ),
-            "Not indefinite whitelister"
-        );
+    ) internal {
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
             templateId,
             reader,
@@ -162,19 +118,11 @@ contract RrpBeaconServer is
     /// @param templateId Template ID
     /// @param reader Reader address
     /// @param setter Setter of the indefinite whitelist status
-    function revokeIndefiniteWhitelistStatus(
+    function _revokeIndefiniteWhitelistStatusAndEmit(
         bytes32 templateId,
         address reader,
         address setter
-    ) external override {
-        require(
-            manager != setter &&
-                !IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    setter
-                ),
-            "setter is indefinite whitelister"
-        );
+    ) internal {
         (
             bool revoked,
             uint192 indefiniteWhitelistCount
