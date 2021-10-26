@@ -1,19 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./Whitelist.sol";
 import "./RoleDeriver.sol";
 import "./AccessControlClient.sol";
-import "./interfaces/IWhitelistWithRoles.sol";
+import "./interfaces/IWhitelistRoles.sol";
 
 /// @title Contract that implements a whitelist controlled by
 /// AccessControlRegistry roles
-contract WhitelistWithRoles is
-    Whitelist,
-    RoleDeriver,
-    AccessControlClient,
-    IWhitelistWithRoles
-{
+contract WhitelistRoles is RoleDeriver, AccessControlClient, IWhitelistRoles {
     // There are four roles in this contract:
     // Root
     // └── (1) Admin (can grant and revoke the roles below)

@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "./WhitelistWithRoles.sol";
-import "./interfaces/IWhitelistWithManager.sol";
+import "./WhitelistRoles.sol";
+import "./interfaces/IWhitelistRolesWithManager.sol";
 
 /// @title Contract that implements a whitelist controlled by
 /// AccessControlRegistry roles set by a manager
-contract WhitelistWithManager is WhitelistWithRoles, IWhitelistWithManager {
+contract WhitelistRolesWithManager is
+    WhitelistRoles,
+    IWhitelistRolesWithManager
+{
     /// @notice Address of the manager that manages the related
     /// AccessControlRegistry roles
     address public immutable override manager;
@@ -30,7 +33,7 @@ contract WhitelistWithManager is WhitelistWithRoles, IWhitelistWithManager {
         address _accessControlRegistry,
         string memory _adminRoleDescription,
         address _manager
-    ) WhitelistWithRoles(_accessControlRegistry, _adminRoleDescription) {
+    ) WhitelistRoles(_accessControlRegistry, _adminRoleDescription) {
         require(_manager != address(0), "Manager address zero");
         manager = _manager;
         adminRole = _deriveAdminRole(_manager);

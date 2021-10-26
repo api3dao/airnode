@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../../access-control-registry/interfaces/IWhitelistWithManager.sol";
+import "../../../access-control-registry/interfaces/IWhitelistRolesWithManager.sol";
 
-interface IRrpBeaconServer is IWhitelistWithManager {
+interface IRrpBeaconServer is IWhitelistRolesWithManager {
     event ExtendedWhitelistExpiration(
         bytes32 indexed templateId,
         address indexed reader,

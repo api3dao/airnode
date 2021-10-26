@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
+import "../../../access-control-registry/interfaces/IWhitelistRoles.sol";
 import "./IRequesterAuthorizer.sol";
 
-interface IAirnodeRequesterAuthorizer is IRequesterAuthorizer {
+interface IRequesterAuthorizerWithAirnode is
+    IWhitelistRoles,
+    IRequesterAuthorizer
+{
     function deriveAdminRole(address airnode)
         external
         view

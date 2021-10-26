@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../access-control-registry/WhitelistWithManager.sol";
+import "../../access-control-registry/Whitelist.sol";
+import "../../access-control-registry/WhitelistRolesWithManager.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
 import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
@@ -20,7 +21,8 @@ import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 /// work past-2106 in the current form. If this is an issue, consider casting
 /// the timestamps to a larger type.
 contract RrpBeaconServer is
-    WhitelistWithManager,
+    Whitelist,
+    WhitelistRolesWithManager,
     RrpRequester,
     IRrpBeaconServer
 {
@@ -56,7 +58,7 @@ contract RrpBeaconServer is
         address _manager,
         address _airnodeRrp
     )
-        WhitelistWithManager(
+        WhitelistRolesWithManager(
             _accessControlRegistry,
             _adminRoleDescription,
             _manager

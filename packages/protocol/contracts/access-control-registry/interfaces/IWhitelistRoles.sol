@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IWhitelistWithRoles {
+interface IWhitelistRoles {
     function adminRoleDescription() external view returns (string memory);
 
     // solhint-disable-next-line func-name-mixedcase
