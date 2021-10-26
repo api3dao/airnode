@@ -3,6 +3,7 @@ pragma solidity 0.8.6;
 
 import "./WhitelistRoles.sol";
 import "./interfaces/IWhitelistRolesWithAirnode.sol";
+import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title Contract that implements a whitelist controlled by
 /// AccessControlRegistry roles set by individual Airnodes
@@ -10,6 +11,70 @@ contract WhitelistRolesWithAirnode is
     WhitelistRoles,
     IWhitelistRolesWithAirnode
 {
+    /// @dev Reverts if the caller does not have the whitelist expiration
+    /// extender role and is not the Airnode address
+    /// @param airnode Airnode address
+    modifier onlyWhitelistExpirationExtenderOrAirnode(address airnode) {
+        require(
+            airnode == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveWhitelistExpirationExtenderRole(airnode),
+                    msg.sender
+                ),
+            "Not expiration extender"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the caller does not have the whitelist expiration
+    /// setter role and is not the Airnode address
+    /// @param airnode Airnode address
+    modifier onlyWhitelistExpirationSetterOrAirnode(address airnode) {
+        require(
+            airnode == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveWhitelistExpirationSetterRole(airnode),
+                    msg.sender
+                ),
+            "Not expiration setter"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the caller does not have the indefinite whitelister
+    /// role and is not the Airnode address
+    /// @param airnode Airnode address
+    modifier onlyIndefiniteWhitelisterOrAirnode(address airnode) {
+        require(
+            airnode == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveIndefiniteWhitelisterRole(airnode),
+                    msg.sender
+                ),
+            "Not indefinite whitelister"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the caller has the indefinite whitelister role or is
+    /// the Airnode address
+    /// @param airnode Airnode address
+    /// @param setter Setter of the indefinite whitelist status
+    modifier onlyIfSetterIsNotIndefiniteWhitelisterAndNotAirnode(
+        address airnode,
+        address setter
+    ) {
+        require(
+            airnode != setter &&
+                !IAccessControlRegistry(accessControlRegistry).hasRole(
+                    deriveIndefiniteWhitelisterRole(airnode),
+                    setter
+                ),
+            "setter is indefinite whitelister"
+        );
+        _;
+    }
+
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     constructor(

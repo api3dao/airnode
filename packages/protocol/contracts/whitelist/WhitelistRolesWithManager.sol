@@ -3,6 +3,7 @@ pragma solidity 0.8.6;
 
 import "./WhitelistRoles.sol";
 import "./interfaces/IWhitelistRolesWithManager.sol";
+import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title Contract that implements a whitelist controlled by
 /// AccessControlRegistry roles set by a manager
@@ -25,6 +26,65 @@ contract WhitelistRolesWithManager is
 
     /// @notice Indefinite whitelister role
     bytes32 public immutable override indefiniteWhitelisterRole;
+
+    /// @dev Reverts if the caller does not have the whitelist expiration
+    /// extender role and is not the manager address
+    modifier onlyWhitelistExpirationExtenderOrManager() {
+        require(
+            manager == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    whitelistExpirationExtenderRole,
+                    msg.sender
+                ),
+            "Not expiration extender"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the caller does not have the whitelist expiration
+    /// setter role and is not the manager address
+    modifier onlyWhitelistExpirationSetterOrManager() {
+        require(
+            manager == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    whitelistExpirationSetterRole,
+                    msg.sender
+                ),
+            "Not expiration setter"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the caller does not have the indefinite whitelister
+    /// role and is not the manager address
+    modifier onlyIndefiniteWhitelisterOrManager() {
+        require(
+            manager == msg.sender ||
+                IAccessControlRegistry(accessControlRegistry).hasRole(
+                    indefiniteWhitelisterRole,
+                    msg.sender
+                ),
+            "Not indefinite whitelister"
+        );
+        _;
+    }
+
+    /// @dev Reverts if the caller has the indefinite whitelister role or is
+    /// the manager address
+    /// @param setter Setter of the indefinite whitelist status
+    modifier onlyIfSetterIsNotIndefiniteWhitelisterAndNotManager(
+        address setter
+    ) {
+        require(
+            manager != setter &&
+                !IAccessControlRegistry(accessControlRegistry).hasRole(
+                    indefiniteWhitelisterRole,
+                    setter
+                ),
+            "setter is indefinite whitelister"
+        );
+        _;
+    }
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description

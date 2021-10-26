@@ -4,7 +4,6 @@ pragma solidity 0.8.6;
 import "../../whitelist/WhitelistRolesWithAirnode.sol";
 import "./RequesterAuthorizer.sol";
 import "./interfaces/IRequesterAuthorizerWithAirnode.sol";
-import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title Authorizer contract that Airnodes can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
@@ -35,15 +34,7 @@ contract RequesterAuthorizerWithAirnode is
         bytes32 endpointId,
         address requester,
         uint64 expirationTimestamp
-    ) external override {
-        require(
-            airnode == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    deriveWhitelistExpirationExtenderRole(airnode),
-                    msg.sender
-                ),
-            "Not expiration extender"
-        );
+    ) external override onlyWhitelistExpirationExtenderOrAirnode(airnode) {
         _extendWhitelistExpirationAndEmit(
             airnode,
             endpointId,
@@ -66,15 +57,7 @@ contract RequesterAuthorizerWithAirnode is
         bytes32 endpointId,
         address requester,
         uint64 expirationTimestamp
-    ) external override {
-        require(
-            airnode == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    deriveWhitelistExpirationSetterRole(airnode),
-                    msg.sender
-                ),
-            "Not expiration setter"
-        );
+    ) external override onlyWhitelistExpirationSetterOrAirnode(airnode) {
         _setWhitelistExpirationAndEmit(
             airnode,
             endpointId,
@@ -95,15 +78,7 @@ contract RequesterAuthorizerWithAirnode is
         bytes32 endpointId,
         address requester,
         bool status
-    ) external override {
-        require(
-            airnode == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    deriveIndefiniteWhitelisterRole(airnode),
-                    msg.sender
-                ),
-            "Not indefinite whitelister"
-        );
+    ) external override onlyIndefiniteWhitelisterOrAirnode(airnode) {
         _setIndefiniteWhitelistStatusAndEmit(
             airnode,
             endpointId,
@@ -123,15 +98,11 @@ contract RequesterAuthorizerWithAirnode is
         bytes32 endpointId,
         address requester,
         address setter
-    ) external override {
-        require(
-            airnode != setter &&
-                !IAccessControlRegistry(accessControlRegistry).hasRole(
-                    deriveIndefiniteWhitelisterRole(airnode),
-                    setter
-                ),
-            "setter is indefinite whitelister"
-        );
+    )
+        external
+        override
+        onlyIfSetterIsNotIndefiniteWhitelisterAndNotAirnode(airnode, setter)
+    {
         _revokeIndefiniteWhitelistStatusAndEmit(
             airnode,
             endpointId,

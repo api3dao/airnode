@@ -4,7 +4,6 @@ pragma solidity 0.8.6;
 import "../../whitelist/WhitelistRolesWithManager.sol";
 import "./RequesterAuthorizer.sol";
 import "./interfaces/IRequesterAuthorizerWithManager.sol";
-import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title Authorizer contract that a manager can use to temporarily or
 /// indefinitely whitelist requesters for Airnode–endpoint pairs
@@ -43,15 +42,7 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         uint64 expirationTimestamp
-    ) external override {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationExtenderRole,
-                    msg.sender
-                ),
-            "Not expiration extender"
-        );
+    ) external override onlyWhitelistExpirationExtenderOrManager {
         _extendWhitelistExpirationAndEmit(
             airnode,
             endpointId,
@@ -74,15 +65,7 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         uint64 expirationTimestamp
-    ) external override {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationSetterRole,
-                    msg.sender
-                ),
-            "Not expiration setter"
-        );
+    ) external override onlyWhitelistExpirationSetterOrManager {
         _setWhitelistExpirationAndEmit(
             airnode,
             endpointId,
@@ -103,15 +86,7 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         bool status
-    ) external override {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    msg.sender
-                ),
-            "Not indefinite whitelister"
-        );
+    ) external override onlyIndefiniteWhitelisterOrManager {
         _setIndefiniteWhitelistStatusAndEmit(
             airnode,
             endpointId,
@@ -131,15 +106,11 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         address setter
-    ) external override {
-        require(
-            manager != setter &&
-                !IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    setter
-                ),
-            "setter is indefinite whitelister"
-        );
+    )
+        external
+        override
+        onlyIfSetterIsNotIndefiniteWhitelisterAndNotManager(setter)
+    {
         _revokeIndefiniteWhitelistStatusAndEmit(
             airnode,
             endpointId,
