@@ -40,7 +40,7 @@ beforeEach(async () => {
     airnodeRrp.address
   );
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
-  adminRole = await accessControlRegistry.deriveRole(managerRootRole, rrpBeaconServerWithManagerAdminRoleDescription);
+  adminRole = await rrpBeaconServerWithManager.adminRole();
   whitelistExpirationExtenderRole = await rrpBeaconServerWithManager.whitelistExpirationExtenderRole();
   whitelistExpirationSetterRole = await rrpBeaconServerWithManager.whitelistExpirationSetterRole();
   indefiniteWhitelisterRole = await rrpBeaconServerWithManager.indefiniteWhitelisterRole();

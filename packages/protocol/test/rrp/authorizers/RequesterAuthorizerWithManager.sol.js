@@ -34,10 +34,7 @@ beforeEach(async () => {
     roles.manager.address
   );
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
-  adminRole = await accessControlRegistry.deriveRole(
-    managerRootRole,
-    requesterAuthorizerWithManagerAdminRoleDescription
-  );
+  adminRole = await requesterAuthorizerWithManager.adminRole();
   whitelistExpirationExtenderRole = await requesterAuthorizerWithManager.whitelistExpirationExtenderRole();
   whitelistExpirationSetterRole = await requesterAuthorizerWithManager.whitelistExpirationSetterRole();
   indefiniteWhitelisterRole = await requesterAuthorizerWithManager.indefiniteWhitelisterRole();
