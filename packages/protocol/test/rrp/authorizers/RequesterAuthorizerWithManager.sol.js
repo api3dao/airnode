@@ -41,25 +41,23 @@ beforeEach(async () => {
   whitelistExpirationExtenderRole = await requesterAuthorizerWithManager.whitelistExpirationExtenderRole();
   whitelistExpirationSetterRole = await requesterAuthorizerWithManager.whitelistExpirationSetterRole();
   indefiniteWhitelisterRole = await requesterAuthorizerWithManager.indefiniteWhitelisterRole();
-  await accessControlRegistry
-    .connect(roles.manager)
-    .initializeAndGrantRoles(
-      [managerRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        requesterAuthorizerWithManagerAdminRoleDescription,
-        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        hre.ethers.constants.AddressZero,
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ]
-    );
+  await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
+    [managerRootRole, adminRole, adminRole, adminRole, adminRole],
+    [
+      requesterAuthorizerWithManagerAdminRoleDescription,
+      await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+      await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+      await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+      await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+    ],
+    [
+      roles.manager.address, // which will already have been granted the role
+      roles.whitelistExpirationExtender.address,
+      roles.whitelistExpirationSetter.address,
+      roles.indefiniteWhitelister.address,
+      roles.anotherIndefiniteWhitelister.address,
+    ]
+  );
 });
 
 describe('constructor', function () {

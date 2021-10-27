@@ -44,25 +44,23 @@ beforeEach(async () => {
   whitelistExpirationExtenderRole = await rrpBeaconServerWithManager.whitelistExpirationExtenderRole();
   whitelistExpirationSetterRole = await rrpBeaconServerWithManager.whitelistExpirationSetterRole();
   indefiniteWhitelisterRole = await rrpBeaconServerWithManager.indefiniteWhitelisterRole();
-  await accessControlRegistry
-    .connect(roles.manager)
-    .initializeAndGrantRoles(
-      [managerRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        rrpBeaconServerWithManagerAdminRoleDescription,
-        await rrpBeaconServerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await rrpBeaconServerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await rrpBeaconServerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await rrpBeaconServerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        hre.ethers.constants.AddressZero,
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ]
-    );
+  await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
+    [managerRootRole, adminRole, adminRole, adminRole, adminRole],
+    [
+      rrpBeaconServerWithManagerAdminRoleDescription,
+      await rrpBeaconServerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+      await rrpBeaconServerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+      await rrpBeaconServerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+      await rrpBeaconServerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+    ],
+    [
+      roles.manager.address, // which will already have been granted the role
+      roles.whitelistExpirationExtender.address,
+      roles.whitelistExpirationSetter.address,
+      roles.indefiniteWhitelister.address,
+      roles.anotherIndefiniteWhitelister.address,
+    ]
+  );
   ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
   airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
   sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);

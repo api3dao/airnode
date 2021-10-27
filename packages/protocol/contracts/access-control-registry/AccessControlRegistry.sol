@@ -79,9 +79,7 @@ contract AccessControlRegistry is
     }
 
     /// @notice Initializes roles and grants them to the respective accounts
-    /// @dev If a specific role should be initialized but not granted to an
-    /// account, the respective account parameter can be left as `address(0)`.
-    /// Lengths of the arguments must be equal, and less than 33.
+    /// @dev Lengths of the arguments must be equal, and less than 33
     /// @param adminRoles Admin role to be assigned to the initialized roles
     /// @param descriptions Human-readable descriptions of the initialized
     /// roles
@@ -102,9 +100,7 @@ contract AccessControlRegistry is
         roles = new bytes32[](argumentLength);
         for (uint256 ind = 0; ind < argumentLength; ind++) {
             roles[ind] = initializeRole(adminRoles[ind], descriptions[ind]);
-            if (accounts[ind] != address(0)) {
-                grantRole(roles[ind], accounts[ind]);
-            }
+            grantRole(roles[ind], accounts[ind]);
         }
     }
 

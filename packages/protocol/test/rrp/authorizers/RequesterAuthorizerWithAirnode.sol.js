@@ -46,26 +46,24 @@ beforeEach(async () => {
     airnodeAddress
   );
   indefiniteWhitelisterRole = await requesterAuthorizerWithAirnode.deriveIndefiniteWhitelisterRole(airnodeAddress);
-  await accessControlRegistry
-    .connect(airnodeWallet)
-    .initializeAndGrantRoles(
-      [airnodeRootRole, adminRole, adminRole, adminRole, adminRole],
-      [
-        requesterAuthorizerWithAirnodeAdminRoleDescription,
-        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
-      ],
-      [
-        hre.ethers.constants.AddressZero,
-        roles.whitelistExpirationExtender.address,
-        roles.whitelistExpirationSetter.address,
-        roles.indefiniteWhitelister.address,
-        roles.anotherIndefiniteWhitelister.address,
-      ],
-      { gasLimit: 1000000 }
-    );
+  await accessControlRegistry.connect(airnodeWallet).initializeAndGrantRoles(
+    [airnodeRootRole, adminRole, adminRole, adminRole, adminRole],
+    [
+      requesterAuthorizerWithAirnodeAdminRoleDescription,
+      await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+      await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+      await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+      await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+    ],
+    [
+      airnodeAddress, // which will already have been granted the role
+      roles.whitelistExpirationExtender.address,
+      roles.whitelistExpirationSetter.address,
+      roles.indefiniteWhitelister.address,
+      roles.anotherIndefiniteWhitelister.address,
+    ],
+    { gasLimit: 1000000 }
+  );
 });
 
 describe('constructor', function () {
