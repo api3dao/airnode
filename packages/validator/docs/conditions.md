@@ -474,3 +474,105 @@ matching value of parameter, the condition is nested in, `__this_name` will be m
 ```
 
 ---
+
+## Other types in the condition
+
+The `__if` section evaluates regular expression, but if the data type is other than string it will compare provided
+value with the value in the specification.
+
+### Template
+
+```json
+{
+  "__arrayItem": {
+    "__objectItem": {
+      "__conditions": [
+        {
+          "__if": {
+            "__this": false
+          },
+          "__rootThen": {
+            "__any": {
+              "bool": {
+                "__regexp": "^true$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "__conditions": [
+      {
+        "__if": {
+          "number": 10
+        },
+        "__then": {
+          "num": {
+            "__regexp": "^ten$"
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+---
+
+### Valid specification
+
+```json
+[
+  {
+    "number": 10,
+    "num": "ten"
+  },
+  {
+    "number": 3
+  },
+  {
+    "boolean": false
+  },
+  {
+    "bool": "true"
+  }
+]
+```
+
+---
+
+### Invalid specification
+
+```json
+[
+  {
+    "number": 10
+  },
+  {
+    "bool": true
+  },
+  {
+    "boolean": false
+  }
+]
+```
+
+### Expected output
+
+```json
+{
+  "valid": false,
+  "messages": [
+    {
+      "level": "error",
+      "message": "Condition in [0].number is not met with number"
+    },
+    {
+      "level": "error",
+      "message": "Condition in [2].boolean is not met with boolean"
+    }
+  ]
+}
+```
+
+---

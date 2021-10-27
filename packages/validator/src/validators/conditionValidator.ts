@@ -95,7 +95,7 @@ function validateConditionRegexInKey(
  * @param paramPathPrefix - in case roots are not the top layer parameters, parameter paths in messages will be prefixed with paramPathPrefix
  * @returns errors and warnings that occurred in validation of provided specification
  */
-function validateConditionRegexInValue(
+function validateConditionalValue(
   specs: any,
   condition: any,
   paramPath: string[],
@@ -113,14 +113,26 @@ function validateConditionRegexInValue(
   const currentParamPath = condition[keywords.rootThen] ? paramPathPrefix : paramPath;
 
   if (paramName === keywords.this) {
-    if (!specs.match(new RegExp(paramValue))) {
-      return [];
+    if (typeof paramValue === 'string') {
+      if (!specs.match(new RegExp(paramValue))) {
+        return [];
+      }
+    } else {
+      if (specs !== paramValue) {
+        return [];
+      }
     }
 
     thenCondition = utils.replaceConditionalMatch(specs, thenCondition);
   } else {
-    if (!specs[paramName].match(new RegExp(paramValue))) {
-      return [];
+    if (typeof paramValue === 'string') {
+      if (!specs[paramName].match(new RegExp(paramValue))) {
+        return [];
+      }
+    } else {
+      if (specs[paramName] !== paramValue) {
+        return [];
+      }
     }
 
     thenCondition = utils.replaceConditionalMatch(specs[paramName], thenCondition);
@@ -192,7 +204,7 @@ export function validateCondition(
   if (paramName === keywords.thisName) {
     messages.push(...validateConditionRegexInKey(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
   } else if (specs[paramName] || paramName === keywords.this) {
-    messages.push(...validateConditionRegexInValue(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
+    messages.push(...validateConditionalValue(specs, condition, paramPath, roots, templatePath, paramPathPrefix));
   }
 
   return messages;

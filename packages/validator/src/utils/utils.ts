@@ -8,8 +8,12 @@ import { Log, Roots } from '../types';
  * @param template - object in which "__match" instances will be replaced in
  * @returns specs object with replaced "__match" instances
  */
-export function replaceConditionalMatch(match: string, template: any): any {
-  match = match.replace(regexList.regexTokens, '\\$&');
+export function replaceConditionalMatch(match: any, template: any): any {
+  if (typeof match === 'string') {
+    match = match.replace(regexList.regexTokens, '\\$&');
+  } else {
+    match = match.toString();
+  }
 
   const substitute = (toReplace: string) => {
     return toReplace.replace(new RegExp(keywords.match, 'g'), match);
