@@ -58,6 +58,19 @@ beforeEach(async () => {
       roles.anotherIndefiniteWhitelister.address,
     ]
   );
+  // Grant `roles.randomPerson` some invalid roles
+  await accessControlRegistry
+    .connect(roles.manager)
+    .initializeAndGrantRoles(
+      [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
+      [
+        Math.random(),
+        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+        await requesterAuthorizerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+        await requesterAuthorizerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+      ],
+      [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
+    );
 });
 
 describe('constructor', function () {

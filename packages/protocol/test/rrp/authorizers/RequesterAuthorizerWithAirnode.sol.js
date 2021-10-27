@@ -64,6 +64,20 @@ beforeEach(async () => {
     ],
     { gasLimit: 1000000 }
   );
+  // Grant `roles.randomPerson` some invalid roles
+  await accessControlRegistry
+    .connect(airnodeWallet)
+    .initializeAndGrantRoles(
+      [airnodeRootRole, airnodeRootRole, airnodeRootRole, airnodeRootRole],
+      [
+        Math.random(),
+        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+        await requesterAuthorizerWithAirnode.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+        await requesterAuthorizerWithAirnode.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+      ],
+      [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address],
+      { gasLimit: 1000000 }
+    );
 });
 
 describe('constructor', function () {

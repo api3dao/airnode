@@ -61,6 +61,19 @@ beforeEach(async () => {
       roles.anotherIndefiniteWhitelister.address,
     ]
   );
+  // Grant `roles.randomPerson` some invalid roles
+  await accessControlRegistry
+    .connect(roles.manager)
+    .initializeAndGrantRoles(
+      [managerRootRole, managerRootRole, managerRootRole, managerRootRole],
+      [
+        Math.random(),
+        await rrpBeaconServerWithManager.WHITELIST_EXPIRATION_EXTENDER_ROLE_DESCRIPTION(),
+        await rrpBeaconServerWithManager.WHITELIST_EXPIRATION_SETTER_ROLE_DESCRIPTION(),
+        await rrpBeaconServerWithManager.INDEFINITE_WHITELISTER_ROLE_DESCRIPTION(),
+      ],
+      [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
+    );
   ({ airnodeAddress, airnodeMnemonic, airnodeXpub } = utils.generateRandomAirnodeWallet());
   airnodeWallet = hre.ethers.Wallet.fromMnemonic(airnodeMnemonic, "m/44'/60'/0'/0/0");
   sponsorWalletAddress = utils.deriveSponsorWalletAddress(airnodeXpub, roles.sponsor.address);
