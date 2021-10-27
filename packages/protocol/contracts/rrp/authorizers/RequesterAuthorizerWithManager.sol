@@ -42,7 +42,11 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         uint64 expirationTimestamp
-    ) external override onlyWhitelistExpirationExtenderOrManager {
+    ) external override {
+        require(
+            hasWhitelistExpirationExtenderRoleOrIsManager(msg.sender),
+            "Not expiration extender"
+        );
         _extendWhitelistExpirationAndEmit(
             airnode,
             endpointId,
@@ -65,7 +69,11 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         uint64 expirationTimestamp
-    ) external override onlyWhitelistExpirationSetterOrManager {
+    ) external override {
+        require(
+            hasWhitelistExpirationSetterRoleOrIsManager(msg.sender),
+            "Not expiration setter"
+        );
         _setWhitelistExpirationAndEmit(
             airnode,
             endpointId,
@@ -86,7 +94,11 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         bool status
-    ) external override onlyIndefiniteWhitelisterOrManager {
+    ) external override {
+        require(
+            hasIndefiniteWhitelisterRoleOrIsManager(msg.sender),
+            "Not indefinite whitelister"
+        );
         _setIndefiniteWhitelistStatusAndEmit(
             airnode,
             endpointId,
@@ -106,11 +118,11 @@ contract RequesterAuthorizerWithManager is
         bytes32 endpointId,
         address requester,
         address setter
-    )
-        external
-        override
-        onlyIfSetterIsNotIndefiniteWhitelisterAndNotManager(setter)
-    {
+    ) external override {
+        require(
+            !hasIndefiniteWhitelisterRoleOrIsManager(setter),
+            "setter is indefinite whitelister"
+        );
         _revokeIndefiniteWhitelistStatusAndEmit(
             airnode,
             endpointId,

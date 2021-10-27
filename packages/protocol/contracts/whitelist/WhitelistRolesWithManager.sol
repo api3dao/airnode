@@ -27,65 +27,6 @@ contract WhitelistRolesWithManager is
     /// @notice Indefinite whitelister role
     bytes32 public immutable override indefiniteWhitelisterRole;
 
-    /// @dev Reverts if the caller does not have the whitelist expiration
-    /// extender role and is not the manager address
-    modifier onlyWhitelistExpirationExtenderOrManager() {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationExtenderRole,
-                    msg.sender
-                ),
-            "Not expiration extender"
-        );
-        _;
-    }
-
-    /// @dev Reverts if the caller does not have the whitelist expiration
-    /// setter role and is not the manager address
-    modifier onlyWhitelistExpirationSetterOrManager() {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationSetterRole,
-                    msg.sender
-                ),
-            "Not expiration setter"
-        );
-        _;
-    }
-
-    /// @dev Reverts if the caller does not have the indefinite whitelister
-    /// role and is not the manager address
-    modifier onlyIndefiniteWhitelisterOrManager() {
-        require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    msg.sender
-                ),
-            "Not indefinite whitelister"
-        );
-        _;
-    }
-
-    /// @dev Reverts if the caller has the indefinite whitelister role or is
-    /// the manager address
-    /// @param setter Setter of the indefinite whitelist status
-    modifier onlyIfSetterIsNotIndefiniteWhitelisterAndNotManager(
-        address setter
-    ) {
-        require(
-            manager != setter &&
-                !IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    setter
-                ),
-            "setter is indefinite whitelister"
-        );
-        _;
-    }
-
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
@@ -104,5 +45,59 @@ contract WhitelistRolesWithManager is
             _manager
         );
         indefiniteWhitelisterRole = _deriveIndefiniteWhitelisterRole(_manager);
+    }
+
+    /// @dev Returns if the account has the whitelist expiration extender role
+    /// or is the manager
+    /// @param account Account address
+    /// @return If the account has the whitelist extender role or is the
+    /// manager
+    function hasWhitelistExpirationExtenderRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            manager == account ||
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                whitelistExpirationExtenderRole,
+                account
+            );
+    }
+
+    /// @dev Returns if the account has the whitelist expriation setter role or
+    /// is the manager
+    /// @param account Account address
+    /// @return If the account has the whitelist setter role or is the
+    /// manager
+    function hasWhitelistExpirationSetterRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            manager == account ||
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                whitelistExpirationSetterRole,
+                account
+            );
+    }
+
+    /// @dev Returns if the account has the indefinite whitelister role or is the
+    /// manager
+    /// @param account Account address
+    /// @return If the account has the indefinite whitelister role or is the
+    /// manager
+    function hasIndefiniteWhitelisterRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            manager == account ||
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                indefiniteWhitelisterRole,
+                account
+            );
     }
 }
