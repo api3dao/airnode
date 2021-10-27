@@ -121,6 +121,21 @@
       "enabled": {
         "__type": "boolean"
       },
+      "__conditions": [
+        {
+          "__if": {
+            "enabled": true
+          },
+          "__then": {
+            "url": {},
+            "apiKey": {},
+            "id": {}
+          },
+          "__catch": {
+            "__message": "{{0}}.{{1}}: If heartbeat is enabled parameters url, apiKey and id are required"
+          }
+        }
+      ],
       "__optional": {
         "url": {
           "__regexp": "^(([^:\\/?#]+):)?(\\/\\/([^\\/?#]*))?([^?#]*)$"
@@ -137,6 +152,19 @@
       "enabled": {
         "__type": "boolean"
       },
+      "__conditions": [
+        {
+          "__if": {
+            "enabled": true
+          },
+          "__then": {
+            "apiKey": {}
+          },
+          "__catch": {
+            "__message": "{{0}}.{{1}}: If httpGateway is enabled parameter apiKey is required"
+          }
+        }
+      ],
       "__optional": {
         "apiKey": {
           "__regexp": "^.{30,60}$",
