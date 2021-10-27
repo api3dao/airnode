@@ -68,7 +68,15 @@ contract AccessControlRegistry is
         returns (bytes32 role)
     {
         role = deriveRole(adminRole, description);
+        // AccessControl roles have `DEFAULT_ADMIN_ROLE` (i.e., `bytes32(0)`)
+        // as their `adminRole` by default. No account in AccessControlRegistry
+        // can possibly have that role, which means all initialized roles will
+        // have non-default admin roles, and vice versa.
         if (getRoleAdmin(role) == DEFAULT_ADMIN_ROLE) {
+            // If the role to be initialized is adminned by the root role and
+            // the respective manager is not initialized yet, we do it here so
+            // that the manager can set up their entire configuration with a
+            // single transaction.
             if (adminRole == deriveRootRole(_msgSender())) {
                 initializeManager(_msgSender());
             }
