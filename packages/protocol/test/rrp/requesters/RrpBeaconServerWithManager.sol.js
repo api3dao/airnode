@@ -200,8 +200,18 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Sender does not have whitelist extender role and is not the manager address', function () {
+  context('Sender does not have the whitelist extender role and is not the manager address', function () {
     it('reverts', async function () {
+      await expect(
+        rrpBeaconServerWithManager
+          .connect(roles.whitelistExpirationSetter)
+          .extendWhitelistExpiration(templateId, roles.beaconReader.address, 1000)
+      ).to.be.revertedWith('Not expiration extender');
+      await expect(
+        rrpBeaconServerWithManager
+          .connect(roles.indefiniteWhitelister)
+          .extendWhitelistExpiration(templateId, roles.beaconReader.address, 1000)
+      ).to.be.revertedWith('Not expiration extender');
       await expect(
         rrpBeaconServerWithManager
           .connect(roles.randomPerson)
@@ -279,8 +289,18 @@ describe('setWhitelistExpiration', function () {
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
     });
   });
-  context('Sender does not have whitelist expiration setter role and is not the manager address', function () {
+  context('Sender does not have the whitelist expiration setter role and is not the manager address', function () {
     it('reverts', async function () {
+      await expect(
+        rrpBeaconServerWithManager
+          .connect(roles.whitelistExpirationExtender)
+          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+      ).to.be.revertedWith('Not expiration setter');
+      await expect(
+        rrpBeaconServerWithManager
+          .connect(roles.indefiniteWhitelister)
+          .setWhitelistExpiration(templateId, roles.beaconReader.address, 0)
+      ).to.be.revertedWith('Not expiration setter');
       await expect(
         rrpBeaconServerWithManager
           .connect(roles.randomPerson)
@@ -494,8 +514,18 @@ describe('setIndefiniteWhitelistStatus', function () {
       ).to.equal(false);
     });
   });
-  context('Sender does not have indefinite whitelister role and is not the manager address', function () {
+  context('Sender does not have the indefinite whitelister role and is not the manager address', function () {
     it('reverts', async function () {
+      await expect(
+        rrpBeaconServerWithManager
+          .connect(roles.whitelistExpirationExtender)
+          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+      ).to.be.revertedWith('Not indefinite whitelister');
+      await expect(
+        rrpBeaconServerWithManager
+          .connect(roles.whitelistExpirationSetter)
+          .setIndefiniteWhitelistStatus(templateId, roles.beaconReader.address, true)
+      ).to.be.revertedWith('Not indefinite whitelister');
       await expect(
         rrpBeaconServerWithManager
           .connect(roles.randomPerson)

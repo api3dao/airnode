@@ -215,8 +215,18 @@ describe('extendWhitelistExpiration', function () {
       });
     });
   });
-  context('Sender does not have whitelist extender role and is not the manager address', function () {
+  context('Sender does not have the whitelist extender role and is not the manager address', function () {
     it('reverts', async function () {
+      await expect(
+        requesterAuthorizerWithManager
+          .connect(roles.whitelistExpirationSetter)
+          .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 1000)
+      ).to.be.revertedWith('Not expiration extender');
+      await expect(
+        requesterAuthorizerWithManager
+          .connect(roles.indefiniteWhitelister)
+          .extendWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 1000)
+      ).to.be.revertedWith('Not expiration extender');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.randomPerson)
@@ -304,8 +314,18 @@ describe('setWhitelistExpiration', function () {
       expect(whitelistStatus.indefiniteWhitelistCount).to.equal(0);
     });
   });
-  context('Sender does not have whitelist expiration setter role and is not the manager address', function () {
+  context('Sender does not have the whitelist expiration setter role and is not the manager address', function () {
     it('reverts', async function () {
+      await expect(
+        requesterAuthorizerWithManager
+          .connect(roles.whitelistExpirationExtender)
+          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+      ).to.be.revertedWith('Not expiration setter');
+      await expect(
+        requesterAuthorizerWithManager
+          .connect(roles.indefiniteWhitelister)
+          .setWhitelistExpiration(airnodeAddress, endpointId, roles.requester.address, 0)
+      ).to.be.revertedWith('Not expiration setter');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.randomPerson)
@@ -511,8 +531,18 @@ describe('setIndefiniteWhitelistStatus', function () {
       ).to.equal(false);
     });
   });
-  context('Sender does not have indefinite whitelister role and is not the manager address', function () {
+  context('Sender does not have the indefinite whitelister role and is not the manager address', function () {
     it('reverts', async function () {
+      await expect(
+        requesterAuthorizerWithManager
+          .connect(roles.whitelistExpirationExtender)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
+      ).to.be.revertedWith('Not indefinite whitelister');
+      await expect(
+        requesterAuthorizerWithManager
+          .connect(roles.whitelistExpirationSetter)
+          .setIndefiniteWhitelistStatus(airnodeAddress, endpointId, roles.requester.address, true)
+      ).to.be.revertedWith('Not indefinite whitelister');
       await expect(
         requesterAuthorizerWithManager
           .connect(roles.randomPerson)
