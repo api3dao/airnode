@@ -16,16 +16,16 @@ beforeEach(async () => {
   };
   const airnodeRrpFactory = await hre.ethers.getContractFactory('AirnodeRrp', roles.deployer);
   airnodeRrp = await airnodeRrpFactory.deploy();
-  const mockRrpAuthorizerAlwaysTrueFactory = await hre.ethers.getContractFactory(
-    'MockRrpAuthorizerAlwaysTrue',
+  const mockAuthorizerAlwaysTrueFactory = await hre.ethers.getContractFactory(
+    'MockAuthorizerAlwaysTrue',
     roles.deployer
   );
-  authorizerAlwaysTrue = await mockRrpAuthorizerAlwaysTrueFactory.deploy();
-  const mockRrpAuthorizerAlwaysFalseFactory = await hre.ethers.getContractFactory(
-    'MockRrpAuthorizerAlwaysFalse',
+  authorizerAlwaysTrue = await mockAuthorizerAlwaysTrueFactory.deploy();
+  const mockAuthorizerAlwaysFalseFactory = await hre.ethers.getContractFactory(
+    'MockAuthorizerAlwaysFalse',
     roles.deployer
   );
-  authorizerAlwaysFalse = await mockRrpAuthorizerAlwaysFalseFactory.deploy();
+  authorizerAlwaysFalse = await mockAuthorizerAlwaysFalseFactory.deploy();
   ({ airnodeAddress: airnodeAddress } = utils.generateRandomAirnodeWallet());
 });
 
