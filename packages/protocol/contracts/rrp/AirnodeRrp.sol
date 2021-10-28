@@ -30,7 +30,7 @@ contract AirnodeRrp is
     /// @dev Hash of expected fulfillment parameters are kept to verify that
     /// the fulfillment will be done with the correct parameters. This value is
     /// also used to check if the fulfillment for the particular request is
-    /// expected (i.e., if there are recorded fulfillment parameters)
+    /// expected, i.e., if there are recorded fulfillment parameters.
     mapping(bytes32 => bytes32) private requestIdToFulfillmentParameters;
 
     /// @notice Called by the sponsor to set the sponsorship status of a
@@ -211,6 +211,9 @@ contract AirnodeRrp is
     /// there is no contract deployed at `fulfillAddress`.
     /// If `callSuccess` is `false`, `callData` can be decoded to retrieve the
     /// revert string.
+    /// This function emits its event after an untrusted low-level call,
+    /// meaning that the order of these events within the transaction should
+    /// not be taken seriously, yet the content will be sound.
     /// @param requestId Request ID
     /// @param airnode Airnode address
     /// @param data Fulfillment data

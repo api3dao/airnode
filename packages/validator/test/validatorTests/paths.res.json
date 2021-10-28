@@ -1,33 +1,33 @@
 {
-	"valid": false,
-	"messages": [
-		{
-			"level": "error",
-			"message": "Parameter param2 from ois.[0].apiSpecifications.paths./path2/{param1}/{param2} must be in parameters of path /path2/{param1}/{param2} and value of 'in' must be 'path'"
-		},
-		{
-			"level": "error",
-			"message": "Parameter param1 from ois.[0].apiSpecifications.paths./path3/{param1}/{param2} must be in parameters of path /path3/{param1}/{param2} and value of 'in' must be 'path'"
-		},
-		{
-			"level": "error",
-			"message": "Parameter param2 from ois.[0].apiSpecifications.paths./path3/{param1}/{param2} must be in parameters of path /path3/{param1}/{param2} and value of 'in' must be 'path'"
-		},
-		{
-			"level": "error",
-		 	"message": "Allowed values in ois.[0].apiSpecifications.paths./path2/{param1}/{param2}.get.parameters.[2].in are: 'path', 'query', 'header' or 'cookie'"
-	 	},
-		{
-			"level": "error",
-			"message": "Allowed values in ois.[0].apiSpecifications.paths./path3/{param1}/{param2}.get.parameters.[0].in are: 'path', 'query', 'header' or 'cookie'"
-		},
-		{
-			"level": "error",
-			"message": "Allowed values in ois.[0].endpoints.[2].parameters.[2].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
-		},
-		{
-			"level": "error",
-			"message": "Allowed values in ois.[0].endpoints.[3].parameters.[0].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
-		}
-	]
+  "valid": false,
+  "messages": [
+    {
+      "level": "error",
+      "message": "Parameter param2 from ois.[0].apiSpecifications.paths./path2/{param1}/{param2} must be in parameters of path /path2/{param1}/{param2} and value of 'in' must be 'path'"
+    },
+    {
+      "level": "error",
+      "message": "Parameter param1 from ois.[0].apiSpecifications.paths./path3/{param1}/{param2} must be in parameters of path /path3/{param1}/{param2} and value of 'in' must be 'path'"
+    },
+    {
+      "level": "error",
+      "message": "Parameter param2 from ois.[0].apiSpecifications.paths./path3/{param1}/{param2} must be in parameters of path /path3/{param1}/{param2} and value of 'in' must be 'path'"
+    },
+    {
+      "level": "error",
+      "message": "Allowed values in ois.[0].apiSpecifications.paths./path2/{param1}/{param2}.get.parameters.[2].in are: 'path', 'query', 'header' or 'cookie'"
+    },
+    {
+      "level": "error",
+      "message": "Allowed values in ois.[0].apiSpecifications.paths./path3/{param1}/{param2}.get.parameters.[0].in are: 'path', 'query', 'header' or 'cookie'"
+    },
+    {
+      "level": "error",
+      "message": "Allowed values in ois.[0].endpoints.[2].parameters.[2].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
+    },
+    {
+      "level": "error",
+      "message": "Allowed values in ois.[0].endpoints.[3].parameters.[0].operationParameter.in are: 'path', 'query', 'header' or 'cookie'"
+    }
+  ]
 }

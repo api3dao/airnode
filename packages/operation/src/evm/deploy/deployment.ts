@@ -1,4 +1,4 @@
-import { AirnodeRrpFactory, authorizers, mocks } from '@api3/protocol';
+import { AirnodeRrpFactory, AccessControlRegistryFactory, authorizers, mocks } from '@api3/protocol';
 import { ethers } from 'ethers';
 import { DeployState as State } from '../../types';
 
@@ -20,11 +20,21 @@ export async function deployRequesters(state: State): Promise<State> {
   return { ...state, requestersByName };
 }
 
+export async function deployAccessControlRegistry(state: State): Promise<State> {
+  const AccessControlRegistry = new AccessControlRegistryFactory(state.deployer);
+  const accessControlRegistry = await AccessControlRegistry.deploy();
+  await accessControlRegistry.deployed();
+  return { ...state, contracts: { ...state.contracts, AccessControlRegistry: accessControlRegistry } };
+}
+
 export async function deployAuthorizers(state: State): Promise<State> {
   const authorizersByName: { [name: string]: string } = {};
   for (const [authorizerName, AuthorizerArtifact] of Object.entries(authorizers)) {
     const Authorizer = new (AuthorizerArtifact as any)(state.deployer);
-    const authorizer = await Authorizer.deploy();
+    const authorizer = await Authorizer.deploy(
+      state.contracts.AccessControlRegistry!.address,
+      `${authorizerName} admin`
+    );
     await authorizer.deployed();
     authorizersByName[authorizerName] = authorizer.address;
   }

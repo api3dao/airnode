@@ -22,13 +22,13 @@ Validator will automatically validate the latest available version of provided t
 should be used in validation, it can be appended to template argument:
 
 ```sh
-yarn run validate --template="config@1.0.0" --specs="exampleSpecs/config.specs.json"
+yarn run validate --template="config@0.2.0" --specs="exampleSpecs/config.specs.json"
 ```
 
 Custom templates can be used, by providing path to the validator template file in place of `template`:
 
 ```sh
-yarn run validate --template="templates/1.0.0/config.json" --specs="exampleSpecs/config.specs.json"
+yarn run validate --template="templates/0.2.0/config.json" --specs="exampleSpecs/config.specs.json"
 ```
 
 ## Output
@@ -69,7 +69,7 @@ validator templates with conversion actions.
 Convertor works the same way as validator and can be invoked with the `convert` command, for example:
 
 ```sh
-yarn run convert --template="conversions/oas@3.0.0------ois@1.0.0.json" --specs="exampleSpecs/OAS.specs.json"
+yarn run convert --template="conversions/oas@3.0.0------ois@0.2.0.json" --specs="exampleSpecs/OAS.specs.json"
 ```
 
 Conversions can be invoked without providing any template, specifying which format provided specification is in and to

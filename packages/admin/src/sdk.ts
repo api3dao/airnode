@@ -1,4 +1,4 @@
-import { AirnodeRequesterRrpAuthorizer, AirnodeRrp } from '@api3/protocol';
+import { RequesterAuthorizerWithAirnode, AirnodeRrp } from '@api3/protocol';
 import * as evm from './evm';
 import * as admin from './implementation';
 
@@ -7,12 +7,12 @@ import * as admin from './implementation';
  */
 export class AdminSdk {
   static getAirnodeRrp = evm.getAirnodeRrp;
-  static getAirnodeRequesterRrpAuthorizer = evm.getAirnodeRequesterRrpAuthorizer;
+  static getRequesterAuthorizerWithAirnode = evm.getRequesterAuthorizerWithAirnode;
   static deriveEndpointId = (oisTitle: string, endpointName: string) => admin.deriveEndpointId(oisTitle, endpointName);
   static deriveWalletPathFromSponsorAddress = (sponsorAddress: string) =>
     admin.deriveWalletPathFromSponsorAddress(sponsorAddress);
 
-  constructor(public airnodeRrp: AirnodeRrp, public airnodeRequesterRrpAuthorizer: AirnodeRequesterRrpAuthorizer) {}
+  constructor(public airnodeRrp: AirnodeRrp, public requesterAuthorizerWithAirnode: RequesterAuthorizerWithAirnode) {}
 
   deriveAirnodeXpub = (airnodeMnemonic: string) => admin.deriveAirnodeXpub(airnodeMnemonic);
 
@@ -53,48 +53,48 @@ export class AdminSdk {
   setWhitelistExpiration = (
     airnodeAddress: string,
     endpointId: string,
-    userAddress: string,
+    requesterAddress: string,
     expirationTimestamp: number
   ) =>
     admin.setWhitelistExpiration(
-      this.airnodeRequesterRrpAuthorizer,
+      this.requesterAuthorizerWithAirnode,
       airnodeAddress,
       endpointId,
-      userAddress,
+      requesterAddress,
       expirationTimestamp
     );
 
   extendWhitelistExpiration = (
     airnodeAddress: string,
     endpointId: string,
-    userAddress: string,
+    requesterAddress: string,
     expirationTimestamp: number
   ) =>
     admin.extendWhitelistExpiration(
-      this.airnodeRequesterRrpAuthorizer,
+      this.requesterAuthorizerWithAirnode,
       airnodeAddress,
       endpointId,
-      userAddress,
+      requesterAddress,
       expirationTimestamp
     );
 
-  setWhitelistStatusPastExpiration = (
+  setIndefiniteWhitelistStatus = (
     airnodeAddress: string,
     endpointId: string,
-    userAddress: string,
+    requesterAddress: string,
     status: boolean
   ) =>
-    admin.setWhitelistStatusPastExpiration(
-      this.airnodeRequesterRrpAuthorizer,
+    admin.setIndefiniteWhitelistStatus(
+      this.requesterAuthorizerWithAirnode,
       airnodeAddress,
       endpointId,
-      userAddress,
+      requesterAddress,
       status
     );
 
-  getWhitelistStatus = (airnodeAddress: string, endpointId: string, userAddress: string) =>
-    admin.getWhitelistStatus(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
+  getWhitelistStatus = (airnodeAddress: string, endpointId: string, requesterAddress: string) =>
+    admin.getWhitelistStatus(this.requesterAuthorizerWithAirnode, airnodeAddress, endpointId, requesterAddress);
 
-  isUserWhitelisted = (airnodeAddress: string, endpointId: string, userAddress: string) =>
-    admin.isUserWhitelisted(this.airnodeRequesterRrpAuthorizer, airnodeAddress, endpointId, userAddress);
+  isRequesterWhitelisted = (airnodeAddress: string, endpointId: string, requesterAddress: string) =>
+    admin.isRequesterWhitelisted(this.requesterAuthorizerWithAirnode, airnodeAddress, endpointId, requesterAddress);
 }

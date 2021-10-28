@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { InputParameter } from '@api3/airnode-abi';
-import { AirnodeRrp } from '@api3/protocol';
+import { AirnodeRrp, AccessControlRegistry } from '@api3/protocol';
 
 // ===========================================
 // General
@@ -12,6 +12,7 @@ export interface DeployState {
   readonly config: Config;
   readonly contracts: {
     readonly AirnodeRrp?: AirnodeRrp;
+    readonly AccessControlRegistry?: AccessControlRegistry;
   };
   readonly deployer: ethers.providers.JsonRpcSigner;
   readonly provider: ethers.providers.JsonRpcProvider;

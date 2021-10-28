@@ -2,14 +2,21 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const accounts = await getUnnamedAccounts();
 
-  const airnodeRequesterRrpAuthorizer = await deploy('AirnodeRequesterRrpAuthorizer', {
-    from: accounts[2],
+  const accessControlRegistry = await deploy('AccessControlRegistry', {
+    from: accounts[0],
     log: true,
   });
-  log(`Deployed AirnodeRequesterRrpAuthorizer at ${airnodeRequesterRrpAuthorizer.address}`);
+  log(`Deployed AccessControlRegistry at ${accessControlRegistry.address}`);
+
+  const requesterAuthorizerWithAirnode = await deploy('RequesterAuthorizerWithAirnode', {
+    args: [accessControlRegistry.address, 'RequesterAuthorizerWithAirnode'],
+    from: accounts[0],
+    log: true,
+  });
+  log(`Deployed RequesterAuthorizerWithAirnode at ${requesterAuthorizerWithAirnode.address}`);
 
   const airnodeRrp = await deploy('AirnodeRrp', {
-    from: accounts[2],
+    from: accounts[0],
     log: true,
   });
   log(`Deployed Airnode RRP at ${airnodeRrp.address}`);
