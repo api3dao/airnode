@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../whitelist/WhitelistRolesWithManager.sol";
+import "../whitelist/WhitelistRolesWithManager.sol";
 import "./RequesterAuthorizer.sol";
 import "./interfaces/IRequesterAuthorizerWithManager.sol";
 

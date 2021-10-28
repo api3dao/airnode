@@ -2,7 +2,7 @@
 pragma solidity 0.8.6;
 
 import "./interfaces/IAuthorizationUtils.sol";
-import "./authorizers/interfaces/IAuthorizer.sol";
+import "../authorizers/interfaces/IAuthorizer.sol";
 
 /// @title Contract that implements authorization checks
 contract AuthorizationUtils is IAuthorizationUtils {

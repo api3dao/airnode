@@ -4,7 +4,7 @@ pragma solidity 0.8.6;
 import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 interface IAccessControlRegistry is IAccessControl {
-    event InitializedManager(address indexed manager, bytes32 rootRole);
+    event InitializedManager(bytes32 indexed rootRole, address indexed manager);
 
     event InitializedRole(
         bytes32 indexed role,

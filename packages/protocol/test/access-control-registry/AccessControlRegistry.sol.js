@@ -28,7 +28,7 @@ describe('initializeManager', function () {
       expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(false);
       await expect(accessControlRegistry.connect(roles.randomPerson).initializeManager(manager))
         .to.emit(accessControlRegistry, 'InitializedManager')
-        .withArgs(manager, managerRootRole);
+        .withArgs(managerRootRole, manager);
       expect(await accessControlRegistry.hasRole(managerRootRole, manager)).to.equal(true);
     });
   });

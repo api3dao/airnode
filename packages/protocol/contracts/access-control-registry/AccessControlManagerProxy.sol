@@ -2,29 +2,31 @@
 pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./AccessControlClient.sol";
 import "./interfaces/IAccessControlRegistry.sol";
-import "./interfaces/IAccessControlAgent.sol";
+import "./interfaces/IAccessControlManagerProxy.sol";
 
-/// @title Contract that acts as an agent that will interact with
+/// @title Contract that acts as the proxy of a manager that will interact with
 /// AccessControlRegistry
 /// @notice AccessControlRegistry users that want their access control tables
-/// to be transferrable (e.g., a DAO) will use this. There are cases where this
-/// transferrability is not desired, e.g., if the user is an Airnode and is
-/// immutably associated with a single address.
-contract AccessControlAgent is Ownable, IAccessControlAgent {
-    /// @notice Address of the AccessControlRegistry contract that this
-    /// contract interfaces with
-    address public immutable override accessControlRegistry;
-
+/// to be transferrable (e.g., a DAO) will use this proxy instead of
+/// interacting with it directly. There are cases where this transferrability
+/// is not desired, e.g., if the user is an Airnode and is immutably associated
+/// with a single address, in which case the manager will interact with
+/// AccessControlRegistry directly.
+contract AccessControlManagerProxy is
+    Ownable,
+    AccessControlClient,
+    IAccessControlManagerProxy
+{
     /// @param _accessControlRegistry Address of the AccessControlRegistry
     /// contract
-    constructor(address _accessControlRegistry) {
-        require(_accessControlRegistry != address(0), "ACR address zero");
-        accessControlRegistry = _accessControlRegistry;
-    }
+    constructor(address _accessControlRegistry)
+        AccessControlClient(_accessControlRegistry)
+    {}
 
-    /// @notice Initializes a role, which includes setting its admin,
-    /// associating it with its manager and granting it to the sender
+    /// @notice Initializes a role, which includes setting its admin and
+    /// granting it to the sender
     /// @dev See AccessControlRegistry.sol for details
     /// @param adminRole Admin role to be assigned to the initialized role
     /// @param description Human-readable description of the initialized role
@@ -43,7 +45,7 @@ contract AccessControlAgent is Ownable, IAccessControlAgent {
 
     /// @notice Initializes roles and grants them to the respective accounts
     /// @dev See AccessControlRegistry.sol for details
-    /// @param adminRoles Admin role to be assigned to the initialized roles
+    /// @param adminRoles Admin roles to be assigned to the initialized roles
     /// @param descriptions Human-readable descriptions of the initialized
     /// roles
     /// @param accounts Accounts the initialized roles will be granted to

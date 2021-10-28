@@ -5,10 +5,10 @@ import "../access-control-registry/RoleDeriver.sol";
 import "../access-control-registry/AccessControlClient.sol";
 import "./interfaces/IWhitelistRoles.sol";
 
-/// @title Contract that implements a whitelist controlled by
-/// AccessControlRegistry roles
+/// @title Contract that implements generic AccessControlRegistry roles for a
+/// whitelist contract
 contract WhitelistRoles is RoleDeriver, AccessControlClient, IWhitelistRoles {
-    // There are four roles in this contract:
+    // There are four roles implemented in this contract:
     // Root
     // └── (1) Admin (can grant and revoke the roles below)
     //     ├── (2) Whitelist expiration extender
@@ -42,10 +42,10 @@ contract WhitelistRoles is RoleDeriver, AccessControlClient, IWhitelistRoles {
         keccak256(abi.encodePacked(INDEFINITE_WHITELISTER_ROLE_DESCRIPTION));
 
     /// @dev Contracts deployed with the same admin role descriptions will have
-    /// the same role IDs, meaning that granting an account a role will
-    /// authorize it in multiple contracts. Unless you want your deployed
-    /// contract to reuse the role configuration of another contract, use a
-    /// unique admin role description.
+    /// the same roles, meaning that granting an account a role will authorize
+    /// it in multiple contracts. Unless you want your deployed contract to
+    /// reuse the role configuration of another contract, use a unique admin
+    /// role description.
     /// @param _accessControlRegistry AccessControlRegistry contract address
     /// @param _adminRoleDescription Admin role description
     constructor(

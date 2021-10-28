@@ -4,8 +4,8 @@
 
 > The contracts that implement the Airnode protocols
 
-**_This documents the protocol for v0.1. We have also published and documented the pre-alpha version widely. Pre-alpha
-and v0.1 are very different in implementation and the terminology they use is contradictory. If you are referring to any
+**_This documents the protocol for v0.2. We have also published and documented the pre-alpha version widely. Pre-alpha
+and v0.2 are very different in implementation and the terminology they use is contradictory. If you are referring to any
 outside source, make sure that it is not referring to the pre-alpha version, or at least interpret it accordingly._**
 
 ## Instructions
@@ -64,23 +64,51 @@ Airnodes that allows responses to be reused repeatedly by authorized parties.
 Both authorizers and service providing requesters require complex clearance functionality for multiple independent
 entities, e.g., if we are implementing a contract that controls access to Airnodes, the admin for an Airnode should not
 necessarily be an admin for another one. Therefore, the Airnode protocol package also includes contracts that implement
-ranked admin functionality for multiple independent entities, and these contracts can be easily extended to build
+access control functionality for multiple independent entities, and these contracts can be easily extended to build
 various kinds of admin logic.
 
 ## Directory structure
 
 The contracts are under the `contracts/` directory.
 
-`/admin`: Houses the contracts that implement the admin functionality mentioned above. The contracts in this directory
-are not RRP-specific and are expected to be reused.
+`/access-control-registry`: Contracts that implement generic admin functionality
 
-- `/adminnable/Adminnable.sol`: Implements ranked admins, where the meta-admin is the highest ranking admin.
-- `/adminnable/SelfAdminnable.sol`: Implements ranked admins independently for addresses, where the address itself is
-  the highest ranking admin, respectively.
-- `/adminnable/Whitelister.sol`: Implements data structures, modifiers, internal utility functions for whitelister
-  contracts. This needs to be inherited and extended with an external interface.
+- `/access-control-registry/AccessControlRegistry.sol`: Inherits OpenZeppelin's AccessControl and forces the roles to
+  relate to each other in a tree structure instead of an arbitrary topology.
 
-`/rrp`: Houses the contracts that implement RRP and related contracts such as authorizers and requesters
+- `/access-control-registry/AccessControlManagerProxy.sol`: An Ownable proxy contract to be used while interacting with
+  AccessControlRegistry to allow roles to be transferred as a whole
+
+- `/access-control-registry/AccessControlClient.sol`: A contract to inherit for contracts that will be interacting with
+  AccessControlRegistry
+
+- `/access-control-registry/RoleDeriver.sol`: Implements the role ID derivation convention
+
+`/whitelist`: Contracts that implement generic whitelisting functionality
+
+- `/whitelist/Whitelist.sol`: A contract that implements temporary and permanent whitelists for multiple services
+
+- `/whitelist/WhitelistRoles.sol`: A contract that implements the base roles for a Whitelist contract that will be
+  managed by an AccessControlRegistry
+
+- `/whitelist/WhitelistRolesWithAirnode.sol`: A contract that implements the roles for a Whitelist contract that will be
+  managed by Airnode addresses through an AccessControlRegistry
+
+- `/whitelist/WhitelistRolesWithManager.sol`: A contract that implements the roles for a Whitelist contract that will be
+  managed by a single account through an AccessControlRegistry
+
+- `/authorizers`: Contracts that implement arbitrary business logic for the Airnode protocol
+
+- `/authorizers/RequesterAuthorizer.sol`: A base contract that inherits Whitelist to implement whitelisting of
+  requesters for Airnode–endpoint pairs
+
+- `/authorizers/RequesterAuthorizerWithAirnode.sol`: A contract that inherits RequesterAuthorizer and
+  WhitelistRolesWithAirnode to implement Airnode-managed requester whitelists for Airnode–endpoint pairs
+
+- `/authorizers/RequesterAuthorizerWithManager.sol`: A contract that inherits RequesterAuthorizer and
+  WhitelistRolesWithManager to implement requester whitelists for Airnode–endpoint pairs managed by a single account
+
+`/rrp`: Contracts that implement the request–response protocol
 
 - `rrp/AirnodeRrp.sol`: Implements the request–response loop of the protocol and inherits the three other contracts
   below
@@ -89,21 +117,13 @@ are not RRP-specific and are expected to be reused.
   request parameters
 - `rrp/WithdrawalUtils.sol`: Implements the request–response loop for withdrawals from sponsor wallets
 
-  `rrp/authorizers/`: Houses the RRP-specific authorizer contracts
-
-  - `rrp/authorizers/RequesterRrpAuthorizer.sol`: A base contract to inherit and extend to implement requester-based RRP
-    authorizers
-  - `rrp/authorizers/AirnodeRequesterRrpAuthorizer.sol`: Inherits `RequesterRrpAuthorizer` and treats each Airnode's
-    address as its respective highest ranking admin.
-  - `rrp/authorizers/DaoRequesterRrpAuthorizer.sol`: Inherits `RequesterRrpAuthorizer` and assigns the API3 DAO as the
-    highest ranking admin across all Airnodes.
-
   `rrp/requesters/`: Houses the RRP-depending requester contracts
 
   - `rrp/requesters/RrpRequester.sol`: A contract that is meant to be inherited by any contract that will be making
     requests to `AirnodeRrp`
   - `rrp/requesters/RrpBeaconServer.sol`: A proxy contract that makes RRP requests for request templates. The most
-    recent response for each template is stored and can be accessed by the whitelisted users.
+    recent response for each template is stored and can be accessed by the whitelisted users where the whitelists are
+    managed by a single account.
 
 ## Unique patterns
 
@@ -117,7 +137,7 @@ information.
 
 The RRP protocol and its authorizer contracts are deployed once per-chain, and all Airnodes use the same set of
 contracts. The contracts are implemented in a way that they are entirely trustless and permissionless, and not even the
-API3 DAO has any special privileges (except for `DaoRequesterRrpAuthorizer`, which is opt-in, as all authorizers).
+API3 DAO has any special privileges (except for `RequesterAuthorizerWithManager`, which is opt-in, as all authorizers).
 
 In other words, the Airnode operators do not need to deploy any contracts in the regular user flow. This is preferred
 because deploying contracts causes a lot of UX friction and costs a lot of gas. Furthermore, the requester now has to
@@ -188,12 +208,12 @@ negligible compared to the value that will be created by an oracle protocol that
    contract, i.e., the requester contract can make Airnode requests that will be fulfilled by their sponsor wallet.
 
 3. Before making a request, the developer should make sure that at least one of the authorizer contracts that the
-   Airnode is using will authorize the request. Assume the Airnode is using `AirnodeRequesterRrpAuthorizer` and
-   `DaoRequesterRrpAuthorizer`. Then, the requester contract should be whitelisted either by one of the admins that the
-   Airnode default BIP 44 wallet has appointed (i.e., by `AirnodeRequesterRrpAuthorizer`) or one of the admins that the
-   API3 DAO has appointed (i.e., by `DaoRequesterRrpAuthorizer`). These admins may whitelist requester contracts based
-   on arbitrary criteria (e.g., if an on-chain payment or an off-chain agreement has been made) and these are outside of
-   the scope of this package.
+   Airnode is using will authorize the request. Assume the Airnode is using `RequesterAuthorizerWithAirnode` and
+   `RequesterAuthorizerWithManager`. Then, the requester contract should be whitelisted either by one of the admins that
+   the Airnode default BIP 44 wallet has appointed (i.e., by `RequesterAuthorizerWithAirnode`) or one of the admins that
+   the API3 DAO has appointed (i.e., by `RequesterAuthorizerWithManager`). These admins may whitelist requester
+   contracts based on arbitrary criteria (e.g., if an on-chain payment or an off-chain agreement has been made) and
+   these are outside of the scope of this package.
 
 4. The requester contract can make two kinds of requests:
 

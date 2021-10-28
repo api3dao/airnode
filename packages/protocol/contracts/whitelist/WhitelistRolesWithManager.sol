@@ -5,8 +5,8 @@ import "./WhitelistRoles.sol";
 import "./interfaces/IWhitelistRolesWithManager.sol";
 import "../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
-/// @title Contract that implements a whitelist controlled by
-/// AccessControlRegistry roles set by a manager
+/// @title Contract that implements AccessControlRegistry roles for a whitelist
+/// contract controlled by a single manager account
 contract WhitelistRolesWithManager is
     WhitelistRoles,
     IWhitelistRolesWithManager
@@ -15,16 +15,10 @@ contract WhitelistRolesWithManager is
     /// AccessControlRegistry roles
     address public immutable override manager;
 
-    /// @notice Admin role
+    // Since there will be a single manager, we can derive the roles beforehand
     bytes32 public immutable override adminRole;
-
-    /// @notice Whitelist expiration extender role
     bytes32 public immutable override whitelistExpirationExtenderRole;
-
-    /// @notice Whitelist expiration setter role
     bytes32 public immutable override whitelistExpirationSetterRole;
-
-    /// @notice Indefinite whitelister role
     bytes32 public immutable override indefiniteWhitelisterRole;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address

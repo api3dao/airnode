@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-/// @title Contract that implements a generic whitelist
-/// @notice This contract can be inherited and extended to implement temporary
-/// and permanent whitelists
-/// @dev This contract implements two kinds of whitelisting:
+/// @title Contract that implements temporary and permanent whitelists for
+/// multiple services identified with a hash
+/// @notice This contract implements two kinds of whitelisting:
 ///   (1) Temporary, ends when the expiration timestamp is in the past
 ///   (2) Indefinite, ends when the indefinite whitelist count is zero
-/// Multiple senders can grant and revoke indefinite whitelists
-/// independently. The requester will be considered whitelisted as long as
-/// there is at least one active indefinite whitelist.
+/// Multiple senders can idefinitely whitelist/unwhitelist independently. The
+/// user will be considered whitelisted as long as there is at least one active
+/// indefinite whitelisting.
+/// @dev The interface of this contract is not implemented. It should be
+/// inherited and its functions should be exposed with a sort of an
+/// authorization scheme.
 contract Whitelist {
     struct WhitelistStatus {
         uint64 expirationTimestamp;
@@ -22,8 +24,8 @@ contract Whitelist {
     mapping(bytes32 => mapping(address => mapping(address => bool)))
         internal serviceIdToUserToSetterToIndefiniteWhitelistStatus;
 
-    /// @notice Extends the expiration of the temporary whitelist of
-    /// the user for the service
+    /// @notice Extends the expiration of the temporary whitelist of the user
+    /// for the service
     /// @param serviceId Service ID
     /// @param user User address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist

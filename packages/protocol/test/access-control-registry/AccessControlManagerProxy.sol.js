@@ -3,7 +3,7 @@ const hre = require('hardhat');
 const { expect } = require('chai');
 
 let roles;
-let accessControlRegistry, accessControlAgent;
+let accessControlRegistry, accessControlManagerProxy;
 let managerRootRole, roleDescription;
 
 beforeEach(async () => {
@@ -16,11 +16,14 @@ beforeEach(async () => {
   };
   const accessControlRegistryFactory = await hre.ethers.getContractFactory('AccessControlRegistry', roles.deployer);
   accessControlRegistry = await accessControlRegistryFactory.deploy();
-  const accessControlAgentFactory = await hre.ethers.getContractFactory('AccessControlAgent', roles.deployer);
-  accessControlAgent = await accessControlAgentFactory.deploy(accessControlRegistry.address);
-  await accessControlAgent.transferOwnership(roles.agentOwner.address);
+  const accessControlManagerProxyFactory = await hre.ethers.getContractFactory(
+    'AccessControlManagerProxy',
+    roles.deployer
+  );
+  accessControlManagerProxy = await accessControlManagerProxyFactory.deploy(accessControlRegistry.address);
+  await accessControlManagerProxy.transferOwnership(roles.agentOwner.address);
   managerRootRole = hre.ethers.utils.keccak256(
-    hre.ethers.utils.solidityPack(['address'], [accessControlAgent.address])
+    hre.ethers.utils.solidityPack(['address'], [accessControlManagerProxy.address])
   );
   roleDescription = 'Role description unique to adminRole';
 });
@@ -28,15 +31,21 @@ beforeEach(async () => {
 describe('constructor', function () {
   context('_accessControlRegistry is not zero address', function () {
     it('constructs', async function () {
-      const accessControlAgentFactory = await hre.ethers.getContractFactory('AccessControlAgent', roles.deployer);
-      accessControlAgent = await accessControlAgentFactory.deploy(accessControlRegistry.address);
-      expect(await accessControlAgent.accessControlRegistry()).to.equal(accessControlRegistry.address);
+      const accessControlManagerProxyFactory = await hre.ethers.getContractFactory(
+        'AccessControlManagerProxy',
+        roles.deployer
+      );
+      accessControlManagerProxy = await accessControlManagerProxyFactory.deploy(accessControlRegistry.address);
+      expect(await accessControlManagerProxy.accessControlRegistry()).to.equal(accessControlRegistry.address);
     });
   });
   context('_accessControlRegistry is zero address', function () {
     it('reverts', async function () {
-      const accessControlAgentFactory = await hre.ethers.getContractFactory('AccessControlAgent', roles.deployer);
-      await expect(accessControlAgentFactory.deploy(hre.ethers.constants.AddressZero)).to.be.revertedWith(
+      const accessControlManagerProxyFactory = await hre.ethers.getContractFactory(
+        'AccessControlManagerProxy',
+        roles.deployer
+      );
+      await expect(accessControlManagerProxyFactory.deploy(hre.ethers.constants.AddressZero)).to.be.revertedWith(
         'ACR address zero'
       );
     });
@@ -46,17 +55,17 @@ describe('constructor', function () {
 describe('initializeRole', function () {
   describe('Sender is agent owner', function () {
     it('initializesRole', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await expect(accessControlAgent.connect(roles.agentOwner).initializeRole(managerRootRole, roleDescription))
+      await expect(accessControlManagerProxy.connect(roles.agentOwner).initializeRole(managerRootRole, roleDescription))
         .to.emit(accessControlRegistry, 'InitializedRole')
-        .withArgs(role, managerRootRole, roleDescription, accessControlAgent.address);
+        .withArgs(role, managerRootRole, roleDescription, accessControlManagerProxy.address);
     });
   });
   describe('Sender is not agent owner', function () {
     it('reverts', async function () {
       await expect(
-        accessControlAgent.connect(roles.randomPerson).initializeRole(managerRootRole, roleDescription)
+        accessControlManagerProxy.connect(roles.randomPerson).initializeRole(managerRootRole, roleDescription)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
@@ -65,22 +74,22 @@ describe('initializeRole', function () {
 describe('initializeAndGrantRoles', function () {
   describe('Sender is agent owner', function () {
     it('initializes role', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
       await expect(
-        accessControlAgent
+        accessControlManagerProxy
           .connect(roles.agentOwner)
           .initializeAndGrantRoles([managerRootRole], [roleDescription], [roles.account.address])
       )
         .to.emit(accessControlRegistry, 'InitializedRole')
-        .withArgs(role, managerRootRole, roleDescription, accessControlAgent.address);
+        .withArgs(role, managerRootRole, roleDescription, accessControlManagerProxy.address);
       expect(await accessControlRegistry.hasRole(role, roles.account.address)).to.equal(true);
     });
   });
   describe('Sender is not agent owner', function () {
     it('reverts', async function () {
       await expect(
-        accessControlAgent
+        accessControlManagerProxy
           .connect(roles.randomPerson)
           .initializeAndGrantRoles([managerRootRole], [roleDescription], [roles.account.address])
       ).to.be.revertedWith('Ownable: caller is not the owner');
@@ -91,21 +100,21 @@ describe('initializeAndGrantRoles', function () {
 describe('grantRole', function () {
   describe('Sender is agent owner', function () {
     it('grants role', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await accessControlAgent.connect(roles.agentOwner).initializeRole(managerRootRole, roleDescription);
-      await expect(accessControlAgent.connect(roles.agentOwner).grantRole(role, roles.account.address))
+      await accessControlManagerProxy.connect(roles.agentOwner).initializeRole(managerRootRole, roleDescription);
+      await expect(accessControlManagerProxy.connect(roles.agentOwner).grantRole(role, roles.account.address))
         .to.emit(accessControlRegistry, 'RoleGranted')
-        .withArgs(role, roles.account.address, accessControlAgent.address);
+        .withArgs(role, roles.account.address, accessControlManagerProxy.address);
     });
   });
   describe('Sender is not agent owner', function () {
     it('reverts', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await accessControlAgent.connect(roles.agentOwner).initializeRole(managerRootRole, roleDescription);
+      await accessControlManagerProxy.connect(roles.agentOwner).initializeRole(managerRootRole, roleDescription);
       await expect(
-        accessControlAgent.connect(roles.randomPerson).grantRole(role, roles.account.address)
+        accessControlManagerProxy.connect(roles.randomPerson).grantRole(role, roles.account.address)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
@@ -114,25 +123,25 @@ describe('grantRole', function () {
 describe('revokeRole', function () {
   describe('Sender is agent owner', function () {
     it('revokes role', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await accessControlAgent
+      await accessControlManagerProxy
         .connect(roles.agentOwner)
         .initializeAndGrantRoles([managerRootRole], [roleDescription], [roles.account.address]);
-      await expect(accessControlAgent.connect(roles.agentOwner).revokeRole(role, roles.account.address))
+      await expect(accessControlManagerProxy.connect(roles.agentOwner).revokeRole(role, roles.account.address))
         .to.emit(accessControlRegistry, 'RoleRevoked')
-        .withArgs(role, roles.account.address, accessControlAgent.address);
+        .withArgs(role, roles.account.address, accessControlManagerProxy.address);
     });
   });
   describe('Sender is not agent owner', function () {
     it('reverts', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await accessControlAgent
+      await accessControlManagerProxy
         .connect(roles.agentOwner)
         .initializeAndGrantRoles([managerRootRole], [roleDescription], [roles.account.address]);
       await expect(
-        accessControlAgent.connect(roles.randomPerson).revokeRole(role, roles.account.address)
+        accessControlManagerProxy.connect(roles.randomPerson).revokeRole(role, roles.account.address)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
@@ -141,25 +150,27 @@ describe('revokeRole', function () {
 describe('renounceRole', function () {
   describe('Sender is agent owner', function () {
     it('renounces role', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await accessControlAgent
+      await accessControlManagerProxy
         .connect(roles.agentOwner)
-        .initializeAndGrantRoles([managerRootRole], [roleDescription], [accessControlAgent.address]);
-      await expect(accessControlAgent.connect(roles.agentOwner).renounceRole(role, accessControlAgent.address))
+        .initializeAndGrantRoles([managerRootRole], [roleDescription], [accessControlManagerProxy.address]);
+      await expect(
+        accessControlManagerProxy.connect(roles.agentOwner).renounceRole(role, accessControlManagerProxy.address)
+      )
         .to.emit(accessControlRegistry, 'RoleRevoked')
-        .withArgs(role, accessControlAgent.address, accessControlAgent.address);
+        .withArgs(role, accessControlManagerProxy.address, accessControlManagerProxy.address);
     });
   });
   describe('Sender is not agent owner', function () {
     it('reverts', async function () {
-      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlAgent.address);
+      await accessControlRegistry.connect(roles.randomPerson).initializeManager(accessControlManagerProxy.address);
       const role = await accessControlRegistry.deriveRole(managerRootRole, roleDescription);
-      await accessControlAgent
+      await accessControlManagerProxy
         .connect(roles.agentOwner)
-        .initializeAndGrantRoles([managerRootRole], [roleDescription], [accessControlAgent.address]);
+        .initializeAndGrantRoles([managerRootRole], [roleDescription], [accessControlManagerProxy.address]);
       await expect(
-        accessControlAgent.connect(roles.randomPerson).renounceRole(role, accessControlAgent.address)
+        accessControlManagerProxy.connect(roles.randomPerson).renounceRole(role, accessControlManagerProxy.address)
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-/// @title Contract that implements the AccessControlRegistry role ID
-/// derivation logic
+/// @title Contract that implements the AccessControlRegistry role derivation
+/// logic
 /// @notice If a contract interfaces with AccessControlRegistry and needs to
-/// derive role IDs, it should inherit and use this contract instead of
-/// re-implementing the logic
+/// derive roles, it should inherit this contract instead of re-implementing
+/// the logic
 contract RoleDeriver {
     /// @notice Derives the root role of the manager
     /// @param manager Manager address
@@ -22,7 +22,7 @@ contract RoleDeriver {
     /// @dev This implies that roles adminned by the same role cannot have the
     /// same description
     /// @param adminRole Admin role
-    /// @param description Description
+    /// @param description Human-readable description of the role
     /// @return role Role
     function _deriveRole(bytes32 adminRole, string memory description)
         internal
@@ -36,7 +36,8 @@ contract RoleDeriver {
     /// @dev This implies that roles adminned by the same role cannot have the
     /// same description
     /// @param adminRole Admin role
-    /// @param descriptionHash Description hash
+    /// @param descriptionHash Hash of the human-readable description of the
+    /// role
     /// @return role Role
     function _deriveRole(bytes32 adminRole, bytes32 descriptionHash)
         internal

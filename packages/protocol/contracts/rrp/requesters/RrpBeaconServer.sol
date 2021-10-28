@@ -92,7 +92,7 @@ contract RrpBeaconServer is
 
     /// @notice Sets the expiration of the temporary whitelist of `reader` to
     /// be able to read the beacon with `templateId` if the sender has the
-    /// whitelist expiration extender role
+    /// whitelist expiration setter role
     /// @param templateId Template ID
     /// @param reader Reader address
     /// @param expirationTimestamp Timestamp at which the temporary whitelist
@@ -196,7 +196,7 @@ contract RrpBeaconServer is
     /// request update permission to the caller of this method.
     /// The template used here must specify a single point of data of type
     /// `int256` to be returned because this is what `fulfill()` expects.
-    /// This point of data should be castable to `int224`.
+    /// This point of data must be castable to `int224`.
     /// @param templateId Template ID of the beacon to be updated
     /// @param sponsor Sponsor whose wallet will be used to fulfill this
     /// request

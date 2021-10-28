@@ -8,10 +8,10 @@ import "./interfaces/IAccessControlRegistry.sol";
 /// @title Contract that allows users to manage independent, tree-shaped access
 /// control tables
 /// @notice Multiple contracts can refer to this contract to check if their
-/// users have granted accounts with specific roles. Therefore, it aims to keep
-/// all access control roles of its users in this single contract.
-/// @dev Each user is called a "manager", and are the only member of their root
-/// role. Starting from this root role, one can create an arbitrary tree of
+/// users have granted accounts specific roles. Therefore, it aims to keep all
+/// access control roles of its users in this single contract.
+/// @dev Each user is called a "manager", and is the only member of their root
+/// role. Starting from this root role, they can create an arbitrary tree of
 /// roles and grant these to accounts. Each role has a description, and roles
 /// adminned by the same role cannot have the same description.
 contract AccessControlRegistry is
@@ -30,12 +30,12 @@ contract AccessControlRegistry is
         bytes32 rootRole = deriveRootRole(manager);
         if (!hasRole(rootRole, manager)) {
             _setupRole(rootRole, manager);
-            emit InitializedManager(manager, rootRole);
+            emit InitializedManager(rootRole, manager);
         }
     }
 
     /// @notice Called for the account to renounce the role
-    /// @dev Overriden to disallow managers from renouncing their root roles
+    /// @dev Overriden to disallow managers to renounce their root roles
     /// @param role Role to be renounced
     /// @param account Account to renounce the role
     function renounceRole(bytes32 role, address account)
@@ -49,16 +49,17 @@ contract AccessControlRegistry is
         AccessControl.renounceRole(role, account);
     }
 
-    /// @notice Initializes a role, which includes setting its admin,
-    /// associating it with its manager and granting it to the sender
+    /// @notice Initializes a role, which includes setting its admin and
+    /// granting it to the sender
     /// @dev If the sender should not have the initialized role, they should
-    /// explicitly renounce it afterwards.
+    /// explicitly renounce it after initializing it.
     /// Once a role is initialized, subsequent initialization have no effect,
     /// other than granting the role to the sender.
     /// The sender must be a member of `adminRole`.
     /// If the sender is an uninitialized manager that is initializing a role
     /// directly under their root role, manager initialization will happen
-    /// automatically, which will grant the sender `adminRole`.
+    /// automatically, which will grant the sender `adminRole` and allow them
+    /// to initialize the role.
     /// @param adminRole Admin role to be assigned to the initialized role
     /// @param description Human-readable description of the initialized role
     /// @return role Initialized role
@@ -76,7 +77,7 @@ contract AccessControlRegistry is
             // If the role to be initialized is adminned by the root role and
             // the respective manager is not initialized yet, we do it here so
             // that the manager can set up their entire configuration with a
-            // single transaction.
+            // single transaction. See the tests for examples.
             if (adminRole == deriveRootRole(_msgSender())) {
                 initializeManager(_msgSender());
             }
@@ -87,8 +88,12 @@ contract AccessControlRegistry is
     }
 
     /// @notice Initializes roles and grants them to the respective accounts
-    /// @dev Lengths of the arguments must be equal, and less than 33
-    /// @param adminRoles Admin role to be assigned to the initialized roles
+    /// @dev Each initialized role is granted to the respective account. If you
+    /// do not want to grant the role to an additional account, you can pass
+    /// the sender address here (as the sender will already be granted the
+    /// role so this would have no effect).
+    /// Lengths of the arguments must be equal, and less than 33
+    /// @param adminRoles Admin roles to be assigned to the initialized roles
     /// @param descriptions Human-readable descriptions of the initialized
     /// roles
     /// @param accounts Accounts the initialized roles will be granted to
@@ -128,7 +133,7 @@ contract AccessControlRegistry is
     /// @dev This implies that roles adminned by the same role cannot have the
     /// same description
     /// @param adminRole Admin role
-    /// @param description Description
+    /// @param description Human-readable description of the role
     /// @return role Role
     function deriveRole(bytes32 adminRole, string calldata description)
         public

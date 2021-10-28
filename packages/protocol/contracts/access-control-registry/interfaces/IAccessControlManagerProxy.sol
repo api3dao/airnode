@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-interface IAccessControlAgent {
+import "./IAccessControlClient.sol";
+
+interface IAccessControlManagerProxy is IAccessControlClient {
     function initializeRole(bytes32 adminRole, string calldata description)
         external
         returns (bytes32 role);
@@ -17,6 +19,4 @@ interface IAccessControlAgent {
     function revokeRole(bytes32 role, address account) external;
 
     function renounceRole(bytes32 role, address account) external;
-
-    function accessControlRegistry() external view returns (address);
 }

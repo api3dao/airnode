@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.6;
 
-import "../../whitelist/Whitelist.sol";
+import "../whitelist/Whitelist.sol";
 import "./interfaces/IRequesterAuthorizer.sol";
 
 /// @title Abstract contract that can be used to build Airnode authorizers that
@@ -65,7 +65,7 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
 
     /// @notice Sets the indefinite whitelist status of `requester` for the
     /// `airnode`–`endpointId` pair and emits an event
-    /// Emits the event even if it does not change the state.
+    /// @dev Emits the event even if it does not change the state.
     /// @param airnode Airnode address
     /// @param endpointId Endpoint ID
     /// @param requester Requester address
@@ -76,9 +76,8 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         address requester,
         bool status
     ) internal {
-        bytes32 serviceId = deriveServiceId(airnode, endpointId);
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
-            serviceId,
+            deriveServiceId(airnode, endpointId),
             requester,
             status
         );
@@ -106,11 +105,14 @@ abstract contract RequesterAuthorizer is Whitelist, IRequesterAuthorizer {
         address requester,
         address setter
     ) internal {
-        bytes32 serviceId = deriveServiceId(airnode, endpointId);
         (
             bool revoked,
             uint192 indefiniteWhitelistCount
-        ) = _revokeIndefiniteWhitelistStatus(serviceId, requester, setter);
+        ) = _revokeIndefiniteWhitelistStatus(
+                deriveServiceId(airnode, endpointId),
+                requester,
+                setter
+            );
         if (revoked) {
             emit RevokedIndefiniteWhitelistStatus(
                 airnode,
