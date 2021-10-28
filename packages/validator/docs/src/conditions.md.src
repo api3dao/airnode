@@ -116,3 +116,27 @@ Conditions can be evaluated from root of the template by using `__rootThen` in p
 <snippet id='conditions-this-invalid-out'/>
 
 ---
+
+## Other types in the condition
+
+The `__if` section evaluates regular expression, but if the data type is other than string it will compare provided value with the value in the specification.
+
+### Template
+
+<snippet id='conditions-types-template'/>
+
+---
+### Valid specification
+
+<snippet id='conditions-types-valid-specs'/>
+
+---
+### Invalid specification
+
+<snippet id='conditions-types-invalid-specs'/>
+
+### Expected output
+
+<snippet id='conditions-types-invalid-out'/>
+
+---

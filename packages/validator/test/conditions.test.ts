@@ -25,4 +25,9 @@ describe('conditions (docs)', () => {
     expect(validator.validateJson(data.thisValidSpecs, data.thisTemplate)).toEqual({ valid: true, messages: [] });
     expect(validator.validateJson(data.thisInvalidSpecs, data.thisTemplate)).toEqual(data.thisInvalidOut);
   });
+
+  it('condition with various types in __if', () => {
+    expect(validator.validateJson(data.typesValidSpecs, data.typesTemplate)).toEqual({ valid: true, messages: [] });
+    expect(validator.validateJson(data.typesInvalidSpecs, data.typesTemplate)).toEqual(data.typesInvalidOut);
+  });
 });

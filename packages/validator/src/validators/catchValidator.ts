@@ -47,6 +47,14 @@ export function validateCatch(
     [...paramPathPrefix, ...paramPath].join('.')
   );
   message[keywords.message] = message[keywords.message].replace(new RegExp(keywords.path, 'g'), paramPath.join('.'));
+
+  if (paramPathPrefix.length) {
+    message[keywords.message] = message[keywords.message].replace(
+      new RegExp(`${keywords.prefix}(?=\\S)`, 'g'),
+      `${paramPathPrefix.join('.')}.`
+    );
+  }
+
   message[keywords.message] = message[keywords.message].replace(
     new RegExp(keywords.prefix, 'g'),
     paramPathPrefix.join('.')

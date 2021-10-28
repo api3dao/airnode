@@ -1,0 +1,38 @@
+{
+  "ois": [
+    {
+      "oisFormat": "1.0.0",
+      "version": "1.0.0",
+      "title": "myOisTitle",
+      "apiSpecifications": {
+        "servers": [],
+        "paths": {},
+        "components": {
+          "securitySchemes": {}
+        },
+        "security": {}
+      },
+      "endpoints": []
+    }
+  ],
+  "triggers": {
+    "rrp": []
+  },
+  "chains": [],
+  "nodeSettings": {
+    "nodeVersion": "1.0.0",
+    "cloudProvider": "aws",
+    "region": "us-east-1",
+    "stage": "testnet",
+    "logFormat": "json",
+    "logLevel": "INFO",
+    "airnodeWalletMnemonic": "mnemonic",
+    "heartbeat": {
+      "enabled": false
+    },
+    "httpGateway": {
+      "enabled": false
+    }
+  },
+  "apiCredentials": []
+}

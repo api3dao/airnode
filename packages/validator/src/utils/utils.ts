@@ -8,8 +8,12 @@ import { Log, Roots } from '../types';
  * @param template - object in which "__match" instances will be replaced in
  * @returns specs object with replaced "__match" instances
  */
-export function replaceConditionalMatch(match: string, template: any): any {
-  match = match.replace(regexList.regexTokens, '\\$&');
+export function replaceConditionalMatch(match: any, template: any): any {
+  if (typeof match === 'string') {
+    match = match.replace(regexList.regexTokens, '\\$&');
+  } else {
+    match = match.toString();
+  }
 
   const substitute = (toReplace: string) => {
     return toReplace.replace(new RegExp(keywords.match, 'g'), match);
@@ -254,7 +258,12 @@ function insertValueRecursive(paramPath: string[], spec: any, value: any) {
     }
 
     if (spec.length <= index) {
-      spec.push({});
+      if (paramPath[1] === '' || !paramPath[1]) {
+        spec.push(JSON.parse(JSON.stringify(value)));
+        return;
+      } else {
+        spec.push({});
+      }
     }
 
     spec = spec[index];
