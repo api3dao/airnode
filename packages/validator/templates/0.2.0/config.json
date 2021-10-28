@@ -82,9 +82,9 @@
   },
   "nodeSettings": {
     "nodeVersion": {
-      "__regexp": "^1.0.0$",
+      "__regexp": "^0.2.0$",
       "__catch": {
-        "__message": "__fullPath: nodeVersion should be set to 1.0.0"
+        "__message": "__fullPath: nodeVersion should be set to 0.2.0"
       }
     },
     "cloudProvider": {
