@@ -5,7 +5,6 @@ import "../../whitelist/Whitelist.sol";
 import "../../whitelist/WhitelistRolesWithManager.sol";
 import "./RrpRequester.sol";
 import "./interfaces/IRrpBeaconServer.sol";
-import "../../access-control-registry/interfaces/IAccessControlRegistry.sol";
 
 /// @title The contract that serves beacons using Airnode RRP
 /// @notice A beacon is a live data point associated with a template ID. This
@@ -79,11 +78,7 @@ contract RrpBeaconServer is
         uint64 expirationTimestamp
     ) external override {
         require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationExtenderRole,
-                    msg.sender
-                ),
+            hasWhitelistExpirationExtenderRoleOrIsManager(msg.sender),
             "Not expiration extender"
         );
         _extendWhitelistExpiration(templateId, reader, expirationTimestamp);
@@ -108,11 +103,7 @@ contract RrpBeaconServer is
         uint64 expirationTimestamp
     ) external override {
         require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    whitelistExpirationSetterRole,
-                    msg.sender
-                ),
+            hasWhitelistExpirationSetterRoleOrIsManager(msg.sender),
             "Not expiration setter"
         );
         _setWhitelistExpiration(templateId, reader, expirationTimestamp);
@@ -136,11 +127,7 @@ contract RrpBeaconServer is
         bool status
     ) external override {
         require(
-            manager == msg.sender ||
-                IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    msg.sender
-                ),
+            hasIndefiniteWhitelisterRoleOrIsManager(msg.sender),
             "Not indefinite whitelister"
         );
         uint192 indefiniteWhitelistCount = _setIndefiniteWhitelistStatus(
@@ -168,11 +155,7 @@ contract RrpBeaconServer is
         address setter
     ) external override {
         require(
-            manager != setter &&
-                !IAccessControlRegistry(accessControlRegistry).hasRole(
-                    indefiniteWhitelisterRole,
-                    setter
-                ),
+            !hasIndefiniteWhitelisterRoleOrIsManager(setter),
             "setter is indefinite whitelister"
         );
         (
