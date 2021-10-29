@@ -89,8 +89,8 @@ yarn deploy-rrp
 ### 5. (Only if deploying to AWS) Create AWS secrets file
 
 If you intend to deploy Airnode on AWS, you will need to specify the credentials which will be used by the
-[deployer](https://github.com/api3dao/airnode/tree/master/packages/deployer). If you are not sure where to find these or
-how to create an AWS account, follow [this video](https://www.youtube.com/watch?v=KngM5bfpttA).
+[deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer). If you are not sure where to find
+these or how to create an AWS account, follow [this video](https://www.youtube.com/watch?v=KngM5bfpttA).
 
 After you know the secrets, run the following script to specify them:
 
@@ -122,9 +122,9 @@ more details.
 ### 7. Build docker artifacts
 
 Our docker images are based on a common container which we call "artifacts". This intermediate container is then used by
-both [deployer](https://github.com/api3dao/airnode/tree/master/packages/deployer) and
-[airnode](https://github.com/api3dao/airnode/tree/master/packages/node). You can build the artifacts container by
-running:
+both [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) and
+[airnode](https://github.com/api3dao/airnode/tree/master/packages/airnode-node). You can build the artifacts container
+by running:
 
 ```sh
 yarn rebuild-artifacts-container
@@ -146,8 +146,8 @@ Now you're ready to deploy Airnode on AWS. Just run:
 yarn deploy-airnode
 ```
 
-This command will use the [deployer](https://github.com/api3dao/airnode/tree/master/packages/deployer) package to deploy
-your Airnode. Deployment may take some time so be patient.
+This command will use the [deployer](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) package
+to deploy your Airnode. Deployment may take some time so be patient.
 
 ### 10. (Only if running Airnode locally) Build Airnode docker container
 
@@ -184,7 +184,7 @@ yarn deploy-requester
 Airnode request requires a [sponsor](https://docs.api3.org/airnode/v0.2/concepts/sponsor.html), which will pay for the
 response transaction made by Airnode. Each sponsor has a dedicated wallet for a given Airnode. This wallet is called a
 "sponsor wallet" and can be derived from sponsor address and Airnode's extended public key with the
-[admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/admin). Refer to the
+[admin CLI package](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin). Refer to the
 [documentation](https://docs.api3.org/airnode/v0.2/grp-developers/requesters-sponsors.html#how-to-derive-a-sponsor-wallet)
 for more details.
 

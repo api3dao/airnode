@@ -1,6 +1,6 @@
 import { Endpoint } from '@api3/airnode-ois';
 import { testApi } from './test-api';
-import * as worker from '../adapters/http/worker';
+import * as worker from '../airnode-adapters/http/worker';
 import * as fixtures from '../../test/fixtures';
 
 const ENDPOINT_ID = '0xeddc421714e1b46ef350e8ecf380bd0b38a40ce1a534e7ecdf4db7dbc9319353';

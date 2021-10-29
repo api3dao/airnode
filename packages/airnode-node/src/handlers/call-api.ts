@@ -1,7 +1,7 @@
 import * as adapter from '@api3/airnode-adapter';
 import { OIS } from '@api3/airnode-ois';
 import { BigNumber } from 'bignumber.js';
-import { getReservedParameters, RESERVED_PARAMETERS } from '../adapters/http/parameters';
+import { getReservedParameters, RESERVED_PARAMETERS } from '../airnode-adapters/http/parameters';
 import { API_CALL_TIMEOUT, API_CALL_TOTAL_TIMEOUT } from '../constants';
 import * as logger from '../logger';
 import { AggregatedApiCall, ApiCallResponse, ChainConfig, Config, LogsData, RequestErrorMessage } from '../types';

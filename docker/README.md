@@ -47,5 +47,5 @@ Once built the image contains 3 directories with artifacts that can be used for 
 ```Docker
 COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
 COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/artifacts /build/packages/deployer/dist ${appDir}/
+COPY --from=api3/artifacts /build/packages/airnode-deployer/dist ${appDir}/
 ```

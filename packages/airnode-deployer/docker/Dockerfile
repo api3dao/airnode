@@ -10,8 +10,8 @@ LABEL application=${name} \
 
 COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
 COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/artifacts /build/packages/deployer/dist ${appDir}/
-COPY packages/deployer/docker/entrypoint.sh /entrypoint.sh
+COPY --from=api3/artifacts /build/packages/airnode-deployer/dist ${appDir}/
+COPY packages/airnode-deployer/docker/entrypoint.sh /entrypoint.sh
 
     # Install external dependencies
 RUN apk add --update --no-cache su-exec git && \

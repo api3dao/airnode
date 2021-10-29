@@ -19,7 +19,7 @@ yarn add @api3/airnode-adapter
 ## Types
 
 You can find the types mentioned below in
-[src/types.ts](https://github.com/api3dao/airnode/blob/master/packages/adapter/src/types.ts)
+[src/types.ts](https://github.com/api3dao/airnode/blob/master/packages/airnode-adapter/src/types.ts)
 
 ## API
 

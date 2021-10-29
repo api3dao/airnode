@@ -2,7 +2,7 @@ import flatMap from 'lodash/flatMap';
 import isEmpty from 'lodash/isEmpty';
 import * as logger from '../../logger';
 import { go } from '../../utils/promise-utils';
-import { spawnNewApiCall } from '../../adapters/http/worker';
+import { spawnNewApiCall } from '../../airnode-adapters/http/worker';
 import { AggregatedApiCall, LogsData, LogOptions, RequestErrorMessage, WorkerOptions } from '../../types';
 import { WORKER_CALL_API_TIMEOUT } from '../../constants';
 

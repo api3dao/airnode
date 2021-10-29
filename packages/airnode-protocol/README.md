@@ -15,7 +15,7 @@ Install the dependencies **at the repo root** (i.e., `airnode/`)
 ```sh
 yarn run bootstrap
 # Move into the protocol package
-cd packages/protocol
+cd packages/airnode-protocol
 ```
 
 Build the contracts

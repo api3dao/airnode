@@ -29,8 +29,8 @@ yarn run build
 
 ## Configuration
 
-Before running Airnode, you will need to have a valid `config.json` and `security.json` placed in the packages/node
-folder. You can find more information on these files in the API3 documentation
+Before running Airnode, you will need to have a valid `config.json` and `security.json` placed in the
+packages/airnode-node folder. You can find more information on these files in the API3 documentation
 [repository](https://github.com/api3dao/api3-docs).
 
 ## Usage
@@ -121,7 +121,7 @@ yarn run dev:eth-requests
 ```
 
 For more information, please refer to the
-[operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
+[operation README](https://github.com/api3dao/airnode/blob/master/packages/airnode-operation/README.md)
 
 ### Dummy web API
 
@@ -136,7 +136,7 @@ yarn run dev:api
 ```
 
 For more information, please refer to the
-[operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
+[operation README](https://github.com/api3dao/airnode/blob/master/packages/airnode-operation/README.md)
 
 ### Dependencies
 
@@ -197,6 +197,6 @@ yarn run test:e2e:debug
 ```
 
 For more information, please refer to the
-[operation README](https://github.com/api3dao/airnode/blob/master/packages/operation/README.md)
+[operation README](https://github.com/api3dao/airnode/blob/master/packages/airnode-operation/README.md)
 
 E2E tests are defined in the `test/e2e/` folder and are identified by the `feature.ts` extension.

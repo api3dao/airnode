@@ -12,8 +12,8 @@ WORKDIR ${appDir}
 
 COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
 COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/artifacts /build/packages/node/dist ${appDir}/
-COPY packages/node/docker/airnode-crontab ${cronjob}
+COPY --from=api3/artifacts /build/packages/airnode-node/dist ${appDir}/
+COPY packages/airnode-node/docker/airnode-crontab ${cronjob}
 
     # Install Tini to pass signals correctly
 RUN apk add --update --no-cache tini && \
