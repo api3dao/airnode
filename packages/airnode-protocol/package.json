@@ -23,7 +23,6 @@
     "flatten:airnode": "hardhat flatten contracts/AirnodeRrp.sol > AirnodeRrp.flat.sol",
     "flatten:delete-license-lines": "node dev-scripts/delete-flattened-licenses.js",
     "pack": "yarn pack",
-    "prepublishOnly": "yarn run build",
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "test:coverage-extended": "EXTENDED_TEST=TRUE hardhat coverage",

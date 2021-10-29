@@ -15,7 +15,6 @@
     "cli": "ts-node bin/admin.ts",
     "compile": "tsc -p tsconfig.build.json",
     "pack": "yarn pack",
-    "prepublishOnly": "yarn run build",
     "test:e2e": "jest --selectProjects e2e",
     "test:e2e:watch": "jest --coverage --watch --selectProjects e2e",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",

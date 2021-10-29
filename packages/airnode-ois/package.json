@@ -11,8 +11,7 @@
     "build": "yarn run clean && yarn run compile",
     "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
-    "pack": "yarn pack",
-    "prepublishOnly": "yarn run build"
+    "pack": "yarn pack"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",

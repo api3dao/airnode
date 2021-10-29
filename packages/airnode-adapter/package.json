@@ -12,7 +12,6 @@
     "clean": "rimraf -rf ./dist *.tgz",
     "compile": "tsc -p tsconfig.build.json",
     "pack": "yarn pack",
-    "prepublishOnly": "yarn run build",
     "test": "SILENCE_LOGGER=true jest --coverage",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch"
   },
