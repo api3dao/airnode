@@ -5,6 +5,7 @@ import {
   AirnodeRrpFactory,
   authorizers,
   RequesterAuthorizerWithAirnode,
+  AccessControlRegistry,
   AccessControlRegistryFactory,
 } from '@api3/airnode-protocol';
 import { ethers } from 'ethers';
