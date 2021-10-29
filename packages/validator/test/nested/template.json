@@ -1,9 +1,0 @@
-{
-  "path": {
-    "__regexp": "^docs\\/nested\\/template\\.json$",
-    "__catch": {
-      "__level": "error",
-      "__message": "Error in template nested in __prefix"
-    }
-  }
-}

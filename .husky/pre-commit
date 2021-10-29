@@ -1,3 +1,3 @@
-yarn --cwd packages/validator/ run docs
+yarn --cwd packages/airnode-validator/ run docs
 yarn prettier --write "./**/*.md" --loglevel silent
 yarn run pretty-quick && yarn run lint

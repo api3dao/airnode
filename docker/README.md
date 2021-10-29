@@ -1,4 +1,4 @@
-# api3/artifacts
+# api3/airnode-artifacts
 
 This is a Docker container for building all the packages in the monorepo and providing their build artifacts. Other
 package specific containers can use this one to obtain files necessary for their run without building or installing any
@@ -17,7 +17,7 @@ allow conditional build steps. You can read more about how to enable it in its
 You can build the container image from your current workspace by providing a build type `local` (this is the default)
 
 ```bash
-docker build --build-arg build=local -f docker/Dockerfile -t api3/artifacts:latest .
+docker build --build-arg build=local -f docker/Dockerfile -t api3/airnode-artifacts:latest .
 # or with no build argument
 ```
 
@@ -27,7 +27,7 @@ You can build the container image from the Git repository and you can also provi
 the build should be done
 
 ```bash
-docker build --build-arg build=git --build-arg branch=my-branch -f docker/Dockerfile -t api3/artifacts:latest .
+docker build --build-arg build=git --build-arg branch=my-branch -f docker/Dockerfile -t api3/airnode-artifacts:latest .
 # the default branch is master
 ```
 
@@ -45,7 +45,7 @@ Once built the image contains 3 directories with artifacts that can be used for 
 ### Dockerfile example
 
 ```Docker
-COPY --from=api3/artifacts /dependencies ${appDir}/node_modules
-COPY --from=api3/artifacts /packages ${appDir}/node_modules/@api3/
-COPY --from=api3/artifacts /build/packages/deployer/dist ${appDir}/
+COPY --from=api3/airnode-artifacts /dependencies ${appDir}/node_modules
+COPY --from=api3/airnode-artifacts /packages ${appDir}/node_modules/@api3/
+COPY --from=api3/airnode-artifacts /build/packages/airnode-deployer/dist ${appDir}/
 ```
