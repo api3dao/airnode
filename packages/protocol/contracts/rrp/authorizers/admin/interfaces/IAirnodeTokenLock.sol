@@ -8,11 +8,11 @@ interface IAirnodeTokenLock {
 
     event SetOptStatus(address airnode, bool status, address admin);
 
-    event SetSelfOptStatus(address airnode, bool status);
+    event SetSelfOptOutStatus(address airnode, bool status);
 
-    event SetDaoRequesterRrpAuthorizer(
+    event SetRequesterAuthorizerWithManager(
         uint256 chainId,
-        address daoRequesterRrpAuthorizer,
+        address requesterAuthorizerWithManager,
         address admin
     );
 
@@ -40,7 +40,8 @@ interface IAirnodeTokenLock {
         bytes32 endpointId,
         address requesterAddress,
         address locker,
-        uint256 lockedAmount
+        uint256 lockedAmount,
+        uint256 whitelistCount
     );
 
     event Unlocked(
@@ -49,7 +50,8 @@ interface IAirnodeTokenLock {
         bytes32 endpointId,
         address requesterAddress,
         address locker,
-        uint256 lockedAmount
+        uint256 lockedAmount,
+        uint256 whitelistCount
     );
 
     function setOracle(address oracle, bool status) external;
@@ -58,14 +60,14 @@ interface IAirnodeTokenLock {
 
     function setOptStatus(address airnode, bool status) external;
 
-    function setSelfOptStatus(address airnode, bool status) external;
+    function setSelfOptOutStatus(address airnode, bool status) external;
 
-    function setDaoRequesterRrpAuthorizer(
+    function setRequesterAuthorizerWithManager(
         uint256 chainId,
-        address daoRequesterRrpAuthorizer
+        address requesterAuthorizerWithManager
     ) external;
 
-    function setBlockWithdrawDestination(address _destination) external;
+    function setBlockWithdrawDestination(address destination) external;
 
     function lock(
         uint256 chainId,
