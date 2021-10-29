@@ -11,7 +11,7 @@
 **/dist/**
 
 # Ignore the TS wrappers created by Typechain
-packages/protocol/src/contracts
+packages/airnode-protocol/src/contracts
 
 # Ignore JSON snippets injected into README
-packages/validator/test/fixtures
+packages/airnode-validator/test/fixtures

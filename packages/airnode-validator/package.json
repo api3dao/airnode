@@ -1,0 +1,36 @@
+{
+  "name": "@api3/airnode-validator",
+  "license": "MIT",
+  "version": "0.1.0",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index",
+  "bin": {
+    "api3-validator": "./dist/bin/validator.js",
+    "api3-convertor": "./dist/bin/convertor.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn run clean && yarn run compile && copyfiles templates/**/** dist/ && copyfiles conversions/** dist/",
+    "clean": "rimraf -rf ./dist *.tgz",
+    "cli:convertor": "ts-node bin/convertor.ts",
+    "cli:validator": "ts-node bin/validator.ts",
+    "docs": "ts-node docs/generate-docs.ts",
+    "compile": "tsc -p tsconfig.build.json",
+    "pack": "yarn pack",
+    "prepublishOnly": "yarn build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "yargs": "^17.1.0"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.2",
+    "copyfiles": "^2.4.1",
+    "markdown-snippet-injector": "^0.2.4",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.2.4"
+  }
+}

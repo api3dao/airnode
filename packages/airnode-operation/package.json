@@ -1,0 +1,45 @@
+{
+  "name": "@api3/airnode-operation",
+  "license": "MIT",
+  "version": "0.1.0",
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn run clean && yarn run compile",
+    "clean": "rimraf -rf ./dist *.tgz",
+    "compile": "tsc -p tsconfig.build.json",
+    "compile:watch": "tsc -p tsconfig.build.json -w",
+    "dev:api": "ts-node src/server.ts",
+    "dev:api:background": "yarn run dev:clean && pm2 start ecosystem.config.js --only web-api",
+    "dev:background": "yarn run dev:clean && pm2 start ecosystem.config.js",
+    "dev:clean": "rimraf -rf ./logs",
+    "dev:delete": "pm2 delete all",
+    "dev:eth-deploy": "ts-node src/scripts/evm-dev-deploy.ts",
+    "dev:eth-node": "hardhat node",
+    "dev:eth-node:background": "yarn run dev:clean && pm2 start ecosystem.config.js --only eth-node",
+    "dev:eth-requests": "ts-node src/scripts/evm-dev-requests.ts",
+    "dev:list": "pm2 list",
+    "dev:stop": "pm2 stop ecosystem.config.js",
+    "pack": "yarn pack",
+    "prepublishOnly": "yarn run build",
+    "test": "hardhat test"
+  },
+  "dependencies": {
+    "@api3/airnode-abi": "^0.1.0",
+    "@api3/airnode-protocol": "^0.1.0",
+    "ethers": "^5.4.5",
+    "express": "^4.17.1",
+    "hardhat": "^2.6.1",
+    "morgan": "^1.10.0",
+    "pm2": "^4.5.6"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.12",
+    "@types/morgan": "^1.9.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.2.4"
+  }
+}
