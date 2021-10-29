@@ -2,6 +2,7 @@
   "name": "@api3/airnode-examples",
   "version": "0.1.0",
   "license": "MIT",
+  "private": true,
   "description": "A collection of examples showcasing the features of Airnode",
   "scripts": {
     "build": "hardhat compile",

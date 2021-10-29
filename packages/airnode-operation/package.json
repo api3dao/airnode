@@ -24,7 +24,6 @@
     "dev:list": "pm2 list",
     "dev:stop": "pm2 stop ecosystem.config.js",
     "pack": "yarn pack",
-    "prepublishOnly": "yarn run build",
     "test": "hardhat test"
   },
   "dependencies": {
