@@ -4,7 +4,7 @@ import { randomString } from '../utils/string-utils';
 import { AggregatedApiCall, Config, WorkerOptions, ApiCallResponse } from '../types';
 import * as logger from '../logger';
 import { go } from '../utils/promise-utils';
-import { spawnNewApiCall } from '../airnode-adapters/http/worker';
+import { spawnNewApiCall } from '../adapters/http/worker';
 import { WORKER_CALL_API_TIMEOUT } from '../constants';
 
 export async function testApi(

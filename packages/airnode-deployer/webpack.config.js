@@ -21,8 +21,8 @@ module.exports = {
     // https://github.com/api3dao/airnode/pull/623#discussion_r729083235
     new CopyPlugin({
       patterns: [
-        { from: '../validator/dist/templates', to: 'templates' },
-        { from: '../validator/dist/conversions', to: 'conversions' },
+        { from: '../airnode-validator/dist/templates', to: 'templates' },
+        { from: '../airnode-validator/dist/conversions', to: 'conversions' },
       ],
     }),
   ],
