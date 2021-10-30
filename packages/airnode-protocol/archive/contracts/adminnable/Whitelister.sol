@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.6;
+pragma solidity 0.8.9;
 
 /// @title Contract where users are whitelisted for specific services (could be
 /// Airnode endpoints, dAPIs, beacons, etc.) until an expiration time or
