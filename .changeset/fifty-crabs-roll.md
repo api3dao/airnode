@@ -11,4 +11,4 @@
 '@api3/airnode-validator': minor
 ---
 
-Read out the summary of changes in https://medium.com/api3/beyond-pre-alpha-rrp-88717e9ed22d
+See https://medium.com/api3/beyond-pre-alpha-rrp-88717e9ed22d for a summary of the changes since the pre-alpha version
