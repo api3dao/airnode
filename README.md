@@ -12,34 +12,35 @@ See the [docs](https://github.com/api3dao/api3-docs) for deployment and usage in
 
 This is a monorepo managed using [Lerna](https://github.com/lerna/lerna). It houses the following packages:
 
-[**adapter**:](https://github.com/api3dao/airnode/tree/master/packages/adapter) The module that makes an API call,
-processes the response and returns a single value
+[**adapter**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-adapter) The module that makes an API
+call, processes the response and returns a single value
 
-[**admin**:](https://github.com/api3dao/airnode/tree/master/packages/admin) A package/CLI tool to interact with the
-Airnode contracts across chains
+[**admin**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-admin) A package/CLI tool to interact with
+the Airnode contracts across chains
 
 [**airnode-abi**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-abi) Encoding and decoding utilities
 for Airnode according to the
-[Airnode ABI specifications](https://github.com/api3dao/api3-docs/blob/master/airnode/airnode-abi-specifications.md)
+[Airnode ABI specifications](https://docs.api3.org/airnode/v0.2/reference/specifications/airnode-abi-specifications.html)
 
-[**deployer**:](https://github.com/api3dao/airnode/tree/master/packages/deployer) Tools to automate Airnode deployment
+[**deployer**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-deployer) Tools to automate Airnode
+deployment
 
-[**examples**:](https://github.com/api3dao/airnode/tree/master/packages/examples) A public list of examples showcasing
-the features of Airnode
+[**examples**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-examples) A public list of examples
+showcasing the features of Airnode
 
-[**node**:](https://github.com/api3dao/airnode/tree/master/packages/node) Airnode itself
+[**node**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-node) Airnode itself
 
-[**ois**:](https://github.com/api3dao/airnode/tree/master/packages/ois) Types for
-[Oracle Integration Specification (OIS)](https://github.com/api3dao/api3-docs/blob/master/airnode/ois.md)
+[**ois**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-ois) Types for
+[Oracle Integration Specification (OIS)](https://docs.api3.org/airnode/v0.2/grp-providers/guides/build-an-airnode/api-integration.html#ois-template)
 
-[**operation**:](https://github.com/api3dao/airnode/tree/master/packages/operation) Development and testing utilities
-for the core parts of Airnode
+[**operation**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-operation) Development and testing
+utilities for the core parts of Airnode
 
-[**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/protocol) Contracts that implement Airnode RRP
-(request–response protocol)
+[**protocol**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-protocol) Contracts that implement
+Airnode RRP (request–response protocol)
 
-[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/validator) A package that can be used to
-validate and convert airnode specification files
+[**validator**:](https://github.com/api3dao/airnode/tree/master/packages/airnode-validator) A package that can be used
+to validate and convert airnode specification files
 
 ## Instructions
 
@@ -61,6 +62,15 @@ examples) will work out of the box.
 
 We heavily recommend using UNIX based systems for development. If you are using Windows, consider
 [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
+
+## Changelog
+
+We use [changesets](https://github.com/atlassian/changesets) to manage the changelog for us. What that means for
+contributors is that you need to add a changeset by running `yarn changeset` which contains what packages should be
+bumped, their associated semver bump types and some markdown which will be inserted into changelogs.
+
+> Tip: Add `export EDITOR="code --wait"` to `.bashrc` to make it possible to write changelog description in VS Code (you
+> can adapt the configuration for other editor similarly).
 
 ## Contributing
 

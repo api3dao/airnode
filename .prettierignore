@@ -11,4 +11,4 @@
 **/dist/**
 **/.webpack/**
 
-packages/validator/test/fixtures
+packages/airnode-validator/test/fixtures
