@@ -63,6 +63,15 @@ examples) will work out of the box.
 We heavily recommend using UNIX based systems for development. If you are using Windows, consider
 [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
 
+## Changelog
+
+We use [changesets](https://github.com/atlassian/changesets) to manage the changelog for us. What that means for
+contributors is that you need to add a changeset by running `yarn changeset` which contains what packages should be
+bumped, their associated semver bump types and some markdown which will be inserted into changelogs.
+
+> Tip: Add `export EDITOR="code --wait"` to `.bashrc` to make it possible to write changelog description in VS Code (you
+> can adapt the configuration for other editor similarly).
+
 ## Contributing
 
 To request/propose new features, fixes, etc. create an issue. If you wish to contribute to the project, contact us over

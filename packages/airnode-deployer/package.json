@@ -17,7 +17,6 @@
     "copy:terraform": "copyfiles terraform/**/**/*.tf terraform/**/**/*.tpl  dist/",
     "copy:webpack": "copyfiles .webpack/**/**/*.js .webpack/templates/**/*.json .webpack/conversions/**/*.json dist/",
     "pack": "yarn pack",
-    "prepublishOnly": "yarn build",
     "webpack": "webpack",
     "webpack:dev": "webpack --mode development"
   },
