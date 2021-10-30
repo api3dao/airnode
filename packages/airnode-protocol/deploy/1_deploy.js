@@ -9,7 +9,7 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   log(`Deployed AccessControlRegistry at ${accessControlRegistry.address}`);
 
   const requesterAuthorizerWithAirnode = await deploy('RequesterAuthorizerWithAirnode', {
-    args: [accessControlRegistry.address, 'RequesterAuthorizerWithAirnode'],
+    args: [accessControlRegistry.address, 'RequesterAuthorizerWithAirnode admin'],
     from: accounts[0],
     log: true,
   });
@@ -21,3 +21,4 @@ module.exports = async ({ getUnnamedAccounts, deployments }) => {
   });
   log(`Deployed Airnode RRP at ${airnodeRrp.address}`);
 };
+module.exports.tags = ['Deploy'];
