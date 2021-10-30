@@ -65,7 +65,7 @@ contract AirnodeFeeRegistry is
         );
         require(_airnode != address(0), "Address is zero");
         airnodeEndpointFlag[_airnode] = status;
-        emit SetAirnodeEndpointFlag(_airnode, status);
+        emit SetAirnodeEndpointFlag(_airnode, status, msg.sender);
     }
 
     /// @dev Called by a global default price setter to set the default price in USD
@@ -75,9 +75,9 @@ contract AirnodeFeeRegistry is
             hasGlobalDefaultPriceSetterRoleOrIsManager(msg.sender),
             "Not global default price setter"
         );
-        require(_price != 0, "Price is Zero");
+        require(_price != 0, "Price is zero");
         defaultPrice = _price * 10**decimals;
-        emit SetDefaultPrice(_price);
+        emit SetDefaultPrice(_price, msg.sender);
     }
 
     /// @dev Called by a global default price setter to set the default price on a chain in USD
@@ -91,9 +91,10 @@ contract AirnodeFeeRegistry is
             hasGlobalDefaultPriceSetterRoleOrIsManager(msg.sender),
             "Not global default price setter"
         );
-        require(_price != 0, "Price is Zero");
+        require(_chainId != 0, "ChainId is zero");
+        require(_price != 0, "Price is zero");
         defaultChainPrice[_chainId] = _price * 10**decimals;
-        emit SetDefaultChainPrice(_chainId, _price);
+        emit SetDefaultChainPrice(_chainId, _price, msg.sender);
     }
 
     /// @dev Called by a airnode flag and price setter to set the default price on a chain in USD
@@ -108,9 +109,9 @@ contract AirnodeFeeRegistry is
             "Not airnode flag and price setter"
         );
         require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is Zero");
+        require(_price != 0, "Price is zero");
         defaultAirnodePrice[_airnode] = _price * 10**decimals;
-        emit SetDefaultAirnodePrice(_airnode, _price);
+        emit SetDefaultAirnodePrice(_airnode, _price, msg.sender);
     }
 
     /// @dev Called by a airnode flag and price setter to set the default price for an airnode
@@ -127,10 +128,16 @@ contract AirnodeFeeRegistry is
             hasAirnodeFlagAndPriceSetterRole(msg.sender),
             "Not airnode flag and price setter"
         );
+        require(_chainId != 0, "ChainId is zero");
         require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is Zero");
+        require(_price != 0, "Price is zero");
         defaultChainAirnodePrice[_chainId][_airnode] = _price * 10**decimals;
-        emit SetDefaultChainAirnodePrice(_chainId, _airnode, _price);
+        emit SetDefaultChainAirnodePrice(
+            _chainId,
+            _airnode,
+            _price,
+            msg.sender
+        );
     }
 
     /// @dev Called by a airnode flag and price setter to set the price of an endpoint for an airnode
@@ -148,9 +155,9 @@ contract AirnodeFeeRegistry is
             "Not airnode flag and price setter"
         );
         require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is Zero");
+        require(_price != 0, "Price is zero");
         airnodeToEndpointToPrice[_airnode][_endpointId] = _price * 10**decimals;
-        emit SetAirnodeEndpointPrice(_airnode, _endpointId, _price);
+        emit SetAirnodeEndpointPrice(_airnode, _endpointId, _price, msg.sender);
     }
 
     /// @dev Called by a airnode flag and price setter to set the price of an
@@ -169,8 +176,9 @@ contract AirnodeFeeRegistry is
             hasAirnodeFlagAndPriceSetterRole(msg.sender),
             "Not airnode flag and price setter"
         );
+        require(_chainId != 0, "ChainId is zero");
         require(_airnode != address(0), "Address is zero");
-        require(_price != 0, "Price is Zero");
+        require(_price != 0, "Price is zero");
         chainIdToAirnodeToEndpointToPrice[_chainId][_airnode][_endpointId] =
             _price *
             10**decimals;
@@ -178,7 +186,8 @@ contract AirnodeFeeRegistry is
             _chainId,
             _airnode,
             _endpointId,
-            _price
+            _price,
+            msg.sender
         );
     }
 

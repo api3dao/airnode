@@ -2,21 +2,34 @@
 pragma solidity 0.8.6;
 
 interface IAirnodeTokenLock {
-    event SetOracle(address oracle, bool status, address admin);
+    event SetAirnodeFeeRegistry(
+        address airnodeFeeRegistry,
+        address coefficientAndRegistrySetter
+    );
+
+    event SetOracle(address oracle, bool status, address oracleAddressSetter);
 
     event SetAPI3Price(uint256 price, address oracle);
 
-    event SetOptStatus(address airnode, bool status, address admin);
+    event SetMultiplierCoefficient(
+        uint256 multiplierCoefficient,
+        address coefficientAndRegistrySetter
+    );
+
+    event SetOptInStatus(address airnode, bool status, address optStatusSetter);
 
     event SetSelfOptOutStatus(address airnode, bool status);
 
     event SetRequesterAuthorizerWithManager(
         uint256 chainId,
         address requesterAuthorizerWithManager,
-        address admin
+        address requesterAuthorizerWithManagerSetter
     );
 
-    event SetBlockWithdrawDestination(address destination, address admin);
+    event SetBlockWithdrawDestination(
+        address destination,
+        address blockWithdrawDestinationSetter
+    );
 
     event WithdrawBlocked(
         uint256 chainId,
@@ -30,15 +43,15 @@ interface IAirnodeTokenLock {
 
     event BlockedRequester(
         address airnode,
-        address indexed requesterAddress,
-        address indexed admin
+        address requesterAddress,
+        address blockRequester
     );
 
     event Locked(
         uint256 chainId,
-        address airnode,
-        bytes32 endpointId,
-        address requesterAddress,
+        address indexed airnode,
+        bytes32 indexed endpointId,
+        address indexed requesterAddress,
         address locker,
         uint256 lockedAmount,
         uint256 whitelistCount
@@ -46,19 +59,23 @@ interface IAirnodeTokenLock {
 
     event Unlocked(
         uint256 chainId,
-        address airnode,
-        bytes32 endpointId,
-        address requesterAddress,
+        address indexed airnode,
+        bytes32 indexed endpointId,
+        address indexed requesterAddress,
         address locker,
         uint256 lockedAmount,
         uint256 whitelistCount
     );
 
+    function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
+
     function setOracle(address oracle, bool status) external;
 
     function setAPI3Price(uint256 price) external;
 
-    function setOptStatus(address airnode, bool status) external;
+    function setMultiplierCoefficient(uint256 multiplierCoefficient) external;
+
+    function setOptInStatus(address airnode, bool status) external;
 
     function setSelfOptOutStatus(address airnode, bool status) external;
 

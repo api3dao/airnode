@@ -28,6 +28,8 @@ contract AirnodeTokenLock is
     string private constant ERROR_NOT_ORACLE = "Not oracle";
     string private constant ERROR_NOT_ORACLE_ADDRESS_SETTER =
         "Not oracle address setter";
+    string private constant ERROR_NOT_COEFFICIENT_MULTIPLIER_SETTER =
+        "Not coefficient multiplier setter";
     string private constant ERROR_NOT_OPT_STATUS_SETTER =
         "Not opt status setter";
     string private constant ERROR_NOT_BLOCK_WITHDRAW_DESTINATION_SETTER =
@@ -40,14 +42,15 @@ contract AirnodeTokenLock is
     address public immutable api3Token;
 
     /// @dev Address of AirnodeFeeRegistry
-    address public immutable airnodeFeeRegistry;
+    address public airnodeFeeRegistry;
 
     /// @dev The price of API3 in terms of USD
-    /// @notice The price is specified upto 6 decimal places
+    /// @notice The price has 6 decimal places
     uint256 public api3PriceInUsd;
 
     /// @dev A coefficient used to calculate the amount of tokens to be locked
-    uint8 public multiplierCoefficient;
+    /// @notice The multiplier coefficient has 18 decimal places
+    uint256 public multiplierCoefficient;
 
     /// @dev Represents the locked amounts and the total whitelist counts of Lockers
     /// for a chainId-airnode-endpointId-requester pair
@@ -73,10 +76,10 @@ contract AirnodeTokenLock is
     mapping(address => bool) public isOracle;
 
     /// @dev mapping used to store opted in status of Airnodes.
-    /// The status are set by admins.
-    mapping(address => bool) public airnodeOptStatus;
+    /// The status are set by opt status setter.
+    mapping(address => bool) public airnodeOptInStatus;
 
-    /// @dev mapping used to store opted in status of Airnodes.
+    /// @dev mapping used to store opted out status of Airnodes.
     /// The status are set by the airnode itself.
     mapping(address => bool) public airnodeSelfOptOutStatus;
 
@@ -130,10 +133,26 @@ contract AirnodeTokenLock is
     /// @param _airnode The airnode Address
     modifier isOptedIn(address _airnode) {
         require(
-            airnodeOptStatus[_airnode] && !airnodeSelfOptOutStatus[_airnode],
+            airnodeOptInStatus[_airnode] && !airnodeSelfOptOutStatus[_airnode],
             ERROR_AIRNODE_NOT_OPTED_IN
         );
         _;
+    }
+
+    /// @dev Called by a coefficient and registry setter to set the address
+    /// of the AirnodeFeeRegistry contract
+    /// @param _airnodeFeeRegistry The address of the AirnodeFeeRegistry contract
+    function setAirnodeFeeRegistry(address _airnodeFeeRegistry)
+        external
+        override
+    {
+        require(
+            hasCoefficientAndRegistrySetterRoleOrIsManager(msg.sender),
+            ERROR_NOT_COEFFICIENT_MULTIPLIER_SETTER
+        );
+        require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
+        airnodeFeeRegistry = _airnodeFeeRegistry;
+        emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
     }
 
     /// @dev Called by a oracle address setter to set the status of an oracle address
@@ -144,6 +163,7 @@ contract AirnodeTokenLock is
             hasOracleAddressSetterRoleOrIsManager(msg.sender),
             ERROR_NOT_ORACLE_ADDRESS_SETTER
         );
+        require(_oracle != address(0), ERROR_ZERO_ADDRESS);
         isOracle[_oracle] = _status;
         emit SetOracle(_oracle, _status, msg.sender);
     }
@@ -156,17 +176,32 @@ contract AirnodeTokenLock is
         emit SetAPI3Price(_price, msg.sender);
     }
 
+    /// @dev Called by a coefficient and registry setter to set the multiplier coefficient
+    /// @param _multiplierCoefficient The multiplier coefficeint
+    function setMultiplierCoefficient(uint256 _multiplierCoefficient)
+        external
+        override
+    {
+        require(
+            hasCoefficientAndRegistrySetterRoleOrIsManager(msg.sender),
+            ERROR_NOT_COEFFICIENT_MULTIPLIER_SETTER
+        );
+        require(_multiplierCoefficient != 0, ERROR_ZERO_AMOUNT);
+        multiplierCoefficient = _multiplierCoefficient;
+        emit SetMultiplierCoefficient(_multiplierCoefficient, msg.sender);
+    }
+
     /// @dev Called by a opt status setter to set the opt status of an airnode
     /// @param _airnode The airnode address
     /// @param _status The Opted status for the airnode
-    function setOptStatus(address _airnode, bool _status) external override {
-        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+    function setOptInStatus(address _airnode, bool _status) external override {
         require(
             hasOptStatusSetterRoleOrIsManager(msg.sender),
             ERROR_NOT_OPT_STATUS_SETTER
         );
-        airnodeOptStatus[_airnode] = _status;
-        emit SetOptStatus(_airnode, _status, msg.sender);
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        airnodeOptInStatus[_airnode] = _status;
+        emit SetOptInStatus(_airnode, _status, msg.sender);
     }
 
     /// @dev Called by the airnode to set the opt status for itself
@@ -177,6 +212,7 @@ contract AirnodeTokenLock is
         override
     {
         require(msg.sender == _airnode, ERROR_NOT_AIRNODE);
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         airnodeSelfOptOutStatus[_airnode] = _status;
         emit SetSelfOptOutStatus(_airnode, _status);
     }
@@ -192,6 +228,11 @@ contract AirnodeTokenLock is
         require(
             hasRequesterAuthorizerWithManagerSetterRoleOrIsManager(msg.sender),
             ERROR_NOT_REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER
+        );
+        require(_chainId != 0, ERROR_ZERO_CHAINID);
+        require(
+            _requesterAuthorizerWithManager != address(0),
+            ERROR_ZERO_ADDRESS
         );
         chainIdToRequesterAuthorizerWithManager[
             _chainId
@@ -248,8 +289,8 @@ contract AirnodeTokenLock is
 
         uint256 endpointFee = IAirnodeFeeRegistry(airnodeFeeRegistry)
             .getEndpointPrice(_chainId, _airnode, _endpointId);
-        uint256 lockAmount = multiplierCoefficient *
-            (endpointFee / api3PriceInUsd);
+        uint256 lockAmount = (multiplierCoefficient * endpointFee) /
+            api3PriceInUsd;
 
         require(
             IERC20(api3Token).balanceOf(msg.sender) >= lockAmount,

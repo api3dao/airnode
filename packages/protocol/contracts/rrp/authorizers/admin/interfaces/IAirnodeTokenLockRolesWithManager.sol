@@ -11,6 +11,12 @@ interface IAirnodeTokenLockRolesWithManager {
         returns (string memory);
 
     // solhint-disable-next-line func-name-mixedcase
+    function COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION()
+        external
+        view
+        returns (string memory);
+
+    // solhint-disable-next-line func-name-mixedcase
     function OPT_STATUS_SETTER_ROLE_DESCRIPTION()
         external
         view
@@ -39,6 +45,8 @@ interface IAirnodeTokenLockRolesWithManager {
     function adminRole() external view returns (bytes32);
 
     function oracleAddressSetterRole() external view returns (bytes32);
+
+    function coefficientAndRegistrySetterRole() external view returns (bytes32);
 
     function optStatusSetterRole() external view returns (bytes32);
 

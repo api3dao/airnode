@@ -17,17 +17,24 @@ contract AirnodeTokenLockRolesWithManager is
     // Root
     // └── (1) Admin (can grant and revoke the roles below)
     //     ├── (2) Oracle address setter
-    //     ├── (3) Opt status setter
-    //     ├── (4) Block Withdraw Destination address setter
-    //     ├── (5) Block Requesters
-    //     └── (6) RequesterAuthorizerWithManager address setter
+    //     ├── (3) coefficient and registry setter
+    //     ├── (4) Opt status setter
+    //     ├── (5) Block Withdraw Destination setter
+    //     ├── (6) Block Requester
+    //     └── (7) RequesterAuthorizerWithManager setter
+    // The coefficient and registry setter can set the AirnodeFeeRegistry address
+    /// and Multiplier Coefficient integer.
     // Their IDs are derived from the descriptions below. Refer to
     // AccessControlRegistry for more information.
     string public override adminRoleDescription;
     string public constant override ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION =
         "Oracle address setter";
+    string
+        public constant
+        override COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION =
+        "coefficient and registry setter";
     string public constant override OPT_STATUS_SETTER_ROLE_DESCRIPTION =
-        "Whitelist expiration setter";
+        "Opt status setter";
     string
         public constant
         override BLOCK_WITHDRAW_DESTINATION_SETTER_ROLE_DESCRIPTION =
@@ -41,6 +48,11 @@ contract AirnodeTokenLockRolesWithManager is
     bytes32 internal adminRoleDescriptionHash;
     bytes32 internal constant ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION));
+    bytes32
+        internal constant COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH =
+        keccak256(
+            abi.encodePacked(COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION)
+        );
     bytes32 internal constant OPT_STATUS_SETTER_ROLE_DESCRIPTION_HASH =
         keccak256(abi.encodePacked(OPT_STATUS_SETTER_ROLE_DESCRIPTION));
     bytes32
@@ -65,6 +77,7 @@ contract AirnodeTokenLockRolesWithManager is
     // Since there will be a single manager, we can derive the roles beforehand
     bytes32 public immutable override adminRole;
     bytes32 public immutable override oracleAddressSetterRole;
+    bytes32 public immutable override coefficientAndRegistrySetterRole;
     bytes32 public immutable override optStatusSetterRole;
     bytes32 public immutable override blockWithdrawDestinationSetterRole;
     bytes32 public immutable override blockRequesterRole;
@@ -95,6 +108,9 @@ contract AirnodeTokenLockRolesWithManager is
         manager = _manager;
         adminRole = _deriveAdminRole(_manager);
         oracleAddressSetterRole = _deriveOracleAddressSetterRole(_manager);
+        coefficientAndRegistrySetterRole = _deriveCoefficientAndRegistrySetterRole(
+            _manager
+        );
         optStatusSetterRole = _deriveOptStatusSetterRole(_manager);
         blockWithdrawDestinationSetterRole = _deriveBlockWithdrawDestinationSetterRole(
             _manager
@@ -132,6 +148,22 @@ contract AirnodeTokenLockRolesWithManager is
         _oracleAddressSetterRole = _deriveRole(
             _deriveAdminRole(_manager),
             ORACLE_ADDRESS_SETTER_ROLE_DESCRIPTION_HASH
+        );
+    }
+
+    /// @notice Derives the coefficient and registry setter role for the specific
+    /// manager address
+    /// @param _manager Manager address
+    /// @return _coefficientAndRegistrySetterRole coefficient and registry setter
+    /// role
+    function _deriveCoefficientAndRegistrySetterRole(address _manager)
+        internal
+        view
+        returns (bytes32 _coefficientAndRegistrySetterRole)
+    {
+        _coefficientAndRegistrySetterRole = _deriveRole(
+            _deriveAdminRole(_manager),
+            COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION_HASH
         );
     }
 
@@ -211,6 +243,24 @@ contract AirnodeTokenLockRolesWithManager is
             manager == account ||
             IAccessControlRegistry(accessControlRegistry).hasRole(
                 oracleAddressSetterRole,
+                account
+            );
+    }
+
+    /// @dev Returns if the account has the coefficient and registry setter role role
+    /// or is the manager
+    /// @param account Account address
+    /// @return If the account has the coefficient and registry setter role or is the
+    /// manager
+    function hasCoefficientAndRegistrySetterRoleOrIsManager(address account)
+        internal
+        view
+        returns (bool)
+    {
+        return
+            manager == account ||
+            IAccessControlRegistry(accessControlRegistry).hasRole(
+                coefficientAndRegistrySetterRole,
                 account
             );
     }
