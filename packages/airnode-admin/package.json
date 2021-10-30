@@ -2,6 +2,7 @@
   "name": "@api3/airnode-admin",
   "license": "MIT",
   "version": "0.1.0",
+  "private": false,
   "bin": {
     "airnode-admin": "./dist/bin/admin.js"
   },

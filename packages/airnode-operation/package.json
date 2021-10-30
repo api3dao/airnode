@@ -2,6 +2,7 @@
   "name": "@api3/airnode-operation",
   "license": "MIT",
   "version": "0.1.0",
+  "private": false,
   "main": "dist/index",
   "types": "dist/index",
   "files": [

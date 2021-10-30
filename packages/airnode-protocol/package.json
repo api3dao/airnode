@@ -1,7 +1,8 @@
 {
   "name": "@api3/airnode-protocol",
-  "version": "0.1.0",
   "license": "MIT",
+  "version": "0.1.0",
+  "private": false,
   "main": "dist/src/index",
   "files": [
     "contracts",
