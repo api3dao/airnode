@@ -144,7 +144,7 @@ contract AirnodeFeeRegistry is
     /// across all chains in USD
     /// @param _airnode The address of the airnode
     /// @param _endpointId The endpointId whose price is being set
-    /// @param _price The price of an endpointId for an airnode on a specific chain in USD
+    /// @param _price The price of an endpointId for an airnode across all chains in USD
     function setAirnodeEndpointPrice(
         address _airnode,
         bytes32 _endpointId,

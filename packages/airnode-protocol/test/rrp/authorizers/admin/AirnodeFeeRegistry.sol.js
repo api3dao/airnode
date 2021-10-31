@@ -6,7 +6,7 @@ const utils = require('../../../utils');
 let roles;
 let accessControlRegistry, airnodeFeeRegistry;
 let airnodeFeeRegistryAdminRoleDescription = 'AirnodeFeeRegistry admin';
-let adminRole;
+let adminRole, globalDefaultPriceSetterRole, airnodeFlagAndPriceSetterRole;
 let airnodeAddress = utils.generateRandomAddress();
 let endpointId = utils.generateRandomBytes32();
 let decimals;
@@ -32,8 +32,8 @@ beforeEach(async () => {
   );
   const managerRootRole = await accessControlRegistry.deriveRootRole(roles.manager.address);
   adminRole = await airnodeFeeRegistry.adminRole();
-  // globalDefaultPriceSetterRole = await airnodeFeeRegistry.globalDefaultPriceSetterRole();
-  // airnodeFlagAndPriceSetterRole = await airnodeFeeRegistry.airnodeFlagAndPriceSetterRole();
+  globalDefaultPriceSetterRole = await airnodeFeeRegistry.globalDefaultPriceSetterRole();
+  airnodeFlagAndPriceSetterRole = await airnodeFeeRegistry.airnodeFlagAndPriceSetterRole();
   await accessControlRegistry.connect(roles.manager).initializeAndGrantRoles(
     [managerRootRole, adminRole, adminRole, adminRole],
     [
@@ -118,7 +118,7 @@ describe('constructor', function () {
 });
 
 describe('setAirnodeEndpointFlag', function () {
-  context('Sender has airnode flag and price setter role', function () {
+  context('Sender has airnode flag and price setter role or is manager', function () {
     context('AirnodeEndpoint Flag status is being set', function () {
       context('airnode address is valid', function () {
         it('sets the status', async function () {
@@ -132,6 +132,18 @@ describe('setAirnodeEndpointFlag', function () {
             .withArgs(airnodeAddress, true, roles.airnodeFlagAndPriceSetter.address);
           airnodeEndpointFlag = await airnodeFeeRegistry.airnodeEndpointFlag(airnodeAddress);
           expect(airnodeEndpointFlag).to.equal(true);
+
+          await accessControlRegistry
+            .connect(roles.manager)
+            .renounceRole(airnodeFlagAndPriceSetterRole, roles.manager.address);
+
+          airnodeEndpointFlag = await airnodeFeeRegistry.airnodeEndpointFlag(airnodeAddress);
+          expect(airnodeEndpointFlag).to.equal(true);
+          await expect(airnodeFeeRegistry.connect(roles.manager).setAirnodeEndpointFlag(airnodeAddress, false))
+            .to.emit(airnodeFeeRegistry, 'SetAirnodeEndpointFlag')
+            .withArgs(airnodeAddress, false, roles.manager.address);
+          airnodeEndpointFlag = await airnodeFeeRegistry.airnodeEndpointFlag(airnodeAddress);
+          expect(airnodeEndpointFlag).to.equal(false);
         });
       });
       context('airnode address is not valid', function () {
@@ -155,7 +167,7 @@ describe('setAirnodeEndpointFlag', function () {
 });
 
 describe('setDefaultPrice', function () {
-  context('Sender has global default price setter role', function () {
+  context('Sender has global default price setter role or is manager', function () {
     context('default price is being set', function () {
       context('price is valid', function () {
         it('sets the default price', async function () {
@@ -167,6 +179,16 @@ describe('setDefaultPrice', function () {
             .withArgs(100, roles.globalDefaultPriceSetter.address);
           defaultPrice = await airnodeFeeRegistry.defaultPrice();
           expect(defaultPrice).to.equal(100 * 10 ** decimals);
+
+          await accessControlRegistry
+            .connect(roles.manager)
+            .renounceRole(globalDefaultPriceSetterRole, roles.manager.address);
+
+          await expect(airnodeFeeRegistry.connect(roles.manager).setDefaultPrice(1000))
+            .to.emit(airnodeFeeRegistry, 'SetDefaultPrice')
+            .withArgs(1000, roles.manager.address);
+          defaultPrice = await airnodeFeeRegistry.defaultPrice();
+          expect(defaultPrice).to.equal(1000 * 10 ** decimals);
         });
       });
       context('price is not valid', function () {
@@ -188,7 +210,7 @@ describe('setDefaultPrice', function () {
 });
 
 describe('setDefaultChainPrice', function () {
-  context('Sender has global default price setter role', function () {
+  context('Sender has global default price setter role or is manager', function () {
     context('default price on chain is being set', function () {
       context('chainId is valid', function () {
         context('price is valid', function () {
@@ -201,6 +223,16 @@ describe('setDefaultChainPrice', function () {
               .withArgs(1, 100, roles.globalDefaultPriceSetter.address);
             defaultChainPrice = await airnodeFeeRegistry.defaultChainPrice(1);
             expect(defaultChainPrice).to.equal(100 * 10 ** decimals);
+
+            await accessControlRegistry
+              .connect(roles.manager)
+              .renounceRole(globalDefaultPriceSetterRole, roles.manager.address);
+
+            await expect(airnodeFeeRegistry.connect(roles.manager).setDefaultChainPrice(1, 1000))
+              .to.emit(airnodeFeeRegistry, 'SetDefaultChainPrice')
+              .withArgs(1, 1000, roles.manager.address);
+            defaultChainPrice = await airnodeFeeRegistry.defaultChainPrice(1);
+            expect(defaultChainPrice).to.equal(1000 * 10 ** decimals);
           });
         });
         context('price is not valid', function () {
@@ -230,7 +262,7 @@ describe('setDefaultChainPrice', function () {
 });
 
 describe('setDefaultAirnodePrice', function () {
-  context('Sender has airnode flag and price setter role', function () {
+  context('Sender has airnode flag and price setter role or is manager', function () {
     context('default price on airnode is being set', function () {
       context('airnode is valid', function () {
         context('price is valid', function () {
@@ -245,6 +277,16 @@ describe('setDefaultAirnodePrice', function () {
               .withArgs(airnodeAddress, 100, roles.airnodeFlagAndPriceSetter.address);
             defaultAirnodePrice = await airnodeFeeRegistry.defaultAirnodePrice(airnodeAddress);
             expect(defaultAirnodePrice).to.equal(100 * 10 ** decimals);
+
+            await accessControlRegistry
+              .connect(roles.manager)
+              .renounceRole(airnodeFlagAndPriceSetterRole, roles.manager.address);
+
+            await expect(airnodeFeeRegistry.connect(roles.manager).setDefaultAirnodePrice(airnodeAddress, 1000))
+              .to.emit(airnodeFeeRegistry, 'SetDefaultAirnodePrice')
+              .withArgs(airnodeAddress, 1000, roles.manager.address);
+            defaultAirnodePrice = await airnodeFeeRegistry.defaultAirnodePrice(airnodeAddress);
+            expect(defaultAirnodePrice).to.equal(1000 * 10 ** decimals);
           });
         });
         context('price is not valid', function () {
@@ -276,7 +318,7 @@ describe('setDefaultAirnodePrice', function () {
 });
 
 describe('setDefaultChainAirnodePrice', function () {
-  context('Sender has airnode flag and price setter role', function () {
+  context('Sender has airnode flag and price setter role or is manager', function () {
     context('default price on airnode and chain is being set', function () {
       context('chainId is valid', function () {
         context('airnode is valid', function () {
@@ -294,6 +336,18 @@ describe('setDefaultChainAirnodePrice', function () {
                 .withArgs(1, airnodeAddress, 100, roles.airnodeFlagAndPriceSetter.address);
               defaultChainAirnodePrice = await airnodeFeeRegistry.defaultChainAirnodePrice(1, airnodeAddress);
               expect(defaultChainAirnodePrice).to.equal(100 * 10 ** decimals);
+
+              await accessControlRegistry
+                .connect(roles.manager)
+                .renounceRole(airnodeFlagAndPriceSetterRole, roles.manager.address);
+
+              await expect(
+                airnodeFeeRegistry.connect(roles.manager).setDefaultChainAirnodePrice(1, airnodeAddress, 1000)
+              )
+                .to.emit(airnodeFeeRegistry, 'SetDefaultChainAirnodePrice')
+                .withArgs(1, airnodeAddress, 1000, roles.manager.address);
+              defaultChainAirnodePrice = await airnodeFeeRegistry.defaultChainAirnodePrice(1, airnodeAddress);
+              expect(defaultChainAirnodePrice).to.equal(1000 * 10 ** decimals);
             });
           });
           context('price is not valid', function () {
@@ -337,7 +391,7 @@ describe('setDefaultChainAirnodePrice', function () {
 });
 
 describe('setAirnodeEndpointPrice', function () {
-  context('Sender has airnode flag and price setter role', function () {
+  context('Sender has airnode flag and price setter role or is manager', function () {
     context('default price on airnode and endpoint is being set', function () {
       context('airnode is valid', function () {
         context('price is valid', function () {
@@ -354,6 +408,18 @@ describe('setAirnodeEndpointPrice', function () {
               .withArgs(airnodeAddress, endpointId, 100, roles.airnodeFlagAndPriceSetter.address);
             airnodeToEndpointToPrice = await airnodeFeeRegistry.airnodeToEndpointToPrice(airnodeAddress, endpointId);
             expect(airnodeToEndpointToPrice).to.equal(100 * 10 ** decimals);
+
+            await accessControlRegistry
+              .connect(roles.manager)
+              .renounceRole(airnodeFlagAndPriceSetterRole, roles.manager.address);
+
+            await expect(
+              airnodeFeeRegistry.connect(roles.manager).setAirnodeEndpointPrice(airnodeAddress, endpointId, 1000)
+            )
+              .to.emit(airnodeFeeRegistry, 'SetAirnodeEndpointPrice')
+              .withArgs(airnodeAddress, endpointId, 1000, roles.manager.address);
+            airnodeToEndpointToPrice = await airnodeFeeRegistry.airnodeToEndpointToPrice(airnodeAddress, endpointId);
+            expect(airnodeToEndpointToPrice).to.equal(1000 * 10 ** decimals);
           });
         });
         context('price is not valid', function () {
@@ -387,7 +453,7 @@ describe('setAirnodeEndpointPrice', function () {
 });
 
 describe('setChainAirnodeEndpointPrice', function () {
-  context('Sender has airnode flag and price setter role', function () {
+  context('Sender has airnode flag and price setter role or is manager', function () {
     context('default price on chain airnode endpoint is being set', function () {
       context('chainId is valid', function () {
         context('airnode is valid', function () {
@@ -413,6 +479,24 @@ describe('setChainAirnodeEndpointPrice', function () {
                 endpointId
               );
               expect(chainIdToAirnodeToEndpointToPrice).to.equal(100 * 10 ** decimals);
+
+              await accessControlRegistry
+                .connect(roles.manager)
+                .renounceRole(airnodeFlagAndPriceSetterRole, roles.manager.address);
+
+              await expect(
+                airnodeFeeRegistry
+                  .connect(roles.manager)
+                  .setChainAirnodeEndpointPrice(1, airnodeAddress, endpointId, 1000)
+              )
+                .to.emit(airnodeFeeRegistry, 'SetChainAirnodeEndpointPrice')
+                .withArgs(1, airnodeAddress, endpointId, 1000, roles.manager.address);
+              chainIdToAirnodeToEndpointToPrice = await airnodeFeeRegistry.chainIdToAirnodeToEndpointToPrice(
+                1,
+                airnodeAddress,
+                endpointId
+              );
+              expect(chainIdToAirnodeToEndpointToPrice).to.equal(1000 * 10 ** decimals);
             });
           });
           context('price is not valid', function () {
