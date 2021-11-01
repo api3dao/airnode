@@ -12,24 +12,24 @@ contract AirnodeTokenLock is
     AirnodeTokenLockRolesWithManager,
     IAirnodeTokenLock
 {
-    string private constant ERROR_ZERO_CHAINID = "Zero ChainID";
+    string private constant ERROR_ZERO_CHAINID = "Zero chainId";
     string private constant ERROR_ZERO_ADDRESS = "Zero address";
-    string private constant ERROR_NOT_AIRNODE = "Caller not Airnode";
+    string private constant ERROR_NOT_AIRNODE = "Not airnode";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
     string private constant ERROR_ALREADY_LOCKED = "Already locked";
     string private constant ERROR_NOT_LOCKED = "No amount locked";
     string private constant ERROR_LOCK_PERIOD_NOT_EXPIRED =
         "Locking period not expired";
-    string private constant ERROR_REQUESTER_BLOCKED = "Requester Blocked";
+    string private constant ERROR_REQUESTER_BLOCKED = "Requester blocked";
     string private constant ERROR_REQUESTER_NOT_BLOCKED =
-        "Requester Not Blocked";
+        "Requester not blocked";
     string private constant ERROR_AIRNODE_NOT_OPTED_IN = "Airnode not opted in";
     string private constant ERROR_NOT_ORACLE = "Not oracle";
     string private constant ERROR_NOT_ORACLE_ADDRESS_SETTER =
         "Not oracle address setter";
-    string private constant ERROR_NOT_COEFFICIENT_MULTIPLIER_SETTER =
-        "Not coefficient multiplier setter";
+    string private constant ERROR_NOT_COEFFICIENT_AND_REGISTRY_SETTER =
+        "Not coefficient and registry setter";
     string private constant ERROR_NOT_OPT_STATUS_SETTER =
         "Not opt status setter";
     string private constant ERROR_NOT_BLOCK_WITHDRAW_DESTINATION_SETTER =
@@ -38,52 +38,52 @@ contract AirnodeTokenLock is
     string private constant ERROR_NOT_REQUESTER_AUTHORIZER_WITH_MANAGER_SETTER =
         "Not RequesterAuthorizerWithManagerSetter";
 
-    /// @dev Address of Api3Token
+    /// @notice Address of Api3Token
     address public immutable api3Token;
 
-    /// @dev Address of AirnodeFeeRegistry
+    /// @notice Address of AirnodeFeeRegistry
     address public airnodeFeeRegistry;
 
-    /// @dev The price of API3 in terms of USD
-    /// @notice The price has 6 decimal places
+    /// @notice The price of API3 in terms of USD
+    /// @dev The price has 6 decimal places
     uint256 public api3PriceInUsd;
 
-    /// @dev A coefficient used to calculate the amount of tokens to be locked
-    /// @notice The multiplier coefficient has 18 decimal places
+    /// @notice A coefficient used to calculate the amount of tokens to be locked
+    /// @dev The multiplier coefficient has 18 decimal places
     uint256 public multiplierCoefficient;
 
-    /// @dev Represents the locked amounts and the total whitelist counts of Lockers
+    /// @notice Represents the locked amounts and the total whitelist counts of Lockers
     /// for a chainId-airnode-endpointId-requester pair
     struct TokenLocks {
         mapping(address => uint256) lockerToLockAmount;
         uint256 whitelistCount;
     }
 
-    /// @dev Stores information about all token locks for a
+    /// @notice Stores information about all token locks for a
     /// chainId-airnode-endpointId-requester pair
     mapping(uint256 => mapping(address => mapping(bytes32 => mapping(address => TokenLocks))))
         public tokenLocks;
 
-    /// @dev Stores information for blocked airnode-requester pair
+    /// @notice Stores information for blocked airnode-requester pair
     ///      Stores true if blocked, false otherwise
     mapping(address => mapping(address => bool))
         public airnodeToRequesterToBlockStatus;
 
-    /// @dev The Address to which blocked tokens will be withdrawn to
+    /// @notice The Address to which blocked tokens will be withdrawn to
     address public blockWithdrawDestination;
 
-    /// @dev mapping used to store all the oracle addresses
+    /// @notice mapping used to store all the oracle addresses
     mapping(address => bool) public isOracle;
 
-    /// @dev mapping used to store opted in status of Airnodes.
+    /// @notice mapping used to store opted in status of Airnodes.
     /// The status are set by opt status setter.
     mapping(address => bool) public airnodeOptInStatus;
 
-    /// @dev mapping used to store opted out status of Airnodes.
+    /// @notice mapping used to store opted out status of Airnodes.
     /// The status are set by the airnode itself.
     mapping(address => bool) public airnodeSelfOptOutStatus;
 
-    /// @dev mapping used to store all the RequesterAuthorizerWithManager
+    /// @notice mapping used to store all the RequesterAuthorizerWithManager
     /// addresses for different chains
     mapping(uint256 => address) public chainIdToRequesterAuthorizerWithManager;
 
@@ -95,11 +95,11 @@ contract AirnodeTokenLock is
     /// @param _adminRoleDescription Admin role description
     /// @param _manager Manager address
     constructor(
-        address _api3Token,
-        address _airnodeFeeRegistry,
         address _accessControlRegistry,
         string memory _adminRoleDescription,
-        address _manager
+        address _manager,
+        address _api3Token,
+        address _airnodeFeeRegistry
     )
         AirnodeTokenLockRolesWithManager(
             _accessControlRegistry,
@@ -113,7 +113,7 @@ contract AirnodeTokenLock is
         airnodeFeeRegistry = _airnodeFeeRegistry;
     }
 
-    /// @dev Reverts if the requester is blocked globally(address(0)) or
+    /// @notice Reverts if the requester is blocked globally(address(0)) or
     ///      on an airnode address
     /// @param _airnode The airnode Address
     /// @param _requesterAddress The requester address
@@ -129,7 +129,7 @@ contract AirnodeTokenLock is
         _;
     }
 
-    /// @dev Reverts if the airnode is not opted in or has choosen to opt out
+    /// @notice Reverts if the airnode is not opted in or has choosen to opt out
     /// @param _airnode The airnode Address
     modifier isOptedIn(address _airnode) {
         require(
@@ -139,7 +139,7 @@ contract AirnodeTokenLock is
         _;
     }
 
-    /// @dev Called by a coefficient and registry setter to set the address
+    /// @notice Called by a coefficient and registry setter to set the address
     /// of the AirnodeFeeRegistry contract
     /// @param _airnodeFeeRegistry The address of the AirnodeFeeRegistry contract
     function setAirnodeFeeRegistry(address _airnodeFeeRegistry)
@@ -148,14 +148,14 @@ contract AirnodeTokenLock is
     {
         require(
             hasCoefficientAndRegistrySetterRoleOrIsManager(msg.sender),
-            ERROR_NOT_COEFFICIENT_MULTIPLIER_SETTER
+            ERROR_NOT_COEFFICIENT_AND_REGISTRY_SETTER
         );
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeFeeRegistry = _airnodeFeeRegistry;
         emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
     }
 
-    /// @dev Called by a oracle address setter to set the status of an oracle address
+    /// @notice Called by a oracle address setter to set the status of an oracle address
     /// @param _oracle The address of the oracle that can update the price
     /// @param _status The status to be set
     function setOracle(address _oracle, bool _status) external override {
@@ -168,15 +168,16 @@ contract AirnodeTokenLock is
         emit SetOracle(_oracle, _status, msg.sender);
     }
 
-    /// @dev Called by an oracle to set the price of API3
+    /// @notice Called by an oracle to set the price of API3
     /// @param _price The price of API3 in USD
     function setAPI3Price(uint256 _price) external override {
         require(isOracle[msg.sender], ERROR_NOT_ORACLE);
+        require(_price != 0, ERROR_ZERO_AMOUNT);
         api3PriceInUsd = _price;
         emit SetAPI3Price(_price, msg.sender);
     }
 
-    /// @dev Called by a coefficient and registry setter to set the multiplier coefficient
+    /// @notice Called by a coefficient and registry setter to set the multiplier coefficient
     /// @param _multiplierCoefficient The multiplier coefficeint
     function setMultiplierCoefficient(uint256 _multiplierCoefficient)
         external
@@ -184,14 +185,14 @@ contract AirnodeTokenLock is
     {
         require(
             hasCoefficientAndRegistrySetterRoleOrIsManager(msg.sender),
-            ERROR_NOT_COEFFICIENT_MULTIPLIER_SETTER
+            ERROR_NOT_COEFFICIENT_AND_REGISTRY_SETTER
         );
         require(_multiplierCoefficient != 0, ERROR_ZERO_AMOUNT);
         multiplierCoefficient = _multiplierCoefficient;
         emit SetMultiplierCoefficient(_multiplierCoefficient, msg.sender);
     }
 
-    /// @dev Called by a opt status setter to set the opt status of an airnode
+    /// @notice Called by a opt status setter to set the opt status of an airnode
     /// @param _airnode The airnode address
     /// @param _status The Opted status for the airnode
     function setOptInStatus(address _airnode, bool _status) external override {
@@ -204,7 +205,7 @@ contract AirnodeTokenLock is
         emit SetOptInStatus(_airnode, _status, msg.sender);
     }
 
-    /// @dev Called by the airnode to set the opt status for itself
+    /// @notice Called by the airnode to set the opt status for itself
     /// @param _airnode The airnode address
     /// @param _status The Opted status for the airnode
     function setSelfOptOutStatus(address _airnode, bool _status)
@@ -212,12 +213,11 @@ contract AirnodeTokenLock is
         override
     {
         require(msg.sender == _airnode, ERROR_NOT_AIRNODE);
-        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         airnodeSelfOptOutStatus[_airnode] = _status;
         emit SetSelfOptOutStatus(_airnode, _status);
     }
 
-    /// @dev Called by a requesterAuthorizerWithManager setter to set the address of RequesterAuthorizerWithManager
+    /// @notice Called by a requesterAuthorizerWithManager setter to set the address of RequesterAuthorizerWithManager
     /// for different chains
     /// @param _chainId The chainId
     /// @param _requesterAuthorizerWithManager The address of the RequesterAuthorizerWithManager on the chainId
@@ -244,7 +244,7 @@ contract AirnodeTokenLock is
         );
     }
 
-    /// @dev Called by the blockWithdrawDestination setter to set the withdraw destination of blocked requester tokens
+    /// @notice Called by the blockWithdrawDestination setter to set the withdraw destination of blocked requester tokens
     /// @param _destination The destination to which the blocked requester tokens will be withdrawn
     function setBlockWithdrawDestination(address _destination)
         external
@@ -261,7 +261,7 @@ contract AirnodeTokenLock is
 
     /// @notice Locks API3 Tokens to gain access to Airnodes.
     /// chainId-airnode-endpoint-requester pair gets authorized as long as there is at least one token lock for given pair.
-    /// @dev The amount to be locked is determined by the fee set in the AirnodeFeeRegistry Contract
+    /// @notice The amount to be locked is determined by the fee set in the AirnodeFeeRegistry Contract
     /// @param _chainId The id of the chain
     /// @param _airnode The airnode address
     /// @param _endpointId The endpointId
@@ -274,11 +274,12 @@ contract AirnodeTokenLock is
     )
         external
         override
-        isNotBlocked(_airnode, _requesterAddress)
         isOptedIn(_airnode)
+        isNotBlocked(_airnode, _requesterAddress)
     {
         require(_chainId != 0, ERROR_ZERO_CHAINID);
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
         TokenLocks storage tokenLock = tokenLocks[_chainId][_airnode][
             _endpointId
         ][_requesterAddress];
@@ -287,10 +288,7 @@ contract AirnodeTokenLock is
             ERROR_ALREADY_LOCKED
         );
 
-        uint256 endpointFee = IAirnodeFeeRegistry(airnodeFeeRegistry)
-            .getEndpointPrice(_chainId, _airnode, _endpointId);
-        uint256 lockAmount = (multiplierCoefficient * endpointFee) /
-            api3PriceInUsd;
+        uint256 lockAmount = getLockAmount(_chainId, _airnode, _endpointId);
 
         require(
             IERC20(api3Token).balanceOf(msg.sender) >= lockAmount,
@@ -347,6 +345,7 @@ contract AirnodeTokenLock is
     ) external override isNotBlocked(_airnode, _requesterAddress) {
         require(_chainId != 0, ERROR_ZERO_CHAINID);
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
         TokenLocks storage tokenLock = tokenLocks[_chainId][_airnode][
             _endpointId
         ][_requesterAddress];
@@ -367,7 +366,7 @@ contract AirnodeTokenLock is
                     _airnode,
                     _endpointId,
                     _requesterAddress,
-                    true
+                    false
                 );
         }
 
@@ -387,6 +386,7 @@ contract AirnodeTokenLock is
     /// @notice Called by a block requester role to set the Block status of a airnode-requester pair.
     /// A blocked requester can have its Locks be withdrawn into the address specified
     /// by a  blockWithdrawDestination setter. This is an irreversible action.
+    /// @dev A requester blocked on address(0) is blocked globally
     /// @param _airnode The airnode address
     /// @param _requesterAddress requester address
     function blockRequester(address _airnode, address _requesterAddress)
@@ -397,6 +397,7 @@ contract AirnodeTokenLock is
             hasBlockRequesterRoleOrIsManager(msg.sender),
             ERROR_NOT_BLOCK_REQUESTER
         );
+        require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
         airnodeToRequesterToBlockStatus[_airnode][_requesterAddress] = true;
         emit BlockedRequester(_airnode, _requesterAddress, msg.sender);
     }
@@ -418,8 +419,12 @@ contract AirnodeTokenLock is
         require(
             airnodeToRequesterToBlockStatus[address(0)][_requesterAddress] ||
                 airnodeToRequesterToBlockStatus[_airnode][_requesterAddress],
-            ERROR_REQUESTER_BLOCKED
+            ERROR_REQUESTER_NOT_BLOCKED
         );
+        require(_chainId != 0, ERROR_ZERO_CHAINID);
+        require(_airnode != address(0), ERROR_ZERO_ADDRESS);
+        require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
+        require(_locker != address(0), ERROR_ZERO_ADDRESS);
         TokenLocks storage tokenLock = tokenLocks[_chainId][_airnode][
             _endpointId
         ][_requesterAddress];
@@ -443,7 +448,7 @@ contract AirnodeTokenLock is
 
         assert(IERC20(api3Token).transfer(blockWithdrawDestination, amount));
 
-        emit WithdrawBlocked(
+        emit WithdrewBlocked(
             _chainId,
             _airnode,
             _endpointId,
@@ -454,19 +459,34 @@ contract AirnodeTokenLock is
         );
     }
 
-    /// @dev Returns the locked amount of a locker for a chainId-airnode-endpoint-requester pair
+    /// @notice Returns the current amount a locker has to
+    /// lock for a given chainId-airnode-endpointId
+    /// @param _chainId The id of the chain
+    /// @param _airnode The airnode address
+    /// @param _endpointId The endpointId
+    function getLockAmount(
+        uint256 _chainId,
+        address _airnode,
+        bytes32 _endpointId
+    ) public view override returns (uint256 _lockAmount) {
+        uint256 endpointFee = IAirnodeFeeRegistry(airnodeFeeRegistry)
+            .getEndpointPrice(_chainId, _airnode, _endpointId);
+        _lockAmount = (multiplierCoefficient * endpointFee) / api3PriceInUsd;
+    }
+
+    /// @notice Returns the locked amount of a locker for a chainId-airnode-endpointId-requester pair
     /// @param _chainId The id of the chain
     /// @param _airnode The airnode address
     /// @param _endpointId The endpointId
     /// @param _requesterAddress The address of the requester for which tokens are being withdrawn
     /// @param _locker The address of the locker
-    function lockerLockAmount(
+    function lockerToLockAmount(
         uint256 _chainId,
         address _airnode,
         bytes32 _endpointId,
         address _requesterAddress,
         address _locker
-    ) public view returns (uint256) {
+    ) external view override returns (uint256) {
         return
             tokenLocks[_chainId][_airnode][_endpointId][_requesterAddress]
                 .lockerToLockAmount[_locker];

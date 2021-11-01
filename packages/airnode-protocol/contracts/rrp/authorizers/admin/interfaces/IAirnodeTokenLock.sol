@@ -31,7 +31,7 @@ interface IAirnodeTokenLock {
         address blockWithdrawDestinationSetter
     );
 
-    event WithdrawBlocked(
+    event WithdrewBlocked(
         uint256 chainId,
         address airnode,
         bytes32 endpointId,
@@ -109,4 +109,18 @@ interface IAirnodeTokenLock {
     ) external;
 
     function blockRequester(address airnode, address requesterAddress) external;
+
+    function getLockAmount(
+        uint256 chainId,
+        address airnode,
+        bytes32 endpointId
+    ) external returns (uint256);
+
+    function lockerToLockAmount(
+        uint256 chainId,
+        address airnode,
+        bytes32 endpointId,
+        address requesterAddress,
+        address locker
+    ) external returns (uint256);
 }

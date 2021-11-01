@@ -12,32 +12,32 @@ contract AirnodeFeeRegistry is
     AirnodeFeeRegistryRolesWithManager,
     IAirnodeFeeRegistry
 {
-    /// @dev The USD price of an endpoint for an airnode on a specific chain
+    /// @notice The USD price of an endpoint for an airnode on a specific chain
     mapping(uint256 => mapping(address => mapping(bytes32 => uint256)))
         public chainIdToAirnodeToEndpointToPrice;
 
-    /// @dev The USD price of an endpoint for an airnode across all chains
+    /// @notice The USD price of an endpoint for an airnode across all chains
     mapping(address => mapping(bytes32 => uint256))
         public airnodeToEndpointToPrice;
 
-    /// @dev The default price of an endpoint for an airnode on a specific chain
+    /// @notice The default price of an endpoint for an airnode on a specific chain
     mapping(uint256 => mapping(address => uint256))
         public defaultChainAirnodePrice;
 
-    /// @dev The default price of an endpoint on an airnode
+    /// @notice The default price of an endpoint on an airnode
     mapping(address => uint256) public defaultAirnodePrice;
 
-    /// @dev The default price of an endpoint for a chain
+    /// @notice The default price of an endpoint for a chain
     mapping(uint256 => uint256) public defaultChainPrice;
 
-    /// @dev The global default price of an endpoint
+    /// @notice The global default price of an endpoint
     uint256 public defaultPrice;
 
-    /// @dev A flag that indicates which price to default to in
+    /// @notice A flag that indicates which price to default to in
     /// the getAirnodeEndpointFee function
     mapping(address => bool) public airnodeEndpointFlag;
 
-    /// @dev Prices will have upto 6 decimal places
+    /// @notice Prices will have upto 6 decimal places
     uint8 public immutable decimals = 6;
 
     /// @param _accessControlRegistry AccessControlRegistry contract address
@@ -55,6 +55,9 @@ contract AirnodeFeeRegistry is
         )
     {}
 
+    /// @notice Called by an airnode flag and price setter to set the endpoint flag for an airnode
+    /// @param _airnode The address of the airnode
+    /// @param status The airnode endpoint flag status
     function setAirnodeEndpointFlag(address _airnode, bool status)
         external
         override
@@ -68,7 +71,7 @@ contract AirnodeFeeRegistry is
         emit SetAirnodeEndpointFlag(_airnode, status, msg.sender);
     }
 
-    /// @dev Called by a global default price setter to set the default price in USD
+    /// @notice Called by a global default price setter to set the default price in USD
     /// @param _price The default price of an endpoint on any chain in USD
     function setDefaultPrice(uint256 _price) external override {
         require(
@@ -80,7 +83,7 @@ contract AirnodeFeeRegistry is
         emit SetDefaultPrice(_price, msg.sender);
     }
 
-    /// @dev Called by a global default price setter to set the default price on a chain in USD
+    /// @notice Called by a global default price setter to set the default price on a chain in USD
     /// @param _chainId The id of the chain
     /// @param _price The default price of an endpoint on a specific chain in USD
     function setDefaultChainPrice(uint256 _chainId, uint256 _price)
@@ -97,7 +100,7 @@ contract AirnodeFeeRegistry is
         emit SetDefaultChainPrice(_chainId, _price, msg.sender);
     }
 
-    /// @dev Called by a airnode flag and price setter to set the default price on a chain in USD
+    /// @notice Called by an airnode flag and price setter to set the default price on a chain in USD
     /// @param _airnode The address of the airnode
     /// @param _price The default price of an endpoint on a specific chain in USD
     function setDefaultAirnodePrice(address _airnode, uint256 _price)
@@ -114,7 +117,7 @@ contract AirnodeFeeRegistry is
         emit SetDefaultAirnodePrice(_airnode, _price, msg.sender);
     }
 
-    /// @dev Called by a airnode flag and price setter to set the default price for an airnode
+    /// @notice Called by an airnode flag and price setter to set the default price for an airnode
     ///  on a chain in USD
     /// @param _chainId The id of the chain
     /// @param _airnode The address of the airnode
@@ -140,7 +143,7 @@ contract AirnodeFeeRegistry is
         );
     }
 
-    /// @dev Called by a airnode flag and price setter to set the price of an endpoint for an airnode
+    /// @notice Called by an airnode flag and price setter to set the price of an endpoint for an airnode
     /// across all chains in USD
     /// @param _airnode The address of the airnode
     /// @param _endpointId The endpointId whose price is being set
@@ -160,7 +163,7 @@ contract AirnodeFeeRegistry is
         emit SetAirnodeEndpointPrice(_airnode, _endpointId, _price, msg.sender);
     }
 
-    /// @dev Called by a airnode flag and price setter to set the price of an
+    /// @notice Called by an airnode flag and price setter to set the price of an
     /// endpoint for an airnode on a chain in USD
     /// @param _chainId The id of the chain
     /// @param _airnode The address of the airnode
@@ -191,7 +194,7 @@ contract AirnodeFeeRegistry is
         );
     }
 
-    /// @dev Called to get the price of an endpoint for an airnode on a chain in USD
+    /// @notice Called to get the price of an endpoint for an airnode on a chain in USD
     /// @param _chainId The id of the chain
     /// @param _airnode The address of the airnode
     /// @param _endpointId The endpointId whose price is being fetched

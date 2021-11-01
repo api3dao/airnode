@@ -32,7 +32,7 @@ contract AirnodeTokenLockRolesWithManager is
     string
         public constant
         override COEFFICIENT_AND_REGISTRY_SETTER_ROLE_DESCRIPTION =
-        "coefficient and registry setter";
+        "Coefficient and registry setter";
     string public constant override OPT_STATUS_SETTER_ROLE_DESCRIPTION =
         "Opt status setter";
     string
