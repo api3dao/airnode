@@ -1,7 +1,8 @@
 {
   "name": "@api3/airnode-admin",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.2.1",
+  "private": false,
   "bin": {
     "airnode-admin": "./dist/bin/admin.js"
   },
@@ -22,8 +23,8 @@
     "test:watch:debug": "jest \"implementation.test\" --selectProjects unit --watch"
   },
   "dependencies": {
-    "@api3/airnode-abi": "^0.1.0",
-    "@api3/airnode-protocol": "^0.1.0",
+    "@api3/airnode-abi": "^0.2.1",
+    "@api3/airnode-protocol": "^0.2.1",
     "ethers": "^5.4.5",
     "lodash": "^4.17.21",
     "yargs": "^17.0.1"

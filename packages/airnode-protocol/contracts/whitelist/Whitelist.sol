@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.6;
+pragma solidity 0.8.9;
 
 /// @title Contract that implements temporary and permanent whitelists for
 /// multiple services identified with a hash

@@ -22,7 +22,7 @@ if (integrationInfo) {
 const config: HardhatUserConfig = {
   defaultNetwork: integrationInfo?.network,
   networks,
-  solidity: '0.8.6',
+  solidity: '0.8.9',
 };
 
 export default config;

@@ -3,7 +3,7 @@
   "changelog": ["@changesets/changelog-github", { "repo": "api3dao/airnode" }],
   "commit": false,
   "linked": [["@api3/*"]],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "ignore": []

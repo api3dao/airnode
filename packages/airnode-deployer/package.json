@@ -1,7 +1,8 @@
 {
   "name": "@api3/airnode-deployer",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.2.1",
+  "private": false,
   "bin": {
     "airnode-deployer": "./dist/bin/deployer.js"
   },
@@ -21,10 +22,10 @@
     "webpack:dev": "webpack --mode development"
   },
   "dependencies": {
-    "@api3/airnode-node": "^0.1.0",
-    "@api3/airnode-ois": "^0.1.0",
-    "@api3/airnode-protocol": "^0.1.0",
-    "@api3/airnode-validator": "^0.1.0",
+    "@api3/airnode-node": "^0.2.1",
+    "@api3/airnode-ois": "^0.2.1",
+    "@api3/airnode-protocol": "^0.2.1",
+    "@api3/airnode-validator": "^0.2.1",
     "aws-sdk": "^2.992.0",
     "dotenv": "^10.0.0",
     "ethers": "^5.4.5",

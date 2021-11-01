@@ -1,4 +1,5 @@
 require('@nomiclabs/hardhat-waffle');
+require('@nomiclabs/hardhat-etherscan');
 require('solidity-coverage');
 require('hardhat-deploy');
 require('hardhat-gas-reporter');
@@ -10,6 +11,9 @@ if (fs.existsSync('./credentials.json')) {
 }
 
 module.exports = {
+  etherscan: {
+    apiKey: credentials.etherscanApiKey,
+  },
   gasReporter: {
     enabled: process.env.REPORT_GAS ? true : false,
     outputFile: 'gas_report',
@@ -32,19 +36,15 @@ module.exports = {
       url: credentials.goerli.providerUrl || '',
       accounts: { mnemonic: credentials.goerli.mnemonic || '' },
     },
-    xdai: {
-      url: credentials.xdai.providerUrl || '',
-      accounts: { mnemonic: credentials.xdai.mnemonic || '' },
-    },
-    fantom: {
-      url: credentials.fantom.providerUrl || '',
-      accounts: { mnemonic: credentials.fantom.mnemonic || '' },
+    kovan: {
+      url: credentials.kovan.providerUrl || '',
+      accounts: { mnemonic: credentials.kovan.mnemonic || '' },
     },
   },
   paths: {
     tests: process.env.EXTENDED_TEST ? './extended-test' : './test',
   },
   solidity: {
-    version: '0.8.6',
+    version: '0.8.9',
   },
 };
