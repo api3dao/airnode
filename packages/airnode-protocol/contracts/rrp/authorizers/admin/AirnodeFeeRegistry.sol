@@ -6,7 +6,7 @@ import "./interfaces/IAirnodeFeeRegistry.sol";
 
 /// @title Contract for storing the price of airnode endpoints across different chains
 /// @notice The AirnodeFeeRegistry contract is a central contract that
-/// will be queried to find out the USD price of a chain-airnode-endpoint.
+/// will be queried to find out the USD price of a chain-airnode-endpoint pair.
 contract AirnodeFeeRegistry is
     AirnodeFeeRegistryRolesWithManager,
     IAirnodeFeeRegistry

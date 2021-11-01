@@ -114,7 +114,7 @@ contract AirnodeTokenLock is
     }
 
     /// @notice Reverts if the requester is blocked globally(address(0)) or
-    ///      on an airnode address
+    /// on an airnode address
     /// @param _airnode The airnode Address
     /// @param _requesterAddress The requester address
     modifier isNotBlocked(address _airnode, address _requesterAddress) {
@@ -217,8 +217,8 @@ contract AirnodeTokenLock is
         emit SetSelfOptOutStatus(_airnode, _status);
     }
 
-    /// @notice Called by a requesterAuthorizerWithManager setter to set the address of RequesterAuthorizerWithManager
-    /// for different chains
+    /// @notice Called by a requesterAuthorizerWithManager setter to set the address of
+    /// RequesterAuthorizerWithManager for different chains
     /// @param _chainId The chainId
     /// @param _requesterAuthorizerWithManager The address of the RequesterAuthorizerWithManager on the chainId
     function setRequesterAuthorizerWithManager(
@@ -244,7 +244,8 @@ contract AirnodeTokenLock is
         );
     }
 
-    /// @notice Called by the blockWithdrawDestination setter to set the withdraw destination of blocked requester tokens
+    /// @notice Called by the blockWithdrawDestination setter to set the
+    /// withdraw destination of blocked requester tokens
     /// @param _destination The destination to which the blocked requester tokens will be withdrawn
     function setBlockWithdrawDestination(address _destination)
         external
@@ -260,7 +261,8 @@ contract AirnodeTokenLock is
     }
 
     /// @notice Locks API3 Tokens to gain access to Airnodes.
-    /// chainId-airnode-endpoint-requester pair gets authorized as long as there is at least one token lock for given pair.
+    /// @dev chainId-airnode-endpoint-requester pair gets authorized as long as there is
+    /// at least one token lock for given pair.
     /// @notice The amount to be locked is determined by the fee set in the AirnodeFeeRegistry Contract
     /// @param _chainId The id of the chain
     /// @param _airnode The airnode address
@@ -331,8 +333,7 @@ contract AirnodeTokenLock is
     /// @notice Unlocks the API3 tokens for a given chain-airnode-requester-endpoint pair.
     /// chainId-airnode-endpoint-requester pair will be unauthorized if no token lock for the pair is found.
     /// @dev Checks whether the user (msg.sender) has already locked anything,
-    /// or if the requester address is blocked
-    /// Transfers to msg.sender the locked amount.
+    /// or if the requester address is blocked. Transfers to msg.sender the locked amount.
     /// @param _chainId The id of the chain
     /// @param _airnode The airnode address
     /// @param _endpointId The endpointId
@@ -385,7 +386,7 @@ contract AirnodeTokenLock is
 
     /// @notice Called by a block requester role to set the Block status of a airnode-requester pair.
     /// A blocked requester can have its Locks be withdrawn into the address specified
-    /// by a  blockWithdrawDestination setter. This is an irreversible action.
+    /// by the blockWithdrawDestination setter. This is an irreversible action.
     /// @dev A requester blocked on address(0) is blocked globally
     /// @param _airnode The airnode address
     /// @param _requesterAddress requester address
