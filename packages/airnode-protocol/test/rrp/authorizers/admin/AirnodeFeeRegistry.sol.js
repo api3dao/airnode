@@ -62,7 +62,7 @@ beforeEach(async () => {
       [roles.randomPerson.address, roles.randomPerson.address, roles.randomPerson.address]
     );
 
-  decimals = await airnodeFeeRegistry.decimals();
+  decimals = await airnodeFeeRegistry.DECIMALS();
 });
 
 describe('constructor', function () {
