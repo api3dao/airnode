@@ -119,11 +119,8 @@ contract AirnodeTokenLock is
     /// @param _requesterAddress The requester address
     modifier isNotBlocked(address _airnode, address _requesterAddress) {
         require(
-            !airnodeToRequesterToBlockStatus[address(0)][_requesterAddress],
-            ERROR_REQUESTER_BLOCKED
-        );
-        require(
-            !airnodeToRequesterToBlockStatus[_airnode][_requesterAddress],
+            !airnodeToRequesterToBlockStatus[address(0)][_requesterAddress] &&
+                !airnodeToRequesterToBlockStatus[_airnode][_requesterAddress],
             ERROR_REQUESTER_BLOCKED
         );
         _;
