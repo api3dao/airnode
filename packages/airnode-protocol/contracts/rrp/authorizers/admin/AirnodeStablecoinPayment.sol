@@ -15,12 +15,13 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     string private constant ERROR_NOT_AIRNODE = "Not airnode";
     string private constant ERROR_ZERO_AMOUNT = "Zero amount";
     string private constant ERROR_INSUFFICIENT_AMOUNT = "Insufficient amount";
+    string private constant ERROR_INVALID_DURATION = "Invalid duration";
 
     /// @notice Address of AirnodeFeeRegistry
     address public airnodeFeeRegistry;
 
     /// @notice The maximum whitelisting duration in seconds
-    uint64 public maximumWhitelistingDuration;
+    uint256 public maximumWhitelistingDuration;
 
     /// @notice Mapping to store the default payment address for an airnode
     mapping(address => address) public airnodePaymentAddress;
@@ -29,9 +30,14 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     /// addresses for different chains
     mapping(uint256 => address) public chainIdToRequesterAuthorizerWithManager;
 
-    constructor(address _airnodeFeeRegistry) {
+    constructor(
+        address _airnodeFeeRegistry,
+        uint256 _maximumWhitelistingDuration
+    ) {
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
+        require(maximumWhitelistingDuration != 0, ERROR_INVALID_DURATION);
         airnodeFeeRegistry = _airnodeFeeRegistry;
+        maximumWhitelistingDuration = _maximumWhitelistingDuration;
     }
 
     /// @notice Called by a registry setter to set the address
@@ -44,6 +50,19 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeFeeRegistry = _airnodeFeeRegistry;
         emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
+    }
+
+    /// @notice Called by a maximum whitelisting duration setter to set the maximum allowed period of whitelisting for an airnode
+    /// @param _maximumWhitelistingDuration The number of seconds for the whitelisting period
+    function setMaximumWhitelistingDuration(
+        uint256 _maximumWhitelistingDuration
+    ) external override {
+        require(maximumWhitelistingDuration != 0, ERROR_INVALID_DURATION);
+        maximumWhitelistingDuration = _maximumWhitelistingDuration;
+        emit SetMaximumWhitelistingDuration(
+            _maximumWhitelistingDuration,
+            msg.sender
+        );
     }
 
     /// @notice Called by a requesterAuthorizerWithManager setter to set the address of

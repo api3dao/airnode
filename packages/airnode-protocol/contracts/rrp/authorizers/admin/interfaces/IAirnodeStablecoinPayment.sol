@@ -7,6 +7,11 @@ interface IAirnodeStablecoinPayment {
         address registrySetter
     );
 
+    event SetMaximumWhitelistingDuration(
+        uint256 maximumWhitelistingDuration,
+        address maxDurationSetter
+    );
+
     event SetRequesterAuthorizerWithManager(
         uint256 chainId,
         address requesterAuthorizerWithManager,
@@ -27,6 +32,9 @@ interface IAirnodeStablecoinPayment {
     );
 
     function setAirnodeFeeRegistry(address airnodeFeeRegistry) external;
+
+    function setMaximumWhitelistingDuration(uint256 maximumWhitelistingDuration)
+        external;
 
     function setRequesterAuthorizerWithManager(
         uint256 chainId,
