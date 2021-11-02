@@ -1,7 +1,8 @@
 # Airnode admin CLI docker image
 
-**This README is intended for the developers. Documentation on how to use the admin CLI docker image is in the
-[docs](TODO:).**
+**This README is intended for the developers. Documentation on how to use the admin CLI docker image is in the docs**
+
+<!-- TODO: link [docs](a link to docs) once the docs are available -->
 
 This documentation focuses on the admin CLI docker image, not the admin CLI itself. If you want to learn more about the
 admin CLI, please read [its documentation](../README.md).
@@ -12,5 +13,7 @@ In order to build Airnode Docker image you need to build the [artifacts image fi
 you've done that, you can build the Docker image by running following command from the root directory:
 
 ```bash
-docker build -f packages/airnode-admin/docker/Dockerfile -t api3/airnode-admin:latest .
+yarn docker:build:admin
 ```
+
+or invoke the respective docker build command directly.
