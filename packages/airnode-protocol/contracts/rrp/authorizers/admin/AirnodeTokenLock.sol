@@ -149,6 +149,7 @@ contract AirnodeTokenLock is
     }
 
     /// @notice Called by an oracle to set the price of API3
+    /// @dev The price is set with 6 decimal places
     /// @param _price The price of API3 in USD
     function setAPI3Price(uint256 _price) external override {
         require(hasOracleRoleOrIsManager(msg.sender), ERROR_NOT_ORACLE);
