@@ -21,7 +21,7 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     /// @notice The maximum whitelisting duration in seconds
     uint64 public maximumWhitelistingDuration;
 
-    /// @notice Mapping to store the default payment addresses for an airnode
+    /// @notice Mapping to store the default payment address for an airnode
     mapping(address => address) public airnodePaymentAddress;
 
     /// @notice Mapping to store the default supported stablecoins
@@ -172,10 +172,9 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
         emit SetAirnodePaymentAddress(_airnode, _paymentAddress);
     }
 
-    /// @notice Locks API3 Tokens to gain access to Airnodes.
-    /// @dev chainId-airnode-endpoint-requester pair gets authorized as long as there is
-    /// at least one token lock for given pair.
-    /// @notice The amount to be locked is determined by the fee set in the AirnodeFeeRegistry Contract
+    /// @notice Make payments to gain access to Airnode.
+    /// @dev chainId-airnode-endpoint-requester pair gets authorized for the time duration specified
+    /// @notice The amount to be paid is determined by the fee set in the AirnodeFeeRegistry Contract
     /// @param _stablecoin The address of the stablecoin token contract
     /// @param _chainId The id of the chain
     /// @param _airnode The airnode address
