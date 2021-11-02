@@ -443,6 +443,14 @@ yargs
       console.log(`Is requester whitelisted: ${isRequesterWhitelisted}`);
     }
   )
+  .command(
+    'generate-mnemonic',
+    'Generates a random mnemonic. Uses "ethers.Wallet.createRandom" under the hood.',
+    async () => {
+      const mnemonic = await admin.generateMnemonic();
+      console.log(`Generated mnemonic: ${mnemonic}`);
+    }
+  )
   .demandCommand(1)
   .strict()
   .fail((message, err) => {

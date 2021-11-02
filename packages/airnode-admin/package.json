@@ -17,6 +17,7 @@
     "compile": "tsc -p tsconfig.build.json",
     "pack": "yarn pack",
     "test:e2e": "jest --selectProjects e2e",
+    "test:e2e:update-snapshot": "jest --selectProjects e2e --updateSnapshot",
     "test:e2e:watch": "jest --coverage --watch --selectProjects e2e",
     "test": "SILENCE_LOGGER=true jest --coverage --selectProjects unit",
     "test:watch": "SILENCE_LOGGER=true jest --coverage --watch --selectProjects unit",
