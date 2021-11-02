@@ -7,21 +7,6 @@ interface IAirnodeStablecoinPayment {
         address registrySetter
     );
 
-    event SetDefaultSupportedERC20(
-        uint256 chainId,
-        address stablecoin,
-        bool status,
-        address admin
-    );
-
-    event SetAirnodeSupportedERC20(
-        uint256 chainId,
-        address airnode,
-        address stablecoin,
-        bool status,
-        address admin
-    );
-
     event SetRequesterAuthorizerWithManager(
         uint256 chainId,
         address requesterAuthorizerWithManager,
@@ -46,19 +31,6 @@ interface IAirnodeStablecoinPayment {
     function setRequesterAuthorizerWithManager(
         uint256 chainId,
         address requesterAuthorizerWithManager
-    ) external;
-
-    function setDefaultSupportedERC20(
-        uint256 chainId,
-        address stablecoin,
-        bool status
-    ) external;
-
-    function setAirnodeSupportedERC20(
-        uint256 chainId,
-        address airnode,
-        address stablecoin,
-        bool status
     ) external;
 
     function setAirnodePaymentAddress(address airnode, address paymentAddress)

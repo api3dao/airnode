@@ -25,13 +25,6 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     /// @notice Mapping to store the default payment address for an airnode
     mapping(address => address) public airnodePaymentAddress;
 
-    /// @notice Mapping to store the default supported stablecoins
-    mapping(uint256 => mapping(address => bool)) public defaultSupportedERC20;
-
-    /// @notice Mapping to store the supported stablecoins for an airnode
-    mapping(uint256 => mapping(address => mapping(address => bool)))
-        public airnodeSupportedERC20;
-
     /// @notice mapping used to store all the RequesterAuthorizerWithManager
     /// addresses for different chains
     mapping(uint256 => address) public chainIdToRequesterAuthorizerWithManager;
@@ -39,24 +32,6 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
     constructor(address _airnodeFeeRegistry) {
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeFeeRegistry = _airnodeFeeRegistry;
-    }
-
-    /// @notice Reverts if the erc20 is not supported by
-    /// default or by the airnode
-    /// @param _chainId The chainId
-    /// @param _stablecoin The address of the ERC20 stablecoin
-    /// @param _airnode The airnode Address
-    modifier isSupportedERC20(
-        address _stablecoin,
-        uint256 _chainId,
-        address _airnode
-    ) {
-        require(
-            defaultSupportedERC20[_chainId][_stablecoin] ||
-                airnodeSupportedERC20[_chainId][_airnode][_stablecoin],
-            "ERC20 not supported"
-        );
-        _;
     }
 
     /// @notice Called by a registry setter to set the address
@@ -69,46 +44,6 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
         require(_airnodeFeeRegistry != address(0), ERROR_ZERO_ADDRESS);
         airnodeFeeRegistry = _airnodeFeeRegistry;
         emit SetAirnodeFeeRegistry(_airnodeFeeRegistry, msg.sender);
-    }
-
-    /// @notice Called by an admin to set the default supported erc20 address on a chain
-    /// @param _chainId The chainId
-    /// @param _stablecoin The address of the stablecoin token contract
-    /// @param _status The supported status of the stablecoin
-    function setDefaultSupportedERC20(
-        uint256 _chainId,
-        address _stablecoin,
-        bool _status
-    ) external override {
-        defaultSupportedERC20[_chainId][_stablecoin] = _status;
-        emit SetDefaultSupportedERC20(
-            _chainId,
-            _stablecoin,
-            _status,
-            msg.sender
-        );
-    }
-
-    /// @notice Called by the airnode to set the supported erc20 address on a chain
-    /// @param _chainId The chainId
-    /// @param _airnode the address of the airnode
-    /// @param _stablecoin The address of the stablecoin token contract
-    /// @param _status The supported status of the stablecoin
-    function setAirnodeSupportedERC20(
-        uint256 _chainId,
-        address _airnode,
-        address _stablecoin,
-        bool _status
-    ) external override {
-        require(msg.sender == _airnode, ERROR_NOT_AIRNODE);
-        airnodeSupportedERC20[_chainId][_airnode][_stablecoin] = _status;
-        emit SetAirnodeSupportedERC20(
-            _chainId,
-            _airnode,
-            _stablecoin,
-            _status,
-            msg.sender
-        );
     }
 
     /// @notice Called by a requesterAuthorizerWithManager setter to set the address of
@@ -162,7 +97,7 @@ contract AirnodeStablecoinPayment is IAirnodeStablecoinPayment {
         bytes32 _endpointId,
         address _requesterAddress,
         uint64 _days
-    ) external override isSupportedERC20(_stablecoin, _chainId, _airnode) {
+    ) external override {
         require(_chainId != 0, ERROR_ZERO_CHAINID);
         require(_airnode != address(0), ERROR_ZERO_ADDRESS);
         require(_requesterAddress != address(0), ERROR_ZERO_ADDRESS);
